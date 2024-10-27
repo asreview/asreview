@@ -54,7 +54,7 @@ const generateLines = (
         sx={{
           width: theme.spacing(3.15),
           height: theme.spacing(0.625),
-          backgroundColor: color,
+          bgcolor: color,
           borderRadius: 1,
           margin: theme.spacing(0.125),
           cursor: "pointer",

@@ -166,7 +166,7 @@ const RecordCard = ({
     <StyledCard
       elevation={showBorder ? 4 : 0}
       square={!showBorder}
-      sx={{ backgroundColor: "#FFFFFF" }}
+      sx={{ bgcolor: "#FFFFFF" }}
     >
       <RecordCardModelTraining record={record} modelLogLevel={modelLogLevel} />
 

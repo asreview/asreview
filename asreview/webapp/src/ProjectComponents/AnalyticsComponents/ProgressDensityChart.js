@@ -110,7 +110,7 @@ export default function ProgressDensityChart(props) {
       case "jpeg":
         toJpeg(node, {
           quality: 1,
-          backgroundColor: theme.palette.background.paper,
+          bgcolor: theme.palette.background.paper,
         })
           .then((dataUrl) => {
             const link = document.createElement("a");

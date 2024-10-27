@@ -26,13 +26,13 @@ export const DrawerItem = ({
         },
         "&:hover": {
           ".MuiBox-root": {
-            backgroundColor: alpha(theme.palette.primary.main, 0.2),
+            bgcolor: alpha(theme.palette.primary.main, 0.2),
           },
-          backgroundColor: "transparent",
+          bgcolor: "transparent",
         },
         "&.active": {
           ".MuiBox-root": {
-            backgroundColor: alpha(theme.palette.secondary.light, 0.6),
+            bgcolor: alpha(theme.palette.secondary.light, 0.6),
           },
           ".MuiTypography-root": {
             fontWeight: "bold",

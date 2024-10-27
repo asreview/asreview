@@ -1,14 +1,12 @@
-import { GroupAdd, Logout, Person, AccountCircle } from "@mui/icons-material";
+import { AccountCircle, GroupAdd, Logout, Person } from "@mui/icons-material";
 import {
-  Avatar,
   Badge,
   Box,
-  ButtonBase,
   ClickAwayListener,
   Divider,
+  IconButton,
   ListItemIcon,
   ListItemText,
-  IconButton,
   MenuItem,
   MenuList,
   Paper,
@@ -25,7 +23,6 @@ import { StyledMenuItem } from "StyledComponents/StyledMenuItem";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 import { AuthAPI, TeamAPI } from "api";
-import ElasAvatar from "images/ElasAvatar.svg";
 
 import { InvitationsDialog } from "ProjectComponents/TeamComponents";
 import { useToggle } from "hooks/useToggle";
@@ -183,7 +180,7 @@ const ProfilePopper = () => {
                         sx={{
                           "& .MuiBadge-badge": {
                             color: "white",
-                            backgroundColor: "red",
+                            bgcolor: "red",
                             fontSize: 9,
                           },
                         }}

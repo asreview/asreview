@@ -1,9 +1,6 @@
-import { Box, Paper, Typography, Stack } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 
 import { projectModes } from "globals.js";
-
-import NewProjectButton from "./NewProjectButton";
-import ImportProject from "ProjectComponents/ImportProject";
 
 export default function DashboardPageHeader({ mode }) {
   return (

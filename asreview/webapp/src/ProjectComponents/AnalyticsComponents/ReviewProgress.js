@@ -21,7 +21,7 @@ import { StyledHelpPopover } from "StyledComponents/StyledHelpPopover";
 const StatItem = ({ label, value, color, loading }) => (
   <Box
     sx={{
-      backgroundColor: "background.paper",
+      bgcolor: "background.paper",
       p: 1.5,
       borderRadius: 4,
       boxShadow: 3,

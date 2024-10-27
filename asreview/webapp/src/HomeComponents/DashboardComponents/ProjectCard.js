@@ -39,37 +39,6 @@ import en from "javascript-time-ago/locale/en";
 TimeAgo.addLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
-const StatusChip = ({ status }) => {
-  switch (status) {
-    case projectStatuses.SETUP:
-      return (
-        <Chip
-          // size="small"
-          label="Setup"
-          sx={{ color: "#424242", backgroundColor: "#bdbdbd" }}
-        />
-      );
-    case projectStatuses.REVIEW:
-      return (
-        <Chip
-          // size="small"
-          label="In Review"
-          sx={{ color: "#91620b", backgroundColor: "#fffbe7" }}
-        />
-      );
-    case projectStatuses.FINISHED:
-      return (
-        <Chip
-          // size="small"
-          label="Finished"
-          sx={{ color: "#007b55", backgroundColor: "#e1fae3" }}
-        />
-      );
-    default:
-      return null;
-  }
-};
-
 const projectModeURLMap = {
   oracle: "reviews",
   simulate: "simulations",
@@ -155,7 +124,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
               {review?.status === projectStatuses.SETUP && (
                 <Chip
                   label="Draft"
-                  sx={{ color: "#424242", backgroundColor: "#bdbdbd", ml: 2 }}
+                  sx={{ color: "#424242", bgcolor: "#bdbdbd", ml: 2 }}
                 />
               )}
             </Stack>

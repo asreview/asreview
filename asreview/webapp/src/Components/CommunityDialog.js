@@ -13,15 +13,14 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Grid2 as Grid,
+  IconButton,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Stack,
-  IconButton,
   Typography,
-  ListItemButton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -66,7 +65,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     width: theme.spacing(4),
     height: theme.spacing(4),
     color: theme.palette.getContrastText(theme.palette.primary.main),
-    backgroundColor: theme.palette.primary.main,
+    bgcolor: theme.palette.primary.main,
   },
   [`& .${classes.divider}`]: {
     marginTop: 8,

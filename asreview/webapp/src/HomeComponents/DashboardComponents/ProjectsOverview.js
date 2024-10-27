@@ -16,9 +16,6 @@ import { useQuery } from "react-query";
 
 import { Upload } from "ProjectComponents/SetupComponents";
 
-import ImportProject from "ProjectComponents/ImportProject";
-import NewProjectButton from "./NewProjectButton";
-
 const ProjectsOverview = ({ mode }) => {
   const simulationOngoing = (data) => {
     if (
@@ -53,12 +50,6 @@ const ProjectsOverview = ({ mode }) => {
   return (
     <>
       <DashboardPageHeader mode={mode} />
-
-      {/* <Stack direction="row" spacing={2}>
-        <NewProjectButton mode={mode} />
-        <ImportProject />
-      </Stack> */}
-
       <Container maxWidth="md">
         <Upload mode={mode} />
       </Container>

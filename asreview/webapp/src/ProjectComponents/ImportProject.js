@@ -128,7 +128,7 @@ const ImportProjectCard = ({ onClose = null, mutate, isLoading }) => {
             <Typography>
               {isLoading
                 ? "Importing..."
-                : "Click or Drag and drop a ASReview file (.asreview) here"}
+                : "Click or drop a ASReview file (.asreview) here"}
             </Typography>
           </Stack>
         </Box>

@@ -1,20 +1,19 @@
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { useMutation, useQuery } from "react-query";
 
+import { FileUpload } from "@mui/icons-material";
 import {
-  Avatar,
   Alert,
-  Box,
-  Paper,
+  Avatar,
   ButtonBase,
+  CircularProgress,
+  Paper,
   Stack,
   Typography,
-  CircularProgress,
+  useMediaQuery,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { FileUpload } from "@mui/icons-material";
-import { useMediaQuery } from "@mui/material";
 
 import { ProjectAPI } from "api";
 import { projectModes } from "globals.js";
@@ -56,7 +55,7 @@ const baseStyle = {
   borderStyle: "dashed",
   outline: "none",
   transition: "border .24s ease-in-out",
-  backgroundColor: "#fffbf5",
+  bgcolor: "#fffbf5",
 };
 
 const activeStyle = {
@@ -166,16 +165,11 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
             <Typography fontSize={"1.4rem"}>
               {mobileScreen
                 ? "Upload dataset"
-                : "Click or drag and drop a dataset here"}
+                : `Click or drop a ${mode === projectModes.SIMULATION ? "fully labeled " : ""}dataset here`}
             </Typography>
             <Typography fontSize={"1rem"}>
               Accepted files: {acceptedFileTypes}
             </Typography>
-            {mode !== projectModes.ORACLE && (
-              <Typography variant="secondary">
-                "The dataset should contain labels for each record. "
-              </Typography>
-            )}
           </Stack>
         </ButtonBase>
 

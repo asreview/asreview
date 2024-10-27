@@ -28,6 +28,7 @@ import {
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectModes, projectStatuses } from "globals.js";
+import { theme } from "constants/theme";
 
 const DialogProjectName = ({ project_id, dataset_name }) => {
   const [state, setState] = React.useState({
@@ -136,7 +137,10 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
         fullWidth
         maxWidth="md"
         PaperProps={{
-          sx: { height: !fullScreen ? "calc(100% - 64px)" : "100%" },
+          sx: {
+            height: !fullScreen ? "calc(100% - 64px)" : "100%",
+            bgcolor: "background.default",
+          },
         }}
         onClose={onClose}
         TransitionProps={{

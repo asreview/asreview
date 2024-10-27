@@ -1,7 +1,6 @@
 import {
   DisplaySettingsOutlined,
   Diversity1Outlined,
-  HelpOutlineOutlined,
   Menu,
 } from "@mui/icons-material";
 import {
@@ -13,14 +12,7 @@ import {
   Toolbar,
   useMediaQuery,
 } from "@mui/material";
-import {
-  Header,
-  CommunityDialog,
-  OpenInNewIconStyled,
-  SettingsDialog,
-} from "Components";
-import { communityURL } from "globals.js";
-import React from "react";
+import { CommunityDialog, Header, SettingsDialog } from "Components";
 import { Link, Outlet } from "react-router-dom";
 
 import { useToggle } from "hooks/useToggle";

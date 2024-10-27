@@ -9,10 +9,10 @@ const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
   position: "absolute",
   zIndex: 1,
   ...theme.applyStyles("light", {
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    bgcolor: "rgba(255, 255, 255, 0.8)",
   }),
   ...theme.applyStyles("dark", {
-    backgroundColor: "rgba(18, 18, 18, 0.8)",
+    bgcolor: "rgba(18, 18, 18, 0.8)",
   }),
 }));
 

@@ -1,19 +1,9 @@
-import React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery } from "react-query";
 
-import {
-  Box,
-  CircularProgress,
-  Grid2 as Grid,
-  Stack,
-  Typography,
-  Link,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { Box, Grid2 as Grid, Stack, Typography } from "@mui/material";
 
-import { InlineErrorHandler } from "Components";
-import { EntryPointDataset } from ".";
 import { ProjectAPI } from "api";
+import { EntryPointDataset } from ".";
 
 const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
   const { data } = useQuery(

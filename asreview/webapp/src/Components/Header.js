@@ -1,4 +1,4 @@
-import { Menu, MenuOpen } from "@mui/icons-material";
+import { Menu } from "@mui/icons-material";
 import {
   AppBar,
   Box,
@@ -7,19 +7,22 @@ import {
   Toolbar,
   Tooltip,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { ProfilePopper } from "Components";
 import { useEffect, useState } from "react";
 
+import { useToggle } from "hooks/useToggle";
+import { ElasIcon } from "icons";
 import { WordMark } from "icons/WordMark";
 import ElasGameDialog from "./ElasGame";
-import { ElasIcon } from "icons";
-import { useToggle } from "hooks/useToggle";
 
 const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
   const [openGame, toggleGame] = useToggle();
   const [headerActive, setHeaderActive] = useState(false);
+
+  const { pathname } = useLocation();
+  const isReviewPath = pathname.endsWith("/review");
 
   useEffect(() => {
     window.addEventListener("scroll", () =>
@@ -35,7 +38,7 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
         square={true}
         elevation={0}
         sx={(theme) => ({
-          backgroundColor: theme.palette.background.default,
+          bgcolor: theme.palette.background.default,
           borderBottom: `1px solid ${headerActive ? theme.palette.divider : theme.palette.background.default}`,
 
           [theme.breakpoints.up("md")]: {
@@ -66,11 +69,13 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
               <WordMark />
             </ButtonBase>
 
-            <Tooltip title={"Go on adventure with Elas"} placement={"right"}>
-              <IconButton onClick={toggleGame}>
-                <ElasIcon />
-              </IconButton>
-            </Tooltip>
+            {isReviewPath && (
+              <Tooltip title={"Go on adventure with Elas"} placement={"right"}>
+                <IconButton onClick={toggleGame}>
+                  <ElasIcon />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
           {window.authentication === true && <ProfilePopper />}
         </Toolbar>

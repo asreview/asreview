@@ -178,7 +178,7 @@ const RecordCardLabeler = ({
   return (
     <Stack
       sx={(theme) => ({
-        backgroundColor: alpha(
+        bgcolor: alpha(
           theme.palette.secondary.light,
           theme.palette.action.selectedOpacity * 2,
         ),
@@ -229,7 +229,7 @@ const RecordCardLabeler = ({
         {note !== null && (
           <Box
             sx={(theme) => ({
-              backgroundColor: alpha(
+              bgcolor: alpha(
                 theme.palette.secondary.light,
                 theme.palette.action.selectedOpacity,
               ),
@@ -265,7 +265,7 @@ const RecordCardLabeler = ({
         )}
         <CardActions
           sx={(theme) => ({
-            backgroundColor: theme.palette.secondary.dark,
+            bgcolor: theme.palette.secondary.dark,
             display: "block",
             color: theme.palette.getContrastText(theme.palette.secondary.dark),
           })}

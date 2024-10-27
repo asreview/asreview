@@ -120,7 +120,7 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
                 style={{
                   width: "100%",
                   height: 219,
-                  backgroundColor: "transparent",
+                  bgcolor: "transparent",
                 }}
               />
             </Box>

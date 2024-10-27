@@ -15,24 +15,23 @@ import * as React from "react";
 
 import { useMutation } from "react-query";
 
-import useMediaQuery from "@mui/material/useMediaQuery";
-
 import {
   AutoAwesomeOutlined,
-  FileUploadOutlined,
   DriveFolderUploadOutlined,
+  FileUploadOutlined,
   LinkOutlined,
   SearchOutlined,
 } from "@mui/icons-material";
+import { ProjectAPI } from "api";
+import ImportProject from "ProjectComponents/ImportProject";
+import { SetupDialog } from "ProjectComponents/SetupComponents";
 import {
   DatasetFromEntryPoint,
   DatasetFromFile,
   DatasetFromOpenAlex,
   DatasetFromURI,
 } from "ProjectComponents/SetupComponents/DataUploadComponents";
-import { ProjectAPI } from "api";
-import { SetupDialog } from "ProjectComponents/SetupComponents";
-import ImportProject from "ProjectComponents/ImportProject";
+import { projectModes } from "globals.js";
 
 const DialogProjectName = ({ project_id, dataset_name }) => {
   const [state, setState] = React.useState({
@@ -103,8 +102,6 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
 };
 
 const Upload = ({ mode }) => {
-  const fullScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
-
   // state management
   const [uploadSource, setUploadSource] = React.useState("file");
   const [snackbarMessage, setSnackbarMessage] = React.useState(null);
@@ -144,16 +141,18 @@ const Upload = ({ mode }) => {
             }
             sx={{ mx: 1 }}
           />
-          <Tab
-            value="openalex"
-            label={
-              <Box>
-                <SearchOutlined sx={{ fontSize: 32 }} />
-                <Typography>OpenAlex</Typography>
-              </Box>
-            }
-            sx={{ mx: 1 }}
-          />
+          {mode === projectModes.ORACLE && (
+            <Tab
+              value="openalex"
+              label={
+                <Box>
+                  <SearchOutlined sx={{ fontSize: 32 }} />
+                  <Typography>OpenAlex</Typography>
+                </Box>
+              }
+              sx={{ mx: 1 }}
+            />
+          )}
           <Tab
             value="benchmark"
             label={
@@ -182,7 +181,7 @@ const Upload = ({ mode }) => {
         {uploadSource === "url" && (
           <DatasetFromURI mode={mode} setDataset={(dataset) => {}} />
         )}
-        {uploadSource === "openalex" && (
+        {mode === projectModes.ORACLE && uploadSource === "openalex" && (
           <DatasetFromOpenAlex mode={mode} setDataset={(dataset) => {}} />
         )}
         {uploadSource === "benchmark" && (

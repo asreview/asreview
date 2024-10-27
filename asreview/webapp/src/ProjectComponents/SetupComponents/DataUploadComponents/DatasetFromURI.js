@@ -85,7 +85,7 @@ const DatasetFromURI = ({ mode, setDataset }) => {
             py: 1,
             display: "flex",
             alignItems: "center",
-            backgroundColor: "#ffffff",
+            bgcolor: "#ffffff",
           }}
         >
           <InputBase

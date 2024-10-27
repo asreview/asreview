@@ -28,12 +28,7 @@ const DatasetFromOpenAlex = ({ mode, setDataset }) => {
   //     },
   //   );
 
-  const {
-    error,
-    isError,
-    isLoading,
-    mutate: createProject,
-  } = useMutation(ProjectAPI.createProject, {
+  const { error, isError } = useMutation(ProjectAPI.createProject, {
     mutationKey: ["createProject"],
     onSuccess: (data) => {
       setDataset(data);
@@ -80,7 +75,7 @@ const DatasetFromOpenAlex = ({ mode, setDataset }) => {
             py: 1,
             display: "flex",
             alignItems: "center",
-            backgroundColor: "#ffffff",
+            bgcolor: "#ffffff",
           }}
         >
           <InputBase
