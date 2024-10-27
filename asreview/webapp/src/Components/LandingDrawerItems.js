@@ -14,7 +14,7 @@ const LandingDrawerItems = ({ onClick = null, rail = false }) => {
         flex: "1 1 auto",
       }}
     >
-      <Toolbar />
+      <Toolbar sx={{ height: "73.8px" }} />
       <DrawerItem
         key={"projects-reviews"}
         to={"/reviews"}

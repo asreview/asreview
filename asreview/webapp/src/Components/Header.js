@@ -19,26 +19,25 @@ import { useToggle } from "hooks/useToggle";
 
 const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
   const [openGame, toggleGame] = useToggle();
-  const [headerColor, setHeaderColor] = useState("transparent");
-
-  const listenScrollEvent = () => {
-    window.scrollY > 25
-      ? setHeaderColor("inherit")
-      : setHeaderColor("transparent");
-  };
+  const [headerActive, setHeaderActive] = useState(false);
 
   useEffect(() => {
-    window.addEventListener("scroll", listenScrollEvent);
+    window.addEventListener("scroll", () =>
+      setHeaderActive(window.scrollY > 25),
+    );
   });
 
   return (
     <>
       <AppBar
-        color={headerColor}
+        color={"inherit"}
         position="fixed"
         square={true}
         elevation={0}
         sx={(theme) => ({
+          backgroundColor: theme.palette.background.default,
+          borderBottom: `1px solid ${headerActive ? theme.palette.divider : theme.palette.background.default}`,
+
           [theme.breakpoints.up("md")]: {
             zIndex: theme.zIndex.drawer + 1,
             width: `calc(100% - 80px)`,

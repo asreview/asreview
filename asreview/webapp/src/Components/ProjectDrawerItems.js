@@ -1,14 +1,5 @@
-import {
-  Box,
-  Fade,
-  IconButton,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Tooltip,
-} from "@mui/material";
-import { useQuery } from "react-query";
-import { Link, NavLink, useParams } from "react-router-dom";
+import { Box, Divider } from "@mui/material";
+import { Link, NavLink } from "react-router-dom";
 
 import {
   ArrowBackOutlined,
@@ -19,23 +10,9 @@ import {
   SettingsOutlined,
 } from "@mui/icons-material";
 
-import { ProjectAPI } from "api";
-import { useToggle } from "hooks/useToggle";
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 
-import { ElasIcon } from "icons";
-
 const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
-  const { project_id } = useParams();
-
-  const { data } = useQuery(
-    ["fetchInfo", { project_id: project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
-
   return (
     <Box
       sx={{
@@ -52,6 +29,7 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
         icon={<ArrowBackOutlined />}
         component={Link}
       />
+      <Divider sx={{ mx: 1 }} />
       <Box
         sx={{
           overflowX: "hidden",

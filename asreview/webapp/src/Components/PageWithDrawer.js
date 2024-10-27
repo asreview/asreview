@@ -41,7 +41,7 @@ const BottomNavigationDrawerItems = ({
 
   return (
     <>
-      <Divider />
+      <Divider sx={{ mx: 1 }} />
 
       {/* Bottom Section */}
       <Box>
@@ -198,6 +198,7 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
         aria-label="home page"
         sx={(theme) => ({
           marginLeft: "80px",
+          marginTop: "64px",
           [theme.breakpoints.down("md")]: {
             marginLeft: "0px",
           },
