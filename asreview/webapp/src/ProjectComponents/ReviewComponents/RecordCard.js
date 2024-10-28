@@ -163,45 +163,51 @@ const RecordCard = ({
   const [state, setState] = React.useState({ open: true });
 
   const styledRepoCard = (
-    <StyledCard
-      elevation={showBorder ? 4 : 0}
-      square={!showBorder}
-      sx={{ bgcolor: "#FFFFFF" }}
-    >
-      <RecordCardModelTraining record={record} modelLogLevel={modelLogLevel} />
-
-      <Grid
-        container
-        columns={5}
-        sx={{ alignItems: "stretch" }}
-        // divider={<Divider orientation="vertical" flexItem />}
+    <Box>
+      <Box sx={{ pb: 3, px: 4 }}>
+        <RecordCardModelTraining
+          record={record}
+          modelLogLevel={modelLogLevel}
+        />
+      </Box>
+      <StyledCard
+        elevation={showBorder ? 4 : 0}
+        square={!showBorder}
+        sx={{ bgcolor: "#FFFFFF" }}
       >
-        <Grid size={landscape ? 3 : 5}>
-          <RecordCardContent
-            record={record}
-            fontSize={fontSize}
-            collapseAbstract={collapseAbstract}
-          />
+        <Grid
+          container
+          columns={5}
+          sx={{ alignItems: "stretch" }}
+          // divider={<Divider orientation="vertical" flexItem />}
+        >
+          <Grid size={landscape ? 3 : 5}>
+            <RecordCardContent
+              record={record}
+              fontSize={fontSize}
+              collapseAbstract={collapseAbstract}
+            />
+          </Grid>
+          <Grid size={landscape ? 2 : 5}>
+            <RecordCardLabeler
+              project_id={project_id}
+              record_id={record.record_id}
+              label={record.state?.label}
+              labelFromDataset={record.included}
+              decisionCallback={() => setState({ open: false })}
+              retrainAfterDecision={retrainAfterDecision}
+              note={record.state?.note}
+              labelDatetime={record.state?.labeling_time}
+              showNotes={showNotes}
+              tagsForm={record.tags_form}
+              tagValues={record.state?.tags}
+              landscape={landscape}
+              hotkeys={hotkeys}
+            />
+          </Grid>
         </Grid>
-        <Grid size={landscape ? 2 : 5}>
-          <RecordCardLabeler
-            project_id={project_id}
-            record_id={record.record_id}
-            label={record.state?.label}
-            labelFromDataset={record.included}
-            decisionCallback={() => setState({ open: false })}
-            retrainAfterDecision={retrainAfterDecision}
-            note={record.state?.note}
-            labelDatetime={record.state?.labeling_time}
-            showNotes={showNotes}
-            tagsForm={record.tags_form}
-            tagValues={record.state?.tags}
-            landscape={landscape}
-            hotkeys={hotkeys}
-          />
-        </Grid>
-      </Grid>
-    </StyledCard>
+      </StyledCard>
+    </Box>
   );
 
   if (transitionType === "fade") {
