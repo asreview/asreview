@@ -16,18 +16,16 @@ import { useToggle } from "hooks/useToggle";
 import { ElasIcon } from "icons";
 import { WordMark } from "icons/WordMark";
 import ElasGameDialog from "./ElasGame";
+import useScrollTrigger from "@mui/material/useScrollTrigger";
 
 const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
   const [openGame, toggleGame] = useToggle();
-  const [headerActive, setHeaderActive] = useState(false);
 
   const { pathname } = useLocation();
   const isReviewPath = pathname.endsWith("/review");
 
-  useEffect(() => {
-    window.addEventListener("scroll", () =>
-      setHeaderActive(window.scrollY > 55),
-    );
+  const headerActive = useScrollTrigger({
+    threshold: 0,
   });
 
   return (

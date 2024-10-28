@@ -77,6 +77,8 @@ const ReviewPage = () => {
     },
   );
 
+  console.log(showBorder);
+
   return (
     <Container
       aria-label="review page"

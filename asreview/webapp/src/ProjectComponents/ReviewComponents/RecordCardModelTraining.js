@@ -1,20 +1,11 @@
-import {
-  Alert,
-  Paper,
-  Divider,
-  Stack,
-  Typography,
-  CardContent,
-  Skeleton,
-} from "@mui/material";
-import { alpha } from "@mui/material/styles";
+import { Alert, Box, Paper, Skeleton, Stack, Typography } from "@mui/material";
 
 import { ModelTraining } from "@mui/icons-material";
 
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
 import { useMediaQuery } from "@mui/material";
-import { useQuery } from "react-query";
 import { ProjectAPI } from "api";
+import { useQuery } from "react-query";
 
 const FlowChartStep = ({ value, label }) => (
   <Paper
@@ -80,10 +71,10 @@ const ModelFlowChart = ({ record }) => {
   );
 };
 
-const RecordCardModelTraining = ({ record, modelLogLevel }) => {
+const RecordCardModelTraining = ({ record, modelLogLevel, sx }) => {
   if (record?.error?.type !== undefined) {
     return (
-      <Alert severity="error" sx={{ borderRadius: 0 }} icon={<ModelTraining />}>
+      <Alert severity="error" sx={sx} icon={<ModelTraining />}>
         Model training error: {record?.error?.message}. Change model in settings
         page.
       </Alert>
@@ -95,18 +86,18 @@ const RecordCardModelTraining = ({ record, modelLogLevel }) => {
     record?.state?.query_strategy === "random"
   ) {
     return (
-      <Alert
-        severity="warning"
-        sx={{ borderRadius: 0 }}
-        icon={<ModelTraining />}
-      >
+      <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
         This record is not presented by the model
       </Alert>
     );
   }
 
   if (modelLogLevel === "info" && record?.state) {
-    return <ModelFlowChart record={record} />;
+    return (
+      <Box sx={sx}>
+        <ModelFlowChart record={record} />
+      </Box>
+    );
   }
 
   return null;

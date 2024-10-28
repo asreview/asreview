@@ -76,10 +76,7 @@ const BottomNavigationDrawerItems = ({
   );
 };
 
-const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
-  const container =
-    window !== undefined ? () => window().document.body : undefined;
-
+const PageWithDrawer = ({ navComponent, navComponentProps }) => {
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"), {
     noSsr: true,
   });
@@ -96,7 +93,6 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
       >
         {/* Temporary drawer on mobile screen */}
         <Drawer
-          container={container}
           variant="temporary"
           open={mobileDrawer}
           onClose={toggleMobileDrawer}
@@ -190,7 +186,7 @@ const PageWithDrawer = ({ window, navComponent, navComponentProps }) => {
         aria-label="home page"
         sx={(theme) => ({
           marginLeft: "80px",
-          marginTop: "64px",
+          marginTop: mobileScreen ? 3 : 8,
           [theme.breakpoints.down("md")]: {
             marginLeft: "0px",
           },

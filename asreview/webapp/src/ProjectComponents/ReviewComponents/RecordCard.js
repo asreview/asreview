@@ -21,35 +21,13 @@ import { RecordCardLabeler, RecordCardModelTraining } from ".";
 
 import { fontSizeOptions } from "globals.js";
 
-const PREFIX = "RecordCard";
-
-const classes = {
-  abstract: `${PREFIX}-abstract`,
-};
-
-const StyledCard = styled(Card)(() => ({
-  // [`& .${classes.titleAbstract}`]: {
-  //   height: "100%",
-  //   overflowY: "scroll",
-  // },
-  // [`& .${classes.title}`]: {
-  //   lineHeight: 1.2,
-  // },
-  [`& .${classes.abstract}`]: {
-    whiteSpace: "pre-line",
-  },
-}));
-
 const transitionSpeed = 150;
 
 const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
   const [readMoreOpen, toggleReadMore] = useToggle();
 
   return (
-    <CardContent
-      className={classes.titleAbstract}
-      aria-label="record title abstract"
-    >
+    <CardContent aria-label="record title abstract">
       <Stack spacing={1}>
         <Stack
           direction="row"
@@ -58,7 +36,6 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
         >
           {/* Show the title */}
           <Typography
-            className={classes.title}
             variant={"h5"}
             sx={(theme) => ({
               fontWeight: theme.typography.fontWeightRegular,
@@ -109,9 +86,9 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
 
         {(record.abstract === "" || record.abstract === null) && (
           <Typography
-            className={classes.abstract + " fontSize" + fontSize}
+            className={"fontSize" + fontSize}
             variant="body2"
-            sx={{ color: "text.secondary" }}
+            sx={{ color: "text.secondary", whiteSpace: "pre-line" }}
             fontStyle={"italic"}
           >
             No abstract available
@@ -119,9 +96,9 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
         )}
 
         <Typography
-          className={classes.abstract + " fontSize" + fontSizeOptions[fontSize]}
+          className={"fontSize" + fontSizeOptions[fontSize]}
           variant="body2"
-          sx={{ color: "text.secondary" }}
+          sx={{ color: "text.secondary", whiteSpace: "pre-line" }}
         >
           {!(record.abstract === "" || record.abstract === null) &&
           collapseAbstract &&
@@ -164,16 +141,17 @@ const RecordCard = ({
 
   const styledRepoCard = (
     <Box>
-      <Box sx={{ pb: 3, px: 4 }}>
-        <RecordCardModelTraining
-          record={record}
-          modelLogLevel={modelLogLevel}
-        />
-      </Box>
-      <StyledCard
+      <RecordCardModelTraining
+        record={record}
+        modelLogLevel={modelLogLevel}
+        sx={{ pb: 3, px: 4 }}
+      />
+      <Card
         elevation={showBorder ? 4 : 0}
-        square={!showBorder}
-        sx={{ bgcolor: "#FFFFFF" }}
+        sx={{
+          bgcolor: "#FFFFFF",
+          borderRadius: !showBorder ? 0 : undefined,
+        }}
       >
         <Grid
           container
@@ -206,7 +184,7 @@ const RecordCard = ({
             />
           </Grid>
         </Grid>
-      </StyledCard>
+      </Card>
     </Box>
   );
 
