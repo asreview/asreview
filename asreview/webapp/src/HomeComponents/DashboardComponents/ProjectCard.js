@@ -133,20 +133,21 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
             </Typography>
           </ButtonBase>
         </Grid>
-        {review?.status === projectStatuses.REVIEW && (
-          <Grid size={3}>
-            <Button
-              onClick={() =>
-                navigate(`/${projectModeURLMap[mode]}/${project.id}/review`)
-              }
-              variant="outlined"
-              color="secondary"
-              sx={{ borderRadius: 20 }}
-            >
-              Open Reviewer
-            </Button>
-          </Grid>
-        )}
+        {mode === projectModes.ORACLE &&
+          review?.status === projectStatuses.REVIEW && (
+            <Grid size={3}>
+              <Button
+                onClick={() =>
+                  navigate(`/${projectModeURLMap[mode]}/${project.id}/reviewer`)
+                }
+                variant="outlined"
+                color="secondary"
+                sx={{ borderRadius: 20 }}
+              >
+                Open Reviewer
+              </Button>
+            </Grid>
+          )}
 
         <Grid size={"auto"}>
           {window.authentication &&

@@ -38,6 +38,9 @@ from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+
 import asreview as asr
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
@@ -744,6 +747,38 @@ def api_set_algorithms(project):  # noqa: F401
         json.dump(asdict(settings), f)
 
     return jsonify(asdict(settings))
+
+
+@bp.route("/projects/<project_id>/wordcounts", methods=["GET"])
+@login_required
+@project_authorization
+def api_get_wordcounts(project):  # noqa: F401
+    """Get the word counts used in the project"""
+
+    as_data = project.read_data()
+
+    with open_state(project.project_path) as s:
+        data = s.get_results_table()
+
+    record_ids_rel = data[data["label"] == 1]["record_id"].to_list()
+    record_ids_irrel = data[data["label"] == 0]["record_id"].to_list()
+
+    df_rel = as_data.df.iloc[record_ids_rel]["abstract"].fillna("").to_list()
+    df_irrel = as_data.df.iloc[record_ids_irrel]["abstract"].fillna("").to_list()
+
+    vectorizer = TfidfVectorizer(stop_words="english")
+    tfidf_matrix = vectorizer.fit_transform(df_rel)
+    feature_array = np.array(vectorizer.get_feature_names_out())
+    tfidf_sorting = np.argsort(tfidf_matrix.toarray()).flatten()[::-1]
+    top_n_rel = feature_array[tfidf_sorting][:20]
+
+    vectorizer = TfidfVectorizer(stop_words="english")
+    tfidf_matrix = vectorizer.fit_transform(df_irrel)
+    feature_array = np.array(vectorizer.get_feature_names_out())
+    tfidf_sorting = np.argsort(tfidf_matrix.toarray()).flatten()[::-1]
+    top_n_irrel = feature_array[tfidf_sorting][:20]
+
+    return jsonify({"relevant": top_n_rel.tolist(), "irrelevant": top_n_irrel.tolist()})
 
 
 @bp.route("/projects/<project_id>/train", methods=["POST"])

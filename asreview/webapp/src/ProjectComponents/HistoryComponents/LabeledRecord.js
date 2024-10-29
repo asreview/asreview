@@ -9,9 +9,17 @@ import { RecordCard } from "ProjectComponents/ReviewComponents";
 import { ProjectAPI } from "api";
 
 import { useReviewSettings } from "context/ReviewSettingsContext";
+import { useMediaQuery } from "@mui/material";
 
 const LabeledRecord = ({ project_id, label, filterQuery }) => {
   const { orientation, modelLogLevel } = useReviewSettings();
+
+  let landscapeDisabled = useMediaQuery(
+    (theme) => theme.breakpoints.down("md"),
+    {
+      noSsr: true,
+    },
+  );
 
   const {
     data,
@@ -70,7 +78,9 @@ const LabeledRecord = ({ project_id, label, filterQuery }) => {
                     collapseAbstract={true}
                     disabled={true}
                     transitionType="none"
-                    landscape={orientation === "landscape"}
+                    landscape={
+                      orientation === "landscape" && !landscapeDisabled
+                    }
                     modelLogLevel={modelLogLevel}
                     key={record.record_id}
                   />

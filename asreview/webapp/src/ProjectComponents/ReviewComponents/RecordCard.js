@@ -144,7 +144,7 @@ const RecordCard = ({
       <RecordCardModelTraining
         record={record}
         modelLogLevel={modelLogLevel}
-        sx={{ pb: 3, px: 4 }}
+        sx={{ mb: 3, mx: 4 }}
       />
       <Card
         elevation={showBorder ? 4 : 0}

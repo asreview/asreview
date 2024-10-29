@@ -109,6 +109,22 @@ class ProjectAPI {
     });
   }
 
+  static fetchWordCounts({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `projects/${project_id}/wordcounts`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          console.log(result);
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static fetchTraining({ queryKey }) {
     const { project_id } = queryKey[1];
     const url = api_url + `projects/${project_id}/training`;

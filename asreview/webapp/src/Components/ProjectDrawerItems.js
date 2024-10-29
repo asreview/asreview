@@ -50,9 +50,9 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
 
         {subset === "reviews" && (
           <DrawerItem
-            key={"project-review"}
-            to={`review`}
-            primary={"Review"}
+            key={"project-reviewer"}
+            to={`reviewer`}
+            primary={"Reviewer"}
             rail={rail}
             onClick={onClick}
             icon={<AssignmentOutlined />}

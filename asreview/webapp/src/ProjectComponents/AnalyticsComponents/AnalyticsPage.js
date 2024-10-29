@@ -28,6 +28,7 @@ import {
   ReviewProgress,
   ShareFabAction,
   StoppingSuggestion,
+  WordCounts,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
 
@@ -128,22 +129,21 @@ const AnalyticsPage = () => {
           </Box>
         </Grid>
         <Box>
-          <Box>
-            <Tabs
-              value={activeChartTab}
-              onChange={(event, newValue) => setActiveChartTab(newValue)}
-            >
-              <Tab label="Density" />
-              <Tab label="Recall" />
-            </Tabs>
-            {activeChartTab === 0 && (
-              <ProgressDensityChart genericDataQuery={genericDataQuery} />
-            )}
-            {activeChartTab === 1 && (
-              <ProgressRecallChart genericDataQuery={genericDataQuery} />
-            )}
-          </Box>
+          <Tabs
+            value={activeChartTab}
+            onChange={(event, newValue) => setActiveChartTab(newValue)}
+          >
+            <Tab label="Density" />
+            <Tab label="Recall" />
+          </Tabs>
+          {activeChartTab === 0 && (
+            <ProgressDensityChart genericDataQuery={genericDataQuery} />
+          )}
+          {activeChartTab === 1 && (
+            <ProgressRecallChart genericDataQuery={genericDataQuery} />
+          )}
         </Box>
+        <WordCounts />
       </Stack>
       <SpeedDial
         ariaLabel="share project analytics"

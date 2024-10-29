@@ -105,7 +105,7 @@ const App = () => {
             }
           >
             <Route index element={<AnalyticsPage />} />
-            <Route path="review" element={<ReviewPage />} />
+            <Route path="reviewer" element={<ReviewPage />} />
             <Route path="collection" element={<LabelHistory />} />
             {window.authentication && window.allowTeams && (
               <Route path="team" element={<TeamPage />} />
