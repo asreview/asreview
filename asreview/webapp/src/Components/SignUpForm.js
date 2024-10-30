@@ -56,7 +56,7 @@ const SignUpForm = ({ toggleSignUp }) => {
     validationSchema: SignupSchema,
   });
 
-  const { error, isError, mutate } = useMutation(BaseAPI.signup, {
+  const { error, isError, mutate, isLoading } = useMutation(BaseAPI.signup, {
     onSuccess: () => {
       // let email = formik.values.email;
       formik.setValues(initialValues, false);
