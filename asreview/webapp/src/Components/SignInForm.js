@@ -9,7 +9,12 @@ import {
   Stack,
   TextField,
   Typography,
+  IconButton,
+  InputAdornment,
+  OutlinedInput,
+  InputLabel,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { ForgotPassword } from "Components";
 import * as React from "react";
 import { useMutation } from "react-query";
@@ -64,10 +69,6 @@ const SignInForm = ({
     mutate({ email, password });
   };
 
-  const returnType = () => {
-    return !showPassword ? "password" : "text";
-  };
-
   const handleEnterKey = (e) => {
     if (e.keyCode === 13) {
       handleSubmit(e);
@@ -93,29 +94,35 @@ const SignInForm = ({
                 autoFocus
                 autoComplete="email"
               />
-              <FormControl>
-                <TextField
+              <FormControl sx={{ m: 1 }} variant="outlined">
+                <InputLabel htmlFor="password">Password</InputLabel>
+                <OutlinedInput
                   id="password"
+                  type={showPassword ? "text" : "password"}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={
+                          showPassword
+                            ? "hide the password"
+                            : "display the password"
+                        }
+                        onClick={toggleShowPassword}
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                        }}
+                        onMouseUp={(event) => {
+                          event.preventDefault();
+                        }}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
                   label="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={handleEnterKey}
-                  variant="outlined"
-                  fullWidth
-                  type={returnType()}
-                  autoComplete="current-password"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      id="show-password"
-                      checked={showPassword}
-                      onChange={toggleShowPassword}
-                      value="showPassword"
-                      color="primary"
-                    />
-                  }
-                  label="Show password"
                 />
               </FormControl>
             </Stack>
