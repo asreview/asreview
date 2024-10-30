@@ -1,18 +1,18 @@
 import React from "react";
 
-import { InputBase, Paper, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useMutation } from "react-query";
 
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
-import LoadingButton from "@mui/lab/LoadingButton";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 
 import { InlineErrorHandler } from "Components";
-import { StyledLoadingButton } from "StyledComponents/StyledButton";
 import { ProjectAPI } from "api";
+
+import { StyledInputSearch } from "StyledComponents/StyledInputSearch";
 
 const DatasetFromURI = ({ mode, setDataset }) => {
   const [localURI, setURI] = React.useState("");
@@ -45,18 +45,8 @@ const DatasetFromURI = ({ mode, setDataset }) => {
     },
   });
 
-  const handleURL = (event) => {
-    setURI(event.target.value);
-  };
-
   const resolveURI = () => {
     mutateResolve({ uri: localURI });
-  };
-
-  const validateURLOnEnter = (event) => {
-    if (event.keyCode === 13) {
-      resolveURI(event);
-    }
   };
 
   const handleFileChange = (event) => {
@@ -74,7 +64,19 @@ const DatasetFromURI = ({ mode, setDataset }) => {
   return (
     <>
       <Stack spacing={3}>
-        <Paper
+        <StyledInputSearch
+          autoFocus
+          endIcon={<ArrowForwardOutlinedIcon />}
+          disabled={isResolving || isLoading}
+          onClick={resolveURI}
+          placeholder="Type a URL or DOI of the dataset"
+          value={localURI}
+          onChange={(event) => {
+            setURI(event.target.value);
+          }}
+        />
+
+        {/* <Paper
           component="form"
           noValidate
           autoComplete="off"
@@ -84,15 +86,19 @@ const DatasetFromURI = ({ mode, setDataset }) => {
             px: 2,
             py: 1,
             display: "flex",
-            alignItems: "center",
-            bgcolor: "#ffffff",
+            bgcolor: "white",
+            borderRadius: 10,
+            // "&.Mui-focused": {
+            //   borderColor: "primary.main",
+            // },
+
           }}
         >
           <InputBase
             autoFocus
-            disabled={isResolving || isLoading}
-            fullWidth
-            id="url-dataset"
+            // disabled={isResolving || isLoading}
+            // fullWidth
+            id="dataset-url"
             placeholder="Type a URL or DOI of the dataset"
             value={localURI}
             onChange={handleURL}
@@ -107,7 +113,7 @@ const DatasetFromURI = ({ mode, setDataset }) => {
           >
             <ArrowForwardOutlinedIcon />
           </StyledLoadingButton>
-        </Paper>
+        </Paper> */}
 
         {data && (
           <>
@@ -133,13 +139,9 @@ const DatasetFromURI = ({ mode, setDataset }) => {
               </Select>
             </FormControl>
             <Stack alignItems={"center"}>
-              <LoadingButton
-                // disabled={}
-                loading={isLoading}
-                onClick={addFile}
-              >
+              <Button disabled={isLoading} onClick={addFile}>
                 Add
-              </LoadingButton>
+              </Button>
             </Stack>
           </>
         )}

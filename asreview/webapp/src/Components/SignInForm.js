@@ -1,20 +1,17 @@
-import LoadingButton from "@mui/lab/LoadingButton";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Button,
   CardActions,
   CardContent,
-  Checkbox,
   FormControl,
-  FormControlLabel,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
   Stack,
   TextField,
   Typography,
-  IconButton,
-  InputAdornment,
-  OutlinedInput,
-  InputLabel,
 } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { ForgotPassword } from "Components";
 import * as React from "react";
 import { useMutation } from "react-query";
@@ -134,15 +131,15 @@ const SignInForm = ({
         )} */}
           </CardContent>
           <CardActions sx={{ p: 2 }}>
-            <LoadingButton
+            <Button
               id="sign-in"
-              loading={isLoading}
+              disabled={isLoading}
               variant="contained"
               color="primary"
               onClick={handleSubmit}
             >
               Sign in
-            </LoadingButton>
+            </Button>
             {allowAccountCreation && (
               <Button
                 id="create-profile"

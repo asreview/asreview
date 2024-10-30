@@ -1,13 +1,13 @@
 import React from "react";
 
-import { InputBase, Paper, Stack, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { useMutation } from "react-query";
 
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 
-import { InlineErrorHandler } from "Components";
-import { StyledLoadingButton } from "StyledComponents/StyledButton";
 import { ProjectAPI } from "api";
+import { InlineErrorHandler } from "Components";
+import { StyledInputSearch } from "StyledComponents/StyledInputSearch";
 
 const DatasetFromOpenAlex = ({ mode, setDataset }) => {
   const [localURI, setURI] = React.useState("");
@@ -64,42 +64,15 @@ const DatasetFromOpenAlex = ({ mode, setDataset }) => {
   return (
     <>
       <Stack spacing={3}>
-        <Paper
-          component="form"
-          noValidate
-          autoComplete="off"
-          onSubmit={(e) => e.preventDefault()}
-          variant="outlined"
-          sx={{
-            px: 2,
-            py: 1,
-            display: "flex",
-            alignItems: "center",
-            bgcolor: "#ffffff",
-          }}
-        >
-          <InputBase
-            autoFocus
-            disabled
-            // disabled= {isResolving || isLoading}
-            fullWidth
-            id="url-dataset"
-            placeholder="Search in OpenAlex"
-            value={localURI}
-            // onChange={handleURL}
-            // onKeyDown={validateURLOnEnter}
-            sx={{ ml: 1, flex: 1 }}
-          />
-          <StyledLoadingButton
-            disabled
-            // disabled={isResolving || isLoading}
-            // loading={isResolving || isLoading}
-            // onClick={resolveURI}
-            sx={{ minWidth: "32px" }}
-          >
-            <ArrowForwardOutlinedIcon />
-          </StyledLoadingButton>
-        </Paper>
+        <StyledInputSearch
+          autoFocus
+          endIcon={<ArrowForwardOutlinedIcon />}
+          disabled={true}
+          onClick={(e) => e.preventDefault()}
+          placeholder="Search in OpenAlex"
+          value={localURI}
+          onChange={(e) => e.preventDefault()}
+        />
 
         <Typography>Coming soon!</Typography>
         {/*
