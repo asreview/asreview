@@ -25,7 +25,7 @@ const WordCounts = () => {
 
   return (
     <Card>
-      <CardHeader title="Word Counts" />
+      <CardHeader title="Words of importance" />
       <CardContent>
         <Grid container spacing={2} columns={2}>
           <Grid size={1}>
