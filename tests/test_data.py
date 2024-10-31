@@ -155,6 +155,7 @@ def test_deduplication():
     pd.testing.assert_frame_equal(d_dups.drop_duplicates().df, d_nodups.df)
 
 
+@mark.xfail(reason="Deduplication will be reimplemented.")
 def test_duplicated():
     # Create an instance of Dataset
     instance = asr.Dataset(

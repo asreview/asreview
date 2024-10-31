@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.data.base import Dataset
-from asreview.data.base import Record
 from asreview.data.loader import load_dataset
 from asreview.extensions import extensions
 from asreview.extensions import get_extension
@@ -37,8 +35,6 @@ except ImportError:
 
 __all__ = [
     # classes
-    "Record",
-    "Dataset",
     "Project",
     "Simulate",
     "SQLiteState",
