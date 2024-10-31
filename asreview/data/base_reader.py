@@ -49,7 +49,6 @@ class BaseReader(ABC):
     @classmethod
     def read_records(cls, fp, dataset_id, record_class=Record, *args, **kwargs):
         df = cls.read_data(fp, *args, **kwargs)
-        print(df)
         df = cls.clean_data(df)
         return cls.to_records(df, dataset_id=dataset_id, record_class=record_class)
 
