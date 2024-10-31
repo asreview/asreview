@@ -1,4 +1,3 @@
-import shutil
 from pathlib import Path
 import pytest
 
@@ -19,10 +18,7 @@ def test_simulate_basic(tmpdir, balance_strategy):
         "simulate",
         "simulate-example",
     )
-
-    data_path = project.data_dir / "generic_labels.csv"
-    shutil.copy(DATA_FP, data_path)
-    project.add_dataset(data_path.name)
+    project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
     fm = feature_model.fit_transform(project.data_store)
@@ -62,10 +58,7 @@ def test_simulate_no_prior(tmpdir):
         "simulate",
         "simulate-example",
     )
-
-    data_path = project.data_dir / "generic_labels.csv"
-    shutil.copy(DATA_FP, data_path)
-    project.add_dataset(data_path.name)
+    project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
     fm = feature_model.fit_transform(project.data_store)
@@ -99,10 +92,7 @@ def test_simulate_random_prior(tmpdir):
         "simulate",
         "simulate-example",
     )
-
-    data_path = project.data_dir / "generic_labels.csv"
-    shutil.copy(DATA_FP, data_path)
-    project.add_dataset(data_path.name)
+    project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
     fm = feature_model.fit_transform(project.data_store)
