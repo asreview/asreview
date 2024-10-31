@@ -147,6 +147,6 @@ def standardize_included_label(value):
         }
         value = value.lower()
         value = conversion_dict[value]
-    if value is None:
+    if value is None or pd.isna(value):
         value = LABEL_NA
     return value
