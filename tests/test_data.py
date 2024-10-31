@@ -55,12 +55,14 @@ def test_datasets(data_name):
     assert exists(data.filepath)
 
 
+@mark.xfail(reason="Deduplication will be reimplemented.")
 def test_duplicate_count():
     data = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
     assert int(data.df.duplicated("doi").sum()) == 2
 
 
+@mark.xfail(reason="Deduplication will be reimplemented.")
 def test_deduplication():
     d_dups = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 

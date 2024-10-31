@@ -2,7 +2,6 @@ from io import StringIO
 from pathlib import Path
 
 from asreview.datasets import DatasetManager
-from asreview.extensions import extensions
 from asreview.extensions import load_extension
 from asreview.utils import _get_filename_from_url
 from asreview.utils import _is_url
@@ -26,10 +25,9 @@ def _get_reader(fp):
     else:
         fn = Path(fp).name
     try:
-        reader = extensions("readers")[Path(fn).suffix].load()
-    except Exception:
-        raise ValueError(f"No reader found for file at location {fp}")
-    return reader
+        return load_extension("readers", Path(fn).suffix)
+    except ValueError as e:
+        raise ValueError(f"No reader found for file at location {fp}") from e
 
 
 def _get_writer(fp):
@@ -38,7 +36,7 @@ def _get_writer(fp):
     Arguments
     ----------
     fp : Path
-        Path where the file will be written to. 
+        Path where the file will be written to.
 
     Returns
     -------
@@ -46,7 +44,10 @@ def _get_writer(fp):
         The file type and hence the type of writer will be determined based on the
         suffix of the file path.
     """
-    return load_extension("writers", Path(fp).suffix)
+    try:
+        return load_extension("writers", Path(fp).suffix)
+    except ValueError as e:
+        raise ValueError(f"No writer found for file at location {fp}") from e
 
 
 def _from_file(fp, reader=None, dataset_id=None, **kwargs):
