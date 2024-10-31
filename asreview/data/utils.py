@@ -101,6 +101,8 @@ def convert_to_list(value):
         return value
     elif isinstance(value, np.ndarray):
         return value.tolist()
+    elif pd.isna(value):
+        return []
     elif isinstance(value, str):
         if value == "":
             return []
