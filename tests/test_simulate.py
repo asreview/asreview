@@ -20,7 +20,7 @@ def test_simulate_basic(tmpdir, balance_strategy):
         "simulate-example",
     )
 
-    data_path = Path(project.project_path, "data") / "generic_labels.csv"
+    data_path = project.data_dir / "generic_labels.csv"
     shutil.copy(DATA_FP, data_path)
     project.add_dataset(data_path.name)
 
@@ -63,7 +63,7 @@ def test_simulate_no_prior(tmpdir):
         "simulate-example",
     )
 
-    data_path = Path(project.project_path, "data") / "generic_labels.csv"
+    data_path = project.data_dir / "generic_labels.csv"
     shutil.copy(DATA_FP, data_path)
     project.add_dataset(data_path.name)
 
@@ -100,7 +100,7 @@ def test_simulate_random_prior(tmpdir):
         "simulate-example",
     )
 
-    data_path = Path(project.project_path, "data") / "generic_labels.csv"
+    data_path = project.data_dir / "generic_labels.csv"
     shutil.copy(DATA_FP, data_path)
     project.add_dataset(data_path.name)
 

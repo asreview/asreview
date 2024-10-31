@@ -179,7 +179,7 @@ def api_create_project():  # noqa: F401
         project.remove_dataset()
 
     # create dataset folder if not present
-    Path(project.project_path, "data").mkdir(exist_ok=True)
+    project.data_dir.mkdir(exist_ok=True)
 
     try:
         if request.form.get("plugin", None):

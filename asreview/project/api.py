@@ -74,6 +74,7 @@ class Project:
 
     def __init__(self, project_path, project_id=None):
         self.project_path = Path(project_path)
+        self.data_dir = self.project_path / "data"
         self.project_id = project_id
         self.data_store = DataStore(Path(project_path, PATH_DATA_STORE))
 
@@ -213,18 +214,17 @@ class Project:
         if dataset_id is None:
             dataset_id = uuid4().hex
 
-        data_dir = Path(self.project_path, "data")
-        data_dir.mkdir(exist_ok=True)
+        self.data_dir.mkdir(exist_ok=True)
 
         if file_writer is not None:
-            save_fp = data_dir / fp
+            save_fp = self.data_dir / fp
             file_writer(save_fp)
         elif _is_url(fp):
             filename = _get_filename_from_url(fp)
-            save_fp = data_dir / filename
+            save_fp = self.data_dir / filename
             urlretrieve(fp, save_fp)
         elif Path(fp).exists():
-            save_fp = data_dir / Path(fp).name
+            save_fp = self.data_dir / Path(fp).name
             shutil.copy(fp, save_fp)
         else:
             dataset = DatasetManager().find(fp)
@@ -233,7 +233,7 @@ class Project:
                     "fp should be existing file, or URL or dataset, but does not"
                     f" exist: {fp}"
                 )
-            save_fp = data_dir / dataset.filename
+            save_fp = self.data_dir / dataset.filename
             dataset.to_file(save_fp)
         file_name = save_fp.name
 
