@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import logging
 import os
 from pathlib import Path
@@ -134,7 +135,7 @@ def create_app(config_path=None):
     def index(**kwargs):
         oauth_params = None
         if isinstance(app.config.get("OAUTH", False), OAuthHandler):
-            oauth_params = app.config.get("OAUTH").front_end_params()
+            oauth_params = json.dumps(app.config.get("OAUTH").front_end_params())
 
         return render_template(
             "index.html",
@@ -147,7 +148,7 @@ def create_app(config_path=None):
             ).lower(),
             allow_teams=str(app.config.get("ALLOW_TEAMS", True)).lower(),
             email_verification=str(app.config.get("EMAIL_VERIFICATION", False)).lower(),
-            oauth=app.config.get("OAUTH", oauth_params),
+            oauth=oauth_params,
         )
 
     @app.route("/", methods=["GET"])
@@ -166,5 +167,16 @@ def create_app(config_path=None):
     @app.route("/robots.txt")
     def static_from_root():
         return send_from_directory("build", request.path[1:])
+
+    # The task manager needs to be configured if not in testing
+    if not (app.testing):
+        # I want people to be able to configure the host and port of
+        # the task manager by using the env var TASK_MANAGER_ENDPOINT.
+        # This var needs to provide host and port in 1 string.
+        endpoint = app.config.get("TASK_MANAGER_ENDPOINT", False)
+        if endpoint:
+            endpoint = endpoint.split(":")
+            app.config["TASK_MANAGER_HOST"] = endpoint[0]
+            app.config["TASK_MANAGER_PORT"] = int(endpoint[1])
 
     return app

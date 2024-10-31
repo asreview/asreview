@@ -15,8 +15,7 @@
 import json
 import logging
 import shutil
-import subprocess
-import sys
+import socket
 import tempfile
 import time
 from dataclasses import asdict
@@ -55,6 +54,10 @@ from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_HOST
+from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_PORT
+from asreview.webapp.tasks import run_model
+from asreview.webapp.tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
 
@@ -83,6 +86,44 @@ def _fill_last_ranking(project, ranking):
         ranked_record_ids = record_ids
     with open_state(project.project_path) as state:
         state.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
+
+
+def _run_model(project):
+    # if there is a socket, it means we would like to delegate
+    # training / simulation to the queue manager,
+    # otherwise run training / simulation directly
+    simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
+
+    if not current_app.testing:
+        try:
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client_socket.connect(
+                (
+                    current_app.config.get(
+                        "TASK_MANAGER_HOST", DEFAULT_TASK_MANAGER_HOST
+                    ),
+                    current_app.config.get(
+                        "TASK_MANAGER_PORT", DEFAULT_TASK_MANAGER_PORT
+                    ),
+                )
+            )
+            payload = {
+                "action": "insert",
+                "project_id": project.config["id"],
+                "simulation": simulation,
+            }
+            # send
+            client_socket.sendall(json.dumps(payload).encode("utf-8"))
+        except socket.error:
+            raise RuntimeError("Queue manager is not alive.")
+        finally:
+            client_socket.close()
+
+    else:
+        if simulation:
+            run_simulation(project)
+        else:
+            run_model(project)
 
 
 # error handlers
@@ -535,6 +576,7 @@ def api_get_labeled(project):  # noqa: F401
     for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
         record_d["state"] = state.to_dict()
+        record_d["state"]["labeling_time"] = str(record_d["state"]["labeling_time"])
         record_d["tags_form"] = project.config.get("tags", None)
         result.append(record_d)
 
@@ -685,14 +727,7 @@ def api_train(project):  # noqa: F401
         return jsonify({"success": True})
 
     try:
-        run_command = [
-            sys.executable if sys.executable else "python",
-            "-m",
-            "asreview",
-            "web_run_model",
-            str(project.project_path),
-        ]
-        subprocess.Popen(run_command)
+        _run_model(project)
 
     except Exception as err:
         logging.error(err)
@@ -767,19 +802,7 @@ def api_update_review_status(project, review_id):
             _fill_last_ranking(project, "random")
 
         if trigger_model and (pk or is_simulation):
-            try:
-                subprocess.Popen(
-                    [
-                        sys.executable if sys.executable else "python",
-                        "-m",
-                        "asreview",
-                        "web_run_model",
-                        str(project.project_path),
-                    ]
-                )
-
-            except Exception as err:
-                return jsonify(message=f"Failed to train the model. {err}"), 400
+            _run_model(project)
 
         project.update_review(status=status)
 
@@ -1097,15 +1120,7 @@ def api_label_record(project, record_id):  # noqa: F401
             raise ValueError(f"Invalid label {label}")
 
     if retrain_model:
-        subprocess.Popen(
-            [
-                sys.executable if sys.executable else "python",
-                "-m",
-                "asreview",
-                "web_run_model",
-                str(project.project_path),
-            ]
-        )
+        _run_model(project)
 
     if request.method == "POST":
         return jsonify({"success": True})
@@ -1115,6 +1130,7 @@ def api_label_record(project, record_id):  # noqa: F401
 
         item = asdict(project.data_store.get_records(record_id))
         item["state"] = record.iloc[0].to_dict()
+        item["state"]["labeling_time"] = str(item["state"]["labeling_time"])
         item["tags_form"] = project.config.get("tags", None)
 
         return jsonify({"result": item})
@@ -1162,6 +1178,7 @@ def api_get_document(project):  # noqa: F401
 
     item = asdict(project.data_store.get_records(pending["record_id"].iloc[0]))
     item["state"] = pending.iloc[0].to_dict()
+    item["state"]["labeling_time"] = str(item["state"]["labeling_time"])
     item["tags_form"] = project.config.get("tags", None)
 
     try:

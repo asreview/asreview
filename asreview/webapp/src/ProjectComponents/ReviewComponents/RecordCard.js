@@ -5,6 +5,7 @@ import {
   CardContent,
   Collapse,
   Fade,
+  Grid2 as Grid,
   Link,
   Stack,
   Tooltip,
@@ -106,20 +107,27 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
           )}
         </Stack>
 
+        {(record.abstract === "" || record.abstract === null) && (
+          <Typography
+            className={classes.abstract + " fontSize" + fontSize}
+            variant="body2"
+            sx={{ color: "text.secondary" }}
+            fontStyle={"italic"}
+          >
+            No abstract available
+          </Typography>
+        )}
+
         <Typography
           className={classes.abstract + " fontSize" + fontSizeOptions[fontSize]}
           variant="body2"
           sx={{ color: "text.secondary" }}
         >
-          {(record.abstract === "" || record.abstract === null) && (
-            <Box fontStyle="italic">No abstract available</Box>
-          )}
-
           {!(record.abstract === "" || record.abstract === null) &&
           collapseAbstract &&
           !readMoreOpen &&
           record.abstract.length > 500 ? (
-            <Box>
+            <>
               {record.abstract.substring(0, 500)}...
               <Link
                 component="button"
@@ -128,7 +136,7 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
               >
                 expand
               </Link>
-            </Box>
+            </>
           ) : (
             record.abstract
           )}
@@ -150,31 +158,45 @@ const RecordCard = ({
   collapseAbstract = false,
   hotkeys = false,
   transitionType = "fade",
+  landscape = false,
 }) => {
   const [state, setState] = React.useState({ open: true });
 
   const styledRepoCard = (
-    <StyledCard elevation={showBorder ? 2 : 0}>
+    <StyledCard elevation={showBorder ? 2 : 0} square={!showBorder}>
       <RecordCardModelTraining record={record} modelLogLevel={modelLogLevel} />
-      <RecordCardContent
-        record={record}
-        fontSize={fontSize}
-        collapseAbstract={collapseAbstract}
-      />
-      <RecordCardLabeler
-        project_id={project_id}
-        record_id={record.record_id}
-        label={record.state?.label}
-        labelFromDataset={record.included}
-        decisionCallback={() => setState({ open: false })}
-        retrainAfterDecision={retrainAfterDecision}
-        note={record.state?.note}
-        labelDatetime={record.state?.labeling_time}
-        showNotes={showNotes}
-        tagsForm={record.tags_form}
-        tagValues={record.state?.tags}
-        hotkeys={hotkeys}
-      />
+
+      <Grid
+        container
+        columns={5}
+        sx={{ alignItems: "stretch" }}
+        // divider={<Divider orientation="vertical" flexItem />}
+      >
+        <Grid size={landscape ? 3 : 5}>
+          <RecordCardContent
+            record={record}
+            fontSize={fontSize}
+            collapseAbstract={collapseAbstract}
+          />
+        </Grid>
+        <Grid size={landscape ? 2 : 5}>
+          <RecordCardLabeler
+            project_id={project_id}
+            record_id={record.record_id}
+            label={record.state?.label}
+            labelFromDataset={record.included}
+            decisionCallback={() => setState({ open: false })}
+            retrainAfterDecision={retrainAfterDecision}
+            note={record.state?.note}
+            labelDatetime={record.state?.labeling_time}
+            showNotes={showNotes}
+            tagsForm={record.tags_form}
+            tagValues={record.state?.tags}
+            landscape={landscape}
+            hotkeys={hotkeys}
+          />
+        </Grid>
+      </Grid>
     </StyledCard>
   );
 
