@@ -167,7 +167,9 @@ class Simulate:
             pbar_rel.close()
             pbar_total.close()
 
-            padded_results = list(self._results['label']) + [0] * (len(self.labels) - len(self._results['label']))
+            padded_results = list(self._results["label"]) + [0] * (
+                len(self.labels) - len(self._results["label"])
+            )
 
             metrics_block = f"""
 \033[95m----------------\033[0m Metrics Summary \033[95m----------------\033[0m
@@ -176,9 +178,8 @@ Records Labeled             : {len(self._results['label'])}/{len(self.labels)}
 Loss                        : {round(metrics.loss(padded_results), 2)}
 WSS@95%                     : {round(metrics.wss(padded_results, 0.95), 2)}
 \033[95m-------------------------------------------------\033[0m
-            """ 
+            """
             print(metrics_block)
-
 
     def train(self):
         """Train a new model on the labeled data."""

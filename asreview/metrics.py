@@ -15,14 +15,18 @@
 from typing import List
 import numpy as np
 
+
 def loss(labels: List[int]):
     Ny = sum(labels)
     Nx = len(labels)
     if Ny == 0 or Nx == Ny:
-        loss = f'{Ny = }'
+        loss = f"{Ny = }"
     else:
-        loss = float((Ny * (Nx - (Ny - 1) / 2) - np.cumsum(labels).sum()) / (Ny * (Nx - Ny)))
+        loss = float(
+            (Ny * (Nx - (Ny - 1) / 2) - np.cumsum(labels).sum()) / (Ny * (Nx - Ny))
+        )
     return loss
+
 
 def wss(labels, intercept, x_absolute=False, y_absolute=False):
     n_docs = len(labels)
