@@ -9,6 +9,17 @@ from asreview.data.utils import standardize_included_label
 
 
 class BaseReader(ABC):
+    """Base class for data readers.
+
+    Reading data from a file happens in three steps: read the raw data, perform data
+    cleaning and turn it into `Record` instances. This happens in `read_data`,
+    `clean_data` and `to_records`. Anyone implementing a `BaseReader` should provide an
+    implementation of `read_data`. There are default implementations of `clean_data` and
+    `to_records`. They assume that `read_data` produces a pandas DataFrame. There are a
+    number of ways to customize the default cleaning behavior, see the comments next to
+    the class attributes.
+    """
+
     # When a data reader reads a file and turns it into records, it needs to know
     # which columns of the input data to put into which columns of the record. By
     # default these should be the same, but you can allow for alternative input column
@@ -35,6 +46,8 @@ class BaseReader(ABC):
         "title": ["title", "primary_title"],
     }
 
+    # Dictionary {column name : function to apply to the column} of function that clean
+    # the data after reading it. The function should act on individual values.
     __cleaning_methods__ = {
         "authors": [convert_to_list],
         "keywords": [convert_to_list],
@@ -60,7 +73,7 @@ class BaseReader(ABC):
         The data type of the output should be equal to the data type of the input of
         `clean_data`. Typically this will mean a pandas DataFrame, but anyone creating a
         custom class can choose a different data type.
-        
+
         This method should not perform any cleaning of the data. That way data writers
         can add columns to a dataset without changing the original data: Use
         `reader.read_data` to get the data, then add the column, then write away the
@@ -80,6 +93,19 @@ class BaseReader(ABC):
 
     @classmethod
     def clean_data(cls, df):
+        """Clean the raw data.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Data to clean. This should be of the same type as the output of `read_data`.
+
+        Returns
+        -------
+        pd.DataFrame
+            Cleaned data. By default it standardizes the column names, some data types
+            and missing values.
+        """
         df = cls.standardize_column_names(df)
         for column, cleaning_methods in cls.__cleaning_methods__.items():
             if column in df.columns:
@@ -91,6 +117,22 @@ class BaseReader(ABC):
 
     @classmethod
     def to_records(cls, df, dataset_id=None, record_class=Record):
+        """Turn the cleaned data into records.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Cleaned data.
+        dataset_id : str, optional
+            Identifier of the dataset, by default None
+        record_class : asreview.data.record.Base, optional
+            Record class to use, by default Record
+
+        Returns
+        -------
+        list[Record]
+            List of records.
+        """
         columns_present = set(df.columns).intersection(set(record_class.get_columns()))
         return [
             record_class(dataset_row=idx, dataset_id=dataset_id, **row)
@@ -99,7 +141,26 @@ class BaseReader(ABC):
 
     @classmethod
     def standardize_column_names(cls, df):
-        """For record columns with alternative names, use the first available column."""
+        """Standardize column names of input data.
+
+        The reader can accept multiple names for a specific type of data, for example
+        both 'title' and 'primary_title' could refer to the column containing the title
+        data. This function makes sure the correct columns are used. See also the
+        attribute `__alternative_column_names__` for customizing this behavior.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Dataframe containing raw data.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe with column names lowercased and stripped of white space. In
+            addition, for the columns in `__alternative_column_names__`, the first
+            alternative column name in the data will be used as input for the column
+            values.
+        """
         # The original dataset object allowed for uppercase column names.
         # Here I just lowercase all column names, but might cause bugs if we then
         # have two columns with the same name. I.e. 'Title' & 'title' -> 'title'. I
