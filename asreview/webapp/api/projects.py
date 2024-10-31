@@ -198,18 +198,19 @@ def api_create_project():  # noqa: F401
 
         project.add_review()
 
-        as_data = project.data_store
-
         n_labeled = project.data_store["included"].notnull().sum()
 
         if n_labeled > 0 and n_labeled < len(project.data_store):
             with open_state(project.project_path) as state:
                 labeled_indices = np.where(
-                    (as_data["included"] == 1) | (as_data["included"] == 0)
+                    (project.data_store["included"] == 1)
+                    | (project.data_store["included"] == 0)
                 )[0]
 
-                labels = as_data["included"][labeled_indices].tolist()
-                labeled_record_ids = as_data["record_ids"][labeled_indices].tolist()
+                labels = project.data_store["included"][labeled_indices].tolist()
+                labeled_record_ids = project.data_store["record_ids"][
+                    labeled_indices
+                ].tolist()
 
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
