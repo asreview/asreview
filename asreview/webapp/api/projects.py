@@ -395,12 +395,8 @@ def api_get_project_data(project):  # noqa: F401
             "n_relevant": len(np.where(data.included == 1)[0]),
             "n_irrelevant": len(np.where(data.included == 0)[0]),
             "n_duplicates": int(data.doi.duplicated().sum()),
-            "n_missing_title": int(
-                data.title.isnull().sum()
-            ),
-            "n_missing_abstract": int(
-                data.abstract.isnull().sum()
-            ),
+            "n_missing_title": int(data.title.isnull().sum()),
+            "n_missing_abstract": int(data.abstract.isnull().sum()),
             "n_missing_urn": int(data.url.isnull().sum()),
             "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
