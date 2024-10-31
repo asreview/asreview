@@ -382,35 +382,26 @@ def api_demo_data_project():  # noqa: F401
 def api_get_project_data(project):  # noqa: F401
     """"""
 
-    data = project.data_store[["included", "title", "abstract", "doi"]]
-
-    if data.url is not None:
-        urn = pd.Series(data.url).replace("", None)
-    else:
-        urn = pd.Series([None] * len(data))
-
-    if data.doi is not None:
-        doi = pd.Series(data.doi).replace("", None)
-        urn.fillna(doi, inplace=True)
-
-    labels = np.empty(len(data), dtype=int) if data.labels is None else data.labels
+    data = project.data_store[["included", "title", "abstract", "doi", "url"]]
+    data = data.replace("", None)
+    data.url = data.url.fillna(data.doi)
 
     return jsonify(
         {
             "n_rows": len(data),
             "n_unlabeled": len(data)
-            - len(np.where(labels == 1)[0])
-            - len(np.where(labels == 0)[0]),
-            "n_relevant": len(np.where(labels == 1)[0]),
-            "n_irrelevant": len(np.where(labels == 0)[0]),
-            "n_duplicates": int(data.duplicated("doi").sum()),
+            - len(np.where(data.included == 1)[0])
+            - len(np.where(data.included == 0)[0]),
+            "n_relevant": len(np.where(data.included == 1)[0]),
+            "n_irrelevant": len(np.where(data.included == 0)[0]),
+            "n_duplicates": int(data.doi.duplicated().sum()),
             "n_missing_title": int(
-                pd.Series(data.title).replace("", None).isnull().sum()
+                data.title.isnull().sum()
             ),
             "n_missing_abstract": int(
-                pd.Series(data.abstract).replace("", None).isnull().sum()
+                data.abstract.isnull().sum()
             ),
-            "n_missing_urn": int(urn.isnull().sum()),
+            "n_missing_urn": int(data.url.isnull().sum()),
             "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
         }
@@ -570,8 +561,7 @@ def api_get_labeled(project):  # noqa: F401
         next_page = None
         previous_page = None
 
-    records = project.data_store.get_records(state_data["record_id"])
-
+    records = project.data_store.get_records(state_data["record_id"].to_list())
     result = []
     for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
