@@ -42,7 +42,7 @@ from asreview.migrate import migrate_v1_v2
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
-from asreview.data.store import DataStore
+from asreview.data import DataStore
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
 

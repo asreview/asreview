@@ -29,7 +29,7 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.data.store import DataStore
+from asreview.data import DataStore
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
 from asreview.project.api import Project

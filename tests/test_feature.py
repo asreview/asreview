@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 import asreview as asr
-from asreview.data.store import DataStore
+from asreview.data import DataStore
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
 
