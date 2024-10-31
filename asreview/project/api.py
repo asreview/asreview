@@ -33,7 +33,7 @@ import warnings
 import jsonschema
 from filelock import FileLock
 
-from asreview.data.loader import _from_file
+from asreview.data.loader import _from_file, _get_reader
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
@@ -262,7 +262,7 @@ class Project:
         self.update_config(dataset_path=None)
 
         # remove datasets from project
-        shutil.rmtree(Path(self.project_path, "data"))
+        shutil.rmtree(self.data_dir)
         self.clean_tmp_files()
 
         # remove state file if present
@@ -270,6 +270,12 @@ class Project:
             Path(self.project_path, "reviews").iterdir()
         ):
             self.delete_review()
+
+    def read_input_data(self, reader=None, *args, **kwargs):
+        file_name = self.config["datasets"][0]["name"]
+        fp = self.data_dir / file_name
+        reader = _get_reader(fp)
+        return reader.read_data(fp, *args, **kwargs)
 
     @property
     def feature_matrices(self):

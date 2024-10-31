@@ -7,6 +7,30 @@ from asreview.utils import _get_filename_from_url
 from asreview.utils import _is_url
 
 
+def _get_reader(fp):
+    """Get the reader that can read the file at the given file path.
+
+    Arguments
+    ---------
+    fp : Path
+        File path of the file to read.
+
+    Returns
+    -------
+    asreview.data.base_reader.BaseReader
+        Reader instance that can read the file.
+    """
+    if _is_url(fp):
+        fn = _get_filename_from_url(fp)
+    else:
+        fn = Path(fp).name
+    try:
+        reader = extensions("readers")[Path(fn).suffix].load()
+    except Exception:
+        raise ValueError(f"No reader found for file at location {fp}")
+    return reader
+
+
 def _from_file(fp, reader=None, dataset_id=None, **kwargs):
     """Create instance from supported file format.
 
@@ -23,21 +47,8 @@ def _from_file(fp, reader=None, dataset_id=None, **kwargs):
     kwargs: dict
         Keyword arguments passed to `reader.read_records`.
     """
-
-    if reader is not None:
-        return reader.read_records(fp, dataset_id=dataset_id, **kwargs)
-
-    # get the filename from a url else file path
-    if _is_url(fp):
-        fn = _get_filename_from_url(fp)
-    else:
-        fn = Path(fp).name
-
-    try:
-        reader = extensions("readers")[Path(fn).suffix].load()
-    except Exception:
-        raise ValueError(f"Importing file {fp} not possible.")
-
+    if reader is None:
+        reader = _get_reader(fp)
     return reader.read_records(fp, dataset_id=dataset_id, **kwargs)
 
 
@@ -64,17 +75,7 @@ def _from_extension(name, reader=None, dataset_id=None, **kwargs):
         fp = StringIO(dataset.to_file())
 
     if reader is None:
-        # get the filename from a url else file path
-        if _is_url(fp):
-            fn = _get_filename_from_url(fp)
-        else:
-            fn = Path(fp).name
-
-        try:
-            reader = extensions("readers")[Path(fn).suffix].load()
-        except Exception:
-            raise ValueError(f"Importing file {fp} not possible.")
-
+        reader = _get_reader(fp)
     return reader.read_records(fp, dataset_id=dataset_id, **kwargs)
 
 
