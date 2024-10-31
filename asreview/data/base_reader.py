@@ -1,6 +1,8 @@
 from abc import ABC
 from abc import abstractmethod
 
+import pandas as pd
+
 from asreview.data.record import Record
 from asreview.data.utils import convert_to_list
 from asreview.data.utils import standardize_included_label
@@ -39,6 +41,11 @@ class BaseReader(ABC):
         "included": [standardize_included_label],
     }
 
+    # Fill missing values with this value. It should be a tuple with one entry which is
+    # the value that will be used to fill all missing values. To disable filling the
+    # missing values, put `None` instead of `(None,)`.
+    __fillna_default__ = (None,)
+
     @classmethod
     def read_records(cls, fp, dataset_id, record_class=Record, *args, **kwargs):
         df = cls.read_dataframe(fp, *args, **kwargs)
@@ -74,6 +81,8 @@ class BaseReader(ABC):
             if column in df.columns:
                 for cleaning_method in cleaning_methods:
                     df[column] = df[column].apply(cleaning_method)
+        if cls.__fillna_default__ is not None:
+            df = df.fillna(pd.NA).replace([pd.NA], cls.__fillna_default__)
         return df
 
     @classmethod
