@@ -874,7 +874,7 @@ def api_export_dataset(project):
     file_format = request.args.get("format", default="csv", type=str)
     collections = request.args.getlist("collections", type=str)
 
-    df_user_input_data = project.read_data().to_dataframe()
+    df_user_input_data = project.read_input_data()
     df_user_input_data = df_user_input_data.loc[
         :, ~df_user_input_data.columns.str.startswith("asreview_")
     ]
