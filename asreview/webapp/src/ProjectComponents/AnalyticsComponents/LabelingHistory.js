@@ -31,7 +31,7 @@ const sortPerChunk = (decisions, chunkSize) => {
 
 const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
   const theme = useTheme();
-  const [chronological, toggleChronological] = useToggle(false);
+  const [chronological, toggleChronological] = useToggle(true);
   // const [anchorEl, setAnchorEl] = useState(null);
   const [infoAnchorEl, setInfoAnchorEl] = useState(null);
   // const [selectedPaper, setSelectedPaper] = useState(null);
@@ -74,8 +74,8 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
   }
 
   const labels = chronological
-    ? sortPerChunk(decisionsToDisplay, chunkSize)
-    : decisionsToDisplay;
+    ? decisionsToDisplay
+    : sortPerChunk(decisionsToDisplay, chunkSize);
 
   return (
     <Box position="relative" width="100%" maxWidth={960}>

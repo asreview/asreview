@@ -7,15 +7,17 @@ import {
   Popover,
   TextField,
   Button,
+  Link,
   Skeleton,
   Card,
   CardContent,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import { useQuery } from "react-query";
+import { ProjectAPI } from "api";
 
-const StoppingSuggestion = ({ progressQuery }) => {
+const StoppingSuggestion = ({ project_id }) => {
   const [stoppingRuleThreshold, setStoppingRuleThreshold] = useState(
     localStorage.getItem("stoppingRuleThreshold") || 30,
   );
@@ -28,8 +30,15 @@ const StoppingSuggestion = ({ progressQuery }) => {
   const [anchorElInfo, setAnchorElInfo] = useState(null);
 
   const [tempThreshold, setTempThreshold] = useState(stoppingRuleThreshold);
-  const loading = progressQuery.isLoading;
-  const theme = useTheme();
+
+  const { data, isLoading } = useQuery(
+    ["fetchProgress", { project_id: project_id }],
+    ({ queryKey }) =>
+      ProjectAPI.fetchProgress({
+        queryKey,
+      }),
+    { refetchOnWindowFocus: false },
+  );
 
   useEffect(() => {
     if (localStorage.getItem("stoppingRuleThreshold")) {
@@ -38,10 +47,10 @@ const StoppingSuggestion = ({ progressQuery }) => {
       );
     }
 
-    const { n_since_last_inclusion_no_priors } = progressQuery.data || {};
+    const { n_since_last_inclusion_no_priors } = data || {};
     setIrrelevantCount(n_since_last_inclusion_no_priors || 0);
     setNSinceLastInclusionNoPriors(n_since_last_inclusion_no_priors || 0);
-  }, [progressQuery.data]);
+  }, [data]);
 
   const handleClickEdit = (event) => {
     setAnchorElEdit(event.currentTarget);
@@ -82,14 +91,14 @@ const StoppingSuggestion = ({ progressQuery }) => {
       >
         <Box>
           <Box>
-            {loading ? (
+            {isLoading ? (
               <Skeleton width={100} height={40} />
             ) : (
               <Typography variant="h4" color="primary" fontWeight="bold">
                 {`${irrelevantCount}/${stoppingRuleThreshold}`}
               </Typography>
             )}
-            {loading ? (
+            {isLoading ? (
               <Skeleton width={150} height={24} />
             ) : (
               <Typography variant="body2" color="text.secondary">
@@ -98,7 +107,7 @@ const StoppingSuggestion = ({ progressQuery }) => {
             )}
           </Box>
           <Box display="flex" alignItems="center">
-            {loading ? (
+            {isLoading ? (
               <Skeleton width={150} height={40} />
             ) : (
               <>
@@ -125,7 +134,7 @@ const StoppingSuggestion = ({ progressQuery }) => {
           </Box>
         </Box>
         <Box position="relative" display="inline-flex">
-          {loading ? (
+          {isLoading ? (
             <Skeleton variant="circular" width={120} height={120} />
           ) : (
             <CircularProgress
@@ -208,14 +217,15 @@ const StoppingSuggestion = ({ progressQuery }) => {
             You can manually edit and optimize the threshold for your project.
           </Typography>
           <Box>
-            <a
+            <Link
+              component="a"
               href="https://github.com/asreview/asreview/discussions/557"
-              style={{ color: theme.palette.primary.main }}
+              sx={(theme) => ({ color: theme.palette.primary.main })}
               target="_blank"
               rel="noopener noreferrer"
             >
               Learn more
-            </a>
+            </Link>
           </Box>
         </Box>
       </Popover>

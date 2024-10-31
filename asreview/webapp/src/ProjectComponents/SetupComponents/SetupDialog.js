@@ -123,7 +123,7 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
       if (mode === projectModes.SIMULATION) {
         onClose();
       } else {
-        navigate(`/reviews/${data?.id}/review`);
+        navigate(`/reviews/${data?.id}/reviewer`);
       }
     },
   });

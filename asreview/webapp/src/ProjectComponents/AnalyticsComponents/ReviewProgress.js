@@ -17,6 +17,8 @@ import { CardErrorHandler } from "Components";
 import { useMemo, useState } from "react";
 import Chart from "react-apexcharts";
 import { StyledHelpPopover } from "StyledComponents/StyledHelpPopover";
+import { useQuery } from "react-query";
+import { ProjectAPI } from "api";
 
 const StatItem = ({ label, value, color, loading }) => (
   <Box
@@ -49,9 +51,17 @@ const StatItem = ({ label, value, color, loading }) => (
   </Box>
 );
 
-export default function ReviewProgress({ progressQuery }) {
+export default function ReviewProgress({ project_id }) {
   const theme = useTheme();
-  const loading = progressQuery.isLoading;
+
+  const { data, isLoading, error, isError } = useQuery(
+    ["fetchProgress", { project_id: project_id }],
+    ({ queryKey }) =>
+      ProjectAPI.fetchProgress({
+        queryKey,
+      }),
+    { refetchOnWindowFocus: false },
+  );
 
   //Prior knowledge switch state and the relevant statistics that depend on it
   const [includePriorKnowledge, setIncludePriorKnowledge] = useState(false);
@@ -63,7 +73,7 @@ export default function ReviewProgress({ progressQuery }) {
     n_excluded = 0,
     n_included_no_priors = 0,
     n_excluded_no_priors = 0,
-  } = progressQuery.data || {};
+  } = data || {};
 
   const donutSeries = useMemo(() => {
     const relevant = includePriorKnowledge ? n_included : n_included_no_priors;
@@ -164,8 +174,8 @@ export default function ReviewProgress({ progressQuery }) {
     <Card>
       <CardErrorHandler
         queryKey={"fetchProgress"}
-        error={progressQuery?.error}
-        isError={progressQuery?.isError}
+        error={error}
+        isError={isError}
       />
       <CardContent>
         <FormControlLabel
@@ -241,7 +251,7 @@ export default function ReviewProgress({ progressQuery }) {
                 label="Total Records"
                 value={n_papers}
                 color="text.primary"
-                loading={loading}
+                loading={isLoading}
               />
               <StatItem
                 label="Labeled Records"
@@ -251,7 +261,7 @@ export default function ReviewProgress({ progressQuery }) {
                     : n_included_no_priors + n_excluded_no_priors
                 }
                 color="text.primary"
-                loading={loading}
+                loading={isLoading}
               />
             </Stack>
           </Grid>
@@ -261,7 +271,7 @@ export default function ReviewProgress({ progressQuery }) {
             justifyContent="center"
             alignItems="center"
           >
-            {loading ? (
+            {isLoading ? (
               <Skeleton variant="circular" width={180} height={180} />
             ) : (
               <Chart
@@ -285,7 +295,7 @@ export default function ReviewProgress({ progressQuery }) {
                     ? theme.palette.primary.light
                     : theme.palette.primary.main
                 }
-                loading={loading}
+                loading={isLoading}
               />
               <StatItem
                 label="Irrelevant Records"
@@ -297,7 +307,7 @@ export default function ReviewProgress({ progressQuery }) {
                     ? theme.palette.grey[600]
                     : theme.palette.grey[600]
                 }
-                loading={loading}
+                loading={isLoading}
               />
             </Stack>
           </Grid>

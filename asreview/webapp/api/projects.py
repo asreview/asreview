@@ -749,6 +749,29 @@ def api_set_algorithms(project):  # noqa: F401
     return jsonify(asdict(settings))
 
 
+# @bp.route("/projects/<project_id>/stopping", methods=["GET"])
+# @login_required
+# @project_authorization
+# def api_get_stopping(project):  # noqa: F401
+#     """Get the stopping algorithms used in the project"""
+
+#     stopping = Stopping()
+
+#     try:
+#         stopping = stopping.from_file(
+#             Path(
+#                 project.project_path,
+#                 "reviews",
+#                 project.reviews[0]["id"],
+#                 "stopping_metadata.json",
+#             )
+#         )
+#     except FileNotFoundError:
+#         pass
+
+#     return jsonify(asdict(stopping))
+
+
 @bp.route("/projects/<project_id>/wordcounts", methods=["GET"])
 @login_required
 @project_authorization
