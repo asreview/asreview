@@ -28,7 +28,7 @@ class CSVReader(BaseReader):
     write_format = [".csv", ".tsv", ".xlsx"]
 
     @classmethod
-    def read_dataframe(cls, fp):
+    def read_data(cls, fp):
         """Import dataset.
 
         Arguments
@@ -86,7 +86,7 @@ class ExcelReader(BaseReader):
     write_format = [".csv", ".tsv", ".xlsx"]
 
     @classmethod
-    def read_dataframe(cls, fp):
+    def read_data(cls, fp):
         """Import dataset.
 
         Arguments

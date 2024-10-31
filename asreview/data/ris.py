@@ -147,7 +147,7 @@ class RISReader(BaseReader):
         return entries
 
     @classmethod
-    def read_dataframe(cls, fp):
+    def read_data(cls, fp):
         """Import dataset.
 
         Arguments
