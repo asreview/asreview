@@ -22,6 +22,7 @@ from urllib.request import urlopen
 import pandas as pd
 import rispy
 
+from asreview.config import LABEL_NA
 from asreview.data.base_reader import BaseReader
 from asreview.utils import _is_url
 
@@ -250,7 +251,7 @@ class RISWriter:
             rec_copy = {k: v for k, v in rec.items() if _notnull(v)}
 
             if "included" not in rec_copy:
-                rec_copy["included"] = -1
+                rec_copy["included"] = LABEL_NA
 
             # write the notes with ASReview data
             for k, v in ASREVIEW_PARSE_DICT.items():
