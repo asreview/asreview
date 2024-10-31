@@ -7,6 +7,7 @@ from pytest import mark
 
 from asreview import load_dataset
 from asreview.utils import _is_url
+from asreview.data.loader import _from_file
 
 
 @mark.parametrize(
@@ -38,8 +39,8 @@ def test_reader(test_file, n_lines, ignore_col):
     else:
         fp = Path("tests", "demo_data", test_file)
 
-    as_data = load_dataset(fp)
-    assert len(as_data) == n_lines
+    records = _from_file(fp)
+    assert len(records) == n_lines
 
     cols = ["title", "abstract", "authors", "keywords"]
     cols = [col for col in cols if col not in ignore_col]
@@ -48,7 +49,7 @@ def test_reader(test_file, n_lines, ignore_col):
     #     assert np.array_equal(as_data.labels, labels)
 
     for col in cols:
-        values = as_data[col]
+        values = [getattr(record, col) for record in records]
         assert len(values) == n_lines
 
 
