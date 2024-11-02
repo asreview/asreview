@@ -23,6 +23,7 @@ import {
   SearchOutlined,
 } from "@mui/icons-material";
 import { ProjectAPI } from "api";
+import { projectModes } from "globals.js";
 import ImportProject from "ProjectComponents/ImportProject";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 import {
@@ -31,7 +32,7 @@ import {
   DatasetFromOpenAlex,
   DatasetFromURI,
 } from "ProjectComponents/SetupComponents/DataUploadComponents";
-import { projectModes } from "globals.js";
+import { useQuery } from "react-query";
 
 const DialogProjectName = ({ project_id, dataset_name }) => {
   const [state, setState] = React.useState({
@@ -102,10 +103,21 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
 };
 
 const Upload = ({ mode }) => {
-  // state management
-  const [uploadSource, setUploadSource] = React.useState("file");
+  const [uploadSource, setUploadSource] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState(null);
   const [setupProjectId, setSetupProjectId] = React.useState(null);
+
+  const { data } = useQuery(
+    ["fetchProjects", { subset: mode }],
+    ProjectAPI.fetchProjects,
+    {
+      onSuccess: (data) => {
+        if (data?.result.length === 0) {
+          setUploadSource("file");
+        }
+      },
+    },
+  );
 
   return (
     <>
@@ -113,6 +125,7 @@ const Upload = ({ mode }) => {
         <Tabs
           value={uploadSource}
           onChange={(event, newValue) => {
+            console.log(newValue);
             setUploadSource(newValue);
           }}
           centered
