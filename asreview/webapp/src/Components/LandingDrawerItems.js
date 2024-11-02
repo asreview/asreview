@@ -4,6 +4,8 @@ import { DashboardOutlined } from "@mui/icons-material";
 import { Box, Toolbar } from "@mui/material";
 
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
+import SimulateOutlined from "icons/SimulateOutlined";
+import AutoModeOutlinedIcon from "@mui/icons-material/AutoModeOutlined";
 
 const LandingDrawerItems = ({ onClick = null, rail = false }) => {
   return (
@@ -20,7 +22,7 @@ const LandingDrawerItems = ({ onClick = null, rail = false }) => {
         to={"/reviews"}
         primary={"Reviews"}
         rail={rail}
-        icon={<DashboardOutlined />}
+        icon={<SimulateOutlined />}
         component={NavLink}
         onClick={onClick}
       />
@@ -29,7 +31,7 @@ const LandingDrawerItems = ({ onClick = null, rail = false }) => {
         to={"/simulations"}
         primary={"Simulations"}
         rail={rail}
-        icon={<DashboardOutlined />}
+        icon={<AutoModeOutlinedIcon />}
         component={NavLink}
         onClick={onClick}
       />

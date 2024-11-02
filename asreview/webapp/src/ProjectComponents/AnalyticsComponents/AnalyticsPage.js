@@ -104,12 +104,19 @@ const AnalyticsPage = () => {
     <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>
       <Stack spacing={2} className="main-page-body">
         <Fade in>
-          <Typography
-            variant="h4"
-            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }}
-          >
-            {data?.name}
-          </Typography>
+          <Box>
+            <Typography
+              variant="h4"
+              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 2 }}
+            >
+              {data?.name}
+            </Typography>
+            <Typography
+              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }}
+            >
+              747 records in total
+            </Typography>
+          </Box>
         </Fade>
         <Box>
           <AvatarGroup max={20}>
@@ -120,21 +127,15 @@ const AnalyticsPage = () => {
             <Avatar alt="Trevor Henderson" src="/static/images/avatar/5.jpg" />
           </AvatarGroup>
         </Box>
-        <Box>
-          <Tabs
-            value={activeProgressTab}
-            onChange={(event, newValue) => setActiveProgressTab(newValue)}
-          >
-            <Tab label="Review Progress" />
-            <Tab label="Stopping Suggestion" />
-          </Tabs>
-          {activeProgressTab === 0 && (
+        <Grid container columns={2}>
+          <Grid size={1}>
             <ReviewProgress project_id={project_id} />
-          )}
-          {activeProgressTab === 1 && (
+          </Grid>
+
+          <Grid size={1}>
             <StoppingSuggestion project_id={project_id} />
-          )}
-        </Box>
+          </Grid>
+        </Grid>
 
         <Divider
           sx={{

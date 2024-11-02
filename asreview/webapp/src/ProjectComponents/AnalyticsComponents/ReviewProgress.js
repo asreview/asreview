@@ -5,6 +5,7 @@ import {
   CardContent,
   FormControlLabel,
   Grid2 as Grid,
+  Divider,
   IconButton,
   Link,
   Skeleton,
@@ -26,7 +27,7 @@ const StatItem = ({ label, value, color, loading }) => (
       bgcolor: "background.paper",
       p: 1.5,
       borderRadius: 4,
-      boxShadow: 3,
+
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
@@ -171,14 +172,14 @@ export default function ReviewProgress({ project_id }) {
   const popoverOpen = Boolean(anchorEl);
 
   return (
-    <Card>
+    <Card sx={{ bgcolor: "background.default" }}>
       <CardErrorHandler
         queryKey={"fetchProgress"}
         error={error}
         isError={isError}
       />
       <CardContent>
-        <FormControlLabel
+        {/* <FormControlLabel
           control={
             <Switch
               checked={!includePriorKnowledge}
@@ -187,7 +188,7 @@ export default function ReviewProgress({ project_id }) {
           }
           label="Hide Prior Knowledge"
           labelPlacement="end"
-        />
+        /> */}
         <IconButton
           size="small"
           onClick={handlePopoverOpen}
@@ -216,10 +217,6 @@ export default function ReviewProgress({ project_id }) {
             <strong>Statistics</strong>
           </Typography>
           <Typography variant="body1">
-            <strong>Total Records:</strong> The total number of records in your
-            dataset
-          </Typography>
-          <Typography variant="body1">
             <strong>Labeled Records:</strong> Combination of records that you
             labeled as relevant or irrelevant
           </Typography>
@@ -244,29 +241,9 @@ export default function ReviewProgress({ project_id }) {
         </StyledHelpPopover>
       </CardContent>
       <CardContent>
-        <Grid container direction="row" spacing={2}>
-          <Grid size={{ xs: 12, md: "grow" }}>
-            <Stack spacing={2}>
-              <StatItem
-                label="Total Records"
-                value={n_papers}
-                color="text.primary"
-                loading={isLoading}
-              />
-              <StatItem
-                label="Labeled Records"
-                value={
-                  includePriorKnowledge
-                    ? n_included + n_excluded
-                    : n_included_no_priors + n_excluded_no_priors
-                }
-                color="text.primary"
-                loading={isLoading}
-              />
-            </Stack>
-          </Grid>
+        <Grid container spacing={2} columns={1}>
           <Grid
-            size={{ xs: 12, md: 4 }}
+            size={1}
             display="flex"
             justifyContent="center"
             alignItems="center"
@@ -283,13 +260,106 @@ export default function ReviewProgress({ project_id }) {
               />
             )}
           </Grid>
-          <Grid size={{ xs: 12, md: "grow" }}>
-            <Stack spacing={2}>
+          <Grid size={1}>
+            <Stack spacing={2} direction={"row"}>
+              <Box
+                sx={{
+                  bgcolor: "background.paper",
+                  p: 1.5,
+                  borderRadius: 4,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  mb: { xs: 1, sm: 2 },
+                }}
+              >
+                <Stack spacing={1} direction={"column"}>
+                  <Stack direction={"row"} spacing={1}>
+                    <Typography variant="body2" color="text.secondary">
+                      {"Relevant Records"}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      color="text.secondary"
+                    >
+                      {n_included_no_priors}
+                    </Typography>
+                  </Stack>
+                  <Divider />
+                  <Stack direction={"row"} spacing={1}>
+                    <Typography variant="body2" color="text.secondary">
+                      {"with priors"}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      color="text.secondary"
+                    >
+                      {n_included}
+                    </Typography>
+                  </Stack>
+                </Stack>
+              </Box>
+              <Box
+                sx={{
+                  bgcolor: "background.paper",
+                  p: 1.5,
+                  borderRadius: 4,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  mb: { xs: 1, sm: 2 },
+                }}
+              >
+                <Stack spacing={1} direction={"column"}>
+                  <Stack direction={"row"} spacing={1}>
+                    <Typography variant="body2" color="text.secondary">
+                      {"Relevant Records"}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      color="text.secondary"
+                    >
+                      {n_excluded_no_priors}
+                    </Typography>
+                  </Stack>
+                  <Divider />
+                  <Stack direction={"row"} spacing={1}>
+                    <Typography variant="body2" color="text.secondary">
+                      {"with priors"}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      color="text.secondary"
+                    >
+                      {n_excluded}
+                    </Typography>
+                  </Stack>
+                </Stack>
+              </Box>
+              {/*
               <StatItem
                 label="Relevant Records"
-                value={
-                  includePriorKnowledge ? n_included : n_included_no_priors
+                value={n_included_no_priors}
+                color={
+                  theme.palette.mode === "light"
+                    ? theme.palette.primary.light
+                    : theme.palette.primary.main
                 }
+                loading={isLoading}
+              /> */}
+            </Stack>
+          </Grid>
+          {/* <Grid size={1}>
+            <Stack spacing={2} direction={"row"}>
+              <StatItem
+                label="Relevant with prior records"
+                value={n_included + 5}
                 color={
                   theme.palette.mode === "light"
                     ? theme.palette.primary.light
@@ -298,10 +368,8 @@ export default function ReviewProgress({ project_id }) {
                 loading={isLoading}
               />
               <StatItem
-                label="Irrelevant Records"
-                value={
-                  includePriorKnowledge ? n_excluded : n_excluded_no_priors
-                }
+                label="Not relevant with prior records"
+                value={n_excluded + 10}
                 color={
                   theme.palette.mode === "light"
                     ? theme.palette.grey[600]
@@ -310,7 +378,7 @@ export default function ReviewProgress({ project_id }) {
                 loading={isLoading}
               />
             </Stack>
-          </Grid>
+          </Grid> */}
         </Grid>
       </CardContent>
     </Card>

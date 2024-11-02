@@ -22,7 +22,7 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
   const [openGame, toggleGame] = useToggle();
 
   const { pathname } = useLocation();
-  const isReviewPath = pathname.endsWith("/review");
+  const isReviewPath = pathname.endsWith("/reviewer");
 
   const headerActive = useScrollTrigger({
     threshold: 0,

@@ -7,6 +7,8 @@ import {
   Popover,
   TextField,
   Button,
+  Grid2 as Grid,
+  Stack,
   Link,
   Skeleton,
   Card,
@@ -16,6 +18,37 @@ import EditIcon from "@mui/icons-material/Edit";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { useQuery } from "react-query";
 import { ProjectAPI } from "api";
+
+const StatItem = ({ label, value, color, loading }) => (
+  <Box
+    sx={{
+      bgcolor: "background.paper",
+      p: 1.5,
+      borderRadius: 4,
+      boxShadow: 3,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      width: "100%",
+      mb: { xs: 1, sm: 2 },
+    }}
+  >
+    {loading ? (
+      <Skeleton width="40%" />
+    ) : (
+      <Typography variant="body2" color="text.secondary">
+        {label}
+      </Typography>
+    )}
+    {loading ? (
+      <Skeleton width="20%" />
+    ) : (
+      <Typography variant="h6" color={color} fontWeight="bold">
+        {value.toLocaleString()}
+      </Typography>
+    )}
+  </Box>
+);
 
 const StoppingSuggestion = ({ project_id }) => {
   const [stoppingRuleThreshold, setStoppingRuleThreshold] = useState(
@@ -80,6 +113,7 @@ const StoppingSuggestion = ({ project_id }) => {
     <Card
       sx={{
         position: "relative",
+        bgcolor: "background.default",
       }}
     >
       <CardContent
@@ -89,86 +123,69 @@ const StoppingSuggestion = ({ project_id }) => {
           alignItems: "center",
         }}
       >
-        <Box>
+        <Grid container spacing={2} columns={1}>
+          <Box position="relative" display="inline-flex">
+            {isLoading ? (
+              <Skeleton variant="circular" width={120} height={120} />
+            ) : (
+              <CircularProgress
+                variant="determinate"
+                value={stoppingRuleProgress}
+                size={120}
+                thickness={6}
+                sx={{
+                  color: "primary.main",
+                  borderRadius: "50%",
+                  boxShadow: "0px 0px 10px 3px rgba(0, 0, 0, 0.2)",
+                }}
+              />
+            )}
+            <Box
+              top={0}
+              left={0}
+              bottom={0}
+              right={0}
+              position="absolute"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Typography variant="h6" color="text.secondary" component="div">
+                {`${Math.round(stoppingRuleProgress)}%`}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Grid size={1}>
+            <Stack spacing={2} direction={"row"}>
+              <StatItem
+                label="Not relevant since last relevant"
+                value={n_since_last_inclusion_no_priors}
+              />
+              <StatItem
+                label={
+                  <>
+                    {"Stopping suggestion"}{" "}
+                    <IconButton
+                      size="small"
+                      onClick={handleClickEdit}
+                      color="primary"
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </>
+                }
+                value={tempThreshold}
+              />
+            </Stack>
+          </Grid>
+
           <Box>
-            {isLoading ? (
-              <Skeleton width={100} height={40} />
-            ) : (
-              <Typography variant="h4" color="primary" fontWeight="bold">
-                {`${irrelevantCount}/${stoppingRuleThreshold}`}
-              </Typography>
-            )}
-            {isLoading ? (
-              <Skeleton width={150} height={24} />
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                Irrelevant since last Relevant
-              </Typography>
-            )}
+            <IconButton size="small" onClick={handleClickInfo}>
+              <HelpOutlineIcon fontSize="small" />
+            </IconButton>
           </Box>
-          <Box display="flex" alignItems="center">
-            {isLoading ? (
-              <Skeleton width={150} height={40} />
-            ) : (
-              <>
-                <Typography variant="body2" color="text.secondary" mr={1}>
-                  Threshold:
-                </Typography>
-                <Typography
-                  variant="body1"
-                  color="text.primary"
-                  fontWeight="bold"
-                  mr={1}
-                >
-                  {stoppingRuleThreshold}
-                </Typography>
-                <IconButton
-                  size="small"
-                  onClick={handleClickEdit}
-                  color="primary"
-                >
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              </>
-            )}
-          </Box>
-        </Box>
-        <Box position="relative" display="inline-flex">
-          {isLoading ? (
-            <Skeleton variant="circular" width={120} height={120} />
-          ) : (
-            <CircularProgress
-              variant="determinate"
-              value={stoppingRuleProgress}
-              size={120}
-              thickness={6}
-              sx={{
-                color: "primary.main",
-                borderRadius: "50%",
-                boxShadow: "0px 0px 10px 3px rgba(0, 0, 0, 0.2)",
-              }}
-            />
-          )}
-          <Box
-            top={0}
-            left={0}
-            bottom={0}
-            right={0}
-            position="absolute"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Typography variant="h6" color="text.secondary" component="div">
-              {`${Math.round(stoppingRuleProgress)}%`}
-            </Typography>
-          </Box>
-        </Box>
-        <Box>
-          <IconButton size="small" onClick={handleClickInfo}>
-            <HelpOutlineIcon fontSize="small" />
-          </IconButton>
-        </Box>
+        </Grid>
       </CardContent>
       <Popover
         id="threshold-popover"

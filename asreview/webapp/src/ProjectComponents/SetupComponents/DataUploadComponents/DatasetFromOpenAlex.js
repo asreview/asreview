@@ -74,7 +74,14 @@ const DatasetFromOpenAlex = ({ mode, setDataset }) => {
           onChange={(e) => e.preventDefault()}
         />
 
-        <Typography>Coming soon!</Typography>
+        <Typography
+          color="error"
+          textAlign={"center"}
+          variant={"h6"}
+          fontFamily={"Roboto Serif"}
+        >
+          Coming soon!
+        </Typography>
         {/*
         {data && (
           <>

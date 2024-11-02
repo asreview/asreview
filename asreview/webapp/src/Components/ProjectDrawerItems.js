@@ -3,13 +3,13 @@ import { Link, NavLink } from "react-router-dom";
 
 import {
   ArrowBackOutlined,
-  AssessmentOutlined,
-  AssignmentOutlined,
+  DashboardOutlined,
   LibraryBooksOutlined,
   PeopleAltOutlined,
   SettingsOutlined,
 } from "@mui/icons-material";
 
+import ReviewScreenOutlined from "icons/ReviewScreenOutlined";
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 
 const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
@@ -43,7 +43,7 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
           primary={"Dashboard"}
           rail={rail}
           onClick={onClick}
-          icon={<AssessmentOutlined />}
+          icon={<DashboardOutlined />}
           component={NavLink}
           end={true}
         />
@@ -55,7 +55,7 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
             primary={"Reviewer"}
             rail={rail}
             onClick={onClick}
-            icon={<AssignmentOutlined />}
+            icon={<ReviewScreenOutlined />}
             component={NavLink}
           />
         )}
