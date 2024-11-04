@@ -827,7 +827,7 @@ def api_import_project():
         project.config["reviews"][0]["id"],
         "settings_metadata.json",
     )
-    settings = ReviewSettings().from_file(settings_fp)
+    settings = ReviewSettings.from_file(settings_fp)
 
     warnings = []
     try:
