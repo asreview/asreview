@@ -202,11 +202,7 @@ def test_upload_benchmark_data_to_project(client, user, upload_data):
         assert r.json["id"] == project.project_id
     else:
         assert r.json["id"] == project.config.get("id")
-
-    pickle_path = project.project_path / "tmp" / "data.pickle"
-    assert not pickle_path.exists()
-    asr.Project(project.project_path).read_data()
-    assert pickle_path.exists()
+    asr.Project(project.project_path).data_store.get_df()
 
 
 # Test getting the data after an upload

@@ -16,14 +16,11 @@ H5_STATE_FILE = Path(STATE_DIR, "test.h5")
 JSON_STATE_FILE = Path(STATE_DIR, "test.json")
 
 
-@pytest.mark.xfail(
-    raises=FileNotFoundError,
-    reason="File, URL, or dataset does not exist: " "'this_doesnt_exist.csv'",
-)
 def test_dataset_not_found(tmpdir):
     asreview_fp = Path(tmpdir, "project.asreview")
     argv = f"does_not.exist -s {asreview_fp}".split()
-    _cli_simulate(argv)
+    with pytest.raises(ValueError):
+        _cli_simulate(argv)
 
 
 def test_no_output():

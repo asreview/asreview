@@ -7,6 +7,7 @@ from pytest import mark
 
 from asreview import load_dataset
 from asreview.utils import _is_url
+from asreview.data.loader import _from_file
 
 
 @mark.parametrize(
@@ -38,17 +39,14 @@ def test_reader(test_file, n_lines, ignore_col):
     else:
         fp = Path("tests", "demo_data", test_file)
 
-    as_data = load_dataset(fp)
-    assert len(as_data) == n_lines
+    records = _from_file(fp)
+    assert len(records) == n_lines
 
     cols = ["title", "abstract", "authors", "keywords"]
     cols = [col for col in cols if col not in ignore_col]
-    # if labels is not None:
-    #     cols.append('included')
-    #     assert np.array_equal(as_data.labels, labels)
 
     for col in cols:
-        values = as_data.get(col)
+        values = [getattr(record, col) for record in records]
         assert len(values) == n_lines
 
 
@@ -102,8 +100,8 @@ def test_reader(test_file, n_lines, ignore_col):
 )
 def test_asreview_labels_ris(record_i, included):
     fp = Path("tests", "demo_data", "baseline_tag-notes_labels.ris")
-    as_data = load_dataset(fp)
-    assert as_data.record(record_i).included == included
+    records = _from_file(fp)
+    assert records[record_i].included == included
 
 
 def test_multiline_tags_ris():
@@ -114,84 +112,56 @@ def test_multiline_tags_ris():
 
 def test_nan_values_ris():
     fp = Path("tests", "demo_data", "baseline_empty_values.ris")
-    as_data = load_dataset(fp)
+    records = _from_file(fp)
 
     # Check missing titles
-    assert as_data.record(1).title is None
-    assert as_data.record(3).title is None
+    assert records[1].title is None
+    assert records[3].title is None
 
     # Check missing abstracts
-    assert as_data.record(0).abstract is None
-    assert as_data.record(2).abstract is None
+    assert records[0].abstract is None
+    assert records[2].abstract is None
 
     # Check missing authors
-    assert as_data.record(0).authors is None
-    assert as_data.record(2).authors is None
+    assert records[0].authors == []
+    assert records[2].authors == []
 
     # Check missing keywords
-    assert as_data.record(0).keywords is None
-    assert as_data.record(2).keywords is None
+    assert records[0].keywords == []
+    assert records[2].keywords == []
 
     # Check missing notes
-    assert as_data.record(0).notes is None
-    assert as_data.record(2).notes is None
+    assert records[0].notes is None
+    assert records[2].notes is None
 
     # check missing doi
-    assert as_data.record(0).doi is None
-    assert as_data.record(2).doi is None
-
-    # check is_prior
-    assert not as_data.record(0).is_prior
-    assert not as_data.record(2).is_prior
+    assert records[0].doi is None
+    assert records[2].doi is None
 
 
 def test_nan_values_csv():
     fp = Path("tests", "demo_data", "missing_values.csv")
-    as_data = load_dataset(fp)
+    records = _from_file(fp)
 
     # Check missing titles
-    assert as_data.record(1).title is None
-    assert as_data.record(3).title is None
+    assert records[1].title is None
+    assert records[3].title is None
 
     # Check missing abstracts
-    assert as_data.record(0).abstract is None
-    assert as_data.record(2).abstract is None
+    assert records[0].abstract is None
+    assert records[2].abstract is None
 
     # Check missing authors
-    assert as_data.record(0).authors is None
-    assert as_data.record(2).authors is None
+    assert records[0].authors == []
+    assert records[2].authors == []
 
     # Check missing keywords
-    assert as_data.record(0).keywords is None
-    assert as_data.record(2).keywords is None
+    assert records[0].keywords == []
+    assert records[2].keywords == []
 
     # Check missing doi
-    assert as_data.record(0).doi is None
-    assert as_data.record(2).doi is None
-
-
-def test_asreview_labels_prior():
-    fp = Path("tests", "demo_data", "baseline_tag-notes_labels.ris")
-    as_data = load_dataset(fp)
-    assert as_data.record(0).is_prior
-    assert as_data.record(1).is_prior
-    assert not as_data.record(2).is_prior
-    assert not as_data.record(3).is_prior
-
-    assert as_data.is_prior().sum() == 2
-
-
-def test_write_data(tmpdir):
-    fp_in = Path("tests", "demo_data", "generic_labels.csv")
-    fp_out = Path(tmpdir, "generic_out.csv")
-    asr_data = load_dataset(fp_in)
-    asr_data.to_file(fp_out, labels=[[0, 0], [2, 1], [3, 1]])
-
-    tmp_csv_fp_out = Path(tmpdir, "tmp_generic_labels.csv")
-    asr_data.to_file(tmp_csv_fp_out)
-    asr_data_diff = load_dataset(tmp_csv_fp_out)
-    # Check if export file includes labels [1,0]
-    assert list(asr_data.labels) == list(asr_data_diff.labels)
+    assert records[0].doi is None
+    assert records[2].doi is None
 
 
 @mark.internet_required
@@ -199,8 +169,8 @@ def test_load_dataset_from_url(tmpdir):
     url = "https://zenodo.org/api/records/1162952/files/Hall.csv/content"
 
     urlretrieve(url, tmpdir / "Hall.csv")
-    as_data = load_dataset(tmpdir / "Hall.csv")
-    assert len(as_data) == 8911
+    records = load_dataset(tmpdir / "Hall.csv")
+    assert len(records) == 8911
 
 
 @pytest.mark.skip()

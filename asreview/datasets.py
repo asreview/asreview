@@ -32,7 +32,7 @@ from urllib.request import urlretrieve
 
 import synergy_dataset as sd
 
-from asreview.data.tabular import CSVReader
+from asreview.data import CSVReader
 from asreview.extensions import extensions
 from asreview.utils import _get_filename_from_url
 

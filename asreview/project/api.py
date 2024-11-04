@@ -18,12 +18,11 @@ __all__ = [
 ]
 
 import json
-import logging
 import os
-import pickle
 import shutil
 import tempfile
 import time
+from urllib.request import urlretrieve
 import zipfile
 from dataclasses import asdict
 from datetime import datetime
@@ -32,21 +31,22 @@ from uuid import uuid4
 import warnings
 
 import jsonschema
-import pandas as pd
 from filelock import FileLock
 
-from asreview import load_dataset
+from asreview.data.loader import _from_file, _get_reader
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.datasets import DatasetManager
 from asreview.migrate import migrate_v1_v2
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
+from asreview.data import DataStore
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
 
-from asreview.utils import _check_model
+from asreview.utils import _check_model, _get_filename_from_url, _is_url
 
 try:
     from asreview._version import __version__
@@ -56,6 +56,7 @@ except ImportError:
 PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
 PATH_FEATURE_MATRICES = "feature_matrices"
+PATH_DATA_STORE = "data_store.db"
 
 
 def is_project(project_obj, raise_on_old_version=True):
@@ -73,7 +74,9 @@ class Project:
 
     def __init__(self, project_path, project_id=None):
         self.project_path = Path(project_path)
+        self.data_dir = self.project_path / "data"
         self.project_id = project_id
+        self.data_store = DataStore(Path(project_path, PATH_DATA_STORE))
 
     @classmethod
     def create(
@@ -112,6 +115,8 @@ class Project:
             Path(project_path, "data").mkdir(exist_ok=True)
             Path(project_path, PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
             Path(project_path, "reviews").mkdir(exist_ok=True)
+            data_store = DataStore(Path(project_path, PATH_DATA_STORE))
+            data_store.create_tables()
 
             config = {
                 "version": __version__,
@@ -197,24 +202,59 @@ class Project:
         self.config = config
         return config
 
-    def add_dataset(self, file_name):
-        """Add file path to the project file.
+    def add_dataset(self, fp, dataset_id=None, file_writer=None):
+        """Add a dataset to the project file.
 
-        Add file to data subfolder.
+        Arguments
+        ---------
+        fp: str, Path
+            Filepath to the dataset. It will be copied to the correct location in the
+            project file.
         """
+        if dataset_id is None:
+            dataset_id = uuid4().hex
 
-        # fill the pool of the first iteration
-        fp_data = Path(self.project_path, "data", file_name)
-        as_data = load_dataset(fp_data)
+        self.data_dir.mkdir(exist_ok=True)
 
-        if self.config["mode"] == PROJECT_MODE_SIMULATE and (
-            as_data.labels is None or (as_data.labels == LABEL_NA).any()
-        ):
+        if file_writer is not None:
+            save_fp = self.data_dir / fp
+            file_writer(save_fp)
+        elif _is_url(fp):
+            filename = _get_filename_from_url(fp)
+            save_fp = self.data_dir / filename
+            urlretrieve(fp, save_fp)
+        elif Path(fp).exists():
+            save_fp = self.data_dir / Path(fp).name
+            shutil.copy(fp, save_fp)
+        else:
+            dataset = DatasetManager().find(fp)
+            if dataset is None:
+                raise ValueError(
+                    "fp should be existing file, or URL or dataset, but does not"
+                    f" exist: {fp}"
+                )
+            save_fp = self.data_dir / dataset.filename
+            dataset.to_file(save_fp)
+        file_name = save_fp.name
+
+        records = _from_file(save_fp, dataset_id=dataset_id)
+
+        # Internals of the records are leaking out here. We are checking for a specific
+        # field and a specific value. If the presence of the field `included` is
+        # necessary in the input data, we should move it from `Record` to the `Base`
+        # class, so that all record implementations have it.
+        any_record_unlabeled = any(record.included == LABEL_NA for record in records)
+        if self.config["mode"] == PROJECT_MODE_SIMULATE and any_record_unlabeled:
             raise ValueError("Import fully labeled dataset")
 
-        self.update_config(dataset_path=file_name, name=file_name.rsplit(".", 1)[0])
+        self.data_store.add_records(records=records)
 
-        return as_data
+        # This config update assumes that the project only has one dataset.
+        self.update_config(
+            dataset_path=file_name,
+            name=file_name.rsplit(".", 1)[0],
+            datasets=[{"id": dataset_id, "name": file_name}],
+        )
 
     def remove_dataset(self):
         """Remove dataset from project."""
@@ -222,7 +262,7 @@ class Project:
         self.update_config(dataset_path=None)
 
         # remove datasets from project
-        shutil.rmtree(Path(self.project_path, "data"))
+        shutil.rmtree(self.data_dir)
         self.clean_tmp_files()
 
         # remove state file if present
@@ -231,77 +271,11 @@ class Project:
         ):
             self.delete_review()
 
-    def _read_data_from_cache(self, version_check=True):
-        fp_data_pickle = Path(self.project_path, "tmp", "data.pickle")
-
-        try:
-            with open(fp_data_pickle, "rb") as f_pickle_read:
-                data_obj, data_obj_version = pickle.load(f_pickle_read)
-
-            if not isinstance(data_obj.df, pd.DataFrame):
-                raise ValueError()
-
-            if (not version_check) or (__version__ == data_obj_version):
-                return data_obj
-
-        except ValueError as err:
-            logging.error(f"Error reading cache file: {err}")
-            try:
-                os.remove(fp_data_pickle)
-            except FileNotFoundError:
-                pass
-
-    def read_data(self, use_cache=True, save_cache=True):
-        """Get Dataset object from file.
-
-        Parameters
-        ----------
-        use_cache: bool
-            Use the pickle file if available.
-        save_cache: bool
-            Save the file to a pickle file if not available.
-
-        Returns
-        -------
-        Dataset:
-            The data object for internal use in ASReview.
-
-        """
-
-        if use_cache:
-            try:
-                return self._read_data_from_cache()
-            except FileNotFoundError:
-                pass
-
-        try:
-            as_data = load_dataset(
-                Path(self.project_path, "data", self.config["dataset_path"])
-            )
-        except Exception:
-            raise FileNotFoundError("Dataset not found")
-
-        if save_cache:
-            Path(self.project_path, "tmp").mkdir(exist_ok=True)
-            fp_data_pickle = Path(self.project_path, "tmp", "data.pickle")
-            with open(fp_data_pickle, "wb") as f_pickle:
-                pickle.dump((as_data, __version__), f_pickle)
-
-        return as_data
-
-    def clean_tmp_files(self):
-        """Clean temporary files in a project.
-
-        Arguments
-        ---------
-        project_id: str
-            The id of the current project.
-        """
-
-        try:
-            os.remove(Path(self.project_path, "tmp"))
-        except OSError as e:
-            print(f"Error: {e.strerror}")
+    def read_input_data(self, reader=None, *args, **kwargs):
+        file_name = self.config["datasets"][0]["name"]
+        fp = self.data_dir / file_name
+        reader = _get_reader(fp)
+        return reader.read_data(fp, *args, **kwargs)
 
     @property
     def feature_matrices(self):
