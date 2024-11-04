@@ -1,11 +1,11 @@
-import { NavLink } from "react-router-dom";
-
-import { DashboardOutlined } from "@mui/icons-material";
 import { Box, Toolbar } from "@mui/material";
+
+import { AutoModeOutlined } from "@mui/icons-material";
 
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 import SimulateOutlined from "icons/SimulateOutlined";
-import AutoModeOutlinedIcon from "@mui/icons-material/AutoModeOutlined";
+
+import { NavLink } from "react-router-dom";
 
 const LandingDrawerItems = ({ onClick = null, rail = false }) => {
   return (
@@ -31,7 +31,7 @@ const LandingDrawerItems = ({ onClick = null, rail = false }) => {
         to={"/simulations"}
         primary={"Simulations"}
         rail={rail}
-        icon={<AutoModeOutlinedIcon />}
+        icon={<AutoModeOutlined />}
         component={NavLink}
         onClick={onClick}
       />

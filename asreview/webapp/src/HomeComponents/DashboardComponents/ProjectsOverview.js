@@ -5,16 +5,15 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+
+import { ProjectAPI } from "api";
 import { InteractionButtons } from "Components";
+import { projectModes, projectStatuses } from "globals.js";
+import { ProjectCard } from "HomeComponents/DashboardComponents";
+import { Upload } from "ProjectComponents/SetupComponents";
 import { DashboardPageHeader } from ".";
 
-import { projectModes, projectStatuses } from "globals.js";
-
-import { ProjectCard } from "HomeComponents/DashboardComponents";
-import { ProjectAPI } from "api";
 import { useQuery } from "react-query";
-
-import { Upload } from "ProjectComponents/SetupComponents";
 
 const ProjectsOverview = ({ mode }) => {
   const simulationOngoing = (data) => {

@@ -116,7 +116,6 @@ class ProjectAPI {
       axios
         .get(url, { withCredentials: true })
         .then((result) => {
-          console.log(result);
           resolve(result["data"]);
         })
         .catch((error) => {

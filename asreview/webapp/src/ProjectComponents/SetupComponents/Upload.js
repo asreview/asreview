@@ -1,4 +1,5 @@
-import Edit from "@mui/icons-material/Edit";
+import * as React from "react";
+
 import {
   Box,
   Button,
@@ -11,17 +12,16 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import * as React from "react";
-
-import { useMutation } from "react-query";
 
 import {
   AutoAwesomeOutlined,
   DriveFolderUploadOutlined,
+  Edit,
   FileUploadOutlined,
   LinkOutlined,
   SearchOutlined,
 } from "@mui/icons-material";
+
 import { ProjectAPI } from "api";
 import { projectModes } from "globals.js";
 import ImportProject from "ProjectComponents/ImportProject";
@@ -32,7 +32,8 @@ import {
   DatasetFromOpenAlex,
   DatasetFromURI,
 } from "ProjectComponents/SetupComponents/DataUploadComponents";
-import { useQuery } from "react-query";
+
+import { useMutation, useQuery } from "react-query";
 
 const DialogProjectName = ({ project_id, dataset_name }) => {
   const [state, setState] = React.useState({
@@ -107,17 +108,13 @@ const Upload = ({ mode }) => {
   const [snackbarMessage, setSnackbarMessage] = React.useState(null);
   const [setupProjectId, setSetupProjectId] = React.useState(null);
 
-  const { data } = useQuery(
-    ["fetchProjects", { subset: mode }],
-    ProjectAPI.fetchProjects,
-    {
-      onSuccess: (data) => {
-        if (data?.result.length === 0) {
-          setUploadSource("file");
-        }
-      },
+  useQuery(["fetchProjects", { subset: mode }], ProjectAPI.fetchProjects, {
+    onSuccess: (data) => {
+      if (data?.result.length === 0) {
+        setUploadSource("file");
+      }
     },
-  );
+  });
 
   return (
     <>
@@ -125,7 +122,6 @@ const Upload = ({ mode }) => {
         <Tabs
           value={uploadSource}
           onChange={(event, newValue) => {
-            console.log(newValue);
             setUploadSource(newValue);
           }}
           centered
@@ -192,10 +188,13 @@ const Upload = ({ mode }) => {
           <DatasetFromFile mode={mode} setSetupProjectId={setSetupProjectId} />
         )}
         {uploadSource === "url" && (
-          <DatasetFromURI mode={mode} setDataset={(dataset) => {}} />
+          <DatasetFromURI mode={mode} setSetupProjectId={setSetupProjectId} />
         )}
         {mode === projectModes.ORACLE && uploadSource === "openalex" && (
-          <DatasetFromOpenAlex mode={mode} setDataset={(dataset) => {}} />
+          <DatasetFromOpenAlex
+            mode={mode}
+            setSetupProjectId={setSetupProjectId}
+          />
         )}
         {uploadSource === "benchmark" && (
           <DatasetFromEntryPoint

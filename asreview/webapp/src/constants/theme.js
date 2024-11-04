@@ -64,5 +64,15 @@ export const theme = {
         },
       },
     },
+    MuiPaper: {
+      defaultProps: {
+        elevation: 0,
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: "12px",
+        },
+      },
+    },
   },
 };

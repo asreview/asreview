@@ -5,6 +5,7 @@ import {
   CircularProgress,
   IconButton,
   Popover,
+  Paper,
   TextField,
   Button,
   Grid2 as Grid,
@@ -51,18 +52,10 @@ const StatItem = ({ label, value, color, loading }) => (
 );
 
 const StoppingSuggestion = ({ project_id }) => {
-  const [stoppingRuleThreshold, setStoppingRuleThreshold] = useState(
-    localStorage.getItem("stoppingRuleThreshold") || 30,
-  );
-  const [irrelevantCount, setIrrelevantCount] = useState(0);
-  const [n_since_last_inclusion_no_priors, setNSinceLastInclusionNoPriors] =
-    useState(0);
+  const [stoppingRuleThreshold, setStoppingRuleThreshold] = useState(30);
 
-  // Separate anchor states for both popovers
   const [anchorElEdit, setAnchorElEdit] = useState(null);
   const [anchorElInfo, setAnchorElInfo] = useState(null);
-
-  const [tempThreshold, setTempThreshold] = useState(stoppingRuleThreshold);
 
   const { data, isLoading } = useQuery(
     ["fetchProgress", { project_id: project_id }],
@@ -73,21 +66,8 @@ const StoppingSuggestion = ({ project_id }) => {
     { refetchOnWindowFocus: false },
   );
 
-  useEffect(() => {
-    if (localStorage.getItem("stoppingRuleThreshold")) {
-      setStoppingRuleThreshold(
-        Number(localStorage.getItem("stoppingRuleThreshold")),
-      );
-    }
-
-    const { n_since_last_inclusion_no_priors } = data || {};
-    setIrrelevantCount(n_since_last_inclusion_no_priors || 0);
-    setNSinceLastInclusionNoPriors(n_since_last_inclusion_no_priors || 0);
-  }, [data]);
-
   const handleClickEdit = (event) => {
     setAnchorElEdit(event.currentTarget);
-    setTempThreshold(stoppingRuleThreshold);
   };
 
   const handleClickInfo = (event) => {
@@ -98,16 +78,15 @@ const StoppingSuggestion = ({ project_id }) => {
   const handleCloseInfo = () => setAnchorElInfo(null);
 
   const handleSave = () => {
-    setStoppingRuleThreshold(tempThreshold);
-    localStorage.setItem("stoppingRuleThreshold", tempThreshold);
     handleCloseEdit();
   };
 
   const openEdit = Boolean(anchorElEdit);
   const openInfo = Boolean(anchorElInfo);
 
-  const stoppingRuleProgress =
-    (n_since_last_inclusion_no_priors / stoppingRuleThreshold) * 100;
+  // const stoppingRuleProgress = (data?.data.n_since_last_inclusion_no_priors / stoppingRuleThreshold) * 100
+
+  const stoppingRuleProgress = 50;
 
   return (
     <Card
@@ -157,15 +136,45 @@ const StoppingSuggestion = ({ project_id }) => {
           </Box>
 
           <Grid size={1}>
-            <Stack spacing={2} direction={"row"}>
-              <StatItem
-                label="Not relevant since last relevant"
-                value={n_since_last_inclusion_no_priors}
-              />
-              <StatItem
-                label={
-                  <>
-                    {"Stopping suggestion"}{" "}
+            {data && (
+              <Stack spacing={2} direction={"row"}>
+                <Paper
+                  sx={{
+                    p: 1.5,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    mb: { xs: 1, sm: 2 },
+                  }}
+                >
+                  <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                    <Typography variant="body2" color="text.secondary">
+                      {"Not relevant since last relevant"}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      color="text.secondary"
+                    >
+                      {data.n_since_last_inclusion_no_priors}
+                    </Typography>
+                  </Stack>
+                </Paper>
+                <Paper
+                  sx={{
+                    p: 1.5,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    mb: { xs: 1, sm: 2 },
+                  }}
+                >
+                  <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                    <Typography variant="body2" color="text.secondary">
+                      Stopping suggestion
+                    </Typography>
                     <IconButton
                       size="small"
                       onClick={handleClickEdit}
@@ -173,11 +182,17 @@ const StoppingSuggestion = ({ project_id }) => {
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
-                  </>
-                }
-                value={tempThreshold}
-              />
-            </Stack>
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      color="text.secondary"
+                    >
+                      {stoppingRuleProgress}
+                    </Typography>
+                  </Stack>
+                </Paper>
+              </Stack>
+            )}
           </Grid>
 
           <Box>
@@ -199,8 +214,8 @@ const StoppingSuggestion = ({ project_id }) => {
           </Typography>
           <TextField
             type="number"
-            value={tempThreshold}
-            onChange={(e) => setTempThreshold(Number(e.target.value))}
+            value={stoppingRuleProgress}
+            onChange={(e) => {}}
             size="small"
             variant="outlined"
           />

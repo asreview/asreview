@@ -1,20 +1,22 @@
 import React from "react";
 
-import { Stack, Button } from "@mui/material";
-import { useMutation } from "react-query";
+import {
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+} from "@mui/material";
+import { ArrowForwardOutlined } from "@mui/icons-material";
 
-import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
-
-import { InlineErrorHandler } from "Components";
 import { ProjectAPI } from "api";
-
+import { InlineErrorHandler } from "Components";
 import { StyledInputSearch } from "StyledComponents/StyledInputSearch";
 
-const DatasetFromURI = ({ mode, setDataset }) => {
+import { useMutation } from "react-query";
+
+const DatasetFromURI = ({ mode, setSetupProjectId }) => {
   const [localURI, setURI] = React.useState("");
   const [data, setData] = React.useState(null);
   const [selectedFile, setSelectedFile] = React.useState("");
@@ -41,7 +43,7 @@ const DatasetFromURI = ({ mode, setDataset }) => {
   } = useMutation(ProjectAPI.createProject, {
     mutationKey: ["createProject"],
     onSuccess: (data) => {
-      setDataset(data);
+      setSetupProjectId(data.id);
     },
   });
 
@@ -66,7 +68,7 @@ const DatasetFromURI = ({ mode, setDataset }) => {
       <Stack spacing={3}>
         <StyledInputSearch
           autoFocus
-          endIcon={<ArrowForwardOutlinedIcon />}
+          endIcon={<ArrowForwardOutlined />}
           disabled={isResolving || isLoading}
           onClick={resolveURI}
           placeholder="Type a URL or DOI of the dataset"
