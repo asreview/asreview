@@ -31,6 +31,10 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Mock
 autodoc_mock_imports = []
 
+suppress_warnings = [
+    "ref.ref",  # workaround for https://github.com/sphinx-doc/sphinx/issues/11212
+]
+
 
 # -- Project information -----------------------------------------------------
 

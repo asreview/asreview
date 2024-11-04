@@ -20,7 +20,6 @@ import tempfile
 import time
 from dataclasses import asdict
 from pathlib import Path
-from urllib.request import urlretrieve
 from uuid import uuid4
 
 import datahugger
@@ -80,16 +79,13 @@ def _fill_last_ranking(project, ranking):
     if ranking not in ["random", "top-down"]:
         raise ValueError(f"Unknown ranking type: {ranking}")
 
-    as_data = project.read_data()
-    record_table = pd.Series(as_data.record_ids, name="record_id")
-
+    record_ids = project.data_store["record_id"]
+    if ranking == "random":
+        ranked_record_ids = record_ids.sample(frac=1)
+    elif ranking == "top-down":
+        ranked_record_ids = record_ids
     with open_state(project.project_path) as state:
-        if ranking == "random":
-            records = record_table.sample(frac=1)
-        elif ranking == "top-down":
-            records = record_table
-
-        state.add_last_ranking(records.values, None, ranking, None, None)
+        state.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
 
 
 def _run_model(project):
@@ -224,62 +220,38 @@ def api_create_project():  # noqa: F401
         project.remove_dataset()
 
     # create dataset folder if not present
-    Path(project.project_path, "data").mkdir(exist_ok=True)
-
-    if request.form.get("plugin", None):
-        ds = DatasetManager().find(request.form["plugin"])
-        filename = ds.filename
-        ds.to_file(Path(project.project_path, "data", filename))
-
-    elif request.form.get("benchmark", None):
-        ds = DatasetManager().find(request.form["benchmark"])
-        filename = ds.filename
-        ds.to_file(Path(project.project_path, "data", filename))
-
-    elif url := request.form.get("url", None):
-        if request.form.get("filename", None):
-            filename = request.form["filename"]
-        else:
-            filename = _get_filename_from_url(url)
-
-        try:
-            urlretrieve(url, Path(project.project_path, "data") / filename)
-        except Exception:
-            return jsonify(message=f"Can't retrieve data from URL {url}."), 400
-
-    elif "file" in request.files:
-        try:
-            filename = secure_filename(request.files["file"].filename)
-            fp_data = Path(project.project_path, "data") / filename
-
-            request.files["file"].save(str(fp_data))
-
-        except Exception as err:
-            return jsonify(message=f"Failed to import file '{filename}'. {err}"), 400
-    else:
-        return jsonify(message="No file or dataset found to import."), 400
-
-    data_path = Path(project.project_path, "data") / filename
+    project.data_dir.mkdir(exist_ok=True)
 
     try:
-        as_data = project.add_dataset(data_path.name)
+        if request.form.get("plugin", None):
+            project.add_dataset(request.form["plugin"])
+        elif request.form.get("benchmark", None):
+            project.add_dataset(request.form["benchmark"])
+        elif request.form.get("url", None):
+            project.add_dataset(request.form["url"])
+        elif "file" in request.files:
+            project.add_dataset(
+                secure_filename(request.files["file"].filename),
+                file_writer=request.files["file"].save,
+            )
+        else:
+            return jsonify(message="No file or dataset found to import."), 400
+
         project.add_review()
 
-        n_labeled = (
-            0
-            if as_data.labels is None
-            else len(np.where(as_data.labels == 0)[0])
-            + len(np.where(as_data.labels == 1)[0])
-        )
+        n_labeled = project.data_store["included"].notnull().sum()
 
-        if n_labeled > 0 and n_labeled < len(as_data):
+        if n_labeled > 0 and n_labeled < len(project.data_store):
             with open_state(project.project_path) as state:
                 labeled_indices = np.where(
-                    (as_data.labels == 1) | (as_data.labels == 0)
+                    (project.data_store["included"] == 1)
+                    | (project.data_store["included"] == 0)
                 )[0]
 
-                labels = as_data.labels[labeled_indices].tolist()
-                labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
+                labels = project.data_store["included"][labeled_indices].tolist()
+                labeled_record_ids = project.data_store["record_ids"][
+                    labeled_indices
+                ].tolist()
 
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
@@ -293,7 +265,7 @@ def api_create_project():  # noqa: F401
         except Exception:
             pass
 
-        return jsonify(message=f"Failed to import file '{filename}'. {err}"), 400
+        return jsonify(message=f"Failed to import file. {err}"), 400
 
     if current_app.config.get("LOGIN_DISABLED", False):
         return jsonify(project.config), 201
@@ -410,38 +382,22 @@ def api_demo_data_project():  # noqa: F401
 def api_get_project_data(project):  # noqa: F401
     """"""
 
-    try:
-        data = project.read_data()
-    except FileNotFoundError:
-        return jsonify({"filename": None})
-
-    if data.url is not None:
-        urn = pd.Series(data.url).replace("", None)
-    else:
-        urn = pd.Series([None] * len(data))
-
-    if data.doi is not None:
-        doi = pd.Series(data.doi).replace("", None)
-        urn.fillna(doi, inplace=True)
-
-    labels = np.empty(len(data), dtype=int) if data.labels is None else data.labels
+    data = project.data_store[["included", "title", "abstract", "doi", "url"]]
+    data = data.replace("", None)
+    data.url = data.url.fillna(data.doi)
 
     return jsonify(
         {
             "n_rows": len(data),
             "n_unlabeled": len(data)
-            - len(np.where(labels == 1)[0])
-            - len(np.where(labels == 0)[0]),
-            "n_relevant": len(np.where(labels == 1)[0]),
-            "n_irrelevant": len(np.where(labels == 0)[0]),
-            "n_duplicates": int(data.duplicated("doi").sum()),
-            "n_missing_title": int(
-                pd.Series(data.title).replace("", None).isnull().sum()
-            ),
-            "n_missing_abstract": int(
-                pd.Series(data.abstract).replace("", None).isnull().sum()
-            ),
-            "n_missing_urn": int(urn.isnull().sum()),
+            - len(np.where(data.included == 1)[0])
+            - len(np.where(data.included == 0)[0]),
+            "n_relevant": len(np.where(data.included == 1)[0]),
+            "n_irrelevant": len(np.where(data.included == 0)[0]),
+            "n_duplicates": int(data.doi.duplicated().sum()),
+            "n_missing_title": int(data.title.isnull().sum()),
+            "n_missing_abstract": int(data.abstract.isnull().sum()),
+            "n_missing_urn": int(data.url.isnull().sum()),
             "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
         }
@@ -507,20 +463,21 @@ def api_search_data(project):  # noqa: F401
     if not q:
         return jsonify({"result": []})
 
-    as_data = project.read_data()
+    search_data = project.data_store[["title", "authors", "keywords"]]
 
     with open_state(project.project_path) as s:
         labeled_record_ids = s.get_results_table()["record_id"].to_list()
 
     result_ids = fuzzy_find(
-        as_data,
+        search_data,
         q,
         max_return=max_results,
         exclude=labeled_record_ids,
     )
 
     result = []
-    for record in as_data.record(result_ids):
+    for result_id in result_ids:
+        record = project.data_store.get_records(result_id)
         record_d = asdict(record)
         record_d["state"] = None
         record_d["tags_form"] = project.config.get("tags", None)
@@ -600,8 +557,7 @@ def api_get_labeled(project):  # noqa: F401
         next_page = None
         previous_page = None
 
-    records = project.read_data().record(state_data["record_id"])
-
+    records = project.data_store.get_records(state_data["record_id"].to_list())
     result = []
     for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
@@ -928,7 +884,7 @@ def api_export_dataset(project):
     file_format = request.args.get("format", default="csv", type=str)
     collections = request.args.getlist("collections", type=str)
 
-    df_user_input_data = project.read_data().to_dataframe()
+    df_user_input_data = project.read_input_data()
     df_user_input_data = df_user_input_data.loc[
         :, ~df_user_input_data.columns.str.startswith("asreview_")
     ]
@@ -1014,13 +970,11 @@ def _get_stats(project, include_priors=False):
     try:
         is_project(project)
 
-        as_data = project.read_data()
-
         # Get label history
         with open_state(project.project_path) as s:
             labels = s.get_results_table(priors=include_priors)["label"]
             labels_without_priors = s.get_results_table(priors=False)["label"]
-        n_records = len(as_data)
+        n_records = len(project.data_store)
 
     except (FileNotFoundError, ValueError, ProjectError):
         labels = np.array([])
@@ -1160,13 +1114,12 @@ def api_label_record(project, record_id):  # noqa: F401
         with open_state(project.project_path) as state:
             record = state.get_results_record(record_id)
 
-        as_data = project.read_data()
-        record_d = asdict(as_data.record(record_id))
-        record_d["state"] = record.iloc[0].to_dict()
-        record_d["state"]["labeling_time"] = str(record_d["state"]["labeling_time"])
-        record_d["tags_form"] = project.config.get("tags", None)
+        item = asdict(project.data_store.get_records(record_id))
+        item["state"] = record.iloc[0].to_dict()
+        item["state"]["labeling_time"] = str(item["state"]["labeling_time"])
+        item["tags_form"] = project.config.get("tags", None)
 
-        return jsonify({"result": record_d})
+        return jsonify({"result": item})
 
 
 @bp.route("/projects/<project_id>/record/<record_id>/note", methods=["PUT"])
@@ -1209,18 +1162,17 @@ def api_get_document(project):  # noqa: F401
                     {"result": None, "pool_empty": not ranking.empty and pool.empty}
                 )
 
-    as_data = project.read_data()
-    record_d = asdict(as_data.record(pending["record_id"].iloc[0]))
-    record_d["state"] = pending.iloc[0].to_dict()
-    record_d["state"]["labeling_time"] = str(record_d["state"]["labeling_time"])
-    record_d["tags_form"] = project.config.get("tags", None)
+    item = asdict(project.data_store.get_records(pending["record_id"].iloc[0]))
+    item["state"] = pending.iloc[0].to_dict()
+    item["state"]["labeling_time"] = str(item["state"]["labeling_time"])
+    item["tags_form"] = project.config.get("tags", None)
 
     try:
-        record_d["error"] = project.get_review_error()
+        item["error"] = project.get_review_error()
     except ValueError:
         pass
 
-    return jsonify({"result": record_d, "pool_empty": False, "has_ranking": True})
+    return jsonify({"result": item, "pool_empty": False, "has_ranking": True})
 
 
 @bp.route("/projects/<project_id>/delete", methods=["DELETE"])

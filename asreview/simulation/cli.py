@@ -29,6 +29,7 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.data import DataStore
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
 from asreview.project.api import Project
@@ -133,8 +134,6 @@ def _cli_simulate(argv):
     else:
         filename = Path(args.dataset).name
 
-    as_data = load_dataset(args.dataset)
-
     # create a new settings object from arguments
     settings = ReviewSettings(
         classifier=args.model,
@@ -182,21 +181,39 @@ def _cli_simulate(argv):
     ):
         raise ValueError("Not possible to provide both prior_idx and prior_record_id")
 
+    if args.state_file is not None:
+        # write all results to the project file
+        fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
+
+        project = Project.create(
+            fp_tmp_simulation,
+            project_id=Path(args.state_file).stem,
+            project_mode="simulate",
+            project_name=Path(args.state_file).stem,
+            project_description="Simulation created via ASReview via "
+            "command line interface",
+        )
+        project.add_dataset(args.dataset, dataset_id=filename)
+        data_store = project.data_store
+    else:
+        records = load_dataset(args.dataset, dataset_id=filename)
+        data_store = DataStore(":memory:")
+        data_store.create_tables()
+        data_store.add_records(records)
+
     prior_idx = args.prior_idx
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
-        prior_idx = _convert_id_to_idx(as_data, args.prior_record_id)
+        prior_idx = _convert_id_to_idx(data_store, args.prior_record_id)
 
-    fm = feature_model.fit_transform(
-        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
-    )
+    fm = feature_model.fit_transform(data_store)
 
     print("The following records are prior knowledge:\n")
-    for record_id, _ in as_data.df.iloc[prior_idx].iterrows():
-        _print_record(as_data.record(record_id))
+    for record in data_store.get_records(prior_idx):
+        _print_record(record)
 
     sim = Simulate(
         fm,
-        as_data.labels,
+        data_store["included"],
         classifier=classifier_model,
         query_strategy=query_model,
         balance_strategy=balance_model,
@@ -217,21 +234,7 @@ def _cli_simulate(argv):
     sim.review()
 
     if args.state_file is not None:
-        # write all results to the project file
-        fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
-
-        project = Project.create(
-            fp_tmp_simulation,
-            project_id=Path(args.state_file).stem,
-            project_mode="simulate",
-            project_name=Path(args.state_file).stem,
-            project_description="Simulation created via ASReview via "
-            "command line interface",
-        )
-
-        as_data.to_file(Path(fp_tmp_simulation, "data", filename))
-        project.update_config(dataset_path=filename)
-
+        # Project exists because it was created in previous `if args.state_file`.
         project.add_feature_matrix(fm, feature_model)
         project.add_review(settings=settings, reviewer=sim, status="finished")
 

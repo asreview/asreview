@@ -22,7 +22,8 @@ from urllib.request import urlopen
 import pandas as pd
 import rispy
 
-from asreview.data.base import Dataset
+from asreview.config import LABEL_NA
+from asreview.data.base_reader import BaseReader
 from asreview.utils import _is_url
 
 ASREVIEW_PARSE_RE = r"\bASReview_\w+\b"
@@ -99,7 +100,7 @@ def _remove_asreview_data_from_notes(note_list):
     return asreview_new_notes
 
 
-class RISReader:
+class RISReader(BaseReader):
     """RIS file reader."""
 
     read_format = [".ris", ".txt"]
@@ -204,12 +205,7 @@ class RISReader:
                 axis=1,
             )
             df["notes"] = df["notes"].apply(_remove_asreview_data_from_notes)
-
-            # Return the standardised dataframe with label and notes separated
-            return Dataset(df)
-        else:
-            # Return the standardised dataframe
-            return Dataset(df)
+        return df
 
 
 class RISWriter:
@@ -255,7 +251,7 @@ class RISWriter:
             rec_copy = {k: v for k, v in rec.items() if _notnull(v)}
 
             if "included" not in rec_copy:
-                rec_copy["included"] = -1
+                rec_copy["included"] = LABEL_NA
 
             # write the notes with ASReview data
             for k, v in ASREVIEW_PARSE_DICT.items():
