@@ -52,7 +52,7 @@ class UndersampleBalance(BaseBalance):
         labeled_idx: numpy.ndarray
             Training indices, that is all records that have been reviewed.
         y: numpy.ndarray
-            Labels for all papers.
+            Labels for all records.
 
         Returns
         -------

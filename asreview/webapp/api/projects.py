@@ -460,7 +460,7 @@ def api_list_dataset_writers(project):
 @login_required
 @project_authorization
 def api_search_data(project):  # noqa: F401
-    """Search for papers"""
+    """Search for records"""
     q = request.args.get("q", default=None, type=str)
     max_results = request.args.get("n_max", default=10, type=int)
 
@@ -494,7 +494,7 @@ def api_search_data(project):  # noqa: F401
 @login_required
 @project_authorization
 def api_get_labeled(project):  # noqa: F401
-    """Get all papers classified as labeled documents"""
+    """Get all records classified as labeled documents"""
 
     page = request.args.get("page", default=None, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
@@ -584,7 +584,7 @@ def api_get_labeled(project):  # noqa: F401
 @login_required
 @project_authorization
 def api_get_labeled_stats(project):  # noqa: F401
-    """Get all papers classified as prior documents"""
+    """Get all records classified as prior documents"""
 
     # Retrieve the include_priors parameter from the request's query.
     include_priors = request.args.get("priors", True, type=bool)

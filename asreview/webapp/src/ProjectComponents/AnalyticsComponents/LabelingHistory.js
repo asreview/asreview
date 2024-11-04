@@ -212,8 +212,8 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
           </Typography>
           <Typography variant="body2" gutterBottom>
             These are your previous labeling decisions. Gold lines represent
-            relevant papers, while gray lines represent irrelevant papers. When
-            you click on a line, you can view that paper's details.
+            relevant records, while gray lines represent irrelevant records.
+            When you click on a line, you can view that paper's details.
           </Typography>
           <Box>
             <a

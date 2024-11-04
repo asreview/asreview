@@ -162,8 +162,8 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
           </Typography>
 
           <Typography variant="body2" gutterBottom>
-            Gold lines represent relevant papers, while gray lines represent
-            irrelevant papers.
+            Gold lines represent relevant records, while gray lines represent
+            irrelevant records.
           </Typography>
 
           <Typography variant="body2" gutterBottom>

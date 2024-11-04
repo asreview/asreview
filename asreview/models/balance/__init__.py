@@ -24,7 +24,7 @@ from asreview.models.balance.undersample import UndersampleBalance
 
 There are several balance strategies that rebalance and reorder the
 training data. This is sometimes necessary, because the data is often
-very imbalanced: there are many more papers that should be excluded than
+very imbalanced: there are many more records that should be excluded than
 included (otherwise, automation cannot help much anyway).
 
 There are several balance strategies available. In configuration
