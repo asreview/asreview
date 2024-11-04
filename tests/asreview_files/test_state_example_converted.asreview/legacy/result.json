@@ -11,7 +11,7 @@
     "query_strategy": "max",
     "balance_strategy": "double",
     "feature_extraction": "tfidf",
-    "n_instances": 1,
+    "n_query": 1,
     "n_queries": null,
     "n_papers": null,
     "n_prior_included": null,

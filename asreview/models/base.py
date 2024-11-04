@@ -71,10 +71,3 @@ class BaseModel(ABC):
                 parameters[par] = int(parameters[par])
 
         return parameters
-
-    def full_hyper_space(self):
-        return {}, {}
-
-    def hyper_space(self):
-        hyper_space, hyper_choices = self.full_hyper_space()
-        return hyper_space, hyper_choices
