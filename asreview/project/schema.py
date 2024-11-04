@@ -14,8 +14,6 @@
 
 # the schema describes the content of the ASReview project file.
 
-from asreview.config import PROJECT_MODES
-
 SCHEMA = {
     "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "http://example.com/example.json",
@@ -69,9 +67,9 @@ SCHEMA = {
             "$id": "#/properties/mode",
             "type": "string",
             "title": "The mode schema",
-            "description": "The mode of the project. One of oracle, or simulate.",
-            "default": "",
-            "enum": PROJECT_MODES,
+            "description": "The mode of the project. One of oracle or simulate.",
+            "default": "oracle",
+            "enum": ["oracle", "simulate"],
             "examples": ["oracle"],
         },
         "name": {

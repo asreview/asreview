@@ -30,8 +30,7 @@ from asreview.data.loader import _get_writer
             "baseline_tag-notes_labels.ris",
             ["title", "included"],
             marks=pytest.mark.xfail(
-                reason="Included column changes data type from float to int, and fills"
-                " missing values with LABEL_NA."
+                reason="Included column changes data type from float to int."
             ),
         ),
     ],

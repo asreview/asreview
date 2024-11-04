@@ -41,10 +41,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 import asreview as asr
-from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
+from asreview.models import default_model
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.api import is_project
@@ -661,7 +662,7 @@ def api_list_algorithms():
 def api_get_algorithms(project):  # noqa: F401
     """Get the algorithms used in the project"""
 
-    settings = ReviewSettings()
+    settings = ReviewSettings(**default_model())
 
     try:
         settings = settings.from_file(
@@ -887,7 +888,7 @@ def api_import_project():
         project.config["reviews"][0]["id"],
         "settings_metadata.json",
     )
-    settings = ReviewSettings().from_file(settings_fp)
+    settings = ReviewSettings.from_file(settings_fp)
 
     warnings = []
     try:
