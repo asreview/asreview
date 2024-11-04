@@ -158,9 +158,7 @@ class Simulate:
             record_ids = self.query(self.n_instances)
             labeled = self.label(record_ids)
 
-            pbar_rel_update = labeled["label"].sum()
-
-            pbar_rel.update(pbar_rel_update)
+            pbar_rel.update(labeled["label"].sum())
             pbar_total.update(1)
 
         else:
