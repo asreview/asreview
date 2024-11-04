@@ -734,7 +734,7 @@ def api_set_algorithms(project):  # noqa: F401
 def api_get_wordcounts(project):  # noqa: F401
     """Get the word counts used in the project"""
 
-    as_data = project.read_data()
+    df_user_input_data = project.read_input_data()
 
     with open_state(project.project_path) as s:
         data = s.get_results_table()
@@ -742,8 +742,10 @@ def api_get_wordcounts(project):  # noqa: F401
     record_ids_rel = data[data["label"] == 1]["record_id"].to_list()
     record_ids_irrel = data[data["label"] == 0]["record_id"].to_list()
 
-    df_rel = as_data.df.iloc[record_ids_rel]["abstract"].fillna("").to_list()
-    df_irrel = as_data.df.iloc[record_ids_irrel]["abstract"].fillna("").to_list()
+    df_rel = df_user_input_data.iloc[record_ids_rel]["abstract"].fillna("").to_list()
+    df_irrel = (
+        df_user_input_data.iloc[record_ids_irrel]["abstract"].fillna("").to_list()
+    )
 
     vectorizer = TfidfVectorizer(stop_words="english")
     tfidf_matrix = vectorizer.fit_transform(df_rel)
