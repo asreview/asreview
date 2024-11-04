@@ -25,6 +25,7 @@ import time
 from urllib.request import urlretrieve
 import zipfile
 from dataclasses import asdict
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
@@ -34,8 +35,6 @@ import jsonschema
 from filelock import FileLock
 
 from asreview.data.loader import _from_file, _get_reader
-from asreview.config import PROJECT_MODES
-from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
 from asreview.migrate import migrate_v1_v2
 from asreview.project.exceptions import ProjectError
@@ -44,6 +43,7 @@ from asreview.project.schema import SCHEMA
 from asreview.data import DataStore
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
+from asreview.models.default import default_model
 
 from asreview.utils import _check_model, _get_filename_from_url, _is_url
 
@@ -51,6 +51,9 @@ try:
     from asreview._version import __version__
 except ImportError:
     __version__ = "0.0.0"
+
+# project types
+PROJECT_MODE_SIMULATE = "simulate"
 
 PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
@@ -95,11 +98,6 @@ class Project:
         if project_path.exists():
             raise ValueError("Project path is not empty.")
 
-        if project_mode not in PROJECT_MODES:
-            raise ValueError(
-                f"Project mode '{project_mode}' is not in " f"{PROJECT_MODES}."
-            )
-
         if project_id is None:
             project_id = project_path.stem
 
@@ -131,20 +129,17 @@ class Project:
                 "tags": project_tags,
             }
 
-            # validate new config before storing
             jsonschema.validate(instance=config, schema=SCHEMA)
 
             project_fp = Path(project_path, PATH_PROJECT_CONFIG)
             project_fp_lock = Path(project_path, PATH_PROJECT_CONFIG_LOCK)
             lock = FileLock(project_fp_lock, timeout=3)
 
-            # create a file with project info
             with lock:
                 with open(project_fp, "w") as f:
                     json.dump(config, f)
 
         except Exception as err:
-            # remove all generated folders and raise error
             shutil.rmtree(project_path)
             raise err
 
@@ -185,17 +180,9 @@ class Project:
     def update_config(self, **kwargs):
         """Update project info"""
 
-        kwargs_copy = kwargs.copy()
-
-        # validate schema
-        if "mode" in kwargs_copy and kwargs_copy["mode"] not in PROJECT_MODES:
-            raise ValueError("Project mode '{}' not found.".format(kwargs_copy["mode"]))
-
-        # update project file
         config = self.config
-        config.update(kwargs_copy)
+        config.update(kwargs.copy())
 
-        # validate new config before storing
         jsonschema.validate(instance=config, schema=SCHEMA)
 
         self.config = config
@@ -242,8 +229,9 @@ class Project:
         # field and a specific value. If the presence of the field `included` is
         # necessary in the input data, we should move it from `Record` to the `Base`
         # class, so that all record implementations have it.
-        any_record_unlabeled = any(record.included is None for record in records)
-        if self.config["mode"] == PROJECT_MODE_SIMULATE and any_record_unlabeled:
+        if self.config["mode"] == PROJECT_MODE_SIMULATE and (
+            (r.included is None for r in records).any()
+        ):
             raise ValueError("Import fully labeled dataset")
 
         self.data_store.add_records(records=records)
@@ -385,7 +373,7 @@ class Project:
         config = self.config
 
         if settings is None:
-            settings = ReviewSettings()
+            settings = ReviewSettings(**default_model())
 
         Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
         with open(
@@ -568,13 +556,13 @@ class Project:
                     project_config["reviews"][0]["id"],
                     "settings_metadata.json",
                 )
-                settings = ReviewSettings().from_file(settings_fp)
+                settings = ReviewSettings.from_file(settings_fp)
 
                 try:
                     _check_model(settings)
                 except ValueError as err:
                     warnings.warn(err)
-                    settings.reset_model()
+                    settings = replace(settings, **default_model())
                     with open(settings_fp) as f:
                         json.dump(asdict(settings), f)
 

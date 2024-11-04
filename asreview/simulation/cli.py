@@ -22,13 +22,6 @@ from pathlib import Path
 import numpy as np
 
 from asreview import load_dataset
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_CLASSIFIER
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_N_INSTANCES
-from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
-from asreview.config import DEFAULT_N_PRIOR_INCLUDED
-from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.data import DataStore
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
@@ -273,20 +266,18 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     # Initial data (prior knowledge)
     parser.add_argument(
         "--n_prior_included",
-        default=DEFAULT_N_PRIOR_INCLUDED,
+        default=0,
         type=int,
         help="Sample n prior included papers. "
-        "Only used when --prior_idx is not given. "
-        f"Default {DEFAULT_N_PRIOR_INCLUDED}",
+        "Only used when --prior_idx is not given. Default 0.",
     )
 
     parser.add_argument(
         "--n_prior_excluded",
-        default=DEFAULT_N_PRIOR_EXCLUDED,
+        default=0,
         type=int,
         help="Sample n prior excluded papers. "
-        "Only used when --prior_idx is not given. "
-        f"Default {DEFAULT_N_PRIOR_EXCLUDED}",
+        "Only used when --prior_idx is not given. Default 0.",
     )
 
     parser.add_argument(
@@ -315,27 +306,25 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "-m",
         "--model",
         type=str,
-        default=DEFAULT_CLASSIFIER,
-        help=f"The prediction model for Active Learning. "
-        f"Default: '{DEFAULT_CLASSIFIER}'.",
+        default="nb",
+        help="The prediction model for Active Learning. Default: 'nb'.",
     )
     parser.add_argument(
         "-q",
         "--query_strategy",
         type=str,
-        default=DEFAULT_QUERY_STRATEGY,
-        help=f"The query strategy for Active Learning. "
-        f"Default: '{DEFAULT_QUERY_STRATEGY}'.",
+        default="max",
+        help="The query strategy for Active Learning. Default: 'max'.",
     )
     parser.add_argument(
         "-b",
         "--balance_strategy",
         type=str,
         dest="balance_strategy",
-        default=DEFAULT_BALANCE_STRATEGY,
+        default="double",
         help="Data rebalancing strategy mainly for RNN methods. Helps against"
         " imbalanced dataset with few inclusions and many exclusions. "
-        f"Default: '{DEFAULT_BALANCE_STRATEGY}'",
+        "Default: 'double'",
     )
     parser.add_argument(
         "--no_balance_strategy",
@@ -348,11 +337,10 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "-e",
         "--feature_extraction",
         type=str,
-        default=DEFAULT_FEATURE_EXTRACTION,
+        default="tfidf",
         help="Feature extraction method. Some combinations of feature"
         " extraction method and prediction model are impossible/ill"
-        " advised."
-        f"Default: '{DEFAULT_FEATURE_EXTRACTION}'",
+        " advised. Default: 'tfidf'.",
     )
     parser.add_argument(
         "--init_seed",
@@ -377,9 +365,9 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     )
     parser.add_argument(
         "--n_instances",
-        default=DEFAULT_N_INSTANCES,
+        default=1,
         type=int,
-        help="Number of papers queried each query." f"Default {DEFAULT_N_INSTANCES}.",
+        help="Number of papers queried each query. Default 1.",
     )
     parser.add_argument(
         "--stop_if",

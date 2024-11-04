@@ -22,15 +22,9 @@ except ImportError:
 
 import json
 from dataclasses import dataclass
-from dataclasses import replace
 from pathlib import Path
 from typing import Optional
 
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_CLASSIFIER
-from asreview.config import DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_N_INSTANCES
-from asreview.config import DEFAULT_QUERY_STRATEGY
 
 
 @dataclass
@@ -41,33 +35,18 @@ class ReviewSettings:
     of its contents.
     """
 
-    classifier: str = DEFAULT_CLASSIFIER
-    query_strategy: str = DEFAULT_QUERY_STRATEGY
-    balance_strategy: str = DEFAULT_BALANCE_STRATEGY
-    feature_extraction: str = DEFAULT_FEATURE_EXTRACTION
+    classifier: str
+    query_strategy: str
+    balance_strategy: str
+    feature_extraction: str
     classifier_param: Optional[dict] = None
     query_param: Optional[dict] = None
     balance_param: Optional[dict] = None
     feature_param: Optional[dict] = None
-    n_instances: int = DEFAULT_N_INSTANCES
-    stop_if: Optional[int] = None
-    n_prior_included: Optional[int] = None
-    n_prior_excluded: Optional[int] = None
-    init_seed: Optional[int] = None
-    seed: Optional[int] = None
+    n_stop: Optional[int] = None
 
-    def reset_model(self):
-        """Reset the model parameters to the default values."""
-        self.classifier = DEFAULT_CLASSIFIER
-        self.query_strategy = DEFAULT_QUERY_STRATEGY
-        self.balance_strategy = DEFAULT_BALANCE_STRATEGY
-        self.feature_extraction = DEFAULT_FEATURE_EXTRACTION
-        self.classifier_param = None
-        self.query_param = None
-        self.balance_param = None
-        self.feature_param = None
-
-    def from_file(self, fp, load=None):
+    @classmethod
+    def from_file(cls, fp, load=None):
         """Fill the contents of settings by reading a config file.
 
         Arguments
@@ -85,6 +64,4 @@ class ReviewSettings:
                 load = json.load
 
         with open(fp, "rb") as f:
-            self = replace(self, **load(f))
-
-        return self
+            return cls(**load(f))

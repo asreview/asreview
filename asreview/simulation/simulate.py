@@ -21,7 +21,6 @@ import pandas as pd
 from sklearn.utils import check_random_state
 from tqdm import tqdm
 
-from asreview.config import DEFAULT_N_INSTANCES
 from asreview.state.contextmanager import open_state
 
 
@@ -65,7 +64,7 @@ class Simulate:
         query_strategy,
         balance_strategy=None,
         feature_extraction=None,
-        n_instances=DEFAULT_N_INSTANCES,
+        n_instances=1,
         stop_if="min",
     ):
         self.fm = fm

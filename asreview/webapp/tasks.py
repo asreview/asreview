@@ -43,7 +43,7 @@ def run_model(project):
             return
 
     try:
-        settings = ReviewSettings().from_file(
+        settings = ReviewSettings.from_file(
             Path(
                 project.project_path,
                 "reviews",
@@ -103,7 +103,7 @@ def run_model(project):
 
 
 def run_simulation(project):
-    settings = ReviewSettings().from_file(
+    settings = ReviewSettings.from_file(
         Path(
             project.project_path,
             "reviews",
