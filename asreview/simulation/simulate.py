@@ -23,7 +23,7 @@ from tqdm import tqdm
 
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.state.contextmanager import open_state
-from asreview import metrics
+from asreview.metrics import loss
 
 
 class Simulate:
