@@ -31,7 +31,7 @@ There is another optional argument `--reading-time` which expects an integer val
 Use the following command to execute one or more modules:
 
 ```
-$ pytest -v -s <path to specific module or integration-test folder> \
+$ pytest -v -o <path to specific module or integration-test folder> \
     --driver <browser> \
     --url <URL> \
     --database-uri <database URI>
@@ -40,7 +40,7 @@ $ pytest -v -s <path to specific module or integration-test folder> \
 Here's a more concrete example:
 
 ```
-$ pytest -v -s asreview/webapp/tests/integration_tests/signup_signin_create_project_test.py \
+$ pytest -v -o asreview/webapp/tests/integration_tests/signup_signin_create_project_test.py \
     --driver firefox \
     --url http://localhost:3000 \
     --database-uri postgresql+psycopg2://username:password@127.0.0.1:5432/asreview

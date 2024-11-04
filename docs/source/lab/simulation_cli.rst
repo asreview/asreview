@@ -13,7 +13,7 @@ The simulation command line tool can be accessed directly like:
 
 .. code-block:: bash
 
-	asreview simulate MY_DATASET.csv -s MY_SIMULATION.asreview
+	asreview simulate MY_DATASET.csv -o MY_SIMULATION.asreview
 
 This performs a simulation with the default active learning model, where
 ``MY_DATASET.csv`` is the path to the :ref:`lab/data_labeled:Fully labeled data`
@@ -27,7 +27,7 @@ Simulation progress
 
 The progress of the simulation is given with two progress bars. The top one is
 used to count the number of relevant records found. The bottom one monitors
-the number of records labeled. By default (with ``--stop-if min``), the
+the number of records labeled. By default (with ``--n-stop min``), the
 simulation stops once the the top progress bar reaches 100%.
 
 .. code-block:: bash
@@ -54,7 +54,7 @@ to change it to ``max_random``, you use:
 
 .. code-block:: bash
 
-    asreview simulate MY_DATASET.csv -s MY_SIMULATION.asreview -q max_random
+    asreview simulate MY_DATASET.csv -o MY_SIMULATION.asreview -q max_random
 
 
 Dataset
@@ -76,7 +76,7 @@ For example:
 
 .. code:: bash
 
-    asreview simulate synergy:van_de_schoot_2018 -s myreview.asreview
+    asreview simulate synergy:van_de_schoot_2018 -o myreview.asreview
 
 
 Active learning
@@ -106,7 +106,7 @@ Active learning
 .. option:: --seed SEED
 
     To make your simulations reproducible you can use the ``--seed`` and
-    ``--init_seed`` options. 'init_seed' controls the starting set of papers
+    ``--prior-seed`` options. 'prior_seed' controls the starting set of papers
     to train the model on, while the 'seed' controls the seed of the random
     number generation that is used after initialization.
 
@@ -119,33 +119,33 @@ Prior knowledge
 ~~~~~~~~~~~~~~~
 
 By default, the model initializes with one relevant and one irrelevant record.
-You can set the number of priors by ``--n_prior_included`` and
-``--n_prior_excluded``. However, if you want to initialize your model with a
-specific set of starting papers, you can use ``--prior_idx`` to select the
+You can set the number of priors by ``--n-prior-included`` and
+``--n-prior-excluded``. However, if you want to initialize your model with a
+specific set of starting papers, you can use ``--prior-idx`` to select the
 indices of the papers you want to start the simulation with. When no prior
-knowledge is assigned (using ``--n_prior_included 0 --n_prior_excluded 0``),
+knowledge is assigned (using ``--n-prior-included 0 --n-prior-excluded 0``),
 the first records from the dataset are employed as priors in the order they
 were provided until the first 0 and 1 are encountered.
 
 The following options can be used to label prior knowledge:
 
-.. option:: --n_prior_included N_PRIOR_INCLUDED
+.. option:: --n-prior-included N_PRIOR_INCLUDED
 
     The number of prior included papers. Only used when :code:`prior_idx` is
     not given. Default 1.
 
-.. option:: --n_prior_excluded N_PRIOR_EXCLUDED
+.. option:: --n-prior-excluded N_PRIOR_EXCLUDED
 
     The number of prior excluded papers. Only used when :code:`prior_idx` is
     not given. Default 1.
 
 
-.. option:: --prior_idx [PRIOR_IDX [PRIOR_IDX ...]]
+.. option:: --prior-idx [PRIOR_IDX [PRIOR_IDX ...]]
 
     Prior indices by rownumber (rownumbers start at 0).
 
 
-.. option:: --init_seed INIT_SEED
+.. option:: --prior-seed prior_seed
 
     Seed for setting the prior indices if the prior_idx option is not used. If
     the option prior_idx is used with one or more index, this option is
@@ -156,13 +156,13 @@ The following options can be used to label prior knowledge:
 Simulation setup
 ~~~~~~~~~~~~~~~~
 
-.. option:: --n_instances N_INSTANCES
+.. option:: --n_query n_query
 
     Controls the number of records to be labeled before the model is
-    retrained. Increase ``n_instances``, for example, to reduce the time it
+    retrained. Increase ``n_query``, for example, to reduce the time it
     takes to simulate. Default 1.
 
-.. option:: --stop_if STOP_IF
+.. option:: --n-stop n_stop
 
     The number of label actions to simulate. Default, 'min' will stop
     simulating when all relevant records are found. Use -1 to simulate all
@@ -173,7 +173,7 @@ Save
 ~~~~
 
 
-.. option:: --state_file STATE_FILE, -s STATE_FILE
+.. option:: --state_file STATE_FILE, -o STATE_FILE
 
     Location to ASReview project file of simulation.
 

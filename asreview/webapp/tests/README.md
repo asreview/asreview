@@ -44,19 +44,19 @@ python setup.py compile_assets
 Please run your tests **from the root directory** with the `--random-order` option to ensure test independency. With Pytest you can run all tests within a particular module. For example:
 
 ```
-pytest --random-order -s -v ./asreview/webapp/tests/test_api/test_projects.py
+pytest --random-order -o -v ./asreview/webapp/tests/test_api/test_projects.py
 ```
 
 The `-s` option enables capturing stdout (shows your print statements if there are any), and the `-v` option makes the output more verbose. Run an entire folder containing test modules like so:
 
 ```
-pytest --random-order -s -v ./asreview/webapp/tests/test_api/
+pytest --random-order -o -v ./asreview/webapp/tests/test_api/
 ```
 
 If you are in the middle of writing your tests, and your module contains many tests, it is more efficient to run a small cluster or a single test. One of the many possibilities is the `-k` option that executes only tests with a function name that ends with a certain postfix. In the next example we execute only test functions that end with the 'current`postfix in the`test_projects.py` module:
 
 ```
-pytest --random-order -s -v ./asreview/webapp/tests/test_api/test_projects.py -k current
+pytest --random-order -o -v ./asreview/webapp/tests/test_api/test_projects.py -k current
 ```
 
 ## Database

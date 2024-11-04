@@ -230,7 +230,7 @@ class Project:
         # necessary in the input data, we should move it from `Record` to the `Base`
         # class, so that all record implementations have it.
         if self.config["mode"] == PROJECT_MODE_SIMULATE and (
-            (r.included is None for r in records).any()
+            any([r.included is None for r in records])
         ):
             raise ValueError("Import fully labeled dataset")
 
