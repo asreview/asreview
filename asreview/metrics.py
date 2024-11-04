@@ -27,27 +27,3 @@ def loss(labels: List[int]):
             (Ny * (Nx - (Ny - 1) / 2) - np.cumsum(labels).sum()) / (Ny * (Nx - Ny))
         )
     return loss
-
-
-def wss(labels, intercept, x_absolute=False, y_absolute=False):
-    n_docs = len(labels)
-    n_pos_docs = sum(labels)
-
-    docs_found = np.cumsum(labels)
-    docs_found_random = np.round(np.linspace(0, n_pos_docs, n_docs))
-
-    when_found = np.searchsorted(docs_found, np.arange(1, n_pos_docs + 1))
-    when_found_random = np.searchsorted(docs_found_random, np.arange(1, n_pos_docs + 1))
-    n_found_earlier = when_found_random - when_found
-
-    x = np.arange(1, n_pos_docs + 1)
-    if not x_absolute:
-        x = x / n_pos_docs
-
-    if y_absolute:
-        y = n_found_earlier
-    else:
-        y = n_found_earlier / n_docs
-
-    i = np.searchsorted(x, intercept, side="right")
-    return y[i - 1]
