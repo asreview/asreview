@@ -21,7 +21,7 @@ def loss(labels: List[int]):
     Ny = sum(labels)
     Nx = len(labels)
     if Ny == 0 or Nx == Ny:
-        loss = f"{Ny = }"
+        raise ValueError("The labels must contain at least two distinct classes.")
     else:
         loss = float(
             (Ny * (Nx - (Ny - 1) / 2) - np.cumsum(labels).sum()) / (Ny * (Nx - Ny))
