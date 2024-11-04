@@ -7,7 +7,6 @@ import {
   Card,
   CardActionArea,
   CardHeader,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -22,7 +21,6 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 
 import {
   Close,
@@ -36,48 +34,8 @@ import { BoxErrorHandler, OpenInNewIconStyled } from "Components";
 import { UtilsAPI } from "api";
 import { feedbackURL } from "globals.js";
 
-const PREFIX = "CommunityDialog";
-
-const classes = {
-  faq: `${PREFIX}-faq`,
-  faqHeight: `${PREFIX}-faq-height`,
-  contact: `${PREFIX}-contact`,
-  contactAvatar: `${PREFIX}-contact-avatar`,
-  divider: `${PREFIX}-divider`,
-  sectionTitle: `${PREFIX}-section-title`,
-};
-
-const StyledDialog = styled(Dialog)(({ theme }) => ({
-  [`& .${classes.faq}`]: {
-    height: 250,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  [`& .${classes.faqHeight}`]: {
-    minHeight: 353,
-  },
-  [`& .${classes.contact}`]: {
-    width: "100%",
-    marginLeft: 20,
-    marginRight: 20,
-  },
-  [`& .${classes.contactAvatar}`]: {
-    width: theme.spacing(4),
-    height: theme.spacing(4),
-    color: theme.palette.getContrastText(theme.palette.primary.main),
-    bgcolor: theme.palette.primary.main,
-  },
-  [`& .${classes.divider}`]: {
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  [`& .${classes.sectionTitle}`]: {
-    paddingLeft: 20,
-  },
-}));
-
 const CommunityDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
-  const { data, error, isError, isFetched, isFetching } = useQuery(
+  const { data, error, isError, isFetched } = useQuery(
     "fetchFAQ",
     UtilsAPI.fetchFAQ,
     {
@@ -87,7 +45,7 @@ const CommunityDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
   );
 
   return (
-    <StyledDialog
+    <Dialog
       fullScreen={mobileScreen}
       open={onHelp}
       onClose={toggleHelp}
@@ -104,18 +62,13 @@ const CommunityDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
           Community and help
         </DialogTitle>
       )}
-      <DialogContent dividers sx={{ padding: "0px 0px 20px 0px" }}>
-        <List className={classes.faqHeight}>
+      <DialogContent dividers>
+        <List>
           <ListItem>
-            <Typography className={classes.sectionTitle} display="block">
-              <b>Frequently Asked Questions</b>
+            <Typography fontWeight={"bold"}>
+              Frequently Asked Questions
             </Typography>
           </ListItem>
-          {!isError && isFetching && (
-            <Stack className={classes.faq}>
-              <CircularProgress />
-            </Stack>
-          )}
           {!isError &&
             isFetched &&
             data.map((element, index) => (
@@ -141,7 +94,7 @@ const CommunityDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
               </ListItem>
             ))}
           {isError && (
-            <Stack className={classes.faq}>
+            <Stack>
               <BoxErrorHandler error={error} queryKey="fetchFAQ" />
             </Stack>
           )}
@@ -157,22 +110,20 @@ const CommunityDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
             </Typography>
           </ListItem>
         </List>
-        <Divider className={classes.divider} />
+        <Divider sx={{ my: 2 }} />
         <List>
           <ListItem>
-            <Typography className={classes.sectionTitle} display="block">
-              <b>Need more help?</b>
-            </Typography>
+            <Typography fontWeight={"bold"}>Need more help?</Typography>
           </ListItem>
           <ListItem>
-            <Card className={classes.contact}>
+            <Card>
               <CardActionArea
                 href={`https://github.com/asreview/asreview/discussions`}
                 target="_blank"
               >
                 <CardHeader
                   avatar={
-                    <Avatar className={classes.contactAvatar}>
+                    <Avatar sx={{ bgcolor: "primary.main" }}>
                       <QuestionAnswer fontSize="small" />
                     </Avatar>
                   }
@@ -188,11 +139,11 @@ const CommunityDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
           </ListItem>
 
           <ListItem>
-            <Card className={classes.contact}>
+            <Card>
               <CardActionArea href={feedbackURL} target="_blank">
                 <CardHeader
                   avatar={
-                    <Avatar className={classes.contactAvatar}>
+                    <Avatar sx={{ bgcolor: "primary.main" }}>
                       <Feedback fontSize="small" />
                     </Avatar>
                   }
@@ -214,7 +165,7 @@ const CommunityDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
           <Button onClick={toggleHelp}>Close</Button>
         </DialogActions>
       )}
-    </StyledDialog>
+    </Dialog>
   );
 };
 
