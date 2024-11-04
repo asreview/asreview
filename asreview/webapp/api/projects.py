@@ -1081,7 +1081,7 @@ def _get_stats(project, include_priors=False):
         "n_excluded_no_priors": n_excluded_no_priors,
         "n_since_last_inclusion": n_since_last_relevant,
         "n_since_last_inclusion_no_priors": n_since_last_relevant_no_priors,
-        "n_papers": n_records,
+        "n_records": n_records,
         "n_pool": n_records - n_excluded - n_included,
     }
 

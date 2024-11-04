@@ -100,11 +100,11 @@ export default function ReviewProgress({ project_id }) {
                             show: false,
                             formatter: () =>
                               `${
-                                data.n_papers > 0
+                                data.n_records > 0
                                   ? Math.round(
                                       (data.n_included_no_priors +
                                         data.n_excluded_no_priors /
-                                          data.n_papers) *
+                                          data.n_records) *
                                         100,
                                     )
                                   : 0
@@ -138,7 +138,7 @@ export default function ReviewProgress({ project_id }) {
                     enabled: true,
                     y: {
                       formatter: (val) =>
-                        `${val} (${Math.round((val / data.n_papers) * 100)}%)`,
+                        `${val} (${Math.round((val / data.n_records) * 100)}%)`,
                     },
                   },
                   theme: { mode: theme.palette.mode },
@@ -147,7 +147,7 @@ export default function ReviewProgress({ project_id }) {
                 series={[
                   data.n_included_no_priors,
                   data.n_excluded_no_priors,
-                  data.n_papers -
+                  data.n_records -
                     data.n_included_no_priors -
                     data.n_excluded_no_priors,
                 ]}

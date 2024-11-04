@@ -47,7 +47,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
   //   setSelectedPaper(null);
   // };
 
-  const totalPapers = progressQuery?.data?.n_papers || 0;
+  const totalPapers = progressQuery?.data?.n_records || 0;
   const labelingChronology = genericDataQuery?.data || [];
   const maxVisibleItems = totalPapers;
   const visibleItems = Math.min(maxVisibleItems, totalPapers);
@@ -166,9 +166,9 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                 )}
               </Grid>
 
-              {maxItemsToDisplay < progressQuery?.data?.n_papers && (
+              {maxItemsToDisplay < progressQuery?.data?.n_records && (
                 <Typography align="center" sx={{ mt: 1 }}>
-                  {progressQuery?.data?.n_papers - maxItemsToDisplay} more
+                  {progressQuery?.data?.n_records - maxItemsToDisplay} more
                   records
                 </Typography>
               )}

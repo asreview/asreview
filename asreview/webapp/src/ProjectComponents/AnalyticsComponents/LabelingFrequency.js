@@ -19,7 +19,7 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
   const canvasRef = useRef(null);
   const theme = useTheme();
 
-  const totalPapers = progressQuery?.data?.n_papers || 0;
+  const totalPapers = progressQuery?.data?.n_records || 0;
   const progressDensity = genericDataQuery?.data || [];
   const reversedDecisions = progressDensity.slice(-totalPapers).reverse();
 

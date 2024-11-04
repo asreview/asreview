@@ -456,7 +456,7 @@ def test_get_progress_info(client, project):
     assert isinstance(r.json, dict)
     assert r.json["n_excluded"] == 1
     assert r.json["n_included"] == 1
-    assert r.json["n_pool"] == r.json["n_papers"] - 2
+    assert r.json["n_pool"] == r.json["n_records"] - 2
 
 
 # Test get progress data on the article
