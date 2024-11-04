@@ -12,7 +12,43 @@ from asreview.metrics import loss
         ([1, 1, 0, 0, 0], 0),
         ([0, 0, 0, 1, 1], 1),
         ([1, 0, 1], 0.5),
-        ([0,1,0,0,0,1,0,1,0,1,0,0,1,1,0,0,0,1,0,0,0,0,0,1,0,1,0,1,0,0,1,1], 0.5583333333333333),
+        (
+            [
+                0,
+                1,
+                0,
+                0,
+                0,
+                1,
+                0,
+                1,
+                0,
+                1,
+                0,
+                0,
+                1,
+                1,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                1,
+                0,
+                1,
+                0,
+                0,
+                1,
+                1,
+            ],
+            0.5583333333333333,
+        ),
     ],
 )
 def test_loss_value_function(labels, expected_value):
@@ -21,12 +57,8 @@ def test_loss_value_function(labels, expected_value):
 
 
 @pytest.mark.parametrize(
-        "labels", 
-        [
-            [0, 0, 0], 
-            [0], 
-            [1]
-        ],
+    "labels",
+    [[0, 0, 0], [0], [1]],
 )
 def test_loss_value_error_cases(labels):
     with pytest.raises(ValueError):
