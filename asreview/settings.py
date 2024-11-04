@@ -26,7 +26,6 @@ from pathlib import Path
 from typing import Optional
 
 
-
 @dataclass
 class ReviewSettings:
     """Object to store the configuration of a review session.
