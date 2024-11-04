@@ -56,52 +56,58 @@ def test_reader(test_file, n_lines, ignore_col):
         # Single line record
         (0, 1),
         (1, 0),
-        (2, -1),
-        (3, -1),
+        (2, None),
+        (3, None),
         # Single line record with additional notes, label first
         (4, 1),
         (5, 0),
-        (6, -1),
+        (6, None),
         # Single line record with additional notes, label in the middle
         (7, 1),
         (8, 0),
-        (9, -1),
+        (9, None),
         # Single line record with additional notes, label last
         (10, 1),
         (11, 0),
-        (12, -1),
+        (12, None),
         # Multiline record, label first
         (13, 1),
         (14, 0),
-        (15, -1),
+        (15, None),
         # Multiline record, label in the middle
         (16, 1),
         (17, 0),
-        (18, -1),
+        (18, None),
         # Multiline record, label last
         (19, 1),
         (20, 0),
-        (21, -1),
+        (21, None),
         # Multiline record, with additional notes, label first
         (22, 1),
         (23, 0),
-        (24, -1),
+        (24, None),
         # Multiline record, with additional notes, label in the middle
         (25, 1),
         (26, 0),
-        (27, -1),
+        (27, None),
         # Multiline record, with additional notes, label last
         (28, 1),
         (29, 0),
-        (30, -1),
+        (30, None),
         # No notes tag present
-        (31, -1),
+        (31, None),
     ],
 )
 def test_asreview_labels_ris(record_i, included):
     fp = Path("tests", "demo_data", "baseline_tag-notes_labels.ris")
     records = _from_file(fp)
-    assert records[record_i].included == included
+
+    print(records[record_i])
+
+    if included is None:
+        assert records[record_i].included is None
+    else:
+        assert records[record_i].included == included
 
 
 def test_multiline_tags_ris():

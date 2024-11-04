@@ -7,7 +7,6 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped
 
 from asreview import load_dataset
-from asreview.config import LABEL_NA
 from asreview.data.record import Base
 from asreview.data.record import Record
 from asreview.data.store import CURRENT_DATASTORE_VERSION
@@ -168,7 +167,7 @@ def test_keyword_validation(store):
 
 def test_label_validation(store):
     records = [
-        Record(dataset_id="foo", dataset_row=1, included=LABEL_NA),
+        Record(dataset_id="foo", dataset_row=1, included=None),
         Record(dataset_id="foo", dataset_row=2, included=1),
         Record(dataset_id="foo", dataset_row=3, included=0),
     ]
