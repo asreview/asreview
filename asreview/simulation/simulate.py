@@ -22,6 +22,7 @@ from sklearn.utils import check_random_state
 from tqdm import tqdm
 
 from asreview.state.contextmanager import open_state
+from asreview.metrics import loss
 
 
 class Simulate:
@@ -160,6 +161,12 @@ class Simulate:
         else:
             pbar_rel.close()
             pbar_total.close()
+
+            padded_results = list(self._results["label"]) + [0] * (
+                len(self.labels) - len(self._results["label"])
+            )
+
+            print(f"\nLoss: {round(loss(padded_results), 2)}")
 
     def train(self):
         """Train a new model on the labeled data."""
