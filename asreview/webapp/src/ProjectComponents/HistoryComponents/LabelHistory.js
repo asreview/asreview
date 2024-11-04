@@ -136,6 +136,7 @@ const ExportButton = ({ project_id }) => {
 };
 
 const LabelHistory = ({
+  mode = "oracle",
   n_prior_inclusions = null,
   n_prior_exclusions = null,
   showFilter = true,
@@ -200,6 +201,7 @@ const LabelHistory = ({
       <Container maxWidth="md" sx={{ my: 3 }}>
         <LabeledRecord
           project_id={project_id}
+          mode={mode}
           label={label}
           filterQuery={state}
         />

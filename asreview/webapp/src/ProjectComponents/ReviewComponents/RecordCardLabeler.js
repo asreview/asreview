@@ -119,6 +119,7 @@ const RecordCardLabeler = ({
   hotkeys = false,
   landscape = false,
   retrainAfterDecision = true,
+  changeDecision = true,
 }) => {
   const queryClient = useQueryClient();
 
@@ -212,7 +213,12 @@ const RecordCardLabeler = ({
                                     tag.id,
                                   );
                                 }}
-                                disabled={!editState || isLoading || isSuccess}
+                                disabled={
+                                  !editState ||
+                                  !changeDecision ||
+                                  isLoading ||
+                                  isSuccess
+                                }
                               />
                             }
                             label={tag.name}
@@ -336,7 +342,7 @@ const RecordCardLabeler = ({
             </>
           )}
 
-          {(label === 1 || label === 0) && (
+          {(label === 1 || label === 0) && changeDecision && (
             <>
               <Tooltip title="Options">
                 <IconButton

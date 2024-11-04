@@ -136,6 +136,7 @@ const RecordCard = ({
   hotkeys = false,
   transitionType = "fade",
   landscape = false,
+  changeDecision = true,
 }) => {
   const [state, setState] = React.useState({ open: true });
 
@@ -181,6 +182,7 @@ const RecordCard = ({
               tagValues={record.state?.tags}
               landscape={landscape}
               hotkeys={hotkeys}
+              changeDecision={changeDecision}
             />
           </Grid>
         </Grid>

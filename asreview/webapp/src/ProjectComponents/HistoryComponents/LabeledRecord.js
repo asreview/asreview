@@ -11,7 +11,7 @@ import { ProjectAPI } from "api";
 import { useReviewSettings } from "context/ReviewSettingsContext";
 import { useMediaQuery } from "@mui/material";
 
-const LabeledRecord = ({ project_id, label, filterQuery }) => {
+const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
   const { orientation, modelLogLevel } = useReviewSettings();
 
   let landscapeDisabled = useMediaQuery(
@@ -82,6 +82,7 @@ const LabeledRecord = ({ project_id, label, filterQuery }) => {
                       orientation === "landscape" && !landscapeDisabled
                     }
                     modelLogLevel={modelLogLevel}
+                    changeDecision={mode === "oracle"}
                     key={record.record_id}
                   />
                 )),

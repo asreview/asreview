@@ -104,13 +104,20 @@ const App = () => {
               />
             }
           >
-            <Route index element={<AnalyticsPage />} />
-            <Route path="reviewer" element={<ReviewPage />} />
-            <Route path="collection" element={<LabelHistory />} />
-            {window.authentication && window.allowTeams && (
-              <Route path="team" element={<TeamPage />} />
-            )}
-            <Route path="settings" element={<DetailsPage />} />
+            <>
+              {" "}
+              {/* Wrap contextprovider to pass mode */}
+              <Route index element={<AnalyticsPage />} />
+              <Route path="reviewer" element={<ReviewPage />} />
+              <Route
+                path="collection"
+                element={<LabelHistory mode={"oracle"} />}
+              />
+              {window.authentication && window.allowTeams && (
+                <Route path="team" element={<TeamPage />} />
+              )}
+              <Route path="settings" element={<DetailsPage />} />
+            </>
           </Route>
           <Route
             path="simulations/:project_id"
@@ -122,7 +129,10 @@ const App = () => {
             }
           >
             <Route index element={<AnalyticsPage />} />
-            <Route path="collection" element={<LabelHistory />} />
+            <Route
+              path="collection"
+              element={<LabelHistory mode={"simulate"} />}
+            />
             {window.authentication && window.allowTeams && (
               <Route path="team" element={<TeamPage />} />
             )}
