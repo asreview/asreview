@@ -1,5 +1,7 @@
 from typing import Optional
 
+import pandas as pd
+
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
@@ -9,8 +11,6 @@ from sqlalchemy.orm import validates
 from sqlalchemy.types import JSON
 from sqlalchemy.types import Integer
 from sqlalchemy.types import String
-
-from asreview.config import LABEL_NA
 
 
 class Base(DeclarativeBase, MappedAsDataclass):
@@ -104,7 +104,7 @@ class Record(Base):
     year: Mapped[Optional[int]] = mapped_column(default=None)
     doi: Mapped[Optional[str]] = mapped_column(default=None)
     url: Mapped[Optional[str]] = mapped_column(default=None)
-    included: Mapped[Optional[int]] = mapped_column(default=LABEL_NA)
+    included: Mapped[Optional[int]] = mapped_column(default=None)
 
     @validates("authors")
     def validate_authors(self, key, authors):
@@ -116,10 +116,13 @@ class Record(Base):
 
     @validates("included")
     def validate_included(self, key, included):
-        if included is None:
-            included = LABEL_NA
-        if included not in {0, 1, LABEL_NA}:
-            raise ValueError(f"'{key}' should be one of 0, 1, or {LABEL_NA}")
+        if pd.isna(included):
+            included = None
+
+        if not (included is None or included in {0, 1}):
+            raise ValueError(
+                f"included should be one of 0, 1, or None. Not '{included}'"
+            )
         return included
 
 

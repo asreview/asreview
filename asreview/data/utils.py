@@ -4,8 +4,6 @@ from ast import literal_eval
 import numpy as np
 import pandas as pd
 
-from asreview.config import LABEL_NA
-
 
 def duplicated(df, pid="doi"):
     """Return boolean Series denoting duplicate rows.
@@ -147,6 +145,6 @@ def standardize_included_label(value):
         }
         value = value.lower()
         value = conversion_dict[value]
-    if value is None or pd.isna(value):
-        value = LABEL_NA
+    if pd.isna(value):
+        value = None
     return value

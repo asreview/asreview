@@ -34,7 +34,6 @@ import jsonschema
 from filelock import FileLock
 
 from asreview.data.loader import _from_file, _get_reader
-from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
@@ -243,7 +242,7 @@ class Project:
         # field and a specific value. If the presence of the field `included` is
         # necessary in the input data, we should move it from `Record` to the `Base`
         # class, so that all record implementations have it.
-        any_record_unlabeled = any(record.included == LABEL_NA for record in records)
+        any_record_unlabeled = any(record.included is None for record in records)
         if self.config["mode"] == PROJECT_MODE_SIMULATE and any_record_unlabeled:
             raise ValueError("Import fully labeled dataset")
 
