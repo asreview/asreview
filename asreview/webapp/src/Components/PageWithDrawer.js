@@ -104,6 +104,7 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
               width: "250px",
+              borderRadius: 0,
             },
           }}
         >
@@ -157,6 +158,7 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
             "& .MuiDrawer-paper": {
               width: "80px",
               // boxSizing: "border-box",
+              borderRadius: 0,
             },
           }}
         >

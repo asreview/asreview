@@ -1,173 +1,85 @@
-import React, { useState } from "react";
+import { useState } from "react";
+
 import {
-  Box,
+  Button,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
+  DialogTitle,
   Divider,
-  IconButton,
-  ListItem,
   Snackbar,
-  useTheme,
-  Tooltip,
-  Stack,
   Typography,
 } from "@mui/material";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { Close } from "@mui/icons-material";
-import { StyledTextButton } from "StyledComponents/StyledButton";
-import { StyledIconButton } from "StyledComponents/StyledButton";
-import { styled } from "@mui/material/styles";
 
-const PREFIX = "CiteDialog";
+const citationStyles = {
+  ris: [
+    `TY  - COMP`,
+    `AU  - ASReview LAB developers`,
+    `PY  - 2023`,
+    `TI  - ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${window.asreviewVersion}]`,
+    `PB  - Zenodo`,
+    `UR  - https://doi.org/10.5281/zenodo.3345592`,
+    `DO  - 10.5281/ZENODO.10084260`,
+    `ER  - `,
+  ],
+  apa: [
+    `ASReview LAB developers. (2023). ASReview LAB: A tool for AI-assisted systematic reviews [Software v.${window.asreviewVersion}]. Zenodo. https://doi.org/10.5281/zenodo.3345592`,
+  ],
+  mla: [
+    `ASReview LAB developers. "ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${window.asreviewVersion}]." Zenodo, 2023, https://doi.org/10.5281/zenodo.3345592.`,
+  ],
+  bib: [
+    `@software{asreviewlab2023,`,
+    `title={ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${window.asreviewVersion}]},`,
+    `author={ASReview LAB developers},`,
+    `year={2023},`,
+    `url={https://doi.org/10.5281/zenodo.3345592},`,
+    `note={Software version: ${window.asreviewVersion}}`,
+    `}`,
+  ],
+  chicago: [
+    `ASReview LAB developers. 2023. "ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${window.asreviewVersion}]." Zenodo. https://doi.org/10.5281/zenodo.3345592.`,
+  ],
+  vancouver: [
+    `ASReview LAB developers. ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${window.asreviewVersion}]. Zenodo; 2023. Available from: https://doi.org/10.5281/zenodo.3345592`,
+  ],
+};
 
-const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "row",
-  [theme.breakpoints.down("sm")]: {
-    flexDirection: "column",
-  },
-}));
-
-const CitationStylesRow = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "row",
-  overflowX: "auto",
-  [theme.breakpoints.up("sm")]: {
-    flexDirection: "column",
-  },
-}));
-
-const CiteDialog = ({ isOpen, onClose, mobileScreen, asreview_version }) => {
-  const theme = useTheme();
-  const copyButtonSize = theme.spacing(6);
-  const [selectedCitationStyle, setSelectedStyle] = useState("RIS");
+const CiteDialog = ({ open, onClose, citeStyle = "apa" }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-  const copyToClipboard = (citationText) => {
-    navigator.clipboard.writeText(citationText).then(() => {
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(citationStyles[citeStyle]).then(() => {
       setSnackbarOpen(true);
+      onClose();
     });
   };
 
-  const handleCloseSnackbar = () => {
-    setSnackbarOpen(false);
-  };
-
-  const handleStyleClick = (style) => {
-    setSelectedStyle(style);
-  };
-
-  const citationStyles = {
-    RIS: [
-      `TY  - COMP`,
-      `AU  - ASReview LAB developers`,
-      `PY  - 2023`,
-      `TI  - ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]`,
-      `PB  - Zenodo`,
-      `UR  - https://doi.org/10.5281/zenodo.3345592`,
-      `DO  - 10.5281/ZENODO.10084260`,
-      `ER  - `,
-    ],
-    APA: [
-      `ASReview LAB developers. (2023). ASReview LAB: A tool for AI-assisted systematic reviews [Software v.${asreview_version}]. Zenodo. https://doi.org/10.5281/zenodo.3345592`,
-    ],
-    MLA: [
-      `ASReview LAB developers. "ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]." Zenodo, 2023, https://doi.org/10.5281/zenodo.3345592.`,
-    ],
-    BibTex: [
-      `@software{asreviewlab2023,`,
-      `title={ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]},`,
-      `author={ASReview LAB developers},`,
-      `year={2023},`,
-      `url={https://doi.org/10.5281/zenodo.3345592},`,
-      `note={Software version: ${asreview_version}}`,
-      `}`,
-    ],
-    Chicago: [
-      `ASReview LAB developers. 2023. "ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]." Zenodo. https://doi.org/10.5281/zenodo.3345592.`,
-    ],
-    Vancouver: [
-      `ASReview LAB developers. ASReview LAB: A Tool for AI-Assisted Systematic Reviews [Software v.${asreview_version}]. Zenodo; 2023. Available from: https://doi.org/10.5281/zenodo.3345592`,
-    ],
-  };
-
   return (
-    <Dialog open={isOpen} onClose={onClose} maxWidth="md">
-      {!mobileScreen && (
-        <Stack className="dialog-header" direction="row" spacing={1}>
-          <DialogTitle>Cite ASReview LAB</DialogTitle>
-          <Tooltip title="Close">
-            <StyledIconButton
-              className="dialog-header-button right"
-              onClick={onClose}
-            >
-              <Close />
-            </StyledIconButton>
-          </Tooltip>
-        </Stack>
-      )}
-      <Divider />
-      <StyledDialogContent className={`${PREFIX}-content`}>
-        <CitationStylesRow>
-          {Object.keys(citationStyles).map((citationStyle) => (
-            <ListItem
-              key={citationStyle}
-              onClick={() => handleStyleClick(citationStyle)}
-              selected={citationStyle === selectedCitationStyle}
-            >
-              <StyledTextButton>{citationStyle}</StyledTextButton>
-            </ListItem>
-          ))}
-        </CitationStylesRow>
-        <Divider
-          orientation={mobileScreen ? "horizontal" : "vertical"}
-          flexItem
-        />
-
-        <Box
-          sx={{
-            flex: 1,
-            position: "relative",
-            overflow: "hidden",
-            padding: theme.spacing(2),
-          }}
-        >
-          <Box sx={{ overflow: "auto" }}>
-            {citationStyles[selectedCitationStyle].map((line, index) => (
-              <Typography
-                key={index}
-                sx={{
-                  paddingRight: copyButtonSize,
-                }}
-              >
-                {line}
-              </Typography>
+    <>
+      <Dialog open={open} onClose={onClose} maxWidth="md">
+        <DialogTitle>Cite ASReview LAB</DialogTitle>
+        <Divider />
+        <DialogContent sx={{ overflow: "auto" }}>
+          {citeStyle &&
+            citationStyles[citeStyle].map((line, index) => (
+              <Typography key={index}>{line}</Typography>
             ))}
-          </Box>
-
-          <IconButton
-            onClick={() =>
-              copyToClipboard(citationStyles[selectedCitationStyle])
-            }
-            sx={{
-              position: "absolute",
-              right: theme.spacing(1),
-              top: theme.spacing(1),
-            }}
-          >
-            <ContentCopyIcon />
-          </IconButton>
-        </Box>
-      </StyledDialogContent>
-
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Close</Button>
+          <Button onClick={copyToClipboard}>Copy</Button>
+        </DialogActions>
+      </Dialog>
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
+        onClose={() => {
+          setSnackbarOpen(false);
+        }}
         message="Citation copied to clipboard"
       />
-    </Dialog>
+    </>
   );
 };
 
