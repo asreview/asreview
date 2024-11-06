@@ -24,8 +24,7 @@ import { StyledList } from "StyledComponents/StyledList";
 import { ReviewSettingsProvider } from "context/ReviewSettingsContext";
 
 const BottomNavigationDrawerItems = ({
-  mobileScreen,
-  toggleNavDrawer,
+  toggleNavDrawer = null,
   rail = false,
 }) => {
   const [onHelp, toggleHelp] = useToggle();
@@ -43,14 +42,13 @@ const BottomNavigationDrawerItems = ({
           rail={rail}
           icon={<DisplaySettingsOutlined />}
           onClick={() => {
-            if (mobileScreen) {
+            if (toggleNavDrawer) {
               toggleNavDrawer();
             }
             toggleSettings();
           }}
         />
         <SettingsDialog
-          mobileScreen={mobileScreen}
           onSettings={onSettings}
           toggleSettings={toggleSettings}
         />
@@ -60,17 +58,13 @@ const BottomNavigationDrawerItems = ({
           rail={rail}
           icon={<Diversity1Outlined />}
           onClick={() => {
-            if (mobileScreen) {
+            if (toggleNavDrawer) {
               toggleNavDrawer();
             }
             toggleHelp();
           }}
         />
-        <CommunityDialog
-          mobileScreen={mobileScreen}
-          onHelp={onHelp}
-          toggleHelp={toggleHelp}
-        />
+        <CommunityDialog onHelp={onHelp} toggleHelp={toggleHelp} />
       </Box>
     </>
   );
@@ -81,7 +75,6 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
     noSsr: true,
   });
 
-  const [onNavDrawer, toggleNavDrawer] = useToggle(!mobileScreen);
   const [mobileDrawer, toggleMobileDrawer] = useToggle();
 
   return (
@@ -127,13 +120,7 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
               <WordMark />
             </ButtonBase>
           </Toolbar>
-          <Box
-            component={navComponent}
-            {...navComponentProps}
-            projectInfo={true}
-            onClick={mobileDrawer ? toggleNavDrawer : undefined}
-            rail={false}
-          />
+          <Box component={navComponent} {...navComponentProps} rail={false} />
           <Box
             sx={{
               overflowX: "hidden",
@@ -142,7 +129,6 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
             }}
           />
           <BottomNavigationDrawerItems
-            mobileScreen={mobileScreen}
             toggleNavDrawer={toggleMobileDrawer}
             rail={false}
           />
@@ -164,12 +150,7 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
           }}
         >
           <StyledList>
-            <Box
-              component={navComponent}
-              {...navComponentProps}
-              onClick={mobileDrawer ? toggleNavDrawer : undefined}
-              rail={true}
-            />
+            <Box component={navComponent} {...navComponentProps} rail={true} />
             <Box
               sx={{
                 overflowX: "hidden",
@@ -177,11 +158,7 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
                 flex: "1 1 auto",
               }}
             />
-            <BottomNavigationDrawerItems
-              mobileScreen={mobileScreen}
-              toggleNavDrawer={toggleMobileDrawer}
-              rail={true}
-            />
+            <BottomNavigationDrawerItems rail={true} />
           </StyledList>
         </Drawer>
       </Box>
@@ -196,7 +173,7 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
         })}
       >
         <Header
-          toggleNavDrawer={mobileScreen ? toggleMobileDrawer : toggleNavDrawer}
+          toggleNavDrawer={toggleMobileDrawer}
           menuOpenButton={mobileScreen}
         />
         <Outlet />

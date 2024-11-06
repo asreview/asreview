@@ -94,8 +94,6 @@ const AnalyticsPage = () => {
     }
   };
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
-  const [activeChartTab, setActiveChartTab] = useState(0);
-  const [activeProgressTab, setActiveProgressTab] = useState(0);
 
   return (
     <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>

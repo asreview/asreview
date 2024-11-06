@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Stack, Typography } from "@mui/material";
 import { useMutation } from "react-query";
 
@@ -10,7 +8,7 @@ import { InlineErrorHandler } from "Components";
 import { StyledInputSearch } from "StyledComponents/StyledInputSearch";
 
 const DatasetFromOpenAlex = ({ mode, setDataset }) => {
-  const [localURI, setURI] = React.useState("");
+  // const [localURI, setURI] = React.useState("");
 
   const { error, isError } = useMutation(ProjectAPI.createProject, {
     mutationKey: ["createProject"],
@@ -28,7 +26,7 @@ const DatasetFromOpenAlex = ({ mode, setDataset }) => {
           disabled={true}
           onClick={(e) => e.preventDefault()}
           placeholder="Search in OpenAlex"
-          value={localURI}
+          value={""}
           onChange={(e) => e.preventDefault()}
         />
 

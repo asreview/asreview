@@ -1,22 +1,10 @@
 import * as React from "react";
 
-import {
-  Box,
-  Button,
-  DialogTitle,
-  IconButton,
-  Input,
-  Snackbar,
-  Tab,
-  Tabs,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Box, Snackbar, Tab, Tabs, Typography } from "@mui/material";
 
 import {
   AutoAwesomeOutlined,
   DriveFolderUploadOutlined,
-  Edit,
   FileUploadOutlined,
   LinkOutlined,
   SearchOutlined,
@@ -33,75 +21,75 @@ import {
   DatasetFromURI,
 } from "ProjectComponents/SetupComponents/DataUploadComponents";
 
-import { useMutation, useQuery } from "react-query";
+import { useQuery } from "react-query";
 
-const DialogProjectName = ({ project_id, dataset_name }) => {
-  const [state, setState] = React.useState({
-    name: dataset_name,
-    edit: false,
-  });
+// const DialogProjectName = ({ project_id, dataset_name }) => {
+//   const [state, setState] = React.useState({
+//     name: dataset_name,
+//     edit: false,
+//   });
 
-  const { isLoading: isMutatingName, mutate: mutateName } = useMutation(
-    ProjectAPI.mutateInfo,
-    {
-      mutationKey: ["mutateInfo"],
-      onSuccess: (data) => {
-        setState({
-          name: data?.name,
-          edit: false,
-        });
-      },
-    },
-  );
+//   const { isLoading: isMutatingName, mutate: mutateName } = useMutation(
+//     ProjectAPI.mutateInfo,
+//     {
+//       mutationKey: ["mutateInfo"],
+//       onSuccess: (data) => {
+//         setState({
+//           name: data?.name,
+//           edit: false,
+//         });
+//       },
+//     },
+//   );
 
-  const toggleEditName = () => {
-    setState({
-      ...state,
-      edit: !state.edit,
-    });
-  };
+//   const toggleEditName = () => {
+//     setState({
+//       ...state,
+//       edit: !state.edit,
+//     });
+//   };
 
-  return (
-    <DialogTitle>
-      Start project:{" "}
-      {!state.edit && (
-        <>
-          {state.name}
-          <Tooltip title={"Edit project name"}>
-            <IconButton onClick={toggleEditName}>
-              <Edit />
-            </IconButton>
-          </Tooltip>
-        </>
-      )}
-      {state.edit && (
-        <>
-          <Input
-            value={state.name}
-            onChange={(e) => {
-              setState({
-                ...state,
-                name: e.target.value,
-              });
-            }}
-            disabled={isMutatingName}
-            sx={{ width: "50%" }}
-            autoFocus
-          />
-          <Button
-            onClick={() => {
-              mutateName({ project_id: project_id, title: state.name });
-            }}
-            disabled={isMutatingName}
-            variant="contained"
-          >
-            Save
-          </Button>
-        </>
-      )}
-    </DialogTitle>
-  );
-};
+//   return (
+//     <DialogTitle>
+//       Start project:{" "}
+//       {!state.edit && (
+//         <>
+//           {state.name}
+//           <Tooltip title={"Edit project name"}>
+//             <IconButton onClick={toggleEditName}>
+//               <Edit />
+//             </IconButton>
+//           </Tooltip>
+//         </>
+//       )}
+//       {state.edit && (
+//         <>
+//           <Input
+//             value={state.name}
+//             onChange={(e) => {
+//               setState({
+//                 ...state,
+//                 name: e.target.value,
+//               });
+//             }}
+//             disabled={isMutatingName}
+//             sx={{ width: "50%" }}
+//             autoFocus
+//           />
+//           <Button
+//             onClick={() => {
+//               mutateName({ project_id: project_id, title: state.name });
+//             }}
+//             disabled={isMutatingName}
+//             variant="contained"
+//           >
+//             Save
+//           </Button>
+//         </>
+//       )}
+//     </DialogTitle>
+//   );
+// };
 
 const Upload = ({ mode }) => {
   const [uploadSource, setUploadSource] = React.useState(false);

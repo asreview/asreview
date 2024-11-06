@@ -1,10 +1,8 @@
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import {
   Card,
   CardContent,
   Divider,
   Grid2 as Grid,
-  IconButton,
   Link,
   Paper,
   Skeleton,
@@ -21,7 +19,7 @@ import { StyledHelpPopover } from "StyledComponents/StyledHelpPopover";
 export default function ReviewProgress({ project_id }) {
   const theme = useTheme();
 
-  const { data, isLoading, error, isError } = useQuery(
+  const { data, isLoading } = useQuery(
     ["fetchProgress", { project_id: project_id }],
     ({ queryKey }) =>
       ProjectAPI.fetchProgress({

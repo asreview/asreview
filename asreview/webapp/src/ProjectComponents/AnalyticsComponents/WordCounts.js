@@ -1,21 +1,20 @@
 import {
-  Typography,
   Card,
+  CardContent,
   CardHeader,
   Grid2 as Grid,
-  CardContent,
   List,
   ListItem,
-  ListItemText,
+  Typography,
 } from "@mui/material";
+import { ProjectAPI } from "api";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
-import { ProjectAPI } from "api";
 
 const WordCounts = () => {
   const { project_id } = useParams();
 
-  const { data, isLoading } = useQuery(
+  const { data } = useQuery(
     ["fetchWordCounts", { project_id }],
     ProjectAPI.fetchWordCounts,
     {

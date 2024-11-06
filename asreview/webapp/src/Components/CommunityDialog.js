@@ -33,8 +33,9 @@ import { BoxErrorHandler, OpenInNewIconStyled } from "Components";
 
 import { UtilsAPI } from "api";
 import { feedbackURL } from "globals.js";
+import { useMediaQuery } from "@mui/material";
 
-const CommunityDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
+const CommunityDialog = ({ onHelp, toggleHelp }) => {
   const { data, error, isError, isFetched } = useQuery(
     "fetchFAQ",
     UtilsAPI.fetchFAQ,
@@ -43,6 +44,8 @@ const CommunityDialog = ({ mobileScreen, onHelp, toggleHelp }) => {
       refetchOnWindowFocus: false,
     },
   );
+
+  const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   return (
     <Dialog

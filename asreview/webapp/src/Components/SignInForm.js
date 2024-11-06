@@ -66,11 +66,11 @@ const SignInForm = ({
     mutate({ email, password });
   };
 
-  const handleEnterKey = (e) => {
-    if (e.keyCode === 13) {
-      handleSubmit(e);
-    }
-  };
+  // const handleEnterKey = (e) => {
+  //   if (e.keyCode === 13) {
+  //     handleSubmit(e);
+  //   }
+  // };
 
   return (
     <>

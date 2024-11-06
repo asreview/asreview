@@ -28,7 +28,6 @@ import {
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectModes, projectStatuses } from "globals.js";
-import { theme } from "constants/theme";
 
 const DialogProjectName = ({ project_id, dataset_name }) => {
   const [state, setState] = React.useState({
@@ -108,7 +107,7 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
   const [showSettings, setShowSettings] = React.useState(false);
   const [feedbackBar, setFeedbackBar] = React.useState(null);
 
-  const { data, isLoading } = useQuery(
+  const { data } = useQuery(
     ["fetchProject", { project_id: project_id }],
     ProjectAPI.fetchInfo,
     {
