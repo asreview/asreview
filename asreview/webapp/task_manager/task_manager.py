@@ -90,7 +90,7 @@ class TaskManager:
             self.session.commit()
             logging.info(f"Project {project_id} inserted to waiting list")
         except IntegrityError:
-            logging.error(f"Project {project_id} already exists in waiting list")
+            logging.debug(f"Project {project_id} already exists in waiting list")
             self.session.rollback()
         except Exception:
             logging.error(f"Failed to add project {project_id} to waiting list")
