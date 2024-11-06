@@ -153,11 +153,12 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
           variant="permanent"
           sx={{
             display: { xs: "none", md: "block" },
-            width: "80px",
+            width: "88px",
             flexShrink: 0,
             "& .MuiDrawer-paper": {
-              width: "80px",
+              width: "88px",
               // boxSizing: "border-box",
+              borderRight: "0px",
               borderRadius: 0,
             },
           }}
@@ -187,7 +188,7 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
       <Box
         aria-label="home page"
         sx={(theme) => ({
-          marginLeft: "80px",
+          marginLeft: "88px",
           marginTop: mobileScreen ? 3 : 8,
           [theme.breakpoints.down("md")]: {
             marginLeft: "0px",

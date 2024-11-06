@@ -32,7 +32,7 @@ const WordCounts = () => {
             <Typography sx={{ my: 2 }} variant="h6" component="div">
               Words in relevant records
             </Typography>
-            {data ? (
+            {data && data.relevant.length !== 0 ? (
               <List dense={true}>
                 {Object.entries(data.relevant).map(([count, word]) => (
                   <ListItem key={word}>{word}</ListItem>
@@ -46,7 +46,7 @@ const WordCounts = () => {
             <Typography sx={{ my: 2 }} variant="h6" component="div">
               Words in not relevant records
             </Typography>
-            {data ? (
+            {data && data.irrelevant.length !== 0 ? (
               <List dense={true}>
                 {Object.entries(data.irrelevant).map(([count, word]) => (
                   <ListItem key={word}>{word}</ListItem>

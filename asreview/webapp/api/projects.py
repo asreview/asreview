@@ -749,19 +749,24 @@ def api_get_wordcounts(project):  # noqa: F401
         df_user_input_data.iloc[record_ids_irrel]["abstract"].fillna("").to_list()
     )
 
-    vectorizer = TfidfVectorizer(stop_words="english")
-    tfidf_matrix = vectorizer.fit_transform(df_rel)
-    feature_array = np.array(vectorizer.get_feature_names_out())
-    tfidf_sorting = np.argsort(tfidf_matrix.toarray()).flatten()[::-1]
-    top_n_rel = feature_array[tfidf_sorting][:20]
+    try:
+        vectorizer = TfidfVectorizer(stop_words="english")
+        tfidf_matrix = vectorizer.fit_transform(df_rel)
+        feature_array = np.array(vectorizer.get_feature_names_out())
+        tfidf_sorting = np.argsort(tfidf_matrix.toarray()).flatten()[::-1]
+        top_n_rel = feature_array[tfidf_sorting][:15]
 
-    vectorizer = TfidfVectorizer(stop_words="english")
-    tfidf_matrix = vectorizer.fit_transform(df_irrel)
-    feature_array = np.array(vectorizer.get_feature_names_out())
-    tfidf_sorting = np.argsort(tfidf_matrix.toarray()).flatten()[::-1]
-    top_n_irrel = feature_array[tfidf_sorting][:20]
+        vectorizer = TfidfVectorizer(stop_words="english")
+        tfidf_matrix = vectorizer.fit_transform(df_irrel)
+        feature_array = np.array(vectorizer.get_feature_names_out())
+        tfidf_sorting = np.argsort(tfidf_matrix.toarray()).flatten()[::-1]
+        top_n_irrel = feature_array[tfidf_sorting][:15]
 
-    return jsonify({"relevant": top_n_rel.tolist(), "irrelevant": top_n_irrel.tolist()})
+        return jsonify(
+            {"relevant": top_n_rel.tolist(), "irrelevant": top_n_irrel.tolist()}
+        )
+    except ValueError:
+        return jsonify({"relevant": [], "irrelevant": []})
 
 
 @bp.route("/projects/<project_id>/train", methods=["POST"])

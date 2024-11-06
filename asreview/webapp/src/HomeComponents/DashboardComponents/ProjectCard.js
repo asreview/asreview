@@ -13,7 +13,7 @@ import { useToggle } from "hooks/useToggle";
 import { ProjectDeleteDialog } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 import * as React from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Link, useNavigate } from "react-router-dom";
 
 import {
@@ -46,40 +46,16 @@ const projectModeURLMap = {
 
 const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [deleteDialog, toggleDeleteDialog] = useToggle();
   const [openSetup, toggleSetup] = useToggle();
+  const [exporting, setExporting] = React.useState(false);
 
   const review = project["reviews"][0];
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const openMenu = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const openProject = (path = "") => {
-    if (review?.status === projectStatuses.SETUP) {
-      toggleSetup();
-    } else {
-      navigate(`${project.id}/${path}`);
-    }
-  };
-
-  const handleClickUpdateStatus = () => {
-    handleMenuClose();
-    // props.updateProjectStatus();
-  };
-
-  const handleClickDelete = () => {
-    handleMenuClose();
-    toggleDeleteDialog();
-  };
-
-  const [exporting, setExporting] = React.useState(false);
 
   const {
     // error: exportProjectError,
@@ -93,10 +69,41 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
       refetchOnWindowFocus: false,
       onSettled: () => {
         setExporting(false);
-        handleMenuClose();
+        setAnchorEl(null);
       },
     },
   );
+
+  const openProject = (path = "") => {
+    if (review?.status === projectStatuses.SETUP) {
+      toggleSetup();
+    } else {
+      navigate(`${project.id}/${path}`);
+    }
+  };
+
+  const { mutate: handleClickUpdateStatus } = useMutation(
+    ProjectAPI.mutateReviewStatus,
+    {
+      onSuccess: (data) => {
+        queryClient.setQueryData(
+          ["fetchProjectStatus", { project_id: project.id }],
+          data,
+        );
+        queryClient.invalidateQueries([
+          "fetchProjectInfo",
+          { project_id: project.id },
+        ]);
+        queryClient.invalidateQueries("fetchProjects");
+        setAnchorEl(null);
+      },
+    },
+  );
+
+  const handleClickDelete = () => {
+    setAnchorEl(null);
+    toggleDeleteDialog();
+  };
 
   return (
     <Card
@@ -137,9 +144,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
           review?.status === projectStatuses.REVIEW && (
             <Grid size={3}>
               <Button
-                onClick={() =>
-                  navigate(`/${projectModeURLMap[mode]}/${project.id}/reviewer`)
-                }
+                onClick={() => openProject("reviewer")}
                 variant="outlined"
                 color="secondary"
                 sx={{ borderRadius: 20 }}
@@ -181,7 +186,9 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                 aria-controls={openMenu ? "more-options-menu" : undefined}
                 aria-haspopup="true"
                 aria-expanded={openMenu ? "true" : undefined}
-                onClick={handleClick}
+                onClick={(event) => {
+                  setAnchorEl(event.currentTarget);
+                }}
               >
                 <MoreHoriz />
               </IconButton>
@@ -191,7 +198,9 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
               aria-labelledby="card-positioned-button"
               anchorEl={anchorEl}
               open={openMenu}
-              onClose={handleMenuClose}
+              onClose={() => {
+                setAnchorEl(null);
+              }}
               anchorOrigin={{
                 vertical: "top",
                 horizontal: "right",
@@ -203,7 +212,17 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
             >
               {mode === projectModes.ORACLE &&
                 review?.status !== projectStatuses.SETUP && (
-                  <MenuItem onClick={handleClickUpdateStatus}>
+                  <MenuItem
+                    onClick={() =>
+                      handleClickUpdateStatus({
+                        project_id: project.id,
+                        status:
+                          review?.status === projectStatuses.REVIEW
+                            ? projectStatuses.FINISHED
+                            : projectStatuses.REVIEW,
+                      })
+                    }
+                  >
                     <ListItemIcon>
                       <DoneAllOutlined />
                     </ListItemIcon>

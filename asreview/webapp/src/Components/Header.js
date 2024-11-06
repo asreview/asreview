@@ -10,13 +10,12 @@ import {
 import { Link, useLocation } from "react-router-dom";
 
 import { ProfilePopper } from "Components";
-import { useEffect, useState } from "react";
 
+import useScrollTrigger from "@mui/material/useScrollTrigger";
 import { useToggle } from "hooks/useToggle";
 import { ElasIcon } from "icons";
 import { WordMark } from "icons/WordMark";
 import ElasGameDialog from "./ElasGame";
-import useScrollTrigger from "@mui/material/useScrollTrigger";
 
 const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
   const [openGame, toggleGame] = useToggle();
@@ -38,11 +37,12 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
         sx={(theme) => ({
           bgcolor: theme.palette.background.default,
           borderBottom: `1px solid ${headerActive ? theme.palette.divider : theme.palette.background.default}`,
+          borderRadius: 0,
 
           [theme.breakpoints.up("md")]: {
             zIndex: theme.zIndex.drawer + 1,
-            width: `calc(100% - 80px)`,
-            ml: `80px`,
+            width: `calc(100% - 88px)`,
+            ml: `88px`,
           },
         })}
       >
