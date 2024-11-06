@@ -12,7 +12,21 @@ import {
 import ReviewScreenOutlined from "icons/ReviewScreenOutlined";
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 
+import { useNavigate } from "react-router-dom";
+import { useHotkeys } from "react-hotkeys-hook";
+
 const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
+  const navigate = useNavigate();
+
+  useHotkeys("d", () => navigate(""));
+  useHotkeys("r", () => navigate("reviewer"));
+  useHotkeys("c", () => navigate("collection"));
+  useHotkeys(
+    "t",
+    () => window.authentication && window.allowTeams && navigate("team"),
+  );
+  useHotkeys("s", () => navigate("settings"));
+
   return (
     <Box
       sx={{

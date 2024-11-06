@@ -66,7 +66,12 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
   });
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      disableRestoreFocus // bug https://github.com/mui/material-ui/issues/33004
+    >
       <DialogTitle>Add note</DialogTitle>
       <DialogContent>
         <TextField
@@ -172,8 +177,8 @@ const RecordCardLabeler = ({
     setAnchorEl(null);
   };
 
-  useHotkeys("r", () => hotkeys && makeDecision(1));
-  useHotkeys("i", () => hotkeys && makeDecision(0));
+  useHotkeys("v", () => hotkeys && makeDecision(1));
+  useHotkeys("x", () => hotkeys && makeDecision(0));
   useHotkeys("n", () => hotkeys && toggleShowNotesDialog(), { keyup: true });
 
   return (
@@ -284,6 +289,12 @@ const RecordCardLabeler = ({
                 variant="contained"
                 startIcon={<LibraryAddOutlinedIcon />}
                 disabled={isLoading || isSuccess}
+                sx={(theme) => ({
+                  color: theme.palette.getContrastText(
+                    theme.palette.tertiary.main,
+                  ),
+                  bgcolor: theme.palette.tertiary.main,
+                })}
               >
                 Add
               </Button>

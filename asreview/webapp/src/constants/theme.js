@@ -8,6 +8,9 @@ export const theme = {
         secondary: {
           main: "#6E9B73",
         },
+        tertiary: {
+          main: "#ffe08b",
+        },
         background: {
           default: "#fffbf5",
           paper: "#f5eddf",

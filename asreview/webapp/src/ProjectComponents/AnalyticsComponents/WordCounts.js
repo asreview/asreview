@@ -39,7 +39,7 @@ const WordCounts = () => {
                 ))}
               </List>
             ) : (
-              <Typography>No word counts available.</Typography>
+              <Typography>No word available.</Typography>
             )}
           </Grid>
           <Grid size={1}>
@@ -53,7 +53,7 @@ const WordCounts = () => {
                 ))}
               </List>
             ) : (
-              <Typography>No word counts available.</Typography>
+              <Typography>No word available.</Typography>
             )}
           </Grid>
         </Grid>
