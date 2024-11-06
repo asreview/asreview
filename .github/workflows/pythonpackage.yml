@@ -30,7 +30,7 @@ jobs:
           python setup.py compile_assets
       - name: Build
         run: |
-          python build
+          python -m build
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
