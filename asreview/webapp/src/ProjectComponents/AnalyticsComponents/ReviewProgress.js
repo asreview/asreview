@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
-import { CardErrorHandler } from "Components";
 import { useState } from "react";
 import Chart from "react-apexcharts";
 import { useQuery } from "react-query";
@@ -34,45 +33,44 @@ export default function ReviewProgress({ project_id }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
 
+  const hasPrior =
+    data?.n_included_no_priors !== data?.n_included ||
+    data?.n_excluded_no_priors !== data?.n_excluded;
+
   return (
     <Card sx={{ bgcolor: "background.default" }}>
-      <CardErrorHandler
-        queryKey={"fetchProgress"}
-        error={error}
-        isError={isError}
-      />
       <CardContent>
-        <IconButton
-          size="small"
-          onClick={(event) => {
-            setAnchorEl(event.currentTarget);
-          }}
-          sx={{ float: "right" }}
-        >
-          <HelpOutlineIcon fontSize="small" />
-        </IconButton>
-        <StyledHelpPopover
-          id="info-popover"
-          open={popoverOpen}
-          anchorEl={anchorEl}
-          onClose={() => {
-            setAnchorEl(null);
-          }}
-        >
-          <Typography variant="body1">
-            <strong>Showing</strong> prior knowledge will show combined
-            labelings from the original dataset and those done using ASReview.
-          </Typography>
-          <Link
-            href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-            target="_blank"
-            rel="noopener"
+        <>
+          {/* <IconButton
+            size="small"
+            onClick={(event) => {
+              setAnchorEl(event.currentTarget);
+            }}
+            sx={{ float: "right" }}
           >
-            Learn more
-          </Link>
-        </StyledHelpPopover>
-      </CardContent>
-      <CardContent>
+            <HelpOutlineIcon fontSize="small" />
+          </IconButton> */}
+          <StyledHelpPopover
+            id="info-popover"
+            open={popoverOpen}
+            anchorEl={anchorEl}
+            onClose={() => {
+              setAnchorEl(null);
+            }}
+          >
+            <Typography variant="body1">
+              <strong>Showing</strong> prior knowledge will show combined
+              labelings from the original dataset and those done using ASReview.
+            </Typography>
+            <Link
+              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+              target="_blank"
+              rel="noopener"
+            >
+              Learn more
+            </Link>
+          </StyledHelpPopover>
+        </>
         <Grid container spacing={2} columns={1}>
           <Grid
             size={1}
@@ -86,40 +84,39 @@ export default function ReviewProgress({ project_id }) {
               <Chart
                 options={{
                   chart: {
-                    animations: { enabled: false },
                     background: "transparent",
                     type: "donut",
                   },
-                  plotOptions: {
-                    pie: {
-                      donut: {
-                        size: "10%",
-                        labels: {
-                          show: false,
-                          total: {
-                            show: false,
-                            formatter: () =>
-                              `${
-                                data.n_records > 0
-                                  ? Math.round(
-                                      (data.n_included_no_priors +
-                                        data.n_excluded_no_priors /
-                                          data.n_records) *
-                                        100,
-                                    )
-                                  : 0
-                              }%`,
-                            style: {
-                              fontSize: "28px",
-                              fontWeight: "bold",
-                              color: theme.palette.text.primary,
-                              textAlign: "center",
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
+                  // plotOptions: {
+                  //   pie: {
+                  //     donut: {
+                  //       size: "10%",
+                  //       labels: {
+                  //         show: false,
+                  //         total: {
+                  //           show: false,
+                  //           formatter: () =>
+                  //             `${
+                  //               data.n_records > 0
+                  //                 ? Math.round(
+                  //                     (data.n_included_no_priors +
+                  //                       data.n_excluded_no_priors /
+                  //                         data.n_records) *
+                  //                       100,
+                  //                   )
+                  //                 : 0
+                  //             }%`,
+                  //           style: {
+                  //             fontSize: "28px",
+                  //             fontWeight: "bold",
+                  //             color: theme.palette.text.primary,
+                  //             textAlign: "center",
+                  //           },
+                  //         },
+                  //       },
+                  //     },
+                  //   },
+                  // },
                   labels: ["Relevant", "Irrelevant", "Unlabeled"],
                   colors: [
                     theme.palette.mode === "light"
@@ -173,7 +170,7 @@ export default function ReviewProgress({ project_id }) {
                   <Stack spacing={1} direction={"column"}>
                     <Stack direction={"row"} spacing={1} alignItems={"center"}>
                       <Typography variant="body2" color="text.secondary">
-                        {"Relevant records"}
+                        {"Labeled relevant"}
                       </Typography>
                       <Typography
                         variant="h6"
@@ -183,19 +180,28 @@ export default function ReviewProgress({ project_id }) {
                         {data.n_included_no_priors}
                       </Typography>
                     </Stack>
-                    <Divider />
-                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                      <Typography variant="body2" color="text.secondary">
-                        {"Including priors"}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        fontWeight="bold"
-                        color="text.secondary"
-                      >
-                        {data.n_included}
-                      </Typography>
-                    </Stack>
+
+                    {hasPrior && (
+                      <>
+                        <Divider />
+                        <Stack
+                          direction={"row"}
+                          spacing={1}
+                          alignItems={"center"}
+                        >
+                          <Typography variant="body2" color="text.secondary">
+                            {"Including priors"}
+                          </Typography>
+                          <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            color="text.secondary"
+                          >
+                            {data.n_included}
+                          </Typography>
+                        </Stack>
+                      </>
+                    )}
                   </Stack>
                 </Paper>
                 <Paper
@@ -211,7 +217,7 @@ export default function ReviewProgress({ project_id }) {
                   <Stack spacing={1} direction={"column"}>
                     <Stack direction={"row"} spacing={1} alignItems={"center"}>
                       <Typography variant="body2" color="text.secondary">
-                        {"Not relevant records"}
+                        {"Labeled not relevant"}
                       </Typography>
                       <Typography
                         variant="h6"
@@ -221,19 +227,27 @@ export default function ReviewProgress({ project_id }) {
                         {data.n_excluded_no_priors}
                       </Typography>
                     </Stack>
-                    <Divider />
-                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                      <Typography variant="body2" color="text.secondary">
-                        {"Including priors"}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        fontWeight="bold"
-                        color="text.secondary"
-                      >
-                        {data.n_excluded}
-                      </Typography>
-                    </Stack>
+                    {hasPrior && (
+                      <>
+                        <Divider />
+                        <Stack
+                          direction={"row"}
+                          spacing={1}
+                          alignItems={"center"}
+                        >
+                          <Typography variant="body2" color="text.secondary">
+                            {"Including priors"}
+                          </Typography>
+                          <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            color="text.secondary"
+                          >
+                            {data.n_excluded}
+                          </Typography>
+                        </Stack>
+                      </>
+                    )}
                   </Stack>
                 </Paper>
               </Stack>

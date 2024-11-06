@@ -1,19 +1,16 @@
 import { Share } from "@mui/icons-material";
 import {
   Box,
-  Fade,
   Container,
+  Divider,
+  Fade,
   Grid2 as Grid,
   SpeedDial,
   SpeedDialAction,
   Stack,
-  Divider,
   Tab,
   Tabs,
   Typography,
-  AvatarGroup,
-  Avatar,
-  Skeleton,
 } from "@mui/material";
 import React, { useState } from "react";
 import { useQuery } from "react-query";
@@ -118,7 +115,7 @@ const AnalyticsPage = () => {
             </Typography>
           </Box>
         </Fade>
-        <Box>
+        {/* <Box>
           <AvatarGroup max={20}>
             <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
             <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
@@ -126,12 +123,11 @@ const AnalyticsPage = () => {
             <Avatar alt="Agnes Walker" src="/static/images/avatar/4.jpg" />
             <Avatar alt="Trevor Henderson" src="/static/images/avatar/5.jpg" />
           </AvatarGroup>
-        </Box>
+        </Box> */}
         <Grid container columns={2}>
           <Grid size={1}>
             <ReviewProgress project_id={project_id} />
           </Grid>
-
           <Grid size={1}>
             <StoppingSuggestion project_id={project_id} />
           </Grid>
