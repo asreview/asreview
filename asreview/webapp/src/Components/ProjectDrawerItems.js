@@ -1,4 +1,4 @@
-import { Box, Divider, Tooltip } from "@mui/material";
+import { Box, Divider } from "@mui/material";
 import { Link, NavLink } from "react-router-dom";
 
 import {
@@ -12,8 +12,8 @@ import {
 import ReviewScreenOutlined from "icons/ReviewScreenOutlined";
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 
-import { useNavigate } from "react-router-dom";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useNavigate } from "react-router-dom";
 
 const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
   const navigate = useNavigate();
