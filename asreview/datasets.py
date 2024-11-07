@@ -16,7 +16,6 @@ __all__ = [
     "BaseDataGroup",
     "BaseDataSet",
     "DatasetManager",
-    "NaturePublicationDataGroup",
     "SynergyDataGroup",
     "SynergyDataSet",
 ]
@@ -381,22 +380,6 @@ class DatasetManager:
             return dataset_list_ser
 
         return group_list
-
-
-class NaturePublicationDataGroup(BaseDataGroup):
-    """Datasets used in the paper Van de Schoot et al. 2020."""
-
-    group_id = "benchmark-nature"
-    description = (
-        "Datasets used in the validation paper published"
-        " in Nature Machine Intelligence (van de Schoot et al. 2021)"
-    )
-
-    def __init__(self):
-        meta_file = "https://raw.githubusercontent.com/asreview/paper-asreview/master/index_v1.json"  # noqa
-        datasets = _download_from_metadata(meta_file)
-
-        super().__init__(*datasets)
 
 
 class SynergyDataSet(BaseDataSet):

@@ -11,7 +11,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import React from "react";
 
 import { StyledIconButton } from "StyledComponents/StyledButton";
@@ -21,35 +20,13 @@ import { RecordCardLabeler, RecordCardModelTraining } from ".";
 
 import { fontSizeOptions } from "globals.js";
 
-const PREFIX = "RecordCard";
-
-const classes = {
-  abstract: `${PREFIX}-abstract`,
-};
-
-const StyledCard = styled(Card)(() => ({
-  // [`& .${classes.titleAbstract}`]: {
-  //   height: "100%",
-  //   overflowY: "scroll",
-  // },
-  // [`& .${classes.title}`]: {
-  //   lineHeight: 1.2,
-  // },
-  [`& .${classes.abstract}`]: {
-    whiteSpace: "pre-line",
-  },
-}));
-
 const transitionSpeed = 150;
 
 const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
   const [readMoreOpen, toggleReadMore] = useToggle();
 
   return (
-    <CardContent
-      className={classes.titleAbstract}
-      aria-label="record title abstract"
-    >
+    <CardContent aria-label="record title abstract">
       <Stack spacing={1}>
         <Stack
           direction="row"
@@ -58,7 +35,6 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
         >
           {/* Show the title */}
           <Typography
-            className={classes.title}
             variant={"h5"}
             sx={(theme) => ({
               fontWeight: theme.typography.fontWeightRegular,
@@ -109,9 +85,9 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
 
         {(record.abstract === "" || record.abstract === null) && (
           <Typography
-            className={classes.abstract + " fontSize" + fontSize}
+            className={"fontSize" + fontSize}
             variant="body2"
-            sx={{ color: "text.secondary" }}
+            sx={{ color: "text.secondary", whiteSpace: "pre-line" }}
             fontStyle={"italic"}
           >
             No abstract available
@@ -119,9 +95,9 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
         )}
 
         <Typography
-          className={classes.abstract + " fontSize" + fontSizeOptions[fontSize]}
+          className={"fontSize" + fontSizeOptions[fontSize]}
           variant="body2"
-          sx={{ color: "text.secondary" }}
+          sx={{ color: "text.secondary", whiteSpace: "pre-line" }}
         >
           {!(record.abstract === "" || record.abstract === null) &&
           collapseAbstract &&
@@ -159,45 +135,58 @@ const RecordCard = ({
   hotkeys = false,
   transitionType = "fade",
   landscape = false,
+  changeDecision = true,
 }) => {
   const [state, setState] = React.useState({ open: true });
 
   const styledRepoCard = (
-    <StyledCard elevation={showBorder ? 2 : 0} square={!showBorder}>
-      <RecordCardModelTraining record={record} modelLogLevel={modelLogLevel} />
-
-      <Grid
-        container
-        columns={5}
-        sx={{ alignItems: "stretch" }}
-        // divider={<Divider orientation="vertical" flexItem />}
+    <Box>
+      <RecordCardModelTraining
+        record={record}
+        modelLogLevel={modelLogLevel}
+        sx={{ mb: 3, mx: 4 }}
+      />
+      <Card
+        elevation={showBorder ? 4 : 0}
+        sx={{
+          bgcolor: "#FFFFFF",
+          borderRadius: !showBorder ? 0 : undefined,
+        }}
       >
-        <Grid size={landscape ? 3 : 5}>
-          <RecordCardContent
-            record={record}
-            fontSize={fontSize}
-            collapseAbstract={collapseAbstract}
-          />
+        <Grid
+          container
+          columns={5}
+          sx={{ alignItems: "stretch" }}
+          // divider={<Divider orientation="vertical" flexItem />}
+        >
+          <Grid size={landscape ? 3 : 5}>
+            <RecordCardContent
+              record={record}
+              fontSize={fontSize}
+              collapseAbstract={collapseAbstract}
+            />
+          </Grid>
+          <Grid size={landscape ? 2 : 5}>
+            <RecordCardLabeler
+              project_id={project_id}
+              record_id={record.record_id}
+              label={record.state?.label}
+              labelFromDataset={record.included}
+              decisionCallback={() => setState({ open: false })}
+              retrainAfterDecision={retrainAfterDecision}
+              note={record.state?.note}
+              labelDatetime={record.state?.labeling_time}
+              showNotes={showNotes}
+              tagsForm={record.tags_form}
+              tagValues={record.state?.tags}
+              landscape={landscape}
+              hotkeys={hotkeys}
+              changeDecision={changeDecision}
+            />
+          </Grid>
         </Grid>
-        <Grid size={landscape ? 2 : 5}>
-          <RecordCardLabeler
-            project_id={project_id}
-            record_id={record.record_id}
-            label={record.state?.label}
-            labelFromDataset={record.included}
-            decisionCallback={() => setState({ open: false })}
-            retrainAfterDecision={retrainAfterDecision}
-            note={record.state?.note}
-            labelDatetime={record.state?.labeling_time}
-            showNotes={showNotes}
-            tagsForm={record.tags_form}
-            tagValues={record.state?.tags}
-            landscape={landscape}
-            hotkeys={hotkeys}
-          />
-        </Grid>
-      </Grid>
-    </StyledCard>
+      </Card>
+    </Box>
   );
 
   if (transitionType === "fade") {

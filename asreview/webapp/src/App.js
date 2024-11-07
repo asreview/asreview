@@ -18,6 +18,7 @@ import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
+import "@fontsource/roboto-serif/400.css";
 
 import "./App.css";
 
@@ -103,48 +104,20 @@ const App = () => {
               />
             }
           >
-            <Route
-              index
-              element={
-                <>
-                  <PageHeader>Dashboard</PageHeader>
-                  <AnalyticsPage />
-                </>
-              }
-            />
-
-            <Route path="review" element={<ReviewPage />} />
-
-            <Route
-              path="collection"
-              element={
-                <>
-                  <PageHeader>Collection</PageHeader>
-                  <LabelHistory />
-                </>
-              }
-            />
-
-            {window.authentication && window.allowTeams && (
+            <>
+              {" "}
+              {/* Wrap contextprovider to pass mode */}
+              <Route index element={<AnalyticsPage />} />
+              <Route path="reviewer" element={<ReviewPage />} />
               <Route
-                path="team"
-                element={
-                  <>
-                    <PageHeader>Team</PageHeader>
-                    <TeamPage />
-                  </>
-                }
+                path="collection"
+                element={<LabelHistory mode={"oracle"} />}
               />
-            )}
-            <Route
-              path="settings"
-              element={
-                <>
-                  <PageHeader>Settings</PageHeader>
-                  <DetailsPage />
-                </>
-              }
-            />
+              {window.authentication && window.allowTeams && (
+                <Route path="team" element={<TeamPage />} />
+              )}
+              <Route path="settings" element={<DetailsPage />} />
+            </>
           </Route>
           <Route
             path="simulations/:project_id"
@@ -155,46 +128,15 @@ const App = () => {
               />
             }
           >
-            <Route
-              index
-              element={
-                <>
-                  <PageHeader>Dashboard</PageHeader>
-                  <AnalyticsPage />
-                </>
-              }
-            />
-
+            <Route index element={<AnalyticsPage />} />
             <Route
               path="collection"
-              element={
-                <>
-                  <PageHeader>Collection</PageHeader>
-                  <LabelHistory />
-                </>
-              }
+              element={<LabelHistory mode={"simulate"} />}
             />
-
             {window.authentication && window.allowTeams && (
-              <Route
-                path="team"
-                element={
-                  <>
-                    <PageHeader>Team</PageHeader>
-                    <TeamPage />
-                  </>
-                }
-              />
+              <Route path="team" element={<TeamPage />} />
             )}
-            <Route
-              path="settings"
-              element={
-                <>
-                  <PageHeader>Settings</PageHeader>
-                  <DetailsPage />
-                </>
-              }
-            />
+            <Route path="settings" element={<DetailsPage />} />
           </Route>
           <Route path="*" element={<RouteNotFound />} />
         </Routes>

@@ -1,47 +1,31 @@
-import {
-  Box,
-  Fade,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Tooltip,
-} from "@mui/material";
-import { useQuery } from "react-query";
-import { Link, NavLink, useParams } from "react-router-dom";
+import { Box, Divider } from "@mui/material";
+import { Link, NavLink } from "react-router-dom";
 
 import {
   ArrowBackOutlined,
-  AssessmentOutlined,
-  AssignmentOutlined,
+  DashboardOutlined,
   LibraryBooksOutlined,
   PeopleAltOutlined,
   SettingsOutlined,
 } from "@mui/icons-material";
 
-import { ProjectAPI } from "api";
-import { useToggle } from "hooks/useToggle";
+import ReviewScreenOutlined from "icons/ReviewScreenOutlined";
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
-import ElasGameDialog from "./ElasGame";
 
-import { ElasIcon } from "icons";
-import { ElasSign } from "icons/ElasSign";
+import { useHotkeys } from "react-hotkeys-hook";
+import { useNavigate } from "react-router-dom";
 
-const ProjectDrawerItems = ({
-  subset,
-  projectInfo = true,
-  onClick = null,
-  showTooltip = false,
-}) => {
-  const [openGame, toggleGame] = useToggle();
-  const { project_id } = useParams();
+const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
+  const navigate = useNavigate();
 
-  const { data } = useQuery(
-    ["fetchInfo", { project_id: project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      refetchOnWindowFocus: false,
-    },
+  useHotkeys("d", () => navigate(""));
+  useHotkeys("r", () => navigate("reviewer"));
+  useHotkeys("c", () => navigate("collection"));
+  useHotkeys(
+    "t",
+    () => window.authentication && window.allowTeams && navigate("team"),
   );
+  useHotkeys("s", () => navigate("settings"));
 
   return (
     <Box
@@ -54,58 +38,12 @@ const ProjectDrawerItems = ({
       <DrawerItem
         primary={subset[0].toUpperCase() + subset.slice(1)}
         to={"/" + subset}
-        showTooltip={showTooltip}
+        rail={rail}
         onClick={onClick}
         icon={<ArrowBackOutlined />}
         component={Link}
       />
-      {data && (
-        <>
-          <Fade in={projectInfo} unmountOnExit>
-            <ListItem
-              onClick={toggleGame}
-              sx={{ maxWidth: "140px", margin: "auto" }}
-            >
-              <ElasSign status={data?.reviews[0].status} />
-            </ListItem>
-          </Fade>
-          <Fade in={!projectInfo} unmountOnExit>
-            <Tooltip
-              title={!projectInfo && "Go on adventure with Elas"}
-              placement={"right"}
-            >
-              <ListItem
-                key={"project-info"}
-                onClick={!projectInfo ? toggleGame : null}
-              >
-                <ListItemIcon sx={{ pl: 1, py: 1 }}>
-                  <ElasIcon />
-                </ListItemIcon>
-              </ListItem>
-            </Tooltip>
-          </Fade>
-          <Fade in={projectInfo} unmountOnExit>
-            <Tooltip
-              title={!projectInfo && "Go on adventure with Elas"}
-              placement={"right"}
-            >
-              <ListItem
-                key={"project-info"}
-                onClick={!projectInfo ? toggleGame : null}
-              >
-                <ListItemText
-                  primary={data?.name}
-                  sx={(theme) => ({
-                    textAlign: "center",
-                    color: theme.palette.primary.main,
-                  })}
-                />
-              </ListItem>
-            </Tooltip>
-          </Fade>
-        </>
-      )}
-
+      <Divider sx={{ mx: 1 }} />
       <Box
         sx={{
           overflowX: "hidden",
@@ -117,21 +55,20 @@ const ProjectDrawerItems = ({
           key={"project-dashboard"}
           to={``}
           primary={"Dashboard"}
-          showTooltip={showTooltip}
+          rail={rail}
           onClick={onClick}
-          icon={<AssessmentOutlined />}
+          icon={<DashboardOutlined />}
           component={NavLink}
           end={true}
         />
-
         {subset === "reviews" && (
           <DrawerItem
-            key={"project-review"}
-            to={`review`}
-            primary={"Review"}
-            showTooltip={showTooltip}
+            key={"project-reviewer"}
+            to={`reviewer`}
+            primary={"Reviewer"}
+            rail={rail}
             onClick={onClick}
-            icon={<AssignmentOutlined />}
+            icon={<ReviewScreenOutlined />}
             component={NavLink}
           />
         )}
@@ -139,7 +76,7 @@ const ProjectDrawerItems = ({
           key={"project-history"}
           to={`collection`}
           primary={"Collection"}
-          showTooltip={showTooltip}
+          rail={rail}
           onClick={onClick}
           icon={<LibraryBooksOutlined />}
           component={NavLink}
@@ -150,7 +87,7 @@ const ProjectDrawerItems = ({
             key={"project-team"}
             to={`team`}
             primary={"Team"}
-            showTooltip={showTooltip}
+            rail={rail}
             onClick={onClick}
             icon={<PeopleAltOutlined />}
             component={NavLink}
@@ -161,15 +98,12 @@ const ProjectDrawerItems = ({
           key={"project-settings"}
           to={`settings`}
           primary={"Settings"}
-          showTooltip={showTooltip}
+          rail={rail}
           onClick={onClick}
           icon={<SettingsOutlined />}
           component={NavLink}
         />
       </Box>
-
-      {/* Game */}
-      <ElasGameDialog open={openGame} toggleOpen={toggleGame} />
     </Box>
   );
 };

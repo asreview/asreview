@@ -20,7 +20,7 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.icon}`]: {
     color: theme.palette.text.secondary,
     [`:hover`]: {
-      backgroundColor: "transparent",
+      bgcolor: "transparent",
     },
   },
 }));

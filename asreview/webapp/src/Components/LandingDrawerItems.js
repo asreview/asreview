@@ -1,11 +1,13 @@
-import { NavLink } from "react-router-dom";
+import { Box, Toolbar } from "@mui/material";
 
-import { DashboardOutlined } from "@mui/icons-material";
-import { Box } from "@mui/system";
+import { AutoModeOutlined } from "@mui/icons-material";
 
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
+import SimulateOutlined from "icons/SimulateOutlined";
 
-const LandingDrawerItems = ({ onClick = null, showTooltip = false }) => {
+import { NavLink } from "react-router-dom";
+
+const LandingDrawerItems = ({ onClick = null, rail = false }) => {
   return (
     <Box
       sx={{
@@ -14,12 +16,13 @@ const LandingDrawerItems = ({ onClick = null, showTooltip = false }) => {
         flex: "1 1 auto",
       }}
     >
+      <Toolbar sx={{ height: "73.8px" }} />
       <DrawerItem
         key={"projects-reviews"}
         to={"/reviews"}
         primary={"Reviews"}
-        showTooltip={showTooltip}
-        icon={<DashboardOutlined />}
+        rail={rail}
+        icon={<SimulateOutlined />}
         component={NavLink}
         onClick={onClick}
       />
@@ -27,8 +30,8 @@ const LandingDrawerItems = ({ onClick = null, showTooltip = false }) => {
         key={"projects-simulations"}
         to={"/simulations"}
         primary={"Simulations"}
-        showTooltip={showTooltip}
-        icon={<DashboardOutlined />}
+        rail={rail}
+        icon={<AutoModeOutlined />}
         component={NavLink}
         onClick={onClick}
       />

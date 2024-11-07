@@ -2,12 +2,15 @@ import { Share } from "@mui/icons-material";
 import {
   Box,
   Container,
+  Divider,
+  Fade,
   Grid2 as Grid,
   SpeedDial,
   SpeedDialAction,
   Stack,
   Tab,
   Tabs,
+  Typography,
 } from "@mui/material";
 import React, { useState } from "react";
 import { useQuery } from "react-query";
@@ -28,6 +31,7 @@ import {
   ReviewProgress,
   ShareFabAction,
   StoppingSuggestion,
+  WordCounts,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
 
@@ -38,8 +42,17 @@ const actions = [
   { icon: <WhatsappIcon round />, name: "WhatsApp" },
   { icon: <EmailIcon round />, name: "Email" },
 ];
+
 const AnalyticsPage = () => {
   const { project_id } = useParams();
+
+  const { data } = useQuery(
+    ["fetchInfo", { project_id }],
+    ProjectAPI.fetchInfo,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
 
   const progressQuery = useQuery(
     ["fetchProgress", { project_id }],
@@ -81,69 +94,96 @@ const AnalyticsPage = () => {
     }
   };
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
-  const [activeChartTab, setActiveChartTab] = useState(0);
-  const [activeProgressTab, setActiveProgressTab] = useState(0);
 
   return (
     <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>
       <Stack spacing={2} className="main-page-body">
+        <Fade in>
+          <Box>
+            <Typography
+              variant="h4"
+              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 2 }}
+            >
+              {data?.name}
+            </Typography>
+            <Typography
+              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }}
+            >
+              747 records in total
+            </Typography>
+          </Box>
+        </Fade>
+        {/* <Box>
+          <AvatarGroup max={20}>
+            <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+            <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
+            <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
+            <Avatar alt="Agnes Walker" src="/static/images/avatar/4.jpg" />
+            <Avatar alt="Trevor Henderson" src="/static/images/avatar/5.jpg" />
+          </AvatarGroup>
+        </Box> */}
+        <Grid container columns={2}>
+          <Grid size={1}>
+            <ReviewProgress project_id={project_id} />
+          </Grid>
+          <Grid size={1}>
+            <StoppingSuggestion project_id={project_id} />
+          </Grid>
+        </Grid>
+
+        <Divider
+          sx={{
+            pt: 6,
+            pb: 2,
+          }}
+        >
+          <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
+            Review progress
+          </Typography>
+        </Divider>
+
         <Box>
           <Tabs
-            value={activeProgressTab}
-            onChange={(event, newValue) => setActiveProgressTab(newValue)}
+            value={activeHistoryTab}
+            onChange={(event, newValue) => setActiveHistoryTab(newValue)}
           >
-            <Tab label="Review Progress" />
-            <Tab label="Stopping Suggestion" />
+            <Tab label="Labeling History" />
+            <Tab label="Labeling Frequency" />
+            <Tab label="Density" />
+            <Tab label="Recall" />
           </Tabs>
-          {activeProgressTab === 0 && (
-            <ReviewProgress progressQuery={progressQuery} />
+          {activeHistoryTab === 0 && (
+            <LabelingHistory
+              genericDataQuery={genericDataQuery}
+              progressQuery={progressQuery}
+            />
           )}
-          {activeProgressTab === 1 && (
-            <StoppingSuggestion progressQuery={progressQuery} />
+          {activeHistoryTab === 1 && (
+            <LabelingFrequency
+              genericDataQuery={genericDataQuery}
+              progressQuery={progressQuery}
+            />
+          )}
+          {activeHistoryTab === 2 && (
+            <ProgressDensityChart genericDataQuery={genericDataQuery} />
+          )}
+          {activeHistoryTab === 3 && (
+            <ProgressRecallChart genericDataQuery={genericDataQuery} />
           )}
         </Box>
-        <Grid size={12}>
-          <Box>
-            <Box>
-              <Tabs
-                value={activeHistoryTab}
-                onChange={(event, newValue) => setActiveHistoryTab(newValue)}
-              >
-                <Tab label="Labeling History" />
-                <Tab label="Labeling Frequency" />
-              </Tabs>
-              {activeHistoryTab === 0 && (
-                <LabelingHistory
-                  genericDataQuery={genericDataQuery}
-                  progressQuery={progressQuery}
-                />
-              )}
-              {activeHistoryTab === 1 && (
-                <LabelingFrequency
-                  genericDataQuery={genericDataQuery}
-                  progressQuery={progressQuery}
-                />
-              )}
-            </Box>
-          </Box>
-        </Grid>
-        <Box>
-          <Box>
-            <Tabs
-              value={activeChartTab}
-              onChange={(event, newValue) => setActiveChartTab(newValue)}
-            >
-              <Tab label="Density" />
-              <Tab label="Recall" />
-            </Tabs>
-            {activeChartTab === 0 && (
-              <ProgressDensityChart genericDataQuery={genericDataQuery} />
-            )}
-            {activeChartTab === 1 && (
-              <ProgressRecallChart genericDataQuery={genericDataQuery} />
-            )}
-          </Box>
-        </Box>
+
+        <Divider
+          sx={{
+            pt: 6,
+            pb: 2,
+          }}
+        >
+          <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
+            Insights in AI
+          </Typography>
+        </Divider>
+
+        <WordCounts />
       </Stack>
       <SpeedDial
         ariaLabel="share project analytics"

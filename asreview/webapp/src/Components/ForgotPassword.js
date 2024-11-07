@@ -1,4 +1,3 @@
-import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Button,
   CardActions,
@@ -70,14 +69,14 @@ const ForgotPassword = ({ showNotification, toggleForgotPassword }) => {
 
       <CardActions>
         {window.emailVerification && (
-          <LoadingButton
-            loading={isLoading}
+          <Button
+            disabled={isLoading}
             variant="contained"
             color="primary"
             onClick={handleSubmit}
           >
             Submit
-          </LoadingButton>
+          </Button>
         )}
         <Button onClick={toggleForgotPassword} sx={{ textTransform: "none" }}>
           Sign In instead

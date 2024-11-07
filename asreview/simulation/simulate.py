@@ -28,7 +28,7 @@ from asreview.metrics import loss
 class Simulate:
     """ASReview Simulation mode class.
 
-    The simulation will stop when all papers have been labeled or when the number of
+    The simulation will stop when all records have been labeled or when the number of
     steps/queries reaches the n_stop parameter.
 
     To seed the simulation, provide the seed to the classifier, query strategy,
@@ -50,7 +50,7 @@ class Simulate:
         The initialized feature extraction model to use for the simulation. If None,
         the name of the feature extraction model is set to None.
     n_query: int
-        Number of papers to query at each step in the active learning
+        Number of records to query at each step in the active learning
         process. Default is 1.
     n_stop: int
         Number of steps/queries to perform. Set to None for no limit. Default
@@ -301,13 +301,13 @@ class Simulate:
         if len(included_idx) < n_included:
             raise ValueError(
                 f"Number of included priors requested ({n_included})"
-                f" is bigger than number of included papers "
+                f" is bigger than number of included records "
                 f"({len(included_idx)})."
             )
         if len(excluded_idx) < n_excluded:
             raise ValueError(
                 f"Number of excluded priors requested ({n_excluded})"
-                f" is bigger than number of excluded papers "
+                f" is bigger than number of excluded records "
                 f"({len(excluded_idx)})."
             )
 

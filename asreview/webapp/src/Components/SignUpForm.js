@@ -1,8 +1,7 @@
-import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Button,
-  CardContent,
   CardActions,
+  CardContent,
   Checkbox,
   Divider,
   FormHelperText as FHT,
@@ -57,7 +56,7 @@ const SignUpForm = ({ toggleSignUp }) => {
     validationSchema: SignupSchema,
   });
 
-  const { error, isError, mutate } = useMutation(BaseAPI.signup, {
+  const { error, isError, mutate, isLoading } = useMutation(BaseAPI.signup, {
     onSuccess: () => {
       // let email = formik.values.email;
       formik.setValues(initialValues, false);
@@ -102,43 +101,39 @@ const SignUpForm = ({ toggleSignUp }) => {
             {formik.touched.email && formik.errors.email ? (
               <FHT error={true}>{formik.errors.email}</FHT>
             ) : null}
-            <FormControl>
-              <Stack direction="row" spacing={2}>
-                <TextField
-                  required={true}
-                  id="password"
-                  label="Password"
-                  size="small"
-                  fullWidth
-                  type={showPassword ? "text" : "password"}
-                  value={formik.values.password}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  slotProps={{
-                    htmlInput: {
-                      autoComplete: "new-password",
-                    },
-                  }}
-                />
-                <TextField
-                  required={true}
-                  id="confirmPassword"
-                  label="Confirm Password"
-                  size="small"
-                  fullWidth
-                  type={showPassword ? "text" : "password"}
-                  onKeyDown={handleEnterKey}
-                  value={formik.values.confirmPassword}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  slotProps={{
-                    htmlInput: {
-                      autoComplete: "new-password",
-                    },
-                  }}
-                />
-              </Stack>
-            </FormControl>
+            <TextField
+              required={true}
+              id="password"
+              label="Password"
+              size="small"
+              fullWidth
+              type={showPassword ? "text" : "password"}
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              slotProps={{
+                htmlInput: {
+                  autoComplete: "new-password",
+                },
+              }}
+            />
+            <TextField
+              required={true}
+              id="confirmPassword"
+              label="Confirm Password"
+              size="small"
+              fullWidth
+              type={showPassword ? "text" : "password"}
+              onKeyDown={handleEnterKey}
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              slotProps={{
+                htmlInput: {
+                  autoComplete: "new-password",
+                },
+              }}
+            />
 
             <Typography variant="body2" sx={{ marginTop: "7px !important" }}>
               {passwordRequirements}
@@ -225,16 +220,15 @@ const SignUpForm = ({ toggleSignUp }) => {
         >
           Sign In instead
         </Button>
-        <LoadingButton
-          //loading={isLoading}
+        <Button
           id="create-profile"
           variant="contained"
           color="primary"
           onClick={handleSubmit}
-          disabled={!(formik.isValid && formik.dirty)}
+          disabled={!(formik.isValid && formik.dirty) || isLoading}
         >
           Create
-        </LoadingButton>
+        </Button>
       </CardActions>
     </>
   );

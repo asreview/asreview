@@ -19,7 +19,7 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
   const canvasRef = useRef(null);
   const theme = useTheme();
 
-  const totalPapers = progressQuery?.data?.n_papers || 0;
+  const totalPapers = progressQuery?.data?.n_records || 0;
   const progressDensity = genericDataQuery?.data || [];
   const reversedDecisions = progressDensity.slice(-totalPapers).reverse();
 
@@ -120,7 +120,7 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
                 style={{
                   width: "100%",
                   height: 219,
-                  backgroundColor: "transparent",
+                  bgcolor: "transparent",
                 }}
               />
             </Box>
@@ -162,8 +162,8 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
           </Typography>
 
           <Typography variant="body2" gutterBottom>
-            Gold lines represent relevant papers, while gray lines represent
-            irrelevant papers.
+            Gold lines represent relevant records, while gray lines represent
+            irrelevant records.
           </Typography>
 
           <Typography variant="body2" gutterBottom>

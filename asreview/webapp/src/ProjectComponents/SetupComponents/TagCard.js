@@ -120,9 +120,11 @@ const AddTagDialog = (props) => {
             <TextField
               fullWidth
               id="tag-id"
-              label="Id"
+              label="Export label"
               helperText={
-                duplicatedId ? "Tag Ids must be unique within the group" : " "
+                duplicatedId
+                  ? "Export labels must be unique within the group"
+                  : " "
               }
               value={id}
               onChange={(event) => editId(event.target.value)}
@@ -217,7 +219,7 @@ const AddGroupDialog = (props) => {
       <DialogContent>
         <DialogContentText>{props.contentText}</DialogContentText>
         <Stack spacing={3}>
-          <TypographySubtitle1Medium>Group Details</TypographySubtitle1Medium>
+          <TypographySubtitle1Medium>Group</TypographySubtitle1Medium>
           <Stack direction="row" spacing={3}>
             <TextField
               fullWidth
@@ -235,7 +237,7 @@ const AddGroupDialog = (props) => {
             <TextField
               fullWidth
               id="group-id"
-              label="Id"
+              label="Export label"
               value={id}
               onChange={(event) => {
                 setId(event.target.value);
@@ -259,7 +261,7 @@ const AddGroupDialog = (props) => {
               <TextField
                 fullWidth
                 id="tag-id"
-                label="Id"
+                label="Export label"
                 value={t.id}
                 onChange={(event) => editTag(t.name, event.target.value, index)}
               />
@@ -277,8 +279,9 @@ const AddGroupDialog = (props) => {
           </Button>
         </Stack>
 
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Ids must be unique and can't be changed after creating the group.
+        <Typography variant="body2" sx={{ color: "text.secondary", pt: 2 }}>
+          Export labels are available when exporting your results. They must be
+          unique and can't be changed after creating the group.
         </Typography>
       </DialogContent>
       <DialogActions>
@@ -477,7 +480,7 @@ const TagCard = (props) => {
       )}
 
       <AddGroupDialog
-        title="Add Tag Group"
+        title="Add group of tags"
         open={groupDialogOpen}
         handleClose={() => setGroupDialogOpen(false)}
         handleAdd={addTagGroup}

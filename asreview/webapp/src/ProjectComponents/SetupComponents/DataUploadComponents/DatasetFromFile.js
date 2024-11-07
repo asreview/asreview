@@ -1,19 +1,19 @@
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { useMutation, useQuery } from "react-query";
 
+import { FileUpload } from "@mui/icons-material";
 import {
-  Avatar,
   Alert,
-  Box,
+  Avatar,
   ButtonBase,
+  CircularProgress,
+  Paper,
   Stack,
   Typography,
-  CircularProgress,
+  useMediaQuery,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { FileUpload } from "@mui/icons-material";
-import { useMediaQuery } from "@mui/material";
 
 import { ProjectAPI } from "api";
 import { projectModes } from "globals.js";
@@ -43,10 +43,10 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const baseStyle = {
-  height: "100%",
-  flex: 1,
-  display: "flex",
-  flexDirection: "column",
+  // height: "100%",
+  // flex: 1,
+  // display: "flex",
+  // flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
   borderWidth: 2,
@@ -55,6 +55,7 @@ const baseStyle = {
   borderStyle: "dashed",
   outline: "none",
   transition: "border .24s ease-in-out",
+  bgcolor: "#fffbf5",
 };
 
 const activeStyle = {
@@ -69,7 +70,7 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const DatasetFromFile = ({ project_id, mode, setDataset }) => {
+const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   const {
@@ -81,7 +82,7 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
   } = useMutation(ProjectAPI.createProject, {
     mutationKey: ["addDataset"],
     onSuccess: (data) => {
-      setDataset(data);
+      setSetupProjectId(data.id);
     },
   });
 
@@ -148,43 +149,27 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
 
   return (
     <Root>
-      <Box {...getRootProps({ style })}>
+      <Paper {...getRootProps({ style })} elevation={0}>
         <input {...getInputProps()} />
 
         <ButtonBase
           disabled={isCreatingProject}
           disableRipple
           onClick={open}
-          sx={{ height: "100%", width: "100%" }}
+          sx={{ height: "100%", width: "100%", my: 10 }}
         >
           <Stack className={classes.root} spacing={2} justifyContent={"center"}>
-            <Avatar
-              sx={(theme) => ({
-                height: "136px",
-                width: "136px",
-                bgcolor: "grey.100",
-                ...theme.applyStyles("dark", {
-                  bgcolor: "grey.800",
-                }),
-              })}
-            >
-              <FileUpload
-                sx={{ height: "65px", width: "65px", color: "grey.500" }}
-              />
+            <Avatar>
+              <FileUpload fontSize="large" />
             </Avatar>
-            <Typography>
+            <Typography fontSize={"1.4rem"}>
               {mobileScreen
                 ? "Upload dataset"
-                : "Click or drag and drop a dataset here"}
+                : `Click or drop a ${mode === projectModes.SIMULATION ? "fully labeled " : ""}dataset here`}
             </Typography>
-            <Typography variant="secondary">
+            <Typography fontSize={"1rem"}>
               Accepted files: {acceptedFileTypes}
             </Typography>
-            {mode !== projectModes.ORACLE && (
-              <Typography variant="secondary">
-                "The dataset should contain labels for each record. "
-              </Typography>
-            )}
           </Stack>
         </ButtonBase>
 
@@ -192,7 +177,7 @@ const DatasetFromFile = ({ project_id, mode, setDataset }) => {
         {isCreatingProjectError && (
           <Alert severity="error">{createProjectError?.message + "."}</Alert>
         )}
-      </Box>
+      </Paper>
     </Root>
   );
 };

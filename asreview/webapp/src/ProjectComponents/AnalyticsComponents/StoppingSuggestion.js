@@ -1,198 +1,265 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+
+import EditIcon from "@mui/icons-material/Edit";
 import {
   Box,
-  Typography,
-  CircularProgress,
-  IconButton,
-  Popover,
-  TextField,
   Button,
-  Skeleton,
   Card,
   CardContent,
+  Grid2 as Grid,
+  IconButton,
+  Link,
+  Paper,
+  Popover,
+  Skeleton,
+  Stack,
+  TextField,
+  Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import EditIcon from "@mui/icons-material/Edit";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import Chart from "react-apexcharts";
 
-const StoppingSuggestion = ({ progressQuery }) => {
-  const [stoppingRuleThreshold, setStoppingRuleThreshold] = useState(
-    localStorage.getItem("stoppingRuleThreshold") || 30,
-  );
-  const [irrelevantCount, setIrrelevantCount] = useState(0);
-  const [n_since_last_inclusion_no_priors, setNSinceLastInclusionNoPriors] =
-    useState(0);
+import { ProjectAPI } from "api";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
-  // Separate anchor states for both popovers
-  const [anchorElEdit, setAnchorElEdit] = useState(null);
-  const [anchorElInfo, setAnchorElInfo] = useState(null);
-
-  const [tempThreshold, setTempThreshold] = useState(stoppingRuleThreshold);
-  const loading = progressQuery.isLoading;
+const StoppingSuggestion = ({ project_id }) => {
   const theme = useTheme();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (localStorage.getItem("stoppingRuleThreshold")) {
-      setStoppingRuleThreshold(
-        Number(localStorage.getItem("stoppingRuleThreshold")),
-      );
-    }
+  const [stoppingRuleThreshold, setStoppingRuleThreshold] =
+    React.useState(null);
 
-    const { n_since_last_inclusion_no_priors } = progressQuery.data || {};
-    setIrrelevantCount(n_since_last_inclusion_no_priors || 0);
-    setNSinceLastInclusionNoPriors(n_since_last_inclusion_no_priors || 0);
-  }, [progressQuery.data]);
+  const [anchorElEdit, setAnchorElEdit] = React.useState(null);
+  const [anchorElInfo, setAnchorElInfo] = React.useState(null);
 
-  const handleClickEdit = (event) => {
-    setAnchorElEdit(event.currentTarget);
-    setTempThreshold(stoppingRuleThreshold);
-  };
+  const { data, isLoading } = useQuery(
+    ["fetchStopping", { project_id: project_id }],
+    ProjectAPI.fetchStopping,
+    {
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        setStoppingRuleThreshold(data[0]?.params.threshold);
+      },
+    },
+  );
 
-  const handleClickInfo = (event) => {
-    setAnchorElInfo(event.currentTarget);
-  };
+  const { mutate: updateStoppingRule } = useMutation(
+    ProjectAPI.mutateStopping,
+    {
+      onSuccess: (data) => {
+        queryClient.invalidateQueries([
+          "fetchStopping",
+          { project_id: project_id },
+        ]);
+        handleCloseEdit();
+      },
+    },
+  );
 
   const handleCloseEdit = () => setAnchorElEdit(null);
-  const handleCloseInfo = () => setAnchorElInfo(null);
-
-  const handleSave = () => {
-    setStoppingRuleThreshold(tempThreshold);
-    localStorage.setItem("stoppingRuleThreshold", tempThreshold);
-    handleCloseEdit();
-  };
 
   const openEdit = Boolean(anchorElEdit);
   const openInfo = Boolean(anchorElInfo);
 
-  const stoppingRuleProgress =
-    (n_since_last_inclusion_no_priors / stoppingRuleThreshold) * 100;
+  // console.log(data[0]?.value, data[0]?.params?.threshold);
 
   return (
     <Card
       sx={{
         position: "relative",
+        bgcolor: "background.default",
       }}
     >
-      <CardContent
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Box>
-          <Box>
-            {loading ? (
-              <Skeleton width={100} height={40} />
-            ) : (
-              <Typography variant="h4" color="primary" fontWeight="bold">
-                {`${irrelevantCount}/${stoppingRuleThreshold}`}
-              </Typography>
-            )}
-            {loading ? (
-              <Skeleton width={150} height={24} />
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                Irrelevant since last Relevant
-              </Typography>
-            )}
-          </Box>
-          <Box display="flex" alignItems="center">
-            {loading ? (
-              <Skeleton width={150} height={40} />
-            ) : (
-              <>
-                <Typography variant="body2" color="text.secondary" mr={1}>
-                  Threshold:
-                </Typography>
-                <Typography
-                  variant="body1"
-                  color="text.primary"
-                  fontWeight="bold"
-                  mr={1}
-                >
-                  {stoppingRuleThreshold}
-                </Typography>
-                <IconButton
-                  size="small"
-                  onClick={handleClickEdit}
-                  color="primary"
-                >
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              </>
-            )}
-          </Box>
-        </Box>
-        <Box position="relative" display="inline-flex">
-          {loading ? (
-            <Skeleton variant="circular" width={120} height={120} />
-          ) : (
-            <CircularProgress
-              variant="determinate"
-              value={stoppingRuleProgress}
-              size={120}
-              thickness={6}
-              sx={{
-                color: "primary.main",
-                borderRadius: "50%",
-                boxShadow: "0px 0px 10px 3px rgba(0, 0, 0, 0.2)",
-              }}
-            />
-          )}
-          <Box
-            top={0}
-            left={0}
-            bottom={0}
-            right={0}
-            position="absolute"
+      <CardContent>
+        <Grid container spacing={2} columns={1}>
+          <Grid
+            size={1}
             display="flex"
-            alignItems="center"
             justifyContent="center"
+            alignItems="center"
           >
-            <Typography variant="h6" color="text.secondary" component="div">
-              {`${Math.round(stoppingRuleProgress)}%`}
-            </Typography>
-          </Box>
-        </Box>
-        <Box>
-          <IconButton size="small" onClick={handleClickInfo}>
-            <HelpOutlineIcon fontSize="small" />
-          </IconButton>
-        </Box>
+            <Box position="relative" display="inline-flex">
+              {isLoading ? (
+                <Skeleton variant="circular" width={180} height={180} />
+              ) : (
+                <Chart
+                  options={{
+                    chart: {
+                      background: "transparent",
+                      type: "donut",
+                    },
+                    // plotOptions: {
+                    //   pie: {
+                    //     donut: {
+                    //       labels: {
+                    //         show: true,
+                    //         total: {
+                    //           show: false,
+                    //           formatter: () =>
+                    //             `${
+                    //               data.n_records > 0
+                    //                 ? Math.round(
+                    //                     (data.n_included +
+                    //                       data.n_excluded /
+                    //                         data.n_records) *
+                    //                       100,
+                    //                   )
+                    //                 : 0
+                    //             }%`,
+                    //           style: {
+                    //             fontSize: "28px",
+                    //             fontWeight: "bold",
+                    //             color: theme.palette.text.primary,
+                    //             textAlign: "center",
+                    //           },
+                    //         },
+                    //       },
+                    //     },
+                    //   },
+                    // },
+                    labels: ["Stopping suggestion", "Remaining"],
+                    colors: [
+                      theme.palette.mode === "light"
+                        ? theme.palette.primary.light
+                        : theme.palette.primary.main, // Relevant
+                      theme.palette.mode === "light"
+                        ? theme.palette.grey[400]
+                        : theme.palette.grey[400], // Unlabeled
+                    ],
+                    stroke: { width: 0 },
+                    legend: { show: false },
+                    tooltip: {
+                      enabled: true,
+                    },
+                    theme: { mode: theme.palette.mode },
+                    dataLabels: { enabled: false },
+                  }}
+                  series={[
+                    data[0]?.value,
+                    data[0]?.params?.threshold - data[0]?.value,
+                  ]}
+                  type="donut"
+                  height={180}
+                  width={180}
+                />
+              )}
+            </Box>
+          </Grid>
+
+          <Grid size={1}>
+            {data && (
+              <Stack spacing={2} direction={"row"}>
+                <Paper
+                  sx={{
+                    p: 1.5,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    mb: { xs: 1, sm: 2 },
+                  }}
+                >
+                  <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                    <Typography variant="body2" color="text.secondary">
+                      {"Successive not relevant"}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      color="text.secondary"
+                    >
+                      {data && data[0]?.value}
+                    </Typography>
+                  </Stack>
+                </Paper>
+                <Paper
+                  sx={{
+                    p: 1.5,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    mb: { xs: 1, sm: 2 },
+                  }}
+                >
+                  <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                    <Typography variant="body2" color="text.secondary">
+                      Stopping suggestion
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={(event) => {
+                        setAnchorElEdit(event.currentTarget);
+                      }}
+                      color="primary"
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    {data && (
+                      <Popover
+                        id="threshold-popover"
+                        open={openEdit}
+                        anchorEl={anchorElEdit}
+                        onClose={handleCloseEdit}
+                      >
+                        <Stack direction={"column"} spacing={3} p={3}>
+                          <Typography variant="h6" gutterBottom>
+                            Edit threshold
+                          </Typography>
+                          <TextField
+                            type="number"
+                            // value={data[0]?.params.threshold}
+                            value={stoppingRuleThreshold}
+                            onChange={(e) => {
+                              setStoppingRuleThreshold(e.target.value);
+                            }}
+                          />
+                          <Button
+                            variant="contained"
+                            onClick={() =>
+                              updateStoppingRule({
+                                project_id: project_id,
+                                id: "n_since_last_included",
+                                threshold: stoppingRuleThreshold,
+                              })
+                            }
+                          >
+                            Save
+                          </Button>
+                        </Stack>
+                      </Popover>
+                    )}
+
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      color="text.secondary"
+                    >
+                      {data && data[0]?.params.threshold}
+                    </Typography>
+                  </Stack>
+                </Paper>
+              </Stack>
+            )}
+          </Grid>
+
+          {/* <Box>
+            <IconButton
+              size="small"
+              onClick={(event) => {
+                setAnchorElInfo(event.currentTarget);
+              }}
+            >
+              <HelpOutlineIcon fontSize="small" />
+            </IconButton>
+          </Box> */}
+        </Grid>
       </CardContent>
-      <Popover
-        id="threshold-popover"
-        open={openEdit}
-        anchorEl={anchorElEdit}
-        onClose={handleCloseEdit}
-      >
-        <Box p={3} display="flex" flexDirection="column" alignItems="center">
-          <Typography variant="subtitle1" gutterBottom>
-            Edit Threshold
-          </Typography>
-          <TextField
-            type="number"
-            value={tempThreshold}
-            onChange={(e) => setTempThreshold(Number(e.target.value))}
-            size="small"
-            variant="outlined"
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSave}
-            fullWidth
-          >
-            Save
-          </Button>
-        </Box>
-      </Popover>
       <Popover
         id="info-popover"
         open={openInfo}
         anchorEl={anchorElInfo}
-        onClose={handleCloseInfo}
+        onClose={() => setAnchorElInfo(null)}
       >
         <Box>
           <Typography variant="body2" gutterBottom>
@@ -208,14 +275,15 @@ const StoppingSuggestion = ({ progressQuery }) => {
             You can manually edit and optimize the threshold for your project.
           </Typography>
           <Box>
-            <a
+            <Link
+              component="a"
               href="https://github.com/asreview/asreview/discussions/557"
-              style={{ color: theme.palette.primary.main }}
+              sx={(theme) => ({ color: theme.palette.primary.main })}
               target="_blank"
               rel="noopener noreferrer"
             >
               Learn more
-            </a>
+            </Link>
           </Box>
         </Box>
       </Popover>

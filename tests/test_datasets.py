@@ -4,54 +4,42 @@ from pytest import mark
 from asreview.datasets import BaseDataGroup
 from asreview.datasets import BaseDataSet
 from asreview.datasets import DatasetManager
-from asreview.datasets import NaturePublicationDataGroup
+from asreview.datasets import SynergyDataGroup
 
 
 @mark.internet_required
 def test_group():
-    group_nature = NaturePublicationDataGroup()
+    group_synergy = SynergyDataGroup()
 
-    assert group_nature.group_id is not None
+    assert group_synergy.group_id is not None
 
-    assert len(group_nature.datasets) == 4
-
-    for d in group_nature.datasets:
-        assert d.filepath.startswith(
-            "https://raw.githubusercontent.com/asreview/paper-asreview"
-        )
+    assert len(group_synergy.datasets) == 26
 
 
 @mark.internet_required
 def test_group_to_dict():
-    group_nature = NaturePublicationDataGroup()
+    group_synergy = SynergyDataGroup()
 
-    assert isinstance(group_nature.__dict__(), dict)
+    assert isinstance(group_synergy.__dict__(), dict)
 
 
 @mark.internet_required
 def test_group_list():
     dm = DatasetManager()
 
-    nature_group = dm.list(
-        include="benchmark-nature", raise_on_error=True, serialize=False
-    )[0]
+    synergy_group = dm.list(include="synergy", raise_on_error=True, serialize=False)[0]
 
-    assert len(nature_group.datasets) == 4
-
-    for d in nature_group.datasets:
-        assert d.filepath.startswith(
-            "https://raw.githubusercontent.com/asreview/paper-asreview"
-        )
+    assert len(synergy_group.datasets) == 26
 
 
 def test_group_exclude_list():
     dm = DatasetManager()
 
-    groups = dm.list(exclude="benchmark-nature", raise_on_error=True, serialize=False)
-    assert "benchmark-nature" not in [group.group_id for group in groups]
+    groups = dm.list(exclude="synergy", raise_on_error=True, serialize=False)
+    assert "synergy" not in [group.group_id for group in groups]
 
-    groups = dm.list(exclude=["benchmark-nature"], raise_on_error=True, serialize=False)
-    assert "benchmark-nature" not in [group.group_id for group in groups]
+    groups = dm.list(exclude=["synergy"], raise_on_error=True, serialize=False)
+    assert "synergy" not in [group.group_id for group in groups]
 
 
 def test_template_group():

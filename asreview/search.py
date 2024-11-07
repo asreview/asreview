@@ -102,7 +102,7 @@ def fuzzy_find(
         Maximum number of records to return.
     exclude: list, numpy.ndarray
         List of indices that should be excluded in the search. You would
-        put papers that were already labeled here for example.
+        put records that were already labeled here for example.
 
     Returns
     -------

@@ -19,6 +19,7 @@ import socket
 import tempfile
 import time
 from dataclasses import asdict
+from dataclasses import replace
 from pathlib import Path
 from uuid import uuid4
 
@@ -36,6 +37,9 @@ from flask_login import login_required
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 import asreview as asr
 from asreview.project.api import PROJECT_MODE_SIMULATE
@@ -457,7 +461,7 @@ def api_list_dataset_writers(project):
 @login_required
 @project_authorization
 def api_search_data(project):  # noqa: F401
-    """Search for papers"""
+    """Search for records"""
     q = request.args.get("q", default=None, type=str)
     max_results = request.args.get("n_max", default=10, type=int)
 
@@ -491,7 +495,7 @@ def api_search_data(project):  # noqa: F401
 @login_required
 @project_authorization
 def api_get_labeled(project):  # noqa: F401
-    """Get all papers classified as labeled documents"""
+    """Get all records classified as labeled documents"""
 
     page = request.args.get("page", default=None, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
@@ -581,7 +585,7 @@ def api_get_labeled(project):  # noqa: F401
 @login_required
 @project_authorization
 def api_get_labeled_stats(project):  # noqa: F401
-    """Get all papers classified as prior documents"""
+    """Get all records classified as prior documents"""
 
     # Retrieve the include_priors parameter from the request's query.
     include_priors = request.args.get("priors", True, type=bool)
@@ -701,6 +705,68 @@ def api_set_algorithms(project):  # noqa: F401
         json.dump(asdict(settings), f)
 
     return jsonify(asdict(settings))
+
+
+# @bp.route("/projects/<project_id>/stopping", methods=["GET"])
+# @login_required
+# @project_authorization
+# def api_get_stopping(project):  # noqa: F401
+#     """Get the stopping algorithms used in the project"""
+
+#     stopping = Stopping()
+
+#     try:
+#         stopping = stopping.from_file(
+#             Path(
+#                 project.project_path,
+#                 "reviews",
+#                 project.reviews[0]["id"],
+#                 "stopping_metadata.json",
+#             )
+#         )
+#     except FileNotFoundError:
+#         pass
+
+#     return jsonify(asdict(stopping))
+
+
+@bp.route("/projects/<project_id>/wordcounts", methods=["GET"])
+@login_required
+@project_authorization
+def api_get_wordcounts(project):  # noqa: F401
+    """Get the word counts used in the project"""
+
+    df_user_input_data = project.read_input_data()
+
+    with open_state(project.project_path) as s:
+        data = s.get_results_table()
+
+    record_ids_rel = data[data["label"] == 1]["record_id"].to_list()
+    record_ids_irrel = data[data["label"] == 0]["record_id"].to_list()
+
+    df_rel = df_user_input_data.iloc[record_ids_rel]["abstract"].fillna("").to_list()
+    df_irrel = (
+        df_user_input_data.iloc[record_ids_irrel]["abstract"].fillna("").to_list()
+    )
+
+    try:
+        vectorizer = TfidfVectorizer(stop_words="english")
+        tfidf_matrix = vectorizer.fit_transform(df_rel)
+        feature_array = np.array(vectorizer.get_feature_names_out())
+        tfidf_sorting = np.argsort(tfidf_matrix.toarray()).flatten()[::-1]
+        top_n_rel = feature_array[tfidf_sorting][:15]
+
+        vectorizer = TfidfVectorizer(stop_words="english")
+        tfidf_matrix = vectorizer.fit_transform(df_irrel)
+        feature_array = np.array(vectorizer.get_feature_names_out())
+        tfidf_sorting = np.argsort(tfidf_matrix.toarray()).flatten()[::-1]
+        top_n_irrel = feature_array[tfidf_sorting][:15]
+
+        return jsonify(
+            {"relevant": top_n_rel.tolist(), "irrelevant": top_n_irrel.tolist()}
+        )
+    except ValueError:
+        return jsonify({"relevant": [], "irrelevant": []})
 
 
 @bp.route("/projects/<project_id>/train", methods=["POST"])
@@ -967,65 +1033,6 @@ def export_project(project):
     )
 
 
-def _get_stats(project, include_priors=False):
-    try:
-        is_project(project)
-
-        # Get label history
-        with open_state(project.project_path) as s:
-            labels = s.get_results_table(priors=include_priors)["label"]
-            labels_without_priors = s.get_results_table(priors=False)["label"]
-        n_records = len(project.data_store)
-
-    except (FileNotFoundError, ValueError, ProjectError):
-        labels = np.array([])
-        labels_without_priors = np.array([])
-        n_records = 0
-
-    n_included = int(sum(labels == 1))
-    n_excluded = int(sum(labels == 0))
-
-    n_included_no_priors = int(sum(labels_without_priors == 1))
-    n_excluded_no_priors = int(sum(labels_without_priors == 0))
-
-    if n_included > 0:
-        try:
-            # Find the last relevant label index
-            last_relevant_index = len(labels) - 1 - np.argmax(labels[::-1] == 1)
-            n_since_last_relevant = int(sum(labels[last_relevant_index + 1 :] == 0))
-        except Exception:
-            n_since_last_relevant = "-"
-    else:
-        n_since_last_relevant = 0
-
-    if len(labels_without_priors) > 0 and n_included > 0:
-        try:
-            # Find the last relevant label index without priors
-            last_relevant_index_no_priors = (
-                len(labels_without_priors)
-                - 1
-                - np.argmax(labels_without_priors[::-1] == 1)
-            )
-            n_since_last_relevant_no_priors = int(
-                sum(labels_without_priors[last_relevant_index_no_priors + 1 :] == 0)
-            )
-        except Exception:
-            n_since_last_relevant_no_priors = "-"
-    else:
-        n_since_last_relevant_no_priors = None
-
-    return {
-        "n_included": n_included,
-        "n_excluded": n_excluded,
-        "n_included_no_priors": n_included_no_priors,
-        "n_excluded_no_priors": n_excluded_no_priors,
-        "n_since_last_inclusion": n_since_last_relevant,
-        "n_since_last_inclusion_no_priors": n_since_last_relevant_no_priors,
-        "n_papers": n_records,
-        "n_pool": n_records - n_excluded - n_included,
-    }
-
-
 def _get_labels(state_obj, priors=False):
     # get the number of records
     n_records = state_obj.n_records
@@ -1048,7 +1055,111 @@ def api_get_progress_info(project):  # noqa: F401
 
     include_priors = request.args.get("priors", True, type=bool)
 
-    return jsonify(_get_stats(project, include_priors=include_priors))
+    try:
+        is_project(project)
+
+        # Get label history
+        with open_state(project.project_path) as s:
+            labels = s.get_results_table(priors=include_priors)["label"]
+            labels_without_priors = s.get_results_table(priors=False)["label"]
+        n_records = len(project.data_store)
+
+    except (FileNotFoundError, ValueError, ProjectError):
+        labels = np.array([])
+        labels_without_priors = np.array([])
+        n_records = 0
+
+    n_included = int(sum(labels == 1))
+    n_excluded = int(sum(labels == 0))
+
+    n_included_no_priors = int(sum(labels_without_priors == 1))
+    n_excluded_no_priors = int(sum(labels_without_priors == 0))
+
+    return jsonify(
+        {
+            "n_included": n_included,
+            "n_excluded": n_excluded,
+            "n_included_no_priors": n_included_no_priors,
+            "n_excluded_no_priors": n_excluded_no_priors,
+            "n_records": n_records,
+            "n_pool": n_records - n_excluded - n_included,
+        }
+    )
+
+
+@bp.route("/projects/<project_id>/stopping", methods=["GET"])
+@login_required
+@project_authorization
+def api_get_stopping(project):  # noqa: F401
+    """Get stopping of a project"""
+
+    settings_fp = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "settings_metadata.json",
+    )
+    stopping = ReviewSettings.from_file(settings_fp).stopping
+
+    if stopping is None:
+        threshold = 50
+    else:
+        threshold = stopping[0]["params"]["threshold"]
+
+    with open_state(project.project_path) as s:
+        labels = s.get_results_table(priors=False)["label"]
+
+    if len(labels) > 0 and int(sum(labels == 1)) > 0:
+        last_relevant_index = len(labels) - 1 - np.argmax(labels[::-1] == 1)
+        n_since_last_relevant = int(sum(labels[last_relevant_index + 1 :] == 0))
+    else:
+        n_since_last_relevant = 0
+
+    return jsonify(
+        [
+            {
+                "id": "n_since_last_inclusion",
+                "params": {
+                    "threshold": threshold,
+                },
+                "value": n_since_last_relevant,
+                "stop": n_since_last_relevant is not None
+                and n_since_last_relevant >= threshold,
+            }
+        ]
+    )
+
+
+@bp.route("/projects/<project_id>/stopping", methods=["POST", "PUT"])
+@login_required
+@project_authorization
+def api_mutate_stopping(project):  # noqa: F401
+    """Mutate stopping of a project"""
+
+    settings_fp = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "settings_metadata.json",
+    )
+    settings = ReviewSettings.from_file(settings_fp)
+
+    settings = replace(
+        settings,
+        stopping=[
+            {
+                "id": request.form.get("id", "n_since_last_inclusion"),
+                "params": {
+                    "threshold": request.form.get("threshold", 50, type=int),
+                },
+            }
+        ],
+    )
+
+    with open(settings_fp, "w") as f:
+        json.dump(asdict(settings), f)
+
+    return jsonify(settings.stopping)
 
 
 @bp.route("/projects/<project_id>/progress_data", methods=["GET"])

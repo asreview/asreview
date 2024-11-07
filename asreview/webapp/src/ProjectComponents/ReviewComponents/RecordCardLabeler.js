@@ -10,28 +10,35 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   FormControlLabel,
   FormGroup,
   Grid2 as Grid,
   IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Stack,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import React from "react";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 
 import { useHotkeys } from "react-hotkeys-hook";
 
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
+import MoreVert from "@mui/icons-material/MoreVert";
 import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
 import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 import TimeAgo from "javascript-time-ago";
 
+import { DeleteOutline } from "@mui/icons-material";
 import en from "javascript-time-ago/locale/en";
 
 TimeAgo.addLocale(en);
@@ -59,7 +66,12 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
   });
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      disableRestoreFocus // bug https://github.com/mui/material-ui/issues/33004
+    >
       <DialogTitle>Add note</DialogTitle>
       <DialogContent>
         <TextField
@@ -112,8 +124,11 @@ const RecordCardLabeler = ({
   hotkeys = false,
   landscape = false,
   retrainAfterDecision = true,
+  changeDecision = true,
 }) => {
-  const [editState, toggleEditState] = useToggle(!(label === 1 || label === 0));
+  const queryClient = useQueryClient();
+
+  const [editState] = useToggle(!(label === 1 || label === 0));
   const [showNotesDialog, toggleShowNotesDialog] = useToggle(false);
   const [tagValuesState, setTagValuesState] = React.useState(
     tagValues ? tagValues : structuredClone(tagsForm),
@@ -123,11 +138,8 @@ const RecordCardLabeler = ({
     ProjectAPI.mutateClassification,
     {
       onSuccess: () => {
-        // if (editState) {
-        //   // get the label from the request
-
-        //   toggleEditState();
-        // }
+        // invalidate queries
+        queryClient.invalidateQueries("fetchLabeledRecord", project_id);
 
         decisionCallback();
       },
@@ -156,14 +168,26 @@ const RecordCardLabeler = ({
     });
   };
 
-  useHotkeys("r", () => hotkeys && makeDecision(1));
-  useHotkeys("i", () => hotkeys && makeDecision(0));
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const openMenu = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  useHotkeys("v", () => hotkeys && makeDecision(1));
+  useHotkeys("x", () => hotkeys && makeDecision(0));
   useHotkeys("n", () => hotkeys && toggleShowNotesDialog(), { keyup: true });
 
   return (
     <Stack
       sx={(theme) => ({
-        backgroundColor: theme.palette.primary.light,
+        bgcolor: alpha(
+          theme.palette.secondary.light,
+          theme.palette.action.selectedOpacity * 2,
+        ),
         justifyContent: "space-between",
         alignItems: "stretch",
         height: "100%",
@@ -194,7 +218,12 @@ const RecordCardLabeler = ({
                                     tag.id,
                                   );
                                 }}
-                                disabled={!editState || isLoading || isSuccess}
+                                disabled={
+                                  !editState ||
+                                  !changeDecision ||
+                                  isLoading ||
+                                  isSuccess
+                                }
                               />
                             }
                             label={tag.name}
@@ -208,7 +237,19 @@ const RecordCardLabeler = ({
           </CardContent>
         )}
 
-        {note !== null && <CardContent>{note}</CardContent>}
+        {note !== null && (
+          <Box
+            sx={(theme) => ({
+              bgcolor: alpha(
+                theme.palette.secondary.light,
+                theme.palette.action.selectedOpacity,
+              ),
+            })}
+          >
+            <Divider />
+            <CardContent>{note}</CardContent>
+          </Box>
+        )}
       </Box>
 
       <Box>
@@ -235,56 +276,53 @@ const RecordCardLabeler = ({
         )}
         <CardActions
           sx={(theme) => ({
-            backgroundColor: theme.palette.primary.dark,
+            bgcolor: theme.palette.secondary.dark,
             display: "block",
-            color: theme.palette.getContrastText(theme.palette.primary.dark),
+            color: theme.palette.getContrastText(theme.palette.secondary.dark),
           })}
         >
           {editState && (
             <>
-              <Button
-                id="relevant"
-                onClick={() => makeDecision(1)}
-                variant="contained"
-                startIcon={<LibraryAddOutlinedIcon />}
-                disabled={isLoading || isSuccess}
+              <Tooltip
+                title="Add to relevant records (V)"
+                enterDelay={800}
+                leaveDelay={200}
               >
-                Add
-              </Button>
-              <Button
-                id="irrelevant"
-                onClick={() => makeDecision(0)}
-                startIcon={<NotInterestedOutlinedIcon />}
-                disabled={isLoading || isSuccess}
-                sx={(theme) => ({
-                  color: theme.palette.getContrastText(
-                    theme.palette.primary.dark,
-                  ),
-                })}
+                <Button
+                  id="relevant"
+                  onClick={() => makeDecision(1)}
+                  variant="contained"
+                  startIcon={<LibraryAddOutlinedIcon />}
+                  disabled={isLoading || isSuccess}
+                  sx={(theme) => ({
+                    color: theme.palette.getContrastText(
+                      theme.palette.tertiary.main,
+                    ),
+                    bgcolor: theme.palette.tertiary.main,
+                  })}
+                >
+                  Add
+                </Button>
+              </Tooltip>
+              <Tooltip
+                title="Mark as not relevant (X)"
+                enterDelay={800}
+                leaveDelay={200}
               >
-                Not interesting
-              </Button>
-            </>
-          )}
-
-          {!editState && (
-            <>
-              <Typography
-                variant="secondary"
-                sx={{ pr: "0.5rem", opacity: 0.7 }}
-              >
-                Added to
-              </Typography>
-              {label === 1 && <Chip label="My collection" color="primary" />}
-
-              {label === 0 && <Chip label="Not interested" color="primary" />}
-
-              <Typography
-                variant="secondary"
-                sx={{ pl: "0.2rem", opacity: 0.7 }}
-              >
-                {timeAgo.format(new Date(labelDatetime))} {user && "by " + user}
-              </Typography>
+                <Button
+                  id="irrelevant"
+                  onClick={() => makeDecision(0)}
+                  startIcon={<NotInterestedOutlinedIcon />}
+                  disabled={isLoading || isSuccess}
+                  sx={(theme) => ({
+                    color: theme.palette.getContrastText(
+                      theme.palette.secondary.dark,
+                    ),
+                  })}
+                >
+                  Not relevant
+                </Button>
+              </Tooltip>
             </>
           )}
 
@@ -298,33 +336,111 @@ const RecordCardLabeler = ({
                   sx={(theme) => ({
                     float: "right",
                     color: theme.palette.getContrastText(
-                      theme.palette.primary.dark,
+                      theme.palette.secondary.dark,
                     ),
                   })}
                 >
                   <NoteAltOutlinedIcon />
                 </IconButton>
               </Tooltip>
-              <NoteDialog
-                project_id={project_id}
-                record_id={record_id}
-                open={showNotesDialog}
-                onClose={toggleShowNotesDialog}
-                note={note}
-              />
+            </>
+          )}
+          <NoteDialog
+            project_id={project_id}
+            record_id={record_id}
+            open={showNotesDialog}
+            onClose={toggleShowNotesDialog}
+            note={note}
+          />
+          {(label === 1 || label === 0) && (
+            <>
+              {!landscape && (
+                <Typography variant="secondary">Added to</Typography>
+              )}
+              {label === 1 && <Chip label="My collection" color="primary" />}
+              {label === 0 && <Chip label="Not relevant" color="primary" />}
+              <Typography variant="secondary">
+                {timeAgo.format(new Date(labelDatetime))} {user && "by " + user}
+              </Typography>
             </>
           )}
 
-          {(label === 1 || label === 0) && (
-            <Tooltip title="Edit record">
-              <IconButton
-                onClick={toggleEditState}
-                aria-label="Edit record decision"
-                disabled={isLoading}
+          {(label === 1 || label === 0) && changeDecision && (
+            <>
+              <Tooltip title="Options">
+                <IconButton
+                  id="card-positioned-button"
+                  aria-controls={openMenu ? "card-positioned-menu" : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={openMenu ? "true" : undefined}
+                  onClick={handleClick}
+                  sx={(theme) => ({
+                    float: "right",
+                    color: theme.palette.getContrastText(
+                      theme.palette.secondary.dark,
+                    ),
+                  })}
+                >
+                  <MoreVert />
+                </IconButton>
+              </Tooltip>
+
+              <Menu
+                id="card-positioned-menu"
+                aria-labelledby="card-positioned-button"
+                anchorEl={anchorEl}
+                open={openMenu}
+                onClose={handleMenuClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
               >
-                <EditOutlinedIcon />
-              </IconButton>
-            </Tooltip>
+                {/* toggle label */}
+                {(label === 1 || label === 0) && (
+                  <MenuItem onClick={() => makeDecision(label === 1 ? 0 : 1)}>
+                    <ListItemIcon>
+                      {label === 1 ? (
+                        <NotInterestedOutlinedIcon />
+                      ) : (
+                        <LibraryAddOutlinedIcon />
+                      )}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        label === 1
+                          ? "Change to irrelevant"
+                          : "Add to collection"
+                      }
+                    />
+                  </MenuItem>
+                )}
+                <MenuItem
+                  onClick={() => {
+                    toggleShowNotesDialog();
+                    setAnchorEl(null);
+                  }}
+                >
+                  <ListItemIcon>
+                    <NoteAltOutlinedIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={note ? "Change note" : "Add note"} />
+                </MenuItem>
+                <MenuItem onClick={() => {}} disabled>
+                  <ListItemIcon>
+                    <DeleteOutline />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Remove my label"}
+                    secondary={"Coming soon"}
+                  />
+                </MenuItem>
+              </Menu>
+            </>
           )}
         </CardActions>
       </Box>

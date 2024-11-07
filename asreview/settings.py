@@ -42,7 +42,8 @@ class ReviewSettings:
     query_param: Optional[dict] = None
     balance_param: Optional[dict] = None
     feature_param: Optional[dict] = None
-    n_stop: Optional[int] = None
+    n_stop: Optional[int] = None  # TODO: remove this
+    stopping: Optional[list] = None
 
     @classmethod
     def from_file(cls, fp, load=None):

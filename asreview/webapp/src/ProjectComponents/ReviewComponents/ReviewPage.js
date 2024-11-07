@@ -82,9 +82,11 @@ const ReviewPage = () => {
       aria-label="review page"
       maxWidth="md"
       sx={(theme) => ({
-        mt: 6,
+        // mt: 6,
+        mb: 6,
         [theme.breakpoints.down("md")]: {
           px: 0,
+          mb: 0,
         },
       })}
     >

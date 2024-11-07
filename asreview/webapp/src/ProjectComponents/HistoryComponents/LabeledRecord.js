@@ -9,9 +9,17 @@ import { RecordCard } from "ProjectComponents/ReviewComponents";
 import { ProjectAPI } from "api";
 
 import { useReviewSettings } from "context/ReviewSettingsContext";
+import { useMediaQuery } from "@mui/material";
 
-const LabeledRecord = ({ project_id, label, filterQuery }) => {
+const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
   const { orientation, modelLogLevel } = useReviewSettings();
+
+  let landscapeDisabled = useMediaQuery(
+    (theme) => theme.breakpoints.down("md"),
+    {
+      noSsr: true,
+    },
+  );
 
   const {
     data,
@@ -60,7 +68,7 @@ const LabeledRecord = ({ project_id, label, filterQuery }) => {
       )} */}
       {!isError && !(isLoading || !mounted.current) && isFetched && (
         <Fade in={!isError && !(isLoading || !mounted.current) && isFetched}>
-          <Stack aria-label="labeled record card" spacing={3}>
+          <Stack aria-label="labeled record card" spacing={5}>
             {isFetched &&
               data?.pages.map((page) =>
                 page.result.map((record) => (
@@ -70,8 +78,11 @@ const LabeledRecord = ({ project_id, label, filterQuery }) => {
                     collapseAbstract={true}
                     disabled={true}
                     transitionType="none"
-                    landscape={orientation === "landscape"}
+                    landscape={
+                      orientation === "landscape" && !landscapeDisabled
+                    }
                     modelLogLevel={modelLogLevel}
+                    changeDecision={mode === "oracle"}
                     key={record.record_id}
                   />
                 )),

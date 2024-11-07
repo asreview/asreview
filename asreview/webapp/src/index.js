@@ -5,13 +5,15 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { BrowserRouter } from "react-router-dom";
+import { theme } from "constants/theme";
+import { ScrollToTop } from "Components";
 
 const queryClient = new QueryClient();
 
 function ASReviewApp() {
   const muiTheme = createTheme({
     // cssVariables: true,
-    colorSchemes: { dark: true },
+    ...theme,
   });
 
   return (
@@ -20,6 +22,7 @@ function ASReviewApp() {
       <ThemeProvider theme={muiTheme}>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
+            <ScrollToTop />
             <App />
           </BrowserRouter>
         </QueryClientProvider>

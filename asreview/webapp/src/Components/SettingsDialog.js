@@ -26,6 +26,7 @@ import {
   Stack,
   Switch,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { useColorScheme } from "@mui/material/styles";
 import React from "react";
@@ -40,7 +41,7 @@ import {
   useReviewSettingsDispatch,
 } from "context/ReviewSettingsContext";
 
-const SettingsDialog = (props) => {
+const SettingsDialog = ({ onSettings, toggleSettings }) => {
   const descriptionElementRef = React.useRef(null);
 
   const { mode, setMode } = useColorScheme();
@@ -52,19 +53,21 @@ const SettingsDialog = (props) => {
   const dispatchReviewSettings = useReviewSettingsDispatch();
 
   React.useEffect(() => {
-    if (props.onSettings) {
+    if (onSettings) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
         descriptionElement.focus();
       }
     }
-  }, [props.onSettings]);
+  }, [onSettings]);
+
+  const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   return (
     <Dialog
-      fullScreen={props.mobileScreen}
-      open={props.onSettings}
-      onClose={props.toggleSettings}
+      fullScreen={mobileScreen}
+      open={onSettings}
+      onClose={toggleSettings}
       scroll="paper"
       fullWidth
       maxWidth="sm"
@@ -74,10 +77,8 @@ const SettingsDialog = (props) => {
       //   onExited: toggleBackMainSettings,
       // }}
     >
-      {!props.mobileScreen && (
-        <DialogTitle>Customize your ASReview LAB</DialogTitle>
-      )}
-      {props.mobileScreen && (
+      {!mobileScreen && <DialogTitle>Customize your ASReview LAB</DialogTitle>}
+      {mobileScreen && (
         <DialogTitle>
           <Grid
             container
@@ -85,7 +86,7 @@ const SettingsDialog = (props) => {
             justify="space-between"
             alignItems="center"
           >
-            <IconButton onClick={props.toggleSettings}>
+            <IconButton onClick={toggleSettings}>
               <Close />
             </IconButton>
             Customize
@@ -251,9 +252,9 @@ const SettingsDialog = (props) => {
           </ListItem>
         </List>
       </DialogContent>
-      {!props.mobileScreen && (
+      {!mobileScreen && (
         <DialogActions>
-          <Button onClick={props.toggleSettings}>Close</Button>
+          <Button onClick={toggleSettings}>Close</Button>
         </DialogActions>
       )}
       <Dialog open={fontSizeSetting} onClose={toggleFontSizeSetting}>

@@ -70,7 +70,7 @@ const GameCard = ({ cardIndex, cardValue, open, clickCard, disabled }) => {
         !open && !disabled && clickCard(cardIndex);
       }}
       sx={(theme) => ({
-        backgroundColor:
+        bgcolor:
           theme.palette.mode === "dark" ? "primary.dark" : "primary.light",
         height: 120,
         padding: 1,

@@ -42,17 +42,13 @@ def test_fuzzy_finder(tmpdir, keywords, record_id):
 @mark.parametrize(
     "data_name",
     [
-        # datasets from the Van de Schoot et al. paper
-        # https://github.com/asreview/paper-asreview/blob/master/index_v1.json
-        "benchmark-nature:van_de_Schoot_2017",
-        "benchmark-nature:Hall_2012",
-        "benchmark-nature:Cohen_2006_ACEInhibitors",
-        "benchmark-nature:Kwok_2020",
+        "synergy:Menon_2022",
+        "synergy:Meijboom_2021",
     ],
 )
 def test_datasets(data_name):
     data = DatasetManager().find(data_name)
-    assert exists(data.filepath)
+    assert data.dataset_id == data_name[8:]
 
 
 @mark.xfail(reason="Deduplication will be reimplemented.")

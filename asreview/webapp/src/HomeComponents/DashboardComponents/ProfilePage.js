@@ -14,7 +14,6 @@ import React from "react";
 import { useMutation, useQuery } from "react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import LoadingButton from "@mui/lab/LoadingButton";
 import { InlineErrorHandler } from "Components";
 import { useToggle } from "hooks/useToggle";
 
@@ -329,16 +328,15 @@ const ProfilePage = (props) => {
               <Button onClick={handleReset} sx={{ marginRight: "15px" }}>
                 reset
               </Button>
-              <LoadingButton
+              <Button
                 id="save"
-                disabled={!formik.isValid}
-                loading={loadingSaveButton}
+                disabled={!formik.isValid || loadingSaveButton}
                 variant="contained"
                 onClick={handleSubmit}
                 size={!props.mobileScreen ? "medium" : "small"}
               >
                 Save
-              </LoadingButton>
+              </Button>
             </span>
           </Stack>
         </>

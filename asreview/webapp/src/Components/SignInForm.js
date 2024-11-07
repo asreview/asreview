@@ -1,11 +1,13 @@
-import LoadingButton from "@mui/lab/LoadingButton";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Button,
   CardActions,
   CardContent,
-  Checkbox,
   FormControl,
-  FormControlLabel,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
   Stack,
   TextField,
   Typography,
@@ -64,15 +66,11 @@ const SignInForm = ({
     mutate({ email, password });
   };
 
-  const returnType = () => {
-    return !showPassword ? "password" : "text";
-  };
-
-  const handleEnterKey = (e) => {
-    if (e.keyCode === 13) {
-      handleSubmit(e);
-    }
-  };
+  // const handleEnterKey = (e) => {
+  //   if (e.keyCode === 13) {
+  //     handleSubmit(e);
+  //   }
+  // };
 
   return (
     <>
@@ -93,29 +91,35 @@ const SignInForm = ({
                 autoFocus
                 autoComplete="email"
               />
-              <FormControl>
-                <TextField
+              <FormControl sx={{ m: 1 }} variant="outlined">
+                <InputLabel htmlFor="password">Password</InputLabel>
+                <OutlinedInput
                   id="password"
+                  type={showPassword ? "text" : "password"}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={
+                          showPassword
+                            ? "hide the password"
+                            : "display the password"
+                        }
+                        onClick={toggleShowPassword}
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                        }}
+                        onMouseUp={(event) => {
+                          event.preventDefault();
+                        }}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
                   label="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={handleEnterKey}
-                  variant="outlined"
-                  fullWidth
-                  type={returnType()}
-                  autoComplete="current-password"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      id="show-password"
-                      checked={showPassword}
-                      onChange={toggleShowPassword}
-                      value="showPassword"
-                      color="primary"
-                    />
-                  }
-                  label="Show password"
                 />
               </FormControl>
             </Stack>
@@ -127,15 +131,15 @@ const SignInForm = ({
         )} */}
           </CardContent>
           <CardActions sx={{ p: 2 }}>
-            <LoadingButton
+            <Button
               id="sign-in"
-              loading={isLoading}
+              disabled={isLoading}
               variant="contained"
               color="primary"
               onClick={handleSubmit}
             >
               Sign in
-            </LoadingButton>
+            </Button>
             {allowAccountCreation && (
               <Button
                 id="create-profile"

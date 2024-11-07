@@ -7,19 +7,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
-  FormControlLabel,
   IconButton,
   Input,
-  Radio,
-  RadioGroup,
   Snackbar,
-  Stack,
   Tooltip,
 } from "@mui/material";
 import * as React from "react";
 
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -30,11 +25,6 @@ import {
   PriorCard,
   TagCard,
 } from "ProjectComponents/SetupComponents";
-import {
-  DatasetFromEntryPoint,
-  DatasetFromFile,
-  DatasetFromURI,
-} from "ProjectComponents/SetupComponents/DataUploadComponents";
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectModes, projectStatuses } from "globals.js";
@@ -107,26 +97,24 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
   );
 };
 
-const SetupDialog = ({
-  open,
-  onClose,
-  projectInfo = null,
-  mode = null,
-  dataSource = "file",
-}) => {
+const SetupDialog = ({ project_id, mode, open, onClose }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const fullScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   // state management
-  const [dataset, setDataset] = React.useState(projectInfo);
   const [showSettings, setShowSettings] = React.useState(false);
-  const [uploadSource, setUploadSource] = React.useState(dataSource);
-  const [feedbackBar, setFeedbackBar] = React.useState({
-    open: false,
-    message: null,
-  });
+  const [feedbackBar, setFeedbackBar] = React.useState(null);
+
+  const { data } = useQuery(
+    ["fetchProject", { project_id: project_id }],
+    ProjectAPI.fetchInfo,
+    {
+      enabled: open,
+      refetchOnWindowFocus: false,
+    },
+  );
 
   const { mutate: setStatus } = useMutation(ProjectAPI.mutateReviewStatus, {
     mutationKey: ["mutateReviewStatus"],
@@ -134,7 +122,7 @@ const SetupDialog = ({
       if (mode === projectModes.SIMULATION) {
         onClose();
       } else {
-        navigate(`/reviews/${dataset?.id}/review`);
+        navigate(`/reviews/${data?.id}/reviewer`);
       }
     },
   });
@@ -148,115 +136,32 @@ const SetupDialog = ({
         fullWidth
         maxWidth="md"
         PaperProps={{
-          sx: { height: !fullScreen ? "calc(100% - 64px)" : "100%" },
+          sx: {
+            height: !fullScreen ? "calc(100% - 64px)" : "100%",
+            bgcolor: "background.default",
+          },
         }}
         onClose={onClose}
         TransitionProps={{
           onExited: () => {
             queryClient.invalidateQueries("fetchProjects");
 
-            if (dataset) {
-              setFeedbackBar({
-                open: true,
-                message: `Your project has been saved as ${dataset.name}`,
-              });
-            }
+            setFeedbackBar(`Your project has been saved as draft`);
 
-            setDataset(projectInfo);
             setShowSettings(false);
-            setUploadSource("file");
           },
         }}
       >
-        {!dataset && (
-          <>
-            <DialogTitle>Start with dataset from</DialogTitle>
-            <DialogContent>
-              <Stack spacing={3} sx={{ height: "100%" }}>
-                <FormControl component="fieldset">
-                  <RadioGroup
-                    row
-                    aria-label="dataset source"
-                    name="row-radio-buttons-group"
-                    value={uploadSource}
-                  >
-                    <FormControlLabel
-                      value="file"
-                      control={<Radio />}
-                      label="File"
-                      onChange={(event) => setUploadSource(event.target.value)}
-                    />
-                    <FormControlLabel
-                      value="url"
-                      control={<Radio />}
-                      label="URL or DOI"
-                      onChange={(event) => setUploadSource(event.target.value)}
-                    />
-                    {mode === projectModes.ORACLE && (
-                      <FormControlLabel
-                        value="extension"
-                        control={<Radio />}
-                        label="Extension"
-                        onChange={(event) =>
-                          setUploadSource(event.target.value)
-                        }
-                      />
-                    )}
-                    <FormControlLabel
-                      value="benchmark"
-                      control={<Radio />}
-                      label="Benchmark datasets"
-                      onChange={(event) => setUploadSource(event.target.value)}
-                    />
-                  </RadioGroup>
-                </FormControl>
-                {uploadSource === "file" && (
-                  <DatasetFromFile mode={mode} setDataset={setDataset} />
-                )}
-                {uploadSource === "url" && (
-                  <DatasetFromURI mode={mode} setDataset={setDataset} />
-                )}
-                {uploadSource === "extension" && (
-                  <DatasetFromEntryPoint
-                    subset="plugin"
-                    mode={mode}
-                    setDataset={setDataset}
-                    mobileScreen={fullScreen}
-                  />
-                )}
-                {uploadSource === "benchmark" && (
-                  <DatasetFromEntryPoint
-                    subset="benchmark"
-                    mode={mode}
-                    setDataset={setDataset}
-                    mobileScreen={fullScreen}
-                  />
-                )}
-              </Stack>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={onClose}
-                // disabled={isLoading}
-              >
-                Cancel
-              </Button>
-            </DialogActions>{" "}
-          </>
-        )}
-        {dataset && (
-          <ProjectContext.Provider value={dataset.id}>
-            <DialogProjectName
-              project_id={dataset.id}
-              dataset_name={dataset.name}
-            />
+        {data && (
+          <ProjectContext.Provider value={data.id}>
+            <DialogProjectName project_id={data.id} dataset_name={data.name} />
             <DialogContent>
               <Collapse in={!showSettings}>
                 <Box sx={{ mt: 3 }}>
                   <DatasetCard
-                    project_id={dataset?.id}
-                    dataset_path={dataset?.dataset_path}
-                    setDataset={setDataset}
+                    project_id={data?.id}
+                    dataset_path={data?.dataset_path}
+                    setDataset={() => {}}
                     hideLabeledInfo={mode === projectModes.SIMULATION}
                   />
                 </Box>
@@ -270,10 +175,7 @@ const SetupDialog = ({
               <Collapse in={showSettings} mountOnEnter>
                 {mode !== projectModes.SIMULATION && (
                   <Box sx={{ mb: 3 }}>
-                    <TagCard
-                      project_id={dataset?.id}
-                      mobileScreen={fullScreen}
-                    />
+                    <TagCard project_id={data?.id} mobileScreen={fullScreen} />
                   </Box>
                 )}
                 <Box sx={{ my: 3 }}>
@@ -294,7 +196,7 @@ const SetupDialog = ({
               <Button
                 onClick={() => {
                   setStatus({
-                    project_id: dataset?.id,
+                    project_id: data?.id,
                     status: projectStatuses.REVIEW,
                   });
                 }}
@@ -311,10 +213,10 @@ const SetupDialog = ({
           vertical: "bottom",
           horizontal: "center",
         }}
-        open={feedbackBar.open}
+        open={feedbackBar !== null}
         autoHideDuration={5000}
-        onClose={() => setFeedbackBar({ open: false, message: null })}
-        message={feedbackBar.message}
+        onClose={() => setFeedbackBar(null)}
+        message={feedbackBar}
       />
     </>
   );

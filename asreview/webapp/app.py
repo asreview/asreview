@@ -142,7 +142,7 @@ def create_app(config_path=None):
             api_url=app.config.get("API_URL", "/"),
             asreview_version=asreview_version,
             authentication=str(not app.config.get("LOGIN_DISABLED", False)).lower(),
-            login_info=app.config.get("LOGIN_INFO", None),
+            login_info=app.config.get("LOGIN_INFO", ""),
             allow_account_creation=str(
                 app.config.get("ALLOW_ACCOUNT_CREATION", True)
             ).lower(),

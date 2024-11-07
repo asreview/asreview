@@ -84,7 +84,7 @@ const ExportButton = ({ project_id }) => {
               />
               <FormControlLabel
                 control={<Checkbox />}
-                label="Not interested"
+                label="Not relevant"
                 name="irrelevant"
                 checked={collections.includes("irrelevant")}
               />
@@ -136,6 +136,7 @@ const ExportButton = ({ project_id }) => {
 };
 
 const LabelHistory = ({
+  mode = "oracle",
   n_prior_inclusions = null,
   n_prior_exclusions = null,
   showFilter = true,
@@ -167,8 +168,8 @@ const LabelHistory = ({
             <Chip
               label={
                 !n_prior_exclusions
-                  ? "Not interested"
-                  : `Not interested (${n_prior_exclusions})`
+                  ? "Not relevant"
+                  : `Not relevant (${n_prior_exclusions})`
               }
               color="primary"
               variant={label !== "irrelevant" ? "outlined" : "filled"}
@@ -200,6 +201,7 @@ const LabelHistory = ({
       <Container maxWidth="md" sx={{ my: 3 }}>
         <LabeledRecord
           project_id={project_id}
+          mode={mode}
           label={label}
           filterQuery={state}
         />
