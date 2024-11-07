@@ -1,4 +1,4 @@
-import { Box, Divider } from "@mui/material";
+import { Box, Divider, Tooltip } from "@mui/material";
 import { Link, NavLink } from "react-router-dom";
 
 import {
@@ -61,7 +61,6 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
           component={NavLink}
           end={true}
         />
-
         {subset === "reviews" && (
           <DrawerItem
             key={"project-reviewer"}

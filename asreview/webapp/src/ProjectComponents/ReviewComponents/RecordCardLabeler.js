@@ -283,34 +283,46 @@ const RecordCardLabeler = ({
         >
           {editState && (
             <>
-              <Button
-                id="relevant"
-                onClick={() => makeDecision(1)}
-                variant="contained"
-                startIcon={<LibraryAddOutlinedIcon />}
-                disabled={isLoading || isSuccess}
-                sx={(theme) => ({
-                  color: theme.palette.getContrastText(
-                    theme.palette.tertiary.main,
-                  ),
-                  bgcolor: theme.palette.tertiary.main,
-                })}
+              <Tooltip
+                title="Add to relevant records (V)"
+                enterDelay={800}
+                leaveDelay={200}
               >
-                Add
-              </Button>
-              <Button
-                id="irrelevant"
-                onClick={() => makeDecision(0)}
-                startIcon={<NotInterestedOutlinedIcon />}
-                disabled={isLoading || isSuccess}
-                sx={(theme) => ({
-                  color: theme.palette.getContrastText(
-                    theme.palette.secondary.dark,
-                  ),
-                })}
+                <Button
+                  id="relevant"
+                  onClick={() => makeDecision(1)}
+                  variant="contained"
+                  startIcon={<LibraryAddOutlinedIcon />}
+                  disabled={isLoading || isSuccess}
+                  sx={(theme) => ({
+                    color: theme.palette.getContrastText(
+                      theme.palette.tertiary.main,
+                    ),
+                    bgcolor: theme.palette.tertiary.main,
+                  })}
+                >
+                  Add
+                </Button>
+              </Tooltip>
+              <Tooltip
+                title="Mark as not relevant (X)"
+                enterDelay={800}
+                leaveDelay={200}
               >
-                Not relevant
-              </Button>
+                <Button
+                  id="irrelevant"
+                  onClick={() => makeDecision(0)}
+                  startIcon={<NotInterestedOutlinedIcon />}
+                  disabled={isLoading || isSuccess}
+                  sx={(theme) => ({
+                    color: theme.palette.getContrastText(
+                      theme.palette.secondary.dark,
+                    ),
+                  })}
+                >
+                  Not relevant
+                </Button>
+              </Tooltip>
             </>
           )}
 

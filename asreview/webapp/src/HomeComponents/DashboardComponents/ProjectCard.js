@@ -114,7 +114,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
       })}
       elevation={0}
     >
-      <Grid container spacing={3} justifyContent={"center"} columns={14}>
+      <Grid container spacing={3} columns={14} alignItems={"center"}>
         <Grid size="grow">
           <ButtonBase
             onClick={(e) => openProject()}

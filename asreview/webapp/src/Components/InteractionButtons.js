@@ -40,8 +40,11 @@ const InteractionButtons = () => {
 
   return (
     <Fade in>
-      <Box>
-        <Typography variant="h6" sx={{ textAlign: "center" }}>
+      <Box sx={{ p: 6 }}>
+        <Typography
+          variant="h6"
+          sx={{ textAlign: "center", fontFamily: "Roboto Serif" }}
+        >
           Love using ASReview LAB?
         </Typography>
         <Box sx={{ maxWidth: "600px", margin: "auto" }}>
