@@ -117,6 +117,16 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
             record.abstract
           )}
         </Typography>
+
+        <Typography sx={{ color: "text.secondary", fontWeight: "bold" }}>
+          {record.keywords &&
+            record.keywords.map((keyword, index) => (
+              <span key={index}>
+                {index > 0 && " • "}
+                {keyword}
+              </span>
+            ))}
+        </Typography>
       </Stack>
     </CardContent>
   );
