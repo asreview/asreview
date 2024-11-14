@@ -121,12 +121,12 @@ def test_nan_values_ris():
     records = _from_file(fp)
 
     # Check missing titles
-    assert records[1].title is None
-    assert records[3].title is None
+    assert records[1].title == ""
+    assert records[3].title == ""
 
     # Check missing abstracts
-    assert records[0].abstract is None
-    assert records[2].abstract is None
+    assert records[0].abstract == ""
+    assert records[2].abstract == ""
 
     # Check missing authors
     assert records[0].authors == []
@@ -141,8 +141,8 @@ def test_nan_values_ris():
     assert records[2].notes is None
 
     # check missing doi
-    assert records[0].doi is None
-    assert records[2].doi is None
+    assert records[0].doi == ""
+    assert records[2].doi == ""
 
 
 def test_nan_values_csv():
@@ -150,12 +150,12 @@ def test_nan_values_csv():
     records = _from_file(fp)
 
     # Check missing titles
-    assert records[1].title is None
-    assert records[3].title is None
+    assert records[1].title == ""
+    assert records[3].title == ""
 
     # Check missing abstracts
-    assert records[0].abstract is None
-    assert records[2].abstract is None
+    assert records[0].abstract == ""
+    assert records[2].abstract == ""
 
     # Check missing authors
     assert records[0].authors == []
@@ -166,8 +166,8 @@ def test_nan_values_csv():
     assert records[2].keywords == []
 
     # Check missing doi
-    assert records[0].doi is None
-    assert records[2].doi is None
+    assert records[0].doi == ""
+    assert records[2].doi == ""
 
 
 @mark.internet_required
