@@ -274,7 +274,7 @@ class Project:
     @staticmethod
     def get_matrix_filename(feature_model):
         """Get the file name of the feature matrix for a specific feature model."""
-        return f"{feature_model.name}_feature_matrix.{feature_model.file_extension}"
+        return f"{feature_model.name}_feature_matrix.{feature_model.__file_extension__}"
 
     def add_feature_matrix(self, feature_matrix, feature_model):
         """Add feature matrix to project file.
