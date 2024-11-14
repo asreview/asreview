@@ -21,7 +21,7 @@ def test_simulate_basic(tmpdir, balance_strategy):
     project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(project.data_store)
+    fm = feature_model.from_data_store(project.data_store)
     project.add_feature_matrix(fm, feature_model)
 
     # set numpy seed
@@ -61,7 +61,7 @@ def test_simulate_no_prior(tmpdir):
     project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(project.data_store)
+    fm = feature_model.from_data_store(project.data_store)
     project.add_feature_matrix(fm, feature_model)
 
     # set numpy seed
@@ -95,7 +95,7 @@ def test_simulate_random_prior(tmpdir):
     project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(project.data_store)
+    fm = feature_model.from_data_store(project.data_store)
     project.add_feature_matrix(fm, feature_model)
 
     # set numpy seed

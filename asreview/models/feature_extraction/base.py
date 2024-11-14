@@ -25,7 +25,6 @@ from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
 from asreview.models.base import BaseModel
-from asreview.data.utils import get_texts
 
 
 class BaseFeatureExtraction(BaseModel):
@@ -39,14 +38,20 @@ class BaseFeatureExtraction(BaseModel):
         File extension that should be used when writing the feature matrix to a file.
     """
 
-    name = "base-feature"
+    name = "base"
     file_extension = "npz"
+    __default_text_columns__ = ["title", "abstract"]
 
-    def __init__(self, split_ta=False, use_keywords=False):
-        self.split_ta = split_ta
-        self.use_keywords = use_keywords
+    def get_texts(self, data_store, join_char: str = " "):
+        current_texts = data_store[self.__default_text_columns__[0]]
+        for column in self.__default_text_columns__[1:]:
+            current_texts = current_texts + join_char + data_store[column]
+        return current_texts
 
-    def fit_transform(self, data):
+    def from_data_store(self, data_store):
+        return self.fit_transform(self.get_texts(data_store))
+
+    def fit_transform(self, *texts):
         """Fit and transform a list of texts.
 
         Arguments
@@ -59,27 +64,16 @@ class BaseFeatureExtraction(BaseModel):
         numpy.ndarray
             Feature matrix representing the texts.
         """
-        texts = get_texts(data)
-        self.fit(texts)
-        if self.split_ta > 0:
-            X_titles = self.transform(data["title"])
-            X_abstracts = self.transform(data["abstract"])
-            if issparse(X_titles) and issparse(X_abstracts):
-                X = hstack([X_titles, X_abstracts]).tocsr()
-            else:
-                X = np.concatenate((X_titles, X_abstracts), axis=1)
+        if not texts:
+            raise ValueError(
+                "the arguments should contain at least one sequence of texts"
+            )
+        self.fit(texts[0])
+        transformed_texts = [self.transform(text_list) for text_list in texts]
+        if issparse(transformed_texts[0]):
+            return hstack(transformed_texts).tocsr()
         else:
-            X = self.transform(texts)
-
-        if self.use_keywords:
-            join_keys = np.array([" ".join(key) for key in data["keywords"]])
-            X_keywords = self.transform(join_keys)
-            if issparse(X_keywords):
-                X = hstack([X, X_keywords]).tocsr()
-            else:
-                X = np.concatenate((X, X_keywords), axis=1)
-
-        return X
+            return np.concatenate(transformed_texts, axis=1)
 
     def fit(self, texts):
         """Fit the model to the texts.
