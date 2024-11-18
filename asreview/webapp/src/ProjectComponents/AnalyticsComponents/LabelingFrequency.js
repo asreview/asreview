@@ -10,16 +10,17 @@ import {
   CardContent,
   Box,
   Typography,
-  CircularProgress,
   Slider,
   IconButton,
   Popover,
   useTheme,
+  Skeleton,
+  Link,
 } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { CardErrorHandler } from "Components";
 
-const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
+const LabelingFrequency = React.memo(({ genericDataQuery, progressQuery }) => {
   const [sliderValue, setSliderValue] = useState(30);
   const [anchorEl, setAnchorEl] = useState(null);
   const canvasRef = useRef(null);
@@ -126,7 +127,7 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
           isError={!!genericDataQuery?.isError}
         />
         {genericDataQuery?.isLoading ? (
-          <CircularProgress />
+          <Skeleton variant="rectangular" height={200} />
         ) : (
           <>
             <Box>
@@ -168,8 +169,8 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
         anchorEl={anchorEl}
         onClose={handlePopoverClose}
       >
-        <Box>
-          <Typography variant="body2" gutterBottom>
+        <Box p={2}>
+          <Typography variant="body1" gutterBottom>
             <strong>Labeling Frequency</strong>
           </Typography>
 
@@ -188,18 +189,18 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
             decisions.
           </Typography>
           <Box>
-            <a
+            <Link
               href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
               target="_blank"
               rel="noopener noreferrer"
             >
               Learn more
-            </a>
+            </Link>
           </Box>
         </Box>
       </Popover>
     </Card>
   );
-};
+});
 
 export default LabelingFrequency;
