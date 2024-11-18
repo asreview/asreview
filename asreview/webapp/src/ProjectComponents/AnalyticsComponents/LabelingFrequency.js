@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   Card,
   CardContent,
@@ -20,38 +26,38 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
   const theme = useTheme();
 
   const totalPapers = progressQuery?.data?.n_records || 0;
-  const progressDensity = genericDataQuery?.data || [];
-  const reversedDecisions = progressDensity.slice(-totalPapers).reverse();
+  const reversedDecisions = useMemo(() => {
+    const progressDensity = genericDataQuery?.data || [];
+    return progressDensity.slice(-totalPapers).reverse();
+  }, [genericDataQuery?.data, totalPapers]);
 
   const minVisibleRecords = 10;
-  const maxVisibleRecords = totalPapers;
+  const maxVisibleRecords = reversedDecisions.length;
+  const visibleCount = useMemo(() => {
+    return Math.floor(
+      minVisibleRecords *
+        Math.pow(maxVisibleRecords / minVisibleRecords, sliderValue / 100),
+    );
+  }, [minVisibleRecords, maxVisibleRecords, sliderValue]);
 
-  const visibleCount =
-    sliderValue === 100
-      ? maxVisibleRecords
-      : Math.max(
-          minVisibleRecords,
-          Math.ceil(
-            minVisibleRecords *
-              Math.pow(
-                maxVisibleRecords / minVisibleRecords,
-                sliderValue / 100,
-              ),
-          ),
-        );
-
-  const decisionsToDisplay = reversedDecisions.slice(0, visibleCount);
+  const decisionsToDisplay = useMemo(() => {
+    return reversedDecisions.slice(0, visibleCount);
+  }, [reversedDecisions, visibleCount]);
 
   useEffect(() => {
-    if (canvasRef.current) {
+    if (canvasRef.current && decisionsToDisplay.length > 0) {
       const ctx = canvasRef.current.getContext("2d");
-      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
-      const lineWidth = 10;
-      const fullHeight = canvasRef.current.height;
-      const lineHeight = fullHeight * 0.7;
       const canvasWidth = canvasRef.current.width;
+      const canvasHeight = canvasRef.current.height;
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
       const totalVisible = decisionsToDisplay.length;
+      const gap = 1;
+      const barWidth = Math.max(
+        (canvasWidth - gap * (totalVisible - 1)) / totalVisible,
+        1,
+      );
+      const barHeight = canvasHeight * 0.8;
 
       decisionsToDisplay.forEach((decision, index) => {
         ctx.fillStyle =
@@ -59,35 +65,44 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
             ? theme.palette.mode === "light"
               ? theme.palette.primary.light
               : theme.palette.primary.main // Relevant
-            : theme.palette.mode === "light"
-              ? theme.palette.grey[600]
-              : theme.palette.grey[600]; // Irrelevant
+            : theme.palette.grey[600]; // Irrelevant
+
+        const x = canvasWidth - (index + 1) * (barWidth + gap);
+        const y = (canvasHeight - barHeight) / 2;
+        const radius = 7;
 
         ctx.beginPath();
-        const x = canvasWidth - ((index + 1) / totalVisible) * canvasWidth;
-        ctx.roundRect(
-          x - lineWidth,
-          (fullHeight - lineHeight) / 2,
-          lineWidth,
-          lineHeight,
-          5,
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + barWidth - radius, y);
+        ctx.quadraticCurveTo(x + barWidth, y, x + barWidth, y + radius);
+        ctx.lineTo(x + barWidth, y + barHeight - radius);
+        ctx.quadraticCurveTo(
+          x + barWidth,
+          y + barHeight,
+          x + barWidth - radius,
+          y + barHeight,
         );
+        ctx.lineTo(x + radius, y + barHeight);
+        ctx.quadraticCurveTo(x, y + barHeight, x, y + barHeight - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
         ctx.fill();
       });
     }
   }, [decisionsToDisplay, sliderValue, theme]);
 
-  const handleSliderChange = (event, newValue) => {
+  const handleSliderChange = useCallback((event, newValue) => {
     setSliderValue(newValue);
-  };
+  }, []);
 
-  const handlePopoverOpen = (event) => {
+  const handlePopoverOpen = useCallback((event) => {
     setAnchorEl(event.currentTarget);
-  };
+  }, []);
 
-  const handlePopoverClose = () => {
+  const handlePopoverClose = useCallback(() => {
     setAnchorEl(null);
-  };
+  }, []);
 
   const popoverOpen = Boolean(anchorEl);
 
@@ -95,6 +110,8 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
     <Card
       sx={{
         position: "relative",
+        backgroundColor: "transparent",
+        boxShadow: 3,
       }}
     >
       <CardContent>
@@ -116,11 +133,11 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
               <canvas
                 ref={canvasRef}
                 width={900}
-                height={315}
+                height={200}
                 style={{
                   width: "100%",
-                  height: 219,
-                  bgcolor: "transparent",
+                  height: "100%",
+                  backgroundColor: "transparent",
                 }}
               />
             </Box>
