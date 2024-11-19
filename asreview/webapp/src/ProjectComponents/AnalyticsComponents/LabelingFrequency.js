@@ -21,7 +21,7 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { CardErrorHandler } from "Components";
 
 const LabelingFrequency = React.memo(({ genericDataQuery, progressQuery }) => {
-  const [sliderValue, setSliderValue] = useState(30);
+  const [sliderValue, setSliderValue] = useState(50);
   const [anchorEl, setAnchorEl] = useState(null);
   const canvasRef = useRef(null);
   const theme = useTheme();
@@ -64,9 +64,9 @@ const LabelingFrequency = React.memo(({ genericDataQuery, progressQuery }) => {
         ctx.fillStyle =
           decision.label === 1
             ? theme.palette.mode === "light"
-              ? theme.palette.primary.light
-              : theme.palette.primary.main // Relevant
-            : theme.palette.grey[600]; // Irrelevant
+              ? theme.palette.grey[600]
+              : theme.palette.grey[600] // Relevant
+            : theme.palette.primary.main; // Irrelevant
 
         const x = canvasWidth - (index + 1) * (barWidth + gap);
         const y = (canvasHeight - barHeight) / 2;
