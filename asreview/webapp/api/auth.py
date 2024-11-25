@@ -202,10 +202,7 @@ def signup():
                 # if this is an un-confirmed account, set token
                 if not confirmed:
                     # set token data
-                    user = user.set_token_data(
-                        current_app.config["SECRET_KEY"],
-                        current_app.config["SECURITY_PASSWORD_SALT"],
-                    )
+                    user = user.set_token()
                 # store user
                 DB.session.add(user)
                 DB.session.commit()
@@ -315,10 +312,7 @@ def forgot_password():
             result = (404, f"Your account has been created with {user.origin}.")
         else:
             # set a token
-            user = user.set_token_data(
-                current_app.config["SECRET_KEY"],
-                current_app.config["SECURITY_PASSWORD_SALT"],
-            )
+            user = user.set_token()
             try:
                 # store data
                 DB.session.commit()
