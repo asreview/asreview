@@ -40,7 +40,9 @@ from asreview.webapp.api import projects
 from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
+from asreview.webapp.authentication.remote_user_handler import RemoteUserHandler
 from asreview.webapp.utils import asreview_path
+from asreview.webapp.authentication.decorators import login_remote_user
 
 
 def create_app(config_path=None):
@@ -101,10 +103,12 @@ def create_app(config_path=None):
         with app.app_context():
             # create tables in case they don't exist
             DB.create_all()
-
         # store oauth config in oauth handler
         if bool(app.config.get("OAUTH", False)):
             app.config["OAUTH"] = OAuthHandler(app.config["OAUTH"])
+
+        if bool(app.config.get("REMOTE_USER", False)):
+            app.config["REMOTE_USER"] = RemoteUserHandler(app.config["REMOTE_USER"])
 
         with app.app_context():
             app.register_blueprint(auth.bp)
@@ -151,8 +155,10 @@ def create_app(config_path=None):
             oauth=oauth_params,
         )
 
+
     @app.route("/", methods=["GET"])
     @app.route("/<path:url>", methods=["GET"])
+    @login_remote_user
     def index_protected(**kwargs):
         if (
             not app.config.get("LOGIN_DISABLED", False)

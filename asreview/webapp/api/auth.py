@@ -32,13 +32,13 @@ from sqlalchemy import and_
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
+from asreview.webapp.authentication.decorators import login_remote_user
 
 from asreview.webapp import DB
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
-
 
 def _has_email_configuration(app):
     return all(
@@ -413,6 +413,7 @@ def update_profile():
 
 
 @bp.route("/user", methods=["GET"])
+@login_remote_user
 @login_required
 def user():
     return jsonify({"name": current_user.get_name(), "id": current_user.id}), 200

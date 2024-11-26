@@ -16,15 +16,23 @@ from functools import wraps
 
 from flask import current_app
 from flask import jsonify
+from flask import request
 from flask_login import current_user
+from flask_login import login_user
+
+import datetime
 
 import asreview as asr
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.api import is_project
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.authentication.models import User
+from asreview.webapp import DB
 from asreview.webapp.utils import get_project_path
 from asreview.webapp.utils import get_projects
+from asreview.webapp.authentication.remote_user_handler import RemoteUserHandler
 
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 def project_authorization(f):
     """Decorator function that checks if current user can access
@@ -80,4 +88,32 @@ def current_user_projects(f):
 
         return f(projects, *args, **kwargs)
 
+    return decorated_function
+
+def login_remote_user(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        remote_user_handler = current_app.config.get('REMOTE_USER', False)
+
+        if isinstance(remote_user_handler, RemoteUserHandler):
+            user_info = remote_user_handler.handle_request(request.headers)
+
+            if user_info['identifier']:
+                user = User.query.filter(User.identifier == user_info['identifier']).one_or_none()
+                if not user:
+                    try:
+                        user = User(
+                            **user_info, 
+                            origin='remote',
+                            public=True,
+                            confirmed=True
+                        )
+                        DB.session.add(user)
+                        DB.session.commit()
+                    except (IntegrityError, SQLAlchemyError) as e:
+                        DB.session.rollback()
+                        error_500(e)
+
+                login_user(user, remember=True, duration=datetime.timedelta(days=31))
+        return f(*args, **kwargs)
     return decorated_function

@@ -10,6 +10,12 @@ from flask import current_app
 
 from asreview.webapp.utils import asreview_path
 
+def custom_remote_auth_headers(identifier='foo', affiliation='UU', email='foo@dev.bar'):
+    return {
+        'My-User-Identifier-Header': identifier,
+        'My-User-Affiliation-Header': affiliation,
+        'My-User-Email-Header': email,
+    }
 
 def get_project_id(project):
     """Get a project id from either a Project model
