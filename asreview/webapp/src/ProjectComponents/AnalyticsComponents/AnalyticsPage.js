@@ -159,10 +159,7 @@ const AnalyticsPage = () => {
             />
           )}
           {activeHistoryTab === 1 && (
-            <LabelingFrequency
-              genericDataQuery={genericDataQuery}
-              progressQuery={progressQuery}
-            />
+            <LabelingFrequency project_id={project_id} />
           )}
           {activeHistoryTab === 2 && (
             <ProgressDensityChart genericDataQuery={genericDataQuery} />

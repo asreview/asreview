@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -19,31 +13,39 @@ import {
 } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { CardErrorHandler } from "Components";
+import { useQuery } from "react-query";
+import { ProjectAPI } from "api";
 
-const LabelingFrequency = React.memo(({ genericDataQuery, progressQuery }) => {
+const LabelingFrequency = React.memo(({ project_id }) => {
   const [sliderValue, setSliderValue] = useState(50);
   const [anchorEl, setAnchorEl] = useState(null);
   const canvasRef = useRef(null);
   const theme = useTheme();
 
+  const progressQuery = useQuery(
+    ["fetchProgress", { project_id }],
+    ({ queryKey }) => ProjectAPI.fetchProgress({ queryKey }),
+    { refetchOnWindowFocus: false },
+  );
+
+  const genericDataQuery = useQuery(
+    ["fetchGenericData", { project_id }],
+    ({ queryKey }) => ProjectAPI.fetchGenericData({ queryKey }),
+    { refetchOnWindowFocus: false },
+  );
+
   const totalPapers = progressQuery?.data?.n_records || 0;
-  const reversedDecisions = useMemo(() => {
-    const progressDensity = genericDataQuery?.data || [];
-    return progressDensity.slice(-totalPapers).reverse();
-  }, [genericDataQuery?.data, totalPapers]);
+  const progressDensity = genericDataQuery?.data || [];
+  const reversedDecisions = progressDensity.slice(-totalPapers).reverse();
 
   const minVisibleRecords = 10;
   const maxVisibleRecords = reversedDecisions.length;
-  const visibleCount = useMemo(() => {
-    return Math.floor(
-      minVisibleRecords *
-        Math.pow(maxVisibleRecords / minVisibleRecords, sliderValue / 100),
-    );
-  }, [minVisibleRecords, maxVisibleRecords, sliderValue]);
+  const visibleCount = Math.floor(
+    minVisibleRecords *
+      Math.pow(maxVisibleRecords / minVisibleRecords, sliderValue / 100),
+  );
 
-  const decisionsToDisplay = useMemo(() => {
-    return reversedDecisions.slice(0, visibleCount);
-  }, [reversedDecisions, visibleCount]);
+  const decisionsToDisplay = reversedDecisions.slice(0, visibleCount);
 
   useEffect(() => {
     if (canvasRef.current && decisionsToDisplay.length > 0) {
@@ -93,17 +95,17 @@ const LabelingFrequency = React.memo(({ genericDataQuery, progressQuery }) => {
     }
   }, [decisionsToDisplay, sliderValue, theme]);
 
-  const handleSliderChange = useCallback((event, newValue) => {
+  const handleSliderChange = (event, newValue) => {
     setSliderValue(newValue);
-  }, []);
+  };
 
-  const handlePopoverOpen = useCallback((event) => {
+  const handlePopoverOpen = (event) => {
     setAnchorEl(event.currentTarget);
-  }, []);
+  };
 
-  const handlePopoverClose = useCallback(() => {
+  const handlePopoverClose = () => {
     setAnchorEl(null);
-  }, []);
+  };
 
   const popoverOpen = Boolean(anchorEl);
 
@@ -112,7 +114,6 @@ const LabelingFrequency = React.memo(({ genericDataQuery, progressQuery }) => {
       sx={{
         position: "relative",
         backgroundColor: "transparent",
-        boxShadow: 3,
       }}
     >
       <CardContent>
@@ -122,11 +123,11 @@ const LabelingFrequency = React.memo(({ genericDataQuery, progressQuery }) => {
           </IconButton>
         </Box>
         <CardErrorHandler
-          queryKey={"fetchGenericData"}
-          error={genericDataQuery?.error}
-          isError={!!genericDataQuery?.isError}
+          queryKey={"fetchGenericData and fetchProgress"}
+          error={genericDataQuery?.error || progressQuery?.error}
+          isError={!!genericDataQuery?.isError || !!progressQuery?.isError}
         />
-        {genericDataQuery?.isLoading ? (
+        {genericDataQuery?.isLoading || progressQuery?.isLoading ? (
           <Skeleton variant="rectangular" height={200} />
         ) : (
           <>
