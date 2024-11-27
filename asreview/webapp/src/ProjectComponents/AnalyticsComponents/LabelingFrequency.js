@@ -202,6 +202,6 @@ const LabelingFrequency = ({ project_id }) => {
       </Popover>
     </Card>
   );
-});
+};
 
 export default LabelingFrequency;
