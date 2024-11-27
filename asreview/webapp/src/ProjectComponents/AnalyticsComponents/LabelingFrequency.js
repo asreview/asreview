@@ -16,7 +16,7 @@ import { CardErrorHandler } from "Components";
 import { useQuery } from "react-query";
 import { ProjectAPI } from "api";
 
-const LabelingFrequency = React.memo(({ project_id }) => {
+const LabelingFrequency = ({ project_id }) => {
   const [sliderValue, setSliderValue] = useState(50);
   const [anchorEl, setAnchorEl] = useState(null);
   const canvasRef = useRef(null);
