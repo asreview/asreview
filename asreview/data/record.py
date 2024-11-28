@@ -98,21 +98,31 @@ class Record(Base):
     title: Mapped[str] = mapped_column(default="")
     abstract: Mapped[str] = mapped_column(default="")
     # authors and keywords could also be in their own separate table.
-    authors: Mapped[list] = mapped_column(default=None)
+    authors: Mapped[list] = mapped_column(default_factory=list)
     notes: Mapped[Optional[str]] = mapped_column(default=None)
-    keywords: Mapped[list] = mapped_column(default=None)
+    keywords: Mapped[list] = mapped_column(default_factory=list)
     year: Mapped[Optional[int]] = mapped_column(default=None)
-    doi: Mapped[Optional[str]] = mapped_column(default=None)
-    url: Mapped[Optional[str]] = mapped_column(default=None)
+    doi: Mapped[Optional[str]] = mapped_column(default="")
+    url: Mapped[Optional[str]] = mapped_column(default="")
     included: Mapped[Optional[int]] = mapped_column(default=None)
 
-    @validates("authors")
-    def validate_authors(self, key, authors):
-        return validate_list(key, authors)
+    @validates("authors", "keywords")
+    def validate_list_of_string(self, key, value):
+        if value is None:
+            return []
+        if not isinstance(value, list):
+            raise ValueError(f"'{key}' should be a list or None, but is: {value}")
+        if not all(isinstance(item, str) for item in value):
+            raise ValueError(f"'{key}' should be a list of strings")
+        return value
 
-    @validates("keywords")
-    def validate_keywords(self, key, keywords):
-        return validate_list(key, keywords)
+    @validates("title", "abstract", "doi", "url")
+    def validate_string(self, key, value):
+        if value == "":
+            return None
+        if value is not None and not isinstance(value, str):
+            raise ValueError(f"'{key}' should be a string or None, but is: {value}")
+        return value
 
     @validates("included")
     def validate_included(self, key, included):
@@ -124,11 +134,3 @@ class Record(Base):
                 f"included should be one of 0, 1, or None. Not '{included}'"
             )
         return included
-
-
-def validate_list(key, value):
-    if value is None:
-        value = []
-    if not isinstance(value, list):
-        raise ValueError(f"'{key}' should be a list or None")
-    return value
