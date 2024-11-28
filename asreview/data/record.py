@@ -118,10 +118,10 @@ class Record(Base):
 
     @validates("title", "abstract", "doi", "url")
     def validate_string(self, key, value):
-        if value is None:
-            return ""
-        if not isinstance(value, str):
-            raise ValueError(f"'{key}' should be a string, but is: {value}")
+        if value == "":
+            return None
+        if value is not None and not isinstance(value, str):
+            raise ValueError(f"'{key}' should be a string or None, but is: {value}")
         return value
 
     @validates("included")
