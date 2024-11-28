@@ -15,10 +15,10 @@
 class RemoteUserHandler:
 
     default_headers = {
-        'USER_IDENTIFIER_HEADER': 'REMOTE_USER',
-        'USER_NAME_HEADER': 'REMOTE_USER_NAME',
-        'USER_EMAIL_HEADER': 'REMOTE_USER_EMAIL',
-        'USER_AFFILIATION_HEADER': 'REMOTE_USER_AFFILIATION',
+        'USER_IDENTIFIER_HEADER': 'Remote-User',
+        'USER_NAME_HEADER': 'Remote-User-Name',
+        'USER_EMAIL_HEADER': 'Remote-User-Email',
+        'USER_AFFILIATION_HEADER': 'Remote-User-Affiliation',
         'DEFAULT_EMAIL_DOMAIN': 'localhost',
         'DEFAULT_AFFILIATION': '',
     }
