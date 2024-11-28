@@ -49,8 +49,8 @@ class ReviewSettings:
     def from_file(cls, fp, load=None):
         """Fill the contents of settings by reading a config file.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         fp: str, Path
             Review config file.
         load: object

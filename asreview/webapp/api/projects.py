@@ -72,8 +72,8 @@ bp = Blueprint("api", __name__, url_prefix="/api")
 def _fill_last_ranking(project, ranking):
     """Fill the last ranking with a random or top-down ranking.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     project: asreview.Project
         The project to fill the last ranking of.
     ranking: str

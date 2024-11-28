@@ -66,8 +66,8 @@ def _unpack_params(params):
 def _print_record(record, use_cli_colors=True):
     """Format one record for displaying in the CLI.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     record: Record
         The record to format.
     use_cli_colors: bool

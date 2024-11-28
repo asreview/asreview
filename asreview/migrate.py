@@ -82,8 +82,8 @@ def _project_model_settings_converter_v1_v2(model_settings_path):
 def migrate_v1_v2(folder):
     """Migrate a project from version 1 to version 2.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     folder: str
         The folder of the project to migrate
 

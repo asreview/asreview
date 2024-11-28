@@ -40,8 +40,8 @@ def _get_state_path(project, review_id=None, create_new=True):
 def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=False):
     """Initialize a state class instance from a project folder.
 
-    Arguments
-    ---------
+        Parameters
+        ----------
     asreview_obj: str/pathlike/Project
 
         Filepath to the (unzipped) project folder or Project object.

@@ -28,8 +28,8 @@ class BaseQueryStrategy(BaseModel):
     def query(self, feature_matrix, relevance_scores, **kwargs):
         """Put records in ranked order.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         feature_matrix: numpy.ndarray
             Feature matrix where every row contains the features of a record.
         relevance_scores: numpy.ndarray

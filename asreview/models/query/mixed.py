@@ -36,8 +36,8 @@ class MixedQuery(BaseQueryStrategy):
     to come from the second query strategy. What actually happens is close to this, but
     for full details look at the implemenatation of the algorithm in the code.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     query_model1: str
         Name of the first query strategy.
     query_model2: str

@@ -31,8 +31,8 @@ class CSVReader(BaseReader):
     def read_data(cls, fp):
         """Import dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         fp: str, pathlib.Path
             File path to the CSV file.
 
@@ -62,8 +62,8 @@ class CSVWriter:
     def write_data(cls, df, fp, sep=","):
         """Export dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         df: pandas.Dataframe
             Dataframe of all available record data.
         fp: str, NoneType
@@ -89,8 +89,8 @@ class ExcelReader(BaseReader):
     def read_data(cls, fp):
         """Import dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         fp: str, pathlib.Path
             File path to the Excel file (.xlsx).
 
@@ -131,8 +131,8 @@ class ExcelWriter:
     def write_data(cls, df, fp):
         """Export dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         df: pandas.Dataframe
             Dataframe of all available record data.
         fp: str, NoneType
@@ -157,8 +157,8 @@ class TSVWriter:
     def write_data(cls, df, fp, sep="\t"):
         """Export dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         df: pandas.Dataframe
             Dataframe of all available record data.
         fp: str, NoneType

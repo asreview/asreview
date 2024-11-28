@@ -49,8 +49,8 @@ class BaseFeatureExtraction(BaseModel):
     def fit_transform(self, data):
         """Fit and transform a list of texts.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         texts: numpy.ndarray
             A sequence of texts to be transformed. They are not yet tokenized.
 
@@ -87,8 +87,8 @@ class BaseFeatureExtraction(BaseModel):
         It is not always necessary to implement this if there's not real
         fitting being done.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         texts: numpy.ndarray
             Texts to be fitted.
         """
@@ -98,8 +98,8 @@ class BaseFeatureExtraction(BaseModel):
     def transform(self, texts):
         """Transform a list of texts.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         texts: numpy.ndarray
             A sequence of texts to be transformed. They are not yet tokenized.
 
