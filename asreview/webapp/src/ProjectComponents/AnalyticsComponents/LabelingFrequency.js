@@ -4,74 +4,92 @@ import {
   CardContent,
   Box,
   Typography,
-  CircularProgress,
   Slider,
   IconButton,
   Popover,
   useTheme,
+  Skeleton,
+  Link,
 } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { CardErrorHandler } from "Components";
+import { useQuery } from "react-query";
+import { ProjectAPI } from "api";
 
-const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
-  const [sliderValue, setSliderValue] = useState(30);
+const LabelingFrequency = ({ project_id }) => {
+  const [sliderValue, setSliderValue] = useState(50);
   const [anchorEl, setAnchorEl] = useState(null);
   const canvasRef = useRef(null);
   const theme = useTheme();
+
+  const progressQuery = useQuery(
+    ["fetchProgress", { project_id }],
+    ({ queryKey }) => ProjectAPI.fetchProgress({ queryKey }),
+    { refetchOnWindowFocus: false },
+  );
+
+  const genericDataQuery = useQuery(
+    ["fetchGenericData", { project_id }],
+    ({ queryKey }) => ProjectAPI.fetchGenericData({ queryKey }),
+    { refetchOnWindowFocus: false },
+  );
 
   const totalPapers = progressQuery?.data?.n_records || 0;
   const progressDensity = genericDataQuery?.data || [];
   const reversedDecisions = progressDensity.slice(-totalPapers).reverse();
 
   const minVisibleRecords = 10;
-  const maxVisibleRecords = totalPapers;
-
-  const visibleCount =
-    sliderValue === 100
-      ? maxVisibleRecords
-      : Math.max(
-          minVisibleRecords,
-          Math.ceil(
-            minVisibleRecords *
-              Math.pow(
-                maxVisibleRecords / minVisibleRecords,
-                sliderValue / 100,
-              ),
-          ),
-        );
+  const maxVisibleRecords = reversedDecisions.length;
+  const visibleCount = Math.floor(
+    minVisibleRecords *
+      Math.pow(maxVisibleRecords / minVisibleRecords, sliderValue / 100),
+  );
 
   const decisionsToDisplay = reversedDecisions.slice(0, visibleCount);
 
   useEffect(() => {
-    if (canvasRef.current) {
+    if (canvasRef.current && decisionsToDisplay.length > 0) {
       const ctx = canvasRef.current.getContext("2d");
-      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
-      const lineWidth = 10;
-      const fullHeight = canvasRef.current.height;
-      const lineHeight = fullHeight * 0.7;
       const canvasWidth = canvasRef.current.width;
+      const canvasHeight = canvasRef.current.height;
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
       const totalVisible = decisionsToDisplay.length;
+      const gap = 1;
+      const barWidth = Math.max(
+        (canvasWidth - gap * (totalVisible - 1)) / totalVisible,
+        1,
+      );
+      const barHeight = canvasHeight * 0.8;
 
       decisionsToDisplay.forEach((decision, index) => {
         ctx.fillStyle =
           decision.label === 1
             ? theme.palette.mode === "light"
-              ? theme.palette.primary.light
-              : theme.palette.primary.main // Relevant
-            : theme.palette.mode === "light"
               ? theme.palette.grey[600]
-              : theme.palette.grey[600]; // Irrelevant
+              : theme.palette.grey[600] // Relevant
+            : theme.palette.primary.main; // Irrelevant
+
+        const x = canvasWidth - (index + 1) * (barWidth + gap);
+        const y = (canvasHeight - barHeight) / 2;
+        const radius = 7;
 
         ctx.beginPath();
-        const x = canvasWidth - ((index + 1) / totalVisible) * canvasWidth;
-        ctx.roundRect(
-          x - lineWidth,
-          (fullHeight - lineHeight) / 2,
-          lineWidth,
-          lineHeight,
-          5,
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + barWidth - radius, y);
+        ctx.quadraticCurveTo(x + barWidth, y, x + barWidth, y + radius);
+        ctx.lineTo(x + barWidth, y + barHeight - radius);
+        ctx.quadraticCurveTo(
+          x + barWidth,
+          y + barHeight,
+          x + barWidth - radius,
+          y + barHeight,
         );
+        ctx.lineTo(x + radius, y + barHeight);
+        ctx.quadraticCurveTo(x, y + barHeight, x, y + barHeight - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
         ctx.fill();
       });
     }
@@ -95,6 +113,7 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
     <Card
       sx={{
         position: "relative",
+        backgroundColor: "transparent",
       }}
     >
       <CardContent>
@@ -104,23 +123,23 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
           </IconButton>
         </Box>
         <CardErrorHandler
-          queryKey={"fetchGenericData"}
-          error={genericDataQuery?.error}
-          isError={!!genericDataQuery?.isError}
+          queryKey={"fetchGenericData and fetchProgress"}
+          error={genericDataQuery?.error || progressQuery?.error}
+          isError={!!genericDataQuery?.isError || !!progressQuery?.isError}
         />
-        {genericDataQuery?.isLoading ? (
-          <CircularProgress />
+        {genericDataQuery?.isLoading || progressQuery?.isLoading ? (
+          <Skeleton variant="rectangular" height={200} />
         ) : (
           <>
             <Box>
               <canvas
                 ref={canvasRef}
                 width={900}
-                height={315}
+                height={200}
                 style={{
                   width: "100%",
-                  height: 219,
-                  bgcolor: "transparent",
+                  height: "100%",
+                  backgroundColor: "transparent",
                 }}
               />
             </Box>
@@ -151,8 +170,8 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
         anchorEl={anchorEl}
         onClose={handlePopoverClose}
       >
-        <Box>
-          <Typography variant="body2" gutterBottom>
+        <Box p={2}>
+          <Typography variant="body1" gutterBottom>
             <strong>Labeling Frequency</strong>
           </Typography>
 
@@ -171,13 +190,13 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
             decisions.
           </Typography>
           <Box>
-            <a
+            <Link
               href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
               target="_blank"
               rel="noopener noreferrer"
             >
               Learn more
-            </a>
+            </Link>
           </Box>
         </Box>
       </Popover>

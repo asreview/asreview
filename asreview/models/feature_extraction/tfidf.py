@@ -16,10 +16,10 @@ __all__ = ["Tfidf"]
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from asreview.models.feature_extraction.base import BaseFeatureExtraction
+from asreview.models.feature_extraction.sklearn_adapter import SKLearnAdapter
 
 
-class Tfidf(BaseFeatureExtraction):
+class Tfidf(SKLearnAdapter):
     """TF-IDF feature extraction technique (``tfidf``).
 
     Use the standard TF-IDF (Term Frequency-Inverse Document Frequency) feature
@@ -42,22 +42,9 @@ class Tfidf(BaseFeatureExtraction):
     name = "tfidf"
     label = "TF-IDF"
 
-    def __init__(self, *args, ngram_max=1, stop_words="english", **kwargs):
-        """Initialize tfidf class."""
-        super().__init__(*args, **kwargs)
-        self.ngram_max = ngram_max
-        self.stop_words = stop_words
-        if stop_words is None or stop_words.lower() == "none":
-            sklearn_stop_words = None
-        else:
-            sklearn_stop_words = self.stop_words
-        self._model = TfidfVectorizer(
-            ngram_range=(1, ngram_max), stop_words=sklearn_stop_words
+    def __init__(self, stop_words="english", **kwargs):
+        super().__init__(
+            sklearn_model=TfidfVectorizer,
+            stop_words=stop_words,
+            **kwargs,
         )
-
-    def fit(self, texts):
-        self._model.fit(texts)
-
-    def transform(self, texts):
-        X = self._model.transform(texts).tocsr()
-        return X

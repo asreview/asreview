@@ -32,14 +32,15 @@ def test_features(tmpdir, feature_extraction, split_ta):
     data_store.create_tables()
     data_store.add_records(records)
     if feature_extraction.startswith("embedding-"):
-        model = load_extension("models.feature_extraction", feature_extraction)(
-            split_ta=split_ta
-        )
+        model = load_extension("models.feature_extraction", feature_extraction)()
     else:
-        model = load_extension("models.feature_extraction", feature_extraction)(
-            split_ta=split_ta
-        )
-    X = model.fit_transform(data_store)
+        model = load_extension("models.feature_extraction", feature_extraction)()
+    if split_ta:
+        titles = data_store["title"]
+        abstracts = data_store["abstract"]
+        X = model.fit_transform(titles, abstracts)
+    else:
+        X = model.from_data_store(data_store)
 
     assert X.shape[0] == len(data_store)
     assert X.shape[1] > 0
