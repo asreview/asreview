@@ -148,6 +148,31 @@ use a different database, you can add the ``SQLALCHEMY_DATABASE_URI`` key to
 the TOML file.
 
 
+Authentication with remote user
+~~~~~~~~~~~~~~~~~~~
+
+It is possible to outsource authentication completely to a webserver or middleware application
+that is placed in front of ASReview. This is a common pattern in webhosting: we use a webserver like
+Nginx to implement authentication (for example, using its built-in modules for things like LDAP authentication),
+and let it *reverse proxy* to the webapplication we want to serve (ASReview). The webserver then only needs to pass
+on the information about the user (such as username, full name, email address) to ASreview in the HTTP headers.
+
+Although this is a powerful feature that allows one to leverage a myriad of
+authentication options, **it should be used with caution**. If the webserver is
+not properly configured, ASReview will be improperly secured.
+
+Use the `REMOTE_USER` option to enable this form of authentication handling. This is a `dict`
+in which you can configure which headers ASReview will attempt to read user information from.
+
+.. code-block::  toml
+  [REMOTE_USER]
+  USER_IDENTIFIER_HEADER = 'My-User-Identifier-Header' # Header containing user's name or email
+  USER_EMAIL_HEADER = 'My-User-Name-Header' # Header containing user's full name
+  USER_EMAIL_HEADER = 'My-User-Email-Header' # Header containing user's name (if not given in the USER_IDENTIFIER_HEADER)
+  USER_AFFILIATION_HEADER = 'My-User-Affiliation-Header' # Header containing user's affiliation
+  DEFAULT_AFFILIATION = '' # Default affiliation if no header is set
+  DEFAULT_EMAIL_DOMAIN = 'localhost' # If no email header is set and USER_IDENTIFIER_HEADER is not an email, use this as a default domain. The user's email will be set to: <username>@<default_email_domain>
+
 Full configuration
 ~~~~~~~~~~~~~~~~~~~
 
@@ -168,6 +193,9 @@ Account creation configuration
 
 OAuth configuration
 - `ASREVIEW_LAB_OATH` - OAuth configuration for ASReview LAB. It is a dictionary with the following keys: `GitHub`, `Orcid` and `Google`. Each of these keys is a dictionary with the following keys: `AUTHORIZATION_URL`, `TOKEN_URL`, `CLIENT_ID`, `CLIENT_SECRET` and `SCOPE`.
+
+Remote user configuration
+- `ASREVIEW_LAB_REMOTE_USER` - Remote user configuration for ASReview LAB. It is a dictionary with the following keys: `USER_IDENTIFIER_HEADER`, `USER_NAME_HEADER`, `USER_EMAIL_HEADER`, `USER_AFFILIATION_HEADER`, `DEFAULT_EMAIL`, `DEFAULT_AFFILIATION`.
 
 Cookie configuration
 
