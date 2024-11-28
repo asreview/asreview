@@ -155,7 +155,6 @@ def create_app(config_path=None):
             oauth=oauth_params,
         )
 
-
     @app.route("/", methods=["GET"])
     @app.route("/<path:url>", methods=["GET"])
     @login_remote_user

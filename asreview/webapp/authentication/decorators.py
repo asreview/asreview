@@ -34,6 +34,7 @@ from asreview.webapp.authentication.remote_user_handler import RemoteUserHandler
 
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
+
 def project_authorization(f):
     """Decorator function that checks if current user can access
     a project in an authenticated situation"""
@@ -90,23 +91,23 @@ def current_user_projects(f):
 
     return decorated_function
 
+
 def login_remote_user(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        remote_user_handler = current_app.config.get('REMOTE_USER', False)
+        remote_user_handler = current_app.config.get("REMOTE_USER", False)
 
         if isinstance(remote_user_handler, RemoteUserHandler):
             user_info = remote_user_handler.handle_request(request.headers)
 
-            if user_info['identifier']:
-                user = User.query.filter(User.identifier == user_info['identifier']).one_or_none()
+            if user_info["identifier"]:
+                user = User.query.filter(
+                    User.identifier == user_info["identifier"]
+                ).one_or_none()
                 if not user:
                     try:
                         user = User(
-                            **user_info, 
-                            origin='remote',
-                            public=True,
-                            confirmed=True
+                            **user_info, origin="remote", public=True, confirmed=True
                         )
                         DB.session.add(user)
                         DB.session.commit()
@@ -116,4 +117,5 @@ def login_remote_user(f):
 
                 login_user(user, remember=True, duration=datetime.timedelta(days=31))
         return f(*args, **kwargs)
+
     return decorated_function

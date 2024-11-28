@@ -143,6 +143,7 @@ def client_no_auth(asreview_path_fixture):
     with app.app_context():
         yield app.test_client()
 
+
 @pytest.fixture
 def client_remote_auth(asreview_path_fixture):
     """Flask client for remotely authenticated app, account
@@ -153,6 +154,7 @@ def client_remote_auth(asreview_path_fixture):
         crud.delete_everything(DB)
         close_all_sessions()
         DB.engine.raw_connection().close()
+
 
 @pytest.fixture(
     params=[

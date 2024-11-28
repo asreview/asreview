@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-class RemoteUserHandler:
 
+class RemoteUserHandler:
     default_headers = {
-        'USER_IDENTIFIER_HEADER': 'Remote-User',
-        'USER_NAME_HEADER': 'Remote-User-Name',
-        'USER_EMAIL_HEADER': 'Remote-User-Email',
-        'USER_AFFILIATION_HEADER': 'Remote-User-Affiliation',
-        'DEFAULT_EMAIL_DOMAIN': 'localhost',
-        'DEFAULT_AFFILIATION': '',
+        "USER_IDENTIFIER_HEADER": "Remote-User",
+        "USER_NAME_HEADER": "Remote-User-Name",
+        "USER_EMAIL_HEADER": "Remote-User-Email",
+        "USER_AFFILIATION_HEADER": "Remote-User-Affiliation",
+        "DEFAULT_EMAIL_DOMAIN": "localhost",
+        "DEFAULT_AFFILIATION": "",
     }
 
     def __init__(self, config={}):
@@ -30,15 +30,23 @@ class RemoteUserHandler:
     def handle_request(self, request):
         """Check the request headers and extract the configured headers,
         falling back to the use of default values."""
-        identifier = request.get(self.user_identifier_header, '')
+        identifier = request.get(self.user_identifier_header, "")
         identifier_parts = identifier.split("@")
-        username = identifier_parts[0] # if identifier is not an email address, this will be the whole identifier
+        username = identifier_parts[
+            0
+        ]  # if identifier is not an email address, this will be the whole identifier
 
-        default_email = identifier if len(identifier_parts) > 1 else f"{username}@{self.default_email_domain}"
+        default_email = (
+            identifier
+            if len(identifier_parts) > 1
+            else f"{username}@{self.default_email_domain}"
+        )
 
         return {
-            'identifier': identifier if identifier else None,
-            'name': request.get(self.user_name_header, username),
-            'email': request.get(self.user_email_header, default_email),
-            'affiliation': request.get(self.user_affiliation_header, self.default_affiliation),
+            "identifier": identifier if identifier else None,
+            "name": request.get(self.user_name_header, username),
+            "email": request.get(self.user_email_header, default_email),
+            "affiliation": request.get(
+                self.user_affiliation_header, self.default_affiliation
+            ),
         }
