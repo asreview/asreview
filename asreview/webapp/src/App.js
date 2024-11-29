@@ -52,6 +52,10 @@ const App = () => {
               <Route path="/signin" element={<AuthPage />} />
               <Route path="/oauth_callback" element={<SignInOAuthCallback />} />
               <Route
+                path="/enter_otp"
+                element={<AuthPage enter_otp={true} />}
+              />
+              <Route
                 path="/reset_password"
                 element={<AuthPage reset_password={true} />}
               />
