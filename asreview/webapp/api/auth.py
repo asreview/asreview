@@ -327,7 +327,7 @@ def forgot_password():
         result = (404, "Forgot-password feature is not used in this app.")
 
     status, message = result
-    response = jsonify({"message": message, "user_id": user_id })
+    response = jsonify({"message": message, "user_id": user_id})
     return response, status
 
 
@@ -348,7 +348,7 @@ def reset_password():
                 "User not found, try restarting the forgot-password procedure.",
             )
         elif not user.token_valid(token):
-            print('yeah')
+            print("yeah")
             result = (
                 404,
                 "Token is invalid or too old, restart the forgot-password procedure.",
