@@ -34,7 +34,7 @@ const SignupSchema = Yup.object().shape({
     .oneOf([Yup.ref("password"), null], "Passwords must match"),
 });
 
-const SignUpForm = ({ toggleSignUp }) => {
+const SignUpForm = () => {
   // Pass the useFormik() hook initial form values, a validate function that will be called when
   // form values change or fields are blurred, and a submit function that will
   // be called when the form is submitted
@@ -214,13 +214,6 @@ const SignUpForm = ({ toggleSignUp }) => {
       </CardContent>
       <CardActions>
         <Button
-          id="sign-in"
-          onClick={toggleSignUp}
-          sx={{ textTransform: "none" }}
-        >
-          Sign In instead
-        </Button>
-        <Button
           id="create-profile"
           variant="contained"
           color="primary"
@@ -228,6 +221,13 @@ const SignUpForm = ({ toggleSignUp }) => {
           disabled={!(formik.isValid && formik.dirty) || isLoading}
         >
           Create
+        </Button>
+        <Button
+          id="sign-in"
+          onClick={() => navigate("/signin")}
+          sx={{ textTransform: "none" }}
+        >
+          Sign In instead
         </Button>
       </CardActions>
     </>

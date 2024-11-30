@@ -162,6 +162,13 @@ const ResetPassword = () => {
         >
           Submit
         </Button>
+        <Button
+          id="signin"
+          onClick={() => navigate("/signin")}
+          sx={{ textTransform: "none" }}
+        >
+          Sign In instead
+        </Button>
       </CardActions>
       <Snackbar
         open={notification}

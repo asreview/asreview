@@ -98,7 +98,7 @@ const OTPForm = ({ allowAccountCreation, emailVerification, toggleSignUp }) => {
                       maxLength: 1,
                       style: {
                         textAlign: "center",
-                        fontSize: "1.5rem",
+                        fontSize: "2rem",
                         width: "3rem",
                         height: "3rem",
                       },

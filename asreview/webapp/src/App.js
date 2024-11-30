@@ -49,16 +49,29 @@ const App = () => {
           {/* Authentication routes */}
           {window.authentication && (
             <>
-              <Route path="/signin" element={<AuthPage />} />
+              <Route path="/signin" element={<AuthPage signIn={true} />} />
+              {window.allowAccountCreation && (
+                <Route path="/signup" element={<AuthPage signUp={true} />} />
+              )}
+              {window.emailVerification && (
+                <Route
+                  path="/forgot_password"
+                  element={<AuthPage forgotPassword={true} />}
+                />
+              )}
+              {window.emailVerification && (
+                <Route
+                  path="/reset_password"
+                  element={<AuthPage resetPassword={true} />}
+                />
+              )}
+              {window.emailVerification && (
+                <Route
+                  path="/change_email"
+                  element={<AuthPage changeEmail={true} />}
+                />
+              )}
               <Route path="/oauth_callback" element={<SignInOAuthCallback />} />
-              <Route
-                path="/enter_otp"
-                element={<AuthPage enter_otp={true} />}
-              />
-              <Route
-                path="/reset_password"
-                element={<AuthPage reset_password={true} />}
-              />
             </>
           )}
           <Route path="projects" element={<Navigate to="/reviews" />} />

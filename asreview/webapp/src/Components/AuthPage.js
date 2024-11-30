@@ -14,14 +14,19 @@ import {
   SignUpForm,
   ResetPassword,
   OTPForm,
+  ForgotPassword,
 } from "Components";
 import { useToggle } from "hooks/useToggle";
 
 import { WordMark } from "icons/WordMark";
 
-const AuthPage = ({ reset_password = false, enter_otp = false }) => {
-  const [signUp, toggleSignUp] = useToggle(false);
-
+const AuthPage = ({
+  signIn = false,
+  signUp = false,
+  changeEmail = false,
+  forgotPassword = false,
+  resetPassword = false,
+}) => {
   return (
     <Box
       display="flex"
@@ -57,24 +62,21 @@ const AuthPage = ({ reset_password = false, enter_otp = false }) => {
               </Stack>
             </CardContent>
 
-            {!enter_otp && !reset_password && signUp && (
-              <SignUpForm
-                // showNotification={window.emailVerification && showNotification}
-                toggleSignUp={toggleSignUp}
-              />
-            )}
+            {signUp && <SignUpForm />}
 
-            {!enter_otp && !reset_password && !signUp && (
+            {signIn && (
               <SignInForm
                 allowAccountCreation={window.allowAccountCreation}
                 emailVerification={window.emailVerification}
-                toggleSignUp={toggleSignUp}
+                //toggleSignUp={toggleSignUp}
               />
             )}
 
-            {reset_password && <ResetPassword />}
+            {forgotPassword && <ForgotPassword />}
 
-            {enter_otp && <OTPForm />}
+            {resetPassword && <ResetPassword />}
+
+            {changeEmail && <OTPForm />}
           </Card>
           <HelpPrivacyTermsButton />
         </Stack>

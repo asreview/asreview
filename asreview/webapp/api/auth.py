@@ -59,20 +59,16 @@ def perform_login_user(user):
 def send_forgot_password_email(user, request, cur_app):
     # do not send email in test environment
     if not cur_app.testing:
-        # get necessary information out of user object
+        # set name
         name = user.name or "ASReview user"
-        # get url of front-end
-        root_url = request.headers.get("Origin")
-        # create url that will be used in the email
-        url = f"{root_url}/reset_password?user_id={user.id}&token={user.token}"
         # create a mailer
         mailer = Mail(cur_app)
         # open templates as string and render
         root_path = Path(cur_app.root_path)
         with open(root_path / "templates" / "emails" / "forgot_password.html") as f:
-            html_text = render_template_string(f.read(), name=name, url=url)
+            html_text = render_template_string(f.read(), name=name, token=user.token)
         with open(root_path / "templates" / "emails" / "forgot_password.txt") as f:
-            txt_text = render_template_string(f.read(), name=name, url=url)
+            txt_text = render_template_string(f.read(), name=name, token=user.token)
         # create message
         msg = Message("ASReview: forgot password", recipients=[user.email])
         msg.body = txt_text

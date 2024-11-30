@@ -18,7 +18,6 @@ import re
 from pathlib import Path
 
 from flask_login import UserMixin
-from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import DateTime
