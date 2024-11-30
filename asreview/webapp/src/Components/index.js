@@ -11,7 +11,7 @@ export { default as InlineErrorHandler } from "./InlineErrorHandler";
 export { default as InteractionButtons } from "./InteractionButtons";
 export { default as LandingDrawerItems } from "./LandingDrawerItems";
 export { default as OpenInNewIconStyled } from "./OpenInNewIconStyled";
-export { default as OTPForm } from "./OTPForm";
+export { default as OTPFormField } from "./OTPFormField";
 export { default as PageWithDrawer } from "./PageWithDrawer";
 export { default as ProfilePopper } from "./ProfilePopper";
 export { default as ProjectDrawerItems } from "./ProjectDrawerItems";

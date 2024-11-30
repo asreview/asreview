@@ -13,7 +13,7 @@ import {
   SignInForm,
   SignUpForm,
   ResetPassword,
-  OTPForm,
+  OTPFormField,
   ForgotPassword,
 } from "Components";
 import { useToggle } from "hooks/useToggle";
@@ -76,7 +76,7 @@ const AuthPage = ({
 
             {resetPassword && <ResetPassword />}
 
-            {changeEmail && <OTPForm />}
+            {changeEmail && <OTPFormField />}
           </Card>
           <HelpPrivacyTermsButton />
         </Stack>

@@ -296,6 +296,7 @@ def forgot_password():
     if _has_email_configuration(current_app):
         # get email address from request
         email_address = request.form.get("email", "").strip()
+        user_id = None
 
         # check if email already exists
         user = User.query.filter(
@@ -316,6 +317,8 @@ def forgot_password():
                 send_forgot_password_email(user, request, current_app)
                 # result
                 result = (200, f"An email has been sent to {email_address}")
+                # user_id is safe to set
+                user_id = user.id
 
             except SQLAlchemyError as e:
                 DB.session.rollback()
@@ -324,7 +327,7 @@ def forgot_password():
         result = (404, "Forgot-password feature is not used in this app.")
 
     status, message = result
-    response = jsonify({"message": message})
+    response = jsonify({"message": message, "user_id": user_id })
     return response, status
 
 
@@ -337,12 +340,15 @@ def reset_password():
         user_id = request.form.get("user_id", "0").strip()
         user = User.query.filter(User.id == user_id).one_or_none()
 
+        print(user, token, user.token_valid(token))
+
         if not user:
             result = (
                 404,
                 "User not found, try restarting the forgot-password procedure.",
             )
-        elif not user.token_valid(token, max_hours=24):
+        elif not user.token_valid(token):
+            print('yeah')
             result = (
                 404,
                 "Token is invalid or too old, restart the forgot-password procedure.",

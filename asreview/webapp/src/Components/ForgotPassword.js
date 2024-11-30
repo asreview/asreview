@@ -18,7 +18,8 @@ const ForgotPassword = ({ showNotification }) => {
 
   const { isLoading, mutate, reset } = useMutation(AuthAPI.forgotPassword, {
     onSuccess: (data) => {
-      navigate("/reset_password");
+      let userId = data.user_id;
+      navigate(`/reset_password?user_id=${userId}`);
     },
     onError: (data) => {
       console.error("Forgot password error", data);
