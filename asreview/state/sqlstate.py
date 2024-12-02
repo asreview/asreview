@@ -60,8 +60,8 @@ class SQLiteState:
     of the review process, the ranking of the last model, and the changes in
     the decisions.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     fp: str, Path
         Path to the SQLite database file.
 
@@ -246,8 +246,8 @@ class SQLiteState:
         Save the ranking of the last iteration of the model, in the ranking
         order, so the record on row 0 is ranked first by the model.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         ranked_record_ids: list, numpy.ndarray
             A list of records ids in the order that they were ranked.
         classifier: str
@@ -278,8 +278,8 @@ class SQLiteState:
     def add_labeling_data(self, record_ids, labels, tags=None, user_id=None):
         """Add the data corresponding to a labeling action to the state file.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         record_ids: list, numpy.ndarray
             A list of ids of the labeled records as int.
         labels: list, numpy.ndarray
@@ -357,8 +357,8 @@ class SQLiteState:
         Get the top n instances from the pool according to the last ranking.
         Add the model data to the results table.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         n: int
             Number of instances. Default is 1.
         user_id: int
@@ -394,8 +394,8 @@ class SQLiteState:
     def get_results_record(self, record_id):
         """Get the data of a specific query from the results table.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         record_id: int
             Record id of which you want the data.
 
@@ -422,8 +422,8 @@ class SQLiteState:
         Most other get functions use this one, except some that use a direct
         SQL query for efficiency.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         columns: list, str
             List of columns names of the results table, or a string containing
             one column name.
@@ -517,8 +517,8 @@ class SQLiteState:
     def get_pending(self, user_id=None):
         """Get pending records from the results table.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         user_id: int
             User id of the user who labeled the records.
 
@@ -562,8 +562,8 @@ class SQLiteState:
     def update(self, record_id, label=None, tags=None):
         """Change the label or tag of an already labeled record.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         record_id: int
             Id of the record whose label should be changed.
         label: 0 / 1
@@ -595,8 +595,8 @@ class SQLiteState:
     def update_note(self, record_id, note=None):
         """Change the note of an already labeled or pending record.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         record_id: int
             Id of the record whose label should be changed.
         note: str
@@ -617,7 +617,7 @@ class SQLiteState:
     def delete_record_labeling_data(self, record_id):
         """Delete the labeling data for the given record id.
 
-        Arguments
+        Parameters
         ----------
         record_id : str
             Identifier of the record to delete.

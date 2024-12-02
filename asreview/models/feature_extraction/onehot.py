@@ -25,8 +25,8 @@ class OneHot(SKLearnAdapter):
     Use the standard OneHot feature extraction technique from `SKLearn
     <https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html>`__.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     lowercase: bool
         Convert all characters to lowercase before tokenizing.
     max_df: float

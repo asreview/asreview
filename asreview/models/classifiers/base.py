@@ -36,8 +36,8 @@ class BaseTrainClassifier(BaseModel):
     def fit(self, X, y):
         """Fit the model to the data.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         X: numpy.ndarray
             Feature matrix to fit.
         y: numpy.ndarray
@@ -48,8 +48,8 @@ class BaseTrainClassifier(BaseModel):
     def predict_proba(self, X):
         """Get the inclusion probability for each sample.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         X: numpy.ndarray
             Feature matrix to predict.
 

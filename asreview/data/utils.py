@@ -12,8 +12,8 @@ def duplicated(df, pid="doi"):
     on a persistent identifier (PID) such as the Digital Object Identifier
     (`DOI <https://www.doi.org/>`_).
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     df : pd.DataFrame or DataStore
         Dataframe containing columns 'title', 'abstract' and optionally a column
         containing identifiers of type `pid`.

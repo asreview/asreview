@@ -28,8 +28,8 @@ class UndersampleBalance(BaseBalance):
     This undersamples the data, leaving out irrelevant records so that the
     relevant and irrelevant records are in some particular ratio (closer to one).
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     ratio: float
         Undersampling ratio relevant to irrelevant. If for example we set a ratio of
         0.25, we would sample all the relevant and 4 times irrelevant.
@@ -47,8 +47,8 @@ class UndersampleBalance(BaseBalance):
     def sample(self, labeled_idx, y):
         """Resample the training data.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         labeled_idx: numpy.ndarray
             Training indices, that is all records that have been reviewed.
         y: numpy.ndarray

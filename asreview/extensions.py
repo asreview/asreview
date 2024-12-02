@@ -18,8 +18,8 @@ from importlib.metadata import entry_points as _entry_points
 def extensions(group):
     """Get the extension class from an entry point.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     group: str
         The group of the extension.
 
@@ -35,8 +35,8 @@ def extensions(group):
 def get_extension(group, name):
     """Get the extension class from an entry point.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     group: str
         The group of the extension.
     name: str
@@ -58,8 +58,8 @@ def get_extension(group, name):
 def load_extension(group, name):
     """Load the extension class from an entry point.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     group: str
         The group of the extension.
     name: str

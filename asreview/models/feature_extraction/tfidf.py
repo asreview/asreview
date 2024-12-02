@@ -29,8 +29,8 @@ class Tfidf(SKLearnAdapter):
     :class:`asreview.models.classifiers.NaiveBayesClassifier` and other fast
     training models (given that the features vectors are relatively wide).
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     ngram_max: int
         Can use up to ngrams up to ngram_max. For example in the case of
         ngram_max=2, monograms and bigrams could be used.

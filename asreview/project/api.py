@@ -191,8 +191,8 @@ class Project:
     def add_dataset(self, fp, dataset_id=None, file_writer=None):
         """Add a dataset to the project file.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         fp: str, Path
             Filepath to the dataset. It will be copied to the correct location in the
             project file.
@@ -279,8 +279,8 @@ class Project:
     def add_feature_matrix(self, feature_matrix, feature_model):
         """Add feature matrix to project file.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         feature_matrix: numpy.ndarray, scipy.sparse.csr.csr_matrix
             The feature matrix to add to the project file.
         feature_model: BaseFeatureExtraction
@@ -311,8 +311,8 @@ class Project:
     def get_feature_matrix(self, feature_model):
         """Get the feature matrix from the project file.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         feature_model : BaseFeatureExtraction
             Feature extraction class for which to get the matrix.
 
@@ -343,8 +343,8 @@ class Project:
     ):
         """Add new review metadata.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         review_id: str
             The review_id uuid4.
         settings: ReviewSettings
@@ -409,8 +409,8 @@ class Project:
     def update_review(self, review_id=None, settings=None, state=None, **kwargs):
         """Update review metadata.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         review_id: str
             The review_id uuid4. Default None, which is the
             first added review.
@@ -477,8 +477,8 @@ class Project:
 
         If no review_id is given, mark the first review as finished.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         review_id: str
             Identifier of the review to mark as finished.
         """
