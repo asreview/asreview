@@ -15,10 +15,10 @@
 
 class RemoteUserHandler:
     default_headers = {
-        "USER_IDENTIFIER_HEADER": "Remote-User",
-        "USER_NAME_HEADER": "Remote-User-Name",
-        "USER_EMAIL_HEADER": "Remote-User-Email",
-        "USER_AFFILIATION_HEADER": "Remote-User-Affiliation",
+        "USER_IDENTIFIER_HEADER": "REMOTE_USER",
+        "USER_NAME_HEADER": False,
+        "USER_EMAIL_HEADER": False,
+        "USER_AFFILIATION_HEADER": False,
         "DEFAULT_EMAIL_DOMAIN": "localhost",
         "DEFAULT_AFFILIATION": "",
     }
@@ -27,26 +27,25 @@ class RemoteUserHandler:
         for key, value in self.__class__.default_headers.items():
             self.__dict__[key.lower()] = config.get(key, value)
 
-    def handle_request(self, request):
-        """Check the request headers and extract the configured headers,
+    def handle_request(self, env_headers):
+        """Check the request"s environment headers and extract the configured headers,
         falling back to the use of default values."""
-        identifier = request.get(self.user_identifier_header, "")
+        identifier = env_headers.get(self.user_identifier_header, "")
         identifier_parts = identifier.split("@")
-        username = identifier_parts[
-            0
-        ]  # if identifier is not an email address, this will be the whole identifier
-
-        default_email = (
-            identifier
-            if len(identifier_parts) > 1
-            else f"{username}@{self.default_email_domain}"
-        )
+        username = identifier_parts[0] # if identifier is not an email address, this will be the whole identifier
+        
+        email = env_headers.get(self.user_email_header, False)
+        # if email was not explicitly set:
+        # check if identifier contained an "@", and use it as email address
+        # else create email using the username and default email domain
+        if not email and len(identifier_parts) > 1:
+            email = identifier
+        elif not email:
+            email = f"{username}@{self.default_email_domain}"
 
         return {
             "identifier": identifier if identifier else None,
-            "name": request.get(self.user_name_header, username),
-            "email": request.get(self.user_email_header, default_email),
-            "affiliation": request.get(
-                self.user_affiliation_header, self.default_affiliation
-            ),
+            "name": env_headers.get(self.user_name_header, username),
+            "email": email,
+            "affiliation": env_headers.get(self.user_affiliation_header, self.default_affiliation),
         }

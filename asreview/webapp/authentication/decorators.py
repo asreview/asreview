@@ -98,7 +98,7 @@ def login_remote_user(f):
         remote_user_handler = current_app.config.get("REMOTE_USER", False)
 
         if isinstance(remote_user_handler, RemoteUserHandler):
-            user_info = remote_user_handler.handle_request(request.headers)
+            user_info = remote_user_handler.handle_request(request.environ)
 
             if user_info["identifier"]:
                 user = User.query.filter(

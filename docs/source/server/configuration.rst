@@ -164,13 +164,23 @@ not properly configured, ASReview will be improperly secured.
 Use the `REMOTE_USER` option to enable this form of authentication handling. This is a `dict`
 in which you can configure which headers ASReview will attempt to read user information from.
 
+The default is simply:
+
 .. code-block::  toml
   [REMOTE_USER]
-  USER_IDENTIFIER_HEADER = 'My-User-Identifier-Header' # Header containing user's name or email
-  USER_EMAIL_HEADER = 'My-User-Name-Header' # Header containing user's full name
-  USER_EMAIL_HEADER = 'My-User-Email-Header' # Header containing user's name (if not given in the USER_IDENTIFIER_HEADER)
-  USER_AFFILIATION_HEADER = 'My-User-Affiliation-Header' # Header containing user's affiliation
-  DEFAULT_AFFILIATION = '' # Default affiliation if no header is set
+  USER_IDENTIFIER_HEADER = 'REMOTE_USER' # The primary header identifying the user. Can be use a username or email.
+
+However, you can set some additional options. **It is imperative that any of the headers you
+configure here are set by your middleware.** Otherwise, any user will be able to pass arbitrary values.
+
+Example with optional values:
+
+.. code-block::  toml
+  [REMOTE_USER]
+  USER_EMAIL_HEADER = 'REMOTE_USER_EMAIL' # Header containing user's email. If not set, will default to 1. USER_IDENTIFIER_HEADER (if it is an email) 2. <username>@<DEFAULT_EMAIL_DOMAIN>.
+  USER_NAME_HEADER = 'REMOTE_USER_FULLNAME' # Header containing user's full name. If not set, user's name will be set to the username inferred from the identifier.
+  USER_AFFILIATION_HEADER = 'REMOTE_USER_AFFILIATION' # Header containing user's affiliation.
+  DEFAULT_AFFILIATION = '' # Default affiliation if no header is set.
   DEFAULT_EMAIL_DOMAIN = 'localhost' # If no email header is set and USER_IDENTIFIER_HEADER is not an email, use this as a default domain. The user's email will be set to: <username>@<default_email_domain>
 
 Full configuration

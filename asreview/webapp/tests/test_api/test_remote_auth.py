@@ -27,7 +27,7 @@ def test_login_with_header(client_remote_auth, uri):
 
     def get_uri(path):
         return client_remote_auth.get(
-            uri, follow_redirects=True, headers=custom_headers
+            uri, follow_redirects=True, **custom_headers
         )
 
     def find_user(identifier):
@@ -59,7 +59,7 @@ def test_api_returns_401_without_header(client_remote_auth):
 def test_api_returns_user_with_header(client_remote_auth):
     custom_headers = custom_remote_auth_headers(identifier="foo@dev.bar")
 
-    r = client_remote_auth.get("/auth/user", headers=custom_headers)
+    r = client_remote_auth.get("/auth/user", **custom_headers)
     user_info = r.get_json()
     assert user_info["id"] == 1
     assert user_info["name"] == "foo"
