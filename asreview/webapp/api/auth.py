@@ -340,7 +340,7 @@ def forgot_password():
         result = (404, "Forgot-password feature is not used in this app.")
 
     status, message = result
-    response = jsonify({"message": message, "user_id": user_id })
+    response = jsonify({"message": message, "user_id": user_id})
     return response, status
 
 
