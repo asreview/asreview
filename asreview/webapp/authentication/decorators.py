@@ -108,7 +108,10 @@ def login_remote_user(f):
                     if not user:
                         try:
                             user = User(
-                                **user_info, origin="remote", public=True, confirmed=True
+                                **user_info,
+                                origin="remote",
+                                public=True,
+                                confirmed=True,
                             )
                             DB.session.add(user)
                             DB.session.commit()
@@ -116,7 +119,9 @@ def login_remote_user(f):
                             DB.session.rollback()
                             error_500(e)
 
-                    login_user(user, remember=True, duration=datetime.timedelta(days=31))
+                    login_user(
+                        user, remember=True, duration=datetime.timedelta(days=31)
+                    )
         return f(*args, **kwargs)
 
     return decorated_function
