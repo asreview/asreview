@@ -56,7 +56,7 @@ def perform_login_user(user):
 
 
 # TODO: not sure if this file is the right place for this function
-def send_forgot_password_email(user, request, cur_app):
+def send_forgot_password_email(user, cur_app):
     # do not send email in test environment
     if not cur_app.testing:
         # set name
@@ -77,23 +77,29 @@ def send_forgot_password_email(user, request, cur_app):
 
 
 # TODO: not sure if this file is the right place for this function
-def send_confirm_account_email(user, request, cur_app):
+def send_confirm_account_email(user, cur_app, email_type="create"):
     # do not send email in test environment
     if not cur_app.testing:
         # get necessary information out of user object
         name = user.name or "ASReview user"
-        # get url of front-end
-        root_url = request.headers.get("Origin")
-        # create url that will be used in the email
-        url = f"{root_url}/confirm_account?user_id={user.id}&token={user.token}"
         # create a mailer
         mailer = Mail(cur_app)
         # open templates as string and render
         root_path = Path(cur_app.root_path)
         with open(root_path / "templates" / "emails" / "confirm_account.html") as f:
-            html_text = render_template_string(f.read(), name=name, url=url)
+            html_text = render_template_string(
+                f.read(),
+                name=name,
+                token=user.token,
+                email_type=email_type
+            )
         with open(root_path / "templates" / "emails" / "confirm_account.txt") as f:
-            txt_text = render_template_string(f.read(), name=name, url=url)
+            txt_text = render_template_string(
+                f.read(),
+                name=name,
+                token=user.token,
+                email_type=email_type
+            )
         # create message
         msg = Message("ASReview: please confirm your account", recipients=[user.email])
         msg.body = txt_text
@@ -158,6 +164,7 @@ def signin():
 
 @bp.route("/signup", methods=["POST"])
 def signup():
+    user_id = None
     # Can we create accounts?
     if current_app.config.get("ALLOW_ACCOUNT_CREATION", False):
         email = request.form.get("email", "").strip()
@@ -202,12 +209,14 @@ def signup():
                 # store user
                 DB.session.add(user)
                 DB.session.commit()
+                # set user id
+                user_id = user.id
                 # at this stage, if all went well, the User account is
                 # stored in the database, send the verification email
                 # if applicable
                 if email_verification:
                     # send email
-                    send_confirm_account_email(user, request, current_app)
+                    send_confirm_account_email(user, current_app, "create")
                     # result
                     result = (
                         201,
@@ -229,11 +238,11 @@ def signup():
         result = (400, "The app is not configured to create accounts")
 
     (status, message) = result
-    response = jsonify({"message": message})
+    response = jsonify({"message": message, "user_id": user_id})
     return response, status
 
 
-@bp.route("/confirm_account", methods=["GET"])
+@bp.route("/confirm_account", methods=["POST"])
 def confirm_account():
     """Confirms account with email verification"""
     # https://realpython.com/handling-email-confirmation-in-flask/#handle-email-confirmation
@@ -250,21 +259,25 @@ def confirm_account():
     ).one_or_none()
 
     if not user:
-        return "No user account / correct token found.", 404
-    elif not user.token_valid(token, max_hours=24):
+        result = (404, "No user account / correct token found.")
+    elif not user.token_valid(token):
         message = (
             "Can not confirm account, token has expired. "
             + 'Use "forgot password" to obtain a new one.'
         )
-        return message, 403
+        result = (403, message)
     else:
         user = user.confirm_user()
         try:
             DB.session.commit()
+            result = (200, "Account confirmed")
         except SQLAlchemyError:
             DB.session.rollback()
-
-    return redirect("/reviews"), 200
+            result = (500, "Account not confirmed")
+        
+    status, message = result
+    response = jsonify({"message": message})
+    return response, status
 
 
 @bp.route("/get_profile", methods=["GET"])
@@ -314,7 +327,7 @@ def forgot_password():
                 # store data
                 DB.session.commit()
                 # send email
-                send_forgot_password_email(user, request, current_app)
+                send_forgot_password_email(user, current_app)
                 # result
                 result = (200, f"An email has been sent to {email_address}")
                 # user_id is safe to set
@@ -340,15 +353,12 @@ def reset_password():
         user_id = request.form.get("user_id", "0").strip()
         user = User.query.filter(User.id == user_id).one_or_none()
 
-        print(user, token, user.token_valid(token))
-
         if not user:
             result = (
                 404,
                 "User not found, try restarting the forgot-password procedure.",
             )
         elif not user.token_valid(token):
-            print('yeah')
             result = (
                 404,
                 "Token is invalid or too old, restart the forgot-password procedure.",
@@ -377,6 +387,8 @@ def reset_password():
 def update_profile():
     """Update user profile"""
     user = User.query.filter(User.id == current_user.id).one_or_none()
+    old_email = user.email
+
     if user:
         email = request.form.get("email", "").strip()
         name = request.form.get("name", "").strip()
@@ -390,8 +402,23 @@ def update_profile():
                 email, name, affiliation, old_password, new_password, public
             )
             DB.session.commit()
-            result = (200, "User profile updated.")
+            if email != old_email and user.origin == "asreview"  and \
+                current_app.config.get("EMAIL_VERIFICATION", False):
+                # send email
+                send_confirm_account_email(user, current_app, "change_email")
+                # email has been changed and we verify email
+                message = "User profile updated, but new email address needs verification."
+                result = (
+                    200, {
+                        "message": message,
+                        "email_changed": True,
+                        "user_id": user.id
+                    }
+                )
+            else:
+                result = (200, "User profile updated.")
         except ValueError as e:
+            DB.session.rollback()
             result = (400, f"Unable to update your profile! Reason: {str(e)}")
         except IntegrityError as e:
             DB.session.rollback()
@@ -404,7 +431,9 @@ def update_profile():
         result = (404, "No user found")
 
     status, message = result
-    response = jsonify({"message": message})
+    if isinstance(message, str):
+        message = {"message": message}
+    response = jsonify(message)
     return response, status
 
 

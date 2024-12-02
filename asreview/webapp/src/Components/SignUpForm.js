@@ -57,13 +57,14 @@ const SignUpForm = () => {
   });
 
   const { error, isError, mutate, isLoading } = useMutation(BaseAPI.signup, {
-    onSuccess: () => {
+    onSuccess: (data) => {
       // let email = formik.values.email;
       formik.setValues(initialValues, false);
       // if (typeof showNotification === "function") {
       //   showNotification(`A confirmation email has been sent to ${email}.`);
       // }
-      navigate("/signin");
+      let userId = data.user_id;
+      navigate(`/confirm_account?user_id=${userId}`);
     },
   });
 

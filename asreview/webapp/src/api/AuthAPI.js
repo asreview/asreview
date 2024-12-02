@@ -117,8 +117,8 @@ class AuthAPI {
 
   static updateProfile(variables) {
     let body = new FormData();
-    body.set("old_password", variables.oldPassword);
-    body.set("new_password", variables.newPassword);
+    body.set("old_password", variables.oldPassword ?? "");
+    body.set("new_password", variables.newPassword ?? "");
     body.set("name", variables.name);
     body.set("affiliation", variables.affiliation);
     body.set("email", variables.email);
@@ -148,6 +148,27 @@ class AuthAPI {
     body.set("user_id", variables.userId);
 
     const url = auth_url + `reset_password`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: body,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static confirmAccount(variables) {
+    let body = new FormData();
+    body.set("token", variables.token);
+    body.set("user_id", variables.userId);
+
+    const url = auth_url + `confirm_account`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",

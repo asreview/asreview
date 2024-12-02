@@ -54,22 +54,22 @@ const App = () => {
                 <Route path="/signup" element={<AuthPage signUp={true} />} />
               )}
               {window.emailVerification && (
-                <Route
-                  path="/forgot_password"
-                  element={<AuthPage forgotPassword={true} />}
-                />
-              )}
-              {window.emailVerification && (
-                <Route
-                  path="/reset_password"
-                  element={<AuthPage resetPassword={true} />}
-                />
-              )}
-              {window.emailVerification && (
-                <Route
-                  path="/change_email"
-                  element={<AuthPage changeEmail={true} />}
-                />
+                <>
+                  <Route
+                    path="/forgot_password"
+                    element={<AuthPage forgotPassword={true} />}
+                  />
+                  <Route
+                    path="/reset_password"
+                    element={<AuthPage resetPassword={true} />}
+                  />
+                  {window.allowAccountCreation && (
+                    <Route
+                      path="/confirm_account"
+                      element={<AuthPage confirmAccount={true} />}
+                    />
+                  )}
+                </>
               )}
               <Route path="/oauth_callback" element={<SignInOAuthCallback />} />
             </>

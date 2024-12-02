@@ -9,23 +9,22 @@ import {
 } from "@mui/material";
 
 import {
+  ForgotPassword,
+  ConfirmAccount,
   HelpPrivacyTermsButton,
   SignInForm,
   SignUpForm,
   ResetPassword,
-  OTPFormField,
-  ForgotPassword,
 } from "Components";
-import { useToggle } from "hooks/useToggle";
 
 import { WordMark } from "icons/WordMark";
 
 const AuthPage = ({
   signIn = false,
   signUp = false,
-  changeEmail = false,
   forgotPassword = false,
   resetPassword = false,
+  confirmAccount = false,
 }) => {
   return (
     <Box
@@ -68,15 +67,14 @@ const AuthPage = ({
               <SignInForm
                 allowAccountCreation={window.allowAccountCreation}
                 emailVerification={window.emailVerification}
-                //toggleSignUp={toggleSignUp}
               />
             )}
+
+            {confirmAccount && <ConfirmAccount />}
 
             {forgotPassword && <ForgotPassword />}
 
             {resetPassword && <ResetPassword />}
-
-            {changeEmail && <OTPFormField />}
           </Card>
           <HelpPrivacyTermsButton />
         </Stack>

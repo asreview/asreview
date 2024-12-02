@@ -122,7 +122,7 @@ class User(UserMixin, DB.Model):
         affiliation,
         old_password=None,
         new_password=None,
-        public=True,
+        public=True
     ):
         # if there is a request to update the password, and the origin
         # is correct
@@ -134,6 +134,10 @@ class User(UserMixin, DB.Model):
                 # old password is verified. The following line will raise
                 # a ValueError if the new password is wrong
                 self.hashed_password = User.create_password_hash(new_password)
+
+        if self.email != email:
+            self.set_token()
+            self.confirmed = False
 
         self.email = email
         self.name = name
