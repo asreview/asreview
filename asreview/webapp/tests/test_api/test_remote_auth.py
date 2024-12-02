@@ -26,9 +26,7 @@ def test_login_with_header(client_remote_auth, uri):
     custom_headers = custom_remote_auth_headers(identifier=user_identifier)
 
     def get_uri(path):
-        return client_remote_auth.get(
-            uri, follow_redirects=True, **custom_headers
-        )
+        return client_remote_auth.get(uri, follow_redirects=True, **custom_headers)
 
     def find_user(identifier):
         return User.query.filter(User.identifier == identifier).one_or_none()

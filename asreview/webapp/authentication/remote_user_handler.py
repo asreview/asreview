@@ -32,8 +32,10 @@ class RemoteUserHandler:
         falling back to the use of default values."""
         identifier = env_headers.get(self.user_identifier_header, "")
         identifier_parts = identifier.split("@")
-        username = identifier_parts[0] # if identifier is not an email address, this will be the whole identifier
-        
+        username = identifier_parts[
+            0
+        ]  # if identifier is not an email address, this will be the whole identifier
+
         email = env_headers.get(self.user_email_header, False)
         # if email was not explicitly set:
         # check if identifier contained an "@", and use it as email address
@@ -47,5 +49,7 @@ class RemoteUserHandler:
             "identifier": identifier if identifier else None,
             "name": env_headers.get(self.user_name_header, username),
             "email": email,
-            "affiliation": env_headers.get(self.user_affiliation_header, self.default_affiliation),
+            "affiliation": env_headers.get(
+                self.user_affiliation_header, self.default_affiliation
+            ),
         }
