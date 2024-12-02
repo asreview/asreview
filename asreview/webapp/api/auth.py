@@ -88,17 +88,11 @@ def send_confirm_account_email(user, cur_app, email_type="create"):
         root_path = Path(cur_app.root_path)
         with open(root_path / "templates" / "emails" / "confirm_account.html") as f:
             html_text = render_template_string(
-                f.read(),
-                name=name,
-                token=user.token,
-                email_type=email_type
+                f.read(), name=name, token=user.token, email_type=email_type
             )
         with open(root_path / "templates" / "emails" / "confirm_account.txt") as f:
             txt_text = render_template_string(
-                f.read(),
-                name=name,
-                token=user.token,
-                email_type=email_type
+                f.read(), name=name, token=user.token, email_type=email_type
             )
         # create message
         msg = Message("ASReview: please confirm your account", recipients=[user.email])
@@ -274,7 +268,7 @@ def confirm_account():
         except SQLAlchemyError:
             DB.session.rollback()
             result = (500, "Account not confirmed")
-        
+
     status, message = result
     response = jsonify({"message": message})
     return response, status
@@ -402,18 +396,20 @@ def update_profile():
                 email, name, affiliation, old_password, new_password, public
             )
             DB.session.commit()
-            if email != old_email and user.origin == "asreview"  and \
-                current_app.config.get("EMAIL_VERIFICATION", False):
+            if (
+                email != old_email
+                and user.origin == "asreview"
+                and current_app.config.get("EMAIL_VERIFICATION", False)
+            ):
                 # send email
                 send_confirm_account_email(user, current_app, "change_email")
                 # email has been changed and we verify email
-                message = "User profile updated, but new email address needs verification."
+                message = (
+                    "User profile updated, but new email address needs verification."
+                )
                 result = (
-                    200, {
-                        "message": message,
-                        "email_changed": True,
-                        "user_id": user.id
-                    }
+                    200,
+                    {"message": message, "email_changed": True, "user_id": user.id},
                 )
             else:
                 result = (200, "User profile updated.")

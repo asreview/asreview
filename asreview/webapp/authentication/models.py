@@ -122,7 +122,7 @@ class User(UserMixin, DB.Model):
         affiliation,
         old_password=None,
         new_password=None,
-        public=True
+        public=True,
     ):
         # if there is a request to update the password, and the origin
         # is correct
