@@ -32,10 +32,10 @@ def test_login_with_header(client_remote_auth, uri):
         return User.query.filter(User.identifier == identifier).one_or_none()
 
     user = find_user(user_identifier)
-    assert user == None
+    assert user is None
 
-    with pytest.raises(TemplateNotFound) as e:
-        r = get_uri(uri)
+    with pytest.raises(TemplateNotFound):
+        get_uri(uri)
 
     user = find_user(user_identifier)
     assert user
