@@ -95,27 +95,28 @@ def current_user_projects(f):
 def login_remote_user(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        remote_user_handler = current_app.config.get("REMOTE_USER", False)
+        if not current_user.is_authenticated:
+            remote_user_handler = current_app.config.get("REMOTE_USER", False)
 
-        if isinstance(remote_user_handler, RemoteUserHandler):
-            user_info = remote_user_handler.handle_request(request.environ)
+            if isinstance(remote_user_handler, RemoteUserHandler):
+                user_info = remote_user_handler.handle_request(request.environ)
 
-            if user_info["identifier"]:
-                user = User.query.filter(
-                    User.identifier == user_info["identifier"]
-                ).one_or_none()
-                if not user:
-                    try:
-                        user = User(
-                            **user_info, origin="remote", public=True, confirmed=True
-                        )
-                        DB.session.add(user)
-                        DB.session.commit()
-                    except (IntegrityError, SQLAlchemyError) as e:
-                        DB.session.rollback()
-                        error_500(e)
+                if user_info["identifier"]:
+                    user = User.query.filter(
+                        User.identifier == user_info["identifier"]
+                    ).one_or_none()
+                    if not user:
+                        try:
+                            user = User(
+                                **user_info, origin="remote", public=True, confirmed=True
+                            )
+                            DB.session.add(user)
+                            DB.session.commit()
+                        except (IntegrityError, SQLAlchemyError) as e:
+                            DB.session.rollback()
+                            error_500(e)
 
-                login_user(user, remember=True, duration=datetime.timedelta(days=31))
+                    login_user(user, remember=True, duration=datetime.timedelta(days=31))
         return f(*args, **kwargs)
 
     return decorated_function
