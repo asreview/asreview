@@ -45,7 +45,7 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
               <Typography variant="h5" fontFamily="Roboto Serif">
                 {group.description}
               </Typography>
-              <Grid container spacing={4} columns={6}>
+              <Grid container spacing={2} columns={6}>
                 {group.datasets.map((dataset, index) => (
                   <Grid
                     size={{ xs: 6, sm: 3, md: 2 }}

@@ -12,18 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
-
 import numpy as np
 
 
-def loss(labels: List[int]):
+def loss(labels: list[int]):
+    """Compute the loss of the labels.
+
+    arguments
+    ---------
+    labels: list
+        List of labels.
+
+    Returns
+    -------
+    float:
+        The loss of the labels.
+    """
     Ny = sum(labels)
     Nx = len(labels)
     if Ny == 0 or Nx == Ny:
         raise ValueError("Labels must contain two distinct classes.")
-    else:
-        loss = float(
-            (Ny * (Nx - (Ny - 1) / 2) - np.cumsum(labels).sum()) / (Ny * (Nx - Ny))
-        )
-    return loss
+    return float(
+        (Ny * (Nx - (Ny - 1) / 2) - np.cumsum(labels).sum()) / (Ny * (Nx - Ny))
+    )
