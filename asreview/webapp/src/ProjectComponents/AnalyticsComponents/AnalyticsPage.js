@@ -109,7 +109,8 @@ const AnalyticsPage = () => {
             <Typography
               sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }}
             >
-              {progressQuery.data.n_records} records in total
+              {progressQuery.data && progressQuery.data.n_records} records in
+              total
             </Typography>
           </Box>
         </Fade>
