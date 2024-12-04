@@ -369,25 +369,32 @@ class SQLiteState:
         list
             List of record_ids of the top n ranked records.
         """
-        top_n_records = self.get_pool()[:n].to_list()
-        record_list = [(user_id, record_id) for record_id in top_n_records]
 
         con = self._conn
         cur = con.cursor()
-        cur.executemany(
+        cur.execute(
             """INSERT INTO results (record_id, classifier, query_strategy,
             balance_strategy, feature_extraction, training_set, user_id)
             SELECT record_id, classifier, query_strategy,
             balance_strategy, feature_extraction, training_set, ? AS user_id
-            FROM last_ranking
-            WHERE record_id=?""",
-            record_list,
+            FROM (
+                SELECT last_ranking.*
+                FROM last_ranking
+                LEFT JOIN results
+                USING (record_id)
+                WHERE results.record_id is null
+                ORDER BY ranking
+                LIMIT ?
+            )""",
+            (
+                user_id,
+                n,
+            ),
         )
+        con.commit()
 
         if cur.rowcount != n:
-            raise ValueError("Failed to query top ranked records.")
-
-        con.commit()
+            raise ValueError("Failed to query top ranked records")
 
         return self.get_pending(user_id=user_id)
 
