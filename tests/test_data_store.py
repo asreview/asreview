@@ -176,6 +176,14 @@ def test_label_validation(store):
         store.add_records([Record(dataset_id="foo", dataset_row=4, included="1")])
 
 
+def test_delete_record(store):
+    record = Record(dataset_id="foo", dataset_row=1)
+    store.add_records([record])
+    assert len(store) == 1
+    store.delete_record(record.record_id)
+    assert len(store) == 0
+
+
 def test_duplicate_of(store):
     record = Record(dataset_id="foo", dataset_row=1)
     store.add_records([record])
@@ -189,3 +197,5 @@ def test_duplicate_of(store):
     )
     with pytest.raises(IntegrityError):
         store.add_records([broken_duplicate_record])
+
+    store
