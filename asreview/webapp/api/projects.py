@@ -18,6 +18,7 @@ import shutil
 import socket
 import tempfile
 import time
+import math
 from dataclasses import asdict
 from dataclasses import replace
 from pathlib import Path
@@ -523,8 +524,7 @@ def api_get_labeled(project):  # noqa: F401
         state_data = state_data.iloc[::-1]
 
     # count labeled records and max pages
-    count = len(state_data)
-    if count == 0:
+    if len(state_data) == 0:
         payload = {
             "count": 0,
             "next_page": None,
@@ -533,34 +533,40 @@ def api_get_labeled(project):  # noqa: F401
         }
         return jsonify(payload)
 
-    max_page_calc = divmod(count, per_page)
-    if max_page_calc[1] == 0:
-        max_page = max_page_calc[0]
-    else:
-        max_page = max_page_calc[0] + 1
+    max_page = math.ceil(len(state_data) / per_page)
 
     if page is not None:
-        # slice out records on specific page
-        if page <= max_page:
-            idx_start = page * per_page - per_page
-            idx_end = page * per_page
-            state_data = state_data.iloc[idx_start:idx_end, :].copy()
-        else:
+        if page > max_page:
             return abort(404)
 
-        # set next & previous page
-        if page < max_page:
-            next_page = page + 1
-            if page > 1:
-                previous_page = page - 1
-            else:
-                previous_page = None
-        else:
-            next_page = None
-            previous_page = page - 1
+        idx_start = (page - 1) * per_page
+        idx_end = page * per_page
+        state_data = state_data.iloc[idx_start:idx_end].copy()
+
+        next_page = page + 1 if page < max_page else None
+        previous_page = page - 1 if page > 1 else None
     else:
         next_page = None
         previous_page = None
+
+    if not current_app.config.get("LOGIN_DISABLED", False):
+        project_entry = Project.query.filter(
+            Project.project_id == project.project_id
+        ).one_or_none()
+        users = {
+            **{
+                u.id: {**u.summarize(), "owner": False}
+                for u in project_entry.collaborators
+            },
+            project_entry.owner.id: {**project_entry.owner.summarize(), "owner": True},
+        }
+        print(users)
+        users = {
+            i: {**u, "current_user": current_user.id == u["id"]}
+            for i, u in users.items()
+        }
+
+        print(users)
 
     records = project.data_store.get_records(state_data["record_id"].to_list())
     result = []
@@ -569,11 +575,18 @@ def api_get_labeled(project):  # noqa: F401
         record_d["state"] = state.to_dict()
         record_d["state"]["labeling_time"] = str(record_d["state"]["labeling_time"])
         record_d["tags_form"] = project.config.get("tags", None)
+
+        if not current_app.config.get("LOGIN_DISABLED", False):
+            record_d["state"]["user"] = users.get(record_d["state"]["user_id"], None)
+        else:
+            record_d["state"]["user"] = None
+
+        del record_d["state"]["user_id"]
         result.append(record_d)
 
     return jsonify(
         {
-            "count": count,
+            "count": len(state_data),
             "next_page": next_page,
             "previous_page": previous_page,
             "result": result,
@@ -1230,6 +1243,8 @@ def api_label_record(project, record_id):  # noqa: F401
         item["state"] = record.iloc[0].to_dict()
         item["state"]["labeling_time"] = str(item["state"]["labeling_time"])
         item["tags_form"] = project.config.get("tags", None)
+        item["state"]["user"] = None
+        del item["state"]["user_id"]
 
         return jsonify({"result": item})
 
@@ -1251,7 +1266,7 @@ def api_update_note(project, record_id):  # noqa: F401
 @login_required
 @project_authorization
 def api_get_document(project):  # noqa: F401
-    """Retrieve record in order of review."""
+    """Retrieve unlabeled record in order of review."""
 
     user_id = (
         None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
@@ -1278,6 +1293,8 @@ def api_get_document(project):  # noqa: F401
     item["state"] = pending.iloc[0].to_dict()
     item["state"]["labeling_time"] = str(item["state"]["labeling_time"])
     item["tags_form"] = project.config.get("tags", None)
+    item["state"]["user"] = None
+    del item["state"]["user_id"]
 
     try:
         item["error"] = project.get_review_error()
