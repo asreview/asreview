@@ -19,41 +19,29 @@ REQUESTER_FRAUD = {"message": "Request can not made by current user."}
 @login_required
 def users(project_id):
     """Returns all users involved in a project."""
-    response = jsonify(REQUESTER_FRAUD), 404
 
-    # get project
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
 
-    # check if this project is in fact from current user
-    if project in current_user.projects:
-        # get associated users from project
-        collaborators = project.collaborators
-        invitations = project.pending_invitations
+    if project not in current_user.projects:
+        return jsonify(REQUESTER_FRAUD), 404
 
-        # get all users that are involved (invited or collaborators)
-        collaborators = [user.id for user in collaborators]
-        invitations = [user.id for user in invitations]
+    all_users = [
+        u.summarize()
+        for u in User.query.filter(and_(User.public, User.id != current_user.id))
+        .order_by("name")
+        .all()
+    ]
 
-        # get all users minus myself
-        all_users = [
-            u.summarize()
-            for u in User.query.filter(and_(User.public, User.id != current_user.id))
-            .order_by("name")
-            .all()
-        ]
-
-        # response
-        response = (
-            jsonify(
-                {
-                    "all_users": all_users,
-                    "collaborators": collaborators,
-                    "invitations": invitations,
-                }
-            ),
-            200,
-        )
-    return response
+    return (
+        jsonify(
+            {
+                "all_users": all_users,
+                "collaborators": [user.id for user in project.collaborators],
+                "invitations": [user.id for user in project.pending_invitations],
+            }
+        ),
+        200,
+    )
 
 
 @bp.route("/projects/<project_id>/users/<user_id>", methods=["DELETE"])

@@ -19,7 +19,7 @@ import DatasetChart from "ProjectComponents/AnalyticsComponents/DatasetChart";
 const DatasetCard = ({
   project_id,
   dataset_path,
-  setDataset,
+  onResetDataset,
   hideLabeledInfo = false,
 }) => {
   const {
@@ -39,16 +39,14 @@ const DatasetCard = ({
     ProjectAPI.mutateDeleteProject,
     {
       mutationKey: ["mutateDeleteProject"],
-      onSuccess: () => {
-        setDataset(null);
-      },
+      onSuccess: onResetDataset,
     },
   );
 
   return (
     <Card>
       <CardHeader
-        title={isFetchingData ? <Skeleton width="30%" /> : "Your dataset"}
+        title={isFetchingData ? <Skeleton width="30%" /> : "Dataset"}
         subheader={
           <>
             {isFetchingData ? (

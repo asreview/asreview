@@ -186,6 +186,7 @@ const RecordCard = ({
               retrainAfterDecision={retrainAfterDecision}
               note={record.state?.note}
               labelTime={record.state?.time}
+              user={record.state?.user}
               showNotes={showNotes}
               tagsForm={record.tags_form}
               tagValues={record.state?.tags}

@@ -56,6 +56,13 @@ const timeAgo = new TimeAgo("en-US");
 //   },
 // }));
 
+const formatUser = (user) => {
+  if (user?.current_user) {
+    return "by you";
+  }
+  return `by ${user.name}`;
+};
+
 const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
   const [noteState, setNoteState] = React.useState(note);
 
@@ -361,7 +368,7 @@ const RecordCardLabeler = ({
               {label === 0 && <Chip label="Not relevant" color="primary" />}
               <Typography variant="secondary">
                 {timeAgo.format(new Date(labelTime * 1000))}{" "}
-                {user && "by " + user}
+                {user && formatUser(user)}
               </Typography>
             </>
           )}
