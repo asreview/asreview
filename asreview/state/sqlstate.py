@@ -14,7 +14,7 @@
 
 import json
 import sqlite3
-from datetime import datetime
+import time
 
 import pandas as pd
 
@@ -33,7 +33,7 @@ RESULTS_TABLE_COLUMNS_PANDAS_DTYPES = {
     "balance_strategy": "object",
     "feature_extraction": "object",
     "training_set": "Int64",
-    "labeling_time": None,  # parse_dates=["labeling_time"]
+    "time": "Float64",
     "note": "object",
     "tags": "object",
     "user_id": "Int64",
@@ -47,7 +47,7 @@ RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
     "balance_strategy": "object",
     "feature_extraction": "object",
     "training_set": "Int64",
-    "time": "object",
+    "time": "Float64",
 }
 
 CURRENT_STATE_VERSION = 2
@@ -108,7 +108,7 @@ class SQLiteState:
                             balance_strategy TEXT,
                             feature_extraction TEXT,
                             training_set INTEGER,
-                            labeling_time TEXT,
+                            time FLOAT,
                             note TEXT,
                             tags JSON,
                             user_id INTEGER)"""
@@ -123,14 +123,14 @@ class SQLiteState:
                             balance_strategy TEXT,
                             feature_extraction TEXT,
                             training_set INTEGER,
-                            time INTEGER)"""
+                            time FLOAT)"""
         )
 
         cur.execute(
             """CREATE TABLE decision_changes
                             (record_id INTEGER,
                             new_label INTEGER,
-                            time INTEGER)"""
+                            time FLOAT)"""
         )
 
         self._conn.commit()
@@ -271,7 +271,7 @@ class SQLiteState:
                 "balance_strategy": balance_strategy,
                 "feature_extraction": feature_extraction,
                 "training_set": training_set,
-                "time": datetime.now(),
+                "time": time.time(),
             }
         ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
@@ -303,17 +303,17 @@ class SQLiteState:
         else:
             tags = [json.dumps(tag) for tag in tags]
 
-        labeling_time = datetime.now()
+        labeling_time = time.time()
 
         con = self._conn
         cur = con.cursor()
         cur.executemany(
             (
                 """
-                INSERT INTO results(record_id,label,labeling_time,tags, user_id)
+                INSERT INTO results(record_id,label,time,tags, user_id)
                 VALUES(?,?,?,?,?)
                 ON CONFLICT(record_id) DO UPDATE
-                    SET label=excluded.label, labeling_time=excluded.labeling_time,
+                    SET label=excluded.label, time=excluded.time,
                     tags=excluded.tags, user_id=excluded.user_id
             """
             ),
@@ -410,7 +410,6 @@ class SQLiteState:
             f"SELECT * FROM results WHERE record_id={record_id}",
             self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
-            parse_dates=["labeling_time"],
         )
         result["tags"] = result["tags"].map(json.loads, na_action="ignore")
         return result
@@ -468,7 +467,6 @@ class SQLiteState:
             f"SELECT {query_string} FROM results {sql_where_str}",
             self._conn,
             dtype=col_dtype,
-            parse_dates=["labeling_time"],
         )
 
         if columns is None or "tags" in columns:
@@ -488,7 +486,6 @@ class SQLiteState:
             "SELECT * FROM results WHERE query_strategy is NULL AND label is not NULL",
             self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
-            parse_dates=["labeling_time"],
         )
         df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
         return df_results
@@ -587,7 +584,7 @@ class SQLiteState:
                 "INSERT INTO decision_changes (record_id, new_label, time) "
                 "VALUES (?, ?, ?)"
             ),
-            (record_id, label, datetime.now()),
+            (record_id, label, time.time()),
         )
 
         self._conn.commit()
@@ -623,7 +620,7 @@ class SQLiteState:
             Identifier of the record to delete.
 
         """
-        current_time = datetime.now()
+        current_time = time.time()
 
         cur = self._conn.cursor()
         cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))

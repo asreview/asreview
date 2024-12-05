@@ -136,7 +136,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
               )}
             </Stack>
             <Typography variant="body2" color="textSecondary" component="p">
-              {timeAgo.format(new Date(project.datetimeCreated))}
+              {timeAgo.format(project.created_at_unix * 1000)}
             </Typography>
           </ButtonBase>
         </Grid>

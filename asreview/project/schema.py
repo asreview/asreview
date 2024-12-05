@@ -30,7 +30,6 @@ SCHEMA = {
             "description": "",
             "authors": "",
             "created_at_unix": 1648205610,
-            "datetimeCreated": "2022-03-25 11:53:30.510461",
             "reviews": [
                 {
                     "id": "4793de70a8d44eb4baa68bac2853c91a",
@@ -103,14 +102,6 @@ SCHEMA = {
             "description": "An explanation about the purpose of this instance.",
             "default": 0,
             "examples": [1648205610],
-        },
-        "datetimeCreated": {
-            "$id": "#/properties/datetimeCreated",
-            "type": ["string", "null"],
-            "title": "The datetimeCreated schema",
-            "description": "The date and time of the project creation.",
-            "default": "",
-            "examples": ["2022-03-25 11:53:30.510461"],
         },
         "reviews": {
             "$id": "#/properties/reviews",

@@ -309,7 +309,7 @@ def test_get_labeling_times(tmpdir):
     with asr.open_state(
         Path(tmpdir, "test_state_example_with_times.asreview")
     ) as state:
-        assert all(state.get_results_table()["labeling_time"] == TEST_LABELING_TIMES)
+        assert all(state.get_results_table()["time"] == TEST_LABELING_TIMES)
 
 
 def test_get_feature_matrix(asreview_test_project):

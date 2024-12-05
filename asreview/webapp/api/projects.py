@@ -567,7 +567,6 @@ def api_get_labeled(project):  # noqa: F401
     for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
         record_d["state"] = state.to_dict()
-        record_d["state"]["labeling_time"] = str(record_d["state"]["labeling_time"])
         record_d["tags_form"] = project.config.get("tags", None)
         result.append(record_d)
 
@@ -1228,7 +1227,6 @@ def api_label_record(project, record_id):  # noqa: F401
 
         item = asdict(project.data_store.get_records(record_id))
         item["state"] = record.iloc[0].to_dict()
-        item["state"]["labeling_time"] = str(item["state"]["labeling_time"])
         item["tags_form"] = project.config.get("tags", None)
 
         return jsonify({"result": item})
@@ -1276,7 +1274,6 @@ def api_get_document(project):  # noqa: F401
 
     item = asdict(project.data_store.get_records(pending["record_id"].iloc[0]))
     item["state"] = pending.iloc[0].to_dict()
-    item["state"]["labeling_time"] = str(item["state"]["labeling_time"])
     item["tags_form"] = project.config.get("tags", None)
 
     try:

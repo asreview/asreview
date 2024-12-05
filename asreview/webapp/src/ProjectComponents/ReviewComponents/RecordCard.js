@@ -185,7 +185,7 @@ const RecordCard = ({
               decisionCallback={() => setState({ open: false })}
               retrainAfterDecision={retrainAfterDecision}
               note={record.state?.note}
-              labelDatetime={record.state?.labeling_time}
+              labelTime={record.state?.time}
               showNotes={showNotes}
               tagsForm={record.tags_form}
               tagValues={record.state?.tags}
