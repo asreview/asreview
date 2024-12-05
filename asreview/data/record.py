@@ -2,7 +2,7 @@ from typing import Optional
 
 import pandas as pd
 
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import MappedAsDataclass
@@ -95,6 +95,13 @@ class Record(Base):
     # implementing a custom record is forced to have them.
     dataset_row: Mapped[int]
     dataset_id: Mapped[str]
+    # Ideally `duplicate_of` would be on the base class, because all record types are
+    # required to have it when we do deduplication. However, in the base class we do not
+    # yet know the name of the table to which we want to make the foreign key.
+    duplicate_of: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("record.record_id"), default=None
+    )
+
     title: Mapped[str] = mapped_column(default="")
     abstract: Mapped[str] = mapped_column(default="")
     # authors and keywords could also be in their own separate table.
