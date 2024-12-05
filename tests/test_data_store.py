@@ -198,4 +198,9 @@ def test_duplicate_of(store):
     with pytest.raises(IntegrityError):
         store.add_records([broken_duplicate_record])
 
-    store
+    # Check that duplicate_of is set to null after duplicate is deleted.
+    store.delete_record(record.record_id)
+    with store.Session() as session:
+        session.add(duplicate_record)
+        session.refresh(duplicate_record)
+    assert duplicate_record.duplicate_of is None

@@ -99,7 +99,7 @@ class Record(Base):
     # required to have it when we do deduplication. However, in the base class we do not
     # yet know the name of the table to which we want to make the foreign key.
     duplicate_of: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("record.record_id"), default=None
+        Integer, ForeignKey("record.record_id", ondelete="SET NULL"), default=None
     )
 
     title: Mapped[str] = mapped_column(default="")

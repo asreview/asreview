@@ -2,13 +2,30 @@ import numpy as np
 import pandas as pd
 from sqlalchemy import NullPool
 from sqlalchemy import create_engine
+from sqlalchemy import event
 from sqlalchemy import text
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
 from asreview.data.record import Base
 from asreview.data.record import Record
 
 CURRENT_DATASTORE_VERSION = 0
+
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    """Configure SQLite to use foreign keys.
+    
+    By adding this function to the module, everytime a connection is made to the sqlite
+    engine, we make sure that foreign keys are configured (by default sqlite allows
+    foreign keys, but ignores them).
+    
+    See also: https://docs.sqlalchemy.org/en/20/dialects/sqlite.html#sqlite-foreign-keys
+    """
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 
 class DataStore:
