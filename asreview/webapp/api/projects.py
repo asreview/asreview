@@ -1192,9 +1192,21 @@ def api_get_progress_data(project):  # Consolidated endpoint
     include_priors = request.args.get("priors", False, type=bool)
 
     with open_state(project.project_path) as s:
-        data = s.get_results_table("label", priors=include_priors)
+        labels = s.get_results_table("label", priors=include_priors)
+        labels_with_priors = s.get_results_table("label", priors=True)
 
-    return jsonify(data.to_dict(orient="records"))
+    if (
+        project.config.get("mode") == PROJECT_MODE_SIMULATE
+        and project.data_store["included"].sum() == labels_with_priors["label"].sum()
+    ):
+        labels = pd.DataFrame(
+            {
+                "label": labels["label"].to_list()
+                + np.zeros(len(project.data_store) - len(labels)).tolist(),
+            }
+        )
+
+    return jsonify(labels.to_dict(orient="records"))
 
 
 @bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])
