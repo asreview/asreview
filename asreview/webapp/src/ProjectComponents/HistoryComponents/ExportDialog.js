@@ -13,6 +13,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Switch,
 } from "@mui/material";
 import { ProjectAPI } from "api";
 import * as React from "react";
@@ -21,6 +22,7 @@ import { useQuery } from "react-query";
 const ExportDialog = ({ project_id, open, onClose }) => {
   const [format, setFormat] = React.useState("csv");
   const [collections, setCollections] = React.useState(["relevant"]);
+  const [exportUserInfo, setExportUserInfo] = React.useState(true);
 
   const { data } = useQuery(
     ["fetchDatasetWriter", { project_id }],
@@ -35,6 +37,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
       project_id,
       collections,
       format,
+      user: exportUserInfo,
     }).then((response) => {
       onClose();
     });
@@ -106,6 +109,20 @@ const ExportDialog = ({ project_id, open, onClose }) => {
             })}
           </Select>
         </FormControl>
+
+        <Divider sx={{ my: "1.5rem" }} />
+
+        {window.authentication && (
+          <FormControlLabel
+            control={
+              <Switch
+                checked={exportUserInfo}
+                onChange={(event) => setExportUserInfo(event.target.checked)}
+              />
+            }
+            label="Export name and email of reviewer"
+          />
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
