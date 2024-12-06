@@ -179,7 +179,7 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
                   </Box>
                 )}
                 <Box sx={{ my: 3 }}>
-                  <ModelCard />
+                  <ModelCard mode={mode} />
                 </Box>
                 <Box sx={{ my: 3 }}>
                   <PriorCard editable={true} mobileScreen={fullScreen} />
