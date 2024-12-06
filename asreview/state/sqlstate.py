@@ -225,12 +225,9 @@ class SQLiteState:
                 f"{list(RANKING_TABLE_COLUMNS_PANDAS_DTYPES.keys())}."
             )
 
-        cur = self._conn.cursor()
-        cur.execute("delete from last_ranking")
-        self._conn.commit()
-        cur.close()
-
-        last_ranking.to_sql("last_ranking", self._conn, if_exists="append", index=False)
+        last_ranking.to_sql(
+            "last_ranking", self._conn, if_exists="replace", index=False
+        )
 
     def add_last_ranking(
         self,
