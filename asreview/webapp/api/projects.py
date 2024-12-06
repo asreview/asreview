@@ -560,13 +560,10 @@ def api_get_labeled(project):  # noqa: F401
             },
             project_entry.owner.id: {**project_entry.owner.summarize(), "owner": True},
         }
-        print(users)
         users = {
             i: {**u, "current_user": current_user.id == u["id"]}
             for i, u in users.items()
         }
-
-        print(users)
 
     records = project.data_store.get_records(state_data["record_id"].to_list())
     result = []
@@ -961,6 +958,7 @@ def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
 
     file_format = request.args.get("format", default="csv", type=str)
+    export_user_details = request.args.get("user", default=1, type=int)
     collections = request.args.getlist("collections", type=str)
 
     df_user_input_data = project.read_input_data()
@@ -999,6 +997,24 @@ def api_export_dataset(project):
         ],
         inplace=True,
     )
+
+    # add user information
+    if not current_app.config.get("LOGIN_DISABLED", False) and export_user_details:
+        project_entry = Project.query.filter(
+            Project.project_id == project.project_id
+        ).one_or_none()
+        users = {
+            **{u.id: {**u.summarize()} for u in project_entry.collaborators},
+            project_entry.owner.id: {**project_entry.owner.summarize()},
+        }
+        df_results["user_name"] = df_results["user_id"].map(
+            lambda x: users.get(x, {}).get("name", None)
+        )
+        df_results["user_email"] = df_results["user_id"].map(
+            lambda x: users.get(x, {}).get("email", None)
+        )
+
+    del df_results["user_id"]
 
     df_export = df_user_input_data.join(
         df_results.add_prefix("asreview_"), how="left"
