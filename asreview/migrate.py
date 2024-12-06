@@ -48,13 +48,13 @@ def _project_state_converter_v1_v2(review_path):
     ).rename(columns={"notes": "note"})
     df_results["tags"] = None
     df_results["user_id"] = None
-    df_results["time"] = pandas.to_datetime(df_results["labeling_time"]).astype(float)
+    df_results["time"] = pandas.to_datetime(df_results["labeling_time"]).astype("int64")
     del df_results["labeling_time"]
     sqlstate._replace_results_from_df(df_results)
 
     try:
         df_last_ranking = pandas.read_sql_query("SELECT * FROM last_ranking", conn)
-        df_last_ranking["time"] = pandas.to_datetime(df_results["time"]).astype(float)
+        df_last_ranking["time"] = pandas.to_datetime(df_results["time"]).astype("int64")
 
         sqlstate._replace_last_ranking_from_df(df_last_ranking)
     except ValueError:
@@ -65,7 +65,7 @@ def _project_state_converter_v1_v2(review_path):
             "SELECT * FROM decision_updates", conn
         ).to_sql("decision_updates", sqlstate._conn, index=False)
         df_decision_updates["time"] = pandas.to_datetime(df_results["time"]).astype(
-            float
+            "int64"
         )
         df_decision_updates.to_sql("decision_updates", sqlstate._conn, index=False)
     except ValueError:
