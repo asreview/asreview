@@ -14,7 +14,7 @@
 
 __all__ = []
 
-from datetime import datetime
+import time
 
 import numpy as np
 import pandas as pd
@@ -200,7 +200,7 @@ class Simulate:
                 else None,
                 "feature_extraction": self.feature_extraction.name,
                 "training_set": len(self._results),
-                "time": datetime.now(),
+                "time": time.time(),
             }
         )
 
@@ -260,7 +260,7 @@ class Simulate:
                 "balance_strategy": balance_strategy,
                 "feature_extraction": feature_extraction,
                 "training_set": training_set,
-                "labeling_time": str(datetime.now()),
+                "time": time.time(),
                 "note": None,
                 "tags": None,
                 "user_id": None,

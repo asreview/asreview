@@ -30,13 +30,12 @@ SCHEMA = {
             "description": "",
             "authors": "",
             "created_at_unix": 1648205610,
-            "datetimeCreated": "2022-03-25 11:53:30.510461",
             "reviews": [
                 {
                     "id": "4793de70a8d44eb4baa68bac2853c91a",
-                    "start_time": "2022-03-25 11:55:50.551360",
+                    "start_time": 1648205610,
                     "status": "review",
-                    "end_time": "2022-03-26 10:31:52.441360",
+                    "end_time": 1648405610,
                 }
             ],
             "feature_matrices": [
@@ -104,14 +103,6 @@ SCHEMA = {
             "default": 0,
             "examples": [1648205610],
         },
-        "datetimeCreated": {
-            "$id": "#/properties/datetimeCreated",
-            "type": ["string", "null"],
-            "title": "The datetimeCreated schema",
-            "description": "The date and time of the project creation.",
-            "default": "",
-            "examples": ["2022-03-25 11:53:30.510461"],
-        },
         "reviews": {
             "$id": "#/properties/reviews",
             "type": "array",
@@ -122,7 +113,7 @@ SCHEMA = {
                 [
                     {
                         "id": "4793de70a8d44eb4baa68bac2853c91a",
-                        "start_time": "2022-03-25 11:55:50.551360",
+                        "start_time": 1648205610,
                         "status": "review",
                     }
                 ]
@@ -140,7 +131,7 @@ SCHEMA = {
                         "examples": [
                             {
                                 "id": "4793de70a8d44eb4baa68bac2853c91a",
-                                "start_time": "2022-03-25 11:55:50.551360",
+                                "start_time": 1648205610,
                                 "status": "review",
                             }
                         ],
@@ -156,19 +147,19 @@ SCHEMA = {
                             },
                             "start_time": {
                                 "$id": "#/properties/reviews/items/anyOf/0/properties/start_time",
-                                "type": "string",
-                                "title": "The start_time of the review.",
-                                "description": "The start date and time of the review.",
+                                "type": ["integer", "null"],
+                                "title": "The unix start_time of the review.",
+                                "description": "The unix start date and time of the review.",
                                 "default": "",
-                                "examples": ["2022-03-25 11:55:50.551360"],
+                                "examples": [1648205610],
                             },
                             "end_time": {
                                 "$id": "#/properties/reviews/items/anyOf/0/properties/start_time",
-                                "type": "string",
-                                "title": "The end_time of the review.",
-                                "description": "The end date and time of the review.",
+                                "type": ["integer", "null"],
+                                "title": "The unix end_time of the review.",
+                                "description": "The unix end date and time of the review.",
                                 "default": "",
-                                "examples": ["2022-03-26 10:31:52.441360"],
+                                "examples": [1648405610],
                             },
                             "status": {
                                 "$id": "#/properties/reviews/items/anyOf/0/properties/status",

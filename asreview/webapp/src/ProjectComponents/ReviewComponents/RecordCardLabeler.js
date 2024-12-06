@@ -125,7 +125,7 @@ const RecordCardLabeler = ({
   tagValues = null,
   note = null,
   showNotes = true,
-  labelDatetime = null,
+  labelTime = null,
   user = null,
   decisionCallback,
   hotkeys = false,
@@ -367,7 +367,7 @@ const RecordCardLabeler = ({
               {label === 1 && <Chip label="My collection" color="primary" />}
               {label === 0 && <Chip label="Not relevant" color="primary" />}
               <Typography variant="secondary">
-                {timeAgo.format(new Date(labelDatetime))}{" "}
+                {timeAgo.format(new Date(labelTime * 1000))}{" "}
                 {user && formatUser(user)}
               </Typography>
             </>
