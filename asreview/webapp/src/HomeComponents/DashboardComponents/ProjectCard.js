@@ -243,7 +243,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                 <ListItemIcon>
                   <DownloadOutlined />
                 </ListItemIcon>
-                <ListItemText>Export</ListItemText>
+                <ListItemText>Export project</ListItemText>
               </MenuItem>
               {review?.status !== projectStatuses.SETUP &&
                 !(

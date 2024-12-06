@@ -291,7 +291,7 @@ const RecordCardLabeler = ({
           {editState && (
             <>
               <Tooltip
-                title="Add to relevant records (V)"
+                title="Add to my collection (V)"
                 enterDelay={800}
                 leaveDelay={200}
               >
@@ -312,7 +312,7 @@ const RecordCardLabeler = ({
                 </Button>
               </Tooltip>
               <Tooltip
-                title="Mark as not relevant (X)"
+                title="Mark as not relevant and don't show again (X)"
                 enterDelay={800}
                 leaveDelay={200}
               >

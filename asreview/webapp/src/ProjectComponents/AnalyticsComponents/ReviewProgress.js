@@ -133,7 +133,7 @@ export default function ReviewProgress({ project_id }) {
                     enabled: true,
                     y: {
                       formatter: (val) =>
-                        `${val} (${Math.round((val / data.n_records) * 100)}%)`,
+                        `${val} (${Math.round((val / data.n_records) * 1000) / 10}%)`,
                     },
                   },
                   theme: { mode: theme.palette.mode },

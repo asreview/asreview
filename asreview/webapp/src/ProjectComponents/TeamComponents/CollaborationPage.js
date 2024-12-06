@@ -57,7 +57,7 @@ const CollaborationPage = () => {
           <ConfirmationDialog
             open={dialogOpen}
             title="Are you sure?"
-            contentText={`You will remove yourself from this project.`}
+            contentText={`You will remove yourself from this project. Your labels are still available for the project owner.`}
             handleCancel={toggleDialogOpen}
             handleConfirm={() => handleEndCollaboration.mutate()}
           />
