@@ -184,9 +184,13 @@ const RecordCardLabeler = ({
     setAnchorEl(null);
   };
 
-  useHotkeys("v", () => hotkeys && makeDecision(1));
-  useHotkeys("x", () => hotkeys && makeDecision(0));
-  useHotkeys("n", () => hotkeys && toggleShowNotesDialog(), { keyup: true });
+  useHotkeys("v", () => hotkeys && !isLoading && !isSuccess && makeDecision(1));
+  useHotkeys("x", () => hotkeys && !isLoading && !isSuccess && makeDecision(0));
+  useHotkeys(
+    "n",
+    () => hotkeys && !isLoading && !isSuccess && toggleShowNotesDialog(),
+    { keyup: true },
+  );
 
   return (
     <Stack
