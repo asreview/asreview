@@ -13,11 +13,11 @@
 # limitations under the License.
 
 import datetime as dt
+import random
 import re
 from pathlib import Path
 
 from flask_login import UserMixin
-from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import DateTime
@@ -135,6 +135,10 @@ class User(UserMixin, DB.Model):
                 # a ValueError if the new password is wrong
                 self.hashed_password = User.create_password_hash(new_password)
 
+        if self.email != email:
+            self.set_token()
+            self.confirmed = False
+
         self.email = email
         self.name = name
         self.affiliation = affiliation
@@ -150,12 +154,13 @@ class User(UserMixin, DB.Model):
         self.token_created_at = None
         return self
 
-    def set_token_data(self, secret, salt):
+    def set_token(self):
         """Set token data (used in email verification after
         init, and for forgot-password"""
-        token, token_created_at = User.generate_token_data(secret, salt, self.email)
-        self.token = token
-        self.token_created_at = token_created_at
+        token_number = random.randint(0, 999999)
+
+        self.token = f"{token_number:06d}"
+        self.token_created_at = dt.datetime.now()
         return self
 
     def verify_password(self, password):
@@ -182,21 +187,15 @@ class User(UserMixin, DB.Model):
         self.token_created_at = None
         return self
 
-    def token_valid(self, provided_token, max_hours=24):
+    def token_valid(self, provided_token, max_minutes=20):
         """Checks whether provided token is correct and still valid"""
         # there must be a token and a timestamp
         if bool(self.token) and bool(self.token_created_at):
             diff = (dt.datetime.now() - self.token_created_at).total_seconds()
             # return if token is correct and we are still before deadline
-            return self.token == provided_token and diff <= max_hours * 3600
+            return self.token == provided_token and diff <= max_minutes * 60
         else:
             return False
-
-    @classmethod
-    def generate_token_data(cls, secret, salt, email):
-        """Generate a token for verification by email"""
-        token = URLSafeTimedSerializer(secret).dumps(email, salt=salt)
-        return token, dt.datetime.now()
 
     @classmethod
     def valid_password(cls, password):

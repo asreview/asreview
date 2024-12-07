@@ -3,19 +3,15 @@ import {
   Button,
   CardActions,
   CardContent,
-  Checkbox,
   FormHelperText as FHT,
   FormControl,
-  FormControlLabel,
   Snackbar,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import { OTPFormField } from "Components";
 import AuthAPI from "api/AuthAPI";
 import { useFormik } from "formik";
-import { passwordRequirements, passwordValidation } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 import * as React from "react";
 import { useMutation, useQueryClient } from "react-query";
@@ -32,20 +28,11 @@ const OTPValidationSchema = Yup.string()
 // PASSWORD Validation Schema
 const SignupSchema = Yup.object().shape({
   otp: OTPValidationSchema,
-  password: passwordValidation(Yup.string()).required("Password is required"),
-  confirmPassword: Yup.string()
-    .required("Password confirmation is required")
-    .oneOf([Yup.ref("password")], "Passwords must match")
-    .when("password", {
-      is: (value) => value !== undefined && value.length > 0,
-      then: (schema) => schema.required("Confirmation password is required"),
-    }),
 });
 
-const ResetPassword = () => {
+const ConfirmAccount = () => {
   const queryClient = useQueryClient();
   const [otp, setOtp] = React.useState(new Array(6).fill(""));
-  const [showPassword, toggleShowPassword] = useToggle();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = React.useState("");
@@ -53,8 +40,6 @@ const ResetPassword = () => {
 
   const initialValues = {
     otp: "", // Track OTP as a string in Formik
-    password: "",
-    confirmPassword: "",
   };
 
   const formik = useFormik({
@@ -71,7 +56,7 @@ const ResetPassword = () => {
     },
   });
 
-  const { mutate } = useMutation(AuthAPI.resetPassword, {
+  const { mutate } = useMutation(AuthAPI.confirmAccount, {
     onMutate: () => {
       queryClient.resetQueries("user");
     },
@@ -89,12 +74,12 @@ const ResetPassword = () => {
     <form onSubmit={formik.handleSubmit}>
       <CardContent>
         <Stack spacing={2}>
-          <Typography variant="h5">Reset your password</Typography>
+          <Typography variant="h5">Confirm your account</Typography>
           <FormControl>
             <Stack spacing={2}>
               <Typography variant="body2">
-                You have received a code by email that allows you to reset your
-                password. Enter the code below:
+                You have received a code by email that allows you to confirm
+                your account credentials. Enter the code below:
               </Typography>
 
               {/* Pass formik's setFieldValue to OTPFormField */}
@@ -107,52 +92,9 @@ const ResetPassword = () => {
               {formik.touched.otp && formik.errors.otp && (
                 <FHT error>{formik.errors.otp}</FHT>
               )}
-
-              <Typography variant="body2">{passwordRequirements}</Typography>
-
-              <TextField
-                required
-                id="password"
-                label="Password"
-                size="small"
-                fullWidth
-                variant="outlined"
-                type={!showPassword ? "password" : "text"}
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              <TextField
-                required
-                id="confirmPassword"
-                label="Confirm Password"
-                size="small"
-                fullWidth
-                variant="outlined"
-                type={!showPassword ? "password" : "text"}
-                value={formik.values.confirmPassword}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
             </Stack>
           </FormControl>
 
-          {/* Display validation errors */}
-          {formik.touched.password && formik.errors.password && (
-            <FHT error>{formik.errors.password}</FHT>
-          )}
-          {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-            <FHT error>{formik.errors.confirmPassword}</FHT>
-          )}
-
-          <FormControl>
-            <FormControlLabel
-              control={
-                <Checkbox color="primary" onChange={toggleShowPassword} />
-              }
-              label="Show password"
-            />
-          </FormControl>
           {errorMessage && <InlineErrorHandler message={errorMessage} />}
         </Stack>
       </CardContent>
@@ -185,11 +127,11 @@ const ResetPassword = () => {
           sx={{ width: "100%" }}
           variant="filled"
         >
-          Your password has not been reset! Please contact your administrator.
+          {`Your account is not confirmed! ${errorMessage}`}
         </Alert>
       </Snackbar>
     </form>
   );
 };
 
-export default ResetPassword;
+export default ConfirmAccount;
