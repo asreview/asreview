@@ -299,10 +299,10 @@ def get_profile():
 
 @bp.route("/forgot_password", methods=["POST"])
 def forgot_password():
+    user_id = None
     if _has_email_configuration(current_app):
         # get email address from request
         email_address = request.form.get("email", "").strip()
-        user_id = None
 
         # check if email already exists
         user = User.query.filter(
