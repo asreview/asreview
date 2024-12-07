@@ -129,7 +129,6 @@ def create_app(config_path=None):
         logging.error(e.original_exception)
         return jsonify(message=str(e.original_exception)), 500
 
-    
     @app.route("/confirm_account", methods=["GET"])
     @app.route("/forgot_password", methods=["GET"])
     @app.route("/signin", methods=["GET"])
