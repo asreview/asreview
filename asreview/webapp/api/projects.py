@@ -1086,7 +1086,6 @@ def api_get_progress_info(project):  # noqa: F401
     try:
         is_project(project)
 
-        # Get label history
         with open_state(project.project_path) as s:
             labels = s.get_results_table(priors=include_priors)["label"]
             labels_without_priors = s.get_results_table(priors=False)["label"]
@@ -1097,20 +1096,30 @@ def api_get_progress_info(project):  # noqa: F401
         labels_without_priors = np.array([])
         n_records = 0
 
-    n_included = int(sum(labels == 1))
-    n_excluded = int(sum(labels == 0))
-
-    n_included_no_priors = int(sum(labels_without_priors == 1))
-    n_excluded_no_priors = int(sum(labels_without_priors == 0))
+    if (
+        project.config.get("mode") == PROJECT_MODE_SIMULATE
+        and project.data_store["included"].sum() == labels.sum()
+    ):
+        return jsonify(
+            {
+                "n_included": int(sum(labels == 1)),
+                "n_excluded": n_records - int(sum(labels == 1)),
+                "n_included_no_priors": int(sum(labels_without_priors == 1)),
+                "n_excluded_no_priors": int(sum(labels_without_priors == 0))
+                + (n_records - len(labels)),
+                "n_records": n_records,
+                "n_pool": 0,
+            }
+        )
 
     return jsonify(
         {
-            "n_included": n_included,
-            "n_excluded": n_excluded,
-            "n_included_no_priors": n_included_no_priors,
-            "n_excluded_no_priors": n_excluded_no_priors,
+            "n_included": int(sum(labels == 1)),
+            "n_excluded": int(sum(labels == 0)),
+            "n_included_no_priors": int(sum(labels_without_priors == 1)),
+            "n_excluded_no_priors": int(sum(labels_without_priors == 0)),
             "n_records": n_records,
-            "n_pool": n_records - n_excluded - n_included,
+            "n_pool": n_records - len(labels),
         }
     )
 
@@ -1199,9 +1208,21 @@ def api_get_progress_data(project):  # Consolidated endpoint
     include_priors = request.args.get("priors", False, type=bool)
 
     with open_state(project.project_path) as s:
-        data = s.get_results_table("label", priors=include_priors)
+        labels = s.get_results_table("label", priors=include_priors)
+        labels_with_priors = s.get_results_table("label", priors=True)
 
-    return jsonify(data.to_dict(orient="records"))
+    if (
+        project.config.get("mode") == PROJECT_MODE_SIMULATE
+        and project.data_store["included"].sum() == labels_with_priors["label"].sum()
+    ):
+        labels = pd.DataFrame(
+            {
+                "label": labels["label"].to_list()
+                + np.zeros(len(project.data_store) - len(labels)).tolist(),
+            }
+        )
+
+    return jsonify(labels.to_dict(orient="records"))
 
 
 @bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])
