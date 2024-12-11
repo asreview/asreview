@@ -17,6 +17,7 @@ from functools import wraps
 from flask import current_app
 from flask import jsonify
 from flask import request
+from flask import abort
 from flask_login import current_user
 from flask_login import login_user
 
@@ -117,7 +118,7 @@ def login_remote_user(f):
                             DB.session.commit()
                         except (IntegrityError, SQLAlchemyError) as e:
                             DB.session.rollback()
-                            error_500(e)
+                            abort(500, description="Error attempting to create user based on remote user authentication.")
 
                     login_user(
                         user, remember=True, duration=datetime.timedelta(days=31)
