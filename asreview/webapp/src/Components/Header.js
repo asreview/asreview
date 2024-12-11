@@ -70,7 +70,7 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
             {isReviewPath && (
               <Tooltip title={"Go on adventure with Elas"} placement={"right"}>
                 <IconButton onClick={toggleGame}>
-                  <ElasIcon />
+                  <ElasIcon color={"primary"} />
                 </IconButton>
               </Tooltip>
             )}

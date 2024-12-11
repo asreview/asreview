@@ -158,10 +158,10 @@ const RecordCard = ({
       />
       <Card
         elevation={showBorder ? 4 : 0}
-        sx={{
-          bgcolor: "#FFFFFF",
+        sx={(theme) => ({
+          bgcolor: theme.palette.background.record,
           borderRadius: !showBorder ? 0 : undefined,
-        }}
+        })}
       >
         <Grid
           container
