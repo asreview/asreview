@@ -69,10 +69,10 @@ const StoppingSuggestion = ({ project_id }) => {
   React.useEffect(() => {
     if (data && data[0]?.value && data[0]?.params?.threshold) {
       const targetValue = (data[0].value / data[0].params.threshold) * 100;
-      setProgress(0); // Reset progress to 0
+      setProgress(0);
 
-      const duration = 300; // Animation duration in milliseconds
-      const intervalTime = 10; // Interval time in milliseconds
+      const duration = 300;
+      const intervalTime = 10;
       const increment = targetValue / (duration / intervalTime);
       let currentProgress = 0;
 
@@ -85,7 +85,7 @@ const StoppingSuggestion = ({ project_id }) => {
         setProgress(currentProgress);
       }, intervalTime);
 
-      return () => clearInterval(timer); // Cleanup on unmount or data change
+      return () => clearInterval(timer);
     }
   }, [data]);
 
@@ -93,7 +93,6 @@ const StoppingSuggestion = ({ project_id }) => {
 
   const openEdit = Boolean(anchorElEdit);
 
-  // console.log(data[0]?.value, data[0]?.params?.threshold);
   const legendData = React.useMemo(() => {
     if (!data) return [];
     return [
@@ -173,12 +172,12 @@ const StoppingSuggestion = ({ project_id }) => {
                 <Skeleton
                   variant="rectangular"
                   height={30}
-                  sx={{ borderRadius: 3}}
+                  sx={{ borderRadius: 3 }}
                 />
                 <Skeleton
                   variant="rectangular"
                   height={30}
-                  sx={{ borderRadius: 3}}
+                  sx={{ borderRadius: 3 }}
                 />
               </Stack>
             ) : (
@@ -254,7 +253,7 @@ const StoppingSuggestion = ({ project_id }) => {
                   variant="circular"
                   width={160}
                   height={160}
-                  sx={{ borderRadius: '50%' }}
+                  sx={{ borderRadius: "50%" }}
                 />
               </Box>
             ) : (
@@ -267,7 +266,7 @@ const StoppingSuggestion = ({ project_id }) => {
                     minWidth: 160,
                     borderRadius: 50,
                     backgroundColor: theme.palette.grey[400],
-                    transition: "value 1s linear", // Optional: Smooth transition
+                    transition: "value 1s linear",
                     "& .MuiLinearProgress-bar": {
                       backgroundColor: theme.palette.primary.main,
                       borderRadius: 50,
