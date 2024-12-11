@@ -119,7 +119,7 @@ const CommunityDialog = ({ onHelp, toggleHelp }) => {
             <Typography fontWeight={"bold"}>Need more help?</Typography>
           </ListItem>
           <ListItem>
-            <Card>
+            <Card sx={{ width: "1" }}>
               <CardActionArea
                 href={`https://github.com/asreview/asreview/discussions`}
                 target="_blank"
@@ -142,7 +142,7 @@ const CommunityDialog = ({ onHelp, toggleHelp }) => {
           </ListItem>
 
           <ListItem>
-            <Card>
+            <Card sx={{ width: "1" }}>
               <CardActionArea href={feedbackURL} target="_blank">
                 <CardHeader
                   avatar={
