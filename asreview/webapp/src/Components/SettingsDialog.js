@@ -1,9 +1,4 @@
-import {
-  Close,
-  DarkMode,
-  LightMode,
-  SettingsBrightness,
-} from "@mui/icons-material";
+import { DarkMode, LightMode, SettingsBrightness } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -14,8 +9,6 @@ import {
   Divider,
   FormControl,
   FormControlLabel,
-  Grid2 as Grid,
-  IconButton,
   List,
   ListItem,
   ListItemButton,
@@ -32,6 +25,7 @@ import { useColorScheme } from "@mui/material/styles";
 import React from "react";
 
 import { OpenInNewIconStyled } from "Components";
+import { StyledDialog } from "StyledComponents/StyledDialog";
 
 import { fontSizeOptions } from "globals.js";
 import { useToggle } from "hooks/useToggle";
@@ -64,7 +58,7 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   return (
-    <Dialog
+    <StyledDialog
       fullScreen={mobileScreen}
       open={onSettings}
       onClose={toggleSettings}
@@ -73,26 +67,8 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
       maxWidth="sm"
       aria-labelledby="scroll-dialog-title"
       aria-describedby="scroll-dialog-description"
-      // TransitionProps={{
-      //   onExited: toggleBackMainSettings,
-      // }}
+      title="Customize your ASReview LAB"
     >
-      {!mobileScreen && <DialogTitle>Customize your ASReview LAB</DialogTitle>}
-      {mobileScreen && (
-        <DialogTitle>
-          <Grid
-            container
-            direction="row"
-            justify="space-between"
-            alignItems="center"
-          >
-            <IconButton onClick={toggleSettings}>
-              <Close />
-            </IconButton>
-            Customize
-          </Grid>
-        </DialogTitle>
-      )}
       <DialogContent dividers>
         <List>
           <ListItem>
@@ -252,11 +228,6 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
           </ListItem>
         </List>
       </DialogContent>
-      {!mobileScreen && (
-        <DialogActions>
-          <Button onClick={toggleSettings}>Close</Button>
-        </DialogActions>
-      )}
       <Dialog open={fontSizeSetting} onClose={toggleFontSizeSetting}>
         <DialogTitle>Font size</DialogTitle>
         <DialogContent>
@@ -300,7 +271,7 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
           <Button onClick={toggleFontSizeSetting}>Close</Button>
         </DialogActions>
       </Dialog>
-    </Dialog>
+    </StyledDialog>
   );
 };
 
