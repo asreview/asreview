@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from werkzeug.exceptions import HTTPException
+
+class RemoteUserNotAllowed(HTTPException):
+    code = 401
+    description = 'Attempted to authenticate a remote user, but the REMOTE_AUTH_SECRET did not match.'
+
 
 class RemoteUserHandler:
     default_headers = {
@@ -27,9 +33,15 @@ class RemoteUserHandler:
         for key, value in self.__class__.default_headers.items():
             self.__dict__[key.lower()] = config.get(key, value)
 
+        self.remote_auth_secret = config.get("REMOTE_AUTH_SECRET", None)
+
     def handle_request(self, env_headers):
         """Check the request"s environment headers and extract the configured headers,
         falling back to the use of default values."""
+
+        if self.remote_auth_secret and not (self.remote_auth_secret == env_headers.get("REMOTE_AUTH_SECRET", False)):
+            raise RemoteUserNotAllowed
+
         identifier = env_headers.get(self.user_identifier_header, "")
         identifier_parts = identifier.split("@")
         username = identifier_parts[
@@ -53,3 +65,4 @@ class RemoteUserHandler:
                 self.user_affiliation_header, self.default_affiliation
             ),
         }
+

@@ -26,7 +26,6 @@ from flask import Flask
 from flask import request
 from flask import send_from_directory
 from flask import redirect
-from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
 from flask_login import LoginManager
@@ -124,7 +123,7 @@ def create_app(config_path=None):
     @app.errorhandler(InternalServerError)
     def error_500(e):
         """Return JSON instead of HTML for HTTP errors."""
-        response.status = 500
+        response = e.get_response()
         response.data = json.dumps({
             "code": e.code,
             "name": e.name,

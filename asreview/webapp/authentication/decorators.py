@@ -33,6 +33,7 @@ from asreview.webapp.authentication.utils import perform_login_user
 
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
+from werkzeug.exceptions import HTTPException
 
 def project_authorization(f):
     """Decorator function that checks if current user can access
@@ -101,7 +102,10 @@ def login_remote_user(f):
             remote_user_handler = current_app.config.get("REMOTE_USER", False)
 
             if isinstance(remote_user_handler, RemoteUserHandler):
-                user_info = remote_user_handler.handle_request(request.environ)
+                try:
+                    user_info = remote_user_handler.handle_request(request.environ)
+                except HTTPException as e:
+                    return jsonify({"message": e.description}), 401
 
                 if user_info["identifier"]:
                     user = User.query.filter(
