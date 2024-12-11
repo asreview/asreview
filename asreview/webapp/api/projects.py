@@ -18,6 +18,7 @@ import shutil
 import socket
 import tempfile
 import time
+import math
 from dataclasses import asdict
 from dataclasses import replace
 from pathlib import Path
@@ -72,8 +73,8 @@ bp = Blueprint("api", __name__, url_prefix="/api")
 def _fill_last_ranking(project, ranking):
     """Fill the last ranking with a random or top-down ranking.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     project: asreview.Project
         The project to fill the last ranking of.
     ranking: str
@@ -523,8 +524,7 @@ def api_get_labeled(project):  # noqa: F401
         state_data = state_data.iloc[::-1]
 
     # count labeled records and max pages
-    count = len(state_data)
-    if count == 0:
+    if len(state_data) == 0:
         payload = {
             "count": 0,
             "next_page": None,
@@ -533,47 +533,56 @@ def api_get_labeled(project):  # noqa: F401
         }
         return jsonify(payload)
 
-    max_page_calc = divmod(count, per_page)
-    if max_page_calc[1] == 0:
-        max_page = max_page_calc[0]
-    else:
-        max_page = max_page_calc[0] + 1
+    max_page = math.ceil(len(state_data) / per_page)
 
     if page is not None:
-        # slice out records on specific page
-        if page <= max_page:
-            idx_start = page * per_page - per_page
-            idx_end = page * per_page
-            state_data = state_data.iloc[idx_start:idx_end, :].copy()
-        else:
+        if page > max_page:
             return abort(404)
 
-        # set next & previous page
-        if page < max_page:
-            next_page = page + 1
-            if page > 1:
-                previous_page = page - 1
-            else:
-                previous_page = None
-        else:
-            next_page = None
-            previous_page = page - 1
+        idx_start = (page - 1) * per_page
+        idx_end = page * per_page
+        state_data = state_data.iloc[idx_start:idx_end].copy()
+
+        next_page = page + 1 if page < max_page else None
+        previous_page = page - 1 if page > 1 else None
     else:
         next_page = None
         previous_page = None
+
+    if not current_app.config.get("LOGIN_DISABLED", False):
+        project_entry = Project.query.filter(
+            Project.project_id == project.project_id
+        ).one_or_none()
+        users = {
+            **{
+                u.id: {**u.summarize(), "owner": False}
+                for u in project_entry.collaborators
+            },
+            project_entry.owner.id: {**project_entry.owner.summarize(), "owner": True},
+        }
+        users = {
+            i: {**u, "current_user": current_user.id == u["id"]}
+            for i, u in users.items()
+        }
 
     records = project.data_store.get_records(state_data["record_id"].to_list())
     result = []
     for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
         record_d["state"] = state.to_dict()
-        record_d["state"]["labeling_time"] = str(record_d["state"]["labeling_time"])
         record_d["tags_form"] = project.config.get("tags", None)
+
+        if not current_app.config.get("LOGIN_DISABLED", False):
+            record_d["state"]["user"] = users.get(record_d["state"]["user_id"], None)
+        else:
+            record_d["state"]["user"] = None
+
+        del record_d["state"]["user_id"]
         result.append(record_d)
 
     return jsonify(
         {
-            "count": count,
+            "count": len(state_data),
             "next_page": next_page,
             "previous_page": previous_page,
             "result": result,
@@ -949,6 +958,7 @@ def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
 
     file_format = request.args.get("format", default="csv", type=str)
+    export_user_details = request.args.get("user", default=1, type=int)
     collections = request.args.getlist("collections", type=str)
 
     df_user_input_data = project.read_input_data()
@@ -987,6 +997,24 @@ def api_export_dataset(project):
         ],
         inplace=True,
     )
+
+    # add user information
+    if not current_app.config.get("LOGIN_DISABLED", False) and export_user_details:
+        project_entry = Project.query.filter(
+            Project.project_id == project.project_id
+        ).one_or_none()
+        users = {
+            **{u.id: {**u.summarize()} for u in project_entry.collaborators},
+            project_entry.owner.id: {**project_entry.owner.summarize()},
+        }
+        df_results["user_name"] = df_results["user_id"].map(
+            lambda x: users.get(x, {}).get("name", None)
+        )
+        df_results["user_email"] = df_results["user_id"].map(
+            lambda x: users.get(x, {}).get("email", None)
+        )
+
+    del df_results["user_id"]
 
     df_export = df_user_input_data.join(
         df_results.add_prefix("asreview_"), how="left"
@@ -1058,7 +1086,6 @@ def api_get_progress_info(project):  # noqa: F401
     try:
         is_project(project)
 
-        # Get label history
         with open_state(project.project_path) as s:
             labels = s.get_results_table(priors=include_priors)["label"]
             labels_without_priors = s.get_results_table(priors=False)["label"]
@@ -1069,20 +1096,30 @@ def api_get_progress_info(project):  # noqa: F401
         labels_without_priors = np.array([])
         n_records = 0
 
-    n_included = int(sum(labels == 1))
-    n_excluded = int(sum(labels == 0))
-
-    n_included_no_priors = int(sum(labels_without_priors == 1))
-    n_excluded_no_priors = int(sum(labels_without_priors == 0))
+    if (
+        project.config.get("mode") == PROJECT_MODE_SIMULATE
+        and project.data_store["included"].sum() == labels.sum()
+    ):
+        return jsonify(
+            {
+                "n_included": int(sum(labels == 1)),
+                "n_excluded": n_records - int(sum(labels == 1)),
+                "n_included_no_priors": int(sum(labels_without_priors == 1)),
+                "n_excluded_no_priors": int(sum(labels_without_priors == 0))
+                + (n_records - len(labels)),
+                "n_records": n_records,
+                "n_pool": 0,
+            }
+        )
 
     return jsonify(
         {
-            "n_included": n_included,
-            "n_excluded": n_excluded,
-            "n_included_no_priors": n_included_no_priors,
-            "n_excluded_no_priors": n_excluded_no_priors,
+            "n_included": int(sum(labels == 1)),
+            "n_excluded": int(sum(labels == 0)),
+            "n_included_no_priors": int(sum(labels_without_priors == 1)),
+            "n_excluded_no_priors": int(sum(labels_without_priors == 0)),
             "n_records": n_records,
-            "n_pool": n_records - n_excluded - n_included,
+            "n_pool": n_records - len(labels),
         }
     )
 
@@ -1171,9 +1208,21 @@ def api_get_progress_data(project):  # Consolidated endpoint
     include_priors = request.args.get("priors", False, type=bool)
 
     with open_state(project.project_path) as s:
-        data = s.get_results_table("label", priors=include_priors)
+        labels = s.get_results_table("label", priors=include_priors)
+        labels_with_priors = s.get_results_table("label", priors=True)
 
-    return jsonify(data.to_dict(orient="records"))
+    if (
+        project.config.get("mode") == PROJECT_MODE_SIMULATE
+        and project.data_store["included"].sum() == labels_with_priors["label"].sum()
+    ):
+        labels = pd.DataFrame(
+            {
+                "label": labels["label"].to_list()
+                + np.zeros(len(project.data_store) - len(labels)).tolist(),
+            }
+        )
+
+    return jsonify(labels.to_dict(orient="records"))
 
 
 @bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])
@@ -1228,8 +1277,9 @@ def api_label_record(project, record_id):  # noqa: F401
 
         item = asdict(project.data_store.get_records(record_id))
         item["state"] = record.iloc[0].to_dict()
-        item["state"]["labeling_time"] = str(item["state"]["labeling_time"])
         item["tags_form"] = project.config.get("tags", None)
+        item["state"]["user"] = None
+        del item["state"]["user_id"]
 
         return jsonify({"result": item})
 
@@ -1251,7 +1301,7 @@ def api_update_note(project, record_id):  # noqa: F401
 @login_required
 @project_authorization
 def api_get_document(project):  # noqa: F401
-    """Retrieve record in order of review."""
+    """Retrieve unlabeled record in order of review."""
 
     user_id = (
         None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
@@ -1276,8 +1326,9 @@ def api_get_document(project):  # noqa: F401
 
     item = asdict(project.data_store.get_records(pending["record_id"].iloc[0]))
     item["state"] = pending.iloc[0].to_dict()
-    item["state"]["labeling_time"] = str(item["state"]["labeling_time"])
     item["tags_form"] = project.config.get("tags", None)
+    item["state"]["user"] = None
+    del item["state"]["user_id"]
 
     try:
         item["error"] = project.get_review_error()

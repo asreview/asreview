@@ -152,8 +152,8 @@ class DataStore:
     def get_records(self, record_id):
         """Get the records with the given record identifiers.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         record_id : int | list[int]
             Record identifier or list record identifiers.
 

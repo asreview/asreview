@@ -14,7 +14,7 @@
 
 import json
 import sqlite3
-from datetime import datetime
+import time
 
 import pandas as pd
 
@@ -33,7 +33,7 @@ RESULTS_TABLE_COLUMNS_PANDAS_DTYPES = {
     "balance_strategy": "object",
     "feature_extraction": "object",
     "training_set": "Int64",
-    "labeling_time": None,  # parse_dates=["labeling_time"]
+    "time": "Float64",
     "note": "object",
     "tags": "object",
     "user_id": "Int64",
@@ -47,7 +47,7 @@ RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
     "balance_strategy": "object",
     "feature_extraction": "object",
     "training_set": "Int64",
-    "time": "object",
+    "time": "Float64",
 }
 
 CURRENT_STATE_VERSION = 2
@@ -60,8 +60,8 @@ class SQLiteState:
     of the review process, the ranking of the last model, and the changes in
     the decisions.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     fp: str, Path
         Path to the SQLite database file.
 
@@ -108,7 +108,7 @@ class SQLiteState:
                             balance_strategy TEXT,
                             feature_extraction TEXT,
                             training_set INTEGER,
-                            labeling_time TEXT,
+                            time FLOAT,
                             note TEXT,
                             tags JSON,
                             user_id INTEGER)"""
@@ -123,14 +123,14 @@ class SQLiteState:
                             balance_strategy TEXT,
                             feature_extraction TEXT,
                             training_set INTEGER,
-                            time INTEGER)"""
+                            time FLOAT)"""
         )
 
         cur.execute(
             """CREATE TABLE decision_changes
                             (record_id INTEGER,
                             new_label INTEGER,
-                            time INTEGER)"""
+                            time FLOAT)"""
         )
 
         self._conn.commit()
@@ -225,12 +225,9 @@ class SQLiteState:
                 f"{list(RANKING_TABLE_COLUMNS_PANDAS_DTYPES.keys())}."
             )
 
-        cur = self._conn.cursor()
-        cur.execute("delete from last_ranking")
-        self._conn.commit()
-        cur.close()
-
-        last_ranking.to_sql("last_ranking", self._conn, if_exists="append", index=False)
+        last_ranking.to_sql(
+            "last_ranking", self._conn, if_exists="replace", index=False
+        )
 
     def add_last_ranking(
         self,
@@ -246,8 +243,8 @@ class SQLiteState:
         Save the ranking of the last iteration of the model, in the ranking
         order, so the record on row 0 is ranked first by the model.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         ranked_record_ids: list, numpy.ndarray
             A list of records ids in the order that they were ranked.
         classifier: str
@@ -271,15 +268,15 @@ class SQLiteState:
                 "balance_strategy": balance_strategy,
                 "feature_extraction": feature_extraction,
                 "training_set": training_set,
-                "time": datetime.now(),
+                "time": time.time(),
             }
         ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
     def add_labeling_data(self, record_ids, labels, tags=None, user_id=None):
         """Add the data corresponding to a labeling action to the state file.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         record_ids: list, numpy.ndarray
             A list of ids of the labeled records as int.
         labels: list, numpy.ndarray
@@ -303,17 +300,17 @@ class SQLiteState:
         else:
             tags = [json.dumps(tag) for tag in tags]
 
-        labeling_time = datetime.now()
+        labeling_time = time.time()
 
         con = self._conn
         cur = con.cursor()
         cur.executemany(
             (
                 """
-                INSERT INTO results(record_id,label,labeling_time,tags, user_id)
+                INSERT INTO results(record_id,label,time,tags, user_id)
                 VALUES(?,?,?,?,?)
                 ON CONFLICT(record_id) DO UPDATE
-                    SET label=excluded.label, labeling_time=excluded.labeling_time,
+                    SET label=excluded.label, time=excluded.time,
                     tags=excluded.tags, user_id=excluded.user_id
             """
             ),
@@ -357,8 +354,8 @@ class SQLiteState:
         Get the top n instances from the pool according to the last ranking.
         Add the model data to the results table.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         n: int
             Number of instances. Default is 1.
         user_id: int
@@ -369,33 +366,40 @@ class SQLiteState:
         list
             List of record_ids of the top n ranked records.
         """
-        top_n_records = self.get_pool()[:n].to_list()
-        record_list = [(user_id, record_id) for record_id in top_n_records]
 
         con = self._conn
         cur = con.cursor()
-        cur.executemany(
+        cur.execute(
             """INSERT INTO results (record_id, classifier, query_strategy,
             balance_strategy, feature_extraction, training_set, user_id)
             SELECT record_id, classifier, query_strategy,
             balance_strategy, feature_extraction, training_set, ? AS user_id
-            FROM last_ranking
-            WHERE record_id=?""",
-            record_list,
+            FROM (
+                SELECT last_ranking.*
+                FROM last_ranking
+                LEFT JOIN results
+                USING (record_id)
+                WHERE results.record_id is null
+                ORDER BY ranking
+                LIMIT ?
+            )""",
+            (
+                user_id,
+                n,
+            ),
         )
+        con.commit()
 
         if cur.rowcount != n:
-            raise ValueError("Failed to query top ranked records.")
-
-        con.commit()
+            raise ValueError("Failed to query top ranked records")
 
         return self.get_pending(user_id=user_id)
 
     def get_results_record(self, record_id):
         """Get the data of a specific query from the results table.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         record_id: int
             Record id of which you want the data.
 
@@ -410,7 +414,6 @@ class SQLiteState:
             f"SELECT * FROM results WHERE record_id={record_id}",
             self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
-            parse_dates=["labeling_time"],
         )
         result["tags"] = result["tags"].map(json.loads, na_action="ignore")
         return result
@@ -422,8 +425,8 @@ class SQLiteState:
         Most other get functions use this one, except some that use a direct
         SQL query for efficiency.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         columns: list, str
             List of columns names of the results table, or a string containing
             one column name.
@@ -468,7 +471,6 @@ class SQLiteState:
             f"SELECT {query_string} FROM results {sql_where_str}",
             self._conn,
             dtype=col_dtype,
-            parse_dates=["labeling_time"],
         )
 
         if columns is None or "tags" in columns:
@@ -488,7 +490,6 @@ class SQLiteState:
             "SELECT * FROM results WHERE query_strategy is NULL AND label is not NULL",
             self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
-            parse_dates=["labeling_time"],
         )
         df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
         return df_results
@@ -517,8 +518,8 @@ class SQLiteState:
     def get_pending(self, user_id=None):
         """Get pending records from the results table.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         user_id: int
             User id of the user who labeled the records.
 
@@ -562,8 +563,8 @@ class SQLiteState:
     def update(self, record_id, label=None, tags=None):
         """Change the label or tag of an already labeled record.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         record_id: int
             Id of the record whose label should be changed.
         label: 0 / 1
@@ -587,7 +588,7 @@ class SQLiteState:
                 "INSERT INTO decision_changes (record_id, new_label, time) "
                 "VALUES (?, ?, ?)"
             ),
-            (record_id, label, datetime.now()),
+            (record_id, label, time.time()),
         )
 
         self._conn.commit()
@@ -595,8 +596,8 @@ class SQLiteState:
     def update_note(self, record_id, note=None):
         """Change the note of an already labeled or pending record.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         record_id: int
             Id of the record whose label should be changed.
         note: str
@@ -617,13 +618,13 @@ class SQLiteState:
     def delete_record_labeling_data(self, record_id):
         """Delete the labeling data for the given record id.
 
-        Arguments
+        Parameters
         ----------
         record_id : str
             Identifier of the record to delete.
 
         """
-        current_time = datetime.now()
+        current_time = time.time()
 
         cur = self._conn.cursor()
         cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))

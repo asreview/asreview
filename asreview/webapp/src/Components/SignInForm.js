@@ -21,11 +21,7 @@ import { InlineErrorHandler } from ".";
 import AuthAPI from "api/AuthAPI";
 import { useToggle } from "hooks/useToggle";
 
-const SignInForm = ({
-  allowAccountCreation,
-  emailVerification,
-  toggleSignUp,
-}) => {
+const SignInForm = () => {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
 
@@ -140,22 +136,24 @@ const SignInForm = ({
             >
               Sign in
             </Button>
-            {allowAccountCreation && (
+            {window.allowAccountCreation && (
               <Button
                 id="create-profile"
-                onClick={toggleSignUp}
+                onClick={() => navigate("/signup")}
                 sx={{ textTransform: "none" }}
               >
                 Create profile
               </Button>
             )}
-            <Button
-              id="forgot-password"
-              onClick={toggleForgotPassword}
-              sx={{ textTransform: "none" }}
-            >
-              Forgot password
-            </Button>
+            {window.emailVerification && (
+              <Button
+                id="forgot-password"
+                onClick={() => navigate("/forgot_password")}
+                sx={{ textTransform: "none" }}
+              >
+                Forgot password
+              </Button>
+            )}
           </CardActions>
         </>
       )}

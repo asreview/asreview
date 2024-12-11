@@ -8,16 +8,18 @@ import {
 } from "@mui/material";
 import * as React from "react";
 import { useMutation } from "react-query";
+import { useNavigate } from "react-router-dom";
 
 import AuthAPI from "api/AuthAPI";
 
-const ForgotPassword = ({ showNotification, toggleForgotPassword }) => {
+const ForgotPassword = ({ showNotification }) => {
+  const navigate = useNavigate();
   const [email, setEmail] = React.useState("");
 
   const { isLoading, mutate, reset } = useMutation(AuthAPI.forgotPassword, {
     onSuccess: (data) => {
-      showNotification(`An email has beent sent to ${email}.`);
-      setEmail("");
+      let userId = data.user_id;
+      navigate(`/reset_password?user_id=${userId}`);
     },
     onError: (data) => {
       console.error("Forgot password error", data);
@@ -67,7 +69,7 @@ const ForgotPassword = ({ showNotification, toggleForgotPassword }) => {
         </Stack>
       </CardContent>
 
-      <CardActions>
+      <CardActions sx={{ p: 2 }}>
         {window.emailVerification && (
           <Button
             disabled={isLoading}
@@ -78,7 +80,10 @@ const ForgotPassword = ({ showNotification, toggleForgotPassword }) => {
             Submit
           </Button>
         )}
-        <Button onClick={toggleForgotPassword} sx={{ textTransform: "none" }}>
+        <Button
+          onClick={() => navigate("/signin")}
+          sx={{ textTransform: "none" }}
+        >
           Sign In instead
         </Button>
       </CardActions>

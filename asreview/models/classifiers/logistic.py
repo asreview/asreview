@@ -29,8 +29,8 @@ class LogisticClassifier(BaseTrainClassifier):
     The Logistic regressions classifier is an implementation based
     on the sklearn Logistic regressions classifier.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     C: float
         Parameter inverse to the regularization strength of the model.
     class_weight: float

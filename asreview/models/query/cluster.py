@@ -28,8 +28,8 @@ class ClusterQuery(BaseQueryStrategy):
     Use clustering after feature extraction on the dataset. Then the highest
     probabilities within random clusters are sampled.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     cluster_size: int
         Size of the clusters to be made. If the size of the clusters is
         smaller than the size of the pool, fall back to max sampling.

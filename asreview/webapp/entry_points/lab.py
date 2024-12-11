@@ -70,8 +70,8 @@ def lab_entry_point(argv):
 
     This function is called when the `asreview lab` command is used.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     argv: list
         Command line arguments.
 

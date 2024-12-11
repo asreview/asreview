@@ -54,8 +54,8 @@ class DoubleBalance(BaseBalance):
     It super samples ones depending on the number of 0's and total number
     of samples in the training data.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     a: float
         Governs the weight of the 1's. Higher values mean linearly more 1's
         in your training sample.
@@ -88,8 +88,8 @@ class DoubleBalance(BaseBalance):
     def sample(self, labeled_idx, y):
         """Resample the training data.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         labeled_idx: numpy.ndarray
             Training indices, that is all records that have been reviewed.
         y: numpy.ndarray

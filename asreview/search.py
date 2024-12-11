@@ -39,8 +39,8 @@ def _create_inverted_index(match_strings):
 def _get_fuzzy_scores(keywords, match_strings, threshold=0.9):
     """Rank a list of strings, depending on a set of keywords.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     keywords: str
         Keywords that we are trying to find in the string list.
     str_list: list
@@ -90,8 +90,8 @@ def fuzzy_find(
     (for as much is available). Using the diflib package it creates
     a ranking based on token set matching.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     data: pd.DataFrame or DataStore
         Dataframe containing the column 'title' and optionally 'authors' and 'keywords'.
     keywords: str

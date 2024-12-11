@@ -10,8 +10,8 @@ from asreview.utils import _is_url
 def _get_reader(fp):
     """Get the reader that can read the file at the given file path.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     fp : Path
         File path of the file to read.
 
@@ -33,7 +33,7 @@ def _get_reader(fp):
 def _get_writer(fp):
     """Get a writer for writing a file to a given location.
 
-    Arguments
+    Parameters
     ----------
     fp : Path
         Path where the file will be written to.
@@ -57,8 +57,8 @@ def _from_file(fp, reader=None, dataset_id=None, **kwargs):
     functions are supplied or automatic, where it searches in the entry
     points for the right conversion functions.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     fp: str, pathlib.Path
         Read the data from this file or url.
     reader: BaseReader
@@ -74,8 +74,8 @@ def _from_file(fp, reader=None, dataset_id=None, **kwargs):
 def _from_extension(name, reader=None, dataset_id=None, **kwargs):
     """Load a dataset from extension.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     fp: str, pathlib.Path
         Read the data from this file or url.
     reader: BaseReader

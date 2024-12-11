@@ -188,7 +188,7 @@ def test_set_token(setup_teardown):
     assert user.token is None
     assert user.token_created_at is None
 
-    user.set_token_data("secret", "salt")
+    user.set_token()
     DB.session.commit()
 
     # verify we have 1 record
@@ -200,14 +200,15 @@ def test_set_token(setup_teardown):
     assert isinstance(updated_user.token_created_at, dt)
 
 
-# verify token validity, by default token is 24 hours valid
+# verify token validity, by default token is valid for 20 minutes
 @pytest.mark.parametrize(
-    "subtract_time", [(10, 0, True), (23, 59, True), (24, 1, False), (25, 0, False)]
+    "subtract_time", [(0, 0, True), (0, 19, True), (0, 21, False), (1, 0, False)]
 )
 def test_token_validity(setup_teardown, subtract_time):
+    #
     subtract_hours, subtract_mins, validity = subtract_time
     user = crud.create_user(DB)
-    user.set_token_data("secret", "salt")
+    user.set_token()
     DB.session.commit()
     # verify we have 1 record
     assert crud.count_users() == 1
@@ -232,7 +233,7 @@ def test_token_validity(setup_teardown, subtract_time):
 def test_confirm_user(setup_teardown):
     user = crud.create_user(DB)
     # create a token for good measures
-    user.set_token_data("secret", "salt")
+    user.set_token()
 
     assert user.confirmed is False
     assert bool(user.token)

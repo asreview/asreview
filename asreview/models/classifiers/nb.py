@@ -33,8 +33,8 @@ class NaiveBayesClassifier(BaseTrainClassifier):
     The naive Bayes classifier is an implementation based
     on the sklearn multinomial naive Bayes classifier.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     alpha : float, default=3.822
         Additive (Laplace/Lidstone) smoothing parameter
         (0 for no smoothing).
