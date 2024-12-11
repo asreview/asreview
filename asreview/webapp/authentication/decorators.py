@@ -19,9 +19,6 @@ from flask import jsonify
 from flask import request
 from flask import abort
 from flask_login import current_user
-from flask_login import login_user
-
-import datetime
 
 import asreview as asr
 from asreview.project.exceptions import ProjectNotFoundError
@@ -32,6 +29,7 @@ from asreview.webapp import DB
 from asreview.webapp.utils import get_project_path
 from asreview.webapp.utils import get_projects
 from asreview.webapp.authentication.remote_user_handler import RemoteUserHandler
+from asreview.webapp.authentication.utils import perform_login_user
 
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -119,16 +117,13 @@ def login_remote_user(f):
                             )
                             DB.session.add(user)
                             DB.session.commit()
-                        except (IntegrityError, SQLAlchemyError) as e:
+                        except (IntegrityError, SQLAlchemyError):
                             DB.session.rollback()
                             abort(
                                 500,
                                 description="Error attempting to create user based on remote user authentication.",
                             )
-
-                    login_user(
-                        user, remember=True, duration=datetime.timedelta(days=31)
-                    )
+                    perform_login_user(user, current_app)
         return f(*args, **kwargs)
 
     return decorated_function

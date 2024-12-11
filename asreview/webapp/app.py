@@ -86,6 +86,8 @@ def create_app(config_path=None):
         login_manager.init_app(app)
         login_manager.session_protection = "strong"
 
+        app.config["LOGIN_DURATION"] = int(app.config.get("LOGIN_DURATION", 31))
+
         # Register a callback function for current_user.
         @login_manager.user_loader
         def load_user(user_id):

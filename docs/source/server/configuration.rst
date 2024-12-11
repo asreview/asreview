@@ -58,6 +58,7 @@ secure way (https).
 .. code-block::  toml
 
     DISABLE_LOGIN = false
+    LOGIN_DURATION = 31
     SECRET_KEY = "<secret key>"
     SECURITY_PASSWORD_SALT = "<salt>"
     SESSION_COOKIE_SECURE = true
@@ -111,6 +112,7 @@ that are specific for authenticating ASReview are summarized below:
 - DISABLE_LOGIN: if set to ``false`` the application will start with
   authentication. If the SQLite database does not exist, one will be
   created during startup.
+- LOGIN_DURATION: number of days that a user should remain logged in. Default: 31.
 - SECRET_KEY: the secret key is a string that is used to encrypt cookies and is
   mandatory if authentication is required.
 - SECURITY_PASSWORD_SALT: another string used to hash passwords, also mandatory
