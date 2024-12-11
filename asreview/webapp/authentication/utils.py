@@ -25,25 +25,19 @@ def perform_login_user(user, app):
         duration=dt.timedelta(days=app.config.get("LOGIN_DURATION", 31)),
     )
 
-
-# TODO: not sure if this file is the right place for this function
-def send_forgot_password_email(user, request, cur_app):
+def send_forgot_password_email(user, cur_app):
     # do not send email in test environment
     if not cur_app.testing:
-        # get necessary information out of user object
+        # set name
         name = user.name or "ASReview user"
-        # get url of front-end
-        root_url = request.headers.get("Origin")
-        # create url that will be used in the email
-        url = f"{root_url}/reset_password?user_id={user.id}&token={user.token}"
         # create a mailer
         mailer = Mail(cur_app)
         # open templates as string and render
         root_path = Path(cur_app.root_path)
         with open(root_path / "templates" / "emails" / "forgot_password.html") as f:
-            html_text = render_template_string(f.read(), name=name, url=url)
+            html_text = render_template_string(f.read(), name=name, token=user.token)
         with open(root_path / "templates" / "emails" / "forgot_password.txt") as f:
-            txt_text = render_template_string(f.read(), name=name, url=url)
+            txt_text = render_template_string(f.read(), name=name, token=user.token)
         # create message
         msg = Message("ASReview: forgot password", recipients=[user.email])
         msg.body = txt_text
@@ -51,24 +45,23 @@ def send_forgot_password_email(user, request, cur_app):
         return mailer.send(msg)
 
 
-# TODO: not sure if this file is the right place for this function
-def send_confirm_account_email(user, request, cur_app):
+def send_confirm_account_email(user, cur_app, email_type="create"):
     # do not send email in test environment
     if not cur_app.testing:
         # get necessary information out of user object
         name = user.name or "ASReview user"
-        # get url of front-end
-        root_url = request.headers.get("Origin")
-        # create url that will be used in the email
-        url = f"{root_url}/confirm_account?user_id={user.id}&token={user.token}"
         # create a mailer
         mailer = Mail(cur_app)
         # open templates as string and render
         root_path = Path(cur_app.root_path)
         with open(root_path / "templates" / "emails" / "confirm_account.html") as f:
-            html_text = render_template_string(f.read(), name=name, url=url)
+            html_text = render_template_string(
+                f.read(), name=name, token=user.token, email_type=email_type
+            )
         with open(root_path / "templates" / "emails" / "confirm_account.txt") as f:
-            txt_text = render_template_string(f.read(), name=name, url=url)
+            txt_text = render_template_string(
+                f.read(), name=name, token=user.token, email_type=email_type
+            )
         # create message
         msg = Message("ASReview: please confirm your account", recipients=[user.email])
         msg.body = txt_text
