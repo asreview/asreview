@@ -55,7 +55,7 @@ def setup_remote_auth(client_remote_auth):
     # get users 2 and 3 from DB
     user = crud.get_user_by_identifier(user.identifier)
     # create a project for this user
-    au.create_project(client_auth, "oracle", benchmark="synergy:van_der_Valk_2021")
+    au.create_project(client_remote_auth, "oracle", benchmark="synergy:van_der_Valk_2021")
     yield client_remote_auth, user, user.projects[0]
     # cleanup database and asreview_path
     crud.delete_everything(DB)
