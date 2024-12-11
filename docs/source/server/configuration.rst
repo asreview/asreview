@@ -210,7 +210,7 @@ OAuth configuration
 - `ASREVIEW_LAB_OATH` - OAuth configuration for ASReview LAB. It is a dictionary with the following keys: `GitHub`, `Orcid` and `Google`. Each of these keys is a dictionary with the following keys: `AUTHORIZATION_URL`, `TOKEN_URL`, `CLIENT_ID`, `CLIENT_SECRET` and `SCOPE`.
 
 Remote user configuration
-- `ASREVIEW_LAB_REMOTE_USER` - Remote user configuration for ASReview LAB. It is a dictionary with the following keys: `USER_IDENTIFIER_HEADER`, `USER_NAME_HEADER`, `USER_EMAIL_HEADER`, `USER_AFFILIATION_HEADER`, `DEFAULT_EMAIL`, `DEFAULT_AFFILIATION`.
+- `ASREVIEW_LAB_REMOTE_USER` - Remote user configuration for ASReview LAB. It is a dictionary with the following keys: `USER_IDENTIFIER_HEADER`, `USER_NAME_HEADER`, `USER_EMAIL_HEADER`, `USER_AFFILIATION_HEADER`, `DEFAULT_EMAIL`, `DEFAULT_AFFILIATION`, `REMOTE_AUTH_SECRET`.
 
 Cookie configuration
 
