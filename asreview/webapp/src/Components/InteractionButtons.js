@@ -55,7 +55,7 @@ const InteractionButtons = () => {
             alignItems="center"
           >
             <Grid
-              sx={{ textAlign: "center", width: "120px" }}
+              sx={{ textAlign: "center", width: "100px" }}
               size={{
                 xs: 4,
                 md: 2,
@@ -107,7 +107,7 @@ const InteractionButtons = () => {
               />
             </Grid>
             <Grid
-              sx={{ textAlign: "center", width: "120px" }}
+              sx={{ textAlign: "center", width: "100px" }}
               size={{
                 xs: 4,
                 md: 2,
@@ -126,7 +126,7 @@ const InteractionButtons = () => {
               </Button>
             </Grid>
             <Grid
-              sx={{ textAlign: "center", width: "120px" }}
+              sx={{ textAlign: "center", width: "100px" }}
               size={{
                 xs: 4,
                 md: 2,
@@ -145,7 +145,7 @@ const InteractionButtons = () => {
               </Button>
             </Grid>
             <Grid
-              sx={{ textAlign: "center", width: "120px" }}
+              sx={{ textAlign: "center", width: "100px" }}
               size={{
                 xs: 4,
                 md: 2,
@@ -164,7 +164,7 @@ const InteractionButtons = () => {
               </Button>
             </Grid>
             <Grid
-              sx={{ textAlign: "center", width: "120px" }}
+              sx={{ textAlign: "center", width: "100px" }}
               size={{
                 xs: 4,
                 md: 2,

@@ -1,6 +1,13 @@
 import * as React from "react";
 
-import { Box, Snackbar, Tab, Tabs, Typography } from "@mui/material";
+import {
+  Box,
+  Snackbar,
+  Tab,
+  Tabs,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 
 import {
   AutoAwesomeOutlined,
@@ -92,6 +99,8 @@ import { useQuery } from "react-query";
 // };
 
 const Upload = ({ mode }) => {
+  const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+
   const [uploadSource, setUploadSource] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState(null);
   const [setupProjectId, setSetupProjectId] = React.useState(null);
@@ -112,9 +121,11 @@ const Upload = ({ mode }) => {
           onChange={(event, newValue) => {
             setUploadSource(newValue);
           }}
-          centered
+          centered={!mobileScreen}
           textColor="secondary"
           indicatorColor="secondary"
+          scrollButtons="auto"
+          variant={mobileScreen ? "scrollable" : "standard"}
           aria-label="Upload source"
           sx={{ mb: 3 }}
         >
