@@ -140,8 +140,8 @@ const ElasGame = ({ toggleOpen }) => {
 
   // cheat
   const [cheat, toggleCheat] = useToggle();
-  useHotkeys("c", !cheat ? toggleCheat : () => {}, { keydown: true });
-  useHotkeys("c", toggleCheat, { keyup: true });
+  useHotkeys("SHIFT+c", !cheat ? toggleCheat : () => {}, { keydown: true });
+  useHotkeys("SHIFT+c", toggleCheat, { keyup: true });
 
   // close the cards after 1 second if not matched
   useEffect(() => {
