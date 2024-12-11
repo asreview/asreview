@@ -96,7 +96,10 @@ def current_user_projects(f):
 def login_remote_user(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if current_app.config.get("LOGIN_DISABLED", False) and not current_user.is_authenticated:
+        if (
+            current_app.config.get("LOGIN_DISABLED", False)
+            and not current_user.is_authenticated
+        ):
             remote_user_handler = current_app.config.get("REMOTE_USER", False)
 
             if isinstance(remote_user_handler, RemoteUserHandler):
