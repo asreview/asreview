@@ -263,6 +263,10 @@ const ProfilePage = (props) => {
 
   return (
     <Container maxWidth="md" sx={{ mb: 3 }}>
+      <Typography variant="h4" sx={{ mb: 3 }}>
+        Profile
+      </Typography>
+
       {data && isFetched && (
         <>
           {/* Page body */}
@@ -345,7 +349,6 @@ const ProfilePage = (props) => {
                 disabled={!formik.isValid || loadingSaveButton}
                 variant="contained"
                 onClick={handleSubmit}
-                size={!props.mobileScreen ? "medium" : "small"}
               >
                 Save
               </Button>
