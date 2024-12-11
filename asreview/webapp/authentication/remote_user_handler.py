@@ -20,7 +20,7 @@ class RemoteUserHandler:
         "USER_EMAIL_HEADER": False,
         "USER_AFFILIATION_HEADER": False,
         "DEFAULT_EMAIL_DOMAIN": "localhost",
-        "DEFAULT_AFFILIATION": "",
+        "DEFAULT_AFFILIATION": None,
     }
 
     def __init__(self, config={}):
