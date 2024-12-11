@@ -35,6 +35,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from werkzeug.exceptions import HTTPException
 
+
 def project_authorization(f):
     """Decorator function that checks if current user can access
     a project in an authenticated situation"""

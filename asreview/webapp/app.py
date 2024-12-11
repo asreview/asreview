@@ -124,15 +124,16 @@ def create_app(config_path=None):
     def error_500(e):
         """Return JSON instead of HTML for HTTP errors."""
         response = e.get_response()
-        response.data = json.dumps({
-            "code": e.code,
-            "name": e.name,
-            "description": e.description,
-        })
+        response.data = json.dumps(
+            {
+                "code": e.code,
+                "name": e.name,
+                "description": e.description,
+            }
+        )
         logging.error(e.description)
         response.content_type = "application/json"
         return response
-
 
     @app.route("/signin", methods=["GET"])
     @app.route("/oauth_callback", methods=["GET"])

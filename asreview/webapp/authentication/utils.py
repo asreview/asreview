@@ -7,6 +7,7 @@ from flask_login import login_user
 from flask_mail import Mail
 from flask_mail import Message
 
+
 def has_email_configuration(app):
     return all(
         [
@@ -24,6 +25,7 @@ def perform_login_user(user, app):
         remember=True,
         duration=dt.timedelta(days=app.config.get("LOGIN_DURATION", 31)),
     )
+
 
 def send_forgot_password_email(user, cur_app):
     # do not send email in test environment

@@ -10,18 +10,21 @@ from asreview.webapp.tests.utils.misc import custom_remote_auth_headers
 
 @pytest.mark.parametrize("uri", ["/", "/signup"])
 def test_no_login_without_header(client_remote_auth, uri):
-    custom_headers = custom_remote_auth_headers(identifier="") # setup the REMOTE_AUTH_SECRET header
+    custom_headers = custom_remote_auth_headers(
+        identifier=""
+    )  # setup the REMOTE_AUTH_SECRET header
     r = client_remote_auth.get(uri, **custom_headers)
     assert r.status_code == 302
     assert r.location == "/signin"
 
 
-def test_no_login_without_secret(client_remote_auth, uri = "/"):
-    custom_headers = custom_remote_auth_headers(identifier="foo", secret = None)
+def test_no_login_without_secret(client_remote_auth, uri="/"):
+    custom_headers = custom_remote_auth_headers(identifier="foo", secret=None)
 
     response = client_remote_auth.get(uri, follow_redirects=True, **custom_headers)
-    assert 'REMOTE_AUTH_SECRET did not match' in response.get_json()['message']
+    assert "REMOTE_AUTH_SECRET did not match" in response.get_json()["message"]
     assert response.status_code == 401
+
 
 # ###################
 # LOGIN SUCCESSFUL
@@ -50,7 +53,7 @@ def test_login_with_header(client_remote_auth, uri):
     assert user.is_authenticated
     assert user.email == "foo@dev.bar"
     assert user.affiliation == "UU"
-    
+
 
 # ###################
 # API
@@ -69,4 +72,3 @@ def test_api_returns_user_with_header(client_remote_auth):
     user_info = r.get_json()
     assert user_info["id"] == 1
     assert user_info["name"] == "foo"
-

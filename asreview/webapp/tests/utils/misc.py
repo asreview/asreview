@@ -12,7 +12,11 @@ from asreview.webapp.utils import asreview_path
 
 
 def custom_remote_auth_headers(
-    identifier="foo", affiliation="UU", email="foo@dev.bar", name="Foo Bar", secret = "secret"
+    identifier="foo",
+    affiliation="UU",
+    email="foo@dev.bar",
+    name="Foo Bar",
+    secret="secret",
 ):
     return {
         "environ_base": {
