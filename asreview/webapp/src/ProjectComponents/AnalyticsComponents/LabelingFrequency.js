@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -41,10 +35,8 @@ const LabelingFrequency = ({ project_id }) => {
   );
 
   const totalPapers = progressQuery?.data?.n_records || 0;
-  const reversedDecisions = useMemo(() => {
-    const progressDensity = genericDataQuery?.data || [];
-    return progressDensity.slice(-totalPapers).reverse();
-  }, [genericDataQuery?.data, totalPapers]);
+  const progressDensity = genericDataQuery?.data || [];
+  const reversedDecisions = progressDensity.slice(-totalPapers).reverse();
 
   const minVisibleRecords = 10;
   const maxVisibleRecords = reversedDecisions.length;
@@ -53,9 +45,7 @@ const LabelingFrequency = ({ project_id }) => {
       Math.pow(maxVisibleRecords / minVisibleRecords, sliderValue / 100),
   );
 
-  const decisionsToDisplay = useMemo(() => {
-    return reversedDecisions.slice(0, visibleCount);
-  }, [reversedDecisions, visibleCount]);
+  const decisionsToDisplay = reversedDecisions.slice(0, visibleCount);
 
   useEffect(() => {
     if (canvasRef.current && decisionsToDisplay.length > 0) {
@@ -84,10 +74,6 @@ const LabelingFrequency = ({ project_id }) => {
         const y = (canvasHeight - barHeight) / 2;
         const radius = 7;
 
-        const x = canvasWidth - (index + 1) * (barWidth + gap);
-        const y = (canvasHeight - barHeight) / 2;
-        const radius = 7;
-
         ctx.beginPath();
         ctx.moveTo(x + radius, y);
         ctx.lineTo(x + barWidth - radius, y);
@@ -109,17 +95,17 @@ const LabelingFrequency = ({ project_id }) => {
     }
   }, [decisionsToDisplay, sliderValue, theme]);
 
-  const handleSliderChange = useCallback((event, newValue) => {
+  const handleSliderChange = (event, newValue) => {
     setSliderValue(newValue);
-  }, []);
+  };
 
-  const handlePopoverOpen = useCallback((event) => {
+  const handlePopoverOpen = (event) => {
     setAnchorEl(event.currentTarget);
-  }, []);
+  };
 
-  const handlePopoverClose = useCallback(() => {
+  const handlePopoverClose = () => {
     setAnchorEl(null);
-  }, []);
+  };
 
   const popoverOpen = Boolean(anchorEl);
 
@@ -216,6 +202,6 @@ const LabelingFrequency = ({ project_id }) => {
       </Popover>
     </Card>
   );
-});
+};
 
 export default LabelingFrequency;
