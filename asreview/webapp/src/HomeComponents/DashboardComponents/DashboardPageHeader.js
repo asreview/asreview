@@ -13,8 +13,6 @@ export default function DashboardPageHeader({ mode }) {
       <Typography
         variant="h3"
         sx={{
-          // textAlign: "center",
-          // fontWeight: "bold",
           fontFamily: "Roboto Serif",
           mb: 2,
         }}
@@ -27,7 +25,6 @@ export default function DashboardPageHeader({ mode }) {
         variant="h3"
         sx={{
           textAlign: "center",
-          // fontWeight: "bold",
           fontFamily: "Roboto Serif",
           mb: 4,
         }}
