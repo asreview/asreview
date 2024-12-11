@@ -14,7 +14,7 @@
 
 __all__ = []
 
-from datetime import datetime
+import time
 
 import numpy as np
 import pandas as pd
@@ -34,8 +34,8 @@ class Simulate:
     To seed the simulation, provide the seed to the classifier, query strategy,
     feature extraction model, and balance strategy or use a global random seed.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     fm: numpy.ndarray
         The feature matrix to use for the simulation.
     labels: numpy.ndarray, pandas.Series, list
@@ -200,15 +200,15 @@ class Simulate:
                 else None,
                 "feature_extraction": self.feature_extraction.name,
                 "training_set": len(self._results),
-                "time": datetime.now(),
+                "time": time.time(),
             }
         )
 
     def query(self, n):
         """Query the next n records to label.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         n: int
             The number of records to query.
 
@@ -227,8 +227,8 @@ class Simulate:
     def label(self, record_ids, prior=False):
         """Label the records with the given record_ids.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         record_ids: list
             The record ids to label.
         prior: bool
@@ -260,7 +260,7 @@ class Simulate:
                 "balance_strategy": balance_strategy,
                 "feature_extraction": feature_extraction,
                 "training_set": training_set,
-                "labeling_time": str(datetime.now()),
+                "time": time.time(),
                 "note": None,
                 "tags": None,
                 "user_id": None,
@@ -282,8 +282,8 @@ class Simulate:
     ):
         """Label random records.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         n_included: int
             Number of included records to label.
         n_excluded: int
@@ -321,8 +321,8 @@ class Simulate:
     def to_sql(self, fp):
         """Write the data a sql file.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         fp: str, Path, asreview.Project
             The path to the sqlite file to write the results to.
         """

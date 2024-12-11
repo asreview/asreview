@@ -29,7 +29,7 @@ const AddPriorKnowledge = ({ open, onClose, mobileScreen }) => {
       TransitionComponent={Fade}
       onClose={onClose}
     >
-      <DialogTitle>Search prior knowledge</DialogTitle>
+      <DialogTitle>Search and label prior knowledge</DialogTitle>
       <DialogContent>
         <PriorSearch />
       </DialogContent>

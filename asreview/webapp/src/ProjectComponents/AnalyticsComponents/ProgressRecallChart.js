@@ -272,7 +272,7 @@ export default function ProgressRecallChart(props) {
   }, [seriesArray, optionsChart]);
 
   return (
-    <Card>
+    <Card sx={{ backgroundColor: 'transparent'}}>
       <CardErrorHandler
         queryKey={"fetchGenericData"}
         error={props.progressRecallQuery?.error}

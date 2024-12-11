@@ -97,9 +97,9 @@ def test_model_seed(tmpdir, seed):
 
     # open the state file and extract the priors
     with asr.open_state(project1_fp) as s1:
-        record_table1 = s1.get_results_table().drop("labeling_time", axis=1)
+        record_table1 = s1.get_results_table().drop("time", axis=1)
 
     with asr.open_state(project2_fp) as s2:
-        record_table2 = s2.get_results_table().drop("labeling_time", axis=1)
+        record_table2 = s2.get_results_table().drop("time", axis=1)
 
     assert_frame_equal(record_table1, record_table2)

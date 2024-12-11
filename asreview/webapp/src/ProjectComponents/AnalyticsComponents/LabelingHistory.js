@@ -12,10 +12,11 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Button,
 } from "@mui/material";
 import { CardErrorHandler } from "Components";
 import { useToggle } from "hooks/useToggle";
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 
 const sortPerChunk = (decisions, chunkSize) => {
   const sorted = [];
@@ -47,19 +48,8 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
 
   const totalPapers = progressQuery?.data?.n_records || 0;
   const labelingChronology = genericDataQuery?.data || [];
-  const maxVisibleItems = totalPapers;
-  const visibleItems = Math.min(maxVisibleItems, totalPapers);
-  const decisionsToDisplay = labelingChronology
-    .slice(-totalPapers)
-    .slice(-visibleItems);
-
-  // const open = Boolean(anchorEl);
-  // const id = open ? "paper-popover" : undefined;
-
-  const infoOpen = Boolean(infoAnchorEl);
-  const infoId = infoOpen ? "info-popover" : undefined;
-
-  const maxItemsToDisplay = 390;
+  const maxItemsToDisplay = 270;
+  const [itemsToDisplay, setItemsToDisplay] = useState(maxItemsToDisplay);
 
   const mdScreen = useMediaQuery(theme.breakpoints.down("md"));
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -71,9 +61,27 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
     chunkSize = 15;
   }
 
-  const labels = chronological
-    ? decisionsToDisplay
-    : sortPerChunk(decisionsToDisplay, chunkSize);
+  // Limit data processing to displayed items
+  const decisionsToDisplay = useMemo(() => {
+    const displayedDecisions = labelingChronology.slice(0, itemsToDisplay);
+    const unlabeledCount = Math.max(0, itemsToDisplay - displayedDecisions.length);
+    const unlabeledRecords = Array.from({ length: unlabeledCount }, () => ({
+      label: null,
+    }));
+    return [...displayedDecisions, ...unlabeledRecords];
+  }, [labelingChronology, itemsToDisplay]);
+
+  const labels = useMemo(() => {
+    return chronological
+      ? decisionsToDisplay
+      : sortPerChunk(decisionsToDisplay, chunkSize);
+  }, [decisionsToDisplay, chronological, chunkSize]);
+
+  // const open = Boolean(anchorEl);
+  // const id = open ? "paper-popover" : undefined;
+
+  const infoOpen = Boolean(infoAnchorEl);
+  const infoId = infoOpen ? "info-popover" : undefined;
 
   return (
     <Box position="relative" width="100%" maxWidth={960}>
@@ -82,7 +90,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
         error={genericDataQuery?.error}
         isError={!!genericDataQuery?.isError}
       />
-      <Card>
+      <Card sx={{ backgroundColor: 'transparent'}}>
         <CardContent>
           <Stack>
             <Box>
@@ -115,18 +123,10 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                 width: 1,
               }}
             >
-              {/* {generateLines(
-                  visibleItems,
-                  decisionsToDisplay,
-                  !chronological,
-                  chunkSize,
-                  handleClick,
-                  theme,
-                )} */}
-
+              {/* Rendering the labeling history grid */}
               <Grid
                 container
-                columnSpacing={"3px"}
+                columnSpacing={"5px"}
                 rowSpacing={1}
                 columns={30}
                 sx={{
@@ -135,56 +135,55 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
               >
                 {labels.map((decision, index) => (
                   <Grid
-                    size={{ xs: 3, sm: 2, md: 1 }}
                     key={index}
+                    size={{ xs: 3, sm: 2, md: 1 }}
                     sx={{
-                      height: "5px",
+                      height: 
+                      decision.label === 1
+                          ? "10px"
+                          : decision.label === 0
+                          ? "8px"
+                          : "8px",
                       bgcolor:
                         decision.label === 1
-                          ? "secondary.main"
-                          : "primary.light",
-                      borderRadius: 1,
-                    }}
-                  />
-                ))}
+                          ? "grey.600"
+                          : decision.label === 0
+                          ? "primary.light"
+                          : "grey.400", // Unlabeled records
+                        borderRadius: 
+                        decision.label === 1
+                          ? 4
+                          : decision.label === 0
+                          ? 1
+                          : 1,
+                        }}
+                      />
+                    ))}
+                    </Grid>
 
-                {Array.from(
-                  { length: maxItemsToDisplay - labels.length },
-                  (value, index) => (
-                    <Grid
-                      size={{ xs: 3, sm: 2, md: 1 }}
-                      key={`unseen-or-irrelevant-${index}`}
-                      sx={{
-                        height: "5px",
-                        bgcolor: "grey.400",
-                        borderRadius: 1,
-                      }}
-                    />
-                  ),
-                )}
-              </Grid>
+                    {itemsToDisplay < totalPapers && (
+                    <Box display="flex" justifyContent="center" sx={{ mt: 1 }}>
+                      <Button
+                      onClick={() =>
+                        setItemsToDisplay(
+                        Math.min(itemsToDisplay + maxItemsToDisplay, totalPapers),
+                        )
+                      }
+                      >
+                      Show More
+                      </Button>
+                    </Box>
+                    )}
 
-              {maxItemsToDisplay < progressQuery?.data?.n_records && (
-                <Typography align="center" sx={{ mt: 1 }}>
-                  {progressQuery?.data?.n_records - maxItemsToDisplay} more
-                  records
-                </Typography>
-              )}
-            </Box>
-          </Stack>
-        </CardContent>
-      </Card>
-      {/* <Popover id={id} open={open} anchorEl={anchorEl} onClose={handleClose}>
-        {selectedPaper !== null && (
-          <Box>
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-              Placeholder Title
-            </Typography>
-            <Typography variant="caption">Coming Soon</Typography>
-            <Typography variant="body2">Placeholder Abstract</Typography>
-          </Box>
-        )}
-      </Popover> */}
+                    {itemsToDisplay >= totalPapers && (
+                    <Typography align="center" sx={{ mt: 1 }}>
+                      All records are displayed.
+                    </Typography>
+                    )}
+                  </Box>
+                  </Stack>
+                </CardContent>
+                </Card>
       <Popover
         id={infoId}
         open={infoOpen}
@@ -193,7 +192,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
           setInfoAnchorEl(null);
         }}
       >
-        <Box>
+        <Box sx={{ p: 2, maxWidth: 300 }}>
           <Typography variant="body2" gutterBottom>
             <strong>Chronological</strong>
           </Typography>
@@ -210,8 +209,9 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
           </Typography>
           <Typography variant="body2" gutterBottom>
             These are your previous labeling decisions. Gold lines represent
-            relevant records, while gray lines represent irrelevant records.
-            When you click on a line, you can view that paper's details.
+            relevant records, gray lines represent irrelevant records, and light
+            gray lines represent unlabeled records. When you click on a line, you
+            can view that paper's details.
           </Typography>
           <Box>
             <a
@@ -230,4 +230,5 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
     </Box>
   );
 };
+
 export default LabelingHistory;

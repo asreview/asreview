@@ -56,6 +56,13 @@ const timeAgo = new TimeAgo("en-US");
 //   },
 // }));
 
+const formatUser = (user) => {
+  if (user?.current_user) {
+    return "by you";
+  }
+  return `by ${user.name}`;
+};
+
 const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
   const [noteState, setNoteState] = React.useState(note);
 
@@ -118,7 +125,7 @@ const RecordCardLabeler = ({
   tagValues = null,
   note = null,
   showNotes = true,
-  labelDatetime = null,
+  labelTime = null,
   user = null,
   decisionCallback,
   hotkeys = false,
@@ -177,9 +184,13 @@ const RecordCardLabeler = ({
     setAnchorEl(null);
   };
 
-  useHotkeys("v", () => hotkeys && makeDecision(1));
-  useHotkeys("x", () => hotkeys && makeDecision(0));
-  useHotkeys("n", () => hotkeys && toggleShowNotesDialog(), { keyup: true });
+  useHotkeys("v", () => hotkeys && !isLoading && !isSuccess && makeDecision(1));
+  useHotkeys("x", () => hotkeys && !isLoading && !isSuccess && makeDecision(0));
+  useHotkeys(
+    "n",
+    () => hotkeys && !isLoading && !isSuccess && toggleShowNotesDialog(),
+    { keyup: true },
+  );
 
   return (
     <Stack
@@ -284,7 +295,7 @@ const RecordCardLabeler = ({
           {editState && (
             <>
               <Tooltip
-                title="Add to relevant records (V)"
+                title="Add to my collection (V)"
                 enterDelay={800}
                 leaveDelay={200}
               >
@@ -305,7 +316,7 @@ const RecordCardLabeler = ({
                 </Button>
               </Tooltip>
               <Tooltip
-                title="Mark as not relevant (X)"
+                title="Mark as not relevant and don't show again (X)"
                 enterDelay={800}
                 leaveDelay={200}
               >
@@ -360,7 +371,8 @@ const RecordCardLabeler = ({
               {label === 1 && <Chip label="My collection" color="primary" />}
               {label === 0 && <Chip label="Not relevant" color="primary" />}
               <Typography variant="secondary">
-                {timeAgo.format(new Date(labelDatetime))} {user && "by " + user}
+                {timeAgo.format(new Date(labelTime * 1000))}{" "}
+                {user && formatUser(user)}
               </Typography>
             </>
           )}

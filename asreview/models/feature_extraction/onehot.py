@@ -16,17 +16,17 @@ __all__ = ["OneHot"]
 
 from sklearn.feature_extraction.text import CountVectorizer
 
-from asreview.models.feature_extraction.base import BaseFeatureExtraction
+from asreview.models.feature_extraction.sklearn_adapter import SKLearnAdapter
 
 
-class OneHot(BaseFeatureExtraction):
+class OneHot(SKLearnAdapter):
     """OneHot feature extraction technique (``onehot``).
 
     Use the standard OneHot feature extraction technique from `SKLearn
     <https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html>`__.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     lowercase: bool
         Convert all characters to lowercase before tokenizing.
     max_df: float
@@ -42,30 +42,19 @@ class OneHot(BaseFeatureExtraction):
     name = "onehot"
     label = "OneHot"
 
-    def __init__(self, *args, lowercase=True, max_df=0.9, min_df=5, **kwargs):
-        """Initialize onehot class."""
-        super().__init__(*args, **kwargs)
-        self.lowercase = lowercase
-        self.max_df = max_df
-        self.min_df = min_df
-
-    @property
-    def _model(self):
-        if not hasattr(self, "CV"):
-            self.CV = CountVectorizer(
-                binary=True,  # One-hot encoding, not counts.
-                lowercase=self.lowercase,
-                max_df=self.max_df,
-                min_df=self.min_df,
-                ngram_range=(1, 3),
-            )
-        return self.CV
-
-    def fit(self, texts):
-        """Fit the model to the texts."""
-        self._model.fit(texts)
-
-    def transform(self, texts):
-        """Transform texts into one-hot encoded features."""
-        X = self._model.transform(texts)
-        return X
+    def __init__(
+        self,
+        lowercase=True,
+        max_df=0.9,
+        min_df=5,
+        ngram_range=(1, 3),
+        **kwargs,
+    ):
+        super().__init__(
+            sklearn_model=CountVectorizer,
+            lowercase=lowercase,
+            max_df=max_df,
+            min_df=min_df,
+            ngram_range=ngram_range,
+            **kwargs,
+        )

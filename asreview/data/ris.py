@@ -78,8 +78,8 @@ def _parse_asreview_data_from_notes(note_list):
 def _remove_asreview_data_from_notes(note_list):
     """Remove ASReview data from notes.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     note_list: list
         A list of notes, coming from the Dataframe's "notes" column.
 
@@ -108,8 +108,8 @@ class RISReader(BaseReader):
     def _strip_zotero_p_tags(note_list):
         """Converter function for removing the XHTML <p></p> tags from Zotero export.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         note_list: list
             A list of notes, coming from the Dataframe's "notes" column.
 
@@ -150,8 +150,8 @@ class RISReader(BaseReader):
     def read_data(cls, fp):
         """Import dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         fp: str, pathlib.Path
             File path to the RIS file.
         note_list: list
@@ -223,8 +223,8 @@ class RISWriter:
     def write_data(cls, df, fp):
         """Export dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         df: pd.Dataframe
             Dataframe of all available record data.
         fp: str, pathlib.Path
@@ -246,8 +246,9 @@ class RISWriter:
         for rec in records:
 
             def _notnull(v):
-                if isinstance(v, list) and v:
-                    return True
+                if isinstance(v, list):
+                    return v != []
+
                 return pd.notnull(v)
 
             # Remove all nan values

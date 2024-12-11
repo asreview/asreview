@@ -28,8 +28,8 @@ class BaseBalance(BaseModel):
     def sample(self, labeled_idx, y):
         """Resample the training data.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         labeled_idx: numpy.ndarray
             Training indices, that is all records that have been reviewed.
         y: numpy.ndarray

@@ -66,8 +66,8 @@ def _unpack_params(params):
 def _print_record(record, use_cli_colors=True):
     """Format one record for displaying in the CLI.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     record: Record
         The record to format.
     use_cli_colors: bool
@@ -193,7 +193,7 @@ def _cli_simulate(argv):
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
         prior_idx = _convert_id_to_idx(data_store, args.prior_record_id)
 
-    fm = feature_model.fit_transform(data_store)
+    fm = feature_model.from_data_store(data_store)
 
     print("The following records are prior knowledge:\n")
     for record in data_store.get_records(prior_idx):

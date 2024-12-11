@@ -39,6 +39,7 @@ import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { useToggle } from "hooks/useToggle";
 import { useContext } from "react";
+import { projectModes } from "globals.js";
 
 const DEFAULT_MODELS = [
   {
@@ -384,6 +385,7 @@ const ModelSelectDialog = ({
 };
 
 const ModelCard = ({
+  mode = null,
   editable = true,
   showWarning = false,
   trainNewModel = false,
@@ -436,13 +438,19 @@ const ModelCard = ({
     },
   );
 
+  console.log(mode);
+
   return (
     <Card>
       <CardHeader
         title="AI model"
         subheader={
           <>
-            <>Compose an AI model to accelerate your review process. </>
+            <>
+              {projectModes.SIMULATION === mode
+                ? "Compose an AI model to simulate the performance of your review process."
+                : "Compose an AI model to accelerate your review process."}
+            </>
             <Link
               underline="none"
               href={`https://asreview.nl/blog/active-learning-explained/`}

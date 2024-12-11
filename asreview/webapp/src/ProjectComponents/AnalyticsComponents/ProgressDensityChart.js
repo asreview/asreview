@@ -253,7 +253,7 @@ export default function ProgressDensityChart(props) {
   }, [seriesArray, optionsChart]);
 
   return (
-    <Card>
+    <Card sx={{ backgroundColor: 'transparent'}}>
       <CardErrorHandler
         queryKey={"fetchGenericData"}
         error={props.genericDataQuery?.error}

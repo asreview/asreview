@@ -1,139 +1,19 @@
 import {
   Button,
-  Checkbox,
   Chip,
   Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Divider,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  FormLabel,
-  InputLabel,
-  MenuItem,
-  Select,
+  IconButton,
   Stack,
   Toolbar,
+  useMediaQuery,
 } from "@mui/material";
-import { ProjectAPI } from "api";
 import * as React from "react";
-import { useQuery } from "react-query";
 
 import { DownloadOutlined } from "@mui/icons-material";
 import { useToggle } from "hooks/useToggle";
 import { useParams } from "react-router-dom";
-import { Filter, LabeledRecord } from ".";
-
-const ExportButton = ({ project_id }) => {
-  const [open, toggleOpen] = useToggle();
-
-  const [format, setFormat] = React.useState("csv");
-  const [collections, setCollections] = React.useState(["relevant"]);
-
-  const { data } = useQuery(
-    ["fetchDatasetWriter", { project_id }],
-    ProjectAPI.fetchDatasetWriter,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
-
-  const exportDataset = () => {
-    ProjectAPI.fetchExportDataset({
-      project_id,
-      collections,
-      format,
-    }).then((response) => {
-      toggleOpen();
-    });
-  };
-  return (
-    <>
-      <Button
-        onClick={toggleOpen}
-        startIcon={<DownloadOutlined />}
-        sx={{ float: "right" }}
-      >
-        Export
-      </Button>
-      <Dialog open={open} onClose={toggleOpen}>
-        <DialogTitle>Export records</DialogTitle>
-        <DialogContent>
-          <FormControl
-            component="fieldset"
-            onChange={(event) => {
-              if (event.target.checked) {
-                setCollections([...collections, event.target.name]);
-              } else {
-                setCollections(
-                  collections.filter((value) => value !== event.target.name),
-                );
-              }
-            }}
-          >
-            <FormLabel component="legend">Select subset(s) to export</FormLabel>
-            <FormGroup>
-              <FormControlLabel
-                control={<Checkbox />}
-                label="My collection"
-                name="relevant"
-                checked={collections.includes("relevant")}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Not relevant"
-                name="irrelevant"
-                checked={collections.includes("irrelevant")}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Not seen (yet)"
-                name="not_seen"
-                checked={collections.includes("not_seen")}
-              />
-            </FormGroup>
-          </FormControl>
-
-          <Divider sx={{ my: "1.5rem" }} />
-
-          <FormControl fullWidth>
-            <InputLabel id="export-format-select-label">
-              Export file format
-            </InputLabel>
-            <Select
-              labelId="export-format-select-label"
-              id="export-format-select"
-              value={format}
-              label="Export file format"
-              onChange={(event) => {
-                setFormat(event.target.value);
-              }}
-            >
-              {data?.result.map((value, index) => {
-                return (
-                  <MenuItem
-                    key={index}
-                    value={value.name}
-                    disabled={!value.enabled}
-                  >
-                    {value.label}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={toggleOpen}>Cancel</Button>
-          <Button onClick={exportDataset}>Export</Button>
-        </DialogActions>
-      </Dialog>
-    </>
-  );
-};
+import { ExportDialog, Filter, LabeledRecord } from ".";
 
 const LabelHistory = ({
   mode = "oracle",
@@ -144,6 +24,9 @@ const LabelHistory = ({
   showExport = true,
 }) => {
   const { project_id } = useParams();
+  const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+
+  const [open, toggleOpen] = useToggle();
 
   const [label, setLabel] = React.useState("relevant");
   const [state, setState] = React.useState(filterQuery);
@@ -186,7 +69,33 @@ const LabelHistory = ({
               }}
             />
           </Stack>
-          {showExport && <ExportButton project_id={project_id} />}
+          {showExport && (
+            <>
+              {mobileScreen && (
+                <IconButton
+                  onClick={toggleOpen}
+                  sx={{ float: "right" }}
+                  color="inherit"
+                >
+                  <DownloadOutlined />
+                </IconButton>
+              )}
+              {!mobileScreen && (
+                <Button
+                  onClick={toggleOpen}
+                  startIcon={<DownloadOutlined />}
+                  sx={{ float: "right" }}
+                >
+                  Export
+                </Button>
+              )}
+              <ExportDialog
+                project_id={project_id}
+                open={open}
+                onClose={toggleOpen}
+              />
+            </>
+          )}
         </Toolbar>
       </Container>
       <Divider />

@@ -158,10 +158,10 @@ const RecordCard = ({
       />
       <Card
         elevation={showBorder ? 4 : 0}
-        sx={{
-          bgcolor: "#FFFFFF",
+        sx={(theme) => ({
+          bgcolor: theme.palette.background.record,
           borderRadius: !showBorder ? 0 : undefined,
-        }}
+        })}
       >
         <Grid
           container
@@ -185,7 +185,8 @@ const RecordCard = ({
               decisionCallback={() => setState({ open: false })}
               retrainAfterDecision={retrainAfterDecision}
               note={record.state?.note}
-              labelDatetime={record.state?.labeling_time}
+              labelTime={record.state?.time}
+              user={record.state?.user}
               showNotes={showNotes}
               tagsForm={record.tags_form}
               tagValues={record.state?.tags}

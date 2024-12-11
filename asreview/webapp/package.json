@@ -7,12 +7,15 @@
     "@fontsource/roboto-serif": "^5.1.1",
     "@mui/icons-material": "^6.1.0",
     "@mui/material": "^6.1.0",
+    "@mui/x-charts": "^7.22.2",
     "axios": "^1.7.7",
+    "cors": "^2.8.5",
     "formik": "^2.4.6",
     "html-to-image": "^1.11.11",
     "javascript-time-ago": "^2.5.11",
     "react": "^18.3.1",
     "react-apexcharts": "^1.4.1",
+    "react-circular-progressbar": "^2.1.0",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.3",
     "react-hotkeys-hook": "^4.5.1",
@@ -23,6 +26,7 @@
     "react-router-dom": "^6.26.1",
     "react-scripts": "^5.0.1",
     "react-share": "^4.4.0",
+    "recharts": "^2.13.3",
     "yup": "^1.4.0"
   },
   "scripts": {

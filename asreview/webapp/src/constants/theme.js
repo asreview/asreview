@@ -14,12 +14,13 @@ export const theme = {
         background: {
           default: "#fffbf5",
           paper: "#f2ede4",
+          record: "#ffffff",
         },
         text: {
           primary: "#3E2723",
           secondary: "#6D4C41",
         },
-        error: { main: "#D32F2F" },
+        error: { main: "#ba1a1a" },
 
         grey: {
           400: "#DEDBD2",
@@ -34,18 +35,22 @@ export const theme = {
           main: "#6F7E6F",
         },
         secondary: {
-          main: "#64B5F6",
+          main: "#adcfae",
+        },
+        tertiary: {
+          main: "#e3c46d",
         },
         background: {
-          default: "#121212",
-          paper: "#1E1E1E",
+          default: "#16130b",
+          paper: "#231f17",
+          record: "#110e07",
         },
         text: {
-          primary: "#FFFFFF",
+          primary: "#eae1d4",
           secondary: "#B0B0B0",
         },
         error: {
-          main: "#FF6B6B",
+          main: "#93000a",
         },
 
         grey: {

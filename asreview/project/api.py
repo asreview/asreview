@@ -26,7 +26,6 @@ from urllib.request import urlretrieve
 import zipfile
 from dataclasses import asdict
 from dataclasses import replace
-from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 import warnings
@@ -123,7 +122,6 @@ class Project:
                 "description": project_description,
                 "authors": project_authors,
                 "created_at_unix": int(time.time()),
-                "datetimeCreated": str(datetime.now()),
                 "reviews": [],
                 "feature_matrices": [],
                 "tags": project_tags,
@@ -191,8 +189,8 @@ class Project:
     def add_dataset(self, fp, dataset_id=None, file_writer=None):
         """Add a dataset to the project file.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         fp: str, Path
             Filepath to the dataset. It will be copied to the correct location in the
             project file.
@@ -274,13 +272,13 @@ class Project:
     @staticmethod
     def get_matrix_filename(feature_model):
         """Get the file name of the feature matrix for a specific feature model."""
-        return f"{feature_model.name}_feature_matrix.{feature_model.file_extension}"
+        return f"{feature_model.name}_feature_matrix.{feature_model.__file_extension__}"
 
     def add_feature_matrix(self, feature_matrix, feature_model):
         """Add feature matrix to project file.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         feature_matrix: numpy.ndarray, scipy.sparse.csr.csr_matrix
             The feature matrix to add to the project file.
         feature_model: BaseFeatureExtraction
@@ -311,8 +309,8 @@ class Project:
     def get_feature_matrix(self, feature_model):
         """Get the feature matrix from the project file.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         feature_model : BaseFeatureExtraction
             Feature extraction class for which to get the matrix.
 
@@ -343,8 +341,8 @@ class Project:
     ):
         """Add new review metadata.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         review_id: str
             The review_id uuid4.
         settings: ReviewSettings
@@ -368,7 +366,7 @@ class Project:
             review_id = uuid4().hex
 
         if start_time is None:
-            start_time = datetime.now()
+            start_time = int(time.time())
 
         config = self.config
 
@@ -392,9 +390,9 @@ class Project:
 
         review_config = {
             "id": review_id,
-            "start_time": str(start_time),
+            "start_time": int(time.time()),
             "status": status,
-            # "end_time": datetime.now()
+            # "end_time": int(time.time())
         }
 
         # add container for reviews
@@ -409,8 +407,8 @@ class Project:
     def update_review(self, review_id=None, settings=None, state=None, **kwargs):
         """Update review metadata.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         review_id: str
             The review_id uuid4. Default None, which is the
             first added review.
@@ -477,14 +475,14 @@ class Project:
 
         If no review_id is given, mark the first review as finished.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         review_id: str
             Identifier of the review to mark as finished.
         """
 
         self.update_review(
-            review_id=review_id, status="finished", end_time=str(datetime.now())
+            review_id=review_id, status="finished", end_time=int(time.time())
         )
 
     def export(self, export_fp):
@@ -603,7 +601,7 @@ class Project:
                 {
                     "message": f"{err_type}: {err}",
                     "type": f"{err_type}",
-                    "datetime": str(datetime.now()),
+                    "time": int(time.time()),
                 },
                 f,
             )

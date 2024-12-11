@@ -19,12 +19,26 @@ import {
 } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { CardErrorHandler } from "Components";
+import { useQuery } from "react-query";
+import { ProjectAPI } from "api";
 
-const LabelingFrequency = React.memo(({ genericDataQuery, progressQuery }) => {
-  const [sliderValue, setSliderValue] = useState(30);
+const LabelingFrequency = ({ project_id }) => {
+  const [sliderValue, setSliderValue] = useState(50);
   const [anchorEl, setAnchorEl] = useState(null);
   const canvasRef = useRef(null);
   const theme = useTheme();
+
+  const progressQuery = useQuery(
+    ["fetchProgress", { project_id }],
+    ({ queryKey }) => ProjectAPI.fetchProgress({ queryKey }),
+    { refetchOnWindowFocus: false },
+  );
+
+  const genericDataQuery = useQuery(
+    ["fetchGenericData", { project_id }],
+    ({ queryKey }) => ProjectAPI.fetchGenericData({ queryKey }),
+    { refetchOnWindowFocus: false },
+  );
 
   const totalPapers = progressQuery?.data?.n_records || 0;
   const reversedDecisions = useMemo(() => {
@@ -34,12 +48,10 @@ const LabelingFrequency = React.memo(({ genericDataQuery, progressQuery }) => {
 
   const minVisibleRecords = 10;
   const maxVisibleRecords = reversedDecisions.length;
-  const visibleCount = useMemo(() => {
-    return Math.floor(
-      minVisibleRecords *
-        Math.pow(maxVisibleRecords / minVisibleRecords, sliderValue / 100),
-    );
-  }, [minVisibleRecords, maxVisibleRecords, sliderValue]);
+  const visibleCount = Math.floor(
+    minVisibleRecords *
+      Math.pow(maxVisibleRecords / minVisibleRecords, sliderValue / 100),
+  );
 
   const decisionsToDisplay = useMemo(() => {
     return reversedDecisions.slice(0, visibleCount);
@@ -64,9 +76,13 @@ const LabelingFrequency = React.memo(({ genericDataQuery, progressQuery }) => {
         ctx.fillStyle =
           decision.label === 1
             ? theme.palette.mode === "light"
-              ? theme.palette.primary.light
-              : theme.palette.primary.main // Relevant
-            : theme.palette.grey[600]; // Irrelevant
+              ? theme.palette.grey[600]
+              : theme.palette.grey[600] // Relevant
+            : theme.palette.primary.main; // Irrelevant
+
+        const x = canvasWidth - (index + 1) * (barWidth + gap);
+        const y = (canvasHeight - barHeight) / 2;
+        const radius = 7;
 
         const x = canvasWidth - (index + 1) * (barWidth + gap);
         const y = (canvasHeight - barHeight) / 2;
@@ -112,7 +128,6 @@ const LabelingFrequency = React.memo(({ genericDataQuery, progressQuery }) => {
       sx={{
         position: "relative",
         backgroundColor: "transparent",
-        boxShadow: 3,
       }}
     >
       <CardContent>
@@ -122,11 +137,11 @@ const LabelingFrequency = React.memo(({ genericDataQuery, progressQuery }) => {
           </IconButton>
         </Box>
         <CardErrorHandler
-          queryKey={"fetchGenericData"}
-          error={genericDataQuery?.error}
-          isError={!!genericDataQuery?.isError}
+          queryKey={"fetchGenericData and fetchProgress"}
+          error={genericDataQuery?.error || progressQuery?.error}
+          isError={!!genericDataQuery?.isError || !!progressQuery?.isError}
         />
-        {genericDataQuery?.isLoading ? (
+        {genericDataQuery?.isLoading || progressQuery?.isLoading ? (
           <Skeleton variant="rectangular" height={200} />
         ) : (
           <>

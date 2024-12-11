@@ -109,7 +109,8 @@ const AnalyticsPage = () => {
             <Typography
               sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }}
             >
-              747 records in total
+              {progressQuery.data && progressQuery.data.n_records} records in
+              total
             </Typography>
           </Box>
         </Fade>
@@ -146,6 +147,8 @@ const AnalyticsPage = () => {
           <Tabs
             value={activeHistoryTab}
             onChange={(event, newValue) => setActiveHistoryTab(newValue)}
+            scrollButtons="auto"
+            variant="scrollable"
           >
             <Tab label="Labeling History" />
             <Tab label="Labeling Frequency" />
@@ -159,10 +162,7 @@ const AnalyticsPage = () => {
             />
           )}
           {activeHistoryTab === 1 && (
-            <LabelingFrequency
-              genericDataQuery={genericDataQuery}
-              progressQuery={progressQuery}
-            />
+            <LabelingFrequency project_id={project_id} />
           )}
           {activeHistoryTab === 2 && (
             <ProgressDensityChart genericDataQuery={genericDataQuery} />

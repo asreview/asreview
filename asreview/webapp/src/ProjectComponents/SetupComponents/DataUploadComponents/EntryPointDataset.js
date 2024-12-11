@@ -1,8 +1,8 @@
 import {
+  Box,
   Button,
   Card,
   CardContent,
-  CardMedia,
   Chip,
   Dialog,
   DialogActions,
@@ -12,8 +12,13 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import {
+  DeveloperBoardOutlined,
+  MedicalServicesOutlined,
+  PsychologyAltOutlined,
+  EmojiNatureOutlined,
+} from "@mui/icons-material";
 import { useToggle } from "hooks/useToggle";
-import React from "react";
 
 const DOILink = (doi) => {
   if (doi !== undefined && doi.startsWith("http")) {
@@ -30,6 +35,40 @@ const formatCitation = (authors, year) => {
   } else {
     return authors + " (" + year + ")";
   }
+};
+
+const CardIcon = ({ iconName }) => {
+  const iconProps = {
+    fontSize: "medium",
+    sx: { m: 1 },
+  };
+
+  let iconType;
+  let iconBGColor;
+
+  switch (iconName) {
+    case "Psychology":
+      iconType = <PsychologyAltOutlined {...iconProps} />;
+      iconBGColor = "secondary.main";
+      break;
+    case "Medicine":
+      iconType = <MedicalServicesOutlined {...iconProps} />;
+      iconBGColor = "tertiary.main";
+      break;
+    case "Computer science":
+      iconType = <DeveloperBoardOutlined {...iconProps} />;
+      iconBGColor = "#8BAAFF";
+      break;
+    case "Biology":
+      iconType = <EmojiNatureOutlined {...iconProps} />;
+      iconBGColor = "#9B6E96";
+      break;
+    default:
+      iconType = null;
+      iconBGColor = "grey.500";
+  }
+
+  return <Box sx={{ bgcolor: iconBGColor, p: 1 }}>{iconType}</Box>;
 };
 
 const EntryPointDataset = ({
@@ -49,22 +88,14 @@ const EntryPointDataset = ({
   return (
     <>
       <Card onClick={toggleOpen} elevation={0}>
-        <CardMedia
-          component="img"
-          height="180px"
-          image={
-            "https://github.com/asreview/asreview-artwork/raw/master/AI_generated/PNG/elas_drugs.png"
-          }
-          alt={dataset.title}
-        />
-        <CardContent>
-          <Typography>
-            {formatCitation(dataset.authors, dataset.year)}
-          </Typography>
-          {dataset.topic && (
-            <Chip label={dataset.topic} color="secondary" sx={{ mt: 1 }} />
-          )}
-        </CardContent>
+        <Stack direction="row" spacing={1}>
+          <CardIcon iconName={dataset.topic} />
+          <CardContent>
+            <Typography>
+              {formatCitation(dataset.authors, dataset.year)}
+            </Typography>
+          </CardContent>
+        </Stack>
       </Card>
       <Dialog open={open} onClose={toggleOpen}>
         <DialogTitle>{dataset.title}</DialogTitle>
