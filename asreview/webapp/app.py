@@ -123,16 +123,17 @@ def create_app(config_path=None):
 
     @app.errorhandler(InternalServerError)
     def error_500(e):
-        original = getattr(e, "original_exception", None)
+        """Return JSON instead of HTML for HTTP errors."""
+        response.status = 500
+        response.data = json.dumps({
+            "code": e.code,
+            "name": e.name,
+            "description": e.description,
+        })
+        logging.error(e.description)
+        response.content_type = "application/json"
+        return response
 
-        if original is None:
-            # direct 500 error, such as abort(500)
-            logging.error(e)
-            return jsonify(message="Whoops, something went wrong."), 500
-
-        # wrapped unhandled error
-        logging.error(e.original_exception)
-        return jsonify(message=str(e.original_exception)), 500
 
     @app.route("/signin", methods=["GET"])
     @app.route("/oauth_callback", methods=["GET"])
