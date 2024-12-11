@@ -97,7 +97,7 @@ def login_remote_user(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if (
-            current_app.config.get("LOGIN_DISABLED", False)
+            not current_app.config.get("LOGIN_DISABLED", False)
             and not current_user.is_authenticated
         ):
             remote_user_handler = current_app.config.get("REMOTE_USER", False)
