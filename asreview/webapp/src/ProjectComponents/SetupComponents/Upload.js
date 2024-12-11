@@ -99,7 +99,7 @@ import { useQuery } from "react-query";
 // };
 
 const Upload = ({ mode }) => {
-  const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   const [uploadSource, setUploadSource] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState(null);
@@ -121,7 +121,7 @@ const Upload = ({ mode }) => {
           onChange={(event, newValue) => {
             setUploadSource(newValue);
           }}
-          centered
+          centered={!mobileScreen}
           textColor="secondary"
           indicatorColor="secondary"
           scrollButtons="auto"
