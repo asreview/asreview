@@ -1,5 +1,9 @@
 import { CssBaseline } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import {
+  createTheme,
+  ThemeProvider,
+  responsiveFontSizes,
+} from "@mui/material/styles";
 import App from "App";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -11,10 +15,11 @@ import { ScrollToTop } from "Components";
 const queryClient = new QueryClient();
 
 function ASReviewApp() {
-  const muiTheme = createTheme({
+  let muiTheme = createTheme({
     // cssVariables: true,
     ...theme,
   });
+  muiTheme = responsiveFontSizes(muiTheme);
 
   return (
     <React.StrictMode>
