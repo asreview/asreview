@@ -18,7 +18,7 @@ export default function DashboardPageHeader({ mode }) {
         }}
       >
         {mode === projectModes.ORACLE && "The power of AI,"}
-        {mode === projectModes.SIMULATION && "The power of AI & expert,"}
+        {mode === projectModes.SIMULATION && "Simulate AI & expert"}
       </Typography>
 
       <Typography
@@ -30,7 +30,7 @@ export default function DashboardPageHeader({ mode }) {
         }}
       >
         {mode === projectModes.ORACLE && "the expertise of you"}
-        {mode === projectModes.SIMULATION && "fully automatic"}
+        {/* {mode === projectModes.SIMULATION && "fully automatic"} */}
       </Typography>
     </Stack>
   );
