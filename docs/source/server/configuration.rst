@@ -161,6 +161,9 @@ Although this is a powerful feature that allows one to leverage a myriad of
 authentication options, **it should be used with caution**. If the webserver is
 not properly configured, ASReview will be improperly secured.
 
+Note that if the user specified by the remote user header does not yet exist, it will be created
+*regardless of the value of the ALLOW_ACCOUNT_CREATION option*.
+
 Use the `REMOTE_USER` option to enable this form of authentication handling. This is a `dict`
 in which you can configure which headers ASReview will attempt to read user information from.
 
