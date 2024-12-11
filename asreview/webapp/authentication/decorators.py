@@ -118,7 +118,10 @@ def login_remote_user(f):
                             DB.session.commit()
                         except (IntegrityError, SQLAlchemyError) as e:
                             DB.session.rollback()
-                            abort(500, description="Error attempting to create user based on remote user authentication.")
+                            abort(
+                                500,
+                                description="Error attempting to create user based on remote user authentication.",
+                            )
 
                     login_user(
                         user, remember=True, duration=datetime.timedelta(days=31)
