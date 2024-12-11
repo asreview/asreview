@@ -104,7 +104,7 @@ const GameCard = ({ cardIndex, cardValue, open, clickCard, disabled }) => {
   );
 };
 
-const ElasGame = ({ open, toggleOpen }) => {
+const ElasGame = ({ toggleOpen }) => {
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"), {
     noSsr: true,
   });
@@ -253,7 +253,7 @@ const ElasGameDialog = ({ open, toggleOpen }) => {
       aria-labelledby="game-dialog-title"
       aria-describedby="game-dialog-description"
     >
-      <ElasGame />
+      <ElasGame toggleOpen={toggleOpen} />
     </Dialog>
   );
 };
