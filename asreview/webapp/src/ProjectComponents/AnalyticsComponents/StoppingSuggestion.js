@@ -1,6 +1,9 @@
 import React from "react";
 
 import EditIcon from "@mui/icons-material/Edit";
+import ArticleIcon from "@mui/icons-material/Article";
+import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
+import SettingsIcon from "@mui/icons-material/Settings";
 import {
   Box,
   Button,
@@ -24,6 +27,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import QuizOutlined from "@mui/icons-material/QuizOutlined";
 
 const StoppingSuggestion = ({ project_id }) => {
   const theme = useTheme();
@@ -93,22 +97,19 @@ const StoppingSuggestion = ({ project_id }) => {
 
   const openEdit = Boolean(anchorElEdit);
 
-  const legendData = React.useMemo(() => {
-    if (!data) return [];
-    return [
-      {
-        label: "Threshold",
-        value: data[0]?.params?.threshold || 0,
-        color: theme.palette.grey[400],
-        type: "stopping",
-      },
-      {
-        label: "Current",
-        value: data[0]?.value || 0,
-        color: theme.palette.primary.main,
-      },
-    ];
-  }, [data, theme.palette.grey, theme.palette.primary.main]);
+  const legendData = [
+    {
+      label: "Threshold",
+      value: data?.[0]?.params?.threshold || 0,
+      color: theme.palette.grey[400],
+      type: "stopping",
+    },
+    {
+      label: "Current",
+      value: data?.[0]?.value || 0,
+      color: theme.palette.primary.main,
+    },
+  ];
 
   // Dummy handlers - we can implement actual functionality as needed
   const handleFinishProject = () => {
@@ -130,7 +131,7 @@ const StoppingSuggestion = ({ project_id }) => {
     <Card
       sx={{
         position: "relative",
-        bgcolor: "background.default",
+        bgcolor: "transparent",
       }}
     >
       <CardContent>
@@ -200,7 +201,7 @@ const StoppingSuggestion = ({ project_id }) => {
                           height: 16,
                           bgcolor: item.color,
                           borderRadius: "50%",
-                          mr: 1,
+                          mr: 2,
                         }}
                       />
                     )}
@@ -211,7 +212,7 @@ const StoppingSuggestion = ({ project_id }) => {
                           setAnchorElEdit(event.currentTarget);
                         }}
                         color="primary"
-                        sx={{ p: 0, mr: 0 }}
+                        sx={{ p: 0, mr: 1 }}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>
@@ -273,6 +274,24 @@ const StoppingSuggestion = ({ project_id }) => {
                     },
                   }}
                 />
+                {progress >= 100 && (
+                  <IconButton
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%) rotate(90deg)",
+                      color: theme.palette.grey[400],
+                    }}
+                    onClick={() => setOpenCompletionPopup(true)}
+                  >
+                    <DoneRoundedIcon
+                      sx={{
+                        fontSize: 50,
+                      }}
+                    />
+                  </IconButton>
+                )}
               </Box>
             )}
           </Grid>
@@ -294,7 +313,6 @@ const StoppingSuggestion = ({ project_id }) => {
           </Typography>
           <TextField
             type="number"
-            // value={data[0]?.params.threshold}
             label="Threshold"
             value={stoppingRuleThreshold}
             onChange={(e) => {
@@ -317,158 +335,62 @@ const StoppingSuggestion = ({ project_id }) => {
           </Button>
         </Box>
       </Popover>
-      {/* Completion Pop-up Dialog */}
       <Dialog
         open={openCompletionPopup}
         onClose={() => setOpenCompletionPopup(false)}
-        aria-labelledby="completion-dialog-title"
-        aria-describedby="completion-dialog-description"
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle
-          id="completion-dialog-title"
-          sx={{
-            textAlign: "center",
-            marginBottom: theme.spacing(2),
-          }}
-        >
-          <Typography variant="h6" color="text.primary">
-            Stopping Suggestion Reached
+        <DialogTitle sx={{ textAlign: "center", pt: 6, pb: 6 }}>
+          <Typography color="primary" variant="h6">
+            Stopping Suggestion reached! What's next?
           </Typography>
         </DialogTitle>
-        <DialogContent
-          dividers
-          sx={{
-            padding: theme.spacing(3),
-          }}
-        >
-          <Typography
-            variant="body1"
-            gutterBottom
-            color="text.secondary"
-            sx={{ textAlign: "center", marginBottom: theme.spacing(2) }}
-          >
-            How do you want to proceed?
-          </Typography>
-          <Stack spacing={2}>
-            <Box
-              display="flex"
-              alignItems="center"
-              position="relative"
-              sx={{
-                cursor: "pointer",
-                "&:hover .circle": {
-                  opacity: 0.8,
-                },
-              }}
+        <DialogContent>
+          <Stack spacing={5}>
+            <Button
+              startIcon={<DoneRoundedIcon />}
               onClick={handleFinishProject}
+              sx={{ justifyContent: "flex-start" }}
             >
-              <Box
-                className="circle"
-                sx={{
-                  position: "absolute",
-                  width: "100%",
-                  height: "100%",
-                  bgcolor: "grey.600",
-                  borderRadius: "8px",
-                  zIndex: 0,
-                  opacity: 1,
-                }}
-              />
-              <Typography
-                variant="body2"
-                color="background.default"
-                sx={{
-                  zIndex: 1,
-                  position: "relative",
-                  padding: theme.spacing(1.5, 2),
-                  width: "100%",
-                  fontWeight: "bold",
-                }}
-              >
-                Finish Project
-              </Typography>
-            </Box>
+              Mark the Project as Finished
+            </Button>
 
-            <Box
-              display="flex"
-              alignItems="center"
-              position="relative"
-              sx={{
-                cursor: "pointer",
-                "&:hover .circle": {
-                  opacity: 1,
-                },
-              }}
+            <Button
+              startIcon={<SettingsIcon />}
               onClick={handleSelectDifferentModel}
+              sx={{ justifyContent: "flex-start" }}
             >
-              <Box
-                className="circle"
-                sx={{
-                  position: "absolute",
-                  width: "100%",
-                  height: "100%",
-                  bgcolor: theme.palette.primary.main,
-                  borderRadius: "8px",
-                  zIndex: 0,
-                  opacity: 1,
-                }}
-              />
-              <Typography
-                variant="body2"
-                color="background.default"
-                sx={{
-                  zIndex: 1,
-                  position: "relative",
-                  padding: theme.spacing(1.5, 2),
-                  width: "100%",
-                  fontWeight: "bold",
-                }}
-              >
-                Select Different Model
-              </Typography>
-            </Box>
-            <Box
-              display="flex"
-              alignItems="center"
-              position="relative"
-              sx={{
-                cursor: "pointer",
-                "&:hover .circle": {
-                  opacity: 0.8,
-                },
-              }}
+              Continue with a Different Model
+            </Button>
+
+            <Button
+              startIcon={<ArticleIcon />}
               onClick={handleRemindLater}
+              sx={{ justifyContent: "flex-start" }}
             >
-              <Box
-                className="circle"
-                sx={{
-                  position: "absolute",
-                  width: "100%",
-                  height: "100%",
-                  bgcolor: "grey.400",
-                  borderRadius: "8px",
-                  zIndex: 0,
-                  opacity: 0.6,
-                }}
-              />
-              <Typography
-                variant="body2"
-                color="text.primary"
-                sx={{
-                  zIndex: 1,
-                  position: "relative",
-                  padding: theme.spacing(1.5, 2),
-                  width: "100%",
-                  fontWeight: "bold",
-                }}
-              >
-                Remind Me Again 20 Records Later
-              </Typography>
-            </Box>
+              Remind Me Again 20 Records Later
+            </Button>
+
+            <Button
+              startIcon={<QuizOutlined />}
+              href="https://github.com/asreview/asreview/discussions/557"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ justifyContent: "flex-start" }}
+            >
+              What is stopping?
+            </Button>
           </Stack>
         </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button
+            onClick={() => setOpenCompletionPopup(false)}
+            variant="outlined"
+          >
+            Close
+          </Button>
+        </DialogActions>
       </Dialog>
     </Card>
   );

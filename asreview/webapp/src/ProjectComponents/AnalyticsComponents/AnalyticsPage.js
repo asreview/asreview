@@ -14,6 +14,7 @@ import {
   // Avatar,
   // AvatarGroup,
   // Tooltip,
+  Popover,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { useQuery } from "react-query";
@@ -28,9 +29,9 @@ import {
 
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
+import QuizOutlined from "@mui/icons-material/QuizOutlined";
 // import AddIcon from "@mui/icons-material/Add";
 import { IconButton, TextField } from "@mui/material";
-
 import {
   LabelingFrequency,
   LabelingHistory,
@@ -149,6 +150,35 @@ const AnalyticsPage = () => {
   //   console.log("Add user clicked");
   // };
 
+  // Help popover states and handlers
+  const [helpAnchorEl, setHelpAnchorEl] = useState(null);
+  const openHelp = Boolean(helpAnchorEl);
+  const handleHelpClick = (event) => {
+    setHelpAnchorEl(event.currentTarget);
+  };
+  const handleHelpClose = () => {
+    setHelpAnchorEl(null);
+  };
+
+  const helpIcon = (condition) =>
+    condition && (
+      <Box
+        onClick={handleHelpClick}
+        sx={{
+          ml: 1,
+          color: "primary.main",
+          width: "20px",
+          height: "20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+        }}
+      >
+        <QuizOutlined sx={{ fontSize: "16px" }} />
+      </Box>
+    );
+
   return (
     <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>
       <Stack spacing={2} className="main-page-body">
@@ -222,7 +252,14 @@ const AnalyticsPage = () => {
               value={activeProgressTab}
               onChange={(event, newValue) => setActiveProgressTab(newValue)}
             >
-              <Tab label="Progress" />
+              <Tab
+                label={
+                  <Box sx={{ display: "flex" }}>
+                    Progress
+                    {helpIcon(activeProgressTab === 0)}
+                  </Box>
+                }
+              />
             </Tabs>
             {activeProgressTab === 0 && (
               <ReviewProgress project_id={project_id} />
@@ -233,7 +270,14 @@ const AnalyticsPage = () => {
               value={activeStoppingTab}
               onChange={(event, newValue) => setActiveStoppingTab(newValue)}
             >
-              <Tab label="Stopping" />
+              <Tab
+                label={
+                  <Box sx={{ display: "flex" }}>
+                    Stopping
+                    {helpIcon(activeStoppingTab === 0)}
+                  </Box>
+                }
+              />
             </Tabs>
             {activeStoppingTab === 0 && (
               <StoppingSuggestion project_id={project_id} />
@@ -259,10 +303,38 @@ const AnalyticsPage = () => {
             scrollButtons="auto"
             variant="scrollable"
           >
-            <Tab label="History" />
-            <Tab label="Frequency" />
-            <Tab label="Density" />
-            <Tab label="Recall" />
+            <Tab
+              label={
+                <Box sx={{ display: "flex" }}>
+                  History
+                  {helpIcon(activeHistoryTab === 0)}
+                </Box>
+              }
+            />
+            <Tab
+              label={
+                <Box sx={{ display: "flex" }}>
+                  Frequency
+                  {helpIcon(activeHistoryTab === 1)}
+                </Box>
+              }
+            />
+            <Tab
+              label={
+                <Box sx={{ display: "flex" }}>
+                  Density
+                  {helpIcon(activeHistoryTab === 2)}
+                </Box>
+              }
+            />
+            <Tab
+              label={
+                <Box sx={{ display: "flex" }}>
+                  Recall
+                  {helpIcon(activeHistoryTab === 3)}
+                </Box>
+              }
+            />
           </Tabs>
           {activeHistoryTab === 0 && (
             <LabelingHistory
@@ -296,7 +368,14 @@ const AnalyticsPage = () => {
             value={activeInsightsTab}
             onChange={(event, newValue) => setActiveInsightsTab(newValue)}
           >
-            <Tab label="Words of Importance" />
+            <Tab
+              label={
+                <Box sx={{ display: "flex" }}>
+                  Words of Importance
+                  {helpIcon(activeInsightsTab === 0)}
+                </Box>
+              }
+            />
             {/* <Tab label="Feature Importance" />
             <Tab label="Doc2Vec" />
             <Tab label="BERT" />
@@ -357,7 +436,16 @@ const AnalyticsPage = () => {
         whatsappRef={whatsappRef}
         emailRef={emailRef}
       />
+
+      <Popover
+        open={openHelp}
+        anchorEl={helpAnchorEl}
+        onClose={handleHelpClose}
+      >
+        <Typography sx={{ p: 2, maxWidth: 200 }}>Short help content</Typography>
+      </Popover>
     </Container>
   );
 };
+
 export default AnalyticsPage;
