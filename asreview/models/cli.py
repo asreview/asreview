@@ -22,7 +22,7 @@ def _format_algorithm(values, name, description):
 
     for x in values:
         if not getattr(x, "label", None):
-            if hasattr(x, "dist") and  x.dist.name != "asreview":
+            if hasattr(x, "dist") and x.dist.name != "asreview":
                 x.label = x.dist.name
 
         if hasattr(x, "label"):
