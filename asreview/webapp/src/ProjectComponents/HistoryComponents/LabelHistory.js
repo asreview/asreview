@@ -3,8 +3,10 @@ import {
   Chip,
   Container,
   Divider,
+  IconButton,
   Stack,
   Toolbar,
+  useMediaQuery,
 } from "@mui/material";
 import * as React from "react";
 
@@ -22,6 +24,7 @@ const LabelHistory = ({
   showExport = true,
 }) => {
   const { project_id } = useParams();
+  const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   const [open, toggleOpen] = useToggle();
 
@@ -68,13 +71,24 @@ const LabelHistory = ({
           </Stack>
           {showExport && (
             <>
-              <Button
-                onClick={toggleOpen}
-                startIcon={<DownloadOutlined />}
-                sx={{ float: "right" }}
-              >
-                Export
-              </Button>
+              {mobileScreen && (
+                <IconButton
+                  onClick={toggleOpen}
+                  sx={{ float: "right" }}
+                  color="inherit"
+                >
+                  <DownloadOutlined />
+                </IconButton>
+              )}
+              {!mobileScreen && (
+                <Button
+                  onClick={toggleOpen}
+                  startIcon={<DownloadOutlined />}
+                  sx={{ float: "right" }}
+                >
+                  Export
+                </Button>
+              )}
               <ExportDialog
                 project_id={project_id}
                 open={open}

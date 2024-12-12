@@ -147,6 +147,8 @@ const AnalyticsPage = () => {
           <Tabs
             value={activeHistoryTab}
             onChange={(event, newValue) => setActiveHistoryTab(newValue)}
+            scrollButtons="auto"
+            variant="scrollable"
           >
             <Tab label="Labeling History" />
             <Tab label="Labeling Frequency" />

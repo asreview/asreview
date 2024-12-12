@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { InlineErrorHandler } from "Components";
@@ -44,6 +44,7 @@ const SignupSchema = Yup.object().shape({
 
 const ProfilePage = (props) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [initEmail, setInitEmail] = React.useState(null);
   const [initName, setInitName] = React.useState(null);
@@ -57,8 +58,15 @@ const ProfilePage = (props) => {
   const showFirstTimeMessage = searchParams.get("first_time");
 
   const { error, isError, mutate } = useMutation(AuthAPI.updateProfile, {
-    onSuccess: () => {
-      navigate("/reviews");
+    onSuccess: (data) => {
+      if (data.email_changed && data.user_id) {
+        AuthAPI.signout().then(() => {
+          queryClient.invalidateQueries();
+          navigate(`/confirm_account?user_id=${data.user_id}`);
+        });
+      } else {
+        navigate("/reviews");
+      }
     },
     onError: (err) => {
       console.log(err);
@@ -67,7 +75,11 @@ const ProfilePage = (props) => {
 
   const handleSubmit = () => {
     if (formik.isValid) {
-      mutate(formik.values);
+      mutate({
+        ...formik.values,
+        oldPassword: formik.values.oldPassword || "",
+        newPassword: formik.values.newPassword || "",
+      });
     }
   };
 
@@ -251,6 +263,10 @@ const ProfilePage = (props) => {
 
   return (
     <Container maxWidth="md" sx={{ mb: 3 }}>
+      <Typography variant="h4" sx={{ mb: 3 }}>
+        Profile
+      </Typography>
+
       {data && isFetched && (
         <>
           {/* Page body */}
@@ -333,7 +349,6 @@ const ProfilePage = (props) => {
                 disabled={!formik.isValid || loadingSaveButton}
                 variant="contained"
                 onClick={handleSubmit}
-                size={!props.mobileScreen ? "medium" : "small"}
               >
                 Save
               </Button>

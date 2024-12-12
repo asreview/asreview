@@ -174,3 +174,33 @@ def test_label_validation(store):
     store.add_records(records)
     with pytest.raises(ValueError):
         store.add_records([Record(dataset_id="foo", dataset_row=4, included="1")])
+
+
+def test_delete_record(store):
+    record = Record(dataset_id="foo", dataset_row=1)
+    store.add_records([record])
+    assert len(store) == 1
+    store.delete_record(record.record_id)
+    assert len(store) == 0
+
+
+def test_duplicate_of(store):
+    record = Record(dataset_id="foo", dataset_row=1)
+    store.add_records([record])
+    duplicate_record = Record(
+        dataset_id="foo", dataset_row=2, duplicate_of=record.record_id
+    )
+    store.add_records([duplicate_record])
+    non_existing_record_id = 42
+    broken_duplicate_record = Record(
+        dataset_id="foo", dataset_row=2, duplicate_of=non_existing_record_id
+    )
+    with pytest.raises(IntegrityError):
+        store.add_records([broken_duplicate_record])
+
+    # Check that duplicate_of is set to null after duplicate is deleted.
+    store.delete_record(record.record_id)
+    with store.Session() as session:
+        session.add(duplicate_record)
+        session.refresh(duplicate_record)
+    assert duplicate_record.duplicate_of is None

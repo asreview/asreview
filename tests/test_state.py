@@ -66,48 +66,8 @@ TEST_NOTES = [
 ]
 
 TEST_N_PRIORS = 4
-TEST_N_MODELS = 7
 
 TEST_STATE_FP = Path("tests", "asreview_files", "test_state_example_converted.asreview")
-TEST_WITH_TIMES_FP = Path(
-    "tests", "asreview_files", "test_state_example_with_times.asreview"
-)
-TEST_LABELING_TIMES = [
-    "2021-09-30 17:54:07.569255",
-    "2021-09-30 17:54:07.569255",
-    "2021-09-30 17:54:28.860270",
-    "2021-09-30 17:54:28.860270",
-    "2021-09-30 17:54:28.860270",
-    "2021-09-30 17:54:31.689389",
-    "2021-09-30 17:54:33.505257",
-    "2021-09-30 17:54:35.842416",
-    "2021-09-30 17:54:38.245108",
-]
-
-TEST_FIRST_PROBS = [
-    0.7107394917661797,
-    0.7291694332065035,
-    0.732624685298732,
-    0.7017866934752249,
-    0.7275304788204621,
-    0.7126109527686055,
-    0.7246720268636593,
-    0.7040374218528891,
-    0.7095665447517838,
-    0.7021937381372063,
-]
-TEST_LAST_PROBS = [
-    0.7116408177006979,
-    0.7119557616570122,
-    0.71780127925996,
-    0.7127075014419986,
-    0.7085644453092131,
-    0.7067520535764322,
-    0.7103161247883791,
-    0.7192568428839242,
-    0.7118104532649111,
-    0.7150387267232563,
-]
 TEST_POOL_START = [157, 301, 536, 567, 416, 171, 659, 335, 329, 428]
 
 
@@ -302,15 +262,11 @@ def test_get_labels_no_priors(asreview_test_project):
         assert all(labels == TEST_LABELS[4:])
 
 
-def test_get_labeling_times(tmpdir):
-    shutil.copytree(
-        TEST_WITH_TIMES_FP, Path(tmpdir, "test_state_example_with_times.asreview")
-    )
-
-    with asr.open_state(
-        Path(tmpdir, "test_state_example_with_times.asreview")
-    ) as state:
-        assert all(state.get_results_table()["labeling_time"] == TEST_LABELING_TIMES)
+def test_get_labeling_times(asreview_test_project):
+    with asr.open_state(asreview_test_project) as state:
+        results = state.get_results_table()
+        assert isinstance(results["time"], pd.Series)
+        assert results["time"].dtype == "Float64"
 
 
 def test_get_feature_matrix(asreview_test_project):

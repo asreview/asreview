@@ -26,7 +26,6 @@ from urllib.request import urlretrieve
 import zipfile
 from dataclasses import asdict
 from dataclasses import replace
-from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 import warnings
@@ -123,7 +122,6 @@ class Project:
                 "description": project_description,
                 "authors": project_authors,
                 "created_at_unix": int(time.time()),
-                "datetimeCreated": str(datetime.now()),
                 "reviews": [],
                 "feature_matrices": [],
                 "tags": project_tags,
@@ -368,7 +366,7 @@ class Project:
             review_id = uuid4().hex
 
         if start_time is None:
-            start_time = datetime.now()
+            start_time = int(time.time())
 
         config = self.config
 
@@ -392,9 +390,9 @@ class Project:
 
         review_config = {
             "id": review_id,
-            "start_time": str(start_time),
+            "start_time": int(time.time()),
             "status": status,
-            # "end_time": datetime.now()
+            # "end_time": int(time.time())
         }
 
         # add container for reviews
@@ -484,7 +482,7 @@ class Project:
         """
 
         self.update_review(
-            review_id=review_id, status="finished", end_time=str(datetime.now())
+            review_id=review_id, status="finished", end_time=int(time.time())
         )
 
     def export(self, export_fp):
@@ -603,7 +601,7 @@ class Project:
                 {
                     "message": f"{err_type}: {err}",
                     "type": f"{err_type}",
-                    "datetime": str(datetime.now()),
+                    "time": int(time.time()),
                 },
                 f,
             )

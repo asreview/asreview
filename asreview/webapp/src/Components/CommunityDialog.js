@@ -3,16 +3,11 @@ import { useQuery } from "react-query";
 
 import {
   Avatar,
-  Button,
   Card,
   CardActionArea,
   CardHeader,
-  Dialog,
-  DialogActions,
   DialogContent,
-  DialogTitle,
   Divider,
-  IconButton,
   List,
   ListItem,
   ListItemButton,
@@ -22,18 +17,14 @@ import {
   Typography,
 } from "@mui/material";
 
-import {
-  Close,
-  Description,
-  Feedback,
-  QuestionAnswer,
-} from "@mui/icons-material";
+import { Description, Feedback, QuestionAnswer } from "@mui/icons-material";
 
 import { BoxErrorHandler, OpenInNewIconStyled } from "Components";
 
+import { useMediaQuery } from "@mui/material";
 import { UtilsAPI } from "api";
 import { feedbackURL } from "globals.js";
-import { useMediaQuery } from "@mui/material";
+import { StyledDialog } from "StyledComponents/StyledDialog";
 
 const CommunityDialog = ({ onHelp, toggleHelp }) => {
   const { data, error, isError, isFetched } = useQuery(
@@ -48,23 +39,15 @@ const CommunityDialog = ({ onHelp, toggleHelp }) => {
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   return (
-    <Dialog
+    <StyledDialog
       fullScreen={mobileScreen}
       open={onHelp}
       onClose={toggleHelp}
       scroll="paper"
       fullWidth
       maxWidth="sm"
+      title="Community and help"
     >
-      {!mobileScreen && <DialogTitle>Community and help</DialogTitle>}
-      {mobileScreen && (
-        <DialogTitle>
-          <IconButton onClick={toggleHelp}>
-            <Close />
-          </IconButton>
-          Community and help
-        </DialogTitle>
-      )}
       <DialogContent dividers>
         <List>
           <ListItem>
@@ -102,7 +85,6 @@ const CommunityDialog = ({ onHelp, toggleHelp }) => {
             </Stack>
           )}
           <ListItem
-            button
             component={"a"}
             href={`https://asreview.readthedocs.io/en/latest/`}
             target="_blank"
@@ -119,7 +101,7 @@ const CommunityDialog = ({ onHelp, toggleHelp }) => {
             <Typography fontWeight={"bold"}>Need more help?</Typography>
           </ListItem>
           <ListItem>
-            <Card>
+            <Card sx={{ width: "1" }}>
               <CardActionArea
                 href={`https://github.com/asreview/asreview/discussions`}
                 target="_blank"
@@ -142,7 +124,7 @@ const CommunityDialog = ({ onHelp, toggleHelp }) => {
           </ListItem>
 
           <ListItem>
-            <Card>
+            <Card sx={{ width: "1" }}>
               <CardActionArea href={feedbackURL} target="_blank">
                 <CardHeader
                   avatar={
@@ -162,13 +144,7 @@ const CommunityDialog = ({ onHelp, toggleHelp }) => {
           </ListItem>
         </List>
       </DialogContent>
-
-      {!mobileScreen && (
-        <DialogActions>
-          <Button onClick={toggleHelp}>Close</Button>
-        </DialogActions>
-      )}
-    </Dialog>
+    </StyledDialog>
   );
 };
 

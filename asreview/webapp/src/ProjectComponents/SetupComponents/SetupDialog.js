@@ -161,7 +161,7 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
                   <DatasetCard
                     project_id={data?.id}
                     dataset_path={data?.dataset_path}
-                    setDataset={() => {}}
+                    onResetDataset={onClose}
                     hideLabeledInfo={mode === projectModes.SIMULATION}
                   />
                 </Box>
@@ -179,7 +179,7 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
                   </Box>
                 )}
                 <Box sx={{ my: 3 }}>
-                  <ModelCard />
+                  <ModelCard mode={mode} />
                 </Box>
                 <Box sx={{ my: 3 }}>
                   <PriorCard editable={true} mobileScreen={fullScreen} />

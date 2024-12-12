@@ -104,7 +104,7 @@ const GameCard = ({ cardIndex, cardValue, open, clickCard, disabled }) => {
   );
 };
 
-const ElasGame = ({ open, toggleOpen }) => {
+const ElasGame = ({ toggleOpen }) => {
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"), {
     noSsr: true,
   });
@@ -140,8 +140,8 @@ const ElasGame = ({ open, toggleOpen }) => {
 
   // cheat
   const [cheat, toggleCheat] = useToggle();
-  useHotkeys("c", !cheat ? toggleCheat : () => {}, { keydown: true });
-  useHotkeys("c", toggleCheat, { keyup: true });
+  useHotkeys("SHIFT+c", !cheat ? toggleCheat : () => {}, { keydown: true });
+  useHotkeys("SHIFT+c", toggleCheat, { keyup: true });
 
   // close the cards after 1 second if not matched
   useEffect(() => {
@@ -253,7 +253,7 @@ const ElasGameDialog = ({ open, toggleOpen }) => {
       aria-labelledby="game-dialog-title"
       aria-describedby="game-dialog-description"
     >
-      <ElasGame />
+      <ElasGame toggleOpen={toggleOpen} />
     </Dialog>
   );
 };

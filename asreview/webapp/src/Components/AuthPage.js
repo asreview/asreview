@@ -9,18 +9,23 @@ import {
 } from "@mui/material";
 
 import {
+  ForgotPassword,
+  ConfirmAccount,
   HelpPrivacyTermsButton,
   SignInForm,
   SignUpForm,
   ResetPassword,
 } from "Components";
-import { useToggle } from "hooks/useToggle";
 
 import { WordMark } from "icons/WordMark";
 
-const AuthPage = ({ reset_password = false }) => {
-  const [signUp, toggleSignUp] = useToggle(false);
-
+const AuthPage = ({
+  signIn = false,
+  signUp = false,
+  forgotPassword = false,
+  resetPassword = false,
+  confirmAccount = false,
+}) => {
   return (
     <Box
       display="flex"
@@ -56,21 +61,20 @@ const AuthPage = ({ reset_password = false }) => {
               </Stack>
             </CardContent>
 
-            {!reset_password && signUp && (
-              <SignUpForm
-                // showNotification={window.emailVerification && showNotification}
-                toggleSignUp={toggleSignUp}
-              />
-            )}
-            {!reset_password && !signUp && (
+            {signUp && <SignUpForm />}
+
+            {signIn && (
               <SignInForm
                 allowAccountCreation={window.allowAccountCreation}
                 emailVerification={window.emailVerification}
-                toggleSignUp={toggleSignUp}
               />
             )}
 
-            {reset_password && <ResetPassword />}
+            {confirmAccount && <ConfirmAccount />}
+
+            {forgotPassword && <ForgotPassword />}
+
+            {resetPassword && <ResetPassword />}
           </Card>
           <HelpPrivacyTermsButton />
         </Stack>

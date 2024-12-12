@@ -439,13 +439,17 @@ class ProjectAPI {
     });
   }
 
-  static fetchExportDataset({ project_id, collections, format }) {
+  static fetchExportDataset({ project_id, collections, format, user }) {
     const url = api_url + `projects/${project_id}/export_dataset`;
     return new Promise((resolve, reject) => {
       axios({
         url: url,
         method: "get",
-        params: { collections: collections, format: format },
+        params: {
+          collections: collections,
+          format: format,
+          user: user ? 1 : 0,
+        },
         paramsSerializer: (params) => {
           return qs.stringify(params, { arrayFormat: "repeat" });
         },

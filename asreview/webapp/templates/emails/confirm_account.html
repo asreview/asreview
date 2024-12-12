@@ -1,11 +1,19 @@
 <p>Hello {{ name }},</p>
 
+{% if email_type == "create" %}
+<p>Thank you for joining ASReview. You are almost ready!</p>
+{% elif email_type == "change_email" %}
+<p>You have changed your email address.</p>
+{% endif %}
+
 <p>
-  Thank you for joining ASReview. You are almost ready! Please click on the
-  following link to confirm your account:
+  Below you find a 6-digits code. Use it to confirm your email address. Please
+  note that the code will expire in 20 minutes.
 </p>
 
-<p><a href="{{ url }}">{{ url }}</a></p>
+<h2 style="margin: 0; text-align: center; font-size: 24px; color: #333">
+  {{ token }}
+</h2>
 
 <p>
   After confirmation you will be redirected to the signin page. Use your account

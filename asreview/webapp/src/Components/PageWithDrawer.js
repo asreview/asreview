@@ -120,7 +120,12 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
               <WordMark />
             </ButtonBase>
           </Toolbar>
-          <Box component={navComponent} {...navComponentProps} rail={false} />
+          <Box
+            component={navComponent}
+            {...navComponentProps}
+            onClick={toggleMobileDrawer}
+            rail={false}
+          />
           <Box
             sx={{
               overflowX: "hidden",

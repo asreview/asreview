@@ -1,4 +1,4 @@
-import { useMediaQuery, CssBaseline } from "@mui/material";
+import { CssBaseline, useMediaQuery } from "@mui/material";
 import { AuthPage, ProjectDrawerItems } from "Components";
 import {
   ProfilePage,
@@ -10,15 +10,14 @@ import { LabelHistory } from "ProjectComponents/HistoryComponents";
 import { TeamPage } from "ProjectComponents/TeamComponents";
 import { Navigate, Route, Routes } from "react-router-dom";
 import RouteNotFound from "RouteNotFound";
-import { PageHeader } from "StyledComponents/StyledPageHeader";
 
 import { ReviewPage } from "ProjectComponents/ReviewComponents";
 
+import "@fontsource/roboto-serif/400.css";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
-import "@fontsource/roboto-serif/400.css";
 
 import "./App.css";
 
@@ -49,26 +48,38 @@ const App = () => {
           {/* Authentication routes */}
           {window.authentication && (
             <>
-              <Route path="/signin" element={<AuthPage />} />
+              <Route path="/signin" element={<AuthPage signIn={true} />} />
+              {window.allowAccountCreation && (
+                <Route path="/signup" element={<AuthPage signUp={true} />} />
+              )}
+              {window.emailVerification && (
+                <>
+                  <Route
+                    path="/forgot_password"
+                    element={<AuthPage forgotPassword={true} />}
+                  />
+                  <Route
+                    path="/reset_password"
+                    element={<AuthPage resetPassword={true} />}
+                  />
+                  {window.allowAccountCreation && (
+                    <Route
+                      path="/confirm_account"
+                      element={<AuthPage confirmAccount={true} />}
+                    />
+                  )}
+                </>
+              )}
               <Route path="/oauth_callback" element={<SignInOAuthCallback />} />
-              <Route
-                path="/reset_password"
-                element={<AuthPage reset_password={true} />}
-              />
             </>
           )}
           <Route path="projects" element={<Navigate to="/reviews" />} />
           <Route path="" element={<Navigate to="/reviews" />} />
-          <Route path="profile" element={<PageWithDrawer />}>
-            <Route
-              index
-              element={
-                <>
-                  <PageHeader>Profile</PageHeader>
-                  <ProfilePage mobileScreen={mobileScreen} />
-                </>
-              }
-            />
+          <Route
+            path="profile"
+            element={<PageWithDrawer navComponent={LandingDrawerItems} />}
+          >
+            <Route index element={<ProfilePage />} />
           </Route>
           <Route
             path="reviews"

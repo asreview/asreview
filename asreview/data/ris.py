@@ -246,8 +246,9 @@ class RISWriter:
         for rec in records:
 
             def _notnull(v):
-                if isinstance(v, list) and v:
-                    return True
+                if isinstance(v, list):
+                    return v != []
+
                 return pd.notnull(v)
 
             # Remove all nan values

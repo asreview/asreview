@@ -31,6 +31,7 @@ import {
   Stack,
   Tooltip,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 
 import TimeAgo from "javascript-time-ago";
@@ -47,6 +48,8 @@ const projectModeURLMap = {
 const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const largeScreen = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
   const [deleteDialog, toggleDeleteDialog] = useToggle();
   const [openSetup, toggleSetup] = useToggle();
@@ -136,12 +139,13 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
               )}
             </Stack>
             <Typography variant="body2" color="textSecondary" component="p">
-              {timeAgo.format(new Date(project.datetimeCreated))}
+              {timeAgo.format(project.created_at_unix * 1000)}
             </Typography>
           </ButtonBase>
         </Grid>
         {mode === projectModes.ORACLE &&
-          review?.status === projectStatuses.REVIEW && (
+          review?.status === projectStatuses.REVIEW &&
+          largeScreen && (
             <Grid size={3}>
               <Button
                 onClick={() => openProject("reviewer")}
@@ -243,7 +247,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                 <ListItemIcon>
                   <DownloadOutlined />
                 </ListItemIcon>
-                <ListItemText>Export</ListItemText>
+                <ListItemText>Export project</ListItemText>
               </MenuItem>
               {review?.status !== projectStatuses.SETUP &&
                 !(

@@ -350,7 +350,7 @@ class AuthTool:
                     "project_id": project.config.get("id"),
                     "name": project.config.get("name"),
                     "authors": project.config.get("authors"),
-                    "created": project.config.get("datetimeCreated"),
+                    "created": project.config.get("created_at_unix"),
                     "owner_id": 0,
                 }
             )

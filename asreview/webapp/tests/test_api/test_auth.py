@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 from inspect import getfullargspec
 
 import pytest
@@ -193,7 +194,7 @@ def test_signout(client_auth):
 # ###################
 
 
-# A new token is created on signup, that token is can be confirmed
+# A new token is created on signup, that token can be confirmed
 # by the confirm route
 def test_token_confirmation_after_signup(client_auth_verified):
     # signup user
@@ -203,8 +204,9 @@ def test_token_confirmation_after_signup(client_auth_verified):
     user = crud.get_user_by_identifier(user.identifier)
     # now we confirm this user
     r = au.confirm_user(client_auth_verified, user)
+    payload = json.loads(r.text)
     assert r.status_code == 200
-    assert r.headers["Location"].endswith("/reviews")
+    assert payload["message"] == "Account confirmed"
 
 
 # A token expires in 24 hours, test confirmation response after
@@ -238,8 +240,9 @@ def test_if_this_route_returns_404_user_not_found(client_auth_verified):
     user.id = 100
     # now we try to confirm this user
     r = au.confirm_user(client_auth_verified, user)
+    payload = json.loads(r.text)
     assert r.status_code == 404
-    assert r.text == "No user account / correct token found."
+    assert payload["message"] == "No user account / correct token found."
 
 
 # If the token cant be found, this route should return a 404
@@ -254,8 +257,9 @@ def test_if_this_route_returns_404_token_not_found(client_auth_verified):
     user.token = "wrong_token"
     # now we try to confirm this user
     r = au.confirm_user(client_auth_verified, user)
+    payload = json.loads(r.text)
     assert r.status_code == 404
-    assert r.text == "No user account / correct token found."
+    assert payload["message"] == "No user account / correct token found."
 
 
 # If we are not doing verification this route should return a 400
