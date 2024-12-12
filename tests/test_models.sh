@@ -12,7 +12,7 @@ done
 
 
 
-BALANCE_STRATEGIES=('double' 'simple' 'undersample')
+BALANCE_STRATEGIES=('balanced')
 
 for bs in "${BALANCE_STRATEGIES[@]}"
 do

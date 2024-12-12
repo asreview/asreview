@@ -66,7 +66,7 @@ def choose_project_algorithms():
         "query_strategy": random.choice(
             ["cluster", "max", "max_random", "max_uncertainty", "random", "uncertainty"]
         ),
-        "balance_strategy": random.choice(["double", None, "undersample"]),
+        "balance_strategy": random.choice(["balanced", None]),
     }
     return data
 
