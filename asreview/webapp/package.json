@@ -22,7 +22,7 @@
     "react-query": "^3.39.3",
     "react-router-dom": "^6.26.1",
     "react-scripts": "^5.0.1",
-    "react-share": "^4.4.0",
+    "react-share": "^5.1.1",
     "yup": "^1.4.0"
   },
   "scripts": {

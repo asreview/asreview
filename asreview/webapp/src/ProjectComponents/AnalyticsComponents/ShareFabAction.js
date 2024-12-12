@@ -27,7 +27,7 @@ export default function ShareFabAction(props) {
   return (
     <Root>
       <TwitterShareButton
-        ref={props.twitterRef}
+        ref={props.xRef}
         url={asreview_url}
         title={text_en}
         via="asreviewlab"
