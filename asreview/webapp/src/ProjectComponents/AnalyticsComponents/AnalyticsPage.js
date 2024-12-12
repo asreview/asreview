@@ -62,13 +62,15 @@ const actions = [
 const AnalyticsPage = () => {
   const { project_id } = useParams();
 
-  const { data } = useQuery(
-    ["fetchInfo", { project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  // Relevant to name editing. Currently goes to local storage, we can do this the proper way
+
+  // const { data } = useQuery(
+  //   ["fetchInfo", { project_id }],
+  //   ProjectAPI.fetchInfo,
+  //   {
+  //     refetchOnWindowFocus: false,
+  //   },
+  // );
 
   const progressQuery = useQuery(
     ["fetchProgress", { project_id }],
@@ -114,30 +116,33 @@ const AnalyticsPage = () => {
   const [activeStoppingTab, setActiveStoppingTab] = useState(0);
   const [activeInsightsTab, setActiveInsightsTab] = useState(0);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [customName, setCustomName] = useState(
-    () => localStorage.getItem(`projectName-${project_id}`) || data?.name || "",
-  );
+  // Name editing. Currently goes to local storage, we can do this the proper way
 
-  useEffect(() => {
-    if (data?.name && !localStorage.getItem(`projectName-${project_id}`)) {
-      setCustomName(data.name);
-      localStorage.setItem(`projectName-${project_id}`, data.name);
-    }
-  }, [data, project_id]);
+  // const [isEditing, setIsEditing] = useState(false);
+  // const [customName, setCustomName] = useState(
+  //   () => localStorage.getItem(`projectName-${project_id}`) || data?.name || "",
+  // );
 
-  const handleNameChange = (event) => {
-    setCustomName(event.target.value);
-  };
+  // useEffect(() => {
+  //   if (data?.name && !localStorage.getItem(`projectName-${project_id}`)) {
+  //     setCustomName(data.name);
+  //     localStorage.setItem(`projectName-${project_id}`, data.name);
+  //   }
+  // }, [data, project_id]);
 
-  const toggleEditing = () => {
-    if (isEditing) {
-      localStorage.setItem(`projectName-${project_id}`, customName);
-    }
-    setIsEditing(!isEditing);
-  };
+  // const handleNameChange = (event) => {
+  //   setCustomName(event.target.value);
+  // };
 
-  // // Mock users array
+  // const toggleEditing = () => {
+  //   if (isEditing) {
+  //     localStorage.setItem(`projectName-${project_id}`, customName);
+  //   }
+  //   setIsEditing(!isEditing);
+  // };
+
+  // Users for the avatar group
+
   // const users = [
   //   { name: "Jonathan", avatar: ElasFireman },
   //   { name: "Rens", avatar: ElasGrad },
@@ -182,7 +187,7 @@ const AnalyticsPage = () => {
               )}
             </Typography>
             <Typography
-              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }} // when the avatars are added, this should be pb: 3
+              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }} // when the avatars are visible, should be pb: 3
             >
               {progressQuery.data && progressQuery.data.n_records} records in
               total
