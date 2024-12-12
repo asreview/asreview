@@ -157,43 +157,42 @@ const AnalyticsPage = () => {
   return (
     <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>
       <Stack spacing={2} className="main-page-body">
-        <Fade in>
-          <Box>
-            <Typography
-              variant="h4"
-              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 2 }}
-            >
-              {isEditing ? (
-                <TextField
-                  value={customName}
-                  onChange={handleNameChange}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <IconButton onClick={toggleEditing} edge="end">
-                          <CheckIcon />
-                        </IconButton>
-                      ),
-                    },
-                  }}
-                />
-              ) : (
-                <>
-                  {customName}
-                  <IconButton onClick={toggleEditing} sx={{ ml: 1 }}>
-                    <EditIcon />
-                  </IconButton>
-                </>
-              )}
-            </Typography>
-            <Typography
-              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }} // when the avatars are visible, should be pb: 3
-            >
-              {progressQuery.data && progressQuery.data.n_records} records in
-              total
-            </Typography>
-          </Box>
-        </Fade>
+        <Box>
+          <Typography
+            variant="h4"
+            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 2 }}
+          >
+            {isEditing ? (
+              <TextField
+                value={customName}
+                onChange={handleNameChange}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <IconButton onClick={toggleEditing} edge="end">
+                        <CheckIcon />
+                      </IconButton>
+                    ),
+                  },
+                }}
+              />
+            ) : (
+              <>
+                {customName}
+                <IconButton onClick={toggleEditing} sx={{ ml: 1 }}>
+                  <EditIcon />
+                </IconButton>
+              </>
+            )}
+          </Typography>
+          <Typography
+            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }} // when the avatars are visible, should be pb: 3
+          >
+            {progressQuery.data && progressQuery.data.n_records} records in
+            total
+          </Typography>
+        </Box>
+
         <Box
           sx={{
             display: "flex",
