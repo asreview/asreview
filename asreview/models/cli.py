@@ -13,16 +13,21 @@
 # limitations under the License.
 
 from asreview.extensions import extensions
+from importlib.metadata import packages_distributions
 
 
 def _format_algorithm(values, name, description):
     s = f"  {name: <20}Available {description}:\n\n"
-
     result = []
 
+    pkg_distributions = packages_distributions()
+
     for x in values:
-        if "asreviewcontrib" in x.value:
-            x.label = f" ({x.value.split('.')[1]})"
+        base_module = x.value.split(":")[0].split(".")[0]
+        package_name = pkg_distributions.get(base_module, None)
+
+        if base_module == "asreviewcontrib":
+            x.label = package_name[0]
 
         if hasattr(x, "label"):
             result.append(
