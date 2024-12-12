@@ -129,8 +129,10 @@ def test_insert_user_duplicate(client_auth):
 def test_inserting_a_project_record(client_auth):
     # count projects
     assert crud.count_projects() == 0
+    # Make sure the project owner exists as user in the database.
+    owner = crud.create_user(DB)
     # insert this data
-    data = {"project_id": uuid4().hex, "owner_id": 2}
+    data = {"project_id": uuid4().hex, "owner_id": owner.id}
     tool.insert_project(DB.session, data)
     # count again
     assert crud.count_projects() == 1
@@ -144,13 +146,16 @@ def test_inserting_a_project_record(client_auth):
 def test_updating_a_project_record(client_auth):
     # count projects
     assert crud.count_projects() == 0
+    # Make sure the project owner exists as user in the database.
+    owner1 = crud.create_user(DB, 1)
+    owner2 = crud.create_user(DB, 2)
     # insert this data
-    data = {"project_id": uuid4().hex, "owner_id": 2}
+    data = {"project_id": uuid4().hex, "owner_id": owner1.id}
     tool.insert_project(DB.session, data)
     # count again
     assert crud.count_projects() == 1
     # change owner id
-    data["owner_id"] = 3
+    data["owner_id"] = owner2.id
     tool.insert_project(DB.session, data)
     # count again, no inserts, count remains 1
     assert crud.count_projects() == 1

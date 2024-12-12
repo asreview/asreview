@@ -116,6 +116,15 @@ class DataStore:
         with self.Session() as session, session.begin():
             session.add_all(records)
 
+    def delete_record(self, record_id):
+        with self.Session() as session, session.begin():
+            record = session.get(self.record_cls, record_id)
+            if record is None:
+                raise ValueError(
+                    f"DataStore does not contain a record with record_id {record_id}"
+                )
+            session.delete(record)
+
     def __len__(self):
         with self.Session() as session:
             return session.query(self.record_cls).count()
