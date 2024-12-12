@@ -59,14 +59,16 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
         </Stack>
         <Stack direction="row" spacing={1}>
           {!(record.doi === undefined || record.doi === null) && (
-            <StyledIconButton
-              className="record-card-icon"
-              href={"https://doi.org/" + record.doi}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <DOIIcon />
-            </StyledIconButton>
+            <Tooltip title="Open DOI">
+              <StyledIconButton
+                className="record-card-icon"
+                href={"https://doi.org/" + record.doi}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <DOIIcon />
+              </StyledIconButton>
+            </Tooltip>
           )}
 
           {!(record.url === undefined || record.url === null) && (
