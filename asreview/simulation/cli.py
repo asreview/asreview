@@ -308,10 +308,10 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "--balance-strategy",
         type=str,
         dest="balance_strategy",
-        default="double",
+        default="balanced",
         help="Data rebalancing strategy mainly for RNN methods. Helps against"
         " imbalanced dataset with few inclusions and many exclusions. "
-        "Default: 'double'",
+        "Default: 'balanced'",
     )
     parser.add_argument(
         "--no-balance-strategy",

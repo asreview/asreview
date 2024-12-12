@@ -117,8 +117,7 @@ tfidf = "asreview.models.feature_extraction:Tfidf"
 onehot = "asreview.models.feature_extraction:OneHot"
 
 [project.entry-points."asreview.models.balance"]
-double = "asreview.models.balance:DoubleBalance"
-undersample = "asreview.models.balance:UndersampleBalance"
+balanced = "asreview.models.balance:Balanced"
 
 [project.entry-points."asreview.models.query"]
 max = "asreview.models.query.max_prob:MaxQuery"
