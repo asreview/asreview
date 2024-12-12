@@ -1,7 +1,6 @@
 import {
   Card,
   CardContent,
-  Divider,
   Grid2 as Grid,
   Link,
   Paper,
@@ -12,7 +11,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery } from "react-query";
 import { StyledHelpPopover } from "StyledComponents/StyledHelpPopover";
 import { PieChart } from "@mui/x-charts/PieChart";
@@ -20,10 +19,23 @@ import { PieChart } from "@mui/x-charts/PieChart";
 export default function ReviewProgress({ project_id }) {
   const theme = useTheme();
 
-  const { data, isLoading } = useQuery(
-    ["fetchProgress", { project_id: project_id }],
+  // We can implement this fully when we decide on the prior knowledge button
+  //Change to true to test, really minimal now
+  const [includePrior, setIncludePrior] = useState(false);
+
+  const progressQuery = useQuery(
+    ["fetchProgress", { project_id, includePrior }],
     ({ queryKey }) =>
       ProjectAPI.fetchProgress({
+        queryKey,
+      }),
+    { refetchOnWindowFocus: false },
+  );
+
+  const genericDataQuery = useQuery(
+    ["fetchGenericData", { project_id, includePrior }],
+    ({ queryKey }) =>
+      ProjectAPI.fetchGenericData({
         queryKey,
       }),
     { refetchOnWindowFocus: false },
@@ -32,86 +44,74 @@ export default function ReviewProgress({ project_id }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
 
-  const hasPrior =
-    data?.n_included_no_priors !== data?.n_included ||
-    data?.n_excluded_no_priors !== data?.n_excluded;
+  const data = progressQuery.data;
+  const isLoading = progressQuery.isLoading || genericDataQuery.isLoading;
 
-  const pieData = useMemo(() => {
-    if (!data) return [];
-    return [
-      {
-        label: "Not Relevant",
-        value: data.n_excluded_no_priors,
-        color:
-          theme.palette.mode === "light"
-            ? theme.palette.primary.light
-            : theme.palette.primary.main,
-      },
-      {
-        label: "Relevant",
-        value: data.n_included_no_priors,
-        color:
-          theme.palette.mode === "light"
-            ? theme.palette.grey[600]
-            : theme.palette.grey[600],
-      },
-      {
-        label: "Unlabeled",
-        value:
-          data.n_records -
-          data.n_included_no_priors -
-          data.n_excluded_no_priors,
-        color: theme.palette.grey[400],
-      },
-    ];
-  }, [data, theme.palette.mode]);
+  const pieData = !data
+    ? []
+    : [
+        {
+          label: "Not Relevant",
+          value: data.n_excluded_no_priors,
+          color:
+            theme.palette.mode === "light"
+              ? theme.palette.primary.light
+              : theme.palette.primary.main,
+        },
+        {
+          label: "Relevant",
+          value: data.n_included_no_priors,
+          color:
+            theme.palette.mode === "light"
+              ? theme.palette.grey[600]
+              : theme.palette.grey[600],
+        },
+        {
+          label: "Unlabeled",
+          value:
+            data.n_records -
+            data.n_included_no_priors -
+            data.n_excluded_no_priors,
+          color: theme.palette.grey[400],
+        },
+      ];
 
-  const legendData = useMemo(() => {
-    if (!data) return [];
-    return [
-      {
-        label: "Relevant",
-        value: data.n_included_no_priors,
-        priorValue: hasPrior ? data.n_included : null,
-        color:
-          theme.palette.mode === "light"
-            ? theme.palette.grey[600]
-            : theme.palette.grey[600],
-      },
-      {
-        label: "Not Relevant",
-        value: data.n_excluded_no_priors,
-        priorValue: hasPrior ? data.n_excluded : null,
-        color:
-          theme.palette.mode === "light"
-            ? theme.palette.primary.light
-            : theme.palette.primary.main,
-      },
-      {
-        label: "Unlabeled",
-        value:
-          data.n_records -
-          data.n_included_no_priors -
-          data.n_excluded_no_priors,
-        priorValue: hasPrior ? null : null,
-        color: theme.palette.grey[400],
-      },
-    ];
-  }, [data, theme.palette.mode, hasPrior]);
+  const legendData = !data
+    ? []
+    : [
+        {
+          label: "Relevant",
+          value: data.n_included_no_priors,
+          priorValue: includePrior ? data.n_included : null,
+          color:
+            theme.palette.mode === "light"
+              ? theme.palette.grey[600]
+              : theme.palette.grey[600],
+        },
+        {
+          label: "Not Relevant",
+          value: data.n_excluded_no_priors,
+          priorValue: includePrior ? data.n_excluded : null,
+          color:
+            theme.palette.mode === "light"
+              ? theme.palette.primary.light
+              : theme.palette.primary.main,
+        },
+        {
+          label: "Unlabeled",
+          value:
+            data.n_records -
+            data.n_included_no_priors -
+            data.n_excluded_no_priors,
+          priorValue: includePrior ? null : null,
+          color: theme.palette.grey[400],
+        },
+      ];
 
   return (
     <Card sx={{ m: 0, p: 0, bgcolor: "background.default" }}>
       <CardContent sx={{ m: 0, p: 0, bgcolor: "background.default" }}>
         <>
-          {/* <IconButton
-            size="small"
-            onClick={(event) => {
-              setAnchorEl(event.currentTarget);
-            }}
-            sx={{ float: "right" }}
-          >
-            <HelpOutlineIcon fontSize="small" />
-          </IconButton> */}
           <StyledHelpPopover
             id="info-popover"
             open={popoverOpen}
@@ -187,7 +187,7 @@ export default function ReviewProgress({ project_id }) {
                       fontWeight="bold"
                     >
                       {item.value}
-                      {item.priorValue !== null && hasPrior
+                      {item.priorValue !== null && includePrior
                         ? ` (${item.priorValue})`
                         : ""}
                     </Typography>
