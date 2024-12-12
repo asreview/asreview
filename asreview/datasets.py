@@ -180,6 +180,8 @@ class BaseDataSet:
 
 
 class BaseDataGroup(ABC):
+    url = None
+
     def __init__(self, *datasets):
         """Group of datasets.
 
@@ -369,6 +371,7 @@ class DatasetManager:
                         {
                             "group_id": data_group.group_id,
                             "description": data_group.description,
+                            "url": data_group.url,
                             "datasets": group_ser,
                         }
                     )
@@ -410,7 +413,8 @@ class SynergyDataGroup(BaseDataGroup):
     """Datasets available in the SYNERGY dataset."""
 
     group_id = "synergy"
-    description = "SYNERGY datasets (asreview.ai/synergy)"
+    description = "SYNERGY datasets"
+    url = "https://asreview.ai/synergy"
 
     def __init__(self):
         # The following code was used to generate the metadata
