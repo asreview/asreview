@@ -21,7 +21,8 @@ def _format_algorithm(values, name, description):
     result = []
 
     for x in values:
-        x.label = f" ({x.value.split('.')[1]})" if "asreviewcontrib" in x.value else ""
+        if "asreviewcontrib" in x.value:
+            x.label = f" ({x.value.split('.')[1]})"
 
         if hasattr(x, "label"):
             result.append(
