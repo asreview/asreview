@@ -1,15 +1,21 @@
 import { Share } from "@mui/icons-material";
 import {
   Box,
+  Container,
+  Divider,
+  Fade,
   Grid2 as Grid,
   SpeedDial,
   SpeedDialAction,
   Stack,
   Tab,
   Tabs,
+  Typography,
+  // Avatar,
+  // AvatarGroup,
+  // Tooltip,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import {
@@ -20,6 +26,11 @@ import {
   WhatsappIcon,
 } from "react-share";
 
+import EditIcon from "@mui/icons-material/Edit";
+import CheckIcon from "@mui/icons-material/Check";
+// import AddIcon from "@mui/icons-material/Add";
+import { IconButton, TextField } from "@mui/material";
+
 import {
   LabelingFrequency,
   LabelingHistory,
@@ -28,10 +39,18 @@ import {
   ReviewProgress,
   ShareFabAction,
   StoppingSuggestion,
+  WordCounts,
+  // RandomForestVisualization,
+  // FeatureImportanceOneWord,
+  // NeuralNetworkVisualization,
+  // Doc2VecVisualization,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
 
-const Root = styled("div")(({ theme }) => ({}));
+// import ElasFireman from "../../images/ElasFireMan.jpg";
+// import ElasGrad from "../../images/ElasGrad.jpg";
+// import ElasSuperHero from "../../images/ElasSuperHero.jpg";
+
 const actions = [
   { icon: <TwitterIcon round />, name: "Twitter" },
   { icon: <FacebookIcon round />, name: "Facebook" },
@@ -39,8 +58,18 @@ const actions = [
   { icon: <WhatsappIcon round />, name: "WhatsApp" },
   { icon: <EmailIcon round />, name: "Email" },
 ];
+
 const AnalyticsPage = () => {
   const { project_id } = useParams();
+
+  const { data } = useQuery(
+    ["fetchInfo", { project_id }],
+    ProjectAPI.fetchInfo,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
+
   const progressQuery = useQuery(
     ["fetchProgress", { project_id }],
     ({ queryKey }) =>
@@ -81,92 +110,225 @@ const AnalyticsPage = () => {
     }
   };
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
-  const [activeChartTab, setActiveChartTab] = useState(0);
   const [activeProgressTab, setActiveProgressTab] = useState(0);
+  const [activeStoppingTab, setActiveStoppingTab] = useState(0);
+  const [activeInsightsTab, setActiveInsightsTab] = useState(0);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [customName, setCustomName] = useState(
+    () => localStorage.getItem(`projectName-${project_id}`) || data?.name || "",
+  );
+
+  useEffect(() => {
+    if (data?.name && !localStorage.getItem(`projectName-${project_id}`)) {
+      setCustomName(data.name);
+      localStorage.setItem(`projectName-${project_id}`, data.name);
+    }
+  }, [data, project_id]);
+
+  const handleNameChange = (event) => {
+    setCustomName(event.target.value);
+  };
+
+  const toggleEditing = () => {
+    if (isEditing) {
+      localStorage.setItem(`projectName-${project_id}`, customName);
+    }
+    setIsEditing(!isEditing);
+  };
+
+  // // Mock users array
+  // const users = [
+  //   { name: "Jonathan", avatar: ElasFireman },
+  //   { name: "Rens", avatar: ElasGrad },
+  //   { name: "Berke", avatar: ElasSuperHero },
+  // ];
+
+  // // Mock handler for adding a new user, this can redirect to the 'Team' tab
+  // const handleAddUser = () => {
+  //   console.log("Add user clicked");
+  // };
 
   return (
-    <Root aria-label="analytics page">
-      <Box className="main-page-body-wrapper">
-        <Stack spacing={2} className="main-page-body">
+    <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>
+      <Stack spacing={2} className="main-page-body">
+        <Fade in>
           <Box>
+            <Typography
+              variant="h4"
+              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 2 }}
+            >
+              {isEditing ? (
+                <TextField
+                  value={customName}
+                  onChange={handleNameChange}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <IconButton onClick={toggleEditing} edge="end">
+                          <CheckIcon />
+                        </IconButton>
+                      ),
+                    },
+                  }}
+                />
+              ) : (
+                <>
+                  {customName}
+                  <IconButton onClick={toggleEditing} sx={{ ml: 1 }}>
+                    <EditIcon />
+                  </IconButton>
+                </>
+              )}
+            </Typography>
+            <Typography
+              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }} // when the avatars are added, this should be pb: 3
+            >
+              {progressQuery.data && progressQuery.data.n_records} records in
+              total
+            </Typography>
+          </Box>
+        </Fade>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            pb: 3,
+          }}
+        >
+          {/* <AvatarGroup max={20}>
+            {users.map((user, index) => (
+              <Tooltip key={index} title={user.name} arrow>
+                <Avatar alt={user.name} src={user.avatar} />
+              </Tooltip>
+            ))}
+          </AvatarGroup>
+          <Avatar
+            sx={{
+              bgcolor: "grey.400",
+              width: 40,
+              height: 40,
+              cursor: "pointer",
+            }}
+            onClick={handleAddUser}
+          >
+            <AddIcon />
+          </Avatar> */}
+        </Box>
+        <Grid container columns={{ xs: 1, md: 2 }}>
+          <Grid size={1}>
             <Tabs
               value={activeProgressTab}
               onChange={(event, newValue) => setActiveProgressTab(newValue)}
             >
-              <Tab label="Review Progress" />
-              <Tab label="Stopping Suggestion" />
+              <Tab label="Progress" />
             </Tabs>
             {activeProgressTab === 0 && (
-              <ReviewProgress progressQuery={progressQuery} />
+              <ReviewProgress project_id={project_id} />
             )}
-            {activeProgressTab === 1 && (
-              <StoppingSuggestion progressQuery={progressQuery} />
-            )}
-          </Box>
-          <Grid size={12}>
-            <Box sx={{ position: "relative" }}>
-              <Box>
-                <Tabs
-                  value={activeHistoryTab}
-                  onChange={(event, newValue) => setActiveHistoryTab(newValue)}
-                  left
-                >
-                  <Tab label="Labeling History" />
-                  <Tab label="Labeling Frequency" />
-                </Tabs>
-                {activeHistoryTab === 0 && (
-                  <LabelingHistory
-                    genericDataQuery={genericDataQuery}
-                    progressQuery={progressQuery}
-                  />
-                )}
-                {activeHistoryTab === 1 && (
-                  <LabelingFrequency
-                    genericDataQuery={genericDataQuery}
-                    progressQuery={progressQuery}
-                  />
-                )}
-              </Box>
-            </Box>
           </Grid>
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-            }}
+          <Grid size={1}>
+            <Tabs
+              value={activeStoppingTab}
+              onChange={(event, newValue) => setActiveStoppingTab(newValue)}
+            >
+              <Tab label="Stopping" />
+            </Tabs>
+            {activeStoppingTab === 0 && (
+              <StoppingSuggestion project_id={project_id} />
+            )}
+          </Grid>
+        </Grid>
+
+        <Divider
+          sx={{
+            pt: 6,
+            pb: 2,
+          }}
+        >
+          <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
+            Review progress
+          </Typography>
+        </Divider>
+
+        <Box>
+          <Tabs
+            value={activeHistoryTab}
+            onChange={(event, newValue) => setActiveHistoryTab(newValue)}
+            scrollButtons="auto"
+            variant="scrollable"
           >
-            <Box sx={{ width: "100%" }}>
-              <Tabs
-                value={activeChartTab}
-                onChange={(event, newValue) => setActiveChartTab(newValue)}
-                left
-              >
-                <Tab label="Density" />
-                <Tab label="Recall" />
-              </Tabs>
-              {activeChartTab === 0 && (
-                <ProgressDensityChart
-                  genericDataQuery={genericDataQuery}
-                  sx={{
-                    height: "400px",
-                    width: "100%",
-                  }}
-                />
-              )}
-              {activeChartTab === 1 && (
-                <ProgressRecallChart
-                  genericDataQuery={genericDataQuery}
-                  sx={{
-                    height: "400px",
-                    width: "100%",
-                  }}
-                />
-              )}
-            </Box>
-          </Box>
-        </Stack>
-      </Box>
+            <Tab label="History" />
+            <Tab label="Frequency" />
+            <Tab label="Density" />
+            <Tab label="Recall" />
+          </Tabs>
+          {activeHistoryTab === 0 && (
+            <LabelingHistory
+              genericDataQuery={genericDataQuery}
+              progressQuery={progressQuery}
+            />
+          )}
+          {activeHistoryTab === 1 && (
+            <LabelingFrequency project_id={project_id} />
+          )}
+          {activeHistoryTab === 2 && (
+            <ProgressDensityChart genericDataQuery={genericDataQuery} />
+          )}
+          {activeHistoryTab === 3 && (
+            <ProgressRecallChart genericDataQuery={genericDataQuery} />
+          )}
+        </Box>
+
+        <Divider
+          sx={{
+            pt: 6,
+            pb: 2,
+          }}
+        >
+          <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
+            Insights in AI
+          </Typography>
+        </Divider>
+        <Grid size={1}>
+          <Tabs
+            value={activeInsightsTab}
+            onChange={(event, newValue) => setActiveInsightsTab(newValue)}
+          >
+            <Tab label="Words of Importance" />
+            {/* <Tab label="Feature Importance" />
+            <Tab label="Doc2Vec" />
+            <Tab label="BERT" />
+            <Tab label="Random Forest" /> */}
+          </Tabs>
+          {activeInsightsTab === 0 && <WordCounts project_id={project_id} />}
+          {/* {activeInsightsTab === 1 && (
+            <FeatureImportanceOneWord
+              genericDataQuery={genericDataQuery}
+              progressQuery={progressQuery}
+            />
+          )}
+          {activeInsightsTab === 2 && (
+            <Doc2VecVisualization
+              genericDataQuery={genericDataQuery}
+              progressQuery={progressQuery}
+            />
+          )}
+          {activeInsightsTab === 3 && (
+            <NeuralNetworkVisualization
+              genericDataQuery={genericDataQuery}
+              progressQuery={progressQuery}
+            />
+          )}
+          {activeInsightsTab === 4 && (
+            <RandomForestVisualization
+              genericDataQuery={genericDataQuery}
+              progressQuery={progressQuery}
+            />
+          )} */}
+        </Grid>
+      </Stack>
       <SpeedDial
         ariaLabel="share project analytics"
         icon={<Share />}
@@ -195,7 +357,7 @@ const AnalyticsPage = () => {
         whatsappRef={whatsappRef}
         emailRef={emailRef}
       />
-    </Root>
+    </Container>
   );
 };
 export default AnalyticsPage;
