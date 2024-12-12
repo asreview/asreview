@@ -3,7 +3,6 @@ import {
   Box,
   Container,
   Divider,
-  Fade,
   Grid2 as Grid,
   SpeedDial,
   SpeedDialAction,
@@ -64,13 +63,13 @@ const AnalyticsPage = () => {
 
   // Relevant to name editing. Currently goes to local storage, we can do this the proper way
 
-  // const { data } = useQuery(
-  //   ["fetchInfo", { project_id }],
-  //   ProjectAPI.fetchInfo,
-  //   {
-  //     refetchOnWindowFocus: false,
-  //   },
-  // );
+  const { data } = useQuery(
+    ["fetchInfo", { project_id }],
+    ProjectAPI.fetchInfo,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
 
   const progressQuery = useQuery(
     ["fetchProgress", { project_id }],
@@ -118,28 +117,28 @@ const AnalyticsPage = () => {
 
   // Name editing. Currently goes to local storage, we can do this the proper way
 
-  // const [isEditing, setIsEditing] = useState(false);
-  // const [customName, setCustomName] = useState(
-  //   () => localStorage.getItem(`projectName-${project_id}`) || data?.name || "",
-  // );
+  const [isEditing, setIsEditing] = useState(false);
+  const [customName, setCustomName] = useState(
+    () => localStorage.getItem(`projectName-${project_id}`) || data?.name || "",
+  );
 
-  // useEffect(() => {
-  //   if (data?.name && !localStorage.getItem(`projectName-${project_id}`)) {
-  //     setCustomName(data.name);
-  //     localStorage.setItem(`projectName-${project_id}`, data.name);
-  //   }
-  // }, [data, project_id]);
+  useEffect(() => {
+    if (data?.name && !localStorage.getItem(`projectName-${project_id}`)) {
+      setCustomName(data.name);
+      localStorage.setItem(`projectName-${project_id}`, data.name);
+    }
+  }, [data, project_id]);
 
-  // const handleNameChange = (event) => {
-  //   setCustomName(event.target.value);
-  // };
+  const handleNameChange = (event) => {
+    setCustomName(event.target.value);
+  };
 
-  // const toggleEditing = () => {
-  //   if (isEditing) {
-  //     localStorage.setItem(`projectName-${project_id}`, customName);
-  //   }
-  //   setIsEditing(!isEditing);
-  // };
+  const toggleEditing = () => {
+    if (isEditing) {
+      localStorage.setItem(`projectName-${project_id}`, customName);
+    }
+    setIsEditing(!isEditing);
+  };
 
   // Users for the avatar group
 
