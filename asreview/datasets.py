@@ -180,8 +180,6 @@ class BaseDataSet:
 
 
 class BaseDataGroup(ABC):
-    group_id = None
-    description = None
     url = None
 
     def __init__(self, *datasets):
