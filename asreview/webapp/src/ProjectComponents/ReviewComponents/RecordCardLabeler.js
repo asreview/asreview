@@ -44,18 +44,6 @@ import en from "javascript-time-ago/locale/en";
 TimeAgo.addLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
-// const PREFIX = "RecordCardLabeler";
-
-// const classes = {
-//   icon: `${PREFIX}-icon`,
-// };
-
-// const Root = styled("div")(() => ({
-//   [`& .${classes.icon}`]: {
-//     opacity: 0.36,
-//   },
-// }));
-
 const formatUser = (user) => {
   if (user?.current_user) {
     return "by you";
@@ -199,12 +187,6 @@ const RecordCardLabeler = ({
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const openMenu = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
 
   useHotkeys("v", () => hotkeys && !isLoading && !isSuccess && makeDecision(1));
   useHotkeys("x", () => hotkeys && !isLoading && !isSuccess && makeDecision(0));
@@ -426,7 +408,7 @@ const RecordCardLabeler = ({
                   aria-controls={openMenu ? "card-positioned-menu" : undefined}
                   aria-haspopup="true"
                   aria-expanded={openMenu ? "true" : undefined}
-                  onClick={handleClick}
+                  onClick={(event) => setAnchorEl(event.currentTarget)}
                   sx={(theme) => ({
                     float: "right",
                     color: theme.palette.getContrastText(
@@ -443,7 +425,7 @@ const RecordCardLabeler = ({
                 aria-labelledby="card-positioned-button"
                 anchorEl={anchorEl}
                 open={openMenu}
-                onClose={handleMenuClose}
+                onClose={() => setAnchorEl(null)}
                 anchorOrigin={{
                   vertical: "bottom",
                   horizontal: "right",
