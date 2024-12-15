@@ -64,10 +64,30 @@ const formatUser = (user) => {
 };
 
 const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
+  const queryClient = useQueryClient();
+
   const [noteState, setNoteState] = React.useState(note);
 
   const { isError, isLoading, mutate } = useMutation(ProjectAPI.mutateNote, {
     onSuccess: () => {
+      console.log(noteState);
+      queryClient.setQueryData(["fetchRecord", { project_id }], (data) => {
+        console.log({
+          ...data,
+          result: {
+            ...data.result,
+            note: noteState,
+          },
+        });
+
+        return {
+          ...data,
+          result: {
+            ...data.result,
+            note: noteState,
+          },
+        };
+      });
       onClose();
     },
   });
@@ -146,7 +166,9 @@ const RecordCardLabeler = ({
     {
       onSuccess: () => {
         // invalidate queries
-        queryClient.invalidateQueries("fetchLabeledRecord", project_id);
+        queryClient.invalidateQueries({
+          queryKey: ["fetchRecord", { project_id }],
+        });
 
         decisionCallback();
       },
@@ -191,6 +213,8 @@ const RecordCardLabeler = ({
     () => hotkeys && !isLoading && !isSuccess && toggleShowNotesDialog(),
     { keyup: true },
   );
+
+  console.log("rendering RecordCardLabeler", note);
 
   return (
     <Stack
