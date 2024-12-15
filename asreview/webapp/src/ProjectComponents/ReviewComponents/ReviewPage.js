@@ -43,8 +43,6 @@ const ReviewPage = () => {
     },
   );
 
-  console.log("ReviewPage", project_id);
-
   return (
     <Container
       aria-label="review page"
@@ -61,7 +59,14 @@ const ReviewPage = () => {
         <>
           {data?.result !== null && (
             <RecordCard
-              key={project_id + "-" + data?.result["record_id"]}
+              key={
+                "record-card-" +
+                project_id +
+                "-" +
+                data?.result?.record_id +
+                "-" +
+                data?.result?.state?.note
+              }
               project_id={project_id}
               record={data?.result}
               afterDecision={() => queryClient.invalidateQueries("fetchRecord")}

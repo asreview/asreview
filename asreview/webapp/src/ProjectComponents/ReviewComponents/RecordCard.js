@@ -180,6 +180,14 @@ const RecordCard = ({
           </Grid>
           <Grid size={landscape ? 2 : 5}>
             <RecordCardLabeler
+              key={
+                "record-card-labeler-" +
+                project_id +
+                "-" +
+                record?.record_id +
+                "-" +
+                record?.state?.note
+              }
               project_id={project_id}
               record_id={record.record_id}
               label={record.state?.label}

@@ -58,21 +58,15 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
 
   const { isError, isLoading, mutate } = useMutation(ProjectAPI.mutateNote, {
     onSuccess: () => {
-      console.log(noteState);
       queryClient.setQueryData(["fetchRecord", { project_id }], (data) => {
-        console.log({
-          ...data,
-          result: {
-            ...data.result,
-            note: noteState,
-          },
-        });
-
         return {
           ...data,
           result: {
             ...data.result,
-            note: noteState,
+            state: {
+              ...data.result.state,
+              note: noteState,
+            },
           },
         };
       });
@@ -195,8 +189,6 @@ const RecordCardLabeler = ({
     () => hotkeys && !isLoading && !isSuccess && toggleShowNotesDialog(),
     { keyup: true },
   );
-
-  console.log("rendering RecordCardLabeler", note);
 
   return (
     <Stack
