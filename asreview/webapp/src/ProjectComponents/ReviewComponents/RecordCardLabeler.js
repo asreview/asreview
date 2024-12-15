@@ -1,5 +1,6 @@
 import {
   Alert,
+  AlertTitle,
   Box,
   Button,
   CardActions,
@@ -38,7 +39,7 @@ import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 import TimeAgo from "javascript-time-ago";
 
-import { DeleteOutline } from "@mui/icons-material";
+import { DeleteOutline, LabelOutlined } from "@mui/icons-material";
 import en from "javascript-time-ago/locale/en";
 
 TimeAgo.addLocale(en);
@@ -90,6 +91,12 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
           fullWidth
           multiline
           onChange={(event) => setNoteState(event.target.value)}
+          onFocus={(e) =>
+            e.currentTarget.setSelectionRange(
+              e.currentTarget.value.length,
+              e.currentTarget.value.length,
+            )
+          } // bug https://github.com/mui/material-ui/issues/12779
           placeholder="Write a note for this record..."
           rows={4}
           value={noteState ? noteState : ""}
@@ -245,41 +252,39 @@ const RecordCardLabeler = ({
             </Grid>
           </CardContent>
         )}
-
-        {note !== null && (
+      </Box>
+      <Box>
+        {(note !== null || labelFromDataset !== null) && (
           <>
             <Divider />
-            <CardContent>{note}</CardContent>
+            <CardContent>
+              {note && (
+                <Alert
+                  severity="info"
+                  color="primary"
+                  icon={<NoteAltOutlinedIcon />}
+                  sx={{
+                    mb: 2,
+                  }}
+                >
+                  <AlertTitle>Note</AlertTitle>
+                  {note}
+                </Alert>
+              )}
+              {labelFromDataset === 0 && (
+                <Alert severity="info" color="primary" icon={<LabelOutlined />}>
+                  <AlertTitle>Not relevant</AlertTitle>
+                  Label in dataset is not relevant
+                </Alert>
+              )}
+              {labelFromDataset === 1 && (
+                <Alert severity="info" color="primary" icon={<LabelOutlined />}>
+                  <AlertTitle>Relevant</AlertTitle>
+                  Label in dataset is relevant
+                </Alert>
+              )}
+            </CardContent>
           </>
-        )}
-      </Box>
-
-      <Box>
-        {labelFromDataset !== null && (
-          <CardContent>
-            {labelFromDataset === -1 && (
-              <Alert severity="info">No label in dataset</Alert>
-            )}
-            {labelFromDataset === 0 && (
-              <Alert severity="info" color="secondary">
-                Label in dataset is <Chip label="irrelevant" />
-              </Alert>
-            )}
-            {labelFromDataset === 1 && (
-              <Alert severity="info" color="secondary">
-                Label in dataset is{" "}
-                <Chip
-                  label="relevant"
-                  sx={(theme) => ({
-                    color: theme.palette.getContrastText(
-                      theme.palette.tertiary.main,
-                    ),
-                    bgcolor: theme.palette.tertiary.main,
-                  })}
-                />
-              </Alert>
-            )}
-          </CardContent>
         )}
 
         {isError && (
