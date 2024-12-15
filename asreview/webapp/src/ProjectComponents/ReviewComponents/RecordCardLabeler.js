@@ -249,17 +249,10 @@ const RecordCardLabeler = ({
         )}
 
         {note !== null && (
-          <Box
-            sx={(theme) => ({
-              bgcolor: alpha(
-                theme.palette.secondary.light,
-                theme.palette.action.selectedOpacity,
-              ),
-            })}
-          >
+          <>
             <Divider />
             <CardContent>{note}</CardContent>
-          </Box>
+          </>
         )}
       </Box>
 
@@ -270,10 +263,23 @@ const RecordCardLabeler = ({
               <Alert severity="info">No label in dataset</Alert>
             )}
             {labelFromDataset === 0 && (
-              <Alert severity="info">Label in dataset is irrelevant</Alert>
+              <Alert severity="info" color="secondary">
+                Label in dataset is <Chip label="irrelevant" />
+              </Alert>
             )}
             {labelFromDataset === 1 && (
-              <Alert severity="info">Label in dataset is relevant</Alert>
+              <Alert severity="info" color="secondary">
+                Label in dataset is{" "}
+                <Chip
+                  label="relevant"
+                  sx={(theme) => ({
+                    color: theme.palette.getContrastText(
+                      theme.palette.tertiary.main,
+                    ),
+                    bgcolor: theme.palette.tertiary.main,
+                  })}
+                />
+              </Alert>
             )}
           </CardContent>
         )}
@@ -368,7 +374,18 @@ const RecordCardLabeler = ({
               {!landscape && (
                 <Typography variant="secondary">Added to</Typography>
               )}
-              {label === 1 && <Chip label="My collection" color="primary" />}
+              {label === 1 && (
+                <Chip
+                  label="My collection"
+                  color="primary"
+                  sx={(theme) => ({
+                    color: theme.palette.getContrastText(
+                      theme.palette.tertiary.main,
+                    ),
+                    bgcolor: theme.palette.tertiary.main,
+                  })}
+                />
+              )}
               {label === 0 && <Chip label="Not relevant" color="primary" />}
               <Typography variant="secondary">
                 {timeAgo.format(new Date(labelTime * 1000))}{" "}
