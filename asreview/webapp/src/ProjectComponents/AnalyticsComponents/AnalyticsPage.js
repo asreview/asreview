@@ -162,16 +162,16 @@ const AnalyticsPage = () => {
           >
             {isEditing ? (
               <TextField
-  value={customName}
-  onChange={handleNameChange}
-  InputProps={{
-    endAdornment: (
-      <IconButton onClick={toggleEditing} edge="end">
-        <CheckIcon />
-      </IconButton>
-    ),
-  }}
-/>
+                value={customName}
+                onChange={handleNameChange}
+                InputProps={{
+                  endAdornment: (
+                    <IconButton onClick={toggleEditing} edge="end">
+                      <CheckIcon />
+                    </IconButton>
+                  ),
+                }}
+              />
             ) : (
               <>
                 {customName}
@@ -218,7 +218,6 @@ const AnalyticsPage = () => {
         </Box>
         <Grid container columns={{ xs: 1, md: 2 }}>
           <Grid size={1}>
-
             <Tabs
               value={activeHistoryTab}
               onChange={(event, newValue) => setActiveHistoryTab(newValue)}
