@@ -913,7 +913,7 @@ def api_import_project():
         with open(settings_fp, "w") as f:
             json.dump(asdict(settings), f)
         warnings.append(
-            str(err) + " Check if an extension with the model is installed."
+            str(err) + " You might need to install an extension to use this model."
         )
         warnings.append(
             " The model settings have been reset to the default model and"
