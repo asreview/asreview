@@ -11,27 +11,24 @@ import {
   Tab,
   Tabs,
   Typography,
-  // Avatar,
-  // AvatarGroup,
-  // Tooltip,
-  Popover,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
+// import { Avatar, AvatarGroup, Tooltip } from "@mui/material";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import {
   EmailIcon,
   FacebookIcon,
-  TwitterIcon,
+  XIcon,
   WeiboIcon,
   WhatsappIcon,
 } from "react-share";
 
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
-import QuizOutlined from "@mui/icons-material/QuizOutlined";
 // import AddIcon from "@mui/icons-material/Add";
 import { IconButton, TextField } from "@mui/material";
+
 import {
   LabelingFrequency,
   LabelingHistory,
@@ -53,7 +50,7 @@ import { ProjectAPI } from "api";
 // import ElasSuperHero from "../../images/ElasSuperHero.jpg";
 
 const actions = [
-  { icon: <TwitterIcon round />, name: "Twitter" },
+  { icon: <XIcon round />, name: "X" },
   { icon: <FacebookIcon round />, name: "Facebook" },
   { icon: <WeiboIcon round />, name: "Weibo" },
   { icon: <WhatsappIcon round />, name: "WhatsApp" },
@@ -62,6 +59,8 @@ const actions = [
 
 const AnalyticsPage = () => {
   const { project_id } = useParams();
+
+  // Relevant to name editing. Currently goes to local storage, we can do this the proper way
 
   const { data } = useQuery(
     ["fetchInfo", { project_id }],
@@ -88,14 +87,14 @@ const AnalyticsPage = () => {
       }),
     { refetchOnWindowFocus: false },
   );
-  const twitterRef = React.useRef(null);
+  const xRef = React.useRef(null);
   const facebookRef = React.useRef(null);
   const weiboRef = React.useRef(null);
   const whatsappRef = React.useRef(null);
   const emailRef = React.useRef(null);
   const handleShare = (platform) => {
-    if (platform === "Twitter") {
-      twitterRef.current?.click();
+    if (platform === "X") {
+      xRef.current?.click();
     }
     if (platform === "Facebook") {
       facebookRef.current?.click();
@@ -114,6 +113,8 @@ const AnalyticsPage = () => {
   const [activeProgressTab, setActiveProgressTab] = useState(0);
   const [activeStoppingTab, setActiveStoppingTab] = useState(0);
   const [activeInsightsTab, setActiveInsightsTab] = useState(0);
+
+  // Name editing. Currently goes to local storage, we can do this the proper way
 
   const [isEditing, setIsEditing] = useState(false);
   const [customName, setCustomName] = useState(
@@ -138,7 +139,8 @@ const AnalyticsPage = () => {
     setIsEditing(!isEditing);
   };
 
-  // // Mock users array
+  // Users for the avatar group
+
   // const users = [
   //   { name: "Jonathan", avatar: ElasFireman },
   //   { name: "Rens", avatar: ElasGrad },
@@ -150,75 +152,45 @@ const AnalyticsPage = () => {
   //   console.log("Add user clicked");
   // };
 
-  // Help popover states and handlers
-  const [helpAnchorEl, setHelpAnchorEl] = useState(null);
-  const openHelp = Boolean(helpAnchorEl);
-  const handleHelpClick = (event) => {
-    setHelpAnchorEl(event.currentTarget);
-  };
-  const handleHelpClose = () => {
-    setHelpAnchorEl(null);
-  };
-
-  const helpIcon = (condition) =>
-    condition && (
-      <Box
-        onClick={handleHelpClick}
-        sx={{
-          ml: 1,
-          color: "primary.main",
-          width: "20px",
-          height: "20px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-        }}
-      >
-        <QuizOutlined sx={{ fontSize: "16px" }} />
-      </Box>
-    );
-
   return (
     <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>
       <Stack spacing={2} className="main-page-body">
-        <Fade in>
-          <Box>
-            <Typography
-              variant="h4"
-              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 2 }}
-            >
-              {isEditing ? (
-                <TextField
-                  value={customName}
-                  onChange={handleNameChange}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <IconButton onClick={toggleEditing} edge="end">
-                          <CheckIcon />
-                        </IconButton>
-                      ),
-                    },
-                  }}
-                />
-              ) : (
-                <>
-                  {customName}
-                  <IconButton onClick={toggleEditing} sx={{ ml: 1 }}>
-                    <EditIcon />
-                  </IconButton>
-                </>
-              )}
-            </Typography>
-            <Typography
-              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }} // when the avatars are added, this should be pb: 3
-            >
-              {progressQuery.data && progressQuery.data.n_records} records in
-              total
-            </Typography>
-          </Box>
-        </Fade>
+        <Box>
+          <Typography
+            variant="h4"
+            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 2 }}
+          >
+            {isEditing ? (
+              <TextField
+                value={customName}
+                onChange={handleNameChange}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <IconButton onClick={toggleEditing} edge="end">
+                        <CheckIcon />
+                      </IconButton>
+                    ),
+                  },
+                }}
+              />
+            ) : (
+              <>
+                {customName}
+                <IconButton onClick={toggleEditing} sx={{ ml: 1 }}>
+                  <EditIcon />
+                </IconButton>
+              </>
+            )}
+          </Typography>
+          <Typography
+            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }} // when the avatars are visible, should be pb: 3
+          >
+            {progressQuery.data && progressQuery.data.n_records} records in
+            total
+          </Typography>
+        </Box>
+
         <Box
           sx={{
             display: "flex",
@@ -249,17 +221,12 @@ const AnalyticsPage = () => {
         <Grid container columns={{ xs: 1, md: 2 }}>
           <Grid size={1}>
             <Tabs
-              value={activeProgressTab}
-              onChange={(event, newValue) => setActiveProgressTab(newValue)}
+              value={activeHistoryTab}
+              onChange={(event, newValue) => setActiveHistoryTab(newValue)}
+              scrollButtons="auto"
+              variant="scrollable"
             >
-              <Tab
-                label={
-                  <Box sx={{ display: "flex" }}>
-                    Progress
-                    {helpIcon(activeProgressTab === 0)}
-                  </Box>
-                }
-              />
+              <Tab label="Progress" />
             </Tabs>
             {activeProgressTab === 0 && (
               <ReviewProgress project_id={project_id} />
@@ -270,14 +237,7 @@ const AnalyticsPage = () => {
               value={activeStoppingTab}
               onChange={(event, newValue) => setActiveStoppingTab(newValue)}
             >
-              <Tab
-                label={
-                  <Box sx={{ display: "flex" }}>
-                    Stopping
-                    {helpIcon(activeStoppingTab === 0)}
-                  </Box>
-                }
-              />
+              <Tab label="Stopping" />
             </Tabs>
             {activeStoppingTab === 0 && (
               <StoppingSuggestion project_id={project_id} />
@@ -303,38 +263,10 @@ const AnalyticsPage = () => {
             scrollButtons="auto"
             variant="scrollable"
           >
-            <Tab
-              label={
-                <Box sx={{ display: "flex" }}>
-                  History
-                  {helpIcon(activeHistoryTab === 0)}
-                </Box>
-              }
-            />
-            <Tab
-              label={
-                <Box sx={{ display: "flex" }}>
-                  Frequency
-                  {helpIcon(activeHistoryTab === 1)}
-                </Box>
-              }
-            />
-            <Tab
-              label={
-                <Box sx={{ display: "flex" }}>
-                  Density
-                  {helpIcon(activeHistoryTab === 2)}
-                </Box>
-              }
-            />
-            <Tab
-              label={
-                <Box sx={{ display: "flex" }}>
-                  Recall
-                  {helpIcon(activeHistoryTab === 3)}
-                </Box>
-              }
-            />
+            <Tab label="History" />
+            <Tab label="Frequency" />
+            <Tab label="Density" />
+            <Tab label="Recall" />
           </Tabs>
           {activeHistoryTab === 0 && (
             <LabelingHistory
@@ -368,14 +300,7 @@ const AnalyticsPage = () => {
             value={activeInsightsTab}
             onChange={(event, newValue) => setActiveInsightsTab(newValue)}
           >
-            <Tab
-              label={
-                <Box sx={{ display: "flex" }}>
-                  Words of Importance
-                  {helpIcon(activeInsightsTab === 0)}
-                </Box>
-              }
-            />
+            <Tab label="Words of Importance" />
             {/* <Tab label="Feature Importance" />
             <Tab label="Doc2Vec" />
             <Tab label="BERT" />
@@ -412,7 +337,7 @@ const AnalyticsPage = () => {
         ariaLabel="share project analytics"
         icon={<Share />}
         sx={{
-          position: "absolute",
+          position: "fixed",
           bottom: 24,
           right: 24,
         }}
@@ -430,22 +355,13 @@ const AnalyticsPage = () => {
       </SpeedDial>
       <ShareFabAction
         progressQueryData={progressQuery.data}
-        twitterRef={twitterRef}
+        xRef={xRef}
         facebookRef={facebookRef}
         weiboRef={weiboRef}
         whatsappRef={whatsappRef}
         emailRef={emailRef}
       />
-
-      <Popover
-        open={openHelp}
-        anchorEl={helpAnchorEl}
-        onClose={handleHelpClose}
-      >
-        <Typography sx={{ p: 2, maxWidth: 200 }}>Short help content</Typography>
-      </Popover>
     </Container>
   );
 };
-
 export default AnalyticsPage;

@@ -239,8 +239,8 @@ const StoppingSuggestion = ({ project_id }) => {
           <Grid
             size={1}
             display="flex"
-            alignItems="center"
             justifyContent="center"
+            alignItems="center"
           >
             {isLoading ? (
               <Box

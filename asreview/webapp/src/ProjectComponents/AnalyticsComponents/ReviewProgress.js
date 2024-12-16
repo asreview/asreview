@@ -20,8 +20,7 @@ export default function ReviewProgress({ project_id }) {
   const theme = useTheme();
 
   // We can implement this fully when we decide on the prior knowledge button
-  //Change to true to test, really minimal now
-  const [includePrior, setIncludePrior] = useState(false);
+  const [includePrior, setIncludePrior] = useState(true); //Change to true to test
 
   const progressQuery = useQuery(
     ["fetchProgress", { project_id, includePrior }],
@@ -43,7 +42,6 @@ export default function ReviewProgress({ project_id }) {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
-
   const data = progressQuery.data;
   const isLoading = progressQuery.isLoading || genericDataQuery.isLoading;
 
