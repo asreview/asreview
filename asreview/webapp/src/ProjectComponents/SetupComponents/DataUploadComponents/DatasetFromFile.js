@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useMutation, useQuery } from "react-query";
 
@@ -43,14 +43,10 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const baseStyle = {
-  // height: "100%",
-  // flex: 1,
-  // display: "flex",
-  // flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
   borderWidth: 2,
-  borderRadius: 2,
+  borderRadius: "12px",
   borderColor: "#a7a9df",
   borderStyle: "dashed",
   outline: "none",
@@ -137,15 +133,12 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     accept: acceptedFileTypes,
   });
 
-  const style = useMemo(
-    () => ({
-      ...baseStyle,
-      ...(isDragActive ? activeStyle : {}),
-      ...(isDragAccept ? acceptStyle : {}),
-      ...(isDragReject ? rejectStyle : {}),
-    }),
-    [isDragActive, isDragReject, isDragAccept],
-  );
+  const style = {
+    ...baseStyle,
+    ...(isDragActive ? activeStyle : {}),
+    ...(isDragAccept ? acceptStyle : {}),
+    ...(isDragReject ? rejectStyle : {}),
+  };
 
   return (
     <Root>
@@ -156,7 +149,7 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
           disabled={isCreatingProject}
           disableRipple
           onClick={open}
-          sx={{ height: "100%", width: "100%", my: 10 }}
+          sx={{ height: "100%", width: "100%", py: 10 }}
         >
           <Stack className={classes.root} spacing={2} justifyContent={"center"}>
             <Avatar>
