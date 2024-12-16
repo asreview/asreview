@@ -909,7 +909,7 @@ def api_import_project():
     try:
         _check_model(settings)
     except ValueError as err:
-        settings.reset_model()
+        settings = replace(settings, **default_model())
         with open(settings_fp, "w") as f:
             json.dump(asdict(settings), f)
         warnings.append(
