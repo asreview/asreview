@@ -1,5 +1,6 @@
 import {
   Alert,
+  AlertTitle,
   Box,
   Button,
   CardActions,
@@ -38,23 +39,11 @@ import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 import TimeAgo from "javascript-time-ago";
 
-import { DeleteOutline } from "@mui/icons-material";
+import { DeleteOutline, LabelOutlined } from "@mui/icons-material";
 import en from "javascript-time-ago/locale/en";
 
 TimeAgo.addLocale(en);
 const timeAgo = new TimeAgo("en-US");
-
-// const PREFIX = "RecordCardLabeler";
-
-// const classes = {
-//   icon: `${PREFIX}-icon`,
-// };
-
-// const Root = styled("div")(() => ({
-//   [`& .${classes.icon}`]: {
-//     opacity: 0.36,
-//   },
-// }));
 
 const formatUser = (user) => {
   if (user?.current_user) {
@@ -64,10 +53,24 @@ const formatUser = (user) => {
 };
 
 const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
+  const queryClient = useQueryClient();
+
   const [noteState, setNoteState] = React.useState(note);
 
   const { isError, isLoading, mutate } = useMutation(ProjectAPI.mutateNote, {
     onSuccess: () => {
+      queryClient.setQueryData(["fetchRecord", { project_id }], (data) => {
+        return {
+          ...data,
+          result: {
+            ...data.result,
+            state: {
+              ...data.result.state,
+              note: noteState,
+            },
+          },
+        };
+      });
       onClose();
     },
   });
@@ -88,6 +91,12 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
           fullWidth
           multiline
           onChange={(event) => setNoteState(event.target.value)}
+          onFocus={(e) =>
+            e.currentTarget.setSelectionRange(
+              e.currentTarget.value.length,
+              e.currentTarget.value.length,
+            )
+          } // bug https://github.com/mui/material-ui/issues/12779
           placeholder="Write a note for this record..."
           rows={4}
           value={noteState ? noteState : ""}
@@ -146,7 +155,9 @@ const RecordCardLabeler = ({
     {
       onSuccess: () => {
         // invalidate queries
-        queryClient.invalidateQueries("fetchLabeledRecord", project_id);
+        queryClient.invalidateQueries({
+          queryKey: ["fetchRecord", { project_id }],
+        });
 
         decisionCallback();
       },
@@ -177,12 +188,6 @@ const RecordCardLabeler = ({
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const openMenu = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
 
   useHotkeys("v", () => hotkeys && !isLoading && !isSuccess && makeDecision(1));
   useHotkeys("x", () => hotkeys && !isLoading && !isSuccess && makeDecision(0));
@@ -247,35 +252,39 @@ const RecordCardLabeler = ({
             </Grid>
           </CardContent>
         )}
-
-        {note !== null && (
-          <Box
-            sx={(theme) => ({
-              bgcolor: alpha(
-                theme.palette.secondary.light,
-                theme.palette.action.selectedOpacity,
-              ),
-            })}
-          >
-            <Divider />
-            <CardContent>{note}</CardContent>
-          </Box>
-        )}
       </Box>
-
       <Box>
-        {labelFromDataset !== null && (
-          <CardContent>
-            {labelFromDataset === -1 && (
-              <Alert severity="info">No label in dataset</Alert>
-            )}
-            {labelFromDataset === 0 && (
-              <Alert severity="info">Label in dataset is irrelevant</Alert>
-            )}
-            {labelFromDataset === 1 && (
-              <Alert severity="info">Label in dataset is relevant</Alert>
-            )}
-          </CardContent>
+        {(note !== null || labelFromDataset !== null) && (
+          <>
+            <Divider />
+            <CardContent>
+              {note && (
+                <Alert
+                  severity="info"
+                  color="primary"
+                  icon={<NoteAltOutlinedIcon />}
+                  sx={{
+                    mb: 2,
+                  }}
+                >
+                  <AlertTitle>Note</AlertTitle>
+                  {note}
+                </Alert>
+              )}
+              {labelFromDataset === 0 && (
+                <Alert severity="info" color="primary" icon={<LabelOutlined />}>
+                  <AlertTitle>Not relevant</AlertTitle>
+                  Label in dataset is not relevant
+                </Alert>
+              )}
+              {labelFromDataset === 1 && (
+                <Alert severity="info" color="primary" icon={<LabelOutlined />}>
+                  <AlertTitle>Relevant</AlertTitle>
+                  Label in dataset is relevant
+                </Alert>
+              )}
+            </CardContent>
+          </>
         )}
 
         {isError && (
@@ -368,7 +377,18 @@ const RecordCardLabeler = ({
               {!landscape && (
                 <Typography variant="secondary">Added to</Typography>
               )}
-              {label === 1 && <Chip label="My collection" color="primary" />}
+              {label === 1 && (
+                <Chip
+                  label="My collection"
+                  color="primary"
+                  sx={(theme) => ({
+                    color: theme.palette.getContrastText(
+                      theme.palette.tertiary.main,
+                    ),
+                    bgcolor: theme.palette.tertiary.main,
+                  })}
+                />
+              )}
               {label === 0 && <Chip label="Not relevant" color="primary" />}
               <Typography variant="secondary">
                 {timeAgo.format(new Date(labelTime * 1000))}{" "}
@@ -385,7 +405,7 @@ const RecordCardLabeler = ({
                   aria-controls={openMenu ? "card-positioned-menu" : undefined}
                   aria-haspopup="true"
                   aria-expanded={openMenu ? "true" : undefined}
-                  onClick={handleClick}
+                  onClick={(event) => setAnchorEl(event.currentTarget)}
                   sx={(theme) => ({
                     float: "right",
                     color: theme.palette.getContrastText(
@@ -402,7 +422,7 @@ const RecordCardLabeler = ({
                 aria-labelledby="card-positioned-button"
                 anchorEl={anchorEl}
                 open={openMenu}
-                onClose={handleMenuClose}
+                onClose={() => setAnchorEl(null)}
                 anchorOrigin={{
                   vertical: "bottom",
                   horizontal: "right",

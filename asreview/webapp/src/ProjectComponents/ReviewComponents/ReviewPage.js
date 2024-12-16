@@ -3,8 +3,8 @@ import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 
-import { RecordCard, ReviewPageFinished } from ".";
 import { Container } from "@mui/material";
+import { RecordCard, ReviewPageFinished } from ".";
 
 import { ProjectAPI } from "api";
 
@@ -12,48 +12,14 @@ import FinishSetup from "./ReviewPageTraining";
 
 import { useReviewSettings } from "context/ReviewSettingsContext";
 
-const Screener = ({ fontSize, showBorder, modelLogLevel, landscape }) => {
-  const { project_id } = useParams();
-  const queryClient = useQueryClient();
-
-  const [tagValues, setTagValues] = React.useState({});
-
-  const { data } = useQuery(
-    ["fetchRecord", { project_id }],
-    ProjectAPI.fetchRecord,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
-
-  return (
-    <>
-      {data?.result && (
-        <RecordCard
-          key={project_id + "-" + data?.result["record_id"]}
-          project_id={project_id}
-          record={data?.result}
-          afterDecision={() => queryClient.invalidateQueries("fetchRecord")}
-          fontSize={fontSize}
-          showBorder={showBorder}
-          modelLogLevel={modelLogLevel}
-          tagValues={tagValues}
-          setTagValues={setTagValues}
-          collapseAbstract={false}
-          hotkeys={true}
-          landscape={landscape}
-        />
-      )}
-    </>
-  );
-};
-
 const ReviewPage = () => {
   let { project_id } = useParams();
+  const queryClient = useQueryClient();
 
   const { fontSize, modelLogLevel, orientation } = useReviewSettings();
 
-  /* fetch the record and check if the project is training */
+  const [tagValues, setTagValues] = React.useState({});
+
   const { refetch, data, isSuccess } = useQuery(
     ["fetchRecord", { project_id }],
     ProjectAPI.fetchRecord,
@@ -82,7 +48,6 @@ const ReviewPage = () => {
       aria-label="review page"
       maxWidth="md"
       sx={(theme) => ({
-        // mt: 6,
         mb: 6,
         [theme.breakpoints.down("md")]: {
           px: 0,
@@ -93,10 +58,25 @@ const ReviewPage = () => {
       {isSuccess && (
         <>
           {data?.result !== null && (
-            <Screener
+            <RecordCard
+              key={
+                "record-card-" +
+                project_id +
+                "-" +
+                data?.result?.record_id +
+                "-" +
+                data?.result?.state?.note
+              }
+              project_id={project_id}
+              record={data?.result}
+              afterDecision={() => queryClient.invalidateQueries("fetchRecord")}
               fontSize={fontSize}
-              modelLogLevel={modelLogLevel}
               showBorder={showBorder}
+              modelLogLevel={modelLogLevel}
+              tagValues={tagValues}
+              setTagValues={setTagValues}
+              collapseAbstract={false}
+              hotkeys={true}
               landscape={orientation === "landscape" && !landscapeDisabled}
             />
           )}
@@ -105,7 +85,6 @@ const ReviewPage = () => {
             <FinishSetup project_id={project_id} refetch={refetch} />
           )}
 
-          {/* Review finished */}
           {data?.result === null && data?.pool_empty && <ReviewPageFinished />}
         </>
       )}
