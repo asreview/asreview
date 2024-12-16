@@ -25,6 +25,18 @@ export default function DatasetChart({ label, part, total }) {
             id: "ASReviewLABDatasetChart",
             type: "radialBar",
           },
+          states: {
+            hover: {
+              filter: {
+                type: "none",
+              },
+            },
+            active: {
+              filter: {
+                type: "none",
+              },
+            },
+          },
           plotOptions: {
             radialBar: {
               hollow: {

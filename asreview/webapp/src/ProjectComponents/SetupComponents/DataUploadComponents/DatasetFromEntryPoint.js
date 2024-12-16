@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "react-query";
 
-import { Box, Grid2 as Grid, Stack, Typography } from "@mui/material";
+import { Box, Grid2 as Grid, Stack, Typography, Link } from "@mui/material";
 
 import { ProjectAPI } from "api";
 import { EntryPointDataset } from ".";
@@ -45,6 +45,14 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
               <Typography variant="h5" fontFamily="Roboto Serif">
                 {group.description}
               </Typography>
+              {group.url && (
+                <Typography variant="body2" fontFamily="Roboto Serif">
+                  More info at {""}
+                  <Link href={group.url} target="_blank" rel="noopener">
+                    {group.url}
+                  </Link>
+                </Typography>
+              )}
               <Grid container spacing={2} columns={6}>
                 {group.datasets.map((dataset, index) => (
                   <Grid
@@ -66,7 +74,6 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
             </Stack>
           ))}
         </Stack>
-        // )};
       )}
     </Box>
   );

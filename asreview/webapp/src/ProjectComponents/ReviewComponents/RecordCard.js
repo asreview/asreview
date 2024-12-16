@@ -59,14 +59,16 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
         </Stack>
         <Stack direction="row" spacing={1}>
           {!(record.doi === undefined || record.doi === null) && (
-            <StyledIconButton
-              className="record-card-icon"
-              href={"https://doi.org/" + record.doi}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <DOIIcon />
-            </StyledIconButton>
+            <Tooltip title="Open DOI">
+              <StyledIconButton
+                className="record-card-icon"
+                href={"https://doi.org/" + record.doi}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <DOIIcon />
+              </StyledIconButton>
+            </Tooltip>
           )}
 
           {!(record.url === undefined || record.url === null) && (
@@ -178,6 +180,14 @@ const RecordCard = ({
           </Grid>
           <Grid size={landscape ? 2 : 5}>
             <RecordCardLabeler
+              key={
+                "record-card-labeler-" +
+                project_id +
+                "-" +
+                record?.record_id +
+                "-" +
+                record?.state?.note
+              }
               project_id={project_id}
               record_id={record.record_id}
               label={record.state?.label}

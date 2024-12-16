@@ -18,7 +18,7 @@ import { useParams } from "react-router-dom";
 import {
   EmailIcon,
   FacebookIcon,
-  TwitterIcon,
+  XIcon,
   WeiboIcon,
   WhatsappIcon,
 } from "react-share";
@@ -36,7 +36,7 @@ import {
 import { ProjectAPI } from "api";
 
 const actions = [
-  { icon: <TwitterIcon round />, name: "Twitter" },
+  { icon: <XIcon round />, name: "X" },
   { icon: <FacebookIcon round />, name: "Facebook" },
   { icon: <WeiboIcon round />, name: "Weibo" },
   { icon: <WhatsappIcon round />, name: "WhatsApp" },
@@ -71,14 +71,14 @@ const AnalyticsPage = () => {
       }),
     { refetchOnWindowFocus: false },
   );
-  const twitterRef = React.useRef(null);
+  const xRef = React.useRef(null);
   const facebookRef = React.useRef(null);
   const weiboRef = React.useRef(null);
   const whatsappRef = React.useRef(null);
   const emailRef = React.useRef(null);
   const handleShare = (platform) => {
-    if (platform === "Twitter") {
-      twitterRef.current?.click();
+    if (platform === "X") {
+      xRef.current?.click();
     }
     if (platform === "Facebook") {
       facebookRef.current?.click();
@@ -96,25 +96,26 @@ const AnalyticsPage = () => {
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
 
   return (
-    <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>
-      <Stack spacing={2} className="main-page-body">
-        <Fade in>
-          <Box>
-            <Typography
-              variant="h4"
-              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 2 }}
-            >
-              {data?.name}
-            </Typography>
-            <Typography
-              sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }}
-            >
-              {progressQuery.data && progressQuery.data.n_records} records in
-              total
-            </Typography>
-          </Box>
-        </Fade>
-        {/* <Box>
+    <>
+      <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>
+        <Stack spacing={2} className="main-page-body">
+          <Fade in>
+            <Box>
+              <Typography
+                variant="h4"
+                sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 2 }}
+              >
+                {data?.name}
+              </Typography>
+              <Typography
+                sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }}
+              >
+                {progressQuery.data && progressQuery.data.n_records} records in
+                total
+              </Typography>
+            </Box>
+          </Fade>
+          {/* <Box>
           <AvatarGroup max={20}>
             <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
             <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
@@ -123,73 +124,74 @@ const AnalyticsPage = () => {
             <Avatar alt="Trevor Henderson" src="/static/images/avatar/5.jpg" />
           </AvatarGroup>
         </Box> */}
-        <Grid container columns={2}>
-          <Grid size={1}>
-            <ReviewProgress project_id={project_id} />
+          <Grid container columns={2}>
+            <Grid size={1}>
+              <ReviewProgress project_id={project_id} />
+            </Grid>
+            <Grid size={1}>
+              <StoppingSuggestion project_id={project_id} />
+            </Grid>
           </Grid>
-          <Grid size={1}>
-            <StoppingSuggestion project_id={project_id} />
-          </Grid>
-        </Grid>
 
-        <Divider
-          sx={{
-            pt: 6,
-            pb: 2,
-          }}
-        >
-          <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
-            Review progress
-          </Typography>
-        </Divider>
-
-        <Box>
-          <Tabs
-            value={activeHistoryTab}
-            onChange={(event, newValue) => setActiveHistoryTab(newValue)}
-            scrollButtons="auto"
-            variant="scrollable"
+          <Divider
+            sx={{
+              pt: 6,
+              pb: 2,
+            }}
           >
-            <Tab label="Labeling History" />
-            <Tab label="Labeling Frequency" />
-            <Tab label="Density" />
-            <Tab label="Recall" />
-          </Tabs>
-          {activeHistoryTab === 0 && (
-            <LabelingHistory
-              genericDataQuery={genericDataQuery}
-              progressQuery={progressQuery}
-            />
-          )}
-          {activeHistoryTab === 1 && (
-            <LabelingFrequency project_id={project_id} />
-          )}
-          {activeHistoryTab === 2 && (
-            <ProgressDensityChart genericDataQuery={genericDataQuery} />
-          )}
-          {activeHistoryTab === 3 && (
-            <ProgressRecallChart genericDataQuery={genericDataQuery} />
-          )}
-        </Box>
+            <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
+              Review progress
+            </Typography>
+          </Divider>
 
-        <Divider
-          sx={{
-            pt: 6,
-            pb: 2,
-          }}
-        >
-          <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
-            Insights in AI
-          </Typography>
-        </Divider>
+          <Box>
+            <Tabs
+              value={activeHistoryTab}
+              onChange={(event, newValue) => setActiveHistoryTab(newValue)}
+              scrollButtons="auto"
+              variant="scrollable"
+            >
+              <Tab label="Labeling History" />
+              <Tab label="Labeling Frequency" />
+              <Tab label="Density" />
+              <Tab label="Recall" />
+            </Tabs>
+            {activeHistoryTab === 0 && (
+              <LabelingHistory
+                genericDataQuery={genericDataQuery}
+                progressQuery={progressQuery}
+              />
+            )}
+            {activeHistoryTab === 1 && (
+              <LabelingFrequency project_id={project_id} />
+            )}
+            {activeHistoryTab === 2 && (
+              <ProgressDensityChart genericDataQuery={genericDataQuery} />
+            )}
+            {activeHistoryTab === 3 && (
+              <ProgressRecallChart genericDataQuery={genericDataQuery} />
+            )}
+          </Box>
 
-        <WordCounts />
-      </Stack>
+          <Divider
+            sx={{
+              pt: 6,
+              pb: 2,
+            }}
+          >
+            <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
+              Insights in AI
+            </Typography>
+          </Divider>
+
+          <WordCounts />
+        </Stack>
+      </Container>{" "}
       <SpeedDial
         ariaLabel="share project analytics"
         icon={<Share />}
         sx={{
-          position: "absolute",
+          position: "fixed",
           bottom: 24,
           right: 24,
         }}
@@ -207,13 +209,13 @@ const AnalyticsPage = () => {
       </SpeedDial>
       <ShareFabAction
         progressQueryData={progressQuery.data}
-        twitterRef={twitterRef}
+        xRef={xRef}
         facebookRef={facebookRef}
         weiboRef={weiboRef}
         whatsappRef={whatsappRef}
         emailRef={emailRef}
       />
-    </Container>
+    </>
   );
 };
 export default AnalyticsPage;
