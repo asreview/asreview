@@ -1,19 +1,37 @@
+import { CssBaseline } from "@mui/material";
+import {
+  createTheme,
+  ThemeProvider,
+  responsiveFontSizes,
+} from "@mui/material/styles";
+import App from "App";
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "context/AuthProvider";
-import App from "App";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { BrowserRouter } from "react-router-dom";
+import { theme } from "constants/theme";
+import { ScrollToTop } from "Components";
+
+const queryClient = new QueryClient();
 
 function ASReviewApp() {
+  let muiTheme = createTheme({
+    // cssVariables: true,
+    ...theme,
+  });
+  muiTheme = responsiveFontSizes(muiTheme);
+
   return (
     <React.StrictMode>
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="*" element={<App />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
+      <CssBaseline />
+      <ThemeProvider theme={muiTheme}>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <ScrollToTop />
+            <App />
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ThemeProvider>
     </React.StrictMode>
   );
 }

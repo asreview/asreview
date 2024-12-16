@@ -1,15 +1,24 @@
-import React from "react";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  AccordionActions,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Link,
   Stack,
   Typography,
 } from "@mui/material";
-import { ExpandMore } from "@mui/icons-material";
-import LoadingButton from "@mui/lab/LoadingButton";
+import {
+  DeveloperBoardOutlined,
+  MedicalServicesOutlined,
+  PsychologyAltOutlined,
+  EmojiNatureOutlined,
+} from "@mui/icons-material";
+import { useToggle } from "hooks/useToggle";
 
 const DOILink = (doi) => {
   if (doi !== undefined && doi.startsWith("http")) {
@@ -19,115 +28,131 @@ const DOILink = (doi) => {
   }
 };
 
+const formatCitation = (authors, year) => {
+  if (Array.isArray(authors)) {
+    var first_author = authors[0].split(",")[0];
+    return first_author + " et al. (" + year + ")";
+  } else {
+    return authors + " (" + year + ")";
+  }
+};
+
+const CardIcon = ({ iconName }) => {
+  const iconProps = {
+    fontSize: "medium",
+    sx: { m: 1 },
+  };
+
+  let iconType;
+  let iconBGColor;
+
+  switch (iconName) {
+    case "Psychology":
+      iconType = <PsychologyAltOutlined {...iconProps} />;
+      iconBGColor = "secondary.main";
+      break;
+    case "Medicine":
+      iconType = <MedicalServicesOutlined {...iconProps} />;
+      iconBGColor = "tertiary.main";
+      break;
+    case "Computer science":
+      iconType = <DeveloperBoardOutlined {...iconProps} />;
+      iconBGColor = "#8BAAFF";
+      break;
+    case "Biology":
+      iconType = <EmojiNatureOutlined {...iconProps} />;
+      iconBGColor = "#9B6E96";
+      break;
+    default:
+      iconType = null;
+      iconBGColor = "grey.500";
+  }
+
+  return <Box sx={{ bgcolor: iconBGColor, p: 1 }}>{iconType}</Box>;
+};
+
 const EntryPointDataset = ({
   addFile,
   dataset,
   dataset_id,
-  subset,
   isAddingDataset,
-  isAddingDatasetError,
-  mobileScreen,
-  reset,
 }) => {
-  const [expanded, setExpanded] = React.useState(false);
-
-  const handleAccordion = (dataset_id) => (event, isExpanded) => {
-    if (!isAddingDataset) {
-      setExpanded(isExpanded ? dataset_id : false);
-    }
-  };
+  const [open, toggleOpen] = useToggle(false);
 
   const handleAdd = () => {
-    if (isAddingDatasetError) {
-      reset();
-    }
     if (!isAddingDataset) {
       addFile(dataset_id);
     }
   };
 
-  const formatCitation = (authors, year) => {
-    if (Array.isArray(authors)) {
-      var first_author = authors[0].split(",")[0];
-      return first_author + " et al. (" + year + ")";
-    } else {
-      return authors + " (" + year + ")";
-    }
-  };
-
   return (
-    <Accordion
-      elevation={3}
-      expanded={expanded === dataset_id}
-      onChange={handleAccordion(dataset_id)}
-    >
-      <AccordionSummary expandIcon={<ExpandMore />}>
-        <Stack
-          direction={!mobileScreen ? "row" : "column"}
-          sx={{ width: "100%" }}
-        >
-          <Typography
-            sx={{ width: !mobileScreen ? "33%" : "100%", flexShrink: 0 }}
-          >
-            {formatCitation(dataset.authors, dataset.year)}
-          </Typography>
-          <Typography sx={{ color: "text.secondary" }}>
-            {subset === "plugin" ? dataset.description : dataset.topic}
-          </Typography>
+    <>
+      <Card onClick={toggleOpen} elevation={0}>
+        <Stack direction="row" spacing={1}>
+          <CardIcon iconName={dataset.topic} />
+          <CardContent>
+            <Typography>
+              {formatCitation(dataset.authors, dataset.year)}
+            </Typography>
+          </CardContent>
         </Stack>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Stack spacing={1}>
-          <Typography>{dataset.title}</Typography>
-          {dataset.reference && (
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              Publication:{" "}
+      </Card>
+      <Dialog open={open} onClose={toggleOpen}>
+        <DialogTitle>{dataset.title}</DialogTitle>
+        <DialogContent>
+          <Stack spacing={1}>
+            {dataset.reference && (
+              <Typography>
+                Publication:{" "}
+                <Link
+                  href={
+                    dataset.reference &&
+                    DOILink(
+                      dataset.reference.replace(/^(https:\/\/doi\.org\/)/, ""),
+                    )
+                  }
+                  underline="none"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {dataset.reference &&
+                    dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")}
+                </Link>
+              </Typography>
+            )}
+            <Typography>
+              Dataset:{" "}
               <Link
-                href={
-                  dataset.reference &&
-                  DOILink(
-                    dataset.reference.replace(/^(https:\/\/doi\.org\/)/, ""),
-                  )
-                }
+                href={dataset.link}
                 underline="none"
                 target="_blank"
                 rel="noreferrer"
               >
-                {dataset.reference &&
-                  dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")}
+                {dataset.link}
               </Link>
             </Typography>
-          )}
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Dataset:{" "}
-            <Link
-              href={dataset.link}
-              underline="none"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {dataset.link}
-            </Link>
-          </Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            License:{" "}
-            <Link
-              href={dataset.link}
-              underline="none"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {dataset.license}
-            </Link>
-          </Typography>
-        </Stack>
-      </AccordionDetails>
-      <AccordionActions>
-        <LoadingButton loading={isAddingDataset} onClick={handleAdd}>
-          Add
-        </LoadingButton>
-      </AccordionActions>
-    </Accordion>
+            <Typography>
+              License:{" "}
+              <Link
+                href={dataset.link}
+                underline="none"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {dataset.license}
+              </Link>
+            </Typography>
+          </Stack>
+          {dataset.topic && <Chip label={dataset.topic} color="primary" />}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={toggleOpen}>Close</Button>
+          <Button onClick={handleAdd} disabled={isAddingDataset}>
+            Download
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

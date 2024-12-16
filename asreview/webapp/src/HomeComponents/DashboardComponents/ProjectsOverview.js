@@ -1,56 +1,121 @@
-import { Box, Snackbar, Stack } from "@mui/material";
+import {
+  Container,
+  Divider,
+  Grid2 as Grid,
+  Stack,
+  Typography,
+} from "@mui/material";
+
+import { ProjectAPI } from "api";
 import { InteractionButtons } from "Components";
-import { SetupDialog } from "ProjectComponents/SetupComponents";
-import * as React from "react";
-import { DashboardPageHeader, Projects } from ".";
+import { projectModes, projectStatuses } from "globals.js";
+import { ProjectCard } from "HomeComponents/DashboardComponents";
+import { Upload } from "ProjectComponents/SetupComponents";
+import { DashboardPageHeader } from ".";
 
-import { useToggle } from "hooks/useToggle";
+import { useQuery } from "react-query";
 
-const ProjectsOverview = ({ mobileScreen, mode }) => {
-  const [openCreateProject, toggleCreateProject] = useToggle(false);
-
-  const [feedbackBar, setFeedbackBar] = React.useState({
-    open: false,
-    message: null,
-  });
-
-  const resetFeedbackBar = () => {
-    setFeedbackBar({
-      ...feedbackBar,
-      open: false,
-    });
+const ProjectsOverview = ({ mode }) => {
+  const simulationOngoing = (data) => {
+    if (
+      mode === projectModes.SIMULATION &&
+      data?.result.some(
+        (project) => project.reviews[0]?.status === projectStatuses.REVIEW,
+      )
+    ) {
+      return 5000;
+    }
+    return false;
   };
+
+  const { data } = useQuery(
+    ["fetchProjects", { subset: mode }],
+    ProjectAPI.fetchProjects,
+    {
+      refetchInterval: simulationOngoing,
+      refetchIntervalInBackground: true,
+    },
+  );
+
+  const inReviewProjects = data?.result.filter(
+    (project) =>
+      project.reviews[0]?.status === projectStatuses.REVIEW ||
+      project.reviews[0]?.status === projectStatuses.SETUP,
+  );
+  const finishedProjects = data?.result.filter(
+    (project) => project.reviews[0]?.status === projectStatuses.FINISHED,
+  );
 
   return (
     <>
-      <DashboardPageHeader mode={mode} setFeedbackBar={setFeedbackBar} />
-      <Box className="main-page-body-wrapper">
-        <Stack className="main-page-body" spacing={6}>
-          <Projects
-            mode={mode}
-            setFeedbackBar={setFeedbackBar}
-            mobileScreen={mobileScreen}
-          />
+      <DashboardPageHeader mode={mode} />
+      <Container maxWidth="md">
+        <Upload mode={mode} />
+      </Container>
+      <Container maxWidth="md">
+        <Stack spacing={6}>
+          <>
+            {/* Divider between In Review and Finished with a Chip */}
+            {inReviewProjects?.length > 0 && (
+              <Divider
+                sx={{
+                  my: 10,
+                }}
+              >
+                <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
+                  {mode === projectModes.ORACLE
+                    ? "Current reviews"
+                    : "Running simulations"}
+                </Typography>
+              </Divider>
+            )}
 
-          <InteractionButtons />
+            {/* Projects in Review */}
+            {inReviewProjects?.length > 0 && (
+              <Grid container spacing={2}>
+                {inReviewProjects.map((project) => (
+                  <ProjectCard project={project} mode={mode} key={project.id} />
+                ))}
+              </Grid>
+            )}
+
+            {/* Divider between In Review and Finished with a Chip */}
+            {finishedProjects?.length > 0 && (
+              <Divider
+                sx={{
+                  my: 10,
+                }}
+              >
+                <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
+                  {mode === projectModes.ORACLE
+                    ? "Finished reviews"
+                    : "Finished simulations"}
+                </Typography>
+              </Divider>
+            )}
+
+            {/* Finished Projects */}
+            {finishedProjects?.length > 0 && (
+              <Grid container spacing={2}>
+                {finishedProjects.map((project) => (
+                  <ProjectCard project={project} mode={mode} key={project.id} />
+                ))}
+              </Grid>
+            )}
+
+            {mode === projectModes.ORACLE &&
+              inReviewProjects?.length > 0 &&
+              finishedProjects?.length === 0 && (
+                <Typography sx={{ textAlign: "center", fontStyle: "italic" }}>
+                  Done reviewing? Mark your project as finished to keep things
+                  organized!
+                </Typography>
+              )}
+          </>
+
+          {data?.result.length > 0 && <InteractionButtons />}
         </Stack>
-      </Box>
-      <SetupDialog
-        mode={mode}
-        open={openCreateProject}
-        onClose={toggleCreateProject}
-        setFeedbackBar={setFeedbackBar}
-      />
-      <Snackbar
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        open={feedbackBar.open}
-        autoHideDuration={6000}
-        onClose={resetFeedbackBar}
-        message={feedbackBar.message}
-      />
+      </Container>
     </>
   );
 };

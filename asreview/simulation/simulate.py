@@ -14,29 +14,28 @@
 
 __all__ = []
 
-from datetime import datetime
+import time
 
 import numpy as np
 import pandas as pd
 from sklearn.utils import check_random_state
 from tqdm import tqdm
 
-from asreview.config import DEFAULT_N_INSTANCES
-from asreview.config import LABEL_NA
 from asreview.state.contextmanager import open_state
+from asreview.metrics import loss
 
 
 class Simulate:
     """ASReview Simulation mode class.
 
-    The simulation will stop when all papers have been labeled or when the number of
-    steps/queries reaches the stop_if parameter.
+    The simulation will stop when all records have been labeled or when the number of
+    steps/queries reaches the n_stop parameter.
 
     To seed the simulation, provide the seed to the classifier, query strategy,
     feature extraction model, and balance strategy or use a global random seed.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     fm: numpy.ndarray
         The feature matrix to use for the simulation.
     labels: numpy.ndarray, pandas.Series, list
@@ -50,10 +49,10 @@ class Simulate:
     feature_extraction: BaseFeatureModel
         The initialized feature extraction model to use for the simulation. If None,
         the name of the feature extraction model is set to None.
-    n_instances: int
-        Number of papers to query at each step in the active learning
+    n_query: int
+        Number of records to query at each step in the active learning
         process. Default is 1.
-    stop_if: int
+    n_stop: int
         Number of steps/queries to perform. Set to None for no limit. Default
         is None.
     """
@@ -66,8 +65,8 @@ class Simulate:
         query_strategy,
         balance_strategy=None,
         feature_extraction=None,
-        n_instances=DEFAULT_N_INSTANCES,
-        stop_if="min",
+        n_query=1,
+        n_stop="min",
     ):
         self.fm = fm
         self.labels = labels
@@ -75,8 +74,8 @@ class Simulate:
         self.balance_strategy = balance_strategy
         self.query_strategy = query_strategy
         self.feature_extraction = feature_extraction
-        self.n_instances = n_instances
-        self.stop_if = stop_if
+        self.n_query = n_query
+        self.n_stop = n_stop
 
     @property
     def _results(self):
@@ -106,14 +105,12 @@ class Simulate:
             if len(self._results) == len(self.labels):
                 return True
 
-            # If stop_if is set to min, stop after stop_if queries.
-            if self.stop_if == "min" and sum(self.labels) == sum(
-                self._results["label"]
-            ):
+            # If n_stop is set to min, stop after n_stop queries.
+            if self.n_stop == "min" and sum(self.labels) == sum(self._results["label"]):
                 return True
 
-            # Stop when reaching stop_if (if provided)
-            if isinstance(self.stop_if, int) and len(self._results) >= self.stop_if:
+            # Stop when reaching n_stop (if provided)
+            if isinstance(self.n_stop, int) and len(self._results) >= self.n_stop:
                 return True
         except AttributeError:
             if len(self.labels) == 0:
@@ -155,7 +152,7 @@ class Simulate:
         while not self._stop_review():
             self.train()
 
-            record_ids = self.query(self.n_instances)
+            record_ids = self.query(self.n_query)
             labeled = self.label(record_ids)
 
             pbar_rel.update(labeled["label"].sum())
@@ -165,31 +162,27 @@ class Simulate:
             pbar_rel.close()
             pbar_total.close()
 
+            padded_results = list(self._results["label"]) + [0] * (
+                len(self.labels) - len(self._results["label"])
+            )
+
+            print(f"\nLoss: {round(loss(padded_results), 2)}")
+
     def train(self):
         """Train a new model on the labeled data."""
 
-        try:
-            y_sample_input = (
-                pd.DataFrame(np.arange(self.fm.shape[0]), columns=["record_id"])
-                .merge(self._results, how="left", on="record_id")
-                .loc[:, "label"]
-                .fillna(LABEL_NA)
-                .to_numpy()
-            )
-        except AttributeError:
-            y_sample_input = np.full(self.fm.shape[0], LABEL_NA)
-
-        train_idx = np.where(y_sample_input != LABEL_NA)[0]
-
         if self.balance_strategy is None:
-            X_train = self.fm[train_idx]
-            y_train = y_sample_input[train_idx]
+            sample_weight = None
         else:
-            X_train, y_train = self.balance_strategy.sample(
-                self.fm, y_sample_input, train_idx
+            sample_weight = self.balance_strategy.compute_sample_weight(
+                self._results["label"].values
             )
 
-        self.classifier.fit(X_train, y_train)
+        self.classifier.fit(
+            self.fm[self._results["record_id"].values],
+            self._results["label"].values,
+            sample_weight=sample_weight,
+        )
         relevance_scores = self.classifier.predict_proba(self.fm)
 
         ranked_record_ids = self.query_strategy.query(
@@ -208,15 +201,15 @@ class Simulate:
                 else None,
                 "feature_extraction": self.feature_extraction.name,
                 "training_set": len(self._results),
-                "time": datetime.now(),
+                "time": time.time(),
             }
         )
 
     def query(self, n):
         """Query the next n records to label.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         n: int
             The number of records to query.
 
@@ -235,8 +228,8 @@ class Simulate:
     def label(self, record_ids, prior=False):
         """Label the records with the given record_ids.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         record_ids: list
             The record ids to label.
         prior: bool
@@ -268,7 +261,7 @@ class Simulate:
                 "balance_strategy": balance_strategy,
                 "feature_extraction": feature_extraction,
                 "training_set": training_set,
-                "labeling_time": str(datetime.now()),
+                "time": time.time(),
                 "note": None,
                 "tags": None,
                 "user_id": None,
@@ -290,8 +283,8 @@ class Simulate:
     ):
         """Label random records.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         n_included: int
             Number of included records to label.
         n_excluded: int
@@ -309,13 +302,13 @@ class Simulate:
         if len(included_idx) < n_included:
             raise ValueError(
                 f"Number of included priors requested ({n_included})"
-                f" is bigger than number of included papers "
+                f" is bigger than number of included records "
                 f"({len(included_idx)})."
             )
         if len(excluded_idx) < n_excluded:
             raise ValueError(
                 f"Number of excluded priors requested ({n_excluded})"
-                f" is bigger than number of excluded papers "
+                f" is bigger than number of excluded records "
                 f"({len(excluded_idx)})."
             )
 
@@ -329,8 +322,8 @@ class Simulate:
     def to_sql(self, fp):
         """Write the data a sql file.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         fp: str, Path, asreview.Project
             The path to the sqlite file to write the results to.
         """

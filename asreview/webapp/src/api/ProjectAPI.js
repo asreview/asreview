@@ -22,23 +22,6 @@ class ProjectAPI {
     });
   }
 
-  static fetchDashboardStats({ queryKey, includePrior = true }) {
-    const url = api_url + `projects/stats`;
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url, {
-          params: { includePrior: includePrior },
-          withCredentials: true,
-        })
-        .then((result) => {
-          resolve(result.data["result"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static mutateInitProject(variables) {
     let body = new FormData();
     body.set("mode", variables.mode);
@@ -114,6 +97,21 @@ class ProjectAPI {
   static fetchInfo({ queryKey }) {
     const { project_id } = queryKey[1];
     const url = api_url + `projects/${project_id}/info`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static fetchWordCounts({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `projects/${project_id}/wordcounts`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, { withCredentials: true })
@@ -441,13 +439,17 @@ class ProjectAPI {
     });
   }
 
-  static fetchExportDataset({ project_id, collections, format }) {
+  static fetchExportDataset({ project_id, collections, format, user }) {
     const url = api_url + `projects/${project_id}/export_dataset`;
     return new Promise((resolve, reject) => {
       axios({
         url: url,
         method: "get",
-        params: { collections: collections, format: format },
+        params: {
+          collections: collections,
+          format: format,
+          user: user ? 1 : 0,
+        },
         paramsSerializer: (params) => {
           return qs.stringify(params, { arrayFormat: "repeat" });
         },
@@ -455,9 +457,8 @@ class ProjectAPI {
         withCredentials: true,
       })
         .then((result) => {
-          const filename = result.headers["content-disposition"]
-            .split("filename=")[1]
-            .split(".")[0];
+          const filename =
+            result.headers["content-disposition"].split("filename=")[1];
           const url = window.URL.createObjectURL(new Blob([result.data]));
           const link = document.createElement("a");
           link.href = url;
@@ -547,6 +548,43 @@ class ProjectAPI {
     });
   }
 
+  static fetchStopping({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `projects/${project_id}/stopping`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static mutateStopping(variables) {
+    let body = new FormData();
+    body.set("id", variables.id);
+    body.set("threshold", variables.threshold);
+
+    const url = api_url + `projects/${variables.project_id}/stopping`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: body,
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static fetchGenericData({ queryKey }) {
     const { project_id, includePrior } = queryKey[1];
     const url = api_url + `projects/${project_id}/progress_data`;
@@ -593,11 +631,11 @@ class ProjectAPI {
             );
             resolve(result);
           } else {
-            console.log(
-              `${variables.project_id} - update classification ${
-                variables.record_id
-              } as ${variables.label === 1 ? "inclusion" : "exclusion"}`,
-            );
+            // console.log(
+            //   `${variables.project_id} - update classification ${
+            //     variables.record_id
+            //   } as ${variables.label === 1 ? "inclusion" : "exclusion"}`,
+            // );
             resolve(result["data"]);
           }
         })
@@ -624,7 +662,7 @@ class ProjectAPI {
         withCredentials: true,
       })
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));

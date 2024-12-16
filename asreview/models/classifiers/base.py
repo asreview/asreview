@@ -33,23 +33,23 @@ class BaseTrainClassifier(BaseModel):
     def __init__(self):
         self._model = None
 
-    def fit(self, X, y):
+    def fit(self, X, y, sample_weight=None):
         """Fit the model to the data.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         X: numpy.ndarray
             Feature matrix to fit.
         y: numpy.ndarray
             Labels for supervised learning.
         """
-        return self._model.fit(X, y)
+        return self._model.fit(X, y, sample_weight=sample_weight)
 
     def predict_proba(self, X):
         """Get the inclusion probability for each sample.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         X: numpy.ndarray
             Feature matrix to predict.
 

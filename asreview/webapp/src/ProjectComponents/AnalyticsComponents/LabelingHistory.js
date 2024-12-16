@@ -4,365 +4,230 @@ import {
   Card,
   CardContent,
   FormControlLabel,
+  Grid2 as Grid,
   IconButton,
   Popover,
-  Skeleton,
   Stack,
   Switch,
-  Tooltip,
   Typography,
-  styled,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { tooltipClasses } from "@mui/material/Tooltip";
 import { CardErrorHandler } from "Components";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useToggle } from "hooks/useToggle";
+import { useRef, useState } from "react";
 
-// Styled component for the main card
-const StyledCard = styled(Card)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  padding: theme.spacing(3, 6, 3, 6),
-  borderRadius: 16,
-  width: "100%",
-  maxWidth: "100%",
-  height: "100%",
-}));
-
-// Styled component for the container that holds the history items
-const HistoryContainer = styled(Box)(({ theme }) => ({
-  width: "100%",
-  maxWidth: "100%",
-  height: "300px",
-  overflowY: "auto",
-  display: "flex",
-  flexDirection: "row",
-  flexWrap: "wrap",
-  justifyContent: "flex-start",
-  rowGap: theme.spacing(0.5),
-  paddingRight: theme.spacing(1),
-  scrollbarWidth: "thin",
-  scrollbarColor: theme.palette.primary.main + " transparent",
-}));
-
-// Styled component for individual history items
-const HistoryItem = styled(Box)(({ theme, color }) => ({
-  width: theme.spacing(3.15),
-  height: theme.spacing(0.625),
-  backgroundColor: color,
-  borderRadius: theme.shape.borderRadius,
-  margin: theme.spacing(0.125),
-  cursor: "pointer",
-}));
-
-// Function to sort decisions within chunks
 const sortPerChunk = (decisions, chunkSize) => {
   const sorted = [];
   for (let i = 0; i < decisions.length; i += chunkSize) {
-    const chunk = decisions
-      .slice(i, i + chunkSize)
-      .sort((a, b) => b.label - a.label);
-    sorted.push(...chunk);
+    sorted.push(
+      ...decisions.slice(i, i + chunkSize).sort((a, b) => b.label - a.label),
+    );
   }
   return sorted;
 };
 
-// Function to generate the history lines
-const generateLines = (
-  total,
-  decisions,
-  chronological,
-  chunkSize,
-  handleClick,
-  theme,
-) => {
-  const lines = [];
-  const sortedDecisions = chronological
-    ? decisions
-    : sortPerChunk(decisions, chunkSize);
-
-  for (let i = 0; i < total; i++) {
-    const color =
-      i < sortedDecisions.length
-        ? sortedDecisions[i].label === 1
-          ? theme.palette.primary.main // Relevant
-          : sortedDecisions[i].label === 0
-            ? theme.palette.grey[500] // Irrelevant
-            : theme.palette.grey[800] // Neutral
-        : theme.palette.grey[300]; // No decision yet
-
-    lines.push(
-      <HistoryItem
-        key={i}
-        color={color}
-        onClick={(event) => handleClick(event, i, color)}
-      />,
-    );
-  }
-  return lines;
-};
-
 const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
-  const [chronological, setChronological] = useState(true);
-  const [chunkSize, setChunkSize] = useState(29);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedPaper, setSelectedPaper] = useState(null);
-  const [selectedColor, setSelectedColor] = useState("#D3D3D3");
-  const containerRef = useRef(null);
   const theme = useTheme();
+  const [chronological, toggleChronological] = useToggle(true);
+  // const [anchorEl, setAnchorEl] = useState(null);
+  const [infoAnchorEl, setInfoAnchorEl] = useState(null);
+  // const [selectedPaper, setSelectedPaper] = useState(null);
+  const containerRef = useRef(null);
 
-  const handleSwitchChange = () => {
-    setChronological(!chronological);
-  };
+  // const handleClick = (event, index, color) => {
+  //   setAnchorEl(event.currentTarget);
+  //   setSelectedPaper(index);
+  // };
 
-  const handleClick = (event, index, paperData, color) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedPaper(paperData);
-    setSelectedColor(color);
-  };
+  // const handleClose = () => {
+  //   setAnchorEl(null);
+  //   setSelectedPaper(null);
+  // };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-    setSelectedPaper(null);
-  };
-
-  // Update chunk size based on container width
-  const updateChunkSize = useCallback(() => {
-    if (containerRef.current) {
-      const containerWidth = containerRef.current.clientWidth;
-      const itemWidth =
-        parseFloat(theme.spacing(3.15)) + parseFloat(theme.spacing(0.25)); // item width + margin
-      const newChunkSize = Math.floor(containerWidth / itemWidth);
-      setChunkSize(newChunkSize);
-    }
-  }, [theme]);
-
-  // Update chunk size on mount and window resize
-  useEffect(() => {
-    updateChunkSize();
-    window.addEventListener("resize", updateChunkSize);
-    return () => window.removeEventListener("resize", updateChunkSize);
-  }, [updateChunkSize]);
-
-  const totalPapers = progressQuery?.data?.n_papers || 0;
+  const totalPapers = progressQuery?.data?.n_records || 0;
   const labelingChronology = genericDataQuery?.data || [];
   const maxVisibleItems = totalPapers;
   const visibleItems = Math.min(maxVisibleItems, totalPapers);
-  const latestDecisions = labelingChronology.slice(-totalPapers);
+  const decisionsToDisplay = labelingChronology
+    .slice(-totalPapers)
+    .slice(-visibleItems);
 
-  const decisionsToDisplay = latestDecisions.slice(-visibleItems);
+  // const open = Boolean(anchorEl);
+  // const id = open ? "paper-popover" : undefined;
 
-  const open = Boolean(anchorEl);
-  const id = open ? "popover" : undefined;
+  const infoOpen = Boolean(infoAnchorEl);
+  const infoId = infoOpen ? "info-popover" : undefined;
 
-  // Info tooltip
-  const CustomTooltip = styled(({ className, ...props }) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: theme.palette.background.paper,
-      color: theme.palette.text.primary,
-      boxShadow: theme.shadows[1],
-      fontSize: theme.typography.pxToRem(12),
-      padding: "10px",
-      borderRadius: theme.shape.borderRadius,
-    },
-  }));
+  const maxItemsToDisplay = 390;
+
+  const mdScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  let chunkSize = 30;
+  if (smScreen) {
+    chunkSize = 10;
+  } else if (mdScreen) {
+    chunkSize = 15;
+  }
+
+  const labels = chronological
+    ? decisionsToDisplay
+    : sortPerChunk(decisionsToDisplay, chunkSize);
 
   return (
-    <div style={{ position: "relative", width: "100%", maxWidth: 960 }}>
+    <Box position="relative" width="100%" maxWidth={960}>
       <CardErrorHandler
         queryKey={"fetchGenericData"}
         error={genericDataQuery?.error}
         isError={!!genericDataQuery?.isError}
       />
-      <StyledCard elevation={2}>
-        <CardContent style={{ padding: theme.spacing(0) }}>
-          <Stack spacing={3} width="100%">
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
+      <Card>
+        <CardContent>
+          <Stack>
+            <Box>
               <FormControlLabel
                 control={
                   <Switch
                     checked={chronological}
-                    onChange={handleSwitchChange}
+                    onChange={toggleChronological}
                   />
                 }
                 label={<Typography variant="body2">Chronological</Typography>}
                 labelPlacement="end"
-                sx={{
-                  fontSize: theme.typography.pxToRem(10),
-                }}
               />
             </Box>
-            {genericDataQuery?.isLoading ? (
-              <HistoryContainer>
-                {Array.from(new Array(chunkSize)).map((_, index) => (
-                  <Skeleton
-                    key={index}
-                    variant="rectangular"
-                    width={theme.spacing(3.15)}
-                    height={theme.spacing(0.625)}
-                    style={{ margin: theme.spacing(0.125) }}
-                  />
-                ))}
-              </HistoryContainer>
-            ) : (
-              <HistoryContainer ref={containerRef}>
-                {generateLines(
-                  visibleItems,
-                  decisionsToDisplay,
-                  chronological,
-                  chunkSize,
-                  handleClick,
-                  theme,
-                )}
-              </HistoryContainer>
-            )}
-            <Box display="flex" justifyContent="center">
-              <Typography variant="body2" color="textSecondary">
-                Scroll to view more
-              </Typography>
-            </Box>
-          </Stack>
-          <Box
-            sx={{
-              position: "absolute",
-              top: theme.spacing(1),
-              right: theme.spacing(1),
-              [theme.breakpoints.down("sm")]: {
-                top: theme.spacing(2),
-                right: theme.spacing(2),
-              },
-            }}
-          >
-            <CustomTooltip
-              title={
-                <React.Fragment>
-                  <hr
-                    style={{
-                      border: `none`,
-                      borderTop: `4px solid ${theme.palette.divider}`,
-                      margin: "8px 0",
-                      borderRadius: "5px",
-                    }}
-                  />
-                  <Typography variant="body2" gutterBottom>
-                    <strong>Chronology Switch</strong>
-                  </Typography>
-                  <li>
-                    In the chronological view, the lines will be sorted in the
-                    same order you labeled them. Otherwise, they will be sorted
-                    by their labels. The arrow of time points to right and down.
-                  </li>
-                  <hr
-                    style={{
-                      border: `none`,
-                      borderTop: `4px solid ${theme.palette.divider}`,
-                      margin: "8px 0",
-                      borderRadius: "5px",
-                    }}
-                  />
-                  <Typography variant="body2" gutterBottom>
-                    <strong>Labeling History</strong>
-                  </Typography>
-                  <ul style={{ paddingLeft: "1.5em", margin: 0 }}>
-                    <li>
-                      These are your previous labeling decisions. Gold lines
-                      represent relevant papers, while gray lines represent
-                      irrelevant papers.
-                    </li>
-                    <li>
-                      When you click on a line, you can view that paper's
-                      details.
-                    </li>
-                  </ul>
-                  <hr
-                    style={{
-                      border: `none`,
-                      borderTop: `4px solid ${theme.palette.divider}`,
-                      margin: "8px 0",
-                      borderRadius: "5px",
-                    }}
-                  />
-                  <Box sx={{ pt: 1, textAlign: "center" }}>
-                    <a
-                      href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                      style={{
-                        color:
-                          theme.palette.mode === "dark" ? "#1E90FF" : "#1E90FF",
-                      }}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Learn more
-                    </a>
-                  </Box>
-                </React.Fragment>
-              }
-              arrow
-              interactive={true}
-              enterTouchDelay={0}
-            >
+
+            <Box>
               <IconButton
                 size="small"
-                sx={{
-                  color: theme.palette.text.secondary,
-                  p: theme.spacing(2.1),
+                onClick={(event) => {
+                  setInfoAnchorEl(event.currentTarget);
                 }}
               >
                 <HelpOutlineIcon fontSize="small" />
               </IconButton>
-            </CustomTooltip>
-          </Box>
+            </Box>
+
+            <Box
+              ref={containerRef}
+              sx={{
+                width: 1,
+              }}
+            >
+              {/* {generateLines(
+                  visibleItems,
+                  decisionsToDisplay,
+                  !chronological,
+                  chunkSize,
+                  handleClick,
+                  theme,
+                )} */}
+
+              <Grid
+                container
+                columnSpacing={"3px"}
+                rowSpacing={1}
+                columns={30}
+                sx={{
+                  width: 1,
+                }}
+              >
+                {labels.map((decision, index) => (
+                  <Grid
+                    size={{ xs: 3, sm: 2, md: 1 }}
+                    key={index}
+                    sx={{
+                      height: "5px",
+                      bgcolor:
+                        decision.label === 1
+                          ? "secondary.main"
+                          : "primary.light",
+                      borderRadius: 1,
+                    }}
+                  />
+                ))}
+
+                {Array.from(
+                  { length: maxItemsToDisplay - labels.length },
+                  (value, index) => (
+                    <Grid
+                      size={{ xs: 3, sm: 2, md: 1 }}
+                      key={`unseen-or-irrelevant-${index}`}
+                      sx={{
+                        height: "5px",
+                        bgcolor: "grey.400",
+                        borderRadius: 1,
+                      }}
+                    />
+                  ),
+                )}
+              </Grid>
+
+              {maxItemsToDisplay < progressQuery?.data?.n_records && (
+                <Typography align="center" sx={{ mt: 1 }}>
+                  {progressQuery?.data?.n_records - maxItemsToDisplay} more
+                  records
+                </Typography>
+              )}
+            </Box>
+          </Stack>
         </CardContent>
-      </StyledCard>
-      <Popover
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-      >
-        {selectedPaper && (
-          <Box
-            p={2}
-            maxWidth={240}
-            bgcolor={selectedColor}
-            borderRadius={3}
-            boxShadow={3}
-            sx={{
-              color:
-                selectedColor === theme.palette.primary.main ||
-                selectedColor === theme.palette.primary.secondary
-                  ? "#000"
-                  : "#FFF",
-            }}
-          >
-            <Typography variant="subtitle1" fontWeight="bold">
+      </Card>
+      {/* <Popover id={id} open={open} anchorEl={anchorEl} onClose={handleClose}>
+        {selectedPaper !== null && (
+          <Box>
+            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
               Placeholder Title
             </Typography>
-            <Typography variant="caption" sx={{ fontStyle: "italic" }}>
-              Coming Soon
-            </Typography>
-            <Typography variant="body2" mt={1}>
-              Placeholder Abstract
-            </Typography>
+            <Typography variant="caption">Coming Soon</Typography>
+            <Typography variant="body2">Placeholder Abstract</Typography>
           </Box>
         )}
+      </Popover> */}
+      <Popover
+        id={infoId}
+        open={infoOpen}
+        anchorEl={infoAnchorEl}
+        onClose={() => {
+          setInfoAnchorEl(null);
+        }}
+      >
+        <Box>
+          <Typography variant="body2" gutterBottom>
+            <strong>Chronological</strong>
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+            In the chronological view, the lines will be sorted in the same
+            order you labeled them. Otherwise, they will be sorted by their
+            labels.
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+            The arrow of time points to right and down.
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+            <strong>Labeling History</strong>
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+            These are your previous labeling decisions. Gold lines represent
+            relevant records, while gray lines represent irrelevant records.
+            When you click on a line, you can view that paper's details.
+          </Typography>
+          <Box>
+            <a
+              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+              style={{
+                color: theme.palette.primary.main,
+              }}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Learn more
+            </a>
+          </Box>
+        </Box>
       </Popover>
-    </div>
+    </Box>
   );
 };
 export default LabelingHistory;

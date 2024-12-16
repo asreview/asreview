@@ -1,4 +1,3 @@
-import shutil
 from pathlib import Path
 import pytest
 
@@ -11,7 +10,7 @@ from asreview.extensions import load_extension
 DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
 
 
-@pytest.mark.parametrize("balance_strategy", ["undersample", "double", None])
+@pytest.mark.parametrize("balance_strategy", ["balanced", None])
 def test_simulate_basic(tmpdir, balance_strategy):
     project = asr.Project.create(
         Path(tmpdir, "simulate-example"),
@@ -19,17 +18,10 @@ def test_simulate_basic(tmpdir, balance_strategy):
         "simulate",
         "simulate-example",
     )
-
-    data_path = Path(project.project_path, "data") / "generic_labels.csv"
-    shutil.copy(DATA_FP, data_path)
-    project.add_dataset(data_path.name)
-
-    as_data = project.read_data()
+    project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(
-        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
-    )
+    fm = feature_model.from_data_store(project.data_store)
     project.add_feature_matrix(fm, feature_model)
 
     # set numpy seed
@@ -42,7 +34,7 @@ def test_simulate_basic(tmpdir, balance_strategy):
 
     sim = asr.Simulate(
         fm,
-        labels=as_data.labels,
+        labels=project.data_store["included"],
         classifier=load_extension("models.classifiers", "svm")(),
         query_strategy=load_extension("models.query", "max_random")(),
         balance_strategy=balance_model,
@@ -66,17 +58,10 @@ def test_simulate_no_prior(tmpdir):
         "simulate",
         "simulate-example",
     )
-
-    data_path = Path(project.project_path, "data") / "generic_labels.csv"
-    shutil.copy(DATA_FP, data_path)
-    project.add_dataset(data_path.name)
-
-    as_data = project.read_data()
+    project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(
-        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
-    )
+    fm = feature_model.from_data_store(project.data_store)
     project.add_feature_matrix(fm, feature_model)
 
     # set numpy seed
@@ -84,10 +69,10 @@ def test_simulate_no_prior(tmpdir):
 
     sim = asr.Simulate(
         fm,
-        labels=as_data.labels,
+        labels=project.data_store["included"],
         classifier=load_extension("models.classifiers", "svm")(),
         query_strategy=load_extension("models.query", "max_random")(),
-        balance_strategy=load_extension("models.balance", "double")(),
+        balance_strategy=load_extension("models.balance", "balanced")(),
         feature_extraction=feature_model,
     )
     sim.review()
@@ -107,17 +92,10 @@ def test_simulate_random_prior(tmpdir):
         "simulate",
         "simulate-example",
     )
-
-    data_path = Path(project.project_path, "data") / "generic_labels.csv"
-    shutil.copy(DATA_FP, data_path)
-    project.add_dataset(data_path.name)
-
-    as_data = project.read_data()
+    project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(
-        as_data.texts, as_data.headings, as_data.bodies, as_data.keywords
-    )
+    fm = feature_model.from_data_store(project.data_store)
     project.add_feature_matrix(fm, feature_model)
 
     # set numpy seed
@@ -125,10 +103,10 @@ def test_simulate_random_prior(tmpdir):
 
     sim = asr.Simulate(
         fm,
-        labels=as_data.labels,
+        labels=project.data_store["included"],
         classifier=load_extension("models.classifiers", "svm")(),
         query_strategy=load_extension("models.query", "max_random")(),
-        balance_strategy=load_extension("models.balance", "double")(),
+        balance_strategy=load_extension("models.balance", "balanced")(),
         feature_extraction=feature_model,
     )
     sim.label_random(1, 1, prior=True, random_state=42)

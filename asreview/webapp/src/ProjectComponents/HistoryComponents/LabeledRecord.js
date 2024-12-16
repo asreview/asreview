@@ -1,13 +1,5 @@
-import {
-  Box,
-  ButtonBase,
-  CircularProgress,
-  Fade,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, ButtonBase, Fade, Stack, Typography } from "@mui/material";
 import { grey } from "@mui/material/colors";
-import { styled } from "@mui/material/styles";
 import React from "react";
 import { InView } from "react-intersection-observer";
 import { useInfiniteQuery } from "react-query";
@@ -16,44 +8,18 @@ import { BoxErrorHandler } from "Components";
 import { RecordCard } from "ProjectComponents/ReviewComponents";
 import { ProjectAPI } from "api";
 
-const PREFIX = "LabeledRecord";
+import { useReviewSettings } from "context/ReviewSettingsContext";
+import { useMediaQuery } from "@mui/material";
 
-const classes = {
-  loading: `${PREFIX}-loading`,
-  loadMoreInView: `${PREFIX}-loadMoreInView`,
-};
+const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
+  const { orientation, modelLogLevel } = useReviewSettings();
 
-const Root = styled("div")(({ theme }) => ({
-  margin: "auto",
-  maxWidth: 960,
-  [theme.breakpoints.down("md")]: {
-    padding: "4px 0px",
-  },
-  [theme.breakpoints.up("md")]: {
-    padding: "2rem 1rem",
-  },
-  [`& .${classes.loading}`]: {
-    // display: "flex",
-    // justifyContent: "center",
-    // padding: 64,
-  },
-  [`& .${classes.loadMoreInView}`]: {
-    color: grey[500],
-    display: "flex",
-    justifyContent: "center",
-  },
-}));
-
-const LabeledRecord = (props) => {
-  const enableQuery = () => {
-    return !props.is_prior
-      ? true
-      : !(
-          (props.label === "relevant" && !props.n_prior_inclusions) ||
-          (props.label === "irrelevant" && !props.n_prior_exclusions) ||
-          (props.label === "all" && !props.n_prior)
-        );
-  };
+  let landscapeDisabled = useMediaQuery(
+    (theme) => theme.breakpoints.down("md"),
+    {
+      noSsr: true,
+    },
+  );
 
   const {
     data,
@@ -68,16 +34,14 @@ const LabeledRecord = (props) => {
     [
       "fetchLabeledRecord",
       {
-        project_id: props.project_id,
-        subset: props.label,
-        filter: props.filterQuery.map((filter) => filter.value),
+        project_id: project_id,
+        subset: label,
+        filter: filterQuery.map((filter) => filter.value),
       },
     ],
     ProjectAPI.fetchLabeledRecord,
     {
-      enabled: enableQuery(),
       getNextPageParam: (lastPage) => lastPage.next_page ?? false,
-      refetchOnWindowFocus: false,
     },
   );
 
@@ -93,34 +57,37 @@ const LabeledRecord = (props) => {
   }, []);
 
   return (
-    <Root aria-label="labeled record">
+    <Box aria-label="labeled record">
       {isError && (
         <BoxErrorHandler error={error} queryKey="fetchLabeledRecord" />
       )}
-      {props.n_prior !== 0 && !isError && (isLoading || !mounted.current) && (
+      {/* {n_prior !== 0 && !isError && (isLoading || !mounted.current) && (
         <Box className={classes.loading}>
           <CircularProgress />
         </Box>
-      )}
-      {enableQuery() &&
-        !isError &&
-        !(isLoading || !mounted.current) &&
-        isFetched && (
-          <Fade in={!isError && !(isLoading || !mounted.current) && isFetched}>
-            <Stack aria-label="labeled record card" spacing={3}>
-              {isFetched &&
-                data?.pages.map((page) =>
-                  page.result.map((record) => (
-                    <RecordCard
-                      project_id={props.project_id}
-                      record={record}
-                      collapseAbstract={true}
-                      disabled={true}
-                      transitionType="none"
-                      key={record.record_id}
-                    />
-                  )),
-                )}
+      )} */}
+      {!isError && !(isLoading || !mounted.current) && isFetched && (
+        <Fade in={!isError && !(isLoading || !mounted.current) && isFetched}>
+          <Stack aria-label="labeled record card" spacing={5}>
+            {isFetched &&
+              data?.pages.map((page) =>
+                page.result.map((record) => (
+                  <RecordCard
+                    project_id={project_id}
+                    record={record}
+                    collapseAbstract={true}
+                    disabled={true}
+                    transitionType="none"
+                    landscape={
+                      orientation === "landscape" && !landscapeDisabled
+                    }
+                    modelLogLevel={modelLogLevel}
+                    changeDecision={mode === "oracle"}
+                    key={record.record_id}
+                  />
+                )),
+              )}
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
               <InView
                 as="div"
                 onChange={(inView, entry) => {
@@ -128,10 +95,13 @@ const LabeledRecord = (props) => {
                     fetchNextPage();
                   }
                 }}
-                className={classes.loadMoreInView}
               >
                 <ButtonBase disabled={!hasNextPage || isFetchingNextPage}>
-                  <Typography gutterBottom variant="button">
+                  <Typography
+                    gutterBottom
+                    variant="button"
+                    sx={{ color: grey[500] }}
+                  >
                     {isFetchingNextPage
                       ? "Loading more..."
                       : hasNextPage
@@ -140,10 +110,11 @@ const LabeledRecord = (props) => {
                   </Typography>
                 </ButtonBase>
               </InView>
-            </Stack>
-          </Fade>
-        )}
-    </Root>
+            </Box>
+          </Stack>
+        </Fade>
+      )}
+    </Box>
   );
 };
 

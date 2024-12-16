@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from asreview.project import Project
+from asreview.project.api import Project
 
 
 def asreview_path():
@@ -23,8 +23,8 @@ def asreview_path():
 def get_project_path(folder_id):
     """Get the project directory.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     folder_id: str
         The id of the folder containing a project. If there is no
         authentication, the folder_id is equal to the project_id. Otherwise,
@@ -36,8 +36,8 @@ def get_project_path(folder_id):
 def get_projects(project_paths=None):
     """Get the ASReview projects at the given paths.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     project_paths : list[Path], optional
         List of paths to projects. By default all the projects in the asreview
         folder are used, by default None

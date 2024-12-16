@@ -6,17 +6,17 @@ QUERY_STRATEGIES=('max_random' 'max_uncertainty' 'max' 'uncertainty' 'random')
 
 for qs in "${QUERY_STRATEGIES[@]}"
 do
-  asreview simulate synergy:${DATASET} -q $qs --seed 535 --init_seed 535 -s ${DATASET}_${qs}.asreview
+  asreview simulate synergy:${DATASET} -q $qs --seed 535 --prior-seed 535 -o ${DATASET}_${qs}.asreview
   asreview plot recall ${DATASET}_${qs}.asreview -o ${DATASET}_${qs}_recall.png
 done
 
 
 
-BALANCE_STRATEGIES=('double' 'simple' 'undersample')
+BALANCE_STRATEGIES=('balanced')
 
 for bs in "${BALANCE_STRATEGIES[@]}"
 do
-  asreview simulate synergy:${DATASET} -q $bs --seed 535 --init_seed 535 -s ${DATASET}_${bs}.asreview
+  asreview simulate synergy:${DATASET} -q $bs --seed 535 --prior-seed 535 -o ${DATASET}_${bs}.asreview
   asreview plot recall ${DATASET}_${bs}.asreview -o ${DATASET}_${bs}_recall.png
 done
 
@@ -27,7 +27,7 @@ MODELS=('logistic' 'nb' 'rf' 'svm')
 
 for m in "${MODELS[@]}"
 do
-  asreview simulate synergy:${DATASET} -q $m --seed 535 --init_seed 535 -s ${DATASET}_${m}.asreview
+  asreview simulate synergy:${DATASET} -q $m --seed 535 --prior-seed 535 -o ${DATASET}_${m}.asreview
   asreview plot recall ${DATASET}_${m}.asreview -o ${DATASET}_${m}_recall.png
 done
 
@@ -38,6 +38,6 @@ FEATURE_STRATEGIES=('tfidf' 'onehot')
 
 for fs in "${FEATURE_STRATEGIES[@]}"
 do
-  asreview simulate synergy:${DATASET} -q $fs --seed 535 --init_seed 535 -s ${DATASET}_${fs}.asreview
+  asreview simulate synergy:${DATASET} -q $fs --seed 535 --prior-seed 535 -o ${DATASET}_${fs}.asreview
   asreview plot recall ${DATASET}_${fs}.asreview -o ${DATASET}_${fs}_recall.png
 done

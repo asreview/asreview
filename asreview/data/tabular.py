@@ -17,11 +17,11 @@ __all__ = ["CSVReader"]
 
 import pandas as pd
 
-from asreview.config import COLUMN_DEFINITIONS
-from asreview.data.base import Dataset
+from asreview.data.config import COLUMN_DEFINITIONS
+from asreview.data.base_reader import BaseReader
 
 
-class CSVReader:
+class CSVReader(BaseReader):
     """CVS file reader."""
 
     read_format = [".csv", ".tab", ".tsv"]
@@ -31,8 +31,8 @@ class CSVReader:
     def read_data(cls, fp):
         """Import dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         fp: str, pathlib.Path
             File path to the CSV file.
 
@@ -43,8 +43,7 @@ class CSVReader:
         """
         for encoding in ["utf-8", "ISO-8859-1"]:
             try:
-                df = pd.read_csv(fp, sep=None, encoding=encoding, engine="python")
-                return Dataset(df)
+                return pd.read_csv(fp, sep=None, encoding=encoding, engine="python")
             except UnicodeDecodeError:
                 # if unicode error, go to next encoding
                 continue
@@ -63,8 +62,8 @@ class CSVWriter:
     def write_data(cls, df, fp, sep=","):
         """Export dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         df: pandas.Dataframe
             Dataframe of all available record data.
         fp: str, NoneType
@@ -77,10 +76,10 @@ class CSVWriter:
         CSV file
             Dataframe of all available record data.
         """
-        return df.to_csv(fp, sep=sep, index=True)
+        return df.to_csv(fp, sep=sep, index=True, date_format="%Y-%m-%d %H:%M:%S")
 
 
-class ExcelReader:
+class ExcelReader(BaseReader):
     """Excel file reader."""
 
     read_format = [".xlsx"]
@@ -90,8 +89,8 @@ class ExcelReader:
     def read_data(cls, fp):
         """Import dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         fp: str, pathlib.Path
             File path to the Excel file (.xlsx).
 
@@ -108,7 +107,7 @@ class ExcelReader:
         best_sheet = None
         sheet_obj_val = -1
         wanted_columns = []
-        for _type_name, type_list in COLUMN_DEFINITIONS.items():
+        for _, type_list in COLUMN_DEFINITIONS.items():
             wanted_columns.extend(type_list)
 
         for sheet_name in dfs:
@@ -118,7 +117,7 @@ class ExcelReader:
                 sheet_obj_val = obj_val
                 best_sheet = sheet_name
 
-        return Dataset(dfs[best_sheet])
+        return dfs[best_sheet]
 
 
 class ExcelWriter:
@@ -132,8 +131,8 @@ class ExcelWriter:
     def write_data(cls, df, fp):
         """Export dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         df: pandas.Dataframe
             Dataframe of all available record data.
         fp: str, NoneType
@@ -158,8 +157,8 @@ class TSVWriter:
     def write_data(cls, df, fp, sep="\t"):
         """Export dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         df: pandas.Dataframe
             Dataframe of all available record data.
         fp: str, NoneType
@@ -172,4 +171,4 @@ class TSVWriter:
         TSV file
             Dataframe of all available record data.
         """
-        return df.to_csv(fp, sep=sep, index=True)
+        return df.to_csv(fp, sep=sep, index=True, date_format="%Y-%m-%d %H:%M:%S")

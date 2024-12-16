@@ -4,8 +4,8 @@
   "private": true,
   "dependencies": {
     "@fontsource/roboto": "^5.0.14",
+    "@fontsource/roboto-serif": "^5.1.1",
     "@mui/icons-material": "^6.1.0",
-    "@mui/lab": "^6.0.0-beta.9",
     "@mui/material": "^6.1.0",
     "axios": "^1.7.7",
     "formik": "^2.4.6",
@@ -22,7 +22,7 @@
     "react-query": "^3.39.3",
     "react-router-dom": "^6.26.1",
     "react-scripts": "^5.0.1",
-    "react-share": "^4.4.0",
+    "react-share": "^5.1.1",
     "yup": "^1.4.0"
   },
   "scripts": {

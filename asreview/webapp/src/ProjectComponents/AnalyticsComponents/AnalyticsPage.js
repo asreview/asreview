@@ -11,17 +11,15 @@ import {
   Tab,
   Tabs,
   Typography,
-  // Avatar,
-  // AvatarGroup,
-  // Tooltip,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
+// import { Avatar, AvatarGroup, Tooltip } from "@mui/material";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import {
   EmailIcon,
   FacebookIcon,
-  TwitterIcon,
+  XIcon,
   WeiboIcon,
   WhatsappIcon,
 } from "react-share";
@@ -52,7 +50,7 @@ import { ProjectAPI } from "api";
 // import ElasSuperHero from "../../images/ElasSuperHero.jpg";
 
 const actions = [
-  { icon: <TwitterIcon round />, name: "Twitter" },
+  { icon: <XIcon round />, name: "X" },
   { icon: <FacebookIcon round />, name: "Facebook" },
   { icon: <WeiboIcon round />, name: "Weibo" },
   { icon: <WhatsappIcon round />, name: "WhatsApp" },
@@ -89,14 +87,14 @@ const AnalyticsPage = () => {
       }),
     { refetchOnWindowFocus: false },
   );
-  const twitterRef = React.useRef(null);
+  const xRef = React.useRef(null);
   const facebookRef = React.useRef(null);
   const weiboRef = React.useRef(null);
   const whatsappRef = React.useRef(null);
   const emailRef = React.useRef(null);
   const handleShare = (platform) => {
-    if (platform === "Twitter") {
-      twitterRef.current?.click();
+    if (platform === "X") {
+      xRef.current?.click();
     }
     if (platform === "Facebook") {
       facebookRef.current?.click();
@@ -164,18 +162,16 @@ const AnalyticsPage = () => {
           >
             {isEditing ? (
               <TextField
-                value={customName}
-                onChange={handleNameChange}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <IconButton onClick={toggleEditing} edge="end">
-                        <CheckIcon />
-                      </IconButton>
-                    ),
-                  },
-                }}
-              />
+  value={customName}
+  onChange={handleNameChange}
+  InputProps={{
+    endAdornment: (
+      <IconButton onClick={toggleEditing} edge="end">
+        <CheckIcon />
+      </IconButton>
+    ),
+  }}
+/>
             ) : (
               <>
                 {customName}
@@ -222,9 +218,12 @@ const AnalyticsPage = () => {
         </Box>
         <Grid container columns={{ xs: 1, md: 2 }}>
           <Grid size={1}>
+
             <Tabs
-              value={activeProgressTab}
-              onChange={(event, newValue) => setActiveProgressTab(newValue)}
+              value={activeHistoryTab}
+              onChange={(event, newValue) => setActiveHistoryTab(newValue)}
+              scrollButtons="auto"
+              variant="scrollable"
             >
               <Tab label="Progress" />
             </Tabs>
@@ -337,7 +336,7 @@ const AnalyticsPage = () => {
         ariaLabel="share project analytics"
         icon={<Share />}
         sx={{
-          position: "absolute",
+          position: "fixed",
           bottom: 24,
           right: 24,
         }}
@@ -355,7 +354,7 @@ const AnalyticsPage = () => {
       </SpeedDial>
       <ShareFabAction
         progressQueryData={progressQuery.data}
-        twitterRef={twitterRef}
+        xRef={xRef}
         facebookRef={facebookRef}
         weiboRef={weiboRef}
         whatsappRef={whatsappRef}

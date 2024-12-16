@@ -1,42 +1,136 @@
-import React from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import {
+  Alert,
+  Button,
+  CardActions,
+  CardContent,
+  FormHelperText as FHT,
+  FormControl,
+  Snackbar,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { OTPFormField } from "Components";
+import AuthAPI from "api/AuthAPI";
+import { useFormik } from "formik";
+import { useToggle } from "hooks/useToggle";
+import * as React from "react";
+import { useMutation, useQueryClient } from "react-query";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import * as Yup from "yup";
 import { InlineErrorHandler } from ".";
-import { AuthAPI } from "api";
 
-let requestedAPI = false;
+// OTP Validation Schema
+const OTPValidationSchema = Yup.string()
+  .length(6, "OTP must be exactly 6 digits")
+  .matches(/^\d{6}$/, "OTP must contain only digits")
+  .required("OTP is required");
 
-const ConfirmAccount = ({ showNotification }) => {
-  const navigate = useNavigate();
+// PASSWORD Validation Schema
+const SignupSchema = Yup.object().shape({
+  otp: OTPValidationSchema,
+});
+
+const ConfirmAccount = () => {
+  const queryClient = useQueryClient();
+  const [otp, setOtp] = React.useState(new Array(6).fill(""));
   const [searchParams] = useSearchParams();
-  const [errorMessage] = React.useState(false);
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = React.useState("");
+  const [notification, toggleNotification] = useToggle();
 
-  // This effect does a boot request to gather information
-  // from the backend
-  React.useEffect(() => {
-    if (!requestedAPI) {
+  const initialValues = {
+    otp: "", // Track OTP as a string in Formik
+  };
+
+  const formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: SignupSchema,
+    onSubmit: (values) => {
       let userId = searchParams.get("user_id");
-      let token = searchParams.get("token");
+      let token = values.otp;
+      let password = values.password;
 
-      AuthAPI.confirmAccount({
-        userId: userId,
-        token: token,
-      })
-        .then((response) => {
-          requestedAPI = true;
-          showNotification("Your account has been confirmed. Please sign in.");
-          navigate("/signin");
-        })
-        .catch((err) => {
-          showNotification("Your account could not be confirmed!", "error");
-          console.log(err);
-        });
-    }
-  }, [navigate, searchParams, showNotification]);
+      if (formik.isValid) {
+        mutate({ userId, token, password });
+      }
+    },
+  });
+
+  const { mutate } = useMutation(AuthAPI.confirmAccount, {
+    onMutate: () => {
+      queryClient.resetQueries("user");
+    },
+    onSuccess: () => {
+      formik.setValues(initialValues, false);
+      navigate("/signin");
+    },
+    onError: (data) => {
+      setErrorMessage(data.message);
+      toggleNotification();
+    },
+  });
 
   return (
-    <div>
-      {Boolean(errorMessage) && <InlineErrorHandler message={errorMessage} />}
-    </div>
+    <form onSubmit={formik.handleSubmit}>
+      <CardContent>
+        <Stack spacing={2}>
+          <Typography variant="h5">Confirm your account</Typography>
+          <FormControl>
+            <Stack spacing={2}>
+              <Typography variant="body2">
+                You have received a code by email that allows you to confirm
+                your account credentials. Enter the code below:
+              </Typography>
+
+              {/* Pass formik's setFieldValue to OTPFormField */}
+              <OTPFormField
+                otp={otp}
+                onOtpChange={setOtp}
+                setFieldValue={formik.setFieldValue}
+                setFieldTouched={formik.setFieldTouched}
+              />
+              {formik.touched.otp && formik.errors.otp && (
+                <FHT error>{formik.errors.otp}</FHT>
+              )}
+            </Stack>
+          </FormControl>
+
+          {errorMessage && <InlineErrorHandler message={errorMessage} />}
+        </Stack>
+      </CardContent>
+
+      <CardActions>
+        <Button
+          disabled={!formik.isValid || formik.values.password === ""}
+          variant="contained"
+          color="primary"
+          type="submit"
+        >
+          Submit
+        </Button>
+        <Button
+          onClick={() => navigate("/signin")}
+          sx={{ textTransform: "none" }}
+        >
+          Sign In instead
+        </Button>
+      </CardActions>
+
+      <Snackbar
+        open={notification}
+        autoHideDuration={6000}
+        onClose={toggleNotification}
+      >
+        <Alert
+          onClose={toggleNotification}
+          severity="error"
+          sx={{ width: "100%" }}
+          variant="filled"
+        >
+          {`Your account is not confirmed! ${errorMessage}`}
+        </Alert>
+      </Snackbar>
+    </form>
   );
 };
 

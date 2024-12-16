@@ -13,8 +13,10 @@
 # limitations under the License.
 import argparse
 import logging
+import multiprocessing as mp
 import os
 import socket
+import time
 import webbrowser
 from pathlib import Path
 from threading import Timer
@@ -27,6 +29,7 @@ import asreview as asr
 from asreview._deprecated import DeprecateAction
 from asreview._deprecated import mark_deprecated_help_strings
 from asreview.webapp.app import create_app
+from asreview.webapp.task_manager.task_manager import run_task_manager
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
 from asreview.webapp.utils import get_projects
@@ -67,8 +70,8 @@ def lab_entry_point(argv):
 
     This function is called when the `asreview lab` command is used.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     argv: list
         Command line arguments.
 
@@ -177,10 +180,34 @@ def lab_entry_point(argv):
 
     console.print("Press [bold]Ctrl+C[/bold] to exit.\n\n")
 
+    # spin up task manager
+    start_event = mp.Event()
+    process = mp.Process(
+        target=run_task_manager,
+        args=(
+            app.config.get("TASK_MANAGER_WORKERS", None),
+            app.config.get("TASK_MANAGER_HOST", None),
+            app.config.get("TASK_MANAGER_PORT", None),
+            app.config.get("TASK_MANAGER_VERBOSE", False),
+            start_event,
+        ),
+    )
+    process.start()
+
+    # wait for the process to spin up
+    start_time = time.time()
+    while not start_event.is_set():
+        time.sleep(0.1)
+        if time.time() - start_time > 5:
+            console.print(
+                "\n\n[red]Error: unable to startup the model server.[/red]\n\n"
+            )
+            return
+
     try:
         waitress.serve(app, host=args.host, port=port, threads=6)
     except KeyboardInterrupt:
-        console.print("\n\nShutting down server\n\n")
+        console.print("\n\nShutting down server.\n\n")
 
 
 def _lab_parser():

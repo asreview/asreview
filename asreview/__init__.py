@@ -12,15 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# deprecated in __init__.py, use asreview.models.feature_extraction instead
-from asreview.data.base import Dataset
-from asreview.data.base import Record
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+
 from asreview.data.loader import load_dataset
 from asreview.extensions import extensions
 from asreview.extensions import get_extension
 from asreview.extensions import load_extension
-from asreview.project import Project
-from asreview.project import is_project
+from asreview.project.api import Project
+from asreview.project.api import is_project
+from asreview.project.exceptions import ProjectError
+from asreview.project.exceptions import ProjectNotFoundError
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
@@ -36,8 +38,6 @@ except ImportError:
 
 __all__ = [
     # classes
-    "Record",
-    "Dataset",
     "Project",
     "Simulate",
     "SQLiteState",
@@ -50,4 +50,24 @@ __all__ = [
     "extensions",
     "get_extension",
     "load_extension",
+    # errors
+    "ProjectError",
+    "ProjectNotFoundError",
 ]
+
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    """Configure SQLite to use foreign keys.
+
+    By adding this function, everytime a connection is made to the sqlite engine, we
+    make sure that foreign keys are configured (by default sqlite allows foreign keys,
+    but ignores them and it's only SQLAlchemy that takes care of foreign keys). The only
+    downside of enabling foreign keys on the database level is that we will run into
+    problems if we have mutually dependent foreign keys.
+
+    See also: https://docs.sqlalchemy.org/en/20/dialects/sqlite.html#sqlite-foreign-keys
+    """
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()

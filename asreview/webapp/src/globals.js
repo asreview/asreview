@@ -41,8 +41,6 @@ export const getDesignTokens = (mode) => ({
 });
 
 // drawer configs
-export const drawerWidth = 250;
-
 export const checkIfSimulationFinishedDuration = 6000;
 
 export const fontSizeOptions = ["Small", "Default", "Large", "Largest"];

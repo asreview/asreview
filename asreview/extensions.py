@@ -12,19 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
-if sys.version_info >= (3, 10):
-    from importlib.metadata import entry_points as _entry_points  # noqa
-else:
-    from importlib_metadata import entry_points as _entry_points  # noqa
+from importlib.metadata import entry_points
 
 
 def extensions(group):
     """Get the extension class from an entry point.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     group: str
         The group of the extension.
 
@@ -34,14 +29,14 @@ def extensions(group):
         The class corresponding to the extension.
     """
 
-    return _entry_points(group=f"asreview.{group}")
+    return entry_points(group=f"asreview.{group}")
 
 
 def get_extension(group, name):
     """Get the extension class from an entry point.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     group: str
         The group of the extension.
     name: str
@@ -54,17 +49,20 @@ def get_extension(group, name):
     """
 
     try:
-        (entry_point,) = _entry_points(group=f"asreview.{group}", name=name)
+        (entry_point,) = entry_points(group=f"asreview.{group}", name=name)
         return entry_point
     except ValueError as err:
-        raise ValueError(f"Extension {name} not found in group {group}.") from err
+        raise ValueError(
+            f"'{name}' not found in group {group}. "
+            f"Available options: {', '.join(e.name for e in extensions(group))}."
+        ) from err
 
 
 def load_extension(group, name):
     """Load the extension class from an entry point.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     group: str
         The group of the extension.
     name: str
@@ -76,8 +74,5 @@ def load_extension(group, name):
         The class corresponding to the extension.
 
     """
-
-    if not get_extension(group, name):
-        raise ValueError(f"Extension {name} not found in group {group}.")
 
     return get_extension(group, name).load()

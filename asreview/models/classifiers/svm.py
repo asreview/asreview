@@ -27,8 +27,8 @@ class SVMClassifier(BaseTrainClassifier):
     The Support Vector Machine classifier is an implementation based
     on the sklearn Support Vector Machine classifier.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     gamma: str
         Gamma parameter of the SVM model.
     class_weight: float

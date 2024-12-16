@@ -4,228 +4,146 @@ import {
   CardContent,
   Box,
   Typography,
-  Tooltip,
-  tooltipClasses,
-  CircularProgress,
   Slider,
   IconButton,
+  Popover,
   useTheme,
+  Skeleton,
+  Link,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { CardErrorHandler } from "Components";
+import { useQuery } from "react-query";
+import { ProjectAPI } from "api";
 
-// Styled component for the main card
-const StyledCard = styled(Card)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderRadius: 16,
-  width: "100%",
-  maxWidth: 960,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: theme.shadows[2],
-}));
-
-// Styled component for the tooltip
-const StyledTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.text.primary,
-    boxShadow: theme.shadows[1],
-    fontSize: theme.typography.pxToRem(12),
-    padding: "10px",
-    borderRadius: theme.shape.borderRadius,
-  },
-  [`& .${tooltipClasses.arrow}`]: {
-    color: theme.palette.background.paper,
-  },
-}));
-
-const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
-  const [sliderValue, setSliderValue] = useState(30);
+const LabelingFrequency = ({ project_id }) => {
+  const [sliderValue, setSliderValue] = useState(50);
+  const [anchorEl, setAnchorEl] = useState(null);
   const canvasRef = useRef(null);
-
   const theme = useTheme();
 
-  const totalPapers = progressQuery?.data?.n_papers || 0;
-  const progressDensity = genericDataQuery?.data || [];
+  const progressQuery = useQuery(
+    ["fetchProgress", { project_id }],
+    ({ queryKey }) => ProjectAPI.fetchProgress({ queryKey }),
+    { refetchOnWindowFocus: false },
+  );
 
-  // Reverse the dataset to show the latest labels first
+  const genericDataQuery = useQuery(
+    ["fetchGenericData", { project_id }],
+    ({ queryKey }) => ProjectAPI.fetchGenericData({ queryKey }),
+    { refetchOnWindowFocus: false },
+  );
+
+  const totalPapers = progressQuery?.data?.n_records || 0;
+  const progressDensity = genericDataQuery?.data || [];
   const reversedDecisions = progressDensity.slice(-totalPapers).reverse();
 
-  // Exponential scaling for visible records
-  const minVisibleRecords = 10; // Minimum records when slider is at 0%
-  const maxVisibleRecords = totalPapers; // Maximum records when silder is at 100%
+  const minVisibleRecords = 10;
+  const maxVisibleRecords = reversedDecisions.length;
+  const visibleCount = Math.floor(
+    minVisibleRecords *
+      Math.pow(maxVisibleRecords / minVisibleRecords, sliderValue / 100),
+  );
 
-  // Exponential function for user-friendly scaling
-  const visibleCount =
-    sliderValue === 100
-      ? maxVisibleRecords
-      : Math.max(
-          minVisibleRecords,
-          Math.ceil(
-            minVisibleRecords *
-              Math.pow(
-                maxVisibleRecords / minVisibleRecords,
-                sliderValue / 100,
-              ),
-          ),
-        );
-
-  // Slice the dataset to get the visible records
   const decisionsToDisplay = reversedDecisions.slice(0, visibleCount);
 
   useEffect(() => {
-    if (canvasRef.current) {
+    if (canvasRef.current && decisionsToDisplay.length > 0) {
       const ctx = canvasRef.current.getContext("2d");
-      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
-      const lineWidth = 10;
-      const fullHeight = canvasRef.current.height;
-      const lineHeight = fullHeight * 0.7;
       const canvasWidth = canvasRef.current.width;
+      const canvasHeight = canvasRef.current.height;
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
       const totalVisible = decisionsToDisplay.length;
+      const gap = 1;
+      const barWidth = Math.max(
+        (canvasWidth - gap * (totalVisible - 1)) / totalVisible,
+        1,
+      );
+      const barHeight = canvasHeight * 0.8;
 
       decisionsToDisplay.forEach((decision, index) => {
         ctx.fillStyle =
           decision.label === 1
             ? theme.palette.mode === "light"
-              ? theme.palette.primary.light
-              : theme.palette.primary.main // Relevant
-            : theme.palette.mode === "light"
-              ? "#808080"
-              : theme.palette.grey[600]; // Irrelevant
+              ? theme.palette.grey[600]
+              : theme.palette.grey[600] // Relevant
+            : theme.palette.primary.main; // Irrelevant
+
+        const x = canvasWidth - (index + 1) * (barWidth + gap);
+        const y = (canvasHeight - barHeight) / 2;
+        const radius = 7;
 
         ctx.beginPath();
-        const x = canvasWidth - ((index + 1) / totalVisible) * canvasWidth; // Start drawing from right to left
-        ctx.roundRect(
-          x - lineWidth, // Adjust x to account for line width
-          (fullHeight - lineHeight) / 2, // Center the line vertically
-          lineWidth,
-          lineHeight,
-          5, // Rounded corners
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + barWidth - radius, y);
+        ctx.quadraticCurveTo(x + barWidth, y, x + barWidth, y + radius);
+        ctx.lineTo(x + barWidth, y + barHeight - radius);
+        ctx.quadraticCurveTo(
+          x + barWidth,
+          y + barHeight,
+          x + barWidth - radius,
+          y + barHeight,
         );
+        ctx.lineTo(x + radius, y + barHeight);
+        ctx.quadraticCurveTo(x, y + barHeight, x, y + barHeight - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
         ctx.fill();
       });
     }
-  }, [
-    decisionsToDisplay,
-    sliderValue,
-    theme.palette.grey,
-    theme.palette.mode,
-    theme.palette.primary.light,
-    theme.palette.primary.main,
-  ]);
+  }, [decisionsToDisplay, sliderValue, theme]);
 
   const handleSliderChange = (event, newValue) => {
     setSliderValue(newValue);
   };
 
+  const handlePopoverOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
+  const popoverOpen = Boolean(anchorEl);
+
   return (
-    <StyledCard elevation={2}>
+    <Card
+      sx={{
+        position: "relative",
+        backgroundColor: "transparent",
+      }}
+    >
       <CardContent>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={1}
-          position="relative"
-        >
-          <Typography variant="h6" fontWeight="bold"></Typography>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "-12px",
-              right: "-12px",
-            }}
-          >
-            <StyledTooltip
-              title={
-                <React.Fragment>
-                  <hr
-                    style={{
-                      border: `none`,
-                      borderTop: `4px solid ${theme.palette.divider}`,
-                      margin: "8px 0",
-                      borderRadius: "5px",
-                    }}
-                  />
-                  <Typography variant="body2" gutterBottom>
-                    <strong>Labeling Frequency</strong>
-                  </Typography>
-                  <ul style={{ paddingLeft: "1.5em", margin: 0 }}>
-                    <li>
-                      These are your previous labeling decisions. Your most
-                      recent decisions are on the right side.
-                    </li>
-                    <li>
-                      Gold lines represent relevant papers, while gray lines
-                      represent irrelevant papers.
-                    </li>
-                    <li>
-                      You can use the slider to zoom in and out on your labeling
-                      decisions.
-                    </li>
-                  </ul>
-                  <hr
-                    style={{
-                      border: `none`,
-                      borderTop: `4px solid ${theme.palette.divider}`,
-                      margin: "8px 0",
-                      borderRadius: "5px",
-                    }}
-                  />
-                  <Box sx={{ pt: 1, textAlign: "center" }}>
-                    <a
-                      href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                      style={{
-                        color:
-                          theme.palette.mode === "dark" ? "#1E90FF" : "#1E90FF",
-                      }}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Learn more
-                    </a>
-                  </Box>
-                </React.Fragment>
-              }
-              arrow
-              interactive={true}
-              enterTouchDelay={0}
-            >
-              <IconButton size="small">
-                <HelpOutlineIcon
-                  fontSize="small"
-                  sx={{ color: "text.secondary" }}
-                />
-              </IconButton>
-            </StyledTooltip>
-          </Box>
+        <Box>
+          <IconButton size="small" onClick={handlePopoverOpen}>
+            <HelpOutlineIcon fontSize="small" />
+          </IconButton>
         </Box>
         <CardErrorHandler
-          queryKey={"fetchGenericData"}
-          error={genericDataQuery?.error}
-          isError={!!genericDataQuery?.isError}
+          queryKey={"fetchGenericData and fetchProgress"}
+          error={genericDataQuery?.error || progressQuery?.error}
+          isError={!!genericDataQuery?.isError || !!progressQuery?.isError}
         />
-        {genericDataQuery?.isLoading ? (
-          <CircularProgress />
+        {genericDataQuery?.isLoading || progressQuery?.isLoading ? (
+          <Skeleton variant="rectangular" height={200} />
         ) : (
           <>
-            <Box mb={1}>
+            <Box>
               <canvas
                 ref={canvasRef}
                 width={900}
-                height={315}
+                height={200}
                 style={{
                   width: "100%",
-                  height: 315,
+                  height: "100%",
                   backgroundColor: "transparent",
                 }}
               />
             </Box>
-            <Box display="flex" alignItems="center" mb={1}>
+            <Box display="flex" alignItems="center">
               <Box flexGrow={1}>
                 <Slider
                   value={sliderValue}
@@ -246,7 +164,43 @@ const LabelingFrequency = ({ genericDataQuery, progressQuery }) => {
           </>
         )}
       </CardContent>
-    </StyledCard>
+      <Popover
+        id="info-popover"
+        open={popoverOpen}
+        anchorEl={anchorEl}
+        onClose={handlePopoverClose}
+      >
+        <Box p={2}>
+          <Typography variant="body1" gutterBottom>
+            <strong>Labeling Frequency</strong>
+          </Typography>
+
+          <Typography variant="body2" gutterBottom>
+            These are your previous labeling decisions. Your most recent
+            decisions are on the right side.
+          </Typography>
+
+          <Typography variant="body2" gutterBottom>
+            Gold lines represent relevant records, while gray lines represent
+            irrelevant records.
+          </Typography>
+
+          <Typography variant="body2" gutterBottom>
+            You can use the slider to zoom in and out on your labeling
+            decisions.
+          </Typography>
+          <Box>
+            <Link
+              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Learn more
+            </Link>
+          </Box>
+        </Box>
+      </Popover>
+    </Card>
   );
 };
 

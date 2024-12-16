@@ -27,8 +27,8 @@ class RandomForestClassifier(BaseTrainClassifier):
     The Random Forest classifier is an implementation based
     on the sklearn Random Forest classifier.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     n_estimators : int, default=100
         The number of trees in the forest.
     max_features: int, default=10

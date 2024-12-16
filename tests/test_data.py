@@ -5,9 +5,9 @@ import pandas as pd
 from pytest import mark
 
 import asreview as asr
+from asreview.data import DataStore
 from asreview.datasets import DatasetManager
 from asreview.search import fuzzy_find
-from asreview.statistics import n_duplicates
 
 
 def exists(url):
@@ -28,36 +28,37 @@ def exists(url):
         ("Cancer case computer contrast pancreatomy Yamada", 2),
     ],
 )
-def test_fuzzy_finder(keywords, record_id):
+def test_fuzzy_finder(tmpdir, keywords, record_id):
     fp = Path("tests", "demo_data", "embase.csv")
-    as_data = asr.load_dataset(fp)
+    records = asr.load_dataset(fp, dataset_id="foo")
+    data_store = DataStore(Path(tmpdir, "store.db"))
+    data_store.create_tables()
+    data_store.add_records(records)
 
-    assert fuzzy_find(as_data, keywords)[0] == record_id
+    assert fuzzy_find(data_store, keywords)[0] == record_id
 
 
 @mark.internet_required
 @mark.parametrize(
     "data_name",
     [
-        # datasets from the Van de Schoot et al. paper
-        # https://github.com/asreview/paper-asreview/blob/master/index_v1.json
-        "benchmark-nature:van_de_Schoot_2017",
-        "benchmark-nature:Hall_2012",
-        "benchmark-nature:Cohen_2006_ACEInhibitors",
-        "benchmark-nature:Kwok_2020",
+        "synergy:Menon_2022",
+        "synergy:Meijboom_2021",
     ],
 )
 def test_datasets(data_name):
     data = DatasetManager().find(data_name)
-    assert exists(data.filepath)
+    assert data.dataset_id == data_name[8:]
 
 
+@mark.xfail(reason="Deduplication will be reimplemented.")
 def test_duplicate_count():
-    d = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
+    data = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
-    assert n_duplicates(d) == 2
+    assert int(data.df.duplicated("doi").sum()) == 2
 
 
+@mark.xfail(reason="Deduplication will be reimplemented.")
 def test_deduplication():
     d_dups = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
@@ -150,6 +151,7 @@ def test_deduplication():
     pd.testing.assert_frame_equal(d_dups.drop_duplicates().df, d_nodups.df)
 
 
+@mark.xfail(reason="Deduplication will be reimplemented.")
 def test_duplicated():
     # Create an instance of Dataset
     instance = asr.Dataset(

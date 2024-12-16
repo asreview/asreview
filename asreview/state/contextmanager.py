@@ -17,10 +17,9 @@ import zipfile
 from contextlib import contextmanager
 from pathlib import Path
 
-from asreview.project import Project
-from asreview.project import ProjectNotFoundError
-from asreview.project import is_project
-from asreview.state.exceptions import StateNotFoundError
+from asreview.project.api import Project
+from asreview.project.exceptions import ProjectNotFoundError
+from asreview.project.api import is_project
 from asreview.state.sqlstate import SQLiteState
 
 
@@ -28,7 +27,7 @@ def _get_state_path(project, review_id=None, create_new=True):
     if review_id is None:
         if len(project.reviews) == 0:
             if not create_new:
-                raise StateNotFoundError("State does not exist in the project")
+                raise FileNotFoundError("State does not exist in the project")
             d_review = project.add_review()
             review_id = d_review["id"]
         else:
@@ -41,10 +40,9 @@ def _get_state_path(project, review_id=None, create_new=True):
 def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=False):
     """Initialize a state class instance from a project folder.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     asreview_obj: str/pathlike/Project
-
         Filepath to the (unzipped) project folder or Project object.
     review_id: str
         Identifier of the review from which the state will be instantiated.

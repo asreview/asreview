@@ -7,15 +7,16 @@ import {
   Card,
   CardContent,
   CardHeader,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
+  Divider,
+  // FormControl,
+  // FormControlLabel,
+  // FormLabel,
+  // Radio,
+  // RadioGroup,
   Link,
-  Radio,
-  RadioGroup,
   Typography,
 } from "@mui/material";
-import { LabelHistory } from "ProjectComponents/HistoryComponents";
+import { LabelHistoryPrior } from "ProjectComponents/HistoryComponents";
 import { ProjectContext } from "context/ProjectContext";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
@@ -27,7 +28,8 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
 
   const [openPriorSearch, setOpenPriorSearch] = React.useState(false);
   const [openPriorView, toggleOpenPriorView] = useToggle(false);
-  const [priorType, setPriorType] = React.useState("records");
+  // const [priorType, setPriorType] = React.useState("records");
+  const priorType = "records";
 
   const { data } = useQuery(
     ["fetchLabeledStats", { project_id: project_id }],
@@ -60,7 +62,7 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
         }
       />
 
-      <CardContent>
+      {/* <CardContent>
         <FormControl>
           <FormLabel id="prior-type-radio">
             What knowledge so you want the AI to use in the beginning?
@@ -89,7 +91,7 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
             />
           </RadioGroup>
         </FormControl>
-      </CardContent>
+      </CardContent> */}
 
       {priorType === "records" && (
         <>
@@ -135,13 +137,13 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
           </CardContent>
         </>
       )}
-      {openPriorView && (
-        <LabelHistory
-          project_id={project_id}
-          mobileScreen={mobileScreen}
-          showFilter={false}
-          filterQuery={[{ value: "is_prior", label: "Prior knowledge" }]}
-        />
+      {priorType === "records" && openPriorView && (
+        <>
+          <Divider />
+          <CardContent>
+            <LabelHistoryPrior project_id={project_id} />
+          </CardContent>
+        </>
       )}
 
       {(priorType === "criteria" || priorType === "file") && (

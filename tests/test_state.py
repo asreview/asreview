@@ -7,8 +7,7 @@ from scipy.sparse import csr_matrix
 
 import asreview as asr
 from asreview.extensions import load_extension
-from asreview.project import ProjectNotFoundError
-from asreview.state.exceptions import StateNotFoundError
+from asreview.project.exceptions import ProjectNotFoundError
 
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
@@ -27,6 +26,7 @@ TEST_QUERY_STRATEGIES = [
     "max",
     "max",
 ]
+# The data in the test file still contains 'double' instead of 'balanced'.
 TEST_BALANCE_STRATEGIES = [
     None,
     None,
@@ -66,48 +66,8 @@ TEST_NOTES = [
 ]
 
 TEST_N_PRIORS = 4
-TEST_N_MODELS = 7
 
 TEST_STATE_FP = Path("tests", "asreview_files", "test_state_example_converted.asreview")
-TEST_WITH_TIMES_FP = Path(
-    "tests", "asreview_files", "test_state_example_with_times.asreview"
-)
-TEST_LABELING_TIMES = [
-    "2021-09-30 17:54:07.569255",
-    "2021-09-30 17:54:07.569255",
-    "2021-09-30 17:54:28.860270",
-    "2021-09-30 17:54:28.860270",
-    "2021-09-30 17:54:28.860270",
-    "2021-09-30 17:54:31.689389",
-    "2021-09-30 17:54:33.505257",
-    "2021-09-30 17:54:35.842416",
-    "2021-09-30 17:54:38.245108",
-]
-
-TEST_FIRST_PROBS = [
-    0.7107394917661797,
-    0.7291694332065035,
-    0.732624685298732,
-    0.7017866934752249,
-    0.7275304788204621,
-    0.7126109527686055,
-    0.7246720268636593,
-    0.7040374218528891,
-    0.7095665447517838,
-    0.7021937381372063,
-]
-TEST_LAST_PROBS = [
-    0.7116408177006979,
-    0.7119557616570122,
-    0.71780127925996,
-    0.7127075014419986,
-    0.7085644453092131,
-    0.7067520535764322,
-    0.7103161247883791,
-    0.7192568428839242,
-    0.7118104532649111,
-    0.7150387267232563,
-]
 TEST_POOL_START = [157, 301, 536, 567, 416, 171, 659, 335, 329, 428]
 
 
@@ -124,7 +84,7 @@ def test_init_project_folder(tmpdir):
     project = asr.Project.create(project_path)
 
     assert Path(project_path, "project.json").is_file()
-    assert Path(project_path, "data").is_dir()
+    assert project.data_dir.is_dir()
     assert Path(project_path, "feature_matrices").is_dir()
     assert Path(project_path, "reviews").is_dir()
 
@@ -151,7 +111,7 @@ def test_invalid_project_folder(tmpdir):
 def test_state_not_found(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
-    with pytest.raises(StateNotFoundError):
+    with pytest.raises(FileNotFoundError):
         with asr.open_state(project_path, create_new=False):
             pass
 
@@ -174,7 +134,7 @@ def test_print_state(asreview_test_project):
 def test_settings_state(asreview_test_project):
     project = asr.Project(asreview_test_project)
     review_id = project.reviews[0]["id"]
-    asr.ReviewSettings().from_file(
+    asr.ReviewSettings.from_file(
         Path(project.project_path, "reviews", review_id, "settings_metadata.json")
     )
 
@@ -185,7 +145,7 @@ def test_create_new_state_file(tmpdir):
     with asr.open_state(project) as state:
         state._is_valid_state()
 
-    asr.ReviewSettings().from_file(
+    asr.ReviewSettings.from_file(
         Path(
             project.project_path,
             "reviews",
@@ -241,7 +201,7 @@ def test_get_dataset_drop_pending(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
-        state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
+        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
         state.add_labeling_data([4, 5, 6], [1, 0, 1])
         state.query_top_ranked(3)
 
@@ -302,15 +262,11 @@ def test_get_labels_no_priors(asreview_test_project):
         assert all(labels == TEST_LABELS[4:])
 
 
-def test_get_labeling_times(tmpdir):
-    shutil.copytree(
-        TEST_WITH_TIMES_FP, Path(tmpdir, "test_state_example_with_times.asreview")
-    )
-
-    with asr.open_state(
-        Path(tmpdir, "test_state_example_with_times.asreview")
-    ) as state:
-        assert all(state.get_results_table()["labeling_time"] == TEST_LABELING_TIMES)
+def test_get_labeling_times(asreview_test_project):
+    with asr.open_state(asreview_test_project) as state:
+        results = state.get_results_table()
+        assert isinstance(results["time"], pd.Series)
+        assert results["time"].dtype == "Float64"
 
 
 def test_get_feature_matrix(asreview_test_project):
@@ -329,7 +285,7 @@ def test_move_ranking_data_to_results(tmpdir):
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
         state.add_last_ranking(
-            range(1, len(TEST_RECORD_TABLE) + 1), "nb", "max", "double", "tfidf", 4
+            range(1, len(TEST_RECORD_TABLE) + 1), "nb", "max", "balanced", "tfidf", 4
         )
         state.query_top_ranked(4)
         data = state.get_results_table(pending=True)
@@ -344,7 +300,7 @@ def test_query_top_ranked(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
-        state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
+        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
         top_ranked = state.query_top_ranked(5)
 
         assert top_ranked["record_id"].to_list() == [2, 1, 0, 3, 4]
@@ -352,7 +308,7 @@ def test_query_top_ranked(tmpdir):
         assert data["record_id"].to_list() == [2, 1, 0, 3, 4]
         assert data["classifier"].to_list() == ["nb"] * 5
         assert data["query_strategy"].to_list() == ["max"] * 5
-        assert data["balance_strategy"].to_list() == ["double"] * 5
+        assert data["balance_strategy"].to_list() == ["balanced"] * 5
         assert data["feature_extraction"].to_list() == ["tfidf"] * 5
         assert data["training_set"].to_list() == [4] * 5
 
@@ -362,7 +318,7 @@ def test_add_labeling_data(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
-        state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
+        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
         for i in range(3):
             # Test without specifying notes.
             state.add_labeling_data([TEST_RECORD_IDS[i]], [TEST_LABELS[i]])
@@ -400,7 +356,7 @@ def test_ranking_with_labels(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
-        state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
+        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
         state.add_labeling_data([4, 5, 6], [1, 0, 1])
 
         ranking_with_labels = state.get_ranking_with_labels()
@@ -436,7 +392,7 @@ def test_exist_new_labeled_records(tmpdir):
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
         assert not state.exist_new_labeled_records
-        state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 3)
+        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 3)
 
         assert not state.exist_new_labeled_records
         state.add_labeling_data([4, 5, 6], [1, 0, 1])
@@ -500,7 +456,7 @@ def test_last_ranking(tmpdir):
     ranking = [1, 3, 4, 6, 2, 5]
     classifier = "nb"
     query_strategy = "max"
-    balance_strategy = "double"
+    balance_strategy = "balanced"
     feature_extraction = "tfidf"
     training_set = 2
 
@@ -567,7 +523,7 @@ def test_add_extra_column(tmpdir):
     ranking = [1, 3, 4, 6, 2, 5]
     classifier = "nb"
     query_strategy = "max"
-    balance_strategy = "double"
+    balance_strategy = "balanced"
     feature_extraction = "tfidf"
     training_set = 2
 

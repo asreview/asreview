@@ -39,6 +39,7 @@ import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { useToggle } from "hooks/useToggle";
 import { useContext } from "react";
+import { projectModes } from "globals.js";
 
 const DEFAULT_MODELS = [
   {
@@ -384,6 +385,7 @@ const ModelSelectDialog = ({
 };
 
 const ModelCard = ({
+  mode = null,
   editable = true,
   showWarning = false,
   trainNewModel = false,
@@ -436,13 +438,19 @@ const ModelCard = ({
     },
   );
 
+  console.log(mode);
+
   return (
     <Card>
       <CardHeader
         title="AI model"
         subheader={
           <>
-            <>Compose an AI model to accelerate your review process. </>
+            <>
+              {projectModes.SIMULATION === mode
+                ? "Compose an AI model to simulate the performance of your review process."
+                : "Compose an AI model to accelerate your review process."}
+            </>
             <Link
               underline="none"
               href={`https://asreview.nl/blog/active-learning-explained/`}
@@ -489,7 +497,12 @@ const ModelCard = ({
         />
       )}
       <CardContent>
-        <Button variant="contained" color="primary" onClick={toggleModelSelect}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={toggleModelSelect}
+          disabled={!editable}
+        >
           Change
         </Button>
         <ExpandMoreButton
@@ -503,7 +516,7 @@ const ModelCard = ({
         </ExpandMoreButton>
       </CardContent>
 
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      <Collapse in={expanded} timeout="auto">
         <Divider />
         <CardContent>
           <Typography variant="h6">Query method</Typography>
@@ -534,7 +547,7 @@ const ModelCard = ({
                     trainNewModel: trainNewModel,
                   });
                 }}
-                disabled={isLoadingMutate}
+                disabled={isLoadingMutate || !editable}
               >
                 {modelOptions?.query_strategy.map((value) => (
                   <MenuItem value={value.name} key={value.name}>
@@ -572,7 +585,7 @@ const ModelCard = ({
               valueLabelDisplay="on"
               min={0}
               max={25}
-              disabled
+              disabled={!editable}
             />
             <Alert severity="info">
               Coming soon! Keep an eye on our website and socials.
@@ -610,7 +623,7 @@ const ModelCard = ({
                       trainNewModel: trainNewModel,
                     });
                   }}
-                  disabled={isLoadingMutate}
+                  disabled={isLoadingMutate || !editable}
                 >
                   <MenuItem value="" key="none">
                     <em>None</em>

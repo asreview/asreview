@@ -1,40 +1,22 @@
 import React from "react";
 
-import { InputBase, Paper, Stack } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import {
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+} from "@mui/material";
+import { ArrowForwardOutlined } from "@mui/icons-material";
+
+import { ProjectAPI } from "api";
+import { InlineErrorHandler } from "Components";
+import { StyledInputSearch } from "StyledComponents/StyledInputSearch";
+
 import { useMutation } from "react-query";
 
-import LoadingButton from "@mui/lab/LoadingButton";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
-
-import { InlineErrorHandler } from "Components";
-import { StyledLoadingButton } from "StyledComponents/StyledButton";
-import { ProjectAPI } from "api";
-
-const PREFIX = "DatasetFromURI";
-
-const classes = {
-  root: `${PREFIX}-root`,
-  input: `${PREFIX}-input`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.root}`]: {
-    alignItems: "center",
-  },
-  [`& .${classes.input}`]: {
-    display: "flex",
-    alignItems: "center",
-    width: "100%",
-    padding: "4px 8px",
-  },
-}));
-
-const DatasetFromURI = ({ mode, setDataset }) => {
+const DatasetFromURI = ({ mode, setSetupProjectId }) => {
   const [localURI, setURI] = React.useState("");
   const [data, setData] = React.useState(null);
   const [selectedFile, setSelectedFile] = React.useState("");
@@ -61,22 +43,12 @@ const DatasetFromURI = ({ mode, setDataset }) => {
   } = useMutation(ProjectAPI.createProject, {
     mutationKey: ["createProject"],
     onSuccess: (data) => {
-      setDataset(data);
+      setSetupProjectId(data.id);
     },
   });
 
-  const handleURL = (event) => {
-    setURI(event.target.value);
-  };
-
   const resolveURI = () => {
     mutateResolve({ uri: localURI });
-  };
-
-  const validateURLOnEnter = (event) => {
-    if (event.keyCode === 13) {
-      resolveURI(event);
-    }
   };
 
   const handleFileChange = (event) => {
@@ -92,21 +64,43 @@ const DatasetFromURI = ({ mode, setDataset }) => {
   };
 
   return (
-    <Root>
+    <>
       <Stack spacing={3}>
-        <Paper
-          className={classes.input}
+        <StyledInputSearch
+          autoFocus
+          endIcon={<ArrowForwardOutlined />}
+          disabled={isResolving || isLoading}
+          onClick={resolveURI}
+          placeholder="Type a URL or DOI of the dataset"
+          value={localURI}
+          onChange={(event) => {
+            setURI(event.target.value);
+          }}
+        />
+
+        {/* <Paper
           component="form"
           noValidate
           autoComplete="off"
           onSubmit={(e) => e.preventDefault()}
           variant="outlined"
+          sx={{
+            px: 2,
+            py: 1,
+            display: "flex",
+            bgcolor: "white",
+            borderRadius: 10,
+            // "&.Mui-focused": {
+            //   borderColor: "primary.main",
+            // },
+
+          }}
         >
           <InputBase
             autoFocus
-            disabled={isResolving || isLoading}
-            fullWidth
-            id="url-dataset"
+            // disabled={isResolving || isLoading}
+            // fullWidth
+            id="dataset-url"
             placeholder="Type a URL or DOI of the dataset"
             value={localURI}
             onChange={handleURL}
@@ -121,7 +115,7 @@ const DatasetFromURI = ({ mode, setDataset }) => {
           >
             <ArrowForwardOutlinedIcon />
           </StyledLoadingButton>
-        </Paper>
+        </Paper> */}
 
         {data && (
           <>
@@ -146,14 +140,10 @@ const DatasetFromURI = ({ mode, setDataset }) => {
                 })}
               </Select>
             </FormControl>
-            <Stack className={classes.root}>
-              <LoadingButton
-                // disabled={}
-                loading={isLoading}
-                onClick={addFile}
-              >
+            <Stack alignItems={"center"}>
+              <Button disabled={isLoading} onClick={addFile}>
                 Add
-              </LoadingButton>
+              </Button>
             </Stack>
           </>
         )}
@@ -162,7 +152,7 @@ const DatasetFromURI = ({ mode, setDataset }) => {
           <InlineErrorHandler message={error?.message + " Please try again."} />
         )}
       </Stack>
-    </Root>
+    </>
   );
 };
 

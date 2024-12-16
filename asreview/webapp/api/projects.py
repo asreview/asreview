@@ -15,14 +15,13 @@
 import json
 import logging
 import shutil
-import subprocess
-import sys
+import socket
 import tempfile
 import time
+import math
 from dataclasses import asdict
-from itertools import chain
+from dataclasses import replace
 from pathlib import Path
-from urllib.request import urlretrieve
 from uuid import uuid4
 
 import datahugger
@@ -36,36 +35,37 @@ from flask import request
 from flask import send_file
 from flask_login import current_user
 from flask_login import login_required
-from sklearn.preprocessing import MultiLabelBinarizer
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+
 import asreview as asr
-from asreview.config import LABEL_NA
-from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
-from asreview.project import ProjectError
-from asreview.project import ProjectNotFoundError
-from asreview.project import is_project
+from asreview.extensions import load_extension
+from asreview.models import default_model
+from asreview.project.exceptions import ProjectError
+from asreview.project.exceptions import ProjectNotFoundError
+from asreview.project.api import is_project
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
-from asreview.state.exceptions import StateNotFoundError
-from asreview.statistics import n_duplicates
-from asreview.statistics import n_irrelevant
-from asreview.statistics import n_unlabeled
-from asreview.statistics import n_relevant
+from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_HOST
+from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_PORT
+from asreview.webapp.tasks import run_model
+from asreview.webapp.tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
-from asreview.utils import _check_model, _reset_model_settings
-
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -73,8 +73,8 @@ bp = Blueprint("api", __name__, url_prefix="/api")
 def _fill_last_ranking(project, ranking):
     """Fill the last ranking with a random or top-down ranking.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     project: asreview.Project
         The project to fill the last ranking of.
     ranking: str
@@ -85,16 +85,51 @@ def _fill_last_ranking(project, ranking):
     if ranking not in ["random", "top-down"]:
         raise ValueError(f"Unknown ranking type: {ranking}")
 
-    as_data = project.read_data()
-    record_table = pd.Series(as_data.record_ids, name="record_id")
-
+    record_ids = project.data_store["record_id"]
+    if ranking == "random":
+        ranked_record_ids = record_ids.sample(frac=1)
+    elif ranking == "top-down":
+        ranked_record_ids = record_ids
     with open_state(project.project_path) as state:
-        if ranking == "random":
-            records = record_table.sample(frac=1)
-        elif ranking == "top-down":
-            records = record_table
+        state.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
 
-        state.add_last_ranking(records.values, None, ranking, None, None)
+
+def _run_model(project):
+    # if there is a socket, it means we would like to delegate
+    # training / simulation to the queue manager,
+    # otherwise run training / simulation directly
+    simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
+
+    if not current_app.testing:
+        try:
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client_socket.connect(
+                (
+                    current_app.config.get(
+                        "TASK_MANAGER_HOST", DEFAULT_TASK_MANAGER_HOST
+                    ),
+                    current_app.config.get(
+                        "TASK_MANAGER_PORT", DEFAULT_TASK_MANAGER_PORT
+                    ),
+                )
+            )
+            payload = {
+                "action": "insert",
+                "project_id": project.config["id"],
+                "simulation": simulation,
+            }
+            # send
+            client_socket.sendall(json.dumps(payload).encode("utf-8"))
+        except socket.error:
+            raise RuntimeError("Queue manager is not alive.")
+        finally:
+            client_socket.close()
+
+    else:
+        if simulation:
+            run_simulation(project)
+        else:
+            run_model(project)
 
 
 # error handlers
@@ -138,7 +173,7 @@ def api_get_projects(projects):  # noqa: F401
     project_info = []
 
     # for project, owner_id in zip(projects, owner_ids):
-    for project in projects:
+    for project, db_project in projects:
         try:
             project_config = project.config
 
@@ -146,7 +181,11 @@ def api_get_projects(projects):  # noqa: F401
                 continue
 
             if not current_app.config.get("LOGIN_DISABLED", False):
-                project_config["owner_id"] = current_user.id
+                project_config["roles"] = {
+                    "owner": db_project.owner_id == current_user.id
+                }
+            else:
+                project_config["roles"] = {"owner": True}
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
@@ -162,31 +201,6 @@ def api_get_projects(projects):  # noqa: F401
     )
 
     return jsonify({"result": project_info})
-
-
-@bp.route("/projects/stats", methods=["GET"])
-@login_required
-@current_user_projects
-def api_get_projects_stats(projects):  # noqa: F401
-    """Get dashboard statistics of all projects"""
-
-    stats_counter = {"n_in_review": 0, "n_finished": 0, "n_setup": 0}
-
-    for project in projects:
-        project_config = project.config
-
-        # get dashboard statistics
-        try:
-            if project_config["reviews"][0]["status"] == "review":
-                stats_counter["n_in_review"] += 1
-            elif project_config["reviews"][0]["status"] == "finished":
-                stats_counter["n_finished"] += 1
-            else:
-                stats_counter["n_setup"] += 1
-        except Exception:
-            stats_counter["n_setup"] += 1
-
-    return jsonify({"result": stats_counter})
 
 
 @bp.route("/projects/create", methods=["POST"])
@@ -212,54 +226,38 @@ def api_create_project():  # noqa: F401
         project.remove_dataset()
 
     # create dataset folder if not present
-    Path(project.project_path, "data").mkdir(exist_ok=True)
-
-    if request.form.get("plugin", None):
-        ds = DatasetManager().find(request.form["plugin"])
-        filename = ds.filename
-        ds.to_file(Path(project.project_path, "data", filename))
-
-    elif request.form.get("benchmark", None):
-        ds = DatasetManager().find(request.form["benchmark"])
-        filename = ds.filename
-        ds.to_file(Path(project.project_path, "data", filename))
-
-    elif url := request.form.get("url", None):
-        if request.form.get("filename", None):
-            filename = request.form["filename"]
-        else:
-            filename = _get_filename_from_url(url)
-
-        try:
-            urlretrieve(url, Path(project.project_path, "data") / filename)
-        except Exception:
-            return jsonify(message=f"Can't retrieve data from URL {url}."), 400
-
-    elif "file" in request.files:
-        try:
-            filename = secure_filename(request.files["file"].filename)
-            fp_data = Path(project.project_path, "data") / filename
-
-            request.files["file"].save(str(fp_data))
-
-        except Exception as err:
-            return jsonify(message=f"Failed to import file '{filename}'. {err}"), 400
-    else:
-        return jsonify(message="No file or dataset found to import."), 400
-
-    data_path = Path(project.project_path, "data") / filename
+    project.data_dir.mkdir(exist_ok=True)
 
     try:
-        as_data = project.add_dataset(data_path.name)
+        if request.form.get("plugin", None):
+            project.add_dataset(request.form["plugin"])
+        elif request.form.get("benchmark", None):
+            project.add_dataset(request.form["benchmark"])
+        elif request.form.get("url", None):
+            project.add_dataset(request.form["url"])
+        elif "file" in request.files:
+            project.add_dataset(
+                secure_filename(request.files["file"].filename),
+                file_writer=request.files["file"].save,
+            )
+        else:
+            return jsonify(message="No file or dataset found to import."), 400
+
         project.add_review()
 
-        n_labeled = n_irrelevant(as_data) + n_relevant(as_data)
+        n_labeled = project.data_store["included"].notnull().sum()
 
-        if as_data.labels is not None and n_labeled > 0 and n_labeled < len(as_data):
+        if n_labeled > 0 and n_labeled < len(project.data_store):
             with open_state(project.project_path) as state:
-                labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
-                labels = as_data.labels[labeled_indices].tolist()
-                labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
+                labeled_indices = np.where(
+                    (project.data_store["included"] == 1)
+                    | (project.data_store["included"] == 0)
+                )[0]
+
+                labels = project.data_store["included"][labeled_indices].tolist()
+                labeled_record_ids = project.data_store["record_ids"][
+                    labeled_indices
+                ].tolist()
 
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
@@ -273,7 +271,7 @@ def api_create_project():  # noqa: F401
         except Exception:
             pass
 
-        return jsonify(message=f"Failed to import file '{filename}'. {err}"), 400
+        return jsonify(message=f"Failed to import file. {err}"), 400
 
     if current_app.config.get("LOGIN_DISABLED", False):
         return jsonify(project.config), 201
@@ -317,13 +315,15 @@ def api_get_project_info(project):  # noqa: F401
     project_config = project.config
 
     if current_app.config.get("LOGIN_DISABLED", False):
+        project_config["roles"] = {"owner": True}
         return jsonify(project_config)
 
     db_project = Project.query.filter(
         Project.project_id == project.config.get("id", 0)
     ).one_or_none()
+
     if db_project:
-        project_config["ownerId"] = db_project.owner_id
+        project_config["roles"] = {"owner": db_project.owner_id == current_user.id}
 
     return jsonify(project_config)
 
@@ -388,34 +388,22 @@ def api_demo_data_project():  # noqa: F401
 def api_get_project_data(project):  # noqa: F401
     """"""
 
-    try:
-        as_data = project.read_data()
-    except FileNotFoundError:
-        return jsonify({"filename": None})
-
-    if as_data.url is not None:
-        urn = pd.Series(as_data.url).replace("", None)
-    else:
-        urn = pd.Series([None] * len(as_data))
-
-    if as_data.doi is not None:
-        doi = pd.Series(as_data.doi).replace("", None)
-        urn.fillna(doi, inplace=True)
+    data = project.data_store[["included", "title", "abstract", "doi", "url"]]
+    data = data.replace("", None)
+    data.url = data.url.fillna(data.doi)
 
     return jsonify(
         {
-            "n_rows": len(as_data),
-            "n_unlabeled": n_unlabeled(as_data),
-            "n_relevant": n_relevant(as_data),
-            "n_irrelevant": n_irrelevant(as_data),
-            "n_duplicates": n_duplicates(as_data),
-            "n_missing_title": int(
-                pd.Series(as_data.title).replace("", None).isnull().sum()
-            ),
-            "n_missing_abstract": int(
-                pd.Series(as_data.abstract).replace("", None).isnull().sum()
-            ),
-            "n_missing_urn": int(urn.isnull().sum()),
+            "n_rows": len(data),
+            "n_unlabeled": len(data)
+            - len(np.where(data.included == 1)[0])
+            - len(np.where(data.included == 0)[0]),
+            "n_relevant": len(np.where(data.included == 1)[0]),
+            "n_irrelevant": len(np.where(data.included == 0)[0]),
+            "n_duplicates": int(data.doi.duplicated().sum()),
+            "n_missing_title": int(data.title.isnull().sum()),
+            "n_missing_abstract": int(data.abstract.isnull().sum()),
+            "n_missing_urn": int(data.url.isnull().sum()),
             "n_english": None,
             "filename": Path(project.config["dataset_path"]).stem,
         }
@@ -474,27 +462,28 @@ def api_list_dataset_writers(project):
 @login_required
 @project_authorization
 def api_search_data(project):  # noqa: F401
-    """Search for papers"""
+    """Search for records"""
     q = request.args.get("q", default=None, type=str)
     max_results = request.args.get("n_max", default=10, type=int)
 
     if not q:
         return jsonify({"result": []})
 
-    as_data = project.read_data()
+    search_data = project.data_store[["title", "authors", "keywords"]]
 
     with open_state(project.project_path) as s:
         labeled_record_ids = s.get_results_table()["record_id"].to_list()
 
     result_ids = fuzzy_find(
-        as_data,
+        search_data,
         q,
         max_return=max_results,
         exclude=labeled_record_ids,
     )
 
     result = []
-    for record in as_data.record(result_ids):
+    for result_id in result_ids:
+        record = project.data_store.get_records(result_id)
         record_d = asdict(record)
         record_d["state"] = None
         record_d["tags_form"] = project.config.get("tags", None)
@@ -507,7 +496,7 @@ def api_search_data(project):  # noqa: F401
 @login_required
 @project_authorization
 def api_get_labeled(project):  # noqa: F401
-    """Get all papers classified as labeled documents"""
+    """Get all records classified as labeled documents"""
 
     page = request.args.get("page", default=None, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
@@ -535,8 +524,7 @@ def api_get_labeled(project):  # noqa: F401
         state_data = state_data.iloc[::-1]
 
     # count labeled records and max pages
-    count = len(state_data)
-    if count == 0:
+    if len(state_data) == 0:
         payload = {
             "count": 0,
             "next_page": None,
@@ -545,47 +533,56 @@ def api_get_labeled(project):  # noqa: F401
         }
         return jsonify(payload)
 
-    max_page_calc = divmod(count, per_page)
-    if max_page_calc[1] == 0:
-        max_page = max_page_calc[0]
-    else:
-        max_page = max_page_calc[0] + 1
+    max_page = math.ceil(len(state_data) / per_page)
 
     if page is not None:
-        # slice out records on specific page
-        if page <= max_page:
-            idx_start = page * per_page - per_page
-            idx_end = page * per_page
-            state_data = state_data.iloc[idx_start:idx_end, :].copy()
-        else:
+        if page > max_page:
             return abort(404)
 
-        # set next & previous page
-        if page < max_page:
-            next_page = page + 1
-            if page > 1:
-                previous_page = page - 1
-            else:
-                previous_page = None
-        else:
-            next_page = None
-            previous_page = page - 1
+        idx_start = (page - 1) * per_page
+        idx_end = page * per_page
+        state_data = state_data.iloc[idx_start:idx_end].copy()
+
+        next_page = page + 1 if page < max_page else None
+        previous_page = page - 1 if page > 1 else None
     else:
         next_page = None
         previous_page = None
 
-    records = project.read_data().record(state_data["record_id"])
+    if not current_app.config.get("LOGIN_DISABLED", False):
+        project_entry = Project.query.filter(
+            Project.project_id == project.project_id
+        ).one_or_none()
+        users = {
+            **{
+                u.id: {**u.summarize(), "owner": False}
+                for u in project_entry.collaborators
+            },
+            project_entry.owner.id: {**project_entry.owner.summarize(), "owner": True},
+        }
+        users = {
+            i: {**u, "current_user": current_user.id == u["id"]}
+            for i, u in users.items()
+        }
 
+    records = project.data_store.get_records(state_data["record_id"].to_list())
     result = []
     for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
         record_d["state"] = state.to_dict()
         record_d["tags_form"] = project.config.get("tags", None)
+
+        if not current_app.config.get("LOGIN_DISABLED", False):
+            record_d["state"]["user"] = users.get(record_d["state"]["user_id"], None)
+        else:
+            record_d["state"]["user"] = None
+
+        del record_d["state"]["user_id"]
         result.append(record_d)
 
     return jsonify(
         {
-            "count": count,
+            "count": len(state_data),
             "next_page": next_page,
             "previous_page": previous_page,
             "result": result,
@@ -597,7 +594,7 @@ def api_get_labeled(project):  # noqa: F401
 @login_required
 @project_authorization
 def api_get_labeled_stats(project):  # noqa: F401
-    """Get all papers classified as prior documents"""
+    """Get all records classified as prior documents"""
 
     # Retrieve the include_priors parameter from the request's query.
     include_priors = request.args.get("priors", True, type=bool)
@@ -621,7 +618,7 @@ def api_get_labeled_stats(project):  # noqa: F401
                 "n_prior_exclusions": int(sum(data_prior["label"] == 0)),
             }
         )
-    except StateNotFoundError:
+    except FileNotFoundError:
         return jsonify(
             {
                 "n": 0,
@@ -675,7 +672,7 @@ def api_list_algorithms():
 def api_get_algorithms(project):  # noqa: F401
     """Get the algorithms used in the project"""
 
-    settings = ReviewSettings()
+    settings = ReviewSettings(**default_model())
 
     try:
         settings = settings.from_file(
@@ -719,6 +716,68 @@ def api_set_algorithms(project):  # noqa: F401
     return jsonify(asdict(settings))
 
 
+# @bp.route("/projects/<project_id>/stopping", methods=["GET"])
+# @login_required
+# @project_authorization
+# def api_get_stopping(project):  # noqa: F401
+#     """Get the stopping algorithms used in the project"""
+
+#     stopping = Stopping()
+
+#     try:
+#         stopping = stopping.from_file(
+#             Path(
+#                 project.project_path,
+#                 "reviews",
+#                 project.reviews[0]["id"],
+#                 "stopping_metadata.json",
+#             )
+#         )
+#     except FileNotFoundError:
+#         pass
+
+#     return jsonify(asdict(stopping))
+
+
+@bp.route("/projects/<project_id>/wordcounts", methods=["GET"])
+@login_required
+@project_authorization
+def api_get_wordcounts(project):  # noqa: F401
+    """Get the word counts used in the project"""
+
+    df_user_input_data = project.read_input_data()
+
+    with open_state(project.project_path) as s:
+        data = s.get_results_table()
+
+    record_ids_rel = data[data["label"] == 1]["record_id"].to_list()
+    record_ids_irrel = data[data["label"] == 0]["record_id"].to_list()
+
+    df_rel = df_user_input_data.iloc[record_ids_rel]["abstract"].fillna("").to_list()
+    df_irrel = (
+        df_user_input_data.iloc[record_ids_irrel]["abstract"].fillna("").to_list()
+    )
+
+    try:
+        vectorizer = TfidfVectorizer(stop_words="english")
+        tfidf_matrix = vectorizer.fit_transform(df_rel)
+        feature_array = np.array(vectorizer.get_feature_names_out())
+        tfidf_sorting = np.argsort(tfidf_matrix.toarray()).flatten()[::-1]
+        top_n_rel = feature_array[tfidf_sorting][:15]
+
+        vectorizer = TfidfVectorizer(stop_words="english")
+        tfidf_matrix = vectorizer.fit_transform(df_irrel)
+        feature_array = np.array(vectorizer.get_feature_names_out())
+        tfidf_sorting = np.argsort(tfidf_matrix.toarray()).flatten()[::-1]
+        top_n_irrel = feature_array[tfidf_sorting][:15]
+
+        return jsonify(
+            {"relevant": top_n_rel.tolist(), "irrelevant": top_n_irrel.tolist()}
+        )
+    except ValueError:
+        return jsonify({"relevant": [], "irrelevant": []})
+
+
 @bp.route("/projects/<project_id>/train", methods=["POST"])
 @login_required
 @project_authorization
@@ -730,14 +789,7 @@ def api_train(project):  # noqa: F401
         return jsonify({"success": True})
 
     try:
-        run_command = [
-            sys.executable if sys.executable else "python",
-            "-m",
-            "asreview",
-            "web_run_model",
-            str(project.project_path),
-        ]
-        subprocess.Popen(run_command)
+        _run_model(project)
 
     except Exception as err:
         logging.error(err)
@@ -812,19 +864,7 @@ def api_update_review_status(project, review_id):
             _fill_last_ranking(project, "random")
 
         if trigger_model and (pk or is_simulation):
-            try:
-                subprocess.Popen(
-                    [
-                        sys.executable if sys.executable else "python",
-                        "-m",
-                        "asreview",
-                        "web_run_model",
-                        str(project.project_path),
-                    ]
-                )
-
-            except Exception as err:
-                return jsonify(message=f"Failed to train the model. {err}"), 400
+            _run_model(project)
 
         project.update_review(status=status)
 
@@ -863,17 +903,17 @@ def api_import_project():
         project.config["reviews"][0]["id"],
         "settings_metadata.json",
     )
-    settings = ReviewSettings().from_file(settings_fp)
+    settings = ReviewSettings.from_file(settings_fp)
 
     warnings = []
     try:
         _check_model(settings)
     except ValueError as err:
-        settings_model_reset = _reset_model_settings(settings)
+        settings = replace(settings, **default_model())
         with open(settings_fp, "w") as f:
-            json.dump(asdict(settings_model_reset), f)
+            json.dump(asdict(settings), f)
         warnings.append(
-            str(err) + " Check if an extension with the model is installed."
+            str(err) + " You might need to install an extension to use this model."
         )
         warnings.append(
             " The model settings have been reset to the default model and"
@@ -882,44 +922,33 @@ def api_import_project():
 
     if not current_app.config.get("LOGIN_DISABLED", False):
         current_user.projects.append(Project(project_id=project.config.get("id")))
-        project.config["owner_id"] = current_user.id
         DB.session.commit()
 
+    project.config["roles"] = {"owner": True}
     return jsonify({"data": project.config, "warnings": warnings})
 
 
-def _add_tags_to_export_data(project, export_data, state_df):
-    tags_df = state_df[["tags"]].copy()
+def _flatten_tags(results, tags_config):
+    if tags_config is None:
+        del results["tags"]
+        return results
 
-    tags_df["tags"] = (
-        tags_df["tags"]
-        # .apply(lambda d: _extract_tags(d))
-        .apply(lambda d: d if isinstance(d, list) else [])
+    df_tags = []
+    for _, row in results["tags"].items():
+        tags = {}
+        for group in row:
+            for tag in group["values"]:
+                tags[f"tag_{group['id']}_{tag['id']}"] = int(tag.get("checked", False))
+
+        df_tags.append(tags)
+
+    return pd.concat(
+        [
+            results.drop("tags", axis=1),
+            pd.DataFrame(df_tags, index=results.index, dtype="Int64"),
+        ],
+        axis=1,
     )
-
-    unused_tags = []
-    tags_config = project.config.get("tags")
-
-    if tags_config is not None:
-        all_tags = [
-            [(group["id"], tag["id"]) for tag in group["values"]]
-            for group in tags_config
-        ]
-        all_tags = list(chain.from_iterable(all_tags))
-        used_tags = set(tags_df["tags"].explode().unique())
-        unused_tags = [tag for tag in all_tags if tag not in used_tags]
-
-    mlb = MultiLabelBinarizer()
-
-    tags_df = pd.DataFrame(
-        data=mlb.fit_transform(tags_df["tags"]),
-        columns=mlb.classes_,
-        index=tags_df.index,
-    )
-
-    tags_df = tags_df.assign(**{unused_tag: 0 for unused_tag in unused_tags})
-
-    export_data.df = export_data.df.join(tags_df, on="record_id")
 
 
 @bp.route("/projects/<project_id>/export_dataset", methods=["GET"])
@@ -928,103 +957,81 @@ def _add_tags_to_export_data(project, export_data, state_df):
 def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
 
-    # todo: export tags
-    # todo: export labels from state file always as asreview_label
-
-    file_format = request.args.get("format", None)
+    file_format = request.args.get("format", default="csv", type=str)
+    export_user_details = request.args.get("user", default=1, type=int)
     collections = request.args.getlist("collections", type=str)
-    collections = [
-        c for c in ["relevant", "not_seen", "irrelevant"] if c in collections
+
+    df_user_input_data = project.read_input_data()
+    df_user_input_data = df_user_input_data.loc[
+        :, ~df_user_input_data.columns.str.startswith("asreview_")
     ]
+
+    with open_state(project.project_path) as s:
+        df_results = s.get_results_table().set_index("record_id")
+        df_pool = s.get_pool()
+
+    export_order = []
+
+    if "relevant" in collections:
+        export_order.extend(df_results[df_results["label"] == 1].index.to_list())
+
+    if "not_seen" in collections:
+        export_order.extend(df_pool.to_list())
+
+    if "irrelevant" in collections:
+        export_order.extend(df_results[df_results["label"] == 0].index.to_list())
+
+    df_results = _flatten_tags(
+        df_results,
+        project.config.get("tags", None),
+    )
+
+    # remove model results, can be implemented later with advanced export
+    df_results.drop(
+        columns=[
+            "classifier",
+            "query_strategy",
+            "balance_strategy",
+            "feature_extraction",
+            "training_set",
+        ],
+        inplace=True,
+    )
+
+    # add user information
+    if not current_app.config.get("LOGIN_DISABLED", False) and export_user_details:
+        project_entry = Project.query.filter(
+            Project.project_id == project.project_id
+        ).one_or_none()
+        users = {
+            **{u.id: {**u.summarize()} for u in project_entry.collaborators},
+            project_entry.owner.id: {**project_entry.owner.summarize()},
+        }
+        df_results["user_name"] = df_results["user_id"].map(
+            lambda x: users.get(x, {}).get("name", None)
+        )
+        df_results["user_email"] = df_results["user_id"].map(
+            lambda x: users.get(x, {}).get("email", None)
+        )
+
+    del df_results["user_id"]
+
+    df_export = df_user_input_data.join(
+        df_results.add_prefix("asreview_"), how="left"
+    ).loc[export_order]
 
     tmp_path = tempfile.TemporaryDirectory()
     tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
 
-    try:
-        with open_state(project.project_path) as s:
-            pool = s.get_pool()
-            results = s.get_results_table()[["record_id", "label"]]
-            state_df = s.get_results_table().set_index("record_id")
+    writer = load_extension("writers", f".{file_format}")
+    writer.write_data(df_export, tmp_path_dataset)
 
-        included = results[results["label"] == 1]
-        excluded = results[results["label"] != 1]
-
-        labels = []
-        export_order = []
-
-        if "relevant" in collections:
-            labels.append(included["label"].to_list())
-            export_order = included["record_id"].to_list()
-
-        if "not_seen" in collections:
-            labels.append([LABEL_NA] * len(pool))
-            export_order = pool.to_list()
-
-        if "irrelevant" in collections:
-            labels.append(excluded["label"].to_list())
-            export_order = excluded["record_id"].to_list()
-
-        # get writer corresponding to specified file format
-        writers = extensions("writers")
-        writer = None
-        for c in writers:
-            if writer is None:
-                if c.name == file_format:
-                    writer = c
-
-        # read the dataset into a ASReview data object
-        as_data = project.read_data()
-
-        # Add a new column 'is_prior' to the dataset
-        if "asreview_prior" in as_data.df:
-            as_data.df.drop("asreview_prior", axis=1, inplace=True)
-
-        state_df["asreview_prior"] = state_df.query_strategy.eq("prior").astype("Int64")
-        as_data.df = as_data.df.join(state_df["asreview_prior"], on="record_id")
-
-        # Adding Notes from State file to the exported dataset
-        # Check if exported_notes column already exists due to multiple screenings
-        screening = 0
-        for col in as_data.df:
-            if col == "exported_notes":
-                screening = 0
-            elif col.startswith("exported_notes"):
-                try:
-                    screening = int(col.split("_")[2])
-                except IndexError:
-                    screening = 0
-        screening += 1
-
-        state_df.rename(
-            columns={
-                "note": f"exported_notes_{screening}",
-            },
-            inplace=True,
-        )
-
-        as_data.df = as_data.df.join(
-            state_df[f"exported_notes_{screening}"], on="record_id"
-        )
-
-        _add_tags_to_export_data(project, as_data, state_df)
-
-        as_data.to_file(
-            fp=tmp_path_dataset,
-            labels=labels,
-            ranking=export_order,
-            writer=writer,
-            keep_old_labels=True,
-        )
-
-        return send_file(
-            tmp_path_dataset,
-            as_attachment=True,
-            max_age=0,
-            download_name=f"asreview_{'+'.join(collections)}_{project.config['name']}.{file_format}",
-        )
-
-    except Exception as err:
-        raise Exception(f"Failed to export the {file_format} dataset. {err}")
+    return send_file(
+        tmp_path_dataset,
+        as_attachment=True,
+        max_age=0,
+        download_name=f"asreview_{'+'.join(collections)}_{project.config['name']}.{file_format}",
+    )
 
 
 @bp.route("/projects/<project_id>/export_project", methods=["GET"])
@@ -1054,67 +1061,6 @@ def export_project(project):
     )
 
 
-def _get_stats(project, include_priors=False):
-    try:
-        is_project(project)
-
-        as_data = project.read_data()
-
-        # Get label history
-        with open_state(project.project_path) as s:
-            labels = s.get_results_table(priors=include_priors)["label"]
-            labels_without_priors = s.get_results_table(priors=False)["label"]
-        n_records = len(as_data)
-
-    except (StateNotFoundError, ValueError, ProjectError):
-        labels = np.array([])
-        labels_without_priors = np.array([])
-        n_records = 0
-
-    n_included = int(sum(labels == 1))
-    n_excluded = int(sum(labels == 0))
-
-    n_included_no_priors = int(sum(labels_without_priors == 1))
-    n_excluded_no_priors = int(sum(labels_without_priors == 0))
-
-    if n_included > 0:
-        try:
-            # Find the last relevant label index
-            last_relevant_index = len(labels) - 1 - np.argmax(labels[::-1] == 1)
-            n_since_last_relevant = int(sum(labels[last_relevant_index + 1 :] == 0))
-        except Exception:
-            n_since_last_relevant = "-"
-    else:
-        n_since_last_relevant = 0
-
-    if len(labels_without_priors) > 0 and n_included > 0:
-        try:
-            # Find the last relevant label index without priors
-            last_relevant_index_no_priors = (
-                len(labels_without_priors)
-                - 1
-                - np.argmax(labels_without_priors[::-1] == 1)
-            )
-            n_since_last_relevant_no_priors = int(
-                sum(labels_without_priors[last_relevant_index_no_priors + 1 :] == 0)
-            )
-        except Exception:
-            n_since_last_relevant_no_priors = "-"
-    else:
-        n_since_last_relevant_no_priors = None
-
-    return {
-        "n_included": n_included,
-        "n_excluded": n_excluded,
-        "n_included_no_priors": n_included_no_priors,
-        "n_excluded_no_priors": n_excluded_no_priors,
-        "n_since_last_inclusion": n_since_last_relevant,
-        "n_since_last_inclusion_no_priors": n_since_last_relevant_no_priors,
-        "n_papers": n_records,
-        "n_pool": n_records - n_excluded - n_included,
-    }
-
-
 def _get_labels(state_obj, priors=False):
     # get the number of records
     n_records = state_obj.n_records
@@ -1137,7 +1083,120 @@ def api_get_progress_info(project):  # noqa: F401
 
     include_priors = request.args.get("priors", True, type=bool)
 
-    return jsonify(_get_stats(project, include_priors=include_priors))
+    try:
+        is_project(project)
+
+        with open_state(project.project_path) as s:
+            labels = s.get_results_table(priors=include_priors)["label"]
+            labels_without_priors = s.get_results_table(priors=False)["label"]
+        n_records = len(project.data_store)
+
+    except (FileNotFoundError, ValueError, ProjectError):
+        labels = np.array([])
+        labels_without_priors = np.array([])
+        n_records = 0
+
+    if (
+        project.config.get("mode") == PROJECT_MODE_SIMULATE
+        and project.data_store["included"].sum() == labels.sum()
+    ):
+        return jsonify(
+            {
+                "n_included": int(sum(labels == 1)),
+                "n_excluded": n_records - int(sum(labels == 1)),
+                "n_included_no_priors": int(sum(labels_without_priors == 1)),
+                "n_excluded_no_priors": int(sum(labels_without_priors == 0))
+                + (n_records - len(labels)),
+                "n_records": n_records,
+                "n_pool": 0,
+            }
+        )
+
+    return jsonify(
+        {
+            "n_included": int(sum(labels == 1)),
+            "n_excluded": int(sum(labels == 0)),
+            "n_included_no_priors": int(sum(labels_without_priors == 1)),
+            "n_excluded_no_priors": int(sum(labels_without_priors == 0)),
+            "n_records": n_records,
+            "n_pool": n_records - len(labels),
+        }
+    )
+
+
+@bp.route("/projects/<project_id>/stopping", methods=["GET"])
+@login_required
+@project_authorization
+def api_get_stopping(project):  # noqa: F401
+    """Get stopping of a project"""
+
+    settings_fp = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "settings_metadata.json",
+    )
+    stopping = ReviewSettings.from_file(settings_fp).stopping
+
+    if stopping is None:
+        threshold = 50
+    else:
+        threshold = stopping[0]["params"]["threshold"]
+
+    with open_state(project.project_path) as s:
+        labels = s.get_results_table(priors=False)["label"]
+
+    if len(labels) > 0 and int(sum(labels == 1)) > 0:
+        last_relevant_index = len(labels) - 1 - np.argmax(labels[::-1] == 1)
+        n_since_last_relevant = int(sum(labels[last_relevant_index + 1 :] == 0))
+    else:
+        n_since_last_relevant = 0
+
+    return jsonify(
+        [
+            {
+                "id": "n_since_last_inclusion",
+                "params": {
+                    "threshold": threshold,
+                },
+                "value": n_since_last_relevant,
+                "stop": n_since_last_relevant is not None
+                and n_since_last_relevant >= threshold,
+            }
+        ]
+    )
+
+
+@bp.route("/projects/<project_id>/stopping", methods=["POST", "PUT"])
+@login_required
+@project_authorization
+def api_mutate_stopping(project):  # noqa: F401
+    """Mutate stopping of a project"""
+
+    settings_fp = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "settings_metadata.json",
+    )
+    settings = ReviewSettings.from_file(settings_fp)
+
+    settings = replace(
+        settings,
+        stopping=[
+            {
+                "id": request.form.get("id", "n_since_last_inclusion"),
+                "params": {
+                    "threshold": request.form.get("threshold", 50, type=int),
+                },
+            }
+        ],
+    )
+
+    with open(settings_fp, "w") as f:
+        json.dump(asdict(settings), f)
+
+    return jsonify(settings.stopping)
 
 
 @bp.route("/projects/<project_id>/progress_data", methods=["GET"])
@@ -1149,9 +1208,21 @@ def api_get_progress_data(project):  # Consolidated endpoint
     include_priors = request.args.get("priors", False, type=bool)
 
     with open_state(project.project_path) as s:
-        data = s.get_results_table("label", priors=include_priors)
+        labels = s.get_results_table("label", priors=include_priors)
+        labels_with_priors = s.get_results_table("label", priors=True)
 
-    return jsonify(data.to_dict(orient="records"))
+    if (
+        project.config.get("mode") == PROJECT_MODE_SIMULATE
+        and project.data_store["included"].sum() == labels_with_priors["label"].sum()
+    ):
+        labels = pd.DataFrame(
+            {
+                "label": labels["label"].to_list()
+                + np.zeros(len(project.data_store) - len(labels)).tolist(),
+            }
+        )
+
+    return jsonify(labels.to_dict(orient="records"))
 
 
 @bp.route("/projects/<project_id>/record/<record_id>", methods=["POST", "PUT"])
@@ -1196,15 +1267,7 @@ def api_label_record(project, record_id):  # noqa: F401
             raise ValueError(f"Invalid label {label}")
 
     if retrain_model:
-        subprocess.Popen(
-            [
-                sys.executable if sys.executable else "python",
-                "-m",
-                "asreview",
-                "web_run_model",
-                str(project.project_path),
-            ]
-        )
+        _run_model(project)
 
     if request.method == "POST":
         return jsonify({"success": True})
@@ -1212,10 +1275,11 @@ def api_label_record(project, record_id):  # noqa: F401
         with open_state(project.project_path) as state:
             record = state.get_results_record(record_id)
 
-        as_data = project.read_data()
-        item = asdict(as_data.record(record_id))
+        item = asdict(project.data_store.get_records(record_id))
         item["state"] = record.iloc[0].to_dict()
         item["tags_form"] = project.config.get("tags", None)
+        item["state"]["user"] = None
+        del item["state"]["user_id"]
 
         return jsonify({"result": item})
 
@@ -1237,7 +1301,7 @@ def api_update_note(project, record_id):  # noqa: F401
 @login_required
 @project_authorization
 def api_get_document(project):  # noqa: F401
-    """Retrieve record in order of review."""
+    """Retrieve unlabeled record in order of review."""
 
     user_id = (
         None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
@@ -1260,10 +1324,11 @@ def api_get_document(project):  # noqa: F401
                     {"result": None, "pool_empty": not ranking.empty and pool.empty}
                 )
 
-    as_data = project.read_data()
-    item = asdict(as_data.record(pending["record_id"].iloc[0]))
+    item = asdict(project.data_store.get_records(pending["record_id"].iloc[0]))
     item["state"] = pending.iloc[0].to_dict()
     item["tags_form"] = project.config.get("tags", None)
+    item["state"]["user"] = None
+    del item["state"]["user_id"]
 
     try:
         item["error"] = project.get_review_error()

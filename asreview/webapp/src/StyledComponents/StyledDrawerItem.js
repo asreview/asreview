@@ -1,40 +1,67 @@
-import * as React from "react";
 import {
+  alpha,
+  Box,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Tooltip,
+  Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-
-const ListItemButtonDrawer = styled(ListItemButton)(({ theme }) => ({
-  "&.MuiListItemButton-root": {
-    "&.Mui-selected": {
-      color: theme.palette.primary.main,
-      "> .MuiListItemIcon-root": {
-        color: theme.palette.primary.main,
-      },
-    },
-  },
-}));
 
 export const DrawerItem = ({
   icon,
   primary,
-  toolTipTitle = null,
-  showTooltip = true,
+  rail = true,
   ...itemButtomProps
 }) => {
   return (
-    <Tooltip
-      disableHoverListener={showTooltip}
-      title={toolTipTitle || primary}
-      placement="right"
+    <ListItemButton
+      {...itemButtomProps}
+      sx={(theme) => ({
+        p: 1,
+        ".MuiBox-root": {
+          borderRadius: "20px",
+          height: "32px",
+          p: 0.5,
+          m: 0.5,
+        },
+        "&:hover": {
+          ".MuiBox-root": {
+            bgcolor: alpha(theme.palette.primary.main, 0.2),
+          },
+          bgcolor: "transparent",
+        },
+        "&.active": {
+          ".MuiBox-root": {
+            bgcolor: alpha(theme.palette.secondary.light, 0.6),
+          },
+          ".MuiTypography-root": {
+            fontWeight: "bold",
+          },
+        },
+      })}
+      disableRipple={true}
     >
-      <ListItemButtonDrawer {...itemButtomProps}>
-        <ListItemIcon sx={{ pl: 1 }}>{icon}</ListItemIcon>
-        <ListItemText primary={primary} />
-      </ListItemButtonDrawer>
-    </Tooltip>
+      {!rail && (
+        <>
+          <ListItemIcon sx={{ pl: 1 }}>{icon}</ListItemIcon>
+          <ListItemText primary={primary} />
+        </>
+      )}
+      {rail && (
+        <ListItemText
+          primary={
+            <>
+              <Box>{icon}</Box>
+              <Typography variant="body2" fontSize={"0.8rem"}>
+                {primary}
+              </Typography>
+            </>
+          }
+          sx={{
+            textAlign: "center",
+          }}
+        />
+      )}
+    </ListItemButton>
   );
 };

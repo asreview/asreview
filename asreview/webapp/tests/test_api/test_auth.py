@@ -1,4 +1,5 @@
 import datetime as dt
+import json
 from inspect import getfullargspec
 
 import pytest
@@ -193,7 +194,7 @@ def test_signout(client_auth):
 # ###################
 
 
-# A new token is created on signup, that token is can be confirmed
+# A new token is created on signup, that token can be confirmed
 # by the confirm route
 def test_token_confirmation_after_signup(client_auth_verified):
     # signup user
@@ -203,8 +204,9 @@ def test_token_confirmation_after_signup(client_auth_verified):
     user = crud.get_user_by_identifier(user.identifier)
     # now we confirm this user
     r = au.confirm_user(client_auth_verified, user)
+    payload = json.loads(r.text)
     assert r.status_code == 200
-    assert r.json["message"] == f"User {user.identifier} confirmed."
+    assert payload["message"] == "Account confirmed"
 
 
 # A token expires in 24 hours, test confirmation response after
@@ -222,7 +224,7 @@ def test_expired_token(client_auth_verified):
     # now we try to confirm this user
     r = au.confirm_user(client_auth_verified, user)
     assert r.status_code == 403
-    assert "token has expired" in r.json["message"]
+    assert "token has expired" in r.text
 
 
 # Confirmation user: if the user can't be found, this route should
@@ -238,8 +240,9 @@ def test_if_this_route_returns_404_user_not_found(client_auth_verified):
     user.id = 100
     # now we try to confirm this user
     r = au.confirm_user(client_auth_verified, user)
+    payload = json.loads(r.text)
     assert r.status_code == 404
-    assert r.json["message"] == "No user account / correct token found."
+    assert payload["message"] == "No user account / correct token found."
 
 
 # If the token cant be found, this route should return a 404
@@ -254,8 +257,9 @@ def test_if_this_route_returns_404_token_not_found(client_auth_verified):
     user.token = "wrong_token"
     # now we try to confirm this user
     r = au.confirm_user(client_auth_verified, user)
+    payload = json.loads(r.text)
     assert r.status_code == 404
-    assert r.json["message"] == "No user account / correct token found."
+    assert payload["message"] == "No user account / correct token found."
 
 
 # If we are not doing verification this route should return a 400
@@ -268,7 +272,7 @@ def test_confirm_route_returns_400_if_app_not_verified(client_auth):
     # now we try to confirm this user
     r = au.confirm_user(client_auth, user)
     assert r.status_code == 400
-    assert r.json["message"] == "The app is not configured to verify accounts."
+    assert r.text == "Email verification is not enabled"
 
 
 # ###################
@@ -577,10 +581,9 @@ def test_refresh_with_signed_in_user(client_auth):
     # create and signin user
     user = au.create_and_signin_user(client_auth)
     # refresh
-    r = au.refresh(client_auth)
+    r = au.user(client_auth)
     assert r.status_code == 200
     assert r.json["id"] == user.id
-    assert r.json["logged_in"] is True
     assert r.json["name"] == user.name
 
 
@@ -591,11 +594,8 @@ def test_refresh_with_signed_out_user(client_auth):
     # signout
     au.signout_user(client_auth)
     # refresh
-    r = au.refresh(client_auth)
-    assert r.status_code == 200
-    assert r.json["id"] is None
-    assert r.json["logged_in"] is False
-    assert r.json["name"] == ""
+    r = au.user(client_auth)
+    assert r.status_code == 401
 
 
 # ###################

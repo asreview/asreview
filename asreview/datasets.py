@@ -16,7 +16,6 @@ __all__ = [
     "BaseDataGroup",
     "BaseDataSet",
     "DatasetManager",
-    "NaturePublicationDataGroup",
     "SynergyDataGroup",
     "SynergyDataSet",
 ]
@@ -33,7 +32,7 @@ from urllib.request import urlretrieve
 
 import synergy_dataset as sd
 
-from asreview.data.tabular import CSVReader
+from asreview.data import CSVReader
 from asreview.extensions import extensions
 from asreview.utils import _get_filename_from_url
 
@@ -181,6 +180,8 @@ class BaseDataSet:
 
 
 class BaseDataGroup(ABC):
+    url = None
+
     def __init__(self, *datasets):
         """Group of datasets.
 
@@ -370,6 +371,7 @@ class DatasetManager:
                         {
                             "group_id": data_group.group_id,
                             "description": data_group.description,
+                            "url": data_group.url,
                             "datasets": group_ser,
                         }
                     )
@@ -381,22 +383,6 @@ class DatasetManager:
             return dataset_list_ser
 
         return group_list
-
-
-class NaturePublicationDataGroup(BaseDataGroup):
-    """Datasets used in the paper Van de Schoot et al. 2020."""
-
-    group_id = "benchmark-nature"
-    description = (
-        "Datasets used in the validation paper published"
-        " in Nature Machine Intelligence (van de Schoot et al. 2021)"
-    )
-
-    def __init__(self):
-        meta_file = "https://raw.githubusercontent.com/asreview/paper-asreview/master/index_v1.json"  # noqa
-        datasets = _download_from_metadata(meta_file)
-
-        super().__init__(*datasets)
 
 
 class SynergyDataSet(BaseDataSet):
@@ -427,7 +413,8 @@ class SynergyDataGroup(BaseDataGroup):
     """Datasets available in the SYNERGY dataset."""
 
     group_id = "synergy"
-    description = "SYNERGY datasets (asreview.ai/synergy)"
+    description = "SYNERGY datasets"
+    url = "https://asreview.ai/synergy"
 
     def __init__(self):
         # The following code was used to generate the metadata
@@ -440,11 +427,13 @@ class SynergyDataGroup(BaseDataGroup):
         #         "title": x.metadata["publication"]["display_name"],
         #         "authors": x.cite.split(",")[0] + " et al.",
         #         "topic": x.metadata
-        #            ["data"]["concepts"]["included"][0]["display_name"],
+        #             ["data"]["concepts"]["included"][0]["display_name"],
         #         "link": "https://doi.org/10.34894/HE6NAQ",
         #         "reference": x.metadata["publication"]["doi"],
         #         "license": "See Synergy dataset",
-        #         "year": x.metadata["publication"]["publication_year"]
+        #         "year": x.metadata["publication"]["publication_year"],
+        #         "n_records": x.metadata["data"]["n_records"],
+        #         "n_relevant": x.metadata["data"]["n_records_included"],
         #     }
         # pprint(meta_synergy)
 
@@ -453,6 +442,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Appenzeller‐Herzog et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 2873,
+                "n_relevant": 26,
                 "reference": "https://doi.org/10.1111/liv.14179",
                 "title": "Comparative effectiveness of common "
                 "therapies for Wilson disease: A "
@@ -465,6 +456,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Bos et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 4878,
+                "n_relevant": 10,
                 "reference": "https://doi.org/10.1016/j.jalz.2018.04.007",
                 "title": "Cerebral small vessel disease and the risk of "
                 "dementia: A systematic review and meta‐analysis of "
@@ -476,6 +469,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Brouwer et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 38114,
+                "n_relevant": 62,
                 "reference": "https://doi.org/10.1016/j.cpr.2019.101773",
                 "title": "Psychological theories of depressive relapse and "
                 "recurrence: A systematic review and meta-analysis "
@@ -487,6 +482,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Chou et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 1908,
+                "n_relevant": 15,
                 "reference": "https://doi.org/10.1016/j.jpainsymman.2003.03.003",
                 "title": "Comparative efficacy and safety of long-acting oral "
                 "opioids for chronic non-cancer pain: a systematic "
@@ -498,6 +495,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Chou et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 1630,
+                "n_relevant": 9,
                 "reference": "https://doi.org/10.1016/j.jpainsymman.2004.05.002",
                 "title": "Comparative efficacy and safety of skeletal muscle "
                 "relaxants for spasticity and musculoskeletal "
@@ -509,6 +508,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Donners et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 258,
+                "n_relevant": 15,
                 "reference": "https://doi.org/10.1007/s40262-021-01042-w",
                 "title": "Pharmacokinetics and Associated Efficacy of "
                 "Emicizumab in Humans: A Systematic Review",
@@ -519,6 +520,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Hall et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 8793,
+                "n_relevant": 104,
                 "reference": "https://doi.org/10.1109/tse.2011.103",
                 "title": "A Systematic Literature Review on Fault Prediction "
                 "Performance in Software Engineering",
@@ -529,6 +532,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Jeyaraman et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 1175,
+                "n_relevant": 96,
                 "reference": "https://doi.org/10.1177/1947603520951623",
                 "title": "Does the Source of Mesenchymal Stem Cell Have an "
                 "Effect in the Management of Osteoarthritis of "
@@ -541,6 +546,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Leenaars et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 5812,
+                "n_relevant": 17,
                 "reference": "https://doi.org/10.5334/jcr.183",
                 "title": "Sleep and Microdialysis: An Experiment and a "
                 "Systematic Review of Histamine and Several Amino "
@@ -552,6 +559,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Leenaars et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 7216,
+                "n_relevant": 583,
                 "reference": "https://doi.org/10.3390/ani10061047",
                 "title": "A Systematic Review Comparing Experimental Design "
                 "of Animal and Human Methotrexate Efficacy Studies "
@@ -564,6 +573,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Meijboom et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 882,
+                "n_relevant": 37,
                 "reference": "https://doi.org/10.1007/s40259-021-00508-4",
                 "title": "Patients Retransitioning from Biosimilar TNFα "
                 "Inhibitor to the Corresponding Originator After "
@@ -576,6 +587,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Menon et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 975,
+                "n_relevant": 74,
                 "reference": "https://doi.org/10.1080/10408444.2022.2082917",
                 "title": "The methodological rigour of systematic reviews in "
                 "environmental health",
@@ -586,6 +599,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Moran et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 5214,
+                "n_relevant": 111,
                 "reference": "https://doi.org/10.1111/brv.12655",
                 "title": "Poor nutritional condition promotes high‐risk "
                 "behaviours: a systematic review and meta‐analysis",
@@ -596,6 +611,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Muthu et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 2719,
+                "n_relevant": 336,
                 "reference": "https://doi.org/10.1097/brs.0000000000003645",
                 "title": "Fragility Analysis of Statistically Significant "
                 "Outcomes of Randomized Control Trials in Spine "
@@ -607,6 +624,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Nelson et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 366,
+                "n_relevant": 80,
                 "reference": "https://doi.org/10.1001/jama.288.7.872",
                 "title": "Postmenopausal Hormone Replacement Therapy",
                 "topic": "Medicine",
@@ -616,6 +635,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Oud et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 952,
+                "n_relevant": 20,
                 "reference": "https://doi.org/10.1177/0004867418791257",
                 "title": "Specialized psychotherapies for adults with borderline "
                 "personality disorder: A systematic review and "
@@ -627,6 +648,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Radjenović et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 5935,
+                "n_relevant": 48,
                 "reference": "https://doi.org/10.1016/j.infsof.2013.02.009",
                 "title": "Software fault prediction metrics: A systematic "
                 "literature review",
@@ -637,6 +660,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Sep et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 271,
+                "n_relevant": 40,
                 "reference": "https://doi.org/10.1371/journal.pone.0249102",
                 "title": "The rodent object-in-context task: A systematic review "
                 "and meta-analysis of important variables",
@@ -647,6 +672,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Smid et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 2627,
+                "n_relevant": 27,
                 "reference": "https://doi.org/10.1080/10705511.2019.1577140",
                 "title": "Bayesian Versus Frequentist Estimation for Structural "
                 "Equation Models in Small Sample Contexts: A "
@@ -658,6 +685,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Walker et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 48375,
+                "n_relevant": 762,
                 "reference": "https://doi.org/10.1016/j.envint.2017.12.032",
                 "title": "Human and animal evidence of potential "
                 "transgenerational inheritance of health effects: An "
@@ -669,6 +698,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Wassenaar et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 7668,
+                "n_relevant": 111,
                 "reference": "https://doi.org/10.1289/ehp1233",
                 "title": "Systematic Review and Meta-Analysis of "
                 "Early-Life Exposure to Bisphenol A and "
@@ -680,6 +711,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Wolters et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 4280,
+                "n_relevant": 19,
                 "reference": "https://doi.org/10.1016/j.jalz.2018.01.007",
                 "title": "Coronary heart disease, heart failure, and the "
                 "risk of dementia: A systematic review and "
@@ -691,6 +724,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "van Dis et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 9128,
+                "n_relevant": 72,
                 "reference": "https://doi.org/10.1001/jamapsychiatry.2019.3986",
                 "title": "Long-term Outcomes of Cognitive Behavioral Therapy "
                 "for Anxiety-Related Disorders",
@@ -701,6 +736,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "van de Schoot et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 4544,
+                "n_relevant": 38,
                 "reference": "https://doi.org/10.1080/00273171.2017.1412293",
                 "title": "Bayesian PTSD-Trajectory Analysis with "
                 "Informed Priors Based on a Systematic "
@@ -712,6 +749,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "Valk et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 725,
+                "n_relevant": 89,
                 "reference": "https://doi.org/10.1111/obr.13376",
                 "title": "Cross‐sectional relation of long‐term "
                 "glucocorticoids in hair with anthropometric "
@@ -724,6 +763,8 @@ class SynergyDataGroup(BaseDataGroup):
                 "authors": "van der Waal et al.",
                 "license": "See Synergy dataset",
                 "link": "https://doi.org/10.34894/HE6NAQ",
+                "n_records": 1970,
+                "n_relevant": 33,
                 "reference": "https://doi.org/10.1016/j.jgo.2022.09.012",
                 "title": "A meta-analysis on the role older adults with "
                 "cancer favour in treatment decision making",

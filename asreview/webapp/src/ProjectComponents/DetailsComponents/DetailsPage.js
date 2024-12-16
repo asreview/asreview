@@ -1,61 +1,26 @@
 import {
-  Box,
-  Button,
   Card,
   CardContent,
   CardHeader,
   Container,
   FormControlLabel,
   FormGroup,
+  Stack,
   Switch,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useParams } from "react-router-dom";
 
-import { ProjectDeleteDialog } from "ProjectComponents";
 import {
   ModelCard,
   PriorCard,
   TagCard,
 } from "ProjectComponents/SetupComponents";
 
+import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectStatuses } from "globals.js";
-import useAuth from "hooks/useAuth";
-import { useToggle } from "hooks/useToggle";
-import { ProjectAPI } from "api";
 
-const Root = styled("div")(({ theme }) => ({}));
-const DeleteCard = ({ project_id, info }) => {
-  const [onDeleteDialog, toggleDeleteDialog] = useToggle();
-
-  return (
-    <Box sx={{ padding: "12px 0px" }}>
-      <Card>
-        <CardHeader
-          title="Danger zone"
-          subheader="Delete project permanently. This action cannot be undone."
-        />
-        <CardContent>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={toggleDeleteDialog}
-          >
-            Delete project
-          </Button>
-          <ProjectDeleteDialog
-            onDeleteDialog={onDeleteDialog}
-            toggleDeleteDialog={toggleDeleteDialog}
-            projectTitle={info?.name}
-            project_id={project_id}
-          />
-        </CardContent>
-      </Card>
-    </Box>
-  );
-};
 const MarkFinishedCard = ({ project_id }) => {
   const queryClient = useQueryClient();
   const { data } = useQuery(
@@ -100,7 +65,6 @@ const MarkFinishedCard = ({ project_id }) => {
 };
 const DetailsPage = () => {
   const { project_id } = useParams();
-  const { auth } = useAuth();
 
   const { data } = useQuery(
     ["fetchInfo", { project_id }],
@@ -111,31 +75,22 @@ const DetailsPage = () => {
   );
 
   return (
-    <Root aria-label="details page">
-      <Container maxWidth="md">
-        <ProjectContext.Provider value={project_id}>
-          <Box sx={{ padding: "12px 0px" }}>
-            <TagCard editable={false} />
-          </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <ModelCard editable={true} showWarning={true} />
-          </Box>
-          <Box sx={{ padding: "12px 0px" }}>
-            <PriorCard editable={false} />
-          </Box>
-          {data?.ownerId === auth?.id && (
-            <>
-              <Box sx={{ padding: "12px 0px" }}>
-                <MarkFinishedCard project_id={project_id} info={data} />
-              </Box>
-              <Box sx={{ padding: "12px 0px" }}>
-                <DeleteCard project_id={project_id} info={data} />
-              </Box>
-            </>
+    <ProjectContext.Provider value={project_id}>
+      <Container maxWidth="md" aria-label="details page" sx={{ mb: 3 }}>
+        <Stack spacing={3}>
+          {data?.mode === "oracle" && <TagCard editable={false} />}
+          <ModelCard
+            mode={data?.mode}
+            editable={data?.mode === "oracle"}
+            showWarning={true}
+          />
+          <PriorCard editable={false} />
+          {data?.mode === "oracle" && data?.roles.owner && (
+            <MarkFinishedCard project_id={project_id} info={data} />
           )}
-        </ProjectContext.Provider>
+        </Stack>
       </Container>
-    </Root>
+    </ProjectContext.Provider>
   );
 };
 export default DetailsPage;

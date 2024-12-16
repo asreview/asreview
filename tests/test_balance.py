@@ -1,56 +1,55 @@
 import numpy as np
-from pytest import mark
+import pytest
+from sklearn.utils import compute_sample_weight
 
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
+from asreview.models.balance.balanced import Balanced
+
+BALANCERS = ["balanced"]
 
 
-def generate_data(n_feature=20, n_sample=10):
-    X = np.random.rand(n_sample, n_feature)
+def generate_labels(n_sample):
+    rn = np.random.RandomState(535)
     n_sample_zero = int(n_sample / 2)
     n_sample_one = n_sample - n_sample_zero
     y = np.append(np.zeros(n_sample_zero), np.ones(n_sample_one))
-    np.random.shuffle(y)
+    rn.shuffle(y)
 
-    return X, y
-
-
-def check_partition(X, y, X_partition, y_partition, train_idx):
-    partition_idx = []
-    for row in X_partition:
-        partition_idx.append(np.where(np.all(X == row, axis=1))[0][0])
-
-    assert np.count_nonzero(y_partition == 0) > 0
-    assert np.count_nonzero(y_partition == 1) > 0
-    assert len(partition_idx) == X_partition.shape[0]
-    assert set(partition_idx) <= set(train_idx.tolist())
-    assert np.all(X[partition_idx] == X_partition)
-    assert np.all(y[partition_idx] == y_partition)
+    return y
 
 
-@mark.parametrize(
-    "balance_strategy",
-    [
-        "undersample",
-        "double",
-    ],
-)
-def test_balance(balance_strategy, n_partition=100, n_feature=200, n_sample=100):
+@pytest.mark.parametrize("balance_strategy", BALANCERS)
+def test_balance_model_name(balance_strategy):
+    model = load_extension("models.balance", balance_strategy)()
+    assert model.name == balance_strategy
+
+
+@pytest.mark.parametrize("balance_strategy", BALANCERS)
+def test_balance_param(balance_strategy):
     model = load_extension("models.balance", balance_strategy)()
     assert isinstance(model.param, dict)
-    assert model.name == balance_strategy
-    X, y = generate_data(n_feature=n_feature, n_sample=n_sample)
-    for _ in range(n_partition):
-        n_train = np.random.randint(10, n_sample)
-        while True:
-            train_idx = np.random.choice(np.arange(len(y)), n_train, replace=False)
-            num_zero = np.count_nonzero(y[train_idx] == 0)
-            num_one = np.count_nonzero(y[train_idx] == 1)
-            if num_zero > 0 and num_one > 0:
-                break
-        X_train, y_train = model.sample(X, y, train_idx)
-        check_partition(X, y, X_train, y_train, train_idx)
 
 
 def test_balance_general():
-    assert len(extensions("models.balance")) >= 2
+    assert len(extensions("models.balance")) >= 1
+
+
+def test_balanced():
+    y = np.random.randint(0, 2, 100)
+    balancer = Balanced()
+    # Check that ratio=1.0 gives the same as the 'balanced' setting of
+    # `compute_sample_weight`.
+    assert np.allclose(
+        compute_sample_weight("balanced", y), balancer.compute_sample_weight(y)
+    )
+
+    for ratio in [0.25, 1, 5, 10]:
+        balancer = Balanced(ratio=ratio)
+        sample_weight = balancer.compute_sample_weight(y)
+        # Check that the sample weight is normalized to the length of y.
+        assert round(sum(sample_weight)) == len(y)
+        # Check that (total weight 1's) / (total weight 0's) is equal to the ratio.
+        assert sum(sample_weight[y == 1]) / sum(sample_weight[y == 0]) - ratio < 10 ** (
+            -5
+        )

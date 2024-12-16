@@ -22,18 +22,18 @@ from urllib.request import urlopen
 import pandas as pd
 import rispy
 
-from asreview.data.base import Dataset
+from asreview.data.base_reader import BaseReader
 from asreview.utils import _is_url
 
 ASREVIEW_PARSE_RE = r"\bASReview_\w+\b"
 ASREVIEW_PARSE_DICT = {
     "ASReview_relevant": {"included": 1},
     "ASReview_irrelevant": {"included": 0},
-    "ASReview_not_seen": {"included": -1},
+    "ASReview_not_seen": {"included": None},
     "ASReview_prior": {"asreview_prior": 1},
     "ASReview_validate_relevant": {"asreview_label_to_validate": 1},
     "ASReview_validate_irrelevant": {"asreview_label_to_validate": 0},
-    "ASReview_validate_not_seen": {"asreview_label_to_validate": -1},
+    "ASReview_validate_not_seen": {"asreview_label_to_validate": None},
 }
 
 
@@ -78,8 +78,8 @@ def _parse_asreview_data_from_notes(note_list):
 def _remove_asreview_data_from_notes(note_list):
     """Remove ASReview data from notes.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     note_list: list
         A list of notes, coming from the Dataframe's "notes" column.
 
@@ -99,7 +99,7 @@ def _remove_asreview_data_from_notes(note_list):
     return asreview_new_notes
 
 
-class RISReader:
+class RISReader(BaseReader):
     """RIS file reader."""
 
     read_format = [".ris", ".txt"]
@@ -108,8 +108,8 @@ class RISReader:
     def _strip_zotero_p_tags(note_list):
         """Converter function for removing the XHTML <p></p> tags from Zotero export.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         note_list: list
             A list of notes, coming from the Dataframe's "notes" column.
 
@@ -150,8 +150,8 @@ class RISReader:
     def read_data(cls, fp):
         """Import dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         fp: str, pathlib.Path
             File path to the RIS file.
         note_list: list
@@ -205,11 +205,10 @@ class RISReader:
             )
             df["notes"] = df["notes"].apply(_remove_asreview_data_from_notes)
 
-            # Return the standardised dataframe with label and notes separated
-            return Dataset(df)
-        else:
-            # Return the standardised dataframe
-            return Dataset(df)
+        if "included" in df:
+            df["included"] = df["included"].astype("Int64")
+
+        return df
 
 
 class RISWriter:
@@ -224,8 +223,8 @@ class RISWriter:
     def write_data(cls, df, fp):
         """Export dataset.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         df: pd.Dataframe
             Dataframe of all available record data.
         fp: str, pathlib.Path
@@ -247,15 +246,16 @@ class RISWriter:
         for rec in records:
 
             def _notnull(v):
-                if isinstance(v, list) and v:
-                    return True
+                if isinstance(v, list):
+                    return v != []
+
                 return pd.notnull(v)
 
             # Remove all nan values
             rec_copy = {k: v for k, v in rec.items() if _notnull(v)}
 
             if "included" not in rec_copy:
-                rec_copy["included"] = -1
+                rec_copy["included"] = None
 
             # write the notes with ASReview data
             for k, v in ASREVIEW_PARSE_DICT.items():
