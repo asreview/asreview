@@ -10,7 +10,7 @@ from asreview.extensions import load_extension
 DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
 
 
-@pytest.mark.parametrize("balance_strategy", ["undersample", "double", None])
+@pytest.mark.parametrize("balance_strategy", ["balanced", None])
 def test_simulate_basic(tmpdir, balance_strategy):
     project = asr.Project.create(
         Path(tmpdir, "simulate-example"),
@@ -72,7 +72,7 @@ def test_simulate_no_prior(tmpdir):
         labels=project.data_store["included"],
         classifier=load_extension("models.classifiers", "svm")(),
         query_strategy=load_extension("models.query", "max_random")(),
-        balance_strategy=load_extension("models.balance", "double")(),
+        balance_strategy=load_extension("models.balance", "balanced")(),
         feature_extraction=feature_model,
     )
     sim.review()
@@ -106,7 +106,7 @@ def test_simulate_random_prior(tmpdir):
         labels=project.data_store["included"],
         classifier=load_extension("models.classifiers", "svm")(),
         query_strategy=load_extension("models.query", "max_random")(),
-        balance_strategy=load_extension("models.balance", "double")(),
+        balance_strategy=load_extension("models.balance", "balanced")(),
         feature_extraction=feature_model,
     )
     sim.label_random(1, 1, prior=True, random_state=42)

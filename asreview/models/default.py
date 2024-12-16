@@ -14,7 +14,7 @@
 
 """Default model for ASReview environment."""
 
-from asreview.models.balance import DoubleBalance
+from asreview.models.balance import Balanced
 from asreview.models.classifiers import NaiveBayesClassifier
 from asreview.models.query import MaxQuery
 from asreview.models.feature_extraction import Tfidf
@@ -24,10 +24,10 @@ def default_model():
     return {
         "classifier": "nb",
         "query_strategy": "max",
-        "balance_strategy": "double",
+        "balance_strategy": "balanced",
         "feature_extraction": "tfidf",
         "classifier_param": NaiveBayesClassifier().default_param,
         "query_param": MaxQuery().default_param,
-        "balance_param": DoubleBalance().default_param,
+        "balance_param": Balanced().default_param,
         "feature_param": Tfidf().default_param,
     }

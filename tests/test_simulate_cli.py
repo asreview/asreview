@@ -102,7 +102,7 @@ def test_models(model, tmpdir):
         results = state.get_results_table()
     default_n_priors = 2
     assert all(results["classifier"][default_n_priors:] == model)
-    assert all(results["balance_strategy"][default_n_priors:] == "double")
+    assert all(results["balance_strategy"][default_n_priors:] == "balanced")
 
     Path(tmpdir, f"test_{model}").mkdir(parents=True)
     project = asr.Project.load(asreview_fp, Path(tmpdir, f"test_{model}"))
@@ -159,7 +159,7 @@ def test_number_records_found(tmpdir):
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as s:
-        assert s.get_results_table("label")["label"].sum() == 30
+        assert s.get_results_table("label")["label"].sum() == 25
         assert s.get_results_table("label").shape[0] == n_stop
         assert s.get_results_table().shape[0] == n_stop
         assert s.get_results_table()["record_id"].head(2).to_list() == [116, 285]
@@ -180,7 +180,7 @@ def test_n_stop_min(tmpdir):
 
     with asr.open_state(asreview_fp) as s:
         assert s.get_results_table("label")["label"].sum() == 38
-        assert len(s.get_results_table("label")) == 614
+        assert len(s.get_results_table("label")) == 919
 
 
 def test_n_stop_all(tmpdir):

@@ -13,12 +13,10 @@
 # limitations under the License.
 
 __all__ = [
-    "DoubleBalance",
-    "UndersampleBalance",
+    "Balanced",
 ]
 
-from asreview.models.balance.double import DoubleBalance
-from asreview.models.balance.undersample import UndersampleBalance
+from asreview.models.balance.balanced import Balanced
 
 """Balance strategies to rebalance and reorder the training data.
 

@@ -41,7 +41,7 @@ PROJECT = {
         "feature_extraction": "tfidf",
         "classifier": "nb",
         "query_strategy": "max",
-        "balance_strategy": "double",
+        "balance_strategy": "balanced",
     },
 }
 

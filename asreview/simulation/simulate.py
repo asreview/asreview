@@ -172,16 +172,17 @@ class Simulate:
         """Train a new model on the labeled data."""
 
         if self.balance_strategy is None:
-            ind_train, labels_train = (
-                self._results["record_id"].values,
-                self._results["label"].values,
-            )
+            sample_weight = None
         else:
-            ind_train, labels_train = self.balance_strategy.sample(
-                self._results["record_id"].values, self._results["label"].values
+            sample_weight = self.balance_strategy.compute_sample_weight(
+                self._results["label"].values
             )
 
-        self.classifier.fit(self.fm[ind_train], labels_train)
+        self.classifier.fit(
+            self.fm[self._results["record_id"].values],
+            self._results["label"].values,
+            sample_weight=sample_weight,
+        )
         relevance_scores = self.classifier.predict_proba(self.fm)
 
         ranked_record_ids = self.query_strategy.query(

@@ -69,15 +69,19 @@ def run_model(project):
                     "models.balance", settings.balance_strategy
                 )()
                 balance_model_name = balance_model.name
-                ind_train, labels_train = balance_model.sample(
-                    labeled["record_id"].values, labeled["label"].values
+                sample_weight = balance_model.compute_sample_weight(
+                    labeled["label"].values
                 )
             else:
-                ind_train, labels_train = labeled["record_id"], labeled["label"]
+                sample_weight = None
                 balance_model_name = None
 
             classifier = load_extension("models.classifiers", settings.classifier)()
-            classifier.fit(fm[ind_train], labels_train)
+            classifier.fit(
+                fm[labeled["record_id"].values],
+                labeled["label"].values,
+                sample_weight=sample_weight,
+            )
             relevance_scores = classifier.predict_proba(fm)
 
         query_strategy = load_extension("models.query", settings.query_strategy)()

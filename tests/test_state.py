@@ -26,6 +26,7 @@ TEST_QUERY_STRATEGIES = [
     "max",
     "max",
 ]
+# The data in the test file still contains 'double' instead of 'balanced'.
 TEST_BALANCE_STRATEGIES = [
     None,
     None,
@@ -200,7 +201,7 @@ def test_get_dataset_drop_pending(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
-        state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
+        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
         state.add_labeling_data([4, 5, 6], [1, 0, 1])
         state.query_top_ranked(3)
 
@@ -284,7 +285,7 @@ def test_move_ranking_data_to_results(tmpdir):
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
         state.add_last_ranking(
-            range(1, len(TEST_RECORD_TABLE) + 1), "nb", "max", "double", "tfidf", 4
+            range(1, len(TEST_RECORD_TABLE) + 1), "nb", "max", "balanced", "tfidf", 4
         )
         state.query_top_ranked(4)
         data = state.get_results_table(pending=True)
@@ -299,7 +300,7 @@ def test_query_top_ranked(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
-        state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
+        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
         top_ranked = state.query_top_ranked(5)
 
         assert top_ranked["record_id"].to_list() == [2, 1, 0, 3, 4]
@@ -307,7 +308,7 @@ def test_query_top_ranked(tmpdir):
         assert data["record_id"].to_list() == [2, 1, 0, 3, 4]
         assert data["classifier"].to_list() == ["nb"] * 5
         assert data["query_strategy"].to_list() == ["max"] * 5
-        assert data["balance_strategy"].to_list() == ["double"] * 5
+        assert data["balance_strategy"].to_list() == ["balanced"] * 5
         assert data["feature_extraction"].to_list() == ["tfidf"] * 5
         assert data["training_set"].to_list() == [4] * 5
 
@@ -317,7 +318,7 @@ def test_add_labeling_data(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
-        state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
+        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
         for i in range(3):
             # Test without specifying notes.
             state.add_labeling_data([TEST_RECORD_IDS[i]], [TEST_LABELS[i]])
@@ -355,7 +356,7 @@ def test_ranking_with_labels(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
-        state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 4)
+        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
         state.add_labeling_data([4, 5, 6], [1, 0, 1])
 
         ranking_with_labels = state.get_ranking_with_labels()
@@ -391,7 +392,7 @@ def test_exist_new_labeled_records(tmpdir):
     asr.Project.create(project_path)
     with asr.open_state(project_path) as state:
         assert not state.exist_new_labeled_records
-        state.add_last_ranking(test_ranking, "nb", "max", "double", "tfidf", 3)
+        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 3)
 
         assert not state.exist_new_labeled_records
         state.add_labeling_data([4, 5, 6], [1, 0, 1])
@@ -455,7 +456,7 @@ def test_last_ranking(tmpdir):
     ranking = [1, 3, 4, 6, 2, 5]
     classifier = "nb"
     query_strategy = "max"
-    balance_strategy = "double"
+    balance_strategy = "balanced"
     feature_extraction = "tfidf"
     training_set = 2
 
@@ -522,7 +523,7 @@ def test_add_extra_column(tmpdir):
     ranking = [1, 3, 4, 6, 2, 5]
     classifier = "nb"
     query_strategy = "max"
-    balance_strategy = "double"
+    balance_strategy = "balanced"
     feature_extraction = "tfidf"
     training_set = 2
 
