@@ -3,7 +3,6 @@ import {
   Box,
   Container,
   Divider,
-  Fade,
   Grid2 as Grid,
   SpeedDial,
   SpeedDialAction,
@@ -12,20 +11,20 @@ import {
   Tabs,
   Typography,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // import { Avatar, AvatarGroup, Tooltip } from "@mui/material";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import {
   EmailIcon,
   FacebookIcon,
-  XIcon,
   WeiboIcon,
   WhatsappIcon,
+  XIcon,
 } from "react-share";
 
-import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
+import EditIcon from "@mui/icons-material/Edit";
 // import AddIcon from "@mui/icons-material/Add";
 import { IconButton, TextField } from "@mui/material";
 
@@ -38,10 +37,6 @@ import {
   ShareFabAction,
   StoppingSuggestion,
   WordCounts,
-  // RandomForestVisualization,
-  // FeatureImportanceOneWord,
-  // NeuralNetworkVisualization,
-  // Doc2VecVisualization,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
 
@@ -110,7 +105,7 @@ const AnalyticsPage = () => {
     }
   };
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
-  const [activeProgressTab, setActiveProgressTab] = useState(0);
+  // const [activeProgressTab, setActiveProgressTab] = useState(0);
   const [activeStoppingTab, setActiveStoppingTab] = useState(0);
   const [activeInsightsTab, setActiveInsightsTab] = useState(0);
 
@@ -226,9 +221,7 @@ const AnalyticsPage = () => {
             >
               <Tab label="Progress" />
             </Tabs>
-            {activeProgressTab === 0 && (
-              <ReviewProgress project_id={project_id} />
-            )}
+            <ReviewProgress project_id={project_id} />
           </Grid>
           <Grid size={1}>
             <Tabs

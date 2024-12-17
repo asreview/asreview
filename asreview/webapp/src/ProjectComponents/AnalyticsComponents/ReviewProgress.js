@@ -20,7 +20,8 @@ export default function ReviewProgress({ project_id }) {
   const theme = useTheme();
 
   // We can implement this fully when we decide on the prior knowledge button
-  const [includePrior, setIncludePrior] = useState(true); // Change to true to test
+  // const [includePrior, setIncludePrior] = useState(true); // Change to true to test
+  const includePrior = true;
 
   const progressQuery = useQuery(
     ["fetchProgress", { project_id, includePrior }],

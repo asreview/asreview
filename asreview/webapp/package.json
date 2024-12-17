@@ -7,6 +7,7 @@
     "@fontsource/roboto-serif": "^5.1.1",
     "@mui/icons-material": "^6.1.0",
     "@mui/material": "^6.1.0",
+    "@mui/x-charts": "^7.23.2",
     "axios": "^1.7.7",
     "formik": "^2.4.6",
     "html-to-image": "^1.11.11",
