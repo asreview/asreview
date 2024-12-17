@@ -247,7 +247,7 @@ class Simulate:
             classifier = self.classifier.name
             query_strategy = self.query_strategy.name
             balance_strategy = (
-                self.balance_strategy.name if self.balance_strategy else None,
+                self.balance_strategy.name if self.balance_strategy else None
             )
             feature_extraction = self.feature_extraction.name
             training_set = len(self._results)
