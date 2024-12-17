@@ -1,26 +1,29 @@
 import {
   Card,
   CardContent,
-  Divider,
   Grid2 as Grid,
   Link,
   Paper,
   Skeleton,
   Stack,
   Typography,
+  Box,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import { useState } from "react";
-import Chart from "react-apexcharts";
 import { useQuery } from "react-query";
 import { StyledHelpPopover } from "StyledComponents/StyledHelpPopover";
+import { PieChart } from "@mui/x-charts/PieChart";
 
 export default function ReviewProgress({ project_id }) {
   const theme = useTheme();
 
-  const { data, isLoading } = useQuery(
-    ["fetchProgress", { project_id: project_id }],
+  // We can implement this fully when we decide on the prior knowledge button
+  const [includePrior, setIncludePrior] = useState(true); // Change to true to test
+
+  const progressQuery = useQuery(
+    ["fetchProgress", { project_id, includePrior }],
     ({ queryKey }) =>
       ProjectAPI.fetchProgress({
         queryKey,
@@ -28,26 +31,85 @@ export default function ReviewProgress({ project_id }) {
     { refetchOnWindowFocus: false },
   );
 
+  const genericDataQuery = useQuery(
+    ["fetchGenericData", { project_id, includePrior }],
+    ({ queryKey }) =>
+      ProjectAPI.fetchGenericData({
+        queryKey,
+      }),
+    { refetchOnWindowFocus: false },
+  );
+
   const [anchorEl, setAnchorEl] = useState(null);
   const popoverOpen = Boolean(anchorEl);
+  const data = progressQuery.data;
+  const isLoading = progressQuery.isLoading || genericDataQuery.isLoading;
 
-  const hasPrior =
-    data?.n_included_no_priors !== data?.n_included ||
-    data?.n_excluded_no_priors !== data?.n_excluded;
+  const pieData = !data
+    ? []
+    : [
+        {
+          label: "Not Relevant",
+          value: data.n_excluded_no_priors,
+          color:
+            theme.palette.mode === "light"
+              ? theme.palette.primary.light
+              : theme.palette.primary.main,
+        },
+        {
+          label: "Relevant",
+          value: data.n_included_no_priors,
+          color:
+            theme.palette.mode === "light"
+              ? theme.palette.grey[600]
+              : theme.palette.grey[600],
+        },
+        {
+          label: "Unlabeled",
+          value:
+            data.n_records -
+            data.n_included_no_priors -
+            data.n_excluded_no_priors,
+          color: theme.palette.grey[400],
+        },
+      ];
+
+  const legendData = !data
+    ? []
+    : [
+        {
+          label: "Relevant",
+          value: data.n_included_no_priors,
+          priorValue: includePrior ? data.n_included : null,
+          color:
+            theme.palette.mode === "light"
+              ? theme.palette.grey[600]
+              : theme.palette.grey[600],
+        },
+        {
+          label: "Not Relevant",
+          value: data.n_excluded_no_priors,
+          priorValue: includePrior ? data.n_excluded : null,
+          color:
+            theme.palette.mode === "light"
+              ? theme.palette.primary.light
+              : theme.palette.primary.main,
+        },
+        {
+          label: "Unlabeled",
+          value:
+            data.n_records -
+            data.n_included_no_priors -
+            data.n_excluded_no_priors,
+          priorValue: includePrior ? null : null,
+          color: theme.palette.grey[400],
+        },
+      ];
 
   return (
-    <Card sx={{ bgcolor: "background.default" }}>
-      <CardContent>
+    <Card sx={{ m: 0, p: 0, bgcolor: "background.default" }}>
+      <CardContent sx={{ m: 0, p: 0, bgcolor: "background.default" }}>
         <>
-          {/* <IconButton
-            size="small"
-            onClick={(event) => {
-              setAnchorEl(event.currentTarget);
-            }}
-            sx={{ float: "right" }}
-          >
-            <HelpOutlineIcon fontSize="small" />
-          </IconButton> */}
           <StyledHelpPopover
             id="info-popover"
             open={popoverOpen}
@@ -69,186 +131,108 @@ export default function ReviewProgress({ project_id }) {
             </Link>
           </StyledHelpPopover>
         </>
-        <Grid container spacing={2} columns={1}>
+        <Grid container spacing={2} columns={2}>
           <Grid
             size={1}
             display="flex"
+            flexDirection="column"
             justifyContent="center"
-            alignItems="center"
           >
             {isLoading ? (
-              <Skeleton variant="circular" width={180} height={180} />
+              <Stack spacing={2}>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <Skeleton
+                    key={index}
+                    variant="rectangular"
+                    width="100%"
+                    height={30}
+                    sx={{ borderRadius: 3 }}
+                  />
+                ))}
+              </Stack>
             ) : (
-              <Chart
-                options={{
-                  chart: {
-                    background: "transparent",
-                    type: "donut",
-                  },
-                  // plotOptions: {
-                  //   pie: {
-                  //     donut: {
-                  //       size: "10%",
-                  //       labels: {
-                  //         show: false,
-                  //         total: {
-                  //           show: false,
-                  //           formatter: () =>
-                  //             `${
-                  //               data.n_records > 0
-                  //                 ? Math.round(
-                  //                     (data.n_included_no_priors +
-                  //                       data.n_excluded_no_priors /
-                  //                         data.n_records) *
-                  //                       100,
-                  //                   )
-                  //                 : 0
-                  //             }%`,
-                  //           style: {
-                  //             fontSize: "28px",
-                  //             fontWeight: "bold",
-                  //             color: theme.palette.text.primary,
-                  //             textAlign: "center",
-                  //           },
-                  //         },
-                  //       },
-                  //     },
-                  //   },
-                  // },
-                  labels: ["Relevant", "Irrelevant", "Unlabeled"],
-                  colors: [
-                    theme.palette.mode === "light"
-                      ? theme.palette.primary.light
-                      : theme.palette.primary.main, // Relevant
-                    theme.palette.mode === "light"
-                      ? theme.palette.grey[600]
-                      : theme.palette.grey[600], // Irrelevant
-                    theme.palette.mode === "light"
-                      ? theme.palette.grey[400]
-                      : theme.palette.grey[400], // Unlabeled
-                  ],
-                  stroke: { width: 0 },
-                  legend: { show: false },
-                  tooltip: {
-                    enabled: true,
-                    y: {
-                      formatter: (val) =>
-                        `${val} (${Math.round((val / data.n_records) * 1000) / 10}%)`,
-                    },
-                  },
-                  theme: { mode: theme.palette.mode },
-                  dataLabels: { enabled: false },
-                }}
-                series={[
-                  data.n_included_no_priors,
-                  data.n_excluded_no_priors,
-                  data.n_records -
-                    data.n_included_no_priors -
-                    data.n_excluded_no_priors,
-                ]}
-                type="donut"
-                height={180}
-                width={180}
-              />
+              <Stack spacing={2}>
+                {legendData.map((item, index) => (
+                  <Paper
+                    key={index}
+                    sx={{
+                      p: 1,
+                      display: "flex",
+                      alignItems: "center",
+                      width: "100%",
+                      backgroundColor: "transparent",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 16,
+                        height: 16,
+                        bgcolor: item.color,
+                        borderRadius: "50%",
+                        mr: 1,
+                      }}
+                    />
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ flexGrow: 1 }}
+                    >
+                      {item.label}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.primary"
+                      fontWeight="bold"
+                    >
+                      {item.value}
+                      {item.priorValue !== null && includePrior
+                        ? ` (${item.priorValue})`
+                        : ""}
+                    </Typography>
+                  </Paper>
+                ))}
+              </Stack>
             )}
           </Grid>
-          <Grid size={1}>
-            {data && (
-              <Stack spacing={2} direction={"row"}>
-                <Paper
-                  sx={{
-                    p: 1.5,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    width: "100%",
-                    mb: { xs: 1, sm: 2 },
-                  }}
-                >
-                  <Stack spacing={1} direction={"column"}>
-                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                      <Typography variant="body2" color="text.secondary">
-                        {"Labeled relevant"}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        fontWeight="bold"
-                        color="text.secondary"
-                      >
-                        {data.n_included_no_priors}
-                      </Typography>
-                    </Stack>
-
-                    {hasPrior && (
-                      <>
-                        <Divider />
-                        <Stack
-                          direction={"row"}
-                          spacing={1}
-                          alignItems={"center"}
-                        >
-                          <Typography variant="body2" color="text.secondary">
-                            {"Including priors"}
-                          </Typography>
-                          <Typography
-                            variant="h6"
-                            fontWeight="bold"
-                            color="text.secondary"
-                          >
-                            {data.n_included}
-                          </Typography>
-                        </Stack>
-                      </>
-                    )}
-                  </Stack>
-                </Paper>
-                <Paper
-                  sx={{
-                    p: 1.5,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    width: "100%",
-                    mb: { xs: 1, sm: 2 },
-                  }}
-                >
-                  <Stack spacing={1} direction={"column"}>
-                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                      <Typography variant="body2" color="text.secondary">
-                        {"Labeled not relevant"}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        fontWeight="bold"
-                        color="text.secondary"
-                      >
-                        {data.n_excluded_no_priors}
-                      </Typography>
-                    </Stack>
-                    {hasPrior && (
-                      <>
-                        <Divider />
-                        <Stack
-                          direction={"row"}
-                          spacing={1}
-                          alignItems={"center"}
-                        >
-                          <Typography variant="body2" color="text.secondary">
-                            {"Including priors"}
-                          </Typography>
-                          <Typography
-                            variant="h6"
-                            fontWeight="bold"
-                            color="text.secondary"
-                          >
-                            {data.n_excluded}
-                          </Typography>
-                        </Stack>
-                      </>
-                    )}
-                  </Stack>
-                </Paper>
-              </Stack>
+          <Grid
+            size={1}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {isLoading ? (
+              <Box
+                width={180}
+                height={180}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Skeleton variant="circular" width={160} height={160} />
+              </Box>
+            ) : (
+              <Box>
+                <PieChart
+                  series={[
+                    {
+                      data: pieData.map((item) => ({
+                        value: item.value,
+                        color: item.color,
+                      })),
+                      innerRadius: 20,
+                      outerRadius: 80,
+                      paddingAngle: 10,
+                      cornerRadius: 10,
+                      startAngle: -110,
+                      endAngle: 275,
+                      cx: 90,
+                      cy: 90,
+                    },
+                  ]}
+                  height={180}
+                  width={180}
+                />
+              </Box>
             )}
           </Grid>
         </Grid>
