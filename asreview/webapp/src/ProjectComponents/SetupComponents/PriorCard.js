@@ -21,8 +21,9 @@ import { ProjectContext } from "context/ProjectContext";
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
 import { AddPriorKnowledge } from "./SearchComponents";
+import { projectModes } from "globals.js";
 
-const PriorCard = ({ mobileScreen, editable = true }) => {
+const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
   const project_id = useContext(ProjectContext);
   const queryClient = useQueryClient();
 
@@ -141,7 +142,12 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
         <>
           <Divider />
           <CardContent>
-            <LabelHistoryPrior project_id={project_id} />
+            <LabelHistoryPrior
+              project_id={project_id}
+              mode={mode}
+              n_prior_inclusions={data && data?.n_prior_inclusions}
+              n_prior_exclusions={data && data?.n_prior_exclusions}
+            />
           </CardContent>
         </>
       )}
@@ -154,11 +160,7 @@ const PriorCard = ({ mobileScreen, editable = true }) => {
         </CardContent>
       )}
 
-      <AddPriorKnowledge
-        open={openPriorSearch}
-        mobileScreen={mobileScreen}
-        onClose={onClosePriorSearch}
-      />
+      <AddPriorKnowledge open={openPriorSearch} onClose={onClosePriorSearch} />
     </Card>
   );
 };

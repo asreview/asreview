@@ -30,74 +30,6 @@ import {
 
 import { useQuery } from "react-query";
 
-// const DialogProjectName = ({ project_id, dataset_name }) => {
-//   const [state, setState] = React.useState({
-//     name: dataset_name,
-//     edit: false,
-//   });
-
-//   const { isLoading: isMutatingName, mutate: mutateName } = useMutation(
-//     ProjectAPI.mutateInfo,
-//     {
-//       mutationKey: ["mutateInfo"],
-//       onSuccess: (data) => {
-//         setState({
-//           name: data?.name,
-//           edit: false,
-//         });
-//       },
-//     },
-//   );
-
-//   const toggleEditName = () => {
-//     setState({
-//       ...state,
-//       edit: !state.edit,
-//     });
-//   };
-
-//   return (
-//     <DialogTitle>
-//       Start project:{" "}
-//       {!state.edit && (
-//         <>
-//           {state.name}
-//           <Tooltip title={"Edit project name"}>
-//             <IconButton onClick={toggleEditName}>
-//               <Edit />
-//             </IconButton>
-//           </Tooltip>
-//         </>
-//       )}
-//       {state.edit && (
-//         <>
-//           <Input
-//             value={state.name}
-//             onChange={(e) => {
-//               setState({
-//                 ...state,
-//                 name: e.target.value,
-//               });
-//             }}
-//             disabled={isMutatingName}
-//             sx={{ width: "50%" }}
-//             autoFocus
-//           />
-//           <Button
-//             onClick={() => {
-//               mutateName({ project_id: project_id, title: state.name });
-//             }}
-//             disabled={isMutatingName}
-//             variant="contained"
-//           >
-//             Save
-//           </Button>
-//         </>
-//       )}
-//     </DialogTitle>
-//   );
-// };
-
 const Upload = ({ mode }) => {
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
@@ -113,14 +45,17 @@ const Upload = ({ mode }) => {
     },
   });
 
+  const clickTab = (value) =>
+    setUploadSource(value === uploadSource ? false : value);
+
   return (
     <>
       <Box sx={{ mb: 8 }}>
         <Tabs
           value={uploadSource}
-          onChange={(event, newValue) => {
-            setUploadSource(newValue);
-          }}
+          // onChange={(event, newValue) => {
+          //   setUploadSource(newValue);
+          // }}
           centered={!mobileScreen}
           textColor="secondary"
           indicatorColor="secondary"
@@ -137,6 +72,7 @@ const Upload = ({ mode }) => {
                 <Typography>File</Typography>
               </Box>
             }
+            onClick={() => clickTab("file")}
             sx={{ mx: 1 }}
           />
           <Tab
@@ -148,6 +84,7 @@ const Upload = ({ mode }) => {
               </Box>
             }
             sx={{ mx: 1 }}
+            onClick={() => clickTab("url")}
           />
           {mode === projectModes.ORACLE && (
             <Tab
@@ -158,17 +95,19 @@ const Upload = ({ mode }) => {
                   <Typography>OpenAlex</Typography>
                 </Box>
               }
+              onClick={() => clickTab("openalex")}
               sx={{ mx: 1 }}
             />
           )}
           <Tab
-            value="benchmark"
+            value="discover"
             label={
               <Box>
                 <AutoAwesomeOutlined sx={{ fontSize: 32 }} />
                 <Typography>Discover</Typography>
               </Box>
             }
+            onClick={() => clickTab("discover")}
             sx={{ mx: 1 }}
           />
           <Tab
@@ -179,6 +118,7 @@ const Upload = ({ mode }) => {
                 <Typography>Import</Typography>
               </Box>
             }
+            onClick={() => clickTab("import")}
             sx={{ mx: 1 }}
           />
         </Tabs>
@@ -195,7 +135,7 @@ const Upload = ({ mode }) => {
             setSetupProjectId={setSetupProjectId}
           />
         )}
-        {uploadSource === "benchmark" && (
+        {uploadSource === "discover" && (
           <DatasetFromEntryPoint
             subset="benchmark"
             mode={mode}
@@ -211,7 +151,10 @@ const Upload = ({ mode }) => {
         project_id={setupProjectId}
         mode={mode}
         open={setupProjectId !== null}
-        onClose={() => setSetupProjectId(null)}
+        onClose={() => {
+          setSetupProjectId(null);
+          setUploadSource(false);
+        }}
       />
 
       <Snackbar

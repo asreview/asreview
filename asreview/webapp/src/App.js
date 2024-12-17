@@ -88,7 +88,11 @@ const App = () => {
             <Route
               index
               element={
-                <ProjectsOverview mobileScreen={mobileScreen} mode={"oracle"} />
+                <ProjectsOverview
+                  key={"reviews"}
+                  mobileScreen={mobileScreen}
+                  mode={"oracle"}
+                />
               }
             />
           </Route>
@@ -100,6 +104,7 @@ const App = () => {
               index
               element={
                 <ProjectsOverview
+                  key={"simulations"}
                   mobileScreen={mobileScreen}
                   mode={"simulate"}
                 />

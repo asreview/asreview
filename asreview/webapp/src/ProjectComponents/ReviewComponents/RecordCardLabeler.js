@@ -375,7 +375,9 @@ const RecordCardLabeler = ({
           {(label === 1 || label === 0) && (
             <>
               {!landscape && (
-                <Typography variant="secondary">Added to</Typography>
+                <Typography variant="secondary" sx={{ pl: 1 }}>
+                  Added to
+                </Typography>
               )}
               {label === 1 && (
                 <Chip
