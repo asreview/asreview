@@ -20,7 +20,7 @@ import { RecordCardLabeler, RecordCardModelTraining } from ".";
 
 import { fontSizeOptions } from "globals.js";
 
-const transitionSpeed = 150;
+const transitionSpeed = 300;
 
 const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
   const [readMoreOpen, toggleReadMore] = useToggle();

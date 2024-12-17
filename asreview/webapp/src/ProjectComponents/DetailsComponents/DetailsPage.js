@@ -84,7 +84,7 @@ const DetailsPage = () => {
             editable={data?.mode === "oracle"}
             showWarning={true}
           />
-          <PriorCard editable={false} />
+          <PriorCard editable={data?.mode === "oracle"} mode={data?.mode} />
           {data?.mode === "oracle" && data?.roles.owner && (
             <MarkFinishedCard project_id={project_id} info={data} />
           )}
