@@ -19,7 +19,6 @@ import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 
-import { StyledMenuItem } from "StyledComponents/StyledMenuItem";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 import { AuthAPI, TeamAPI } from "api";
@@ -147,23 +146,22 @@ const ProfilePopper = () => {
             open={open}
             anchorEl={anchorEl}
             placement="bottom-end"
-            sx={{ zIndex: "tooltip", mt: "8px !important" }}
+            sx={{ zIndex: "tooltip" }}
           >
-            <Paper variant="outlined">
+            <Paper elevation={5}>
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{ alignItems: "center", p: 2 }}
+              >
+                <AccountCircle />
+                <TypographySubtitle1Medium>
+                  {data?.name}
+                </TypographySubtitle1Medium>
+              </Stack>
+              <Divider />
+
               <MenuList>
-                <StyledMenuItem>
-                  <Stack
-                    direction="row"
-                    spacing={2}
-                    sx={{ alignItems: "center" }}
-                  >
-                    <AccountCircle />
-                    <TypographySubtitle1Medium>
-                      {data?.name}
-                    </TypographySubtitle1Medium>
-                  </Stack>
-                </StyledMenuItem>
-                <Divider />
                 <MenuItem onClick={handleProfile}>
                   <ListItemIcon>
                     <Person fontSize="small" />
