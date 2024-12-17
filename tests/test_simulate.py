@@ -51,6 +51,40 @@ def test_simulate_basic(tmpdir, balance_strategy):
     assert sim._last_ranking.shape[0] == 6
 
 
+@pytest.mark.parametrize("classifier", ["nb", "logistic", "svm"])
+def test_simulate_basic_classifiers(tmpdir, classifier):
+    project = asr.Project.create(
+        Path(tmpdir, "simulate-example"),
+        "simulate-example",
+        "simulate",
+        "simulate-example",
+    )
+    project.add_dataset(DATA_FP)
+
+    feature_model = load_extension("models.feature_extraction", "tfidf")()
+    fm = feature_model.from_data_store(project.data_store)
+    project.add_feature_matrix(fm, feature_model)
+
+    # set numpy seed
+    np.random.seed(42)
+
+    sim = asr.Simulate(
+        fm,
+        labels=project.data_store["included"],
+        classifier=load_extension("models.classifiers", classifier)(),
+        query_strategy=load_extension("models.query", "max_random")(),
+        balance_strategy=load_extension("models.balance", "balanced")(),
+        feature_extraction=feature_model,
+    )
+    sim.review()
+
+    assert isinstance(sim._results, pd.DataFrame)
+    assert sim._results.shape[0] <= 6
+
+    assert isinstance(sim._last_ranking, pd.DataFrame)
+    assert sim._last_ranking.shape[0] == 6
+
+
 def test_simulate_no_prior(tmpdir):
     project = asr.Project.create(
         Path(tmpdir, "simulate-example"),
