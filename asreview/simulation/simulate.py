@@ -152,7 +152,11 @@ class Simulate:
         while not self._stop_review():
             self.train()
 
-            record_ids = self.query(self.n_query)
+            n_query = (
+                self.n_query(self._results) if callable(self.n_query) else self.n_query
+            )
+
+            record_ids = self.query(n_query)
             labeled = self.label(record_ids)
 
             pbar_rel.update(labeled["label"].sum())
