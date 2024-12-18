@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import { HelpOutline } from "@mui/icons-material";
 import GetAppIcon from "@mui/icons-material/GetApp";
 import {
   Box,
@@ -12,12 +11,14 @@ import {
   Typography,
   Stack,
   Skeleton,
+  Divider,
+  Button,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { toPng, toJpeg, toSvg } from "html-to-image";
-
 import { CardErrorHandler } from "Components";
 import Chart from "react-apexcharts";
+import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 
 const calculateProgressRecall = (data) => {
   // Total number of relevant items (inclusions)
@@ -48,18 +49,21 @@ export default function ProgressRecallChart(props) {
   const theme = useTheme();
   const chartRef = useRef(null);
 
-  const [anchorElPopover, setAnchorElPopover] = useState(null);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [anchorPosition, setAnchorPosition] = useState({ top: 0, left: 0 });
   const [anchorElMenu, setAnchorElMenu] = useState(null);
 
   const handlePopoverOpen = (event) => {
-    setAnchorElPopover(event.currentTarget);
+    setAnchorPosition({
+      top: event.clientY + 10,
+      left: event.clientX - 50,
+    });
+    setPopoverOpen(true);
   };
 
   const handlePopoverClose = () => {
-    setAnchorElPopover(null);
+    setPopoverOpen(false);
   };
-
-  const popoverOpen = Boolean(anchorElPopover);
 
   const handleDownloadClick = (event) => {
     setAnchorElMenu(event.currentTarget);
@@ -169,9 +173,6 @@ export default function ProgressRecallChart(props) {
     }
   }, [seriesArray]);
 
-  /**
-   * Chart options
-   */
   const optionsChart = useCallback(() => {
     const maxYValue = maxY() || 0;
     const tickAmount = 7;
@@ -271,16 +272,54 @@ export default function ProgressRecallChart(props) {
     setOptions(optionsChart());
   }, [seriesArray, optionsChart]);
 
+  // Inline SVGs for Recall Examples
+
+  // Good scenario: a steep initial rise then flattening near top.
+  const goodScenarioSVG = (
+    <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
+      <path
+        d="M5,55 C15,30 30,10 50,5 70,5 85,10 95,15"
+        stroke={lightModePrimaryColor()}
+        strokeWidth="2"
+        fill="none"
+      />
+      <path
+        d="M5,55 C25,45 50,35 75,25 95,20 95,20 95,20"
+        stroke={darkBlueColor()}
+        strokeWidth="2"
+        fill="none"
+      />
+    </svg>
+  );
+
+  // Bad scenario: model barely outperforms random, both lines rise similarly
+  const badScenarioSVG = (
+    <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
+      <path
+        d="M5,55 C25,50 50,40 75,35 90,30 95,28 95,27"
+        stroke={lightModePrimaryColor()}
+        strokeWidth="2"
+        fill="none"
+      />
+      <path
+        d="M5,55 C25,52 50,45 75,40 90,35 95,33 95,32"
+        stroke={darkBlueColor()}
+        strokeWidth="2"
+        fill="none"
+      />
+    </svg>
+  );
+
   return (
-    <Card sx={{ backgroundColor: 'transparent'}}>
+    <Card sx={{ backgroundColor: "transparent" }}>
       <CardErrorHandler
         queryKey={"fetchGenericData"}
         error={props.progressRecallQuery?.error}
         isError={!!props.progressRecallQuery?.isError}
       />
-      <CardContent>
+      <CardContent sx={{ mt: -2 }}>
         <Stack>
-          <Box>
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <IconButton onClick={handleDownloadClick}>
               <GetAppIcon />
             </IconButton>
@@ -300,36 +339,13 @@ export default function ProgressRecallChart(props) {
               </MenuItem>
             </Menu>
             <IconButton
+              size="small"
               onClick={handlePopoverOpen}
               aria-owns={popoverOpen ? "mouse-over-popover" : undefined}
               aria-haspopup="true"
             >
-              <HelpOutline fontSize={!props.mobileScreen ? "small" : "12px"} />
+              <LightbulbOutlinedIcon fontSize="small" />
             </IconButton>
-            <Popover
-              id="mouse-over-popover"
-              open={popoverOpen}
-              anchorEl={anchorElPopover}
-              onClose={handlePopoverClose}
-            >
-              <Box>
-                <Typography variant="body2" gutterBottom>
-                  <strong>Progress Recall Chart</strong>
-                </Typography>
-                <Typography variant="body2" gutterBottom>
-                  The chart shows how well the ASReview model and random
-                  sampling identify relevant records.
-                </Typography>
-                <Typography variant="body2" gutterBottom>
-                  The model helps prioritize relevant records, but not all
-                  relevant records will be identified by the model.
-                </Typography>
-                <Typography variant="body2" gutterBottom>
-                  The random relevant line shows the performance if you manually
-                  reviewed all records without model assistance.
-                </Typography>
-              </Box>
-            </Popover>
           </Box>
           {props.genericDataQuery.isLoading ? (
             <Skeleton variant="rectangular" height={400} width="100%" />
@@ -346,6 +362,64 @@ export default function ProgressRecallChart(props) {
           )}
         </Stack>
       </CardContent>
+      <Popover
+        open={popoverOpen}
+        onClose={handlePopoverClose}
+        anchorReference="anchorPosition"
+        anchorPosition={anchorPosition}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            maxWidth: 320,
+          },
+        }}
+      >
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Progress Recall
+              </Typography>
+              <Typography variant="body2">
+                This chart compares the model's ability to find relevant records
+                early against a random approach. A good model quickly identifies
+                a large portion of relevant records, while random grows more
+                slowly.
+              </Typography>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Good vs. Bad Examples
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Left: Good (model line shoots up early, well above random).
+                Right: Bad (model barely outperforms random).
+              </Typography>
+              <Stack
+                direction="row"
+                spacing={2}
+                alignItems="center"
+                justifyContent="center"
+              >
+                {goodScenarioSVG}
+                {badScenarioSVG}
+              </Stack>
+            </Box>
+            <Divider />
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ textTransform: "none", p: 0 }}
+              >
+                Learn more →
+              </Button>
+            </Box>
+          </Stack>
+        </Box>
+      </Popover>
     </Card>
   );
 }

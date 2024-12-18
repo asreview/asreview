@@ -1,9 +1,9 @@
 import React from "react";
-
 import EditIcon from "@mui/icons-material/Edit";
 import ArticleIcon from "@mui/icons-material/Article";
 import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
 import SettingsIcon from "@mui/icons-material/Settings";
+import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import {
   Box,
   Button,
@@ -20,14 +20,11 @@ import {
   Typography,
   LinearProgress,
   Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Divider,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import QuizOutlined from "@mui/icons-material/QuizOutlined";
 
 const StoppingSuggestion = ({ project_id }) => {
   const theme = useTheme();
@@ -127,45 +124,58 @@ const StoppingSuggestion = ({ project_id }) => {
     setOpenCompletionPopup(false);
   };
 
+  const handleHelpPopoverOpen = (event) => {
+    setAnchorElInfo(event.currentTarget);
+  };
+
+  const handleHelpPopoverClose = () => {
+    setAnchorElInfo(null);
+  };
+
+  const StaticProgressBar = ({ value }) => {
+    return (
+      <Box
+        sx={{ position: "relative", width: 60, transform: "rotate(270deg)" }}
+      >
+        <LinearProgress
+          variant="determinate"
+          value={value}
+          sx={{
+            height: 60,
+            minWidth: 60,
+            borderRadius: 50,
+            backgroundColor: theme.palette.grey[400],
+            "& .MuiLinearProgress-bar": {
+              backgroundColor: theme.palette.primary.main,
+              borderRadius: 50,
+            },
+          }}
+        />
+        {value === 100 && (
+          <IconButton
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%) rotate(90deg)",
+              color: theme.palette.grey[400],
+            }}
+          >
+            <DoneRoundedIcon sx={{ fontSize: 30 }} />
+          </IconButton>
+        )}
+      </Box>
+    );
+  };
+
   return (
-    <Card
-      sx={{
-        position: "relative",
-        bgcolor: "transparent",
-      }}
-    >
-      <CardContent>
-        <Popover
-          id="info-popover"
-          open={Boolean(anchorElInfo)}
-          anchorEl={anchorElInfo}
-          onClose={() => setAnchorElInfo(null)}
-        >
-          <Box>
-            <Typography variant="body1">
-              <strong>Stopping Suggestion</strong>
-            </Typography>
-            <Typography variant="body2" mt={1}>
-              This feature helps you decide when to stop screening additional
-              records. The more irrelevant records you label without
-              encountering any relevant ones, the higher the likelihood that the
-              remaining records are also irrelevant.
-            </Typography>
-            <Typography variant="body2" mt={1}>
-              You can manually edit and optimize the threshold for your project.
-            </Typography>
-            <Box mt={2}>
-              <Link
-                href="https://github.com/asreview/asreview/discussions/557"
-                target="_blank"
-                rel="noopener noreferrer"
-                color="primary"
-              >
-                Learn more
-              </Link>
-            </Box>
-          </Box>
-        </Popover>
+    <Card sx={{ position: "relative", bgcolor: "transparent" }}>
+      <CardContent sx={{ mt: 4 }}>
+        <Box sx={{ position: "absolute", top: 8, right: 8 }}>
+          <IconButton size="small" onClick={handleHelpPopoverOpen}>
+            <LightbulbOutlinedIcon fontSize="small" />
+          </IconButton>
+        </Box>
         <Grid container spacing={2} columns={2}>
           <Grid size={1}>
             {isLoading ? (
@@ -298,6 +308,85 @@ const StoppingSuggestion = ({ project_id }) => {
         </Grid>
       </CardContent>
       <Popover
+        open={Boolean(anchorElInfo)}
+        anchorEl={anchorElInfo}
+        onClose={handleHelpPopoverClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            maxWidth: 320,
+          },
+        }}
+      >
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Stopping Suggestion
+              </Typography>
+              <Typography variant="body2">
+                This visualization shows how far you are from the end. This
+                helps you decide when to stop screening additional records. More
+                irrelevant records you label without finding any relevant ones,
+                the higher the likelihood that the remaining records are also
+                irrelevant.
+              </Typography>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Threshold Editing
+              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <EditIcon fontSize="small" />
+                <Typography variant="body2">
+                  You can manually edit and optimize the threshold for your
+                  project to determine when this suggestion appears.
+                </Typography>
+              </Stack>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Example Visualization
+              </Typography>
+              <Typography
+                variant="subtitle1"
+                fontWeight="bold"
+                sx={{ mb: 1 }}
+              ></Typography>
+
+              <Stack spacing={1} direction="row" alignItems="center">
+                <Box display="flex" flexDirection="column" alignItems="center">
+                  <StaticProgressBar value={0} />
+                </Box>
+                <Box display="flex" flexDirection="column" alignItems="center">
+                  <StaticProgressBar value={30} />
+                </Box>
+                <Box display="flex" flexDirection="column" alignItems="center">
+                  <StaticProgressBar value={70} />
+                </Box>
+                <Box display="flex" flexDirection="column" alignItems="center">
+                  <StaticProgressBar value={100} />
+                </Box>
+              </Stack>
+            </Box>
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="text"
+                size="small"
+                sx={{ textTransform: "none", p: 0 }}
+              >
+                Learn more →
+              </Button>
+            </Box>
+          </Stack>
+        </Box>
+      </Popover>
+      <Popover
         id="threshold-popover"
         open={openEdit}
         anchorEl={anchorElEdit}
@@ -306,34 +395,39 @@ const StoppingSuggestion = ({ project_id }) => {
           vertical: "bottom",
           horizontal: "left",
         }}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            p: 2.5,
+          },
+        }}
       >
-        <Box p={3}>
-          <Typography variant="h6" gutterBottom>
-            Edit Threshold
-          </Typography>
-          <TextField
-            type="number"
-            label="Threshold"
-            value={stoppingRuleThreshold}
-            onChange={(e) => {
-              setStoppingRuleThreshold(e.target.value);
-            }}
-            fullWidth
-          />
-          <Button
-            variant="contained"
-            onClick={() =>
-              updateStoppingRule({
-                project_id: project_id,
-                id: "n_since_last_included",
-                threshold: stoppingRuleThreshold,
-              })
-            }
-            fullWidth
-          >
-            Save
-          </Button>
-        </Box>
+        <Typography variant="h6" gutterBottom>
+          Edit Threshold
+        </Typography>
+        <TextField
+          type="number"
+          label="Threshold"
+          value={stoppingRuleThreshold}
+          onChange={(e) => {
+            setStoppingRuleThreshold(e.target.value);
+          }}
+          fullWidth
+          sx={{ mb: 2 }}
+        />
+        <Button
+          variant="contained"
+          onClick={() =>
+            updateStoppingRule({
+              project_id: project_id,
+              id: "n_since_last_included",
+              threshold: stoppingRuleThreshold,
+            })
+          }
+          fullWidth
+        >
+          Save
+        </Button>
       </Popover>
       <Dialog
         open={openCompletionPopup}
@@ -341,56 +435,146 @@ const StoppingSuggestion = ({ project_id }) => {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle sx={{ textAlign: "center", pt: 6, pb: 6 }}>
-          <Typography color="primary" variant="h6">
-            Stopping Suggestion reached! What's next?
-          </Typography>
-        </DialogTitle>
-        <DialogContent>
-          <Stack spacing={5}>
-            <Button
-              startIcon={<DoneRoundedIcon />}
-              onClick={handleFinishProject}
-              sx={{ justifyContent: "flex-start" }}
-            >
-              Mark the Project as Finished
-            </Button>
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Stopping Suggestion Reached
+              </Typography>
+              <Typography variant="body2">
+                You've reached your stopping threshold for this project. This
+                indicates that all relevant records have likely been found. How
+                do you want to proceed?
+              </Typography>
+            </Box>
 
-            <Button
-              startIcon={<SettingsIcon />}
-              onClick={handleSelectDifferentModel}
-              sx={{ justifyContent: "flex-start" }}
-            >
-              Continue with a Different Model
-            </Button>
+            <Divider />
 
-            <Button
-              startIcon={<ArticleIcon />}
-              onClick={handleRemindLater}
-              sx={{ justifyContent: "flex-start" }}
-            >
-              Remind Me Again 20 Records Later
-            </Button>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Available Actions
+              </Typography>
+              <Stack spacing={2}>
+                <Button
+                  onClick={() => {
+                    handleFinishProject();
+                    setOpenCompletionPopup(false);
+                  }}
+                  sx={{
+                    justifyContent: "flex-start",
+                    textAlign: "left",
+                    p: 1,
+                    textTransform: "none",
+                  }}
+                >
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="flex-start"
+                    width="100%"
+                  >
+                    <DoneRoundedIcon fontSize="small" color="primary" />
+                    <Box>
+                      <Typography variant="body2" fontWeight="medium">
+                        Mark Project as Finished
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Complete your review and export your results
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Button>
 
-            <Button
-              startIcon={<QuizOutlined />}
-              href="https://github.com/asreview/asreview/discussions/557"
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ justifyContent: "flex-start" }}
-            >
-              What is stopping?
-            </Button>
+                <Button
+                  onClick={() => {
+                    handleSelectDifferentModel();
+                    setOpenCompletionPopup(false);
+                  }}
+                  sx={{
+                    justifyContent: "flex-start",
+                    textAlign: "left",
+                    p: 1,
+                    textTransform: "none",
+                  }}
+                >
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="flex-start"
+                    width="100%"
+                  >
+                    <SettingsIcon fontSize="small" color="primary" />
+                    <Box>
+                      <Typography variant="body2" fontWeight="medium">
+                        Continue with Different Model
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Switch to an alternative model for further screening
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    updateStoppingRule({
+                      project_id: project_id,
+                      id: "n_since_last_included",
+                      threshold: stoppingRuleThreshold + 20,
+                    });
+                    setOpenCompletionPopup(false);
+                  }}
+                  sx={{
+                    justifyContent: "flex-start",
+                    textAlign: "left",
+                    p: 1,
+                    textTransform: "none",
+                  }}
+                >
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="flex-start"
+                    width="100%"
+                  >
+                    <ArticleIcon fontSize="small" color="primary" />
+                    <Box>
+                      <Typography variant="body2" fontWeight="medium">
+                        Review 20 More Records
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Continue screening with an increased threshold
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Button>
+              </Stack>
+            </Box>
+
+            <Divider />
+
+            <Box>
+              <Button
+                href="https://github.com/asreview/asreview/discussions/557"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ textTransform: "none", p: 0 }}
+              >
+                Learn more about stopping →
+              </Button>
+            </Box>
+
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <Button
+                onClick={() => setOpenCompletionPopup(false)}
+                variant="contained"
+                sx={{ textTransform: "none" }}
+              >
+                Close
+              </Button>
+            </Box>
           </Stack>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button
-            onClick={() => setOpenCompletionPopup(false)}
-            variant="outlined"
-          >
-            Close
-          </Button>
-        </DialogActions>
+        </Box>
       </Dialog>
     </Card>
   );

@@ -10,19 +10,17 @@ import {
   Stack,
   Typography,
   Popover,
+  Divider,
+  Button,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { HelpOutline } from "@mui/icons-material";
 import GetAppIcon from "@mui/icons-material/GetApp";
 import { toPng, toJpeg, toSvg } from "html-to-image";
 import Chart from "react-apexcharts";
 
 import { CardErrorHandler } from "Components";
 
-import tooltipIrrelevantDark from "images/progress_irrelevant_dark.png";
-import tooltipIrrelevantLight from "images/progress_irrelevant_light.png";
-import tooltipRelevantDark from "images/progress_relevant_dark.png";
-import tooltipRelevantLight from "images/progress_relevant_light.png";
+import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 
 const calculateProgressDensity = (data) => {
   return data.map((entry, index, arr) => {
@@ -51,34 +49,25 @@ const calculateProgressDensity = (data) => {
   });
 };
 
-const returnTooltipRelevantImg = (theme) => {
-  return theme.palette.mode === "light"
-    ? tooltipRelevantLight
-    : tooltipRelevantDark;
-};
-
-const returnTooltipIrrelevantImg = (theme) => {
-  return theme.palette.mode === "light"
-    ? tooltipIrrelevantLight
-    : tooltipIrrelevantDark;
-};
-
 export default function ProgressDensityChart(props) {
   const theme = useTheme();
   const chartRef = useRef(null);
 
-  const [anchorElPopover, setAnchorElPopover] = useState(null);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [anchorPosition, setAnchorPosition] = useState({ top: 0, left: 0 });
   const [anchorElMenu, setAnchorElMenu] = useState(null);
 
   const handlePopoverOpen = (event) => {
-    setAnchorElPopover(event.currentTarget);
+    setAnchorPosition({
+      top: event.clientY + 10,
+      left: event.clientX - 50,
+    });
+    setPopoverOpen(true);
   };
 
   const handlePopoverClose = () => {
-    setAnchorElPopover(null);
+    setPopoverOpen(false);
   };
-
-  const popoverOpen = Boolean(anchorElPopover);
 
   const handleDownloadClick = (event) => {
     setAnchorElMenu(event.currentTarget);
@@ -252,16 +241,42 @@ export default function ProgressDensityChart(props) {
     setOptions(optionsChart());
   }, [seriesArray, optionsChart]);
 
+  // Inline SVG for good scenario: starts high and goes down
+  const goodScenarioSVG = (
+    <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
+      <path
+        d="M5,40 C20,15 40,10 60,15 75,20 85,30 95,55"
+        stroke={theme.palette.primary.main}
+        strokeWidth="2"
+        fill="none"
+      />
+    </svg>
+  );
+
+  // Inline SVG for bad scenario: never takes off, stays low
+  const badScenarioSVG = (
+    <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
+      {" "}
+      {/* A line starting near bottom-left and staying low to bottom-right */}
+      <path
+        d="M5,50 C20,45 40,40 60,42 80,43 90,45 95,50"
+        stroke={theme.palette.primary.main}
+        strokeWidth="2"
+        fill="none"
+      />
+    </svg>
+  );
+
   return (
-    <Card sx={{ backgroundColor: 'transparent'}}>
+    <Card sx={{ backgroundColor: "transparent" }}>
       <CardErrorHandler
         queryKey={"fetchGenericData"}
         error={props.genericDataQuery?.error}
         isError={!!props.genericDataQuery?.isError}
       />
-      <CardContent>
+      <CardContent sx={{ mt: -2 }}>
         <Stack>
-          <Box>
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <IconButton onClick={handleDownloadClick}>
               <GetAppIcon />
             </IconButton>
@@ -281,78 +296,13 @@ export default function ProgressDensityChart(props) {
               </MenuItem>
             </Menu>
             <IconButton
+              size="small"
               onClick={handlePopoverOpen}
               aria-owns={popoverOpen ? "info-popover" : undefined}
               aria-haspopup="true"
             >
-              <HelpOutline fontSize={!props.mobileScreen ? "small" : "12px"} />
+              <LightbulbOutlinedIcon fontSize="small" />
             </IconButton>
-            <Popover
-              id="info-popover"
-              open={popoverOpen}
-              anchorEl={anchorElPopover}
-              onClose={handlePopoverClose}
-            >
-              <Box>
-                <Typography variant="body2" gutterBottom>
-                  <strong>Progress Density Chart</strong>
-                </Typography>
-                <Typography variant="body2" gutterBottom>
-                  This chart visualizes the density of relevant records reviewed
-                  over time. It helps track the efficiency of the review
-                  process.
-                </Typography>
-                <Stack>
-                  <Box>
-                    <img
-                      src={returnTooltipRelevantImg(theme)}
-                      alt="tooltip relevant"
-                      className="tooltip-img"
-                      style={{ width: 24, height: 24 }}
-                    />
-                    <Box>
-                      <Typography variant="subtitle2">
-                        Presence of relevant records
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Relevant records still appear. Continue reviewing to
-                        discover more.
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box>
-                    <img
-                      src={returnTooltipIrrelevantImg(theme)}
-                      alt="tooltip irrelevant"
-                      className="tooltip-img"
-                      style={{ width: 24, height: 24 }}
-                    />
-                    <Box>
-                      <Typography variant="subtitle2">
-                        Irrelevant records only
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Relevant records do not appear. Refer to your stopping
-                        rule to decide if you want to continue reviewing.
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Stack>
-                <Box>
-                  <a
-                    href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                    style={{
-                      color: theme.palette.primary.main,
-                      textDecoration: "none",
-                    }}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Learn more
-                  </a>
-                </Box>
-              </Box>
-            </Popover>
           </Box>
           {props.genericDataQuery.isLoading ? (
             <Skeleton variant="rectangular" height={400} width="100%" />
@@ -369,6 +319,64 @@ export default function ProgressDensityChart(props) {
           )}
         </Stack>
       </CardContent>
+
+      <Popover
+        open={popoverOpen}
+        onClose={handlePopoverClose}
+        anchorReference="anchorPosition"
+        anchorPosition={anchorPosition}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            maxWidth: 320,
+          },
+        }}
+      >
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Progress Density
+              </Typography>
+              <Typography variant="body2">
+                This chart shows how many relevant records are found per 10
+                documents. Initially, you might find many relevant records, but
+                as you proceed, relevancy often tapers off.
+              </Typography>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Comparing Examples
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Left: Good scenario (more relevants early, then down). Right:
+                Bad scenario (stays low, never improves).
+              </Typography>
+              <Stack
+                direction="row"
+                spacing={2}
+                alignItems="center"
+                justifyContent="center"
+              >
+                {goodScenarioSVG}
+                {badScenarioSVG}
+              </Stack>
+            </Box>
+            <Divider />
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ textTransform: "none", p: 0 }}
+              >
+                Learn more →
+              </Button>
+            </Box>
+          </Stack>
+        </Box>
+      </Popover>
     </Card>
   );
 }

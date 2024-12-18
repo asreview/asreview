@@ -3,7 +3,6 @@ import {
   Box,
   Container,
   Divider,
-  Fade,
   Grid2 as Grid,
   SpeedDial,
   SpeedDialAction,
@@ -184,7 +183,7 @@ const AnalyticsPage = () => {
             )}
           </Typography>
           <Typography
-            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }} // when the avatars are visible, should be pb: 3
+            sx={{ fontFamily: "Roboto Serif", textAlign: "center" }} // when the avatars are visible, should be pb: 3
           >
             {progressQuery.data && progressQuery.data.n_records} records in
             total

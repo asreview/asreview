@@ -1,22 +1,20 @@
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import {
   Box,
   Card,
   CardContent,
-  FormControlLabel,
   Grid2 as Grid,
   IconButton,
   Popover,
   Stack,
-  Switch,
   Typography,
   useMediaQuery,
   useTheme,
   Button,
+  Divider,
 } from "@mui/material";
 import { CardErrorHandler } from "Components";
-import { useToggle } from "hooks/useToggle";
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState } from "react";
+import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 
 const sortPerChunk = (decisions, chunkSize) => {
   const sorted = [];
@@ -30,21 +28,9 @@ const sortPerChunk = (decisions, chunkSize) => {
 
 const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
   const theme = useTheme();
-  const [chronological, toggleChronological] = useToggle(true);
-  // const [anchorEl, setAnchorEl] = useState(null);
+  const [viewMode, setViewMode] = useState("chronological");
   const [infoAnchorEl, setInfoAnchorEl] = useState(null);
-  // const [selectedPaper, setSelectedPaper] = useState(null);
   const containerRef = useRef(null);
-
-  // const handleClick = (event, index, color) => {
-  //   setAnchorEl(event.currentTarget);
-  //   setSelectedPaper(index);
-  // };
-
-  // const handleClose = () => {
-  //   setAnchorEl(null);
-  //   setSelectedPaper(null);
-  // };
 
   const totalPapers = progressQuery?.data?.n_records || 0;
   const labelingChronology = genericDataQuery?.data || [];
@@ -61,27 +47,32 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
     chunkSize = 15;
   }
 
-  // Limit data processing to displayed items
-  const decisionsToDisplay = useMemo(() => {
-    const displayedDecisions = labelingChronology.slice(0, itemsToDisplay);
-    const unlabeledCount = Math.max(0, itemsToDisplay - displayedDecisions.length);
-    const unlabeledRecords = Array.from({ length: unlabeledCount }, () => ({
-      label: null,
-    }));
-    return [...displayedDecisions, ...unlabeledRecords];
-  }, [labelingChronology, itemsToDisplay]);
+  const processDisplayedData = () => {
+    const endIndex = labelingChronology.length;
+    const startIndex = Math.max(0, endIndex - itemsToDisplay);
+    const displayedDecisions = labelingChronology.slice(startIndex, endIndex);
+    const unlabeledCount = Math.max(
+      0,
+      itemsToDisplay - displayedDecisions.length,
+    );
+    const unlabeledRecords = Array(unlabeledCount).fill({ label: null });
+    const combinedData = [...displayedDecisions, ...unlabeledRecords];
 
-  const labels = useMemo(() => {
-    return chronological
-      ? decisionsToDisplay
-      : sortPerChunk(decisionsToDisplay, chunkSize);
-  }, [decisionsToDisplay, chronological, chunkSize]);
+    return viewMode === "chronological"
+      ? combinedData
+      : sortPerChunk(combinedData, chunkSize);
+  };
 
-  // const open = Boolean(anchorEl);
-  // const id = open ? "paper-popover" : undefined;
+  const labels = processDisplayedData();
 
   const infoOpen = Boolean(infoAnchorEl);
   const infoId = infoOpen ? "info-popover" : undefined;
+
+  const handleLoadMore = () => {
+    setItemsToDisplay(
+      Math.min(itemsToDisplay + maxItemsToDisplay, totalPapers),
+    );
+  };
 
   return (
     <Box position="relative" width="100%" maxWidth={960}>
@@ -90,30 +81,42 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
         error={genericDataQuery?.error}
         isError={!!genericDataQuery?.isError}
       />
-      <Card sx={{ backgroundColor: 'transparent'}}>
+      <Card sx={{ backgroundColor: "transparent", mt: 2 }}>
         <CardContent>
           <Stack>
-            <Box>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={chronological}
-                    onChange={toggleChronological}
-                  />
-                }
-                label={<Typography variant="body2">Chronological</Typography>}
-                labelPlacement="end"
-              />
+            <Box sx={{ mb: 1 }}>
+              <Button
+                variant="text"
+                onClick={() => setViewMode("chronological")}
+                size="small"
+                sx={{
+                  color:
+                    viewMode === "chronological" ? "primary.light" : "grey.400",
+                  fontWeight: "bold",
+                }}
+              >
+                Chronological
+              </Button>
+              <Button
+                variant="text"
+                onClick={() => setViewMode("grouped")}
+                size="small"
+                sx={{
+                  color: viewMode === "grouped" ? "primary.light" : "grey.400",
+                  fontWeight: "bold",
+                }}
+              >
+                Grouped
+              </Button>
             </Box>
-
-            <Box>
+            <Box sx={{ position: "absolute", top: 8, right: 8 }}>
               <IconButton
                 size="small"
                 onClick={(event) => {
                   setInfoAnchorEl(event.currentTarget);
                 }}
               >
-                <HelpOutlineIcon fontSize="small" />
+                <LightbulbOutlinedIcon fontSize="small" />
               </IconButton>
             </Box>
 
@@ -121,6 +124,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
               ref={containerRef}
               sx={{
                 width: 1,
+                mt: 2,
               }}
             >
               {/* Rendering the labeling history grid */}
@@ -138,52 +142,34 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                     key={index}
                     size={{ xs: 3, sm: 2, md: 1 }}
                     sx={{
-                      height: 
-                      decision.label === 1
-                          ? "10px"
-                          : decision.label === 0
-                          ? "8px"
-                          : "8px",
+                      height: "10px",
                       bgcolor:
                         decision.label === 1
                           ? "grey.600"
                           : decision.label === 0
-                          ? "primary.light"
-                          : "grey.400", // Unlabeled records
-                        borderRadius: 
-                        decision.label === 1
-                          ? 4
-                          : decision.label === 0
-                          ? 1
-                          : 1,
-                        }}
-                      />
-                    ))}
-                    </Grid>
+                            ? "primary.light"
+                            : "grey.400", // Unlabeled records
+                      borderRadius: 3,
+                    }}
+                  />
+                ))}
+              </Grid>
 
-                    {itemsToDisplay < totalPapers && (
-                    <Box display="flex" justifyContent="center" sx={{ mt: 1 }}>
-                      <Button
-                      onClick={() =>
-                        setItemsToDisplay(
-                        Math.min(itemsToDisplay + maxItemsToDisplay, totalPapers),
-                        )
-                      }
-                      >
-                      Show More
-                      </Button>
-                    </Box>
-                    )}
+              {itemsToDisplay < totalPapers && (
+                <Box display="flex" justifyContent="center" sx={{ mt: 1 }}>
+                  <Button onClick={handleLoadMore}>Show More ↓</Button>
+                </Box>
+              )}
 
-                    {itemsToDisplay >= totalPapers && (
-                    <Typography align="center" sx={{ mt: 1 }}>
-                      All records are displayed.
-                    </Typography>
-                    )}
-                  </Box>
-                  </Stack>
-                </CardContent>
-                </Card>
+              {itemsToDisplay >= totalPapers && (
+                <Typography align="center" sx={{ mt: 1 }}>
+                  All records are displayed.
+                </Typography>
+              )}
+            </Box>
+          </Stack>
+        </CardContent>
+      </Card>
       <Popover
         id={infoId}
         open={infoOpen}
@@ -191,40 +177,107 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
         onClose={() => {
           setInfoAnchorEl(null);
         }}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            maxWidth: 320,
+          },
+        }}
       >
-        <Box sx={{ p: 2, maxWidth: 300 }}>
-          <Typography variant="body2" gutterBottom>
-            <strong>Chronological</strong>
-          </Typography>
-          <Typography variant="body2" gutterBottom>
-            In the chronological view, the lines will be sorted in the same
-            order you labeled them. Otherwise, they will be sorted by their
-            labels.
-          </Typography>
-          <Typography variant="body2" gutterBottom>
-            The arrow of time points to right and down.
-          </Typography>
-          <Typography variant="body2" gutterBottom>
-            <strong>Labeling History</strong>
-          </Typography>
-          <Typography variant="body2" gutterBottom>
-            These are your previous labeling decisions. Gold lines represent
-            relevant records, gray lines represent irrelevant records, and light
-            gray lines represent unlabeled records. When you click on a line, you
-            can view that paper's details.
-          </Typography>
-          <Box>
-            <a
-              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-              style={{
-                color: theme.palette.primary.main,
-              }}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn more
-            </a>
-          </Box>
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Labeling History
+              </Typography>
+              <Typography variant="body2">
+                These are all the records in your dataset, starting from the
+                labeled ones. Each colored item represents a record. The most
+                recent decisions are displayed on the bottom right side.
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ mt: 1, color: "primary.light" }}
+              >
+                Arrow of time: → ↓
+              </Typography>
+            </Box>
+            <Divider />
+            <Box>
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
+                    Chronological View
+                  </Typography>
+                  <Typography variant="body2">
+                    Records appear chronologically, showing your labeling
+                    journey in the correct order.
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
+                    Grouped View
+                  </Typography>
+                  <Typography variant="body2">
+                    Records are grouped by type, showing the patterns in your
+                    decisions.
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Color Guide
+              </Typography>
+              <Stack spacing={1}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 8,
+                      bgcolor: "grey.600",
+                      borderRadius: 3,
+                    }}
+                  />
+                  <Typography variant="body2">Relevant</Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 8,
+                      bgcolor: "primary.light",
+                      borderRadius: 3,
+                    }}
+                  />
+                  <Typography variant="body2">Not Relevant</Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 8,
+                      bgcolor: "grey.400",
+                      borderRadius: 3,
+                    }}
+                  />
+                  <Typography variant="body2">Unlabeled</Typography>
+                </Box>
+              </Stack>
+            </Box>
+
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ textTransform: "none", p: 0 }}
+              >
+                Learn more →
+              </Button>
+            </Box>
+          </Stack>
         </Box>
       </Popover>
     </Box>

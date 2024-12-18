@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -8,16 +9,29 @@ import {
   Stack,
   Typography,
   Box,
+  IconButton,
+  Popover,
+  Divider,
+  Button,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
-import { useState } from "react";
 import { useQuery } from "react-query";
-import { StyledHelpPopover } from "StyledComponents/StyledHelpPopover";
 import { PieChart } from "@mui/x-charts/PieChart";
+import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 
 export default function ReviewProgress({ project_id }) {
   const theme = useTheme();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const popoverOpen = Boolean(anchorEl);
+
+  const handlePopoverOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
 
   // We can implement this fully when we decide on the prior knowledge button
   const [includePrior, setIncludePrior] = useState(true); //Change to true to test
@@ -40,8 +54,6 @@ export default function ReviewProgress({ project_id }) {
     { refetchOnWindowFocus: false },
   );
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const popoverOpen = Boolean(anchorEl);
   const data = progressQuery.data;
   const isLoading = progressQuery.isLoading || genericDataQuery.isLoading;
 
@@ -106,31 +118,36 @@ export default function ReviewProgress({ project_id }) {
         },
       ];
 
+  const staticPieData = [
+    {
+      label: "Not Relevant",
+      value: 25,
+      color:
+        theme.palette.mode === "light"
+          ? theme.palette.primary.light
+          : theme.palette.primary.main,
+    },
+    {
+      label: "Relevant",
+      value: 5,
+      color: theme.palette.grey[600],
+    },
+    {
+      label: "Unlabeled",
+      value: 70,
+      color: theme.palette.grey[400],
+    },
+  ];
+
   return (
-    <Card sx={{ m: 0, p: 0, bgcolor: "background.default" }}>
-      <CardContent sx={{ m: 0, p: 0, bgcolor: "background.default" }}>
-        <>
-          <StyledHelpPopover
-            id="info-popover"
-            open={popoverOpen}
-            anchorEl={anchorEl}
-            onClose={() => {
-              setAnchorEl(null);
-            }}
-          >
-            <Typography variant="body1">
-              <strong>Showing</strong> prior knowledge will show combined
-              labelings from the original dataset and those done using ASReview.
-            </Typography>
-            <Link
-              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-              target="_blank"
-              rel="noopener"
-            >
-              Learn more
-            </Link>
-          </StyledHelpPopover>
-        </>
+    <Card sx={{ position: "relative", bgcolor: "transparent" }}>
+      <CardContent sx={{ mt: 2 }}>
+        <Box sx={{ position: "absolute", top: 8, right: 8 }}>
+          <IconButton size="small" onClick={handlePopoverOpen}>
+            <LightbulbOutlinedIcon fontSize="small" />
+          </IconButton>
+        </Box>
+
         <Grid container spacing={2} columns={2}>
           <Grid
             size={1}
@@ -221,10 +238,10 @@ export default function ReviewProgress({ project_id }) {
                       })),
                       innerRadius: 20,
                       outerRadius: 80,
-                      paddingAngle: 10,
+                      paddingAngle: 5,
                       cornerRadius: 10,
-                      startAngle: -110,
-                      endAngle: 275,
+                      startAngle: -90,
+                      endAngle: 360,
                       cx: 90,
                       cy: 90,
                     },
@@ -237,6 +254,83 @@ export default function ReviewProgress({ project_id }) {
           </Grid>
         </Grid>
       </CardContent>
+      <Popover
+        open={popoverOpen}
+        anchorEl={anchorEl}
+        onClose={handlePopoverClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            maxWidth: 320,
+          },
+        }}
+      >
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Review Progress
+              </Typography>
+              <Typography variant="body2">
+                This visualization shows how far you are from the beginning. It
+                displays the number of relevant, not relevant, and unlabeled
+                records in your dataset.
+              </Typography>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Prior Knowledge
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                You can include the prior knowledge in your dataset to this
+                visualization. This option is enabled from{" "}
+                <strong>Settings</strong>.
+              </Typography>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Example Visualization
+              </Typography>
+              <Box display="flex" justifyContent="center">
+                <PieChart
+                  series={[
+                    {
+                      data: staticPieData.map((item) => ({
+                        value: item.value,
+                        color: item.color,
+                      })),
+                      innerRadius: 20,
+                      outerRadius: 80,
+                      paddingAngle: 5,
+                      cornerRadius: 10,
+                      startAngle: -150,
+                      endAngle: 320,
+                      cx: 90,
+                      cy: 90,
+                    },
+                  ]}
+                  height={180}
+                  width={180}
+                />
+              </Box>
+            </Box>
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="text"
+                size="small"
+                sx={{ textTransform: "none", p: 0 }}
+              >
+                Learn more →
+              </Button>
+            </Box>
+          </Stack>
+        </Box>
+      </Popover>
     </Card>
   );
 }
