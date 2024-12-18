@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
-// import { Avatar, AvatarGroup, Tooltip } from "@mui/material";
+import { Avatar, AvatarGroup, Tooltip } from "@mui/material";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import {
@@ -25,7 +25,7 @@ import {
 
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
-// import AddIcon from "@mui/icons-material/Add";
+import AddIcon from "@mui/icons-material/Add";
 import { IconButton, TextField } from "@mui/material";
 
 import {
@@ -44,9 +44,9 @@ import {
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
 
-// import ElasFireman from "../../images/ElasFireMan.jpg";
-// import ElasGrad from "../../images/ElasGrad.jpg";
-// import ElasSuperHero from "../../images/ElasSuperHero.jpg";
+import ElasFireman from "../../images/ElasFireMan.jpg";
+import ElasGrad from "../../images/ElasGrad.jpg";
+import ElasSuperHero from "../../images/ElasSuperHero.jpg";
 
 const actions = [
   { icon: <XIcon round />, name: "X" },
@@ -140,16 +140,16 @@ const AnalyticsPage = () => {
 
   // Users for the avatar group
 
-  // const users = [
-  //   { name: "Jonathan", avatar: ElasFireman },
-  //   { name: "Rens", avatar: ElasGrad },
-  //   { name: "Berke", avatar: ElasSuperHero },
-  // ];
+  const users = [
+    { name: "Jonathan", avatar: ElasFireman },
+    { name: "Rens", avatar: ElasGrad },
+    { name: "Berke", avatar: ElasSuperHero },
+  ];
 
-  // // Mock handler for adding a new user, this can redirect to the 'Team' tab
-  // const handleAddUser = () => {
-  //   console.log("Add user clicked");
-  // };
+  // Mock handler for adding a new user, this can redirect to the 'Team' tab
+  const handleAddUser = () => {
+    console.log("Add user clicked");
+  };
 
   return (
     <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>
@@ -198,7 +198,7 @@ const AnalyticsPage = () => {
             pb: 3,
           }}
         >
-          {/* <AvatarGroup max={20}>
+          <AvatarGroup max={20}>
             {users.map((user, index) => (
               <Tooltip key={index} title={user.name} arrow>
                 <Avatar alt={user.name} src={user.avatar} />
@@ -215,7 +215,7 @@ const AnalyticsPage = () => {
             onClick={handleAddUser}
           >
             <AddIcon />
-          </Avatar> */}
+          </Avatar>
         </Box>
         <Grid container columns={{ xs: 1, md: 2 }}>
           <Grid size={1}>
