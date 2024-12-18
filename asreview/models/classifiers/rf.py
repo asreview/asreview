@@ -17,7 +17,6 @@ __all__ = ["RandomForestClassifier"]
 from sklearn.ensemble import RandomForestClassifier as SKRandomForestClassifier
 
 from asreview.models.classifiers.base import BaseTrainClassifier
-from asreview.models.classifiers.utils import _set_class_weight
 
 
 class RandomForestClassifier(BaseTrainClassifier):
@@ -44,18 +43,13 @@ class RandomForestClassifier(BaseTrainClassifier):
     name = "rf"
     label = "Random forest"
 
-    def __init__(
-        self, n_estimators=100, max_features=10, class_weight=1.0, random_state=None
-    ):
+    def __init__(self, n_estimators=100, max_features=10, random_state=None):
         super().__init__()
         self.n_estimators = int(n_estimators)
         self.max_features = int(max_features)
-        self.class_weight = class_weight
-        self._random_state = random_state
 
         self._model = SKRandomForestClassifier(
             n_estimators=self.n_estimators,
             max_features=self.max_features,
-            class_weight=_set_class_weight(class_weight),
             random_state=random_state,
         )

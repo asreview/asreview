@@ -14,8 +14,6 @@
 
 __all__ = ["NaiveBayesClassifier"]
 
-import logging
-
 from sklearn.naive_bayes import MultinomialNB
 
 from asreview.models.classifiers.base import BaseTrainClassifier
@@ -47,4 +45,3 @@ class NaiveBayesClassifier(BaseTrainClassifier):
         super().__init__()
         self.alpha = alpha
         self._model = MultinomialNB(alpha=alpha)
-        logging.debug(self._model)
