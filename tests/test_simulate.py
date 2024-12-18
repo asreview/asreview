@@ -187,3 +187,64 @@ def test_simulate_n_query(tmpdir):
 
     assert isinstance(sim._last_ranking, pd.DataFrame)
     assert sim._last_ranking.shape[0] == 6
+
+
+def test_simulate_n_query_callable(tmpdir):
+    project = asr.Project.create(
+        Path(tmpdir, "simulate-example"),
+        "simulate-example",
+        "simulate",
+        "simulate-example",
+    )
+    project.add_dataset(DATA_FP)
+
+    feature_model = load_extension("models.feature_extraction", "tfidf")()
+    fm = feature_model.from_data_store(project.data_store)
+    project.add_feature_matrix(fm, feature_model)
+
+    sim = asr.Simulate(
+        fm,
+        labels=project.data_store["included"],
+        classifier=load_extension("models.classifiers", "svm")(),
+        query_strategy=load_extension("models.query", "max_random")(),
+        balance_strategy=load_extension("models.balance", "balanced")(),
+        feature_extraction=feature_model,
+        n_query=lambda x: 2,
+    )
+    sim.review()
+
+    assert isinstance(sim._results, pd.DataFrame)
+    assert sim._results.shape[0] == 6
+    assert sim._results["training_set"].to_list() == [None, None, 2, 2, 4, 4]
+
+
+def test_simulate_n_query_callable_with_args(tmpdir):
+    project = asr.Project.create(
+        Path(tmpdir, "simulate-example"),
+        "simulate-example",
+        "simulate",
+        "simulate-example",
+    )
+    project.add_dataset(DATA_FP)
+
+    feature_model = load_extension("models.feature_extraction", "tfidf")()
+    fm = feature_model.from_data_store(project.data_store)
+    project.add_feature_matrix(fm, feature_model)
+
+    def n_query(x):
+        return len(x) // 2
+
+    sim = asr.Simulate(
+        fm,
+        labels=project.data_store["included"],
+        classifier=load_extension("models.classifiers", "svm")(),
+        query_strategy=load_extension("models.query", "max_random")(),
+        balance_strategy=load_extension("models.balance", "balanced")(),
+        feature_extraction=feature_model,
+        n_query=n_query,
+    )
+    sim.review()
+
+    assert isinstance(sim._results, pd.DataFrame)
+    assert sim._results.shape[0] == 6
+    assert sim._results["training_set"].to_list() == [None, None, 2, 3, 4, 4]
