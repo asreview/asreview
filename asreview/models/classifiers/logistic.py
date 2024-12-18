@@ -14,12 +14,9 @@
 
 __all__ = ["LogisticClassifier"]
 
-import logging
-
 from sklearn.linear_model import LogisticRegression
 
 from asreview.models.classifiers.base import BaseTrainClassifier
-from asreview.models.classifiers.utils import _set_class_weight
 
 
 class LogisticClassifier(BaseTrainClassifier):
@@ -42,15 +39,12 @@ class LogisticClassifier(BaseTrainClassifier):
     name = "logistic"
     label = "Logistic regression"
 
-    def __init__(self, C=1.0, class_weight=1.0, random_state=None):
+    def __init__(self, C=1.0, solver="liblinear", random_state=None):
         super().__init__()
         self.C = C
-        self.class_weight = class_weight
 
         self._model = LogisticRegression(
-            solver="liblinear",
             C=C,
-            class_weight=_set_class_weight(class_weight),
+            solver=solver,
             random_state=random_state,
         )
-        logging.debug(self._model)

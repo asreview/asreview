@@ -17,7 +17,6 @@ __all__ = ["SVMClassifier"]
 from sklearn.svm import SVC
 
 from asreview.models.classifiers.base import BaseTrainClassifier
-from asreview.models.classifiers.utils import _set_class_weight
 
 
 class SVMClassifier(BaseTrainClassifier):
@@ -47,23 +46,19 @@ class SVMClassifier(BaseTrainClassifier):
     def __init__(
         self,
         gamma="auto",
-        class_weight=0.249,
         C=15.4,
         kernel="linear",
         random_state=None,
     ):
         super().__init__()
         self.gamma = gamma
-        self.class_weight = class_weight
         self.C = C
         self.kernel = kernel
-        self._random_state = random_state
 
         self._model = SVC(
             kernel=kernel,
             C=C,
-            class_weight=_set_class_weight(class_weight),
-            random_state=random_state,
             gamma=gamma,
             probability=True,
+            random_state=random_state,
         )
