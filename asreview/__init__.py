@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sqlite3
+
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 
@@ -68,6 +70,8 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 
     See also: https://docs.sqlalchemy.org/en/20/dialects/sqlite.html#sqlite-foreign-keys
     """
-    cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.close()
+
+    if isinstance(dbapi_connection, sqlite3.Connection):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
