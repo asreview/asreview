@@ -160,7 +160,7 @@ class Simulate:
             labeled = self.label(record_ids)
 
             pbar_rel.update(labeled["label"].sum())
-            pbar_total.update(1)
+            pbar_total.update(n_query)
 
         else:
             pbar_rel.close()
