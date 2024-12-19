@@ -193,7 +193,7 @@ export default function ProgressRecallChart(props) {
           enabled: false,
         },
       },
-      colors: [lightModePrimaryColor(), darkBlueColor()],
+      colors: [darkBlueColor(), lightModePrimaryColor()],
       dataLabels: {
         enabled: false,
       },
@@ -262,7 +262,7 @@ export default function ProgressRecallChart(props) {
         },
       },
     };
-  }, [theme, lightModePrimaryColor, darkBlueColor, maxY]);
+  }, [theme, darkBlueColor, lightModePrimaryColor, maxY]);
 
   const [series, setSeries] = useState(seriesArray());
   const [options, setOptions] = useState(optionsChart());
@@ -278,14 +278,14 @@ export default function ProgressRecallChart(props) {
   const goodScenarioSVG = (
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
       <path
-        d="M5,55 C15,30 30,10 50,5 70,5 85,10 95,15"
-        stroke={lightModePrimaryColor()}
+        d="M5,55 Q10,10 15,8 T95,5"
+        stroke={darkBlueColor()}
         strokeWidth="2"
         fill="none"
       />
       <path
         d="M5,55 C25,45 50,35 75,25 95,20 95,20 95,20"
-        stroke={darkBlueColor()}
+        stroke={lightModePrimaryColor()}
         strokeWidth="2"
         fill="none"
       />
@@ -297,13 +297,13 @@ export default function ProgressRecallChart(props) {
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
       <path
         d="M5,55 C25,50 50,40 75,35 90,30 95,28 95,27"
-        stroke={lightModePrimaryColor()}
+        stroke={darkBlueColor()}
         strokeWidth="2"
         fill="none"
       />
       <path
         d="M5,55 C25,52 50,45 75,40 90,35 95,33 95,32"
-        stroke={darkBlueColor()}
+        stroke={lightModePrimaryColor()}
         strokeWidth="2"
         fill="none"
       />
@@ -317,9 +317,9 @@ export default function ProgressRecallChart(props) {
         error={props.progressRecallQuery?.error}
         isError={!!props.progressRecallQuery?.isError}
       />
-      <CardContent sx={{ mt: -2 }}>
+      <CardContent>
         <Stack>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: -2 }}>
             <IconButton onClick={handleDownloadClick}>
               <GetAppIcon />
             </IconButton>
@@ -390,20 +390,26 @@ export default function ProgressRecallChart(props) {
             <Divider />
             <Box>
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                Good vs. Bad Examples
+                Comparing Examples
               </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Left: Good (model line shoots up early, well above random).
-                Right: Bad (model barely outperforms random).
-              </Typography>
-              <Stack
-                direction="row"
-                spacing={2}
-                alignItems="center"
-                justifyContent="center"
-              >
-                {goodScenarioSVG}
-                {badScenarioSVG}
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    <strong>Good:</strong> {""}
+                    The model's performance curve rises steeply early in the
+                    process, significantly outperforming random selection.
+                  </Typography>
+                  {goodScenarioSVG}
+                </Box>
+                <Box>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    <strong>Bad:</strong> {""}
+                    The model's performance curve stays close to random
+                    selection, indicating limited effectiveness in identifying
+                    relevant records.
+                  </Typography>
+                  {badScenarioSVG}
+                </Box>
               </Stack>
             </Box>
             <Divider />

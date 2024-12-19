@@ -91,8 +91,8 @@ export default function ReviewProgress({ project_id }) {
     : [
         {
           label: "Relevant",
-          value: data.n_included_no_priors,
-          priorValue: includePrior ? data.n_included : null,
+          value: data.n_included_no_priors.toLocaleString(),
+          priorValue: includePrior ? data.n_included.toLocaleString() : null,
           color:
             theme.palette.mode === "light"
               ? theme.palette.grey[600]
@@ -100,8 +100,8 @@ export default function ReviewProgress({ project_id }) {
         },
         {
           label: "Not Relevant",
-          value: data.n_excluded_no_priors,
-          priorValue: includePrior ? data.n_excluded : null,
+          value: data.n_excluded_no_priors.toLocaleString(),
+          priorValue: includePrior ? data.n_excluded.toLocaleString() : null,
           color:
             theme.palette.mode === "light"
               ? theme.palette.primary.light
@@ -109,10 +109,11 @@ export default function ReviewProgress({ project_id }) {
         },
         {
           label: "Unlabeled",
-          value:
+          value: (
             data.n_records -
             data.n_included_no_priors -
-            data.n_excluded_no_priors,
+            data.n_excluded_no_priors
+          ).toLocaleString(),
           priorValue: includePrior ? null : null,
           color: theme.palette.grey[400],
         },
@@ -175,37 +176,77 @@ export default function ReviewProgress({ project_id }) {
                     sx={{
                       p: 1,
                       display: "flex",
-                      alignItems: "center",
+                      flexDirection: "column",
                       width: "100%",
                       backgroundColor: "transparent",
                     }}
                   >
                     <Box
                       sx={{
-                        width: 16,
-                        height: 16,
-                        bgcolor: item.color,
-                        borderRadius: "50%",
-                        mr: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        width: "100%",
                       }}
-                    />
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ flexGrow: 1 }}
                     >
-                      {item.label}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.primary"
-                      fontWeight="bold"
-                    >
-                      {item.value}
-                      {item.priorValue !== null && includePrior
-                        ? ` (${item.priorValue})`
-                        : ""}
-                    </Typography>
+                      <Box
+                        sx={{
+                          width: 16,
+                          height: 16,
+                          bgcolor: item.color,
+                          borderRadius: "50%",
+                          mr: 1,
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ flexGrow: 1 }}
+                      >
+                        {item.label}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.primary"
+                        sx={{
+                          fontWeight: "bold",
+                          ml: 1,
+                        }}
+                      >
+                        {item.value}
+                      </Typography>
+                    </Box>
+
+                    {includePrior && item.priorValue !== null && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{
+                            flexGrow: 1,
+                            fontSize: "0.75rem",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          (Including priors)
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.primary"
+                          sx={{
+                            fontWeight: "bold",
+                            ml: 1,
+                            fontSize: "0.75rem",
+                          }}
+                        >
+                          ({item.priorValue})
+                        </Typography>
+                      </Box>
+                    )}
                   </Paper>
                 ))}
               </Stack>

@@ -11,7 +11,6 @@ import {
   CardContent,
   Grid2 as Grid,
   IconButton,
-  Link,
   Paper,
   Popover,
   Skeleton,
@@ -25,18 +24,19 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useNavigate } from "react-router-dom";
+import { projectStatuses } from "globals.js";
 
 const StoppingSuggestion = ({ project_id }) => {
   const theme = useTheme();
   const queryClient = useQueryClient();
-
+  const navigate = useNavigate();
   const [stoppingRuleThreshold, setStoppingRuleThreshold] =
     React.useState(null);
-
+  const [isThresholdSet, setIsThresholdSet] = React.useState(null);
   const [anchorElEdit, setAnchorElEdit] = React.useState(null);
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
   const [openCompletionPopup, setOpenCompletionPopup] = React.useState(false);
-
   const [progress, setProgress] = React.useState(0);
 
   const { data, isLoading } = useQuery(
@@ -45,10 +45,14 @@ const StoppingSuggestion = ({ project_id }) => {
     {
       refetchOnWindowFocus: false,
       onSuccess: (data) => {
-        setStoppingRuleThreshold(data[0]?.params.threshold);
+        const hasThreshold = Boolean(data[0]?.params?.threshold);
+        setIsThresholdSet(hasThreshold);
 
-        if (data[0]?.value >= data[0]?.params?.threshold) {
-          setOpenCompletionPopup(true);
+        if (hasThreshold) {
+          setStoppingRuleThreshold(data[0].params.threshold);
+          if (data[0]?.value >= data[0]?.params?.threshold) {
+            setOpenCompletionPopup(true);
+          }
         }
       },
     },
@@ -62,6 +66,7 @@ const StoppingSuggestion = ({ project_id }) => {
           "fetchStopping",
           { project_id: project_id },
         ]);
+        setIsThresholdSet(true);
         handleCloseEdit();
       },
     },
@@ -108,19 +113,40 @@ const StoppingSuggestion = ({ project_id }) => {
     },
   ];
 
-  // Dummy handlers - we can implement actual functionality as needed
+  const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["fetchProjectStatus", { project_id }]);
+      queryClient.invalidateQueries(["fetchProjectInfo", { project_id }]);
+    },
+  });
+
   const handleFinishProject = () => {
-    console.log("Finish Project clicked");
+    mutate({
+      project_id: project_id,
+      status: projectStatuses.FINISHED,
+    });
     setOpenCompletionPopup(false);
   };
 
   const handleSelectDifferentModel = () => {
-    console.log("Select Different Model clicked");
+    mutate({
+      project_id: project_id,
+      status: projectStatuses.REVIEW,
+    });
+    navigate(`/reviews/${project_id}/settings`);
     setOpenCompletionPopup(false);
   };
 
   const handleRemindLater = () => {
-    console.log("Remind Me Again 20 Papers Later clicked");
+    mutate({
+      project_id: project_id,
+      status: projectStatuses.REVIEW,
+    });
+    updateStoppingRule({
+      project_id: project_id,
+      id: "n_since_last_included",
+      threshold: stoppingRuleThreshold + 20,
+    });
     setOpenCompletionPopup(false);
   };
 
@@ -176,9 +202,10 @@ const StoppingSuggestion = ({ project_id }) => {
             <LightbulbOutlinedIcon fontSize="small" />
           </IconButton>
         </Box>
-        <Grid container spacing={2} columns={2}>
-          <Grid size={1}>
-            {isLoading ? (
+
+        {isLoading || isThresholdSet === null ? (
+          <Grid container spacing={2} columns={2}>
+            <Grid size={1}>
               <Stack spacing={2} pt={4}>
                 <Skeleton
                   variant="rectangular"
@@ -191,7 +218,78 @@ const StoppingSuggestion = ({ project_id }) => {
                   sx={{ borderRadius: 3 }}
                 />
               </Stack>
-            ) : (
+            </Grid>
+            <Grid
+              size={1}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Box
+                width={160}
+                height={160}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Skeleton
+                  variant="circular"
+                  width={160}
+                  height={160}
+                  sx={{ borderRadius: "50%" }}
+                />
+              </Box>
+            </Grid>
+          </Grid>
+        ) : !isThresholdSet ? (
+          <Grid container spacing={2} columns={2}>
+            <Grid
+              size={1}
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              sx={{ textAlign: "center" }}
+            >
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                Choose the number of {""}{" "}
+                <strong>
+                  {" "}
+                  consecutive irrelevant records you want to label
+                </strong>{" "}
+                {""}
+                before deciding to stop screening.
+              </Typography>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={(event) => {
+                  setAnchorElEdit(event.currentTarget);
+                }}
+                startIcon={<EditIcon />}
+              >
+                Set Threshold
+              </Button>
+            </Grid>
+            <Grid
+              size={1}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Box
+                sx={{
+                  width: 160,
+                  height: 160,
+                  borderRadius: "50%",
+                  backgroundColor: theme.palette.grey[400],
+                }}
+              />
+            </Grid>
+          </Grid>
+        ) : (
+          <Grid container spacing={2} columns={2}>
+            <Grid size={1}>
               <Stack mt={3} spacing={2}>
                 {legendData.map((item, index) => (
                   <Paper
@@ -244,31 +342,22 @@ const StoppingSuggestion = ({ project_id }) => {
                   </Paper>
                 ))}
               </Stack>
-            )}
-          </Grid>
-          <Grid
-            size={1}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            {isLoading ? (
+            </Grid>
+            <Grid
+              size={1}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
               <Box
                 width={160}
-                height={160}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
+                sx={{
+                  transform: "rotate(270deg)",
+                  position: "relative",
+                  cursor: progress >= 100 ? "pointer" : "default",
+                }}
+                onClick={() => progress >= 100 && setOpenCompletionPopup(true)}
               >
-                <Skeleton
-                  variant="circular"
-                  width={160}
-                  height={160}
-                  sx={{ borderRadius: "50%" }}
-                />
-              </Box>
-            ) : (
-              <Box width={160} sx={{ transform: "rotate(270deg)" }}>
                 <LinearProgress
                   variant="determinate"
                   value={progress}
@@ -285,27 +374,25 @@ const StoppingSuggestion = ({ project_id }) => {
                   }}
                 />
                 {progress >= 100 && (
-                  <IconButton
+                  <Box
                     sx={{
                       position: "absolute",
                       top: "50%",
                       left: "50%",
                       transform: "translate(-50%, -50%) rotate(90deg)",
                       color: theme.palette.grey[400],
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
-                    onClick={() => setOpenCompletionPopup(true)}
                   >
-                    <DoneRoundedIcon
-                      sx={{
-                        fontSize: 50,
-                      }}
-                    />
-                  </IconButton>
+                    <DoneRoundedIcon sx={{ fontSize: 50 }} />
+                  </Box>
                 )}
               </Box>
-            )}
+            </Grid>
           </Grid>
-        </Grid>
+        )}
       </CardContent>
       <Popover
         open={Boolean(anchorElInfo)}
@@ -325,11 +412,12 @@ const StoppingSuggestion = ({ project_id }) => {
                 Stopping Suggestion
               </Typography>
               <Typography variant="body2">
-                This visualization shows how far you are from the end. This
-                helps you decide when to stop screening additional records. More
-                irrelevant records you label without finding any relevant ones,
-                the higher the likelihood that the remaining records are also
-                irrelevant.
+                This visualization shows how far you are from the end. It allows
+                you to set a stopping threshold, which is the number of
+                consecutive irrelevant records you label before deciding to stop
+                screening. The more irrelevant records you label without finding
+                relevant ones, the higher the chance that remaining records are
+                also irrelevant.
               </Typography>
             </Box>
             <Divider />
@@ -417,13 +505,15 @@ const StoppingSuggestion = ({ project_id }) => {
         />
         <Button
           variant="contained"
-          onClick={() =>
-            updateStoppingRule({
-              project_id: project_id,
-              id: "n_since_last_included",
-              threshold: stoppingRuleThreshold,
-            })
-          }
+          onClick={() => {
+            if (stoppingRuleThreshold) {
+              updateStoppingRule({
+                project_id: project_id,
+                id: "n_since_last_included",
+                threshold: stoppingRuleThreshold,
+              });
+            }
+          }}
           fullWidth
         >
           Save
@@ -456,10 +546,7 @@ const StoppingSuggestion = ({ project_id }) => {
               </Typography>
               <Stack spacing={2}>
                 <Button
-                  onClick={() => {
-                    handleFinishProject();
-                    setOpenCompletionPopup(false);
-                  }}
+                  onClick={handleFinishProject}
                   sx={{
                     justifyContent: "flex-start",
                     textAlign: "left",
@@ -486,10 +573,7 @@ const StoppingSuggestion = ({ project_id }) => {
                 </Button>
 
                 <Button
-                  onClick={() => {
-                    handleSelectDifferentModel();
-                    setOpenCompletionPopup(false);
-                  }}
+                  onClick={handleSelectDifferentModel}
                   sx={{
                     justifyContent: "flex-start",
                     textAlign: "left",
@@ -516,14 +600,7 @@ const StoppingSuggestion = ({ project_id }) => {
                 </Button>
 
                 <Button
-                  onClick={() => {
-                    updateStoppingRule({
-                      project_id: project_id,
-                      id: "n_since_last_included",
-                      threshold: stoppingRuleThreshold + 20,
-                    });
-                    setOpenCompletionPopup(false);
-                  }}
+                  onClick={handleRemindLater}
                   sx={{
                     justifyContent: "flex-start",
                     textAlign: "left",

@@ -241,11 +241,16 @@ export default function ProgressDensityChart(props) {
     setOptions(optionsChart());
   }, [seriesArray, optionsChart]);
 
-  // Inline SVG for good scenario: starts high and goes down
+  // Inline SVG for a "mountain" scenario: starts high, forms a couple of peaks,
   const goodScenarioSVG = (
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
       <path
-        d="M5,40 C20,15 40,10 60,15 75,20 85,30 95,55"
+        d="M5,50 
+           Q15,20 25,10 
+           Q35,0 45,40 
+           Q55,20 65,30 
+           Q75,50 85,50 
+           L95,50"
         stroke={theme.palette.primary.main}
         strokeWidth="2"
         fill="none"
@@ -274,9 +279,9 @@ export default function ProgressDensityChart(props) {
         error={props.genericDataQuery?.error}
         isError={!!props.genericDataQuery?.isError}
       />
-      <CardContent sx={{ mt: -2 }}>
+      <CardContent>
         <Stack>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: -2 }}>
             <IconButton onClick={handleDownloadClick}>
               <GetAppIcon />
             </IconButton>
@@ -327,7 +332,7 @@ export default function ProgressDensityChart(props) {
         anchorPosition={anchorPosition}
         PaperProps={{
           sx: {
-            borderRadius: 2,
+            borderRadius: 3,
             maxWidth: 320,
           },
         }}
@@ -349,18 +354,23 @@ export default function ProgressDensityChart(props) {
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Comparing Examples
               </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Left: Good scenario (more relevants early, then down). Right:
-                Bad scenario (stays low, never improves).
-              </Typography>
-              <Stack
-                direction="row"
-                spacing={2}
-                alignItems="center"
-                justifyContent="center"
-              >
-                {goodScenarioSVG}
-                {badScenarioSVG}
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    <strong>Good:</strong> {""} Most relevant records are
+                    discovered early in the review process, followed by a
+                    natural decline in new findings.
+                  </Typography>
+                  {goodScenarioSVG}
+                </Box>
+                <Box>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    <strong>Bad:</strong> {""} Few relevant records are found
+                    throughout the review process. This may indicate potential
+                    issues.
+                  </Typography>
+                  {badScenarioSVG}
+                </Box>
               </Stack>
             </Box>
             <Divider />

@@ -12,6 +12,7 @@ import {
   Divider,
   Stack,
   Button,
+  useMediaQuery,
 } from "@mui/material";
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import { CardErrorHandler } from "Components";
@@ -23,6 +24,7 @@ const LabelingFrequency = ({ project_id }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const canvasRef = useRef(null);
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const progressQuery = useQuery(
     ["fetchProgress", { project_id }],
@@ -131,14 +133,14 @@ const LabelingFrequency = ({ project_id }) => {
           isError={!!genericDataQuery?.isError || !!progressQuery?.isError}
         />
         {genericDataQuery?.isLoading || progressQuery?.isLoading ? (
-          <Skeleton variant="rectangular" height={200} />
+          <Skeleton variant="rectangular" height={isMobile ? 600 : 200} />
         ) : (
           <>
             <Box sx={{ mt: 2 }}>
               <canvas
                 ref={canvasRef}
                 width={900}
-                height={200}
+                height={isMobile ? 600 : 200}
                 style={{
                   width: "100%",
                   height: "100%",

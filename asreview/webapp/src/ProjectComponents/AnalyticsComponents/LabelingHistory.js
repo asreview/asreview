@@ -11,6 +11,7 @@ import {
   useTheme,
   Button,
   Divider,
+  Chip,
 } from "@mui/material";
 import { CardErrorHandler } from "Components";
 import { useRef, useState } from "react";
@@ -84,30 +85,29 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
       <Card sx={{ backgroundColor: "transparent", mt: 2 }}>
         <CardContent>
           <Stack>
-            <Box sx={{ mb: 1 }}>
-              <Button
-                variant="text"
+            <Box sx={{ mb: 1, display: "flex", gap: 1 }}>
+              <Chip
+                label="Chronological"
                 onClick={() => setViewMode("chronological")}
-                size="small"
+                variant={viewMode === "chronological" ? "filled" : "outlined"}
+                color="primary"
                 sx={{
-                  color:
-                    viewMode === "chronological" ? "primary.light" : "grey.400",
-                  fontWeight: "bold",
+                  "&.MuiChip-filled": {
+                    backgroundColor: "primary.light",
+                  },
                 }}
-              >
-                Chronological
-              </Button>
-              <Button
-                variant="text"
+              />
+              <Chip
+                label="Grouped"
                 onClick={() => setViewMode("grouped")}
-                size="small"
+                variant={viewMode === "grouped" ? "filled" : "outlined"}
+                color="primary"
                 sx={{
-                  color: viewMode === "grouped" ? "primary.light" : "grey.400",
-                  fontWeight: "bold",
+                  "&.MuiChip-filled": {
+                    backgroundColor: "primary.light",
+                  },
                 }}
-              >
-                Grouped
-              </Button>
+              />
             </Box>
             <Box sx={{ position: "absolute", top: 8, right: 8 }}>
               <IconButton
