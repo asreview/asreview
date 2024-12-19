@@ -16,14 +16,24 @@ from functools import wraps
 
 from flask import current_app
 from flask import jsonify
+from flask import request
+from flask import abort
 from flask_login import current_user
 
 import asreview as asr
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.api import is_project
 from asreview.webapp.authentication.models import Project
+from asreview.webapp.authentication.models import User
+from asreview.webapp import DB
 from asreview.webapp.utils import get_project_path
 from asreview.webapp.utils import get_projects
+from asreview.webapp.authentication.remote_user_handler import RemoteUserHandler
+from asreview.webapp.authentication.utils import perform_login_user
+
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+
+from werkzeug.exceptions import HTTPException
 
 
 def project_authorization(f):
@@ -79,5 +89,46 @@ def current_user_projects(f):
             projects = zip(projects, user_db_projects)
 
         return f(projects, *args, **kwargs)
+
+    return decorated_function
+
+
+def login_remote_user(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if (
+            not current_app.config.get("LOGIN_DISABLED", False)
+            and not current_user.is_authenticated
+        ):
+            remote_user_handler = current_app.config.get("REMOTE_USER", False)
+
+            if isinstance(remote_user_handler, RemoteUserHandler):
+                try:
+                    user_info = remote_user_handler.handle_request(request.environ)
+                except HTTPException as e:
+                    return jsonify({"message": e.description}), 401
+
+                if user_info["identifier"]:
+                    user = User.query.filter(
+                        User.identifier == user_info["identifier"]
+                    ).one_or_none()
+                    if not user:
+                        try:
+                            user = User(
+                                **user_info,
+                                origin="remote",
+                                public=True,
+                                confirmed=True,
+                            )
+                            DB.session.add(user)
+                            DB.session.commit()
+                        except (IntegrityError, SQLAlchemyError):
+                            DB.session.rollback()
+                            abort(
+                                500,
+                                description="Error attempting to create user based on remote user authentication.",
+                            )
+                    perform_login_user(user, current_app)
+        return f(*args, **kwargs)
 
     return decorated_function

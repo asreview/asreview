@@ -58,6 +58,7 @@ secure way (https).
 .. code-block::  toml
 
     DISABLE_LOGIN = false
+    LOGIN_DURATION = 31
     SECRET_KEY = "<secret key>"
     SECURITY_PASSWORD_SALT = "<salt>"
     SESSION_COOKIE_SECURE = true
@@ -111,6 +112,7 @@ that are specific for authenticating ASReview are summarized below:
 - DISABLE_LOGIN: if set to ``false`` the application will start with
   authentication. If the SQLite database does not exist, one will be
   created during startup.
+- LOGIN_DURATION: number of days that a user should remain logged in. Default: 31.
 - SECRET_KEY: the secret key is a string that is used to encrypt cookies and is
   mandatory if authentication is required.
 - SECURITY_PASSWORD_SALT: another string used to hash passwords, also mandatory
@@ -148,6 +150,47 @@ use a different database, you can add the ``SQLALCHEMY_DATABASE_URI`` key to
 the TOML file.
 
 
+Authentication with remote user
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible to outsource authentication completely to a webserver or middleware application
+that is placed in front of ASReview. This is a common pattern in webhosting: we use a webserver like
+Nginx to implement authentication (for example, using its built-in modules for things like LDAP authentication),
+and let it *reverse proxy* to the webapplication we want to serve (ASReview). The webserver then only needs to pass
+on the information about the user (such as username, full name, email address) to ASreview in the HTTP headers.
+
+Although this is a powerful feature that allows one to leverage a myriad of
+authentication options, **it should be used with caution**. If the webserver is
+not properly configured, ASReview will be improperly secured.
+
+Note that if the user specified by the remote user header does not yet exist, it will be created
+*regardless of the value of the ALLOW_ACCOUNT_CREATION option*.
+
+Use the `REMOTE_USER` option to enable this form of authentication handling. This is a `dict`
+in which you can configure which headers ASReview will attempt to read user information from.
+
+The default is simply:
+
+.. code-block::  toml
+
+  [REMOTE_USER]
+  USER_IDENTIFIER_HEADER = 'REMOTE_USER' # The primary header identifying the user. Can be use a username or email.
+
+However, you can set some additional options. **It is imperative that any of the headers you
+configure here are set by your middleware.** Otherwise, any user will be able to pass arbitrary values.
+
+Example with optional values:
+
+.. code-block::  toml
+
+  [REMOTE_USER]
+  USER_EMAIL_HEADER = 'REMOTE_USER_EMAIL' # Header containing user's email. If not set, will default to 1. USER_IDENTIFIER_HEADER (if it is an email) 2. <username>@<DEFAULT_EMAIL_DOMAIN>.
+  USER_NAME_HEADER = 'REMOTE_USER_FULLNAME' # Header containing user's full name. If not set, user's name will be set to the username inferred from the identifier.
+  USER_AFFILIATION_HEADER = 'REMOTE_USER_AFFILIATION' # Header containing user's affiliation.
+  DEFAULT_AFFILIATION = '' # Default affiliation if no header is set.
+  DEFAULT_EMAIL_DOMAIN = 'localhost' # If no email header is set and USER_IDENTIFIER_HEADER is not an email, use this as a default domain. The user's email will be set to: <username>@<default_email_domain>
+  REMOTE_AUTH_SECRET = 'secret' # If set, authentication will fail unless the request contains a 'REMOTE_AUTH_SECRET' header with the same value as this. This adds some additional security, so that users with direct access to the webapp (on localhost, say) cannot easily authenticate without this secret.
+
 Full configuration
 ~~~~~~~~~~~~~~~~~~~
 
@@ -168,6 +211,9 @@ Account creation configuration
 
 OAuth configuration
 - `ASREVIEW_LAB_OATH` - OAuth configuration for ASReview LAB. It is a dictionary with the following keys: `GitHub`, `Orcid` and `Google`. Each of these keys is a dictionary with the following keys: `AUTHORIZATION_URL`, `TOKEN_URL`, `CLIENT_ID`, `CLIENT_SECRET` and `SCOPE`.
+
+Remote user configuration
+- `ASREVIEW_LAB_REMOTE_USER` - Remote user configuration for ASReview LAB. It is a dictionary with the following keys: `USER_IDENTIFIER_HEADER`, `USER_NAME_HEADER`, `USER_EMAIL_HEADER`, `USER_AFFILIATION_HEADER`, `DEFAULT_EMAIL`, `DEFAULT_AFFILIATION`, `REMOTE_AUTH_SECRET`.
 
 Cookie configuration
 

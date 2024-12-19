@@ -26,7 +26,6 @@ from flask import Flask
 from flask import request
 from flask import send_from_directory
 from flask import redirect
-from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
 from flask_login import LoginManager
@@ -40,7 +39,9 @@ from asreview.webapp.api import projects
 from asreview.webapp.api import team
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
+from asreview.webapp.authentication.remote_user_handler import RemoteUserHandler
 from asreview.webapp.utils import asreview_path
+from asreview.webapp.authentication.decorators import login_remote_user
 
 
 def create_app(config_path=None):
@@ -84,6 +85,8 @@ def create_app(config_path=None):
         login_manager.init_app(app)
         login_manager.session_protection = "strong"
 
+        app.config["LOGIN_DURATION"] = int(app.config.get("LOGIN_DURATION", 31))
+
         # Register a callback function for current_user.
         @login_manager.user_loader
         def load_user(user_id):
@@ -101,10 +104,11 @@ def create_app(config_path=None):
         with app.app_context():
             # create tables in case they don't exist
             DB.create_all()
-
         # store oauth config in oauth handler
         if bool(app.config.get("OAUTH", False)):
             app.config["OAUTH"] = OAuthHandler(app.config["OAUTH"])
+        if bool(app.config.get("REMOTE_USER", False)):
+            app.config["REMOTE_USER"] = RemoteUserHandler(app.config["REMOTE_USER"])
 
         with app.app_context():
             app.register_blueprint(auth.bp)
@@ -118,16 +122,18 @@ def create_app(config_path=None):
 
     @app.errorhandler(InternalServerError)
     def error_500(e):
-        original = getattr(e, "original_exception", None)
-
-        if original is None:
-            # direct 500 error, such as abort(500)
-            logging.error(e)
-            return jsonify(message="Whoops, something went wrong."), 500
-
-        # wrapped unhandled error
-        logging.error(e.original_exception)
-        return jsonify(message=str(e.original_exception)), 500
+        """Return JSON instead of HTML for HTTP errors."""
+        response = e.get_response()
+        response.data = json.dumps(
+            {
+                "code": e.code,
+                "name": e.name,
+                "description": e.description,
+            }
+        )
+        logging.error(e.description)
+        response.content_type = "application/json"
+        return response
 
     @app.route("/signin", methods=["GET"])
     @app.route("/oauth_callback", methods=["GET"])
@@ -153,6 +159,7 @@ def create_app(config_path=None):
 
     @app.route("/", methods=["GET"])
     @app.route("/<path:url>", methods=["GET"])
+    @login_remote_user
     def index_protected(**kwargs):
         if (
             not app.config.get("LOGIN_DISABLED", False)
