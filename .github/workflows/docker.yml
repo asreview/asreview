@@ -1,9 +1,8 @@
 name: Docker deployment
 
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [published]
   pull_request:
     paths:
       - "Dockerfile"
@@ -11,7 +10,7 @@ on:
 
 jobs:
   docker:
-    if: "!github.event.release.prerelease"
+    if: ${{ (!github.event.release.prerelease) && (github.event_name != 'pull_request')}}
     runs-on: ubuntu-latest
     permissions:
       contents: read
