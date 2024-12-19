@@ -151,7 +151,7 @@ the TOML file.
 
 
 Authentication with remote user
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It is possible to outsource authentication completely to a webserver or middleware application
 that is placed in front of ASReview. This is a common pattern in webhosting: we use a webserver like
@@ -172,6 +172,7 @@ in which you can configure which headers ASReview will attempt to read user info
 The default is simply:
 
 .. code-block::  toml
+
   [REMOTE_USER]
   USER_IDENTIFIER_HEADER = 'REMOTE_USER' # The primary header identifying the user. Can be use a username or email.
 
@@ -181,6 +182,7 @@ configure here are set by your middleware.** Otherwise, any user will be able to
 Example with optional values:
 
 .. code-block::  toml
+
   [REMOTE_USER]
   USER_EMAIL_HEADER = 'REMOTE_USER_EMAIL' # Header containing user's email. If not set, will default to 1. USER_IDENTIFIER_HEADER (if it is an email) 2. <username>@<DEFAULT_EMAIL_DOMAIN>.
   USER_NAME_HEADER = 'REMOTE_USER_FULLNAME' # Header containing user's full name. If not set, user's name will be set to the username inferred from the identifier.
@@ -188,6 +190,7 @@ Example with optional values:
   DEFAULT_AFFILIATION = '' # Default affiliation if no header is set.
   DEFAULT_EMAIL_DOMAIN = 'localhost' # If no email header is set and USER_IDENTIFIER_HEADER is not an email, use this as a default domain. The user's email will be set to: <username>@<default_email_domain>
   REMOTE_AUTH_SECRET = 'secret' # If set, authentication will fail unless the request contains a 'REMOTE_AUTH_SECRET' header with the same value as this. This adds some additional security, so that users with direct access to the webapp (on localhost, say) cannot easily authenticate without this secret.
+
 Full configuration
 ~~~~~~~~~~~~~~~~~~~
 
