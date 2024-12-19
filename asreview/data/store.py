@@ -53,9 +53,7 @@ class DataStore:
         # I was getting errors when running tests that try to clean up behind them,
         # and this solves those errors. We can change this back to a connection pool at
         # some later moment by properly looking at how to close everything.
-        self.engine = create_engine(
-            f"sqlite+pysqlite:///{self.fp}", poolclass=poolclass
-        )
+        self.engine = create_engine(f"sqlite:///{self.fp}", poolclass=poolclass)
         # I put expire_on_commit=False, so that after you put records in the database,
         # you can still use them in your code without having access to the database.
         # The downside is that if you use the record after committing it to the database
