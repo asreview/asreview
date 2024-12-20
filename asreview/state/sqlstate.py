@@ -89,7 +89,7 @@ class SQLiteState:
         if hasattr(self, "_conn_cache"):
             return self._conn_cache
 
-        self._conn_cache = sqlite3.connect(f"sqlite:///{self.fp}")
+        self._conn_cache = sqlite3.connect(str(self.fp))
         return self._conn_cache
 
     def create_tables(self):
