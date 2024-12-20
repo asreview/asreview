@@ -3,7 +3,6 @@ import {
   Card,
   CardContent,
   Grid2 as Grid,
-  Link,
   Paper,
   Skeleton,
   Stack,
@@ -34,21 +33,12 @@ export default function ReviewProgress({ project_id }) {
   };
 
   // We can implement this fully when we decide on the prior knowledge button
-  const [includePrior, setIncludePrior] = useState(false); //Change to true to test
+  const [includePrior] = useState(true); //Switch between true/false to test
 
   const progressQuery = useQuery(
     ["fetchProgress", { project_id, includePrior }],
     ({ queryKey }) =>
       ProjectAPI.fetchProgress({
-        queryKey,
-      }),
-    { refetchOnWindowFocus: false },
-  );
-
-  const genericDataQuery = useQuery(
-    ["fetchGenericData", { project_id, includePrior }],
-    ({ queryKey }) =>
-      ProjectAPI.fetchGenericData({
         queryKey,
       }),
     { refetchOnWindowFocus: false },
