@@ -9,9 +9,12 @@ import {
   Popover,
   useTheme,
   Skeleton,
-  Link,
+  Divider,
+  Stack,
+  Button,
+  useMediaQuery,
 } from "@mui/material";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import { CardErrorHandler } from "Components";
 import { useQuery } from "react-query";
 import { ProjectAPI } from "api";
@@ -21,6 +24,7 @@ const LabelingFrequency = ({ project_id }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const canvasRef = useRef(null);
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const progressQuery = useQuery(
     ["fetchProgress", { project_id }],
@@ -55,7 +59,7 @@ const LabelingFrequency = ({ project_id }) => {
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
       const totalVisible = decisionsToDisplay.length;
-      const gap = 1;
+      const gap = 2;
       const barWidth = Math.max(
         (canvasWidth - gap * (totalVisible - 1)) / totalVisible,
         1,
@@ -72,7 +76,7 @@ const LabelingFrequency = ({ project_id }) => {
 
         const x = canvasWidth - (index + 1) * (barWidth + gap);
         const y = (canvasHeight - barHeight) / 2;
-        const radius = 7;
+        const radius = 16;
 
         ctx.beginPath();
         ctx.moveTo(x + radius, y);
@@ -114,12 +118,13 @@ const LabelingFrequency = ({ project_id }) => {
       sx={{
         position: "relative",
         backgroundColor: "transparent",
+        mt: 2,
       }}
     >
       <CardContent>
-        <Box>
+        <Box sx={{ position: "absolute", top: 8, right: 8 }}>
           <IconButton size="small" onClick={handlePopoverOpen}>
-            <HelpOutlineIcon fontSize="small" />
+            <LightbulbOutlinedIcon fontSize="small" />
           </IconButton>
         </Box>
         <CardErrorHandler
@@ -128,14 +133,14 @@ const LabelingFrequency = ({ project_id }) => {
           isError={!!genericDataQuery?.isError || !!progressQuery?.isError}
         />
         {genericDataQuery?.isLoading || progressQuery?.isLoading ? (
-          <Skeleton variant="rectangular" height={200} />
+          <Skeleton variant="rectangular" height={isMobile ? 600 : 200} />
         ) : (
           <>
-            <Box>
+            <Box sx={{ mt: 2 }}>
               <canvas
                 ref={canvasRef}
                 width={900}
-                height={200}
+                height={isMobile ? 600 : 200}
                 style={{
                   width: "100%",
                   height: "100%",
@@ -152,7 +157,7 @@ const LabelingFrequency = ({ project_id }) => {
                   aria-labelledby="range-slider"
                   min={0}
                   max={100}
-                  step={1}
+                  step={2}
                   valueLabelFormat={(value) => `${value}%`}
                 />
               </Box>
@@ -165,39 +170,82 @@ const LabelingFrequency = ({ project_id }) => {
         )}
       </CardContent>
       <Popover
-        id="info-popover"
         open={popoverOpen}
         anchorEl={anchorEl}
         onClose={handlePopoverClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            maxWidth: 320,
+          },
+        }}
       >
-        <Box p={2}>
-          <Typography variant="body1" gutterBottom>
-            <strong>Labeling Frequency</strong>
-          </Typography>
-
-          <Typography variant="body2" gutterBottom>
-            These are your previous labeling decisions. Your most recent
-            decisions are on the right side.
-          </Typography>
-
-          <Typography variant="body2" gutterBottom>
-            Gold lines represent relevant records, while gray lines represent
-            irrelevant records.
-          </Typography>
-
-          <Typography variant="body2" gutterBottom>
-            You can use the slider to zoom in and out on your labeling
-            decisions.
-          </Typography>
-          <Box>
-            <Link
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Labeling Frequency
+              </Typography>
+              <Typography variant="body2">
+                This visualization shows your labeling decisions over time. The
+                most recent decisions are displayed on the right side.
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ mt: 1, color: "primary.light" }}
+              >
+                Arrow of time: →
+              </Typography>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Slider Zoom
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                You can use the slider to zoom in and out on your decision
+                history.
+              </Typography>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Color Guide
+              </Typography>
+              <Stack spacing={1}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      width: 6,
+                      height: 14,
+                      bgcolor: "grey.600",
+                      borderRadius: 3,
+                    }}
+                  />
+                  <Typography variant="body2">Relevant</Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      width: 6,
+                      height: 14,
+                      bgcolor: "primary.light",
+                      borderRadius: 3,
+                    }}
+                  />
+                  <Typography variant="body2">Irrelevant</Typography>
+                </Box>
+              </Stack>
+            </Box>
+            <Button
               href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
               target="_blank"
               rel="noopener noreferrer"
+              sx={{ textTransform: "none", p: 0 }}
             >
-              Learn more
-            </Link>
-          </Box>
+              Learn more →
+            </Button>
+          </Stack>
         </Box>
       </Popover>
     </Card>

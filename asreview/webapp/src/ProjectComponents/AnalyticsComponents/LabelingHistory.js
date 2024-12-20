@@ -1,21 +1,21 @@
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import {
   Box,
   Card,
   CardContent,
-  FormControlLabel,
   Grid2 as Grid,
   IconButton,
   Popover,
   Stack,
-  Switch,
   Typography,
   useMediaQuery,
   useTheme,
+  Button,
+  Divider,
+  Chip,
 } from "@mui/material";
 import { CardErrorHandler } from "Components";
-import { useToggle } from "hooks/useToggle";
 import { useRef, useState } from "react";
+import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 
 const sortPerChunk = (decisions, chunkSize) => {
   const sorted = [];
@@ -29,37 +29,14 @@ const sortPerChunk = (decisions, chunkSize) => {
 
 const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
   const theme = useTheme();
-  const [chronological, toggleChronological] = useToggle(true);
-  // const [anchorEl, setAnchorEl] = useState(null);
+  const [viewMode, setViewMode] = useState("chronological");
   const [infoAnchorEl, setInfoAnchorEl] = useState(null);
-  // const [selectedPaper, setSelectedPaper] = useState(null);
   const containerRef = useRef(null);
-
-  // const handleClick = (event, index, color) => {
-  //   setAnchorEl(event.currentTarget);
-  //   setSelectedPaper(index);
-  // };
-
-  // const handleClose = () => {
-  //   setAnchorEl(null);
-  //   setSelectedPaper(null);
-  // };
 
   const totalPapers = progressQuery?.data?.n_records || 0;
   const labelingChronology = genericDataQuery?.data || [];
-  const maxVisibleItems = totalPapers;
-  const visibleItems = Math.min(maxVisibleItems, totalPapers);
-  const decisionsToDisplay = labelingChronology
-    .slice(-totalPapers)
-    .slice(-visibleItems);
-
-  // const open = Boolean(anchorEl);
-  // const id = open ? "paper-popover" : undefined;
-
-  const infoOpen = Boolean(infoAnchorEl);
-  const infoId = infoOpen ? "info-popover" : undefined;
-
-  const maxItemsToDisplay = 390;
+  const maxItemsToDisplay = 270;
+  const [itemsToDisplay, setItemsToDisplay] = useState(maxItemsToDisplay);
 
   const mdScreen = useMediaQuery(theme.breakpoints.down("md"));
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -71,9 +48,32 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
     chunkSize = 15;
   }
 
-  const labels = chronological
-    ? decisionsToDisplay
-    : sortPerChunk(decisionsToDisplay, chunkSize);
+  const processDisplayedData = () => {
+    const endIndex = labelingChronology.length;
+    const startIndex = Math.max(0, endIndex - itemsToDisplay);
+    const displayedDecisions = labelingChronology.slice(startIndex, endIndex);
+    const unlabeledCount = Math.max(
+      0,
+      itemsToDisplay - displayedDecisions.length,
+    );
+    const unlabeledRecords = Array(unlabeledCount).fill({ label: null });
+    const combinedData = [...displayedDecisions, ...unlabeledRecords];
+
+    return viewMode === "chronological"
+      ? combinedData
+      : sortPerChunk(combinedData, chunkSize);
+  };
+
+  const labels = processDisplayedData();
+
+  const infoOpen = Boolean(infoAnchorEl);
+  const infoId = infoOpen ? "info-popover" : undefined;
+
+  const handleLoadMore = () => {
+    setItemsToDisplay(
+      Math.min(itemsToDisplay + maxItemsToDisplay, totalPapers),
+    );
+  };
 
   return (
     <Box position="relative" width="100%" maxWidth={960}>
@@ -82,30 +82,41 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
         error={genericDataQuery?.error}
         isError={!!genericDataQuery?.isError}
       />
-      <Card>
+      <Card sx={{ backgroundColor: "transparent", mt: 2 }}>
         <CardContent>
           <Stack>
-            <Box>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={chronological}
-                    onChange={toggleChronological}
-                  />
-                }
-                label={<Typography variant="body2">Chronological</Typography>}
-                labelPlacement="end"
+            <Box sx={{ mb: 1, display: "flex", gap: 1 }}>
+              <Chip
+                label="Chronological"
+                onClick={() => setViewMode("chronological")}
+                variant={viewMode === "chronological" ? "filled" : "outlined"}
+                color="primary"
+                sx={{
+                  "&.MuiChip-filled": {
+                    backgroundColor: "primary.light",
+                  },
+                }}
+              />
+              <Chip
+                label="Grouped"
+                onClick={() => setViewMode("grouped")}
+                variant={viewMode === "grouped" ? "filled" : "outlined"}
+                color="primary"
+                sx={{
+                  "&.MuiChip-filled": {
+                    backgroundColor: "primary.light",
+                  },
+                }}
               />
             </Box>
-
-            <Box>
+            <Box sx={{ position: "absolute", top: 8, right: 8 }}>
               <IconButton
                 size="small"
                 onClick={(event) => {
                   setInfoAnchorEl(event.currentTarget);
                 }}
               >
-                <HelpOutlineIcon fontSize="small" />
+                <LightbulbOutlinedIcon fontSize="small" />
               </IconButton>
             </Box>
 
@@ -113,20 +124,13 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
               ref={containerRef}
               sx={{
                 width: 1,
+                mt: 2,
               }}
             >
-              {/* {generateLines(
-                  visibleItems,
-                  decisionsToDisplay,
-                  !chronological,
-                  chunkSize,
-                  handleClick,
-                  theme,
-                )} */}
-
+              {/* Rendering the labeling history grid */}
               <Grid
                 container
-                columnSpacing={"3px"}
+                columnSpacing={"5px"}
                 rowSpacing={1}
                 columns={30}
                 sx={{
@@ -135,56 +139,37 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
               >
                 {labels.map((decision, index) => (
                   <Grid
-                    size={{ xs: 3, sm: 2, md: 1 }}
                     key={index}
+                    size={{ xs: 3, sm: 2, md: 1 }}
                     sx={{
-                      height: "5px",
+                      height: "10px",
                       bgcolor:
                         decision.label === 1
-                          ? "secondary.main"
-                          : "primary.light",
-                      borderRadius: 1,
+                          ? "grey.600"
+                          : decision.label === 0
+                            ? "primary.light"
+                            : "grey.400", // Unlabeled records
+                      borderRadius: 3,
                     }}
                   />
                 ))}
-
-                {Array.from(
-                  { length: maxItemsToDisplay - labels.length },
-                  (value, index) => (
-                    <Grid
-                      size={{ xs: 3, sm: 2, md: 1 }}
-                      key={`unseen-or-irrelevant-${index}`}
-                      sx={{
-                        height: "5px",
-                        bgcolor: "grey.400",
-                        borderRadius: 1,
-                      }}
-                    />
-                  ),
-                )}
               </Grid>
 
-              {maxItemsToDisplay < progressQuery?.data?.n_records && (
+              {itemsToDisplay < totalPapers && (
+                <Box display="flex" justifyContent="center" sx={{ mt: 1 }}>
+                  <Button onClick={handleLoadMore}>Show More ↓</Button>
+                </Box>
+              )}
+
+              {itemsToDisplay >= totalPapers && (
                 <Typography align="center" sx={{ mt: 1 }}>
-                  {progressQuery?.data?.n_records - maxItemsToDisplay} more
-                  records
+                  All records are displayed.
                 </Typography>
               )}
             </Box>
           </Stack>
         </CardContent>
       </Card>
-      {/* <Popover id={id} open={open} anchorEl={anchorEl} onClose={handleClose}>
-        {selectedPaper !== null && (
-          <Box>
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-              Placeholder Title
-            </Typography>
-            <Typography variant="caption">Coming Soon</Typography>
-            <Typography variant="body2">Placeholder Abstract</Typography>
-          </Box>
-        )}
-      </Popover> */}
       <Popover
         id={infoId}
         open={infoOpen}
@@ -192,42 +177,111 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
         onClose={() => {
           setInfoAnchorEl(null);
         }}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            maxWidth: 320,
+          },
+        }}
       >
-        <Box>
-          <Typography variant="body2" gutterBottom>
-            <strong>Chronological</strong>
-          </Typography>
-          <Typography variant="body2" gutterBottom>
-            In the chronological view, the lines will be sorted in the same
-            order you labeled them. Otherwise, they will be sorted by their
-            labels.
-          </Typography>
-          <Typography variant="body2" gutterBottom>
-            The arrow of time points to right and down.
-          </Typography>
-          <Typography variant="body2" gutterBottom>
-            <strong>Labeling History</strong>
-          </Typography>
-          <Typography variant="body2" gutterBottom>
-            These are your previous labeling decisions. Gold lines represent
-            relevant records, while gray lines represent irrelevant records.
-            When you click on a line, you can view that paper's details.
-          </Typography>
-          <Box>
-            <a
-              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-              style={{
-                color: theme.palette.primary.main,
-              }}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn more
-            </a>
-          </Box>
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Labeling History
+              </Typography>
+              <Typography variant="body2">
+                These are all the records in your dataset, starting from the
+                labeled ones. Each colored item represents a record. The most
+                recent decisions are displayed on the bottom right side.
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ mt: 1, color: "primary.light" }}
+              >
+                Arrow of time: → ↓
+              </Typography>
+            </Box>
+            <Divider />
+            <Box>
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
+                    Chronological View
+                  </Typography>
+                  <Typography variant="body2">
+                    Records appear chronologically, showing your labeling
+                    journey in the correct order.
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
+                    Grouped View
+                  </Typography>
+                  <Typography variant="body2">
+                    Records are grouped by type, showing the patterns in your
+                    decisions.
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Color Guide
+              </Typography>
+              <Stack spacing={1}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 8,
+                      bgcolor: "grey.600",
+                      borderRadius: 3,
+                    }}
+                  />
+                  <Typography variant="body2">Relevant</Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 8,
+                      bgcolor: "primary.light",
+                      borderRadius: 3,
+                    }}
+                  />
+                  <Typography variant="body2">Not Relevant</Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 8,
+                      bgcolor: "grey.400",
+                      borderRadius: 3,
+                    }}
+                  />
+                  <Typography variant="body2">Unlabeled</Typography>
+                </Box>
+              </Stack>
+            </Box>
+
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ textTransform: "none", p: 0 }}
+              >
+                Learn more →
+              </Button>
+            </Box>
+          </Stack>
         </Box>
       </Popover>
     </Box>
   );
 };
+
 export default LabelingHistory;

@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -8,20 +9,32 @@ import {
   Stack,
   Typography,
   Box,
+  IconButton,
+  Popover,
+  Divider,
+  Button,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
-import { useState } from "react";
 import { useQuery } from "react-query";
-import { StyledHelpPopover } from "StyledComponents/StyledHelpPopover";
 import { PieChart } from "@mui/x-charts/PieChart";
+import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 
 export default function ReviewProgress({ project_id }) {
   const theme = useTheme();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const popoverOpen = Boolean(anchorEl);
+
+  const handlePopoverOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
 
   // We can implement this fully when we decide on the prior knowledge button
-  // const [includePrior, setIncludePrior] = useState(true); // Change to true to test
-  const includePrior = true;
+  const [includePrior, setIncludePrior] = useState(false); //Change to true to test
 
   const progressQuery = useQuery(
     ["fetchProgress", { project_id, includePrior }],
@@ -41,8 +54,15 @@ export default function ReviewProgress({ project_id }) {
     { refetchOnWindowFocus: false },
   );
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const popoverOpen = Boolean(anchorEl);
+  const genericDataQuery = useQuery(
+    ["fetchGenericData", { project_id, includePrior }],
+    ({ queryKey }) =>
+      ProjectAPI.fetchGenericData({
+        queryKey,
+      }),
+    { refetchOnWindowFocus: false },
+  );
+
   const data = progressQuery.data;
   const isLoading = progressQuery.isLoading || genericDataQuery.isLoading;
 
@@ -80,8 +100,8 @@ export default function ReviewProgress({ project_id }) {
     : [
         {
           label: "Relevant",
-          value: data.n_included_no_priors,
-          priorValue: includePrior ? data.n_included : null,
+          value: data.n_included_no_priors.toLocaleString(),
+          priorValue: includePrior ? data.n_included.toLocaleString() : null,
           color:
             theme.palette.mode === "light"
               ? theme.palette.grey[600]
@@ -89,8 +109,8 @@ export default function ReviewProgress({ project_id }) {
         },
         {
           label: "Not Relevant",
-          value: data.n_excluded_no_priors,
-          priorValue: includePrior ? data.n_excluded : null,
+          value: data.n_excluded_no_priors.toLocaleString(),
+          priorValue: includePrior ? data.n_excluded.toLocaleString() : null,
           color:
             theme.palette.mode === "light"
               ? theme.palette.primary.light
@@ -98,40 +118,46 @@ export default function ReviewProgress({ project_id }) {
         },
         {
           label: "Unlabeled",
-          value:
+          value: (
             data.n_records -
             data.n_included_no_priors -
-            data.n_excluded_no_priors,
+            data.n_excluded_no_priors
+          ).toLocaleString(),
           priorValue: includePrior ? null : null,
           color: theme.palette.grey[400],
         },
       ];
 
+  const staticPieData = [
+    {
+      label: "Not Relevant",
+      value: 25,
+      color:
+        theme.palette.mode === "light"
+          ? theme.palette.primary.light
+          : theme.palette.primary.main,
+    },
+    {
+      label: "Relevant",
+      value: 5,
+      color: theme.palette.grey[600],
+    },
+    {
+      label: "Unlabeled",
+      value: 70,
+      color: theme.palette.grey[400],
+    },
+  ];
+
   return (
-    <Card sx={{ m: 0, p: 0, bgcolor: "background.default" }}>
-      <CardContent sx={{ m: 0, p: 0, bgcolor: "background.default" }}>
-        <>
-          <StyledHelpPopover
-            id="info-popover"
-            open={popoverOpen}
-            anchorEl={anchorEl}
-            onClose={() => {
-              setAnchorEl(null);
-            }}
-          >
-            <Typography variant="body1">
-              <strong>Showing</strong> prior knowledge will show combined
-              labelings from the original dataset and those done using ASReview.
-            </Typography>
-            <Link
-              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-              target="_blank"
-              rel="noopener"
-            >
-              Learn more
-            </Link>
-          </StyledHelpPopover>
-        </>
+    <Card sx={{ position: "relative", bgcolor: "transparent" }}>
+      <CardContent sx={{ mt: 2 }}>
+        <Box sx={{ position: "absolute", top: 8, right: 8 }}>
+          <IconButton size="small" onClick={handlePopoverOpen}>
+            <LightbulbOutlinedIcon fontSize="small" />
+          </IconButton>
+        </Box>
+
         <Grid container spacing={2} columns={2}>
           <Grid
             size={1}
@@ -159,37 +185,77 @@ export default function ReviewProgress({ project_id }) {
                     sx={{
                       p: 1,
                       display: "flex",
-                      alignItems: "center",
+                      flexDirection: "column",
                       width: "100%",
                       backgroundColor: "transparent",
                     }}
                   >
                     <Box
                       sx={{
-                        width: 16,
-                        height: 16,
-                        bgcolor: item.color,
-                        borderRadius: "50%",
-                        mr: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        width: "100%",
                       }}
-                    />
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ flexGrow: 1 }}
                     >
-                      {item.label}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.primary"
-                      fontWeight="bold"
-                    >
-                      {item.value}
-                      {item.priorValue !== null && includePrior
-                        ? ` (${item.priorValue})`
-                        : ""}
-                    </Typography>
+                      <Box
+                        sx={{
+                          width: 16,
+                          height: 16,
+                          bgcolor: item.color,
+                          borderRadius: "50%",
+                          mr: 1,
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ flexGrow: 1 }}
+                      >
+                        {item.label}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.primary"
+                        sx={{
+                          fontWeight: "bold",
+                          ml: 1,
+                        }}
+                      >
+                        {item.value}
+                      </Typography>
+                    </Box>
+
+                    {includePrior && item.priorValue !== null && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{
+                            flexGrow: 1,
+                            fontSize: "0.75rem",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          (Including priors)
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.primary"
+                          sx={{
+                            fontWeight: "bold",
+                            ml: 1,
+                            fontSize: "0.75rem",
+                          }}
+                        >
+                          ({item.priorValue})
+                        </Typography>
+                      </Box>
+                    )}
                   </Paper>
                 ))}
               </Stack>
@@ -222,10 +288,10 @@ export default function ReviewProgress({ project_id }) {
                       })),
                       innerRadius: 20,
                       outerRadius: 80,
-                      paddingAngle: 10,
+                      paddingAngle: 5,
                       cornerRadius: 10,
-                      startAngle: -110,
-                      endAngle: 275,
+                      startAngle: -90,
+                      endAngle: 360,
                       cx: 90,
                       cy: 90,
                     },
@@ -238,6 +304,83 @@ export default function ReviewProgress({ project_id }) {
           </Grid>
         </Grid>
       </CardContent>
+      <Popover
+        open={popoverOpen}
+        anchorEl={anchorEl}
+        onClose={handlePopoverClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            maxWidth: 320,
+          },
+        }}
+      >
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Review Progress
+              </Typography>
+              <Typography variant="body2">
+                This visualization shows how far you are from the beginning. It
+                displays the number of relevant, not relevant, and unlabeled
+                records in your dataset.
+              </Typography>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Prior Knowledge
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                You can include the prior knowledge in your dataset to this
+                visualization. This option is enabled from{" "}
+                <strong>Settings</strong>.
+              </Typography>
+            </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Example Visualization
+              </Typography>
+              <Box display="flex" justifyContent="center">
+                <PieChart
+                  series={[
+                    {
+                      data: staticPieData.map((item) => ({
+                        value: item.value,
+                        color: item.color,
+                      })),
+                      innerRadius: 20,
+                      outerRadius: 80,
+                      paddingAngle: 5,
+                      cornerRadius: 10,
+                      startAngle: -150,
+                      endAngle: 320,
+                      cx: 90,
+                      cy: 90,
+                    },
+                  ]}
+                  height={180}
+                  width={180}
+                />
+              </Box>
+            </Box>
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="text"
+                size="small"
+                sx={{ textTransform: "none", p: 0 }}
+              >
+                Learn more →
+              </Button>
+            </Box>
+          </Stack>
+        </Box>
+      </Popover>
     </Card>
   );
 }
