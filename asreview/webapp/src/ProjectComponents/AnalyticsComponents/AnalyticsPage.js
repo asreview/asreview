@@ -22,7 +22,6 @@ import {
   XIcon,
   WeiboIcon,
   WhatsappIcon,
-  XIcon,
 } from "react-share";
 
 import EditIcon from "@mui/icons-material/Edit";
