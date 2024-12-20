@@ -25,6 +25,36 @@ from asreview.state.contextmanager import open_state
 from asreview.metrics import loss
 
 
+def _get_n_query(n_query, results, labels):
+    """Get the number of records to query at each step in the active learning.
+
+    n_query can be an integer or a function that takes the results of the
+    simulation as input. If n_query is a function, it should return an integer.
+    n_query can not be larger than the number of records left to label.
+
+    Parameters
+    ----------
+    n_query: int | callable
+        Number of records to query at each step in the active learning
+        process. Default is 1.
+    results: pd.DataFrame
+        The results of the simulation.
+
+    Returns
+    -------
+    int
+        Number of records to query at each step in the active learning process.
+
+    """
+    n_query = n_query(results) if callable(n_query) else n_query
+    n_query_left = len(labels) - len(results)
+
+    if n_query > n_query_left:
+        return n_query_left
+
+    return n_query
+
+
 class Simulate:
     """ASReview Simulation mode class.
 
@@ -152,9 +182,7 @@ class Simulate:
         while not self._stop_review():
             self.train()
 
-            n_query = (
-                self.n_query(self._results) if callable(self.n_query) else self.n_query
-            )
+            n_query = _get_n_query(self.n_query, self._results, self.labels)
 
             record_ids = self.query(n_query)
             labeled = self.label(record_ids)
