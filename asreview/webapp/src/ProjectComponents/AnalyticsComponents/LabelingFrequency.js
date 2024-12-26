@@ -155,7 +155,7 @@ const DistancePatternChart = ({ project_id }) => {
       min: 0,
       max: Math.ceil(maxY * 1.2),
       title: {
-        text: "Consecutive Not Relevant Records",
+        text: "Consecutive Not Relevant",
         style: { color: theme.palette.text.secondary },
       },
       labels: {
@@ -304,7 +304,7 @@ const DistancePatternChart = ({ project_id }) => {
 
   return (
     <Card sx={{ position: "relative", backgroundColor: "transparent", mt: 2 }}>
-      <CardContent>
+      <CardContent sx={{ mt: 2 }}>
         <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}>
           <IconButton
             size="small"
@@ -319,76 +319,6 @@ const DistancePatternChart = ({ project_id }) => {
           error={genericDataQuery?.error || progressQuery?.error}
           isError={!!genericDataQuery?.isError || !!progressQuery?.isError}
         />
-
-        <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap", gap: 1 }}>
-          {[
-            {
-              label: "Consecutive Not Relevant Records",
-              type: "line",
-              color: theme.palette.primary.main,
-            },
-            {
-              label: "Relevant Records",
-              type: "dot",
-              color: theme.palette.grey[600],
-            },
-            {
-              label: "Current Not Relevant Streak",
-              type: "dashed",
-              color: theme.palette.primary.main,
-            },
-            {
-              label: "Current Record",
-              type: "dotOutline",
-              color: theme.palette.grey[600],
-            },
-          ].map((item, index) => (
-            <Stack key={index} direction="row" spacing={1} alignItems="center">
-              {item.type === "line" && (
-                <Box
-                  sx={{
-                    width: 20,
-                    height: 4,
-                    backgroundColor: item.color,
-                  }}
-                />
-              )}
-              {item.type === "dashed" && (
-                <Box
-                  sx={{
-                    width: 20,
-                    height: 4,
-                    backgroundImage: `linear-gradient(to right, ${item.color} 50%, transparent 50%)`,
-                    backgroundSize: "6px 100%",
-                  }}
-                />
-              )}
-              {item.type === "dot" && (
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    backgroundColor: item.color,
-                    borderRadius: "50%",
-                  }}
-                />
-              )}
-              {item.type === "dotOutline" && (
-                <Box
-                  sx={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: "50%",
-                    border: `2px solid ${item.color}`,
-                  }}
-                />
-              )}
-              <Typography variant="body2" color="text.secondary">
-                {item.label}
-              </Typography>
-            </Stack>
-          ))}
-        </Stack>
 
         {genericDataQuery?.isLoading || progressQuery?.isLoading ? (
           <Skeleton variant="rectangular" height={400} />
@@ -424,7 +354,7 @@ const DistancePatternChart = ({ project_id }) => {
               </Typography>
               <Typography variant="body2">
                 This visualization shows how far apart your relevant findings
-                are from each other. The grey dots represent relevant records,
+                are from each other. The blue dots represent relevant records,
                 and the height of the lines shows how many not relevant records
                 you reviewed in between.
               </Typography>
