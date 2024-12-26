@@ -155,7 +155,7 @@ const DistancePatternChart = ({ project_id }) => {
       min: 0,
       max: Math.ceil(maxY * 1.2),
       title: {
-        text: "Consecutive Not Relevant",
+        text: "Not Relevant Records Between Relevant Records",
         style: { color: theme.palette.text.secondary },
       },
       labels: {
