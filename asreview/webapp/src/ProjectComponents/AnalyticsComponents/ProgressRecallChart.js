@@ -413,16 +413,14 @@ export default function ProgressRecallChart(props) {
               </Stack>
             </Box>
             <Divider />
-            <Box>
-              <Button
-                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{ textTransform: "none", p: 0 }}
-              >
-                Learn more →
-              </Button>
-            </Box>
+            <Button
+              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ textTransform: "none", p: 0 }}
+            >
+              Learn more →
+            </Button>
           </Stack>
         </Box>
       </Popover>

@@ -227,7 +227,7 @@ export default function ProgressDensityChart(props) {
         min: 0,
         tickAmount: 5,
         title: {
-          text: "Relevant Records",
+          text: "Relevant Records per 10 Records",
         },
       },
     };
@@ -245,11 +245,11 @@ export default function ProgressDensityChart(props) {
   const goodScenarioSVG = (
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
       <path
-        d="M5,50 
-           Q15,20 25,10 
-           Q35,0 45,40 
-           Q55,20 65,30 
-           Q75,50 85,50 
+        d="M5,50
+           Q15,20 25,10
+           Q35,0 45,40
+           Q55,20 65,30
+           Q75,50 85,50
            L95,50"
         stroke={theme.palette.primary.main}
         strokeWidth="2"
@@ -281,7 +281,7 @@ export default function ProgressDensityChart(props) {
       />
       <CardContent>
         <Stack>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: -2 }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 0 }}>
             <IconButton onClick={handleDownloadClick}>
               <GetAppIcon />
             </IconButton>
@@ -374,16 +374,14 @@ export default function ProgressDensityChart(props) {
               </Stack>
             </Box>
             <Divider />
-            <Box>
-              <Button
-                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{ textTransform: "none", p: 0 }}
-              >
-                Learn more →
-              </Button>
-            </Box>
+            <Button
+              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ textTransform: "none", p: 0 }}
+            >
+              Learn more →
+            </Button>
           </Stack>
         </Box>
       </Popover>

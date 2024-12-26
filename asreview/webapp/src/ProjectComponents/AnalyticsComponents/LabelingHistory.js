@@ -9,13 +9,16 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Chip,
   Button,
   Divider,
-  Chip,
+  Skeleton,
 } from "@mui/material";
 import { CardErrorHandler } from "Components";
 import { useRef, useState } from "react";
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 
 const sortPerChunk = (decisions, chunkSize) => {
   const sorted = [];
@@ -27,17 +30,64 @@ const sortPerChunk = (decisions, chunkSize) => {
   return sorted;
 };
 
+const LoadingSkeleton = ({ chunkSize = 30 }) => {
+  const defaultItemsToShow = 420;
+
+  return (
+    <Box width="100%" maxWidth={960}>
+      <Card sx={{ backgroundColor: "transparent", mt: 2 }}>
+        <CardContent>
+          <Stack>
+            <Box sx={{ mb: 1, display: "flex", gap: 1 }}>
+              <Skeleton width={100} height={32} sx={{ borderRadius: 8 }} />
+              <Skeleton width={80} height={32} sx={{ borderRadius: 8 }} />
+            </Box>
+
+            <Box sx={{ mt: 2 }}>
+              <Grid
+                container
+                columnSpacing={"5px"}
+                rowSpacing={1}
+                columns={30}
+                sx={{ width: 1 }}
+              >
+                {Array(defaultItemsToShow)
+                  .fill(0)
+                  .map((_, index) => (
+                    <Grid key={index} size={{ xs: 3, sm: 2, md: 1 }}>
+                      <Skeleton
+                        variant="rectangular"
+                        sx={{
+                          height: "8px",
+                          borderRadius: 3,
+                        }}
+                      />
+                    </Grid>
+                  ))}
+              </Grid>
+              <Stack
+                direction="row"
+                spacing={3}
+                justifyContent="center"
+                sx={{ mt: 3 }}
+              >
+                <Skeleton width={160} height={36} sx={{ borderRadius: 1 }} />
+                <Skeleton width={200} height={36} sx={{ borderRadius: 1 }} />
+              </Stack>
+            </Box>
+          </Stack>
+        </CardContent>
+      </Card>
+    </Box>
+  );
+};
+
 const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
   const theme = useTheme();
+  const containerRef = useRef(null);
   const [viewMode, setViewMode] = useState("chronological");
   const [infoAnchorEl, setInfoAnchorEl] = useState(null);
-  const containerRef = useRef(null);
-
-  const totalPapers = progressQuery?.data?.n_records || 0;
-  const labelingChronology = genericDataQuery?.data || [];
-  const maxItemsToDisplay = 270;
-  const [itemsToDisplay, setItemsToDisplay] = useState(maxItemsToDisplay);
-
+  const [itemsToDisplay, setItemsToDisplay] = useState(420);
   const mdScreen = useMediaQuery(theme.breakpoints.down("md"));
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -48,32 +98,44 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
     chunkSize = 15;
   }
 
-  const processDisplayedData = () => {
-    const endIndex = labelingChronology.length;
-    const startIndex = Math.max(0, endIndex - itemsToDisplay);
-    const displayedDecisions = labelingChronology.slice(startIndex, endIndex);
-    const unlabeledCount = Math.max(
-      0,
-      itemsToDisplay - displayedDecisions.length,
-    );
-    const unlabeledRecords = Array(unlabeledCount).fill({ label: null });
-    const combinedData = [...displayedDecisions, ...unlabeledRecords];
+  if (genericDataQuery.isLoading || progressQuery.isLoading) {
+    return <LoadingSkeleton chunkSize={chunkSize} />;
+  }
 
-    return viewMode === "chronological"
-      ? combinedData
-      : sortPerChunk(combinedData, chunkSize);
-  };
+  const totalPapers = progressQuery?.data?.n_records || 0;
+  const labelingChronology = genericDataQuery?.data || [];
+  const maxItemsToDisplay = 300;
 
-  const labels = processDisplayedData();
+  const allRecords = Array(Math.min(itemsToDisplay, totalPapers))
+    .fill({ label: null })
+    .map((record, index) => {
+      return labelingChronology[index] || record;
+    });
+
+  const labels =
+    viewMode === "chronological"
+      ? allRecords
+      : sortPerChunk(allRecords, chunkSize);
 
   const infoOpen = Boolean(infoAnchorEl);
   const infoId = infoOpen ? "info-popover" : undefined;
 
-  const handleLoadMore = () => {
-    setItemsToDisplay(
-      Math.min(itemsToDisplay + maxItemsToDisplay, totalPapers),
+  const handleShowMore = () => {
+    setItemsToDisplay((prev) =>
+      Math.min(prev + maxItemsToDisplay, totalPapers),
     );
   };
+
+  const handleExpandToLastLabeled = () => {
+    const lastLabeledIndex = labelingChronology.findLastIndex(
+      (record) => record.label === 1 || record.label === 0,
+    );
+    if (lastLabeledIndex !== -1) {
+      setItemsToDisplay(lastLabeledIndex + 1);
+    }
+  };
+
+  const remainingRecords = totalPapers - itemsToDisplay;
 
   return (
     <Box position="relative" width="100%" maxWidth={960}>
@@ -127,44 +189,54 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                 mt: 2,
               }}
             >
-              {/* Rendering the labeling history grid */}
               <Grid
                 container
                 columnSpacing={"5px"}
                 rowSpacing={1}
                 columns={30}
-                sx={{
-                  width: 1,
-                }}
+                sx={{ width: 1 }}
               >
                 {labels.map((decision, index) => (
                   <Grid
                     key={index}
                     size={{ xs: 3, sm: 2, md: 1 }}
                     sx={{
-                      height: "10px",
+                      height: "8px",
                       bgcolor:
                         decision.label === 1
                           ? "grey.600"
                           : decision.label === 0
                             ? "primary.light"
-                            : "grey.400", // Unlabeled records
+                            : "grey.400",
                       borderRadius: 3,
                     }}
                   />
                 ))}
               </Grid>
-
-              {itemsToDisplay < totalPapers && (
-                <Box display="flex" justifyContent="center" sx={{ mt: 1 }}>
-                  <Button onClick={handleLoadMore}>Show More ↓</Button>
-                </Box>
-              )}
-
-              {itemsToDisplay >= totalPapers && (
-                <Typography align="center" sx={{ mt: 1 }}>
-                  All records are displayed.
-                </Typography>
+              {remainingRecords > 0 && (
+                <Stack
+                  direction="row"
+                  spacing={3}
+                  justifyContent="center"
+                  sx={{ mt: 3 }}
+                >
+                  <Button
+                    onClick={handleShowMore}
+                    startIcon={<ExpandMoreIcon />}
+                    color="primary"
+                    sx={{ textTransform: "none" }}
+                  >
+                    Load {Math.min(maxItemsToDisplay, remainingRecords)} more
+                  </Button>
+                  <Button
+                    onClick={handleExpandToLastLabeled}
+                    startIcon={<KeyboardDoubleArrowRightIcon />}
+                    color="primary"
+                    sx={{ textTransform: "none" }}
+                  >
+                    Expand until last labeled record
+                  </Button>
+                </Stack>
               )}
             </Box>
           </Stack>
@@ -191,9 +263,8 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                 Labeling History
               </Typography>
               <Typography variant="body2">
-                These are all the records in your dataset, starting from the
-                labeled ones. Each colored item represents a record. The most
-                recent decisions are displayed on the bottom right side.
+                These are all the records in your dataset. Each colored item
+                represents a record and shows your history.
               </Typography>
               <Typography
                 variant="body2"
@@ -266,17 +337,15 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                 </Box>
               </Stack>
             </Box>
-
-            <Box>
-              <Button
-                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{ textTransform: "none", p: 0 }}
-              >
-                Learn more →
-              </Button>
-            </Box>
+            <Divider />
+            <Button
+              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ textTransform: "none", p: 0 }}
+            >
+              Learn more →
+            </Button>
           </Stack>
         </Box>
       </Popover>

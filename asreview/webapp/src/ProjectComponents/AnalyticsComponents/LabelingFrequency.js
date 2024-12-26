@@ -1,181 +1,417 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import {
   Card,
   CardContent,
   Box,
   Typography,
-  Slider,
   IconButton,
   Popover,
   useTheme,
   Skeleton,
-  Divider,
   Stack,
+  Divider,
   Button,
-  useMediaQuery,
 } from "@mui/material";
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 import { CardErrorHandler } from "Components";
 import { useQuery } from "react-query";
 import { ProjectAPI } from "api";
+import Chart from "react-apexcharts";
 
-const LabelingFrequency = ({ project_id }) => {
-  const [sliderValue, setSliderValue] = useState(50);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const canvasRef = useRef(null);
+const DistancePatternChart = ({ project_id }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const progressQuery = useQuery(
     ["fetchProgress", { project_id }],
-    ({ queryKey }) => ProjectAPI.fetchProgress({ queryKey }),
+    ProjectAPI.fetchProgress,
     { refetchOnWindowFocus: false },
   );
 
   const genericDataQuery = useQuery(
     ["fetchGenericData", { project_id }],
-    ({ queryKey }) => ProjectAPI.fetchGenericData({ queryKey }),
+    ProjectAPI.fetchGenericData,
     { refetchOnWindowFocus: false },
   );
 
-  const totalPapers = progressQuery?.data?.n_records || 0;
-  const progressDensity = genericDataQuery?.data || [];
-  const reversedDecisions = progressDensity.slice(-totalPapers).reverse();
-
-  const minVisibleRecords = 10;
-  const maxVisibleRecords = reversedDecisions.length;
-  const visibleCount = Math.floor(
-    minVisibleRecords *
-      Math.pow(maxVisibleRecords / minVisibleRecords, sliderValue / 100),
+  const stoppingQuery = useQuery(
+    ["fetchStopping", { project_id }],
+    ProjectAPI.fetchStopping,
+    { refetchOnWindowFocus: false },
   );
 
-  const decisionsToDisplay = reversedDecisions.slice(0, visibleCount);
+  const processData = () => {
+    if (!genericDataQuery.data?.length) return null;
 
-  useEffect(() => {
-    if (canvasRef.current && decisionsToDisplay.length > 0) {
-      const ctx = canvasRef.current.getContext("2d");
-      const canvasWidth = canvasRef.current.width;
-      const canvasHeight = canvasRef.current.height;
-      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    const decisions = genericDataQuery.data;
+    const lines = [];
+    const relevantPositions = [];
+    let position = 0;
+    let lastRelevantPosition = null;
 
-      const totalVisible = decisionsToDisplay.length;
-      const gap = 2;
-      const barWidth = Math.max(
-        (canvasWidth - gap * (totalVisible - 1)) / totalVisible,
-        1,
-      );
-      const barHeight = canvasHeight * 0.8;
+    for (let i = 0; i < decisions.length; i++) {
+      position++;
+      if (decisions[i].label === 1) {
+        if (lastRelevantPosition !== null) {
+          const distance = position - lastRelevantPosition;
+          lines.push([
+            { x: lastRelevantPosition, y: distance },
+            { x: position, y: distance },
+          ]);
+        }
+        lastRelevantPosition = position;
+        relevantPositions.push(position);
+      }
+    }
 
-      decisionsToDisplay.forEach((decision, index) => {
-        ctx.fillStyle =
-          decision.label === 1
-            ? theme.palette.mode === "light"
-              ? theme.palette.grey[600]
-              : theme.palette.grey[600] // Relevant
-            : theme.palette.primary.main; // Irrelevant
+    return { lines, relevantPositions, currentPosition: position };
+  };
 
-        const x = canvasWidth - (index + 1) * (barWidth + gap);
-        const y = (canvasHeight - barHeight) / 2;
-        const radius = 16;
+  const analytics = processData();
+  const stoppingThreshold = stoppingQuery.data?.[0]?.params?.threshold;
+  const currentPosition = analytics?.currentPosition || 0;
+  const lastRelevant = analytics?.relevantPositions?.slice(-1)[0] || 0;
+  const currentDistance = currentPosition - lastRelevant;
 
-        ctx.beginPath();
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + barWidth - radius, y);
-        ctx.quadraticCurveTo(x + barWidth, y, x + barWidth, y + radius);
-        ctx.lineTo(x + barWidth, y + barHeight - radius);
-        ctx.quadraticCurveTo(
-          x + barWidth,
-          y + barHeight,
-          x + barWidth - radius,
-          y + barHeight,
-        );
-        ctx.lineTo(x + radius, y + barHeight);
-        ctx.quadraticCurveTo(x, y + barHeight, x, y + barHeight - radius);
-        ctx.lineTo(x, y + radius);
-        ctx.quadraticCurveTo(x, y, x + radius, y);
-        ctx.closePath();
-        ctx.fill();
+  const currentLine =
+    lastRelevant && currentPosition > lastRelevant
+      ? [
+          { x: lastRelevant, y: currentDistance },
+          { x: currentPosition, y: currentDistance },
+        ]
+      : [];
+
+  const maxY = Math.max(
+    ...(analytics?.lines?.map((line) => Math.max(line[0].y, line[1].y)) || []),
+    currentDistance,
+    stoppingThreshold,
+  );
+
+  const createSeries = () => {
+    if (!analytics?.lines?.length) return [];
+
+    const seriesData = [];
+    if (analytics.lines.length > 1) {
+      analytics.lines.slice(0, -1).forEach((line) => {
+        seriesData.push({
+          name: "Distance",
+          data: line,
+          dashArray: 0,
+        });
       });
     }
-  }, [decisionsToDisplay, sliderValue, theme]);
+    const lastLine = analytics.lines[analytics.lines.length - 1];
 
-  const handleSliderChange = (event, newValue) => {
-    setSliderValue(newValue);
+    if (lastLine) {
+      seriesData.push({
+        name: "Distance",
+        data: lastLine,
+        dashArray: currentLine.length === 0 ? 5 : 0,
+      });
+    }
+    if (currentLine.length) {
+      seriesData.push({
+        name: "Current",
+        data: currentLine,
+        dashArray: 5,
+      });
+    }
+    return seriesData;
   };
 
-  const handlePopoverOpen = (event) => {
-    setAnchorEl(event.currentTarget);
+  const series = createSeries();
+  const chartOptions = {
+    chart: {
+      type: "line",
+      background: "transparent",
+      toolbar: { show: false },
+      animations: { enabled: false },
+    },
+    stroke: {
+      curve: "straight",
+      width: 3,
+      lineCap: "butt",
+      dashArray: series.map((s) => s.dashArray),
+    },
+    grid: {
+      borderColor: theme.palette.divider,
+      xaxis: { lines: { show: false } },
+      yaxis: { lines: { show: true } },
+    },
+    colors: [theme.palette.primary.main, theme.palette.primary.main],
+    xaxis: {
+      type: "numeric",
+      labels: { show: false },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      title: {
+        text: "Records Reviewed",
+        style: { color: theme.palette.text.secondary },
+      },
+      min: 0,
+      max: Math.max(currentPosition, lastRelevant) + 10,
+    },
+    yaxis: {
+      min: 0,
+      max: Math.ceil(maxY * 1.2),
+      title: {
+        text: "Consecutive Not Relevant Records",
+        style: { color: theme.palette.text.secondary },
+      },
+      labels: {
+        formatter: (val) => Math.round(val),
+        style: { colors: theme.palette.text.secondary },
+      },
+      forceNiceScale: true,
+    },
+    annotations: {
+      yaxis: stoppingThreshold
+        ? [
+            {
+              y: stoppingThreshold,
+              borderColor: theme.palette.primary.main,
+              borderWidth: 1.5,
+              label: {
+                borderColor: "transparent",
+                borderWidth: 0,
+                style: {
+                  color: theme.palette.primary.main,
+                  background: "none",
+                  fontWeight: "bold",
+                },
+                text: "Stopping Threshold",
+                position: "left",
+                offsetX: 110,
+              },
+            },
+          ]
+        : [],
+      points: [
+        ...(analytics?.relevantPositions?.map((position) => ({
+          x: position,
+          y: 0,
+          marker: {
+            size: 3,
+            fillColor: theme.palette.grey[600],
+            strokeColor: theme.palette.grey[600],
+            radius: 2,
+          },
+        })) || []),
+        currentPosition > 0
+          ? {
+              x: currentPosition,
+              y: 0,
+              marker: {
+                size: 5,
+                fillColor: theme.palette.background.paper,
+                strokeColor: theme.palette.grey[600],
+                strokeWidth: 2,
+                strokeDashArray: 5,
+                radius: 2,
+              },
+            }
+          : null,
+      ].filter(Boolean),
+    },
+    legend: {
+      show: false,
+    },
+    tooltip: {
+      enabled: false,
+    },
+    markers: {
+      size: 0,
+      hover: { size: 0 },
+      showNullDataPoints: false,
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    noData: {
+      text: "No data available",
+    },
   };
 
-  const handlePopoverClose = () => {
-    setAnchorEl(null);
+  const createMockData = () => {
+    const positions = [5, 10, 25, 50];
+    const lines = [];
+
+    for (let i = 0; i < positions.length - 1; i++) {
+      const start = positions[i];
+      const end = positions[i + 1];
+      const distance = end - start;
+      lines.push([
+        { x: start, y: distance },
+        { x: end, y: distance },
+      ]);
+    }
+
+    return lines.slice(0, 3).map((line) => ({
+      data: line,
+    }));
   };
 
-  const popoverOpen = Boolean(anchorEl);
+  const exampleChartOptions = {
+    chart: {
+      type: "line",
+      background: "transparent",
+      toolbar: { show: false },
+      animations: { enabled: false },
+    },
+    stroke: {
+      curve: "straight",
+      width: 3,
+      lineCap: "butt",
+    },
+    grid: {
+      show: false,
+    },
+    colors: [theme.palette.primary.main],
+    xaxis: {
+      labels: { show: false },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      min: 0,
+      max: 60,
+    },
+    yaxis: {
+      labels: { show: false },
+      min: 0,
+      max: 30,
+    },
+    annotations: {
+      points: [5, 10, 25, 50].map((position) => ({
+        x: position,
+        y: 0,
+        marker: {
+          size: 3,
+          fillColor: theme.palette.grey[600],
+          strokeColor: theme.palette.grey[600],
+          radius: 2,
+        },
+      })),
+    },
+    legend: { show: false, showMarkersList: false },
+    tooltip: { enabled: false },
+    markers: {
+      size: 0,
+      hover: { size: 0 },
+      legendInactiveClass: "hide",
+    },
+  };
+
+  const exampleSeries = createMockData();
 
   return (
-    <Card
-      sx={{
-        position: "relative",
-        backgroundColor: "transparent",
-        mt: 2,
-      }}
-    >
+    <Card sx={{ position: "relative", backgroundColor: "transparent", mt: 2 }}>
       <CardContent>
-        <Box sx={{ position: "absolute", top: 8, right: 8 }}>
-          <IconButton size="small" onClick={handlePopoverOpen}>
+        <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}>
+          <IconButton
+            size="small"
+            onClick={(e) => setAnchorEl(e.currentTarget)}
+          >
             <LightbulbOutlinedIcon fontSize="small" />
           </IconButton>
         </Box>
+
         <CardErrorHandler
-          queryKey={"fetchGenericData and fetchProgress"}
+          queryKey="fetchGenericData and fetchProgress"
           error={genericDataQuery?.error || progressQuery?.error}
           isError={!!genericDataQuery?.isError || !!progressQuery?.isError}
         />
-        {genericDataQuery?.isLoading || progressQuery?.isLoading ? (
-          <Skeleton variant="rectangular" height={isMobile ? 600 : 200} />
-        ) : (
-          <>
-            <Box sx={{ mt: 2 }}>
-              <canvas
-                ref={canvasRef}
-                width={900}
-                height={isMobile ? 600 : 200}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  backgroundColor: "transparent",
-                }}
-              />
-            </Box>
-            <Box display="flex" alignItems="center">
-              <Box flexGrow={1}>
-                <Slider
-                  value={sliderValue}
-                  onChange={handleSliderChange}
-                  valueLabelDisplay="auto"
-                  aria-labelledby="range-slider"
-                  min={0}
-                  max={100}
-                  step={2}
-                  valueLabelFormat={(value) => `${value}%`}
+
+        <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap", gap: 1 }}>
+          {[
+            {
+              label: "Consecutive Not Relevant Records",
+              type: "line",
+              color: theme.palette.primary.main,
+            },
+            {
+              label: "Relevant Records",
+              type: "dot",
+              color: theme.palette.grey[600],
+            },
+            {
+              label: "Current Not Relevant Streak",
+              type: "dashed",
+              color: theme.palette.primary.main,
+            },
+            {
+              label: "Current Record",
+              type: "dotOutline",
+              color: theme.palette.grey[600],
+            },
+          ].map((item, index) => (
+            <Stack key={index} direction="row" spacing={1} alignItems="center">
+              {item.type === "line" && (
+                <Box
+                  sx={{
+                    width: 20,
+                    height: 4,
+                    backgroundColor: item.color,
+                  }}
                 />
-              </Box>
-              <Typography variant="body2" ml={2}>
-                Showing {decisionsToDisplay.length} of{" "}
-                {reversedDecisions.length} labels
+              )}
+              {item.type === "dashed" && (
+                <Box
+                  sx={{
+                    width: 20,
+                    height: 4,
+                    backgroundImage: `linear-gradient(to right, ${item.color} 50%, transparent 50%)`,
+                    backgroundSize: "6px 100%",
+                  }}
+                />
+              )}
+              {item.type === "dot" && (
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor: item.color,
+                    borderRadius: "50%",
+                  }}
+                />
+              )}
+              {item.type === "dotOutline" && (
+                <Box
+                  sx={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: "50%",
+                    border: `2px solid ${item.color}`,
+                  }}
+                />
+              )}
+              <Typography variant="body2" color="text.secondary">
+                {item.label}
               </Typography>
-            </Box>
-          </>
+            </Stack>
+          ))}
+        </Stack>
+
+        {genericDataQuery?.isLoading || progressQuery?.isLoading ? (
+          <Skeleton variant="rectangular" height={400} />
+        ) : analytics ? (
+          <Chart
+            options={chartOptions}
+            series={series}
+            type="line"
+            height={400}
+          />
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            Start screening to see distance patterns
+          </Typography>
         )}
       </CardContent>
       <Popover
-        open={popoverOpen}
+        open={Boolean(anchorEl)}
         anchorEl={anchorEl}
-        onClose={handlePopoverClose}
+        onClose={() => setAnchorEl(null)}
         PaperProps={{
           sx: {
-            borderRadius: 2,
+            borderRadius: 3,
             maxWidth: 320,
           },
         }}
@@ -184,59 +420,55 @@ const LabelingFrequency = ({ project_id }) => {
           <Stack spacing={2.5}>
             <Box>
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                Labeling Frequency
+                Relevant Frequency
               </Typography>
               <Typography variant="body2">
-                This visualization shows your labeling decisions over time. The
-                most recent decisions are displayed on the right side.
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ mt: 1, color: "primary.light" }}
-              >
-                Arrow of time: →
+                This visualization shows how far apart your relevant findings
+                are from each other. The grey dots represent relevant records,
+                and the height of the lines shows how many not relevant records
+                you reviewed in between.
               </Typography>
             </Box>
             <Divider />
             <Box>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                Slider Zoom
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                You can use the slider to zoom in and out on your decision
-                history.
-              </Typography>
-            </Box>
-            <Divider />
-            <Box>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                Color Guide
-              </Typography>
-              <Stack spacing={1}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Box
-                    sx={{
-                      width: 6,
-                      height: 14,
-                      bgcolor: "grey.600",
-                      borderRadius: 3,
-                    }}
-                  />
-                  <Typography variant="body2">Relevant</Typography>
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
+                    Short Distances
+                  </Typography>
+                  <Typography variant="body2">
+                    Finding relevant records close together suggests you're in a
+                    productive area.
+                  </Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Box
-                    sx={{
-                      width: 6,
-                      height: 14,
-                      bgcolor: "primary.light",
-                      borderRadius: 3,
-                    }}
-                  />
-                  <Typography variant="body2">Irrelevant</Typography>
+                <Box>
+                  <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
+                    Growing Distances
+                  </Typography>
+                  <Typography variant="body2">
+                    When distances between relevant findings get close to your
+                    stopping threshold, you might be reaching the end of your
+                    relevant records.
+                  </Typography>
                 </Box>
               </Stack>
             </Box>
+            <Divider />
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Example Visualization
+              </Typography>
+              <Box display="flex" justifyContent="center">
+                <Chart
+                  options={exampleChartOptions}
+                  series={exampleSeries}
+                  type="line"
+                  height={120}
+                  width={280}
+                />
+              </Box>
+            </Box>
+            <Divider />
             <Button
               href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
               target="_blank"
@@ -252,4 +484,4 @@ const LabelingFrequency = ({ project_id }) => {
   );
 };
 
-export default LabelingFrequency;
+export default DistancePatternChart;

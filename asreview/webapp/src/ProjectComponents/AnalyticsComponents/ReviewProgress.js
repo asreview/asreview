@@ -33,7 +33,7 @@ export default function ReviewProgress({ project_id }) {
   };
 
   // We can implement this fully when we decide on the prior knowledge button
-  const [includePrior] = useState(true); //Switch between true/false to test
+  const [includePrior] = useState(false); //Switch between true/false to test
 
   const progressQuery = useQuery(
     ["fetchProgress", { project_id, includePrior }],
@@ -356,18 +356,16 @@ export default function ReviewProgress({ project_id }) {
                 />
               </Box>
             </Box>
-            <Box>
-              <Button
-                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="text"
-                size="small"
-                sx={{ textTransform: "none", p: 0 }}
-              >
-                Learn more →
-              </Button>
-            </Box>
+            <Button
+              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="text"
+              size="small"
+              sx={{ textTransform: "none", p: 0 }}
+            >
+              Learn more →
+            </Button>
           </Stack>
         </Box>
       </Popover>

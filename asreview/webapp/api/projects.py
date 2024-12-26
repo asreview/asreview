@@ -1149,7 +1149,7 @@ def api_get_stopping(project):  # noqa: F401
     if len(labels) > 0:
         if int(sum(labels == 1)) > 0:
             last_relevant_index = len(labels) - 1 - np.argmax(labels[::-1] == 1)
-            n_since_last_relevant = int(sum(labels[last_relevant_index + 1:] == 0))
+            n_since_last_relevant = int(sum(labels[last_relevant_index + 1 :] == 0))
         else:
             n_since_last_relevant = int(sum(labels == 0))
     else:

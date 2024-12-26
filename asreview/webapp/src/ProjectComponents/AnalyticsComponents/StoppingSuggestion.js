@@ -20,6 +20,8 @@ import {
   LinearProgress,
   Dialog,
   Divider,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
@@ -33,11 +35,20 @@ const StoppingSuggestion = ({ project_id }) => {
   const navigate = useNavigate();
   const [stoppingRuleThreshold, setStoppingRuleThreshold] =
     React.useState(null);
+  const [customThreshold, setCustomThreshold] = React.useState("");
   const [isThresholdSet, setIsThresholdSet] = React.useState(null);
   const [anchorElEdit, setAnchorElEdit] = React.useState(null);
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
   const [openCompletionPopup, setOpenCompletionPopup] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
+
+  const { data: projectData } = useQuery(
+    ["fetchData", { project_id }],
+    ProjectAPI.fetchData,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
 
   const { data, isLoading } = useQuery(
     ["fetchStopping", { project_id: project_id }],
@@ -252,13 +263,11 @@ const StoppingSuggestion = ({ project_id }) => {
               sx={{ textAlign: "center" }}
             >
               <Typography variant="body2" sx={{ mb: 1 }}>
-                Choose the number of {""}{" "}
+                Choose the number of{" "}
                 <strong>
-                  {" "}
-                  consecutive irrelevant records you want to label
+                  consecutive not relevant records you want to label
                 </strong>{" "}
-                {""}
-                before deciding to stop screening.
+                before considering to stop screening.
               </Typography>
               <Button
                 variant="contained"
@@ -414,10 +423,10 @@ const StoppingSuggestion = ({ project_id }) => {
               <Typography variant="body2">
                 This visualization shows how far you are from the end. It allows
                 you to set a stopping threshold, which is the number of
-                consecutive irrelevant records you label before deciding to stop
-                screening. The more irrelevant records you label without finding
-                relevant ones, the higher the chance that remaining records are
-                also irrelevant.
+                consecutive not relevant records you label before deciding to
+                stop screening. The more not relevant records you label without
+                finding relevant ones, the higher the chance that remaining
+                records are also not relevant.
               </Typography>
             </Box>
             <Divider />
@@ -459,18 +468,16 @@ const StoppingSuggestion = ({ project_id }) => {
                 </Box>
               </Stack>
             </Box>
-            <Box>
-              <Button
-                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="text"
-                size="small"
-                sx={{ textTransform: "none", p: 0 }}
-              >
-                Learn more →
-              </Button>
-            </Box>
+            <Button
+              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="text"
+              size="small"
+              sx={{ textTransform: "none", p: 0 }}
+            >
+              Learn more →
+            </Button>
           </Stack>
         </Box>
       </Popover>
@@ -486,38 +493,145 @@ const StoppingSuggestion = ({ project_id }) => {
         PaperProps={{
           sx: {
             borderRadius: 2,
-            p: 2.5,
+            maxWidth: 320,
           },
         }}
       >
-        <Typography variant="h6" gutterBottom>
-          Edit Threshold
-        </Typography>
-        <TextField
-          type="number"
-          label="Threshold"
-          value={stoppingRuleThreshold}
-          onChange={(e) => {
-            setStoppingRuleThreshold(e.target.value);
-          }}
-          fullWidth
-          sx={{ mb: 2 }}
-        />
-        <Button
-          variant="contained"
-          onClick={() => {
-            if (stoppingRuleThreshold) {
-              updateStoppingRule({
-                project_id: project_id,
-                id: "n_since_last_included",
-                threshold: stoppingRuleThreshold,
-              });
-            }
-          }}
-          fullWidth
-        >
-          Save
-        </Button>
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Edit Threshold
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Enter a custom value, or choose a dynamic or static threshold
+                from the dropdown menu.
+              </Typography>
+            </Box>
+            <Divider />
+            <TextField
+              type="number"
+              label="Custom Value"
+              placeholder="Enter custom threshold"
+              value={customThreshold}
+              onClick={() => {
+                if (stoppingRuleThreshold !== null) {
+                  setStoppingRuleThreshold(null);
+                }
+              }}
+              onChange={(e) => {
+                const value = parseInt(e.target.value, 10);
+                if (!isNaN(value) && value >= 0) {
+                  setCustomThreshold(value);
+                  setStoppingRuleThreshold(null);
+                } else if (e.target.value === "") {
+                  setCustomThreshold("");
+                }
+              }}
+              fullWidth
+              size="small"
+              sx={{ mt: 2 }}
+            />
+            <Select
+              value={stoppingRuleThreshold || ""}
+              onChange={(e) => {
+                const selectedValue = e.target.value;
+                setStoppingRuleThreshold(selectedValue);
+                setCustomThreshold("");
+              }}
+              fullWidth
+              displayEmpty
+              sx={{
+                ".MuiSelect-select": {
+                  py: 1.25,
+                  borderRadius: 1,
+                },
+                ".MuiMenuItem-root": {
+                  fontSize: 14,
+                  py: 1,
+                },
+                ".MuiMenuItem-root.Mui-selected": {
+                  backgroundColor: (theme) => theme.palette.action.hover,
+                },
+              }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    py: 0.5,
+                  },
+                },
+              }}
+            >
+              <MenuItem value="" disabled>
+                Select a Value
+              </MenuItem>
+              <MenuItem
+                disabled
+                sx={{
+                  pointerEvents: "none",
+                  fontSize: 12,
+                  color: "text.secondary",
+                  opacity: 0.8,
+                }}
+              >
+                Dynamic Values
+              </MenuItem>
+              {[
+                { percent: 5, value: Math.round(projectData?.n_rows * 0.05) },
+                { percent: 10, value: Math.round(projectData?.n_rows * 0.1) },
+                { percent: 15, value: Math.round(projectData?.n_rows * 0.15) },
+              ].map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {`${option.value} (${option.percent}% of records)`}
+                </MenuItem>
+              ))}
+              <MenuItem
+                disabled
+                sx={{
+                  pointerEvents: "none",
+                  fontSize: 12,
+                  color: "text.secondary",
+                  opacity: 0.8,
+                  mt: 1,
+                }}
+              >
+                Static Values
+              </MenuItem>
+              {[100, 150, 200, 250, 300].map((val) => (
+                <MenuItem key={val} value={val}>
+                  {val}
+                </MenuItem>
+              ))}
+            </Select>
+            <Divider />
+            <Button
+              variant="contained"
+              onClick={() => {
+                const finalThreshold = customThreshold || stoppingRuleThreshold;
+                if (finalThreshold !== null && finalThreshold !== "") {
+                  updateStoppingRule({
+                    project_id: project_id,
+                    id: "n_since_last_included",
+                    threshold: finalThreshold,
+                  });
+                }
+              }}
+              fullWidth
+            >
+              Save
+            </Button>
+            <Button
+              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="text"
+              size="small"
+              sx={{ textTransform: "none", p: 0 }}
+            >
+              Learn more →
+            </Button>
+          </Stack>
+        </Box>
       </Popover>
       <Dialog
         open={openCompletionPopup}
@@ -528,13 +642,17 @@ const StoppingSuggestion = ({ project_id }) => {
         <Box sx={{ p: 2.5 }}>
           <Stack spacing={2.5}>
             <Box>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                Stopping Suggestion Reached
+              <Typography
+                fontWeight="bold"
+                sx={{ fontFamily: "Roboto Serif", mb: 3, mt: 1 }}
+              >
+                Stopping suggestion reached, how do you want to proceed?
               </Typography>
               <Typography variant="body2">
                 You've reached your stopping threshold for this project. This
-                indicates that all relevant records have likely been found. How
-                do you want to proceed?
+                indicates that all relevant records have likely been found. You
+                can always return to this menu by clicking on the stopping
+                circle.
               </Typography>
             </Box>
 

@@ -200,19 +200,19 @@ const AnalyticsPage = () => {
                   display: "inline-flex",
                   alignItems: "center",
                   position: "relative",
-                  padding: "0 40px", // Add padding to make hover area wider
-                  margin: "0 -40px", // Offset padding to maintain layout
-                  cursor: "pointer", // Show text cursor by default
+                  padding: "0 40px",
+                  margin: "0 -40px",
+                  cursor: "pointer",
                   "&:hover button": {
                     opacity: 1,
                   },
                 }}
-                onClick={() => setIsEditing(true)} // Make entire area clickable
+                onClick={() => setIsEditing(true)}
               >
                 {customName}
                 <IconButton
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent double trigger
+                    e.stopPropagation();
                     setIsEditing(true);
                   }}
                   sx={{
@@ -236,7 +236,11 @@ const AnalyticsPage = () => {
           </Typography>
         </Box>
 
-        <Grid container spacing={3} columns={{ xs: 1, md: 2 }}>
+        <Grid
+          container
+          spacing={3}
+          columns={{ xs: 1, md: data?.mode === "simulate" ? 1 : 2 }}
+        >
           <Grid size={1}>
             <Divider sx={{ pb: 2 }}>
               <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
@@ -245,14 +249,16 @@ const AnalyticsPage = () => {
             </Divider>
             <ReviewProgress project_id={project_id} />
           </Grid>
-          <Grid size={1}>
-            <Divider sx={{ pb: 2 }}>
-              <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
-                Stopping
-              </Typography>
-            </Divider>
-            <StoppingSuggestion project_id={project_id} />
-          </Grid>
+          {data?.mode !== "simulate" && (
+            <Grid size={1}>
+              <Divider sx={{ pb: 2 }}>
+                <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
+                  Stopping
+                </Typography>
+              </Divider>
+              <StoppingSuggestion project_id={project_id} />
+            </Grid>
+          )}
         </Grid>
 
         <Divider sx={{ pt: 4, pb: 2 }}>
