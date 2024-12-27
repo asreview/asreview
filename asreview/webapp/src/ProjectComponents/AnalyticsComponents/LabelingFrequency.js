@@ -164,6 +164,29 @@ const DistancePatternChart = ({ project_id }) => {
       },
       forceNiceScale: true,
     },
+    legend: {
+      show: true,
+      position: "top",
+      horizontalAlign: "left",
+      fontSize: "14px",
+      fontFamily: theme.typography.subtitle2.fontFamily,
+      fontWeight: theme.typography.subtitle2.fontWeight,
+      labels: {
+        colors: theme.palette.text.secondary,
+      },
+      customLegendItems: ["Relevant Records"],
+      markers: {
+        width: 8,
+        height: 8,
+        radius: 50,
+        fillColors: [theme.palette.grey[600]],
+        strokeWidth: 0,
+        offsetX: -4,
+      },
+      itemMargin: {
+        horizontal: 16,
+      },
+    },
     annotations: {
       yaxis: stoppingThreshold
         ? [
@@ -212,9 +235,6 @@ const DistancePatternChart = ({ project_id }) => {
             }
           : null,
       ].filter(Boolean),
-    },
-    legend: {
-      show: false,
     },
     tooltip: {
       enabled: false,
@@ -304,7 +324,7 @@ const DistancePatternChart = ({ project_id }) => {
 
   return (
     <Card sx={{ position: "relative", backgroundColor: "transparent", mt: 2 }}>
-      <CardContent sx={{ mt: 2 }}>
+      <CardContent sx={{ mt: 1 }}>
         <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}>
           <IconButton
             size="small"
