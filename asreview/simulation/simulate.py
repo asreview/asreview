@@ -192,21 +192,15 @@ class Simulate:
                 self._results["label"].values,
             )
 
-            ranked_record_ids = learner.rank(self.fm)
+            pool_record_ids = np.setdiff1d(
+                np.arange(len(self.labels)), self._results["record_id"].values
+            )
+            ranked_pool_record_ids = pool_record_ids[
+                learner.rank(self.fm[pool_record_ids])
+            ]
 
             n_query = _get_n_query(self.n_query, self._results, self.labels)
-
-            df_full = pd.DataFrame(
-                {
-                    "record_id": ranked_record_ids,
-                    "ranking": range(len(ranked_record_ids)),
-                }
-            ).merge(self._results, how="left", on="record_id")
-            record_ids = (
-                df_full[df_full["label"].isnull()]["record_id"].head(n_query).to_list()
-            )
-
-            labeled = self.label(record_ids)
+            labeled = self.label(ranked_pool_record_ids[:n_query])
 
             pbar_rel.update(labeled["label"].sum())
             pbar_total.update(n_query)
