@@ -39,12 +39,21 @@ class RandomQuery(BaseQueryStrategy):
         super().__init__()
         self._random_state = random_state
 
-    def query(
-        self,
-        feature_matrix,
-        relevance_scores,
-    ):
-        del relevance_scores
-        row_indices = np.arange(feature_matrix.shape[0])
+    def query(self, learner, X):
+        """Query random instances.
+
+        Arguments
+        ---------
+        learner: asreview.models.classifiers.BaseTrainClassifier
+            Classifier object.
+        X: np.array
+            Feature matrix.
+
+        Returns
+        -------
+        np.array:
+            The indices of the instances to be queried.
+        """
+        row_indices = np.arange(X.shape[0])
         check_random_state(self._random_state).shuffle(row_indices)
         return row_indices

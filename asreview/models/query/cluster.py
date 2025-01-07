@@ -19,7 +19,7 @@ from sklearn.cluster import KMeans
 from sklearn.utils import check_random_state
 
 from asreview.models.query.base import BaseQueryStrategy
-from asreview.models.query.max_prob import MaxQuery
+from asreview.models.query.max import MaxQuery
 
 
 class ClusterQuery(BaseQueryStrategy):
@@ -49,54 +49,58 @@ class ClusterQuery(BaseQueryStrategy):
         self.update_interval = update_interval
         self.last_update = None
         self.fallback_model = MaxQuery()
-        self._random_state = random_state
+        self._random_state = check_random_state(random_state)
 
-    def query(self, feature_matrix, relevance_scores):
-        n_samples = feature_matrix.shape[0]
+    def query(self, learner, X):
+        """Query instances.
 
-        last_update = self.last_update
+        Arguments
+        ---------
+        learner: asreview.models.classifiers.BaseTrainClassifier
+            Classifier object.
+        X: np.array
+            Feature matrix.
+
+        Returns
+        -------
+        np.array:
+            The indices of the instances to be queried.
+        """
+        n_samples = X.shape[0]
+
+        relevance_scores = learner.classifier.predict_proba(X)
+
         if (
-            last_update is None
+            self.last_update is None
             or self.update_interval is None
-            or last_update - n_samples >= self.update_interval
+            or n_samples - self.last_update >= self.update_interval
         ):
-            n_clusters = round(n_samples / self.cluster_size)
+            n_clusters = max(1, round(n_samples / self.cluster_size))
             if n_clusters <= 1:
-                return self.fallback_model.query(
-                    feature_matrix=feature_matrix,
-                    relevance_scores=relevance_scores,
-                )
+                return self.fallback_model.query(learner, X)
             model = KMeans(
                 n_clusters=n_clusters, n_init=1, random_state=self._random_state
             )
-            self.clusters = model.fit_predict(feature_matrix)
+            self.clusters = model.fit_predict(X)
             self.last_update = n_samples
 
         clusters = {}
-        for idx in np.arange(n_samples):
+        for idx in range(n_samples):
             cluster_id = self.clusters[idx]
-            if cluster_id in clusters:
-                clusters[cluster_id].append((idx, relevance_scores[idx, 1]))
-            else:
-                clusters[cluster_id] = [(idx, relevance_scores[idx, 1])]
+            if cluster_id not in clusters:
+                clusters[cluster_id] = []
+            clusters[cluster_id].append((idx, relevance_scores[idx, 1]))
 
         for cluster_id in clusters:
-            try:
-                clusters[cluster_id] = sorted(clusters[cluster_id], key=lambda x: x[1])
-            except ValueError:
-                raise
+            clusters[cluster_id].sort(key=lambda x: x[1])
 
         clust_idx = []
-        cluster_ids = list(clusters)
-        for _ in range(feature_matrix.shape[0]):
-            cluster_id = check_random_state(self._random_state).choice(cluster_ids, 1)[
-                0
-            ]
+        cluster_ids = list(clusters.keys())
+        rng = check_random_state(self._random_state)
+        while cluster_ids:
+            cluster_id = rng.choice(cluster_ids)
             clust_idx.append(clusters[cluster_id].pop()[0])
-            if len(clusters[cluster_id]) == 0:
-                del clusters[cluster_id]
-                cluster_ids = list(clusters)
+            if not clusters[cluster_id]:
+                cluster_ids.remove(cluster_id)
 
-        clust_idx = np.array(clust_idx, dtype=int)
-
-        return clust_idx
+        return np.array(clust_idx, dtype=int)

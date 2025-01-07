@@ -29,7 +29,15 @@ class MaxQuery(BaseQueryStrategy):
     name = "max"
     label = "Maximum"
 
-    def query(self, feature_matrix, relevance_scores):
-        del feature_matrix
-        query_indices = np.argsort(relevance_scores[:, 0])
-        return query_indices
+    def query(self, learner, X):
+        try:
+            relevance_scores = learner.classifier.predict_proba(X)
+        except AttributeError:
+            try:
+                relevance_scores = learner.classifier.decision_function(X)
+            except AttributeError:
+                raise AttributeError(
+                    "Not possible to compute probabilities or "
+                    "decision function for this classifier."
+                )
+        return np.argsort(relevance_scores[:, 0])

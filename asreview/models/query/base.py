@@ -25,21 +25,21 @@ class BaseQueryStrategy(BaseModel):
     name = "base"
 
     @abstractmethod
-    def query(self, feature_matrix, relevance_scores, **kwargs):
-        """Put records in ranked order.
+    def query(self, learner, X):
+        """Rank the instances of the feature matrix.
 
-        Parameters
-        ----------
-        feature_matrix: numpy.ndarray
-            Feature matrix where every row contains the features of a record.
-        relevance_scores: numpy.ndarray
-            Relevance scores as predicted by the classifier.
+        Arguments
+        ---------
+        learner: asreview.models.classifiers.BaseTrainClassifier
+            Classifier object.
+        X: np.array
+            Feature matrix.
 
         Returns
         -------
         numpy.ndarray
             The QueryStrategy ranks the row numbers of the feature matrix. It returns
-            an array of shape (len(feature_matrix),) containing the row indices in ranked
+            an array of shape (len(X),) containing the row indices in ranked
             order.
         """
         raise NotImplementedError

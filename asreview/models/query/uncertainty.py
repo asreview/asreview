@@ -24,16 +24,34 @@ class UncertaintyQuery(BaseQueryStrategy):
     """Uncertainty query strategy (``uncertainty``).
 
     Choose the most uncertain samples according to the model (i.e. closest to
-    0.5 probability). Doesn't work very well in the case of LSTM's, since the
-    probabilities are rather arbitrary.
+    0.5 probability).
 
     """
 
     name = "uncertainty"
     label = "Uncertainty"
 
-    def query(self, feature_matrix, relevance_scores):
-        del feature_matrix
-        uncertainty = 1 - np.max(relevance_scores, axis=1)
-        query_idx = np.argsort(-uncertainty)
-        return query_idx
+    def query(self, learner, X):
+        """Query instances.
+
+        Arguments
+        ---------
+        learner: asreview.models.classifiers.BaseTrainClassifier
+            Classifier object.
+        X: np.array
+            Feature matrix.
+
+        Returns
+        -------
+        np.array:
+            The indices of the instances to be queried.
+        """
+
+        try:
+            relevance_scores = learner.classifier.predict_proba(X)
+        except AttributeError:
+            raise AttributeError(
+                "Not possible to compute probabilities for this classifier."
+            )
+
+        return np.argsort(-(1 - np.max(relevance_scores, axis=1)))

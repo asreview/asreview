@@ -16,10 +16,10 @@ __all__ = ["RandomForestClassifier"]
 
 from sklearn.ensemble import RandomForestClassifier as SKRandomForestClassifier
 
-from asreview.models.classifiers.base import BaseTrainClassifier
+from asreview.models.classifiers.base import BaseClassifier
 
 
-class RandomForestClassifier(BaseTrainClassifier):
+class RandomForestClassifier(BaseClassifier):
     """
     Random forest classifier (``rf``).
 

@@ -120,7 +120,7 @@ onehot = "asreview.models.feature_extraction:OneHot"
 balanced = "asreview.models.balance:Balanced"
 
 [project.entry-points."asreview.models.query"]
-max = "asreview.models.query.max_prob:MaxQuery"
+max = "asreview.models.query.max:MaxQuery"
 random = "asreview.models.query.random:RandomQuery"
 uncertainty = "asreview.models.query.uncertainty:UncertaintyQuery"
 cluster = "asreview.models.query.cluster:ClusterQuery"

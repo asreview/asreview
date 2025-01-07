@@ -23,6 +23,7 @@ from tqdm import tqdm
 
 from asreview.state.contextmanager import open_state
 from asreview.metrics import loss
+from asreview.learner import ActiveLearner
 
 
 def _get_n_query(n_query, results, labels):
@@ -179,8 +180,34 @@ class Simulate:
             desc="Records labeled       ",
         )
 
+        learner = ActiveLearner(
+            query_strategy=self.query_strategy,
+            classifier=self.classifier,
+            balance_strategy=self.balance_strategy,
+        )
+
         while not self._stop_review():
-            self.train()
+            learner.train(
+                self.fm[self._results["record_id"].values],
+                self._results["label"].values,
+            )
+
+            ranked_record_ids = learner.rank(self.fm)
+
+            self._last_ranking = pd.DataFrame(
+                {
+                    "record_id": ranked_record_ids,
+                    "ranking": range(len(ranked_record_ids)),
+                    "classifier": self.classifier.name,
+                    "query_strategy": self.query_strategy.name,
+                    "balance_strategy": self.balance_strategy.name
+                    if self.balance_strategy
+                    else None,
+                    "feature_extraction": self.feature_extraction.name,
+                    "training_set": len(self._results),
+                    "time": time.time(),
+                }
+            )
 
             n_query = _get_n_query(self.n_query, self._results, self.labels)
 
@@ -199,43 +226,6 @@ class Simulate:
             )
 
             print(f"\nLoss: {round(loss(padded_results), 2)}")
-
-    def train(self):
-        """Train a new model on the labeled data."""
-
-        if self.balance_strategy is None:
-            sample_weight = None
-        else:
-            sample_weight = self.balance_strategy.compute_sample_weight(
-                self._results["label"].values
-            )
-
-        self.classifier.fit(
-            self.fm[self._results["record_id"].values],
-            self._results["label"].values,
-            sample_weight=sample_weight,
-        )
-        relevance_scores = self.classifier.predict_proba(self.fm)
-
-        ranked_record_ids = self.query_strategy.query(
-            feature_matrix=self.fm,
-            relevance_scores=relevance_scores,
-        )
-
-        self._last_ranking = pd.DataFrame(
-            {
-                "record_id": ranked_record_ids,
-                "ranking": range(len(ranked_record_ids)),
-                "classifier": self.classifier.name,
-                "query_strategy": self.query_strategy.name,
-                "balance_strategy": self.balance_strategy.name
-                if self.balance_strategy
-                else None,
-                "feature_extraction": self.feature_extraction.name,
-                "training_set": len(self._results),
-                "time": time.time(),
-            }
-        )
 
     def query(self, n):
         """Query the next n records to label.

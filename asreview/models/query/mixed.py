@@ -18,7 +18,7 @@ import numpy as np
 from sklearn.utils import check_random_state
 
 from asreview.models.query.base import BaseQueryStrategy
-from asreview.models.query.max_prob import MaxQuery
+from asreview.models.query.max import MaxQuery
 from asreview.models.query.random import RandomQuery
 from asreview.models.query.uncertainty import UncertaintyQuery
 
@@ -71,15 +71,20 @@ class MixedQuery(BaseQueryStrategy):
         self.mix_probability = mix_probability
         self._random_state = random_state
 
-    def query(self, feature_matrix, relevance_scores):
-        query_idx_1 = self.query_model1.query(
-            feature_matrix=feature_matrix, relevance_scores=relevance_scores
-        )
-        query_idx_2 = self.query_model2.query(
-            feature_matrix=feature_matrix, relevance_scores=relevance_scores
-        )
+    def query(self, learner, X):
+        query_idx_1 = self.query_model1.query(learner, X)
+        query_idx_2 = self.query_model2.query(learner, X)
 
-        # mix the 2 query strategies into one list
+        # query_idx_mix = np.random.choice(
+        #     query_idx_1 + query_idx_2,
+        #     size=len(query_idx_1),
+        #     replace=False,
+        #     p=[self.mix_probability] * len(query_idx_1)
+        #     + [1 - self.mix_probability] * len(query_idx_2),
+        # )
+
+        # return np.unique(query_idx_mix).tolist()
+
         query_idx_mix = []
         i = 0
         j = 0

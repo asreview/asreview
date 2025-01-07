@@ -16,10 +16,10 @@ __all__ = ["SVMClassifier"]
 
 from sklearn.svm import SVC
 
-from asreview.models.classifiers.base import BaseTrainClassifier
+from asreview.models.classifiers.base import BaseClassifier
 
 
-class SVMClassifier(BaseTrainClassifier):
+class SVMClassifier(BaseClassifier):
     """
     Support vector machine classifier (``svm``).
 

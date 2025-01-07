@@ -16,10 +16,10 @@ __all__ = ["LogisticClassifier"]
 
 from sklearn.linear_model import LogisticRegression
 
-from asreview.models.classifiers.base import BaseTrainClassifier
+from asreview.models.classifiers.base import BaseClassifier
 
 
-class LogisticClassifier(BaseTrainClassifier):
+class LogisticClassifier(BaseClassifier):
     """
     Logistic regression classifier (``logistic``).
 

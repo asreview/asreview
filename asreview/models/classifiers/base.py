@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["BaseTrainClassifier"]
+__all__ = ["BaseClassifier"]
 
 from asreview.models.base import BaseModel
 
 
-class BaseTrainClassifier(BaseModel):
+class BaseClassifier(BaseModel):
     """
     Base model, abstract class to be implemented by derived ones.
 
@@ -27,8 +27,6 @@ class BaseTrainClassifier(BaseModel):
     process. Fit parameters can be distinct from fit_kwargs (which are passed
     to the fit function).
     """
-
-    name = "base-train"
 
     def __init__(self):
         self._model = None
@@ -59,4 +57,26 @@ class BaseTrainClassifier(BaseModel):
             Array with the probabilities for each class, with two
             columns (class 0, and class 1) and the number of samples rows.
         """
-        return self._model.predict_proba(X)
+
+        try:
+            return self._model.predict_proba(X)
+        except AttributeError:
+            raise AttributeError("predict_proba does not exist")
+
+    def decision_function(self, X):
+        """Get the decision function for each sample.
+
+        Parameters
+        ----------
+        X: numpy.ndarray
+            Feature matrix to predict.
+
+        Returns
+        -------
+        numpy.ndarray
+            Array with the decision function for each sample.
+        """
+        try:
+            return self._model.decision_function(X)
+        except AttributeError:
+            raise AttributeError("decision_function does not exist")
