@@ -47,9 +47,6 @@ def test_simulate_basic(tmpdir, balance_strategy):
     assert sim._results.shape[0] == 6
     assert sim._results["label"].to_list() == [1, 0, 0, 0, 1, 1]
 
-    assert isinstance(sim._last_ranking, pd.DataFrame)
-    assert sim._last_ranking.shape[0] == 6
-
 
 @pytest.mark.parametrize("classifier", ["nb", "logistic", "svm"])
 def test_simulate_basic_classifiers(tmpdir, classifier):
@@ -81,9 +78,6 @@ def test_simulate_basic_classifiers(tmpdir, classifier):
     assert isinstance(sim._results, pd.DataFrame)
     assert sim._results.shape[0] <= 6
 
-    assert isinstance(sim._last_ranking, pd.DataFrame)
-    assert sim._last_ranking.shape[0] == 6
-
 
 def test_simulate_no_prior(tmpdir):
     project = asr.Project.create(
@@ -114,9 +108,6 @@ def test_simulate_no_prior(tmpdir):
     assert isinstance(sim._results, pd.DataFrame)
     assert sim._results.shape[0] == 6
     assert sim._results["label"].to_list() == [1, 0, 0, 0, 1, 1]
-
-    assert isinstance(sim._last_ranking, pd.DataFrame)
-    assert sim._last_ranking.shape[0] == 6
 
 
 def test_simulate_random_prior(tmpdir):
@@ -150,9 +141,6 @@ def test_simulate_random_prior(tmpdir):
     assert sim._results.shape[0] == 6
     assert sim._results["label"].to_list() == [1, 0, 0, 0, 1, 1]
 
-    assert isinstance(sim._last_ranking, pd.DataFrame)
-    assert sim._last_ranking.shape[0] == 6
-
 
 def test_simulate_n_query(tmpdir):
     project = asr.Project.create(
@@ -184,9 +172,6 @@ def test_simulate_n_query(tmpdir):
     assert isinstance(sim._results, pd.DataFrame)
     assert sim._results.shape[0] == 6
     assert sim._results["label"].to_list() == [1, 0, 0, 0, 1, 1]
-
-    assert isinstance(sim._last_ranking, pd.DataFrame)
-    assert sim._last_ranking.shape[0] == 6
 
 
 def test_simulate_n_query_callable(tmpdir):

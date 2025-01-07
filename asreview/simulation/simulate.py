@@ -194,24 +194,18 @@ class Simulate:
 
             ranked_record_ids = learner.rank(self.fm)
 
-            self._last_ranking = pd.DataFrame(
+            n_query = _get_n_query(self.n_query, self._results, self.labels)
+
+            df_full = pd.DataFrame(
                 {
                     "record_id": ranked_record_ids,
                     "ranking": range(len(ranked_record_ids)),
-                    "classifier": self.classifier.name,
-                    "query_strategy": self.query_strategy.name,
-                    "balance_strategy": self.balance_strategy.name
-                    if self.balance_strategy
-                    else None,
-                    "feature_extraction": self.feature_extraction.name,
-                    "training_set": len(self._results),
-                    "time": time.time(),
                 }
+            ).merge(self._results, how="left", on="record_id")
+            record_ids = (
+                df_full[df_full["label"].isnull()]["record_id"].head(n_query).to_list()
             )
 
-            n_query = _get_n_query(self.n_query, self._results, self.labels)
-
-            record_ids = self.query(n_query)
             labeled = self.label(record_ids)
 
             pbar_rel.update(labeled["label"].sum())
@@ -226,26 +220,6 @@ class Simulate:
             )
 
             print(f"\nLoss: {round(loss(padded_results), 2)}")
-
-    def query(self, n):
-        """Query the next n records to label.
-
-        Parameters
-        ----------
-        n: int
-            The number of records to query.
-
-        Returns
-        -------
-        list:
-            The record ids to label.
-        """
-
-        df_full = self._last_ranking[["record_id", "ranking"]].merge(
-            self._results, how="left", on="record_id"
-        )
-
-        return df_full[df_full["label"].isnull()]["record_id"].head(n).to_list()
 
     def label(self, record_ids, prior=False):
         """Label the records with the given record_ids.
@@ -352,8 +326,3 @@ class Simulate:
 
         with open_state(fp) as state:
             state._replace_results_from_df(self._results)
-
-            try:
-                state._add_last_ranking(self._last_ranking)
-            except AttributeError:
-                pass
