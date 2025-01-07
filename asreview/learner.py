@@ -59,7 +59,7 @@ class ActiveLearner:
             if self.balance_strategy is None:
                 sample_weight = None
             else:
-                sample_weight = self.balance_strategy.compute_sample_weight(y)
+                sample_weight = self.balance_strategy.compute_sample_weight(self, y)
             self.classifier.fit(X, y, sample_weight=sample_weight)
         else:
             raise ValueError("No classifier provided")
@@ -78,3 +78,18 @@ class ActiveLearner:
             The ranking of the instances.
         """
         return self.query_strategy.query(self, X)
+
+    def query(self, X, n):
+        """Query the instances in X.
+
+        Arguments
+        ---------
+        X: np.array
+            The instances to query.
+
+        Returns
+        -------
+        np.array:
+            The instances to query.
+        """
+        return self.query_strategy.query(self, X)[:n]

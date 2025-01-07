@@ -37,16 +37,17 @@ def test_balance_general():
 
 def test_balanced():
     y = np.random.randint(0, 2, 100)
+
     balancer = Balanced()
     # Check that ratio=1.0 gives the same as the 'balanced' setting of
     # `compute_sample_weight`.
     assert np.allclose(
-        compute_sample_weight("balanced", y), balancer.compute_sample_weight(y)
+        compute_sample_weight("balanced", y), balancer.compute_sample_weight(None, y)
     )
 
     for ratio in [0.25, 1, 5, 10]:
         balancer = Balanced(ratio=ratio)
-        sample_weight = balancer.compute_sample_weight(y)
+        sample_weight = balancer.compute_sample_weight(None, y)
         # Check that the sample weight is normalized to the length of y.
         assert round(sum(sample_weight)) == len(y)
         # Check that (total weight 1's) / (total weight 0's) is equal to the ratio.

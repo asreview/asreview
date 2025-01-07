@@ -14,9 +14,11 @@
 
 __all__ = [
     "Balanced",
+    "BalancedOptimal",
 ]
 
 from asreview.models.balance.balanced import Balanced
+from asreview.models.balance.balanced import BalancedOptimal
 
 """Balance strategies to rebalance and reorder the training data.
 
