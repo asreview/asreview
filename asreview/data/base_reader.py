@@ -60,10 +60,10 @@ class BaseReader(ABC):
     __fillna_default__ = (None,)
 
     @classmethod
-    def read_records(cls, fp, dataset_id, record_class=Record, *args, **kwargs):
+    def read_records(cls, fp, dataset_id, record_cls=Record, *args, **kwargs):
         df = cls.read_data(fp, *args, **kwargs)
         df = cls.clean_data(df)
-        return cls.to_records(df, dataset_id=dataset_id, record_class=record_class)
+        return cls.to_records(df, dataset_id=dataset_id, record_cls=record_cls)
 
     @classmethod
     @abstractmethod
@@ -116,7 +116,7 @@ class BaseReader(ABC):
         return df
 
     @classmethod
-    def to_records(cls, df, dataset_id=None, record_class=Record):
+    def to_records(cls, df, dataset_id=None, record_cls=Record):
         """Turn the cleaned data into records.
 
         Parameters
@@ -125,7 +125,7 @@ class BaseReader(ABC):
             Cleaned data.
         dataset_id : str, optional
             Identifier of the dataset, by default None
-        record_class : asreview.data.record.Base, optional
+        record_cls : asreview.data.record.Base, optional
             Record class to use, by default Record
 
         Returns
@@ -133,9 +133,9 @@ class BaseReader(ABC):
         list[Record]
             List of records.
         """
-        columns_present = set(df.columns).intersection(set(record_class.get_columns()))
+        columns_present = set(df.columns).intersection(set(record_cls.get_columns()))
         return [
-            record_class(dataset_row=idx, dataset_id=dataset_id, **row)
+            record_cls(dataset_row=idx, dataset_id=dataset_id, **row)
             for idx, row in df[list(columns_present)].iterrows()
         ]
 

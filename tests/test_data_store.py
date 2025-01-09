@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped
 
-from asreview import load_dataset
+from asreview.data.loader import load_records
 from asreview.data.record import Base
 from asreview.data.record import Record
 from asreview.data.store import CURRENT_DATASTORE_VERSION
@@ -17,7 +17,7 @@ from asreview.project.api import PATH_DATA_STORE
 @pytest.fixture
 def records():
     data_fp = Path("tests", "demo_data", "generic.csv")
-    return load_dataset(data_fp, dataset_id="foo")
+    return load_records(data_fp, dataset_id="foo")
 
 
 @pytest.fixture

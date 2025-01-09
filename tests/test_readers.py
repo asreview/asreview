@@ -5,9 +5,9 @@ import pytest
 import rispy
 from pytest import mark
 
-from asreview import load_dataset
-from asreview.utils import _is_url
 from asreview.data.loader import _from_file
+from asreview.data.loader import load_records
+from asreview.utils import _is_url
 
 
 @mark.parametrize(
@@ -171,11 +171,11 @@ def test_nan_values_csv():
 
 
 @mark.internet_required
-def test_load_dataset_from_url(tmpdir):
+def test_load_records_from_url(tmpdir):
     url = "https://zenodo.org/api/records/1162952/files/Hall.csv/content"
 
     urlretrieve(url, tmpdir / "Hall.csv")
-    records = load_dataset(tmpdir / "Hall.csv")
+    records = load_records(tmpdir / "Hall.csv")
     assert len(records) == 8911
 
 
@@ -184,5 +184,5 @@ def test_load_dataset_from_url(tmpdir):
     "dataset_fp", Path("..", "citation-file-formatting", "Datasets", "RIS").glob("*")
 )
 def test_real_datasets(dataset_fp):
-    data = load_dataset(dataset_fp)
+    data = load_records(dataset_fp)
     assert len(data) > 5
