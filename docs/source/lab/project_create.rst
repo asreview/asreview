@@ -229,7 +229,7 @@ package. Before starting ASReview LAB, first, install *gensim*:
 
 .. code:: bash
 
-    pip install asreview[gensim]
+    pip install asreview[doc2vec]
 
 .. note::
 
