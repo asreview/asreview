@@ -1,9 +1,14 @@
 from sklearn.utils.class_weight import compute_sample_weight as _compute_sample_weight
+from sklearn.base import BaseEstimator
 
-from asreview.models.base import BaseModel
+
+__all__ = [
+    "Balanced",
+    "BalancedOptimal",
+]
 
 
-class Balanced(BaseModel):
+class Balanced(BaseEstimator):
     """Balanced sample weight
 
     Parameters
@@ -20,7 +25,7 @@ class Balanced(BaseModel):
     def __init__(self, ratio=1.0):
         self.ratio = ratio
 
-    def compute_sample_weight(self, learner, y):
+    def compute_sample_weight(self, y):
         weights = _compute_sample_weight(
             {1: 1.0, 0: sum(y == 1) / (self.ratio * sum(y == 0))}, y=y
         )

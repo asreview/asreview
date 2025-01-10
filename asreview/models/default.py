@@ -26,8 +26,8 @@ def default_model():
         "query_strategy": "max",
         "balance_strategy": "balanced",
         "feature_extraction": "tfidf",
-        "classifier_param": NaiveBayesClassifier().default_param,
-        "query_param": MaxQuery().default_param,
-        "balance_param": Balanced().default_param,
-        "feature_param": Tfidf().default_param,
+        "classifier_param": NaiveBayesClassifier().get_params(),
+        "query_param": MaxQuery().get_params(),
+        "balance_param": Balanced().get_params(),
+        "feature_param": Tfidf().get_params(),
     }

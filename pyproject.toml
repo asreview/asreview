@@ -118,14 +118,13 @@ onehot = "asreview.models.feature_extraction:OneHot"
 
 [project.entry-points."asreview.models.balance"]
 balanced = "asreview.models.balance:Balanced"
+balanced_optimal = "asreview.models.balance:BalancedOptimal"
 
 [project.entry-points."asreview.models.query"]
-max = "asreview.models.query.max:MaxQuery"
-random = "asreview.models.query.random:RandomQuery"
-uncertainty = "asreview.models.query.uncertainty:UncertaintyQuery"
-cluster = "asreview.models.query.cluster:ClusterQuery"
-max_random = "asreview.models.query.mixed:MaxRandomQuery"
-max_uncertainty = "asreview.models.query.mixed:MaxUncertaintyQuery"
+max = "asreview.models.query:MaxQuery"
+uncertainty = "asreview.models.query:UncertaintyQuery"
+max_random = "asreview.models.query:MaxRandomQuery"
+max_uncertainty = "asreview.models.query:MaxUncertaintyQuery"
 
 [project.optional-dependencies]
 lint = ["ruff", "check-manifest"]

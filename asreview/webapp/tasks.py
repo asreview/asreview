@@ -52,6 +52,11 @@ def run_model(project):
             )
         )
 
+        query_strategy = load_extension("models.query", settings.query_strategy)()
+
+        if query_strategy.name == "random":
+            raise ValueError("Random query strategy is not available in the webapp.")
+
         feature_model = load_extension(
             "models.feature_extraction", settings.feature_extraction
         )()
@@ -84,7 +89,6 @@ def run_model(project):
             )
             relevance_scores = classifier.predict_proba(fm)
 
-        query_strategy = load_extension("models.query", settings.query_strategy)()
         ranked_record_ids = query_strategy.query(
             feature_matrix=fm, relevance_scores=relevance_scores
         )

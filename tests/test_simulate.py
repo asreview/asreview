@@ -44,8 +44,7 @@ def test_simulate_basic(tmpdir, balance_strategy):
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results.shape[0] == 6
-    assert sim._results["label"].to_list() == [1, 0, 0, 0, 1, 1]
+    assert sim._results["label"].to_list() == [1, 0, 1, 1]
 
 
 @pytest.mark.parametrize("classifier", ["nb", "logistic", "svm"])
@@ -106,8 +105,7 @@ def test_simulate_no_prior(tmpdir):
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results.shape[0] == 6
-    assert sim._results["label"].to_list() == [1, 0, 0, 0, 1, 1]
+    assert sim._results["label"].to_list() == [1, 0, 1, 1]
 
 
 def test_simulate_random_prior(tmpdir):
@@ -138,8 +136,7 @@ def test_simulate_random_prior(tmpdir):
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results.shape[0] == 6
-    assert sim._results["label"].to_list() == [1, 0, 0, 0, 1, 1]
+    assert sim._results["label"].to_list() == [1, 0, 1, 1]
 
 
 def test_simulate_n_query(tmpdir):
@@ -170,8 +167,7 @@ def test_simulate_n_query(tmpdir):
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results.shape[0] == 6
-    assert sim._results["label"].to_list() == [1, 0, 0, 0, 1, 1]
+    assert sim._results["label"].to_list() == [1, 0, 1, 1]
 
 
 def test_simulate_n_query_callable(tmpdir):
@@ -195,11 +191,11 @@ def test_simulate_n_query_callable(tmpdir):
         balance_strategy=load_extension("models.balance", "balanced")(),
         feature_extraction=feature_model,
         n_query=lambda x: 2,
+        n_stop=None,
     )
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results.shape[0] == 6
     assert sim._results["training_set"].to_list() == [None, None, 2, 2, 4, 4]
 
 
@@ -227,9 +223,9 @@ def test_simulate_n_query_callable_with_args(tmpdir):
         balance_strategy=load_extension("models.balance", "balanced")(),
         feature_extraction=feature_model,
         n_query=n_query,
+        n_stop=None,
     )
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results.shape[0] == 6
     assert sim._results["training_set"].to_list() == [None, None, 2, 3, 4, 4]

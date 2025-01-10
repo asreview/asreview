@@ -14,7 +14,6 @@
 
 __all__ = ["BaseFeatureExtraction"]
 
-from abc import abstractmethod
 from pathlib import Path
 
 import numpy as np
@@ -24,10 +23,8 @@ from scipy.sparse import issparse
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
-from asreview.models.base import BaseModel
 
-
-class BaseFeatureExtraction(BaseModel):
+class BaseFeatureExtraction:
     """Base class for feature extraction methods.
 
     The feature extractor takes in texts, and outputs a feature matrix. This class has
@@ -45,8 +42,6 @@ class BaseFeatureExtraction(BaseModel):
         CLI to call this feature extractor. Every custom feature extractor should
         overwrite it's value by a new, unique value.
     """
-
-    name = "base"
 
     # The file extension that should be used when saving the feature matrix.
     __file_extension__ = "npz"
@@ -132,36 +127,6 @@ class BaseFeatureExtraction(BaseModel):
             return hstack(transformed_texts).tocsr()
         else:
             return np.concatenate(transformed_texts, axis=1)
-
-    def fit(self, texts):
-        """Fit the feature extractor to a sequence of texts.
-
-        If you  provide multiple sequences of texts as input to `fit_transform`, it will
-        only run `fit` once on the first input sequence. It is not necessary to
-        implement this method if the feature extractor requires no fitting.
-
-        Parameters
-        ----------
-        texts: Iterable[str]
-            Sequence of texts on which to fit the feature extractor.
-        """
-        pass
-
-    @abstractmethod
-    def transform(self, texts):
-        """Create a feature matrix from a sequence of texts.
-
-        Parameters
-        ----------
-        texts: Iterable[str]
-            A sequence of texts to be transformed into a feature matrix.
-
-        Returns
-        -------
-        numpy.ndarray or scipy.sparse.csr_matrix
-            Feature matrix representing the texts.
-        """
-        raise NotImplementedError
 
     @staticmethod
     def read(fp):

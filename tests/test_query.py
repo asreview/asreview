@@ -1,40 +1,37 @@
 import numpy as np
-from pytest import mark
+import pytest
 
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
-from asreview.learner import ActiveLearner
 
 
-@mark.parametrize(
-    "query_strategy_name",
-    [
-        "max",
-        "random",
-        "max_random",
-        "uncertainty",
-        "max_uncertainty",
-        "cluster",
-    ],
-)
-def test_query(query_strategy_name):
+def test_classifiers():
+    assert len(extensions("models.query")) >= 4
+
+
+@pytest.mark.parametrize("query", extensions("models.query"))
+def test_classifier_name(query):
+    model = load_extension("models.query", query.name)()
+    assert model.name == query.name
+
+
+@pytest.mark.parametrize("query", extensions("models.query"))
+def test_classifier_param(query):
+    model = load_extension("models.query", query.name)()
+    assert isinstance(model.get_params(), dict)
+
+
+@pytest.mark.parametrize("query", extensions("models.query"))
+def test_query(query):
     n_sample, n_features = 100, 50
     X = np.random.rand(n_sample, n_features)
     y = np.random.permutation([0] * (n_sample // 2) + [1] * (n_sample // 2))
 
     classifier = load_extension("models.classifiers", "rf")()
-    query_strategy = load_extension("models.query", query_strategy_name)()
-
     classifier.fit(X, y)
-    learner = ActiveLearner(query_strategy, classifier)
+    proba = classifier.predict_proba(X)
 
-    assert isinstance(query_strategy.param, dict)
-    assert query_strategy.name == query_strategy_name
-
-    query_idx = query_strategy.query(learner=learner, X=X)
+    query_strategy = load_extension("models.query", query.name)()
+    query_idx = query_strategy.query(proba[:, 1])
     assert len(query_idx) == len(np.unique(query_idx))
     assert len(query_idx) == X.shape[0]
-
-
-def test_query_general():
-    assert len(extensions("models.query")) >= 4

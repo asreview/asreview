@@ -12,14 +12,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["OneHot"]
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from asreview.models.feature_extraction.base import BaseFeatureExtraction
 
-from sklearn.feature_extraction.text import CountVectorizer
-
-from asreview.models.feature_extraction.sklearn_adapter import SKLearnAdapter
+__all__ = ["Tfidf", "OneHot"]
 
 
-class OneHot(SKLearnAdapter):
+class Tfidf(TfidfVectorizer, BaseFeatureExtraction):
+    """TF-IDF feature extraction technique (``tfidf``).
+
+    Use the standard TF-IDF (Term Frequency-Inverse Document Frequency) feature
+    extraction technique from `SKLearn <https://scikit-learn.org/stable/modules/
+    generated/sklearn.feature_extraction.text.TfidfVectorizer.html>`__. Gives a
+    sparse matrix as output. Works well in combination with
+    :class:`asreview.models.classifiers.NaiveBayesClassifier` and other fast
+    training models (given that the features vectors are relatively wide).
+
+    Parameters
+    ----------
+    ngram_max: int
+        Can use up to ngrams up to ngram_max. For example in the case of
+        ngram_max=2, monograms and bigrams could be used.
+    stop_words: str
+        When set to 'english', use stopwords. If set to None or 'none',
+        do not use stop words.
+    """
+
+    name = "tfidf"
+    label = "TF-IDF"
+
+    def __init__(self, stop_words="english", **kwargs):
+        super().__init__(stop_words=stop_words, **kwargs)
+
+
+class OneHot(CountVectorizer, BaseFeatureExtraction):
     """OneHot feature extraction technique (``onehot``).
 
     Use the standard OneHot feature extraction technique from `SKLearn
@@ -44,15 +70,13 @@ class OneHot(SKLearnAdapter):
 
     def __init__(
         self,
-        lowercase=True,
         max_df=0.9,
-        min_df=5,
+        min_df=0.05,
         ngram_range=(1, 3),
         **kwargs,
     ):
         super().__init__(
-            sklearn_model=CountVectorizer,
-            lowercase=lowercase,
+            binary=True,
             max_df=max_df,
             min_df=min_df,
             ngram_range=ngram_range,

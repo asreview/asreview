@@ -85,7 +85,7 @@ class Simulate:
         process. Default is 1.
     n_stop: int
         Number of steps/queries to perform. Set to None for no limit. Default
-        is None.
+        is "min".
     """
 
     def __init__(
@@ -180,25 +180,48 @@ class Simulate:
             desc="Records labeled       ",
         )
 
-        learner = ActiveLearner(
-            query_strategy=self.query_strategy,
-            classifier=self.classifier,
-            balance_strategy=self.balance_strategy,
-        )
-
         while not self._stop_review():
-            learner.train(
+            if self.balance_strategy is None:
+                sample_weight = None
+            else:
+                sample_weight = self.balance_strategy.compute_sample_weight(
+                    self._results["label"].values
+                )
+            self.classifier.fit(
                 self.fm[self._results["record_id"].values],
                 self._results["label"].values,
+                sample_weight=sample_weight,
             )
 
+            # collect the records in the pool and rank them
             pool_record_ids = np.setdiff1d(
                 np.arange(len(self.labels)), self._results["record_id"].values
             )
-            ranked_pool_record_ids = pool_record_ids[
-                learner.rank(self.fm[pool_record_ids])
-            ]
+            pool_X = self.fm[pool_record_ids]
 
+            try:
+                proba = self.classifier.predict_proba(pool_X)
+                ranked_pool_record_ids = pool_record_ids[
+                    self.query_strategy.query(proba[:, 1])
+                ]
+            except AttributeError:
+                try:
+                    scores = self.classifier.decision_function(pool_X)
+
+                    if "proba" in self.query_strategy.get_params():
+                        self.query_strategy.set_params(proba=False)
+
+                    ranked_pool_record_ids = pool_record_ids[
+                        self.query_strategy.query(scores)
+                    ]
+
+                except AttributeError:
+                    raise AttributeError(
+                        "Not possible to compute probabilities or "
+                        "decision function for this classifier."
+                    )
+
+            # label n_query records from the pool
             n_query = _get_n_query(self.n_query, self._results, self.labels)
             labeled = self.label(ranked_pool_record_ids[:n_query])
 

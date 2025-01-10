@@ -12,28 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["BaseQueryStrategy"]
-
-from abc import abstractmethod
-
-from asreview.models.base import BaseModel
+__all__ = ["QueryMixin"]
 
 
-class BaseQueryStrategy(BaseModel):
-    """Abstract class for query strategies."""
+class QueryMixin:
+    """Mixin class for all query strategies in ASReview."""
 
-    name = "base"
-
-    @abstractmethod
-    def query(self, learner, X):
+    def query(self, proba=None, decision=None):
         """Rank the instances of the feature matrix.
 
         Arguments
         ---------
-        learner: asreview.models.classifiers.BaseTrainClassifier
-            Classifier object.
-        X: np.array
-            Feature matrix.
+        proba: np.array
+            The probabilities of the instances being relevant.
+        decision: np.array
+            The decision of the instances being relevant.
 
         Returns
         -------

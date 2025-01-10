@@ -64,7 +64,7 @@ def choose_project_algorithms():
         "classifier": classifier,
         "feature_extraction": feature_extraction,
         "query_strategy": random.choice(
-            ["cluster", "max", "max_random", "max_uncertainty", "random", "uncertainty"]
+            ["max", "max_random", "max_uncertainty", "random", "uncertainty"]
         ),
         "balance_strategy": random.choice(["balanced", None]),
     }
