@@ -27,14 +27,9 @@ def test_feature_param(feature_extraction):
 @pytest.mark.parametrize("feature_extraction", extensions("models.feature_extraction"))
 @pytest.mark.parametrize("split_ta", [False, True])
 def test_features(tmpdir, feature_extraction, split_ta):
-    print(feature_extraction.name)
-
     data_fp = os.path.join("tests", "demo_data", "generic.csv")
 
-    records = asr.load_dataset(data_fp, dataset_id="test_id")
-    data_store = DataStore(Path(tmpdir, "store.db"))
-    data_store.create_tables()
-    data_store.add_records(records)
+    data_store = asr.load_dataset(data_fp, dataset_id="test_id")
     model = load_extension("models.feature_extraction", feature_extraction.name)()
 
     if split_ta:
