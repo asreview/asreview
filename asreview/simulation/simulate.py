@@ -56,7 +56,7 @@ def _get_n_query(n_query, results, labels):
 
 
 class Simulate:
-    """ASReview Simulation mode class.
+    """ASReview Simulation class.
 
     The simulation will stop when all records have been labeled or when the number of
     steps/queries reaches the n_stop parameter.
@@ -91,19 +91,13 @@ class Simulate:
         self,
         fm,
         labels,
-        classifier,
-        query_strategy,
-        balance_strategy=None,
-        feature_extraction=None,
+        learner,
         n_query=1,
         n_stop="min",
     ):
         self.fm = fm
         self.labels = labels
-        self.classifier = classifier
-        self.balance_strategy = balance_strategy
-        self.query_strategy = query_strategy
-        self.feature_extraction = feature_extraction
+        self.learner = learner
         self.n_query = n_query
         self.n_stop = n_stop
 
@@ -180,45 +174,22 @@ class Simulate:
         )
 
         while not self._stop_review():
-            if self.balance_strategy is None:
-                sample_weight = None
-            else:
-                sample_weight = self.balance_strategy.compute_sample_weight(
-                    self._results["label"].values
-                )
-            self.classifier.fit(
+            # fit the estimator to the labeled records
+            self.learner.fit(
                 self.fm[self._results["record_id"].values],
                 self._results["label"].values,
-                sample_weight=sample_weight,
             )
 
-            # collect the records in the pool and rank them
+            # collect the records in the pool
             pool_record_ids = np.setdiff1d(
                 np.arange(len(self.labels)), self._results["record_id"].values
             )
-            pool_X = self.fm[pool_record_ids]
 
-            try:
-                proba = self.classifier.predict_proba(pool_X)
-                ranked_pool_record_ids = pool_record_ids[
-                    self.query_strategy.query(proba[:, 1])
-                ]
-            except AttributeError:
-                try:
-                    scores = self.classifier.decision_function(pool_X)
+            # rank the pool
+            ranked_pool = self.learner.rank(self.fm[pool_record_ids])
 
-                    if "proba" in self.query_strategy.get_params():
-                        self.query_strategy.set_params(proba=False)
-
-                    ranked_pool_record_ids = pool_record_ids[
-                        self.query_strategy.query(scores)
-                    ]
-
-                except AttributeError:
-                    raise AttributeError(
-                        "Not possible to compute probabilities or "
-                        "decision function for this classifier."
-                    )
+            # convert the ranked pool to record ids
+            ranked_pool_record_ids = pool_record_ids[ranked_pool]
 
             # label n_query records from the pool
             n_query = _get_n_query(self.n_query, self._results, self.labels)
@@ -256,12 +227,14 @@ class Simulate:
             feature_extraction = None
             training_set = None
         else:
-            classifier = self.classifier.name
-            query_strategy = self.query_strategy.name
+            classifier = self.learner.classifier.name
+            query_strategy = self.learner.query_strategy.name
             balance_strategy = (
-                self.balance_strategy.name if self.balance_strategy else None
+                self.learner.balance_strategy.name
+                if self.learner.balance_strategy
+                else None
             )
-            feature_extraction = self.feature_extraction.name
+            feature_extraction = self.learner.feature_extraction.name
             training_set = len(self._results)
 
         new_labels = pd.DataFrame(

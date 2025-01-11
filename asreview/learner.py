@@ -39,13 +39,23 @@ class ActiveLearner:
 
     """
 
-    def __init__(self, query_strategy, classifier=None, balance_strategy=None):
+    def __init__(
+        self,
+        query_strategy,
+        classifier=None,
+        balance_strategy=None,
+        feature_extraction=None,
+    ):
         self.query_strategy = query_strategy
         self.classifier = classifier
         self.balance_strategy = balance_strategy
+        self.feature_extraction = feature_extraction
 
-    def train(self, X, y):
-        """train the classifier to the data.
+    def transform(self, X):
+        pass
+
+    def fit(self, X, y):
+        """Fit the classifier to the data.
 
         Arguments
         ---------
@@ -54,15 +64,12 @@ class ActiveLearner:
         y: np.array
             The labels of the instances.
         """
-
-        if self.classifier is not None:
-            if self.balance_strategy is None:
-                sample_weight = None
-            else:
-                sample_weight = self.balance_strategy.compute_sample_weight(self, y)
-            self.classifier.fit(X, y, sample_weight=sample_weight)
+        if self.balance_strategy is None:
+            sample_weight = None
         else:
-            raise ValueError("No classifier provided")
+            sample_weight = self.balance_strategy.compute_sample_weight(y)
+        self.classifier.fit(X, y, sample_weight=sample_weight)
+        return self
 
     def rank(self, X):
         """Rank the instances in X.
@@ -77,19 +84,21 @@ class ActiveLearner:
         np.array:
             The ranking of the instances.
         """
-        return self.query_strategy.query(self, X)
 
-    def query(self, X, n):
-        """Query the instances in X.
+        try:
+            proba = self.classifier.predict_proba(X)
+            return self.query_strategy.query(proba[:, 1])
+        except AttributeError:
+            try:
+                scores = self.classifier.decision_function(X)
 
-        Arguments
-        ---------
-        X: np.array
-            The instances to query.
+                if "proba" in self.query_strategy.get_params():
+                    self.query_strategy.set_params(proba=False)
 
-        Returns
-        -------
-        np.array:
-            The instances to query.
-        """
-        return self.query_strategy.query(self, X)[:n]
+                return self.query_strategy.query(scores)
+
+            except AttributeError:
+                raise AttributeError(
+                    "Not possible to compute probabilities or "
+                    "decision function for this classifier."
+                )

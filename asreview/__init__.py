@@ -30,6 +30,7 @@ from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
 from asreview.state.sqlstate import SQLiteState
+from asreview.learner import ActiveLearner
 
 try:
     from asreview._version import __version__
@@ -44,6 +45,7 @@ __all__ = [
     "Simulate",
     "SQLiteState",
     "ReviewSettings",
+    "ActiveLearner",
     # functions
     "is_project",
     "load_dataset",

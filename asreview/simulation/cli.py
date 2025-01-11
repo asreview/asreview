@@ -29,6 +29,7 @@ from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.types import type_n_queries
 from asreview.utils import _format_to_str
+from asreview.learner import ActiveLearner
 
 
 def _set_log_verbosity(verbose):
@@ -195,15 +196,15 @@ def _cli_simulate(argv):
     for record in data_store.get_records(prior_idx):
         _print_record(record)
 
-    sim = Simulate(
-        fm,
-        data_store["included"],
-        classifier=classifier_model,
+    learner = ActiveLearner(
         query_strategy=query_model,
+        classifier=classifier_model,
         balance_strategy=balance_model,
         feature_extraction=feature_model,
-        n_query=args.n_query,
-        n_stop=args.n_stop,
+    )
+
+    sim = Simulate(
+        fm, data_store["included"], learner, n_query=args.n_query, n_stop=args.n_stop
     )
     if len(prior_idx) > 0:
         sim.label(prior_idx, prior=True)

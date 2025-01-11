@@ -64,14 +64,14 @@ def test_simulate_basic_classifiers(tmpdir, classifier):
     # set numpy seed
     np.random.seed(42)
 
-    sim = asr.Simulate(
-        fm,
-        labels=project.data_store["included"],
-        classifier=load_extension("models.classifiers", classifier)(),
+    learner = asr.ActiveLearner(
         query_strategy=load_extension("models.query", "max_random")(),
+        classifier=load_extension("models.classifiers", classifier)(),
         balance_strategy=load_extension("models.balance", "balanced")(),
         feature_extraction=feature_model,
     )
+
+    sim = asr.Simulate(fm, project.data_store["included"], learner)
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
