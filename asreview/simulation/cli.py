@@ -193,7 +193,7 @@ def _cli_simulate(argv):
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
         prior_idx = _convert_id_to_idx(data_store, args.prior_record_id)
 
-    fm = feature_model.from_data_store(data_store)
+    fm = feature_model.fit_transform(data_store.get_texts())
 
     print("The following records are prior knowledge:\n")
     for record in data_store.get_records(prior_idx):
@@ -223,7 +223,7 @@ def _cli_simulate(argv):
 
     if args.output is not None:
         # Project exists because it was created in previous `if args.output`.
-        project.add_feature_matrix(fm, feature_model)
+        project.add_feature_matrix(fm, feature_model.name)
         project.add_review(settings=settings, reviewer=sim, status="finished")
 
         # export the project file

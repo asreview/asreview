@@ -275,8 +275,9 @@ def test_get_feature_matrix(asreview_test_project):
     assert len(project.feature_matrices) == 1
 
     feature_model_name = project.feature_matrices[0]["id"]
-    feature_model = load_extension("models.feature_extraction", feature_model_name)
-    feature_matrix = project.get_feature_matrix(feature_model)
+
+    print(project.config)
+    feature_matrix = project.get_feature_matrix(feature_model_name)
     assert isinstance(feature_matrix, csr_matrix)
 
 

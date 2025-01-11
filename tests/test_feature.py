@@ -44,7 +44,7 @@ def test_features(tmpdir, feature_extraction, split_ta):
         abstracts = data_store["abstract"]
         X = model.fit_transform(titles, abstracts)
     else:
-        X = model.from_data_store(data_store)
+        X = model.fit_transform(data_store.get_texts())
 
     assert X.shape[0] == len(data_store)
     assert X.shape[1] > 0

@@ -21,8 +21,8 @@ def test_simulate_basic(tmpdir, balance_strategy):
     project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.from_data_store(project.data_store)
-    project.add_feature_matrix(fm, feature_model)
+    fm = feature_model.fit_transform(project.data_store.get_texts())
+    project.add_feature_matrix(fm, feature_model.name)
 
     # set numpy seed
     np.random.seed(42)
@@ -58,8 +58,8 @@ def test_simulate_basic_classifiers(tmpdir, classifier):
     project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.from_data_store(project.data_store)
-    project.add_feature_matrix(fm, feature_model)
+    fm = feature_model.fit_transform(project.data_store.get_texts())
+    project.add_feature_matrix(fm, feature_model.name)
 
     # set numpy seed
     np.random.seed(42)
@@ -88,8 +88,8 @@ def test_simulate_no_prior(tmpdir):
     project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.from_data_store(project.data_store)
-    project.add_feature_matrix(fm, feature_model)
+    fm = feature_model.fit_transform(project.data_store.get_texts())
+    project.add_feature_matrix(fm, feature_model.name)
 
     # set numpy seed
     np.random.seed(42)
@@ -118,8 +118,8 @@ def test_simulate_random_prior(tmpdir):
     project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.from_data_store(project.data_store)
-    project.add_feature_matrix(fm, feature_model)
+    fm = feature_model.fit_transform(project.data_store.get_texts())
+    project.add_feature_matrix(fm, feature_model.name)
 
     # set numpy seed
     np.random.seed(42)
@@ -149,8 +149,8 @@ def test_simulate_n_query(tmpdir):
     project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.from_data_store(project.data_store)
-    project.add_feature_matrix(fm, feature_model)
+    fm = feature_model.fit_transform(project.data_store.get_texts())
+    project.add_feature_matrix(fm, feature_model.name)
 
     # set numpy seed
     np.random.seed(42)
@@ -180,8 +180,8 @@ def test_simulate_n_query_callable(tmpdir):
     project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.from_data_store(project.data_store)
-    project.add_feature_matrix(fm, feature_model)
+    fm = feature_model.fit_transform(project.data_store.get_texts())
+    project.add_feature_matrix(fm, feature_model.name)
 
     sim = asr.Simulate(
         fm,
@@ -209,8 +209,8 @@ def test_simulate_n_query_callable_with_args(tmpdir):
     project.add_dataset(DATA_FP)
 
     feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.from_data_store(project.data_store)
-    project.add_feature_matrix(fm, feature_model)
+    fm = feature_model.fit_transform(project.data_store.get_texts())
+    project.add_feature_matrix(fm, feature_model.name)
 
     def n_query(x):
         return len(x) // 2

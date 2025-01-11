@@ -13,12 +13,11 @@
 # limitations under the License.
 
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-from asreview.models.feature_extraction.base import BaseFeatureExtraction
 
 __all__ = ["Tfidf", "OneHot"]
 
 
-class Tfidf(TfidfVectorizer, BaseFeatureExtraction):
+class Tfidf(TfidfVectorizer):
     """TF-IDF feature extraction technique (``tfidf``).
 
     Use the standard TF-IDF (Term Frequency-Inverse Document Frequency) feature
@@ -45,7 +44,7 @@ class Tfidf(TfidfVectorizer, BaseFeatureExtraction):
         super().__init__(stop_words=stop_words, **kwargs)
 
 
-class OneHot(CountVectorizer, BaseFeatureExtraction):
+class OneHot(CountVectorizer):
     """OneHot feature extraction technique (``onehot``).
 
     Use the standard OneHot feature extraction technique from `SKLearn

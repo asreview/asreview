@@ -18,15 +18,13 @@ __all__ = ["QueryMixin"]
 class QueryMixin:
     """Mixin class for all query strategies in ASReview."""
 
-    def query(self, proba=None, decision=None):
+    def query(self, p):
         """Rank the instances of the feature matrix.
 
         Arguments
         ---------
-        proba: np.array
-            The probabilities of the instances being relevant.
-        decision: np.array
-            The decision of the instances being relevant.
+        p: numpy.ndarray
+            The probability of inclusion for each record in the feature matrix.
 
         Returns
         -------

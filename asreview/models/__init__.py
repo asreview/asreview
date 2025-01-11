@@ -14,7 +14,7 @@
 
 from asreview.models.default import default_model
 
-__all__ = ["balance", "classifiers", "feature_extraction", "query", "default_model"]
+__all__ = ["balance", "classifiers", "feature_extractor", "query", "default_model"]
 
 """Active learning model components.
 

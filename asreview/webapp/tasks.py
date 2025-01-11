@@ -61,10 +61,10 @@ def run_model(project):
             "models.feature_extraction", settings.feature_extraction
         )()
         try:
-            fm = project.get_feature_matrix(feature_model)
+            fm = project.get_feature_matrix(feature_model.name)
         except FileNotFoundError:
-            fm = feature_model.from_data_store(project.data_store)
-            project.add_feature_matrix(fm, feature_model)
+            fm = feature_model.fit_transform(project.data_store.get_texts())
+            project.add_feature_matrix(fm, feature_model.name)
 
         with open_state(project) as state:
             labeled = state.get_results_table(columns=["record_id", "label"])
@@ -126,8 +126,8 @@ def run_simulation(project):
     feature_model = load_extension(
         "models.feature_extraction", settings.feature_extraction
     )()
-    fm = feature_model.from_data_store(project.data_store)
-    project.add_feature_matrix(fm, feature_model)
+    fm = feature_model.fit_transform(project.data_store.get_texts())
+    project.add_feature_matrix(fm, feature_model.name)
 
     if settings.balance_strategy is not None:
         balance_model = load_extension("models.balance", settings.balance_strategy)()
