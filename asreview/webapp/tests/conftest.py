@@ -52,6 +52,8 @@ def _get_app(app_type="auth-basic", path=None):
         config_path = str(base_dir / "auth_no_creation.toml")
     elif app_type == "auth-verified":
         config_path = str(base_dir / "auth_verified_config.toml")
+    elif app_type == "auth-remote":
+        config_path = str(base_dir / "auth_remote_config.toml")
     elif app_type == "no-auth":
         config_path = str(base_dir / "no_auth_config.toml")
     else:
@@ -140,6 +142,18 @@ def client_no_auth(asreview_path_fixture):
     # make sure we have the asreview_path
     with app.app_context():
         yield app.test_client()
+
+
+@pytest.fixture
+def client_remote_auth(asreview_path_fixture):
+    """Flask client for remotely authenticated app, account
+    creation not allowed."""
+    app = _get_app("auth-remote", path=asreview_path_fixture)
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
 
 
 @pytest.fixture(
