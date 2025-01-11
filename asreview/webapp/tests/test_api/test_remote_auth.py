@@ -1,5 +1,6 @@
 import pytest
 from jinja2.exceptions import TemplateNotFound
+
 from asreview.webapp.authentication.models import User
 from asreview.webapp.tests.utils.misc import custom_remote_auth_headers
 

@@ -22,31 +22,33 @@ import os
 import shutil
 import tempfile
 import time
-from urllib.request import urlretrieve
+import warnings
 import zipfile
 from dataclasses import asdict
 from dataclasses import replace
 from pathlib import Path
+from urllib.request import urlretrieve
 from uuid import uuid4
-import warnings
 
 import jsonschema
-from filelock import FileLock
-import scipy.sparse as sp
 import numpy as np
+import scipy.sparse as sp
+from filelock import FileLock
 
-from asreview.data.loader import _from_file, _get_reader
+from asreview.data import DataStore
+from asreview.data.loader import _from_file
+from asreview.data.loader import _get_reader
 from asreview.datasets import DatasetManager
 from asreview.migrate import migrate_v1_v2
+from asreview.models.default import default_model
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
-from asreview.data import DataStore
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
-from asreview.models.default import default_model
-
-from asreview.utils import _check_model, _get_filename_from_url, _is_url
+from asreview.utils import _check_model
+from asreview.utils import _get_filename_from_url
+from asreview.utils import _is_url
 
 try:
     from asreview._version import __version__

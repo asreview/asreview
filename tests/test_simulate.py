@@ -1,8 +1,8 @@
 from pathlib import Path
-import pytest
 
 import numpy as np
 import pandas as pd
+import pytest
 
 import asreview as asr
 from asreview.extensions import load_extension

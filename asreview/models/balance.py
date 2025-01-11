@@ -1,6 +1,5 @@
-from sklearn.utils.class_weight import compute_sample_weight as _compute_sample_weight
 from sklearn.base import BaseEstimator
-
+from sklearn.utils.class_weight import compute_sample_weight as _compute_sample_weight
 
 __all__ = [
     "Balanced",

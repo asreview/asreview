@@ -14,11 +14,10 @@
 
 
 import numpy as np
-from sklearn.utils import check_random_state
 from sklearn.base import BaseEstimator
+from sklearn.utils import check_random_state
 
 from asreview.models.mixin import QueryMixin
-
 
 __all__ = [
     "MaxQuery",

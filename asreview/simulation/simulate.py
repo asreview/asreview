@@ -21,9 +21,8 @@ import pandas as pd
 from sklearn.utils import check_random_state
 from tqdm import tqdm
 
-from asreview.state.contextmanager import open_state
 from asreview.metrics import loss
-from asreview.learner import ActiveLearner
+from asreview.state.contextmanager import open_state
 
 
 def _get_n_query(n_query, results, labels):

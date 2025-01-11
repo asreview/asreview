@@ -16,8 +16,8 @@
 
 from asreview.models.balance import Balanced
 from asreview.models.classifiers import NaiveBayesClassifier
-from asreview.models.query import MaxQuery
 from asreview.models.feature_extraction import Tfidf
+from asreview.models.query import MaxQuery
 
 
 def default_model():

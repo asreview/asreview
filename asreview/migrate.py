@@ -1,16 +1,16 @@
-from pathlib import Path
 import json
 import os
 import sqlite3
 from dataclasses import asdict
+from datetime import datetime
+from pathlib import Path
 
 import pandas
 
 # from asreview.state.contextmanager import open_state
 from asreview._version import __version__
-from asreview.state.sqlstate import SQLiteState
 from asreview.settings import ReviewSettings
-from datetime import datetime
+from asreview.state.sqlstate import SQLiteState
 
 
 def _project_config_converter_v1_v2(project_json):
