@@ -1,6 +1,8 @@
 from io import StringIO
 from pathlib import Path
 
+from asreview.data import DataStore
+from asreview.data.record import Record
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
 from asreview.utils import _get_filename_from_url
@@ -98,8 +100,8 @@ def _from_extension(name, reader=None, dataset_id=None, **kwargs):
     return reader.read_records(fp, dataset_id=dataset_id, **kwargs)
 
 
-def load_dataset(name, dataset_id=None, **kwargs):
-    """Load data from file, URL, or plugin.
+def load_records(name, dataset_id=None, **kwargs):
+    """Load records from file, URL, or plugin.
 
     Parameters
     ----------
@@ -126,3 +128,38 @@ def load_dataset(name, dataset_id=None, **kwargs):
 
     # Could not find dataset, return None.
     raise FileNotFoundError(f"File, URL, or dataset does not exist: '{name}'")
+
+
+def load_dataset(name, dataset_id=None, data_store=None, record_cls=Record, **kwargs):
+    """Load dataset from file, URL, or plugin.
+
+    Parameters
+    ----------
+    name: str, pathlib.Path
+        File path, URL, or alias of extension dataset.
+    dataset_id : str, optional
+        dataset_id that the records in the dataset should get. If not this will be the
+        string form of the name. By default None.
+    data_store : asreview.data.store.DataStore, optional
+        Data store in which to load the records of the dataset. If None, an in memory
+        data store is created. By default None.
+    record_cls : Type[asreview.data.record.Base], optional
+        Record type to use for the dataset records, by default Record
+    kwargs : dict, optional
+        Keyword arguments passed to `load_records`.
+
+    Returns
+    -------
+    asreview.DataStore
+        Data store containing the records of the input file.
+    """
+    if data_store is None:
+        data_store = DataStore(":memory:", record_cls=record_cls)
+    if dataset_id is None:
+        dataset_id = str(name)
+    data_store.create_tables()
+    records = load_records(
+        name=name, dataset_id=dataset_id, record_cls=record_cls, **kwargs
+    )
+    data_store.add_records(records=records)
+    return data_store

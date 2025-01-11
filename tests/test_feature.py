@@ -1,10 +1,7 @@
 import os
-from pathlib import Path
-
 import pytest
 
 import asreview as asr
-from asreview.data import DataStore
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
 
@@ -39,6 +36,7 @@ def test_features(tmpdir, feature_extraction, split_ta):
     data_store.create_tables()
     data_store.add_records(records)
     model = load_extension("models.feature_extraction", feature_extraction.name)()
+
     if split_ta:
         titles = data_store["title"]
         abstracts = data_store["abstract"]

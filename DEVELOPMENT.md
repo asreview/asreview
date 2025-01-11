@@ -70,12 +70,12 @@ When using or developing the authenticated version of ASReview, extra steps
 are needed to configure the application.
 
 Create an authentication config file as instructed in [Authentication]
-(#Authentication). Set the environment variable `FLASK_CONFIGFILE` to the
+(#Authentication). Set the environment variable `ASREVIEW_LAB_CONFIG_PATH` to the
 local config file. Start the application again (If Flask app it still running, terminate first)
 
 ```sh
 cd asreview/webapp
-FLASK_CONFIGFILE=my_config.toml flask run --debug
+ASREVIEW_LAB_CONFIG_PATH=my_config.toml flask run --debug
 ```
 
 The server will read the file and start the authenticated version.

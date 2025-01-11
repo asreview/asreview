@@ -41,3 +41,23 @@ def setup_auth(client_auth):
     yield client_auth, user1, user2, user3, user1.projects[0]
     # cleanup database and asreview_path
     crud.delete_everything(DB)
+
+
+@pytest.fixture()
+def setup_remote_auth(client_remote_auth):
+    """This fixtures yields a Flask client for an app
+    with remote authentication enabled, and one user account with a project."""
+    # create, signup and signin users
+    user = get_user(2)
+    # signup user 2
+    au.signup_user(client_remote_auth, user)
+
+    # get users 2 and 3 from DB
+    user = crud.get_user_by_identifier(user.identifier)
+    # create a project for this user
+    au.create_project(
+        client_remote_auth, "oracle", benchmark="synergy:van_der_Valk_2021"
+    )
+    yield client_remote_auth, user, user.projects[0]
+    # cleanup database and asreview_path
+    crud.delete_everything(DB)
