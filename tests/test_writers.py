@@ -26,13 +26,7 @@ from asreview.data.loader import _get_writer
         ("ris_issue_992.txt", ["title"]),
         ("ris_issue_1099.txt", ["primary_title"]),
         ("baseline_tag-notes.ris", ["title", "notes"]),
-        pytest.param(
-            "baseline_tag-notes_labels.ris",
-            ["title", "included"],
-            marks=pytest.mark.xfail(
-                reason="Included column changes data type from float to int."
-            ),
-        ),
+        ("baseline_tag-notes_labels.ris", ["title", "included"]),
     ],
 )
 def test_asreview_ris(test_file, columns, tmpdir):

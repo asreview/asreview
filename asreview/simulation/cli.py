@@ -22,7 +22,6 @@ from pathlib import Path
 import numpy as np
 
 from asreview import load_dataset
-from asreview.data import DataStore
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
 from asreview.project.api import Project
@@ -184,10 +183,7 @@ def _cli_simulate(argv):
         project.add_dataset(args.dataset, dataset_id=filename)
         data_store = project.data_store
     else:
-        records = load_dataset(args.dataset, dataset_id=filename)
-        data_store = DataStore(":memory:")
-        data_store.create_tables()
-        data_store.add_records(records)
+        data_store = load_dataset(args.dataset, dataset_id=filename)
 
     prior_idx = args.prior_idx
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
