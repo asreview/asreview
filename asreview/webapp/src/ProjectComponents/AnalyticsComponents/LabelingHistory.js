@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { CardErrorHandler } from "Components";
 import { useRef, useState } from "react";
-import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 
@@ -178,7 +178,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                   setInfoAnchorEl(event.currentTarget);
                 }}
               >
-                <LightbulbOutlinedIcon fontSize="small" />
+                <StyledLightBulb fontSize="small" />
               </IconButton>
             </Box>
 
@@ -263,44 +263,18 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                 Labeling History
               </Typography>
               <Typography variant="body2">
-                These are all the records in your dataset. Each colored item
-                represents a record and shows your history.
+                This is your entire dataset. Each element represents a record,
+                colored according to whether you marked it as relevant, not
+                relevant, or haven't reviewed it yet. This visualization helps
+                you understand how your screening has progressed and where you
+                are in the review process.
               </Typography>
               <Typography
                 variant="body2"
                 sx={{ mt: 1, color: "primary.light" }}
-              >
-                Arrow of time: → ↓
-              </Typography>
+              ></Typography>
             </Box>
-            <Divider />
             <Box>
-              <Stack spacing={2}>
-                <Box>
-                  <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
-                    Chronological View
-                  </Typography>
-                  <Typography variant="body2">
-                    Records appear chronologically, showing your labeling
-                    journey in the correct order.
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
-                    Grouped View
-                  </Typography>
-                  <Typography variant="body2">
-                    Records are grouped by type, showing the patterns in your
-                    decisions.
-                  </Typography>
-                </Box>
-              </Stack>
-            </Box>
-            <Divider />
-            <Box>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                Color Guide
-              </Typography>
               <Stack spacing={1}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Box
@@ -338,6 +312,28 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
               </Stack>
             </Box>
             <Divider />
+            <Box>
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
+                    Chronological
+                  </Typography>
+                  <Typography variant="body2">
+                    Records appear chronologically, showing your labeling
+                    journey in the correct order.
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
+                    Grouped
+                  </Typography>
+                  <Typography variant="body2">
+                    Records are grouped by type, showing the patterns in your
+                    decisions.
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
             <Button
               href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
               target="_blank"

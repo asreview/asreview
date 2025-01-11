@@ -50,9 +50,6 @@ const actions = [
 
 const AnalyticsPage = () => {
   const { project_id } = useParams();
-
-  // Relevant to name editing. Currently goes to local storage, we can do this the proper way
-
   const { data } = useQuery(
     ["fetchInfo", { project_id }],
     ProjectAPI.fetchInfo,
@@ -138,23 +135,21 @@ const AnalyticsPage = () => {
   };
 
   return (
-    <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>
+    <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 4 }}>
       <Stack spacing={2} className="main-page-body">
         <Box>
           {statusData?.status === projectStatuses.FINISHED ? (
             <Box sx={{ textAlign: "center", mb: 1 }}>
               <Typography
-                variant="h4"
+                variant="subtitle1"
+                textAlign="center"
                 sx={{
                   fontWeight: "bold",
                   fontFamily: "Roboto Serif",
+                  pb: 3,
                   color: "success.main",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                 }}
               >
-                <DoneIcon sx={{ fontSize: 32 }} />
                 Finished
               </Typography>
             </Box>
@@ -162,7 +157,7 @@ const AnalyticsPage = () => {
             <Typography
               variant="subtitle1"
               textAlign="center"
-              sx={{ fontWeight: "bold", fontFamily: "Roboto Serif", pb: 1 }}
+              sx={{ fontWeight: "bold", fontFamily: "Roboto Serif", pb: 3 }}
             >
               In Review
             </Typography>
@@ -229,7 +224,7 @@ const AnalyticsPage = () => {
             )}
           </Typography>
           <Typography
-            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 4 }}
+            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }}
           >
             {progressQuery.data && progressQuery.data.n_records} records in
             total
@@ -261,7 +256,7 @@ const AnalyticsPage = () => {
           )}
         </Grid>
 
-        <Divider sx={{ pt: 4, pb: 2 }}>
+        <Divider sx={{ pt: 6, pb: 2 }}>
           <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
             Analytics
           </Typography>

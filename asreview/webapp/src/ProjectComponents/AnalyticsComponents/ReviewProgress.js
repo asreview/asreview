@@ -17,7 +17,7 @@ import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import { useQuery } from "react-query";
 import { PieChart } from "@mui/x-charts/PieChart";
-import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 export default function ReviewProgress({ project_id }) {
   const theme = useTheme();
@@ -144,7 +144,7 @@ export default function ReviewProgress({ project_id }) {
       <CardContent sx={{ mt: 2 }}>
         <Box sx={{ position: "absolute", top: 8, right: 8 }}>
           <IconButton size="small" onClick={handlePopoverOpen}>
-            <LightbulbOutlinedIcon fontSize="small" />
+            <StyledLightBulb fontSize="small" />
           </IconButton>
         </Box>
 

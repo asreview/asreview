@@ -18,7 +18,7 @@ import { useTheme } from "@mui/material/styles";
 import { toPng, toJpeg, toSvg } from "html-to-image";
 import { CardErrorHandler } from "Components";
 import Chart from "react-apexcharts";
-import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 const calculateProgressRecall = (data) => {
   // Total number of relevant items (inclusions)
@@ -321,7 +321,7 @@ export default function ProgressRecallChart(props) {
         <Stack>
           <Box sx={{ display: "flex", justifyContent: "flex-end", mb: -2 }}>
             <IconButton onClick={handleDownloadClick}>
-              <GetAppIcon />
+              <GetAppIcon fontSize="small" />
             </IconButton>
             <Menu
               anchorEl={anchorElMenu}
@@ -344,7 +344,7 @@ export default function ProgressRecallChart(props) {
               aria-owns={popoverOpen ? "mouse-over-popover" : undefined}
               aria-haspopup="true"
             >
-              <LightbulbOutlinedIcon fontSize="small" />
+              <StyledLightBulb fontSize="small" />
             </IconButton>
           </Box>
           {props.genericDataQuery.isLoading ? (
@@ -412,7 +412,6 @@ export default function ProgressRecallChart(props) {
                 </Box>
               </Stack>
             </Box>
-            <Divider />
             <Button
               href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
               target="_blank"

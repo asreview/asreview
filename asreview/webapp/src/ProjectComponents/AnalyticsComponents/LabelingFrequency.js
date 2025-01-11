@@ -12,7 +12,7 @@ import {
   Divider,
   Button,
 } from "@mui/material";
-import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import { CardErrorHandler } from "Components";
 import { useQuery } from "react-query";
 import { ProjectAPI } from "api";
@@ -330,7 +330,7 @@ const DistancePatternChart = ({ project_id }) => {
             size="small"
             onClick={(e) => setAnchorEl(e.currentTarget)}
           >
-            <LightbulbOutlinedIcon fontSize="small" />
+            <StyledLightBulb fontSize="small" />
           </IconButton>
         </Box>
 
@@ -418,7 +418,6 @@ const DistancePatternChart = ({ project_id }) => {
                 />
               </Box>
             </Box>
-            <Divider />
             <Button
               href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
               target="_blank"

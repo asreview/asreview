@@ -1,5 +1,5 @@
 import React from "react";
-import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import {
   Box,
   Button,
@@ -91,7 +91,7 @@ const WordCounts = () => {
             size="small"
             onClick={(e) => setAnchorElInfo(e.currentTarget)}
           >
-            <LightbulbOutlinedIcon fontSize="small" />
+            <StyledLightBulb fontSize="small" />
           </IconButton>
         </Box>
         {isLoading ? (

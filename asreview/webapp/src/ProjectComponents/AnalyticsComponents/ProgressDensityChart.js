@@ -20,7 +20,7 @@ import Chart from "react-apexcharts";
 
 import { CardErrorHandler } from "Components";
 
-import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 const calculateProgressDensity = (data) => {
   return data.map((entry, index, arr) => {
@@ -283,7 +283,7 @@ export default function ProgressDensityChart(props) {
         <Stack>
           <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 0 }}>
             <IconButton onClick={handleDownloadClick}>
-              <GetAppIcon />
+              <GetAppIcon fontSize="small" />
             </IconButton>
             <Menu
               anchorEl={anchorElMenu}
@@ -306,7 +306,7 @@ export default function ProgressDensityChart(props) {
               aria-owns={popoverOpen ? "info-popover" : undefined}
               aria-haspopup="true"
             >
-              <LightbulbOutlinedIcon fontSize="small" />
+              <StyledLightBulb fontSize="small" />
             </IconButton>
           </Box>
           {props.genericDataQuery.isLoading ? (
@@ -373,7 +373,6 @@ export default function ProgressDensityChart(props) {
                 </Box>
               </Stack>
             </Box>
-            <Divider />
             <Button
               href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
               target="_blank"

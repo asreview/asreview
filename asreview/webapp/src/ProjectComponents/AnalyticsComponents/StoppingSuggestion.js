@@ -3,7 +3,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import ArticleIcon from "@mui/icons-material/Article";
 import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
 import SettingsIcon from "@mui/icons-material/Settings";
-import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import {
   Box,
   Button,
@@ -210,7 +210,7 @@ const StoppingSuggestion = ({ project_id }) => {
       <CardContent sx={{ mt: 4 }}>
         <Box sx={{ position: "absolute", top: 8, right: 8 }}>
           <IconButton size="small" onClick={handleHelpPopoverOpen}>
-            <LightbulbOutlinedIcon fontSize="small" />
+            <StyledLightBulb fontSize="small" />
           </IconButton>
         </Box>
 
@@ -644,9 +644,17 @@ const StoppingSuggestion = ({ project_id }) => {
             <Box>
               <Typography
                 fontWeight="bold"
-                sx={{ fontFamily: "Roboto Serif", mb: 3, mt: 1 }}
+                sx={{ fontFamily: "Roboto Serif", mt: 1, fontSize: 24 }}
+                align="center"
               >
-                Stopping suggestion reached, how do you want to proceed?
+                Stopping suggestion reached,
+              </Typography>
+              <Typography
+                fontWeight="bold"
+                sx={{ fontFamily: "Roboto Serif", mb: 3, fontSize: 24 }}
+                align="center"
+              >
+                how do you want to proceed?
               </Typography>
               <Typography variant="body2">
                 You've reached your stopping threshold for this project. This
@@ -745,21 +753,17 @@ const StoppingSuggestion = ({ project_id }) => {
                 </Button>
               </Stack>
             </Box>
-
             <Divider />
+            <Button
+              href="https://github.com/asreview/asreview/discussions/557"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ textTransform: "none", p: 0 }}
+            >
+              Learn more about stopping →
+            </Button>
 
-            <Box>
-              <Button
-                href="https://github.com/asreview/asreview/discussions/557"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{ textTransform: "none", p: 0 }}
-              >
-                Learn more about stopping →
-              </Button>
-            </Box>
-
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Box align="center" mt={2}>
               <Button
                 onClick={() => setOpenCompletionPopup(false)}
                 variant="contained"
