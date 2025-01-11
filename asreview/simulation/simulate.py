@@ -206,7 +206,7 @@ class Simulate:
                 len(self.labels) - len(self._results["label"])
             )
 
-            print(f"\nLoss: {round(loss(padded_results), 2)}")
+            print(f"\nLoss: {loss(padded_results):.3f}")
 
     def label(self, record_ids, prior=False):
         """Label the records with the given record_ids.
