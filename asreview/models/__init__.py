@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.default import default_model
+from asreview.models.config import default_model
 
 __all__ = ["balance", "classifiers", "feature_extractor", "query", "default_model"]
 

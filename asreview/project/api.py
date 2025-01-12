@@ -40,7 +40,7 @@ from asreview.data.loader import _from_file
 from asreview.data.loader import _get_reader
 from asreview.datasets import DatasetManager
 from asreview.migrate import migrate_v1_v2
-from asreview.models.default import default_model
+from asreview.models.config import default_model
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
@@ -395,8 +395,6 @@ class Project:
 
         if settings is None:
             settings = ReviewSettings(**default_model())
-
-        print(settings)
 
         Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
         with open(
