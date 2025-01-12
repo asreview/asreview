@@ -20,10 +20,6 @@ def test_simulate_basic(tmpdir, balance_strategy):
     )
     project.add_dataset(DATA_FP)
 
-    feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(project.data_store.get_texts())
-    project.add_feature_matrix(fm, feature_model.name)
-
     # set numpy seed
     np.random.seed(42)
 
@@ -32,13 +28,17 @@ def test_simulate_basic(tmpdir, balance_strategy):
     else:
         balance_model = None
 
-    sim = asr.Simulate(
-        fm,
-        labels=project.data_store["included"],
-        classifier=load_extension("models.classifiers", "svm")(),
+    learner = asr.ActiveLearner(
         query_strategy=load_extension("models.query", "max_random")(),
+        classifier=load_extension("models.classifiers", "svm")(),
         balance_strategy=balance_model,
-        feature_extraction=feature_model,
+        feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+    )
+
+    sim = asr.Simulate(
+        project.data_store.get_texts(),
+        labels=project.data_store["included"],
+        learner=learner,
     )
     sim.label([0, 1], prior=True)
     sim.review()
@@ -57,10 +57,6 @@ def test_simulate_basic_classifiers(tmpdir, classifier):
     )
     project.add_dataset(DATA_FP)
 
-    feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(project.data_store.get_texts())
-    project.add_feature_matrix(fm, feature_model.name)
-
     # set numpy seed
     np.random.seed(42)
 
@@ -68,10 +64,12 @@ def test_simulate_basic_classifiers(tmpdir, classifier):
         query_strategy=load_extension("models.query", "max_random")(),
         classifier=load_extension("models.classifiers", classifier)(),
         balance_strategy=load_extension("models.balance", "balanced")(),
-        feature_extraction=feature_model,
+        feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
     )
 
-    sim = asr.Simulate(fm, project.data_store["included"], learner)
+    sim = asr.Simulate(
+        project.data_store.get_texts(), project.data_store["included"], learner
+    )
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
@@ -87,20 +85,20 @@ def test_simulate_no_prior(tmpdir):
     )
     project.add_dataset(DATA_FP)
 
-    feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(project.data_store.get_texts())
-    project.add_feature_matrix(fm, feature_model.name)
-
     # set numpy seed
     np.random.seed(42)
 
-    sim = asr.Simulate(
-        fm,
-        labels=project.data_store["included"],
-        classifier=load_extension("models.classifiers", "svm")(),
+    learner = asr.ActiveLearner(
         query_strategy=load_extension("models.query", "max_random")(),
+        classifier=load_extension("models.classifiers", "nb")(),
         balance_strategy=load_extension("models.balance", "balanced")(),
-        feature_extraction=feature_model,
+        feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+    )
+
+    sim = asr.Simulate(
+        project.data_store.get_texts(),
+        labels=project.data_store["included"],
+        learner=learner,
     )
     sim.review()
 
@@ -117,20 +115,20 @@ def test_simulate_random_prior(tmpdir):
     )
     project.add_dataset(DATA_FP)
 
-    feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(project.data_store.get_texts())
-    project.add_feature_matrix(fm, feature_model.name)
-
     # set numpy seed
     np.random.seed(42)
 
-    sim = asr.Simulate(
-        fm,
-        labels=project.data_store["included"],
-        classifier=load_extension("models.classifiers", "svm")(),
+    learner = asr.ActiveLearner(
         query_strategy=load_extension("models.query", "max_random")(),
+        classifier=load_extension("models.classifiers", "svm")(),
         balance_strategy=load_extension("models.balance", "balanced")(),
-        feature_extraction=feature_model,
+        feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+    )
+
+    sim = asr.Simulate(
+        project.data_store.get_texts(),
+        labels=project.data_store["included"],
+        learner=learner,
     )
     sim.label_random(1, 1, prior=True, random_state=42)
     sim.review()
@@ -148,20 +146,17 @@ def test_simulate_n_query(tmpdir):
     )
     project.add_dataset(DATA_FP)
 
-    feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(project.data_store.get_texts())
-    project.add_feature_matrix(fm, feature_model.name)
-
-    # set numpy seed
-    np.random.seed(42)
+    learner = asr.ActiveLearner(
+        query_strategy=load_extension("models.query", "max")(),
+        classifier=load_extension("models.classifiers", "svm")(),
+        balance_strategy=load_extension("models.balance", "balanced")(),
+        feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+    )
 
     sim = asr.Simulate(
-        fm,
+        project.data_store.get_texts(),
         labels=project.data_store["included"],
-        classifier=load_extension("models.classifiers", "svm")(),
-        query_strategy=load_extension("models.query", "max_random")(),
-        balance_strategy=load_extension("models.balance", "balanced")(),
-        feature_extraction=feature_model,
+        learner=learner,
         n_query=2,
     )
     sim.review()
@@ -179,17 +174,17 @@ def test_simulate_n_query_callable(tmpdir):
     )
     project.add_dataset(DATA_FP)
 
-    feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(project.data_store.get_texts())
-    project.add_feature_matrix(fm, feature_model.name)
+    learner = asr.ActiveLearner(
+        query_strategy=load_extension("models.query", "max")(),
+        classifier=load_extension("models.classifiers", "svm")(),
+        balance_strategy=load_extension("models.balance", "balanced")(),
+        feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+    )
 
     sim = asr.Simulate(
-        fm,
+        project.data_store.get_texts(),
         labels=project.data_store["included"],
-        classifier=load_extension("models.classifiers", "svm")(),
-        query_strategy=load_extension("models.query", "max_random")(),
-        balance_strategy=load_extension("models.balance", "balanced")(),
-        feature_extraction=feature_model,
+        learner=learner,
         n_query=lambda x: 2,
         n_stop=None,
     )
@@ -208,20 +203,20 @@ def test_simulate_n_query_callable_with_args(tmpdir):
     )
     project.add_dataset(DATA_FP)
 
-    feature_model = load_extension("models.feature_extraction", "tfidf")()
-    fm = feature_model.fit_transform(project.data_store.get_texts())
-    project.add_feature_matrix(fm, feature_model.name)
-
     def n_query(x):
         return len(x) // 2
 
-    sim = asr.Simulate(
-        fm,
-        labels=project.data_store["included"],
+    learner = asr.ActiveLearner(
+        query_strategy=load_extension("models.query", "max")(),
         classifier=load_extension("models.classifiers", "svm")(),
-        query_strategy=load_extension("models.query", "max_random")(),
         balance_strategy=load_extension("models.balance", "balanced")(),
-        feature_extraction=feature_model,
+        feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+    )
+
+    sim = asr.Simulate(
+        project.data_store.get_texts(),
+        labels=project.data_store["included"],
+        learner=learner,
         n_query=n_query,
         n_stop=None,
     )

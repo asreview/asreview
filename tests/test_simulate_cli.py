@@ -42,7 +42,7 @@ def test_simulate_review_finished(tmpdir):
 
 def test_prior_idx(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{str(DATA_FP)} -o {asreview_fp} --prior-idx 1 4".split()
+    argv = f"{DATA_FP} -o {asreview_fp} --prior-idx 1 4".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:
@@ -58,7 +58,7 @@ def test_prior_idx(tmpdir):
 
 def test_n_prior_included(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{str(DATA_FP)} -o {asreview_fp} --n-prior-included 2".split()
+    argv = f"{DATA_FP} -o {asreview_fp} --n-prior-included 2 --prior-seed 535".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:
@@ -70,7 +70,7 @@ def test_n_prior_included(tmpdir):
 
 def test_n_prior_excluded(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{str(DATA_FP)} -o {asreview_fp} --n-prior-excluded 2".split()
+    argv = f"{DATA_FP} -o {asreview_fp} --n-prior-excluded 2 --prior-seed 535".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:
@@ -83,7 +83,7 @@ def test_n_prior_excluded(tmpdir):
 @pytest.mark.skip(reason="Not implemented yet.")
 def test_seed(tmpdir):
     asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{str(DATA_FP)} -o {asreview_fp} --seed 42".split()
+    argv = f"{DATA_FP} -o {asreview_fp} --seed 42".split()
     _cli_simulate(argv)
 
     with open(asreview_fp, "r") as f:
@@ -95,7 +95,7 @@ def test_seed(tmpdir):
 @pytest.mark.parametrize("model", ["logistic", "nb", "rf", "svm"])
 def test_models(model, tmpdir):
     asreview_fp = Path(tmpdir, f"test_{model}.asreview")
-    argv = f"{str(DATA_FP)} -o {asreview_fp} -c {model}".split()
+    argv = f"{DATA_FP} -o {asreview_fp} -c {model}".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:
@@ -106,17 +106,6 @@ def test_models(model, tmpdir):
 
     Path(tmpdir, f"test_{model}").mkdir(parents=True)
     project = asr.Project.load(asreview_fp, Path(tmpdir, f"test_{model}"))
-
-    with open(
-        Path(
-            project.project_path,
-            "reviews",
-            project.config["reviews"][0]["id"],
-            "settings_metadata.json",
-        )
-    ) as f:
-        settings_metadata = json.load(f)
-        print(settings_metadata)
 
     settings = asr.ReviewSettings.from_file(
         Path(
@@ -132,7 +121,7 @@ def test_models(model, tmpdir):
 
 def test_no_balancing(tmpdir):
     asreview_fp = Path(tmpdir, "test_no_balance.asreview")
-    argv = f"{str(DATA_FP)} -o {asreview_fp} --no-balance-strategy".split()
+    argv = f"{DATA_FP} -o {asreview_fp} --no-balance-strategy".split()
     _cli_simulate(argv)
 
     with asr.open_state(asreview_fp) as state:

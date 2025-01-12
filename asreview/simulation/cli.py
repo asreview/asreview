@@ -218,14 +218,14 @@ def _cli_simulate(argv):
             prior=True,
             random_state=args.prior_seed,
         )
+        print(sim._results)
+
     sim.review()
 
     if args.output is not None:
-        # Project exists because it was created in previous `if args.output`.
-        project.add_feature_matrix(learner._X_features, feature_model.name)
+        project.add_feature_matrix(sim._X_features, feature_model.name)
         project.add_review(settings=settings, reviewer=sim, status="finished")
 
-        # export the project file
         project.export(args.output)
         shutil.rmtree(fp_tmp_simulation)
 

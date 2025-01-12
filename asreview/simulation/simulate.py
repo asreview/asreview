@@ -156,6 +156,7 @@ class Simulate:
             not (self._results["label"] == 1).any()
             or not (self._results["label"] == 0).any()
         ):
+            print("No prior knowledge found. Labeling random records.")
             argmin_bin = max(
                 np.where(self.labels == 1)[0].min(), np.where(self.labels == 0)[0].min()
             )
@@ -168,6 +169,8 @@ class Simulate:
                 new_idx = np.arange(argmin_bin + 1)
 
             self.label(new_idx, prior=True)
+
+        print(self._results)
 
         pbar_rel = tqdm(
             initial=sum(self._results["label"]) if hasattr(self, "_results") else 0,
