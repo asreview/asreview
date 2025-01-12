@@ -85,21 +85,28 @@ class Simulate:
     n_stop: int
         Number of steps/queries to perform. Set to None for no limit. Default
         is "min".
+    skip_transform: bool
+        If True, the feature matrix is not computed in the simulation. It is assumed
+        that X is the feature matrix or input to the estimator. Default is False.
     """
 
     def __init__(
         self,
-        fm,
+        X,
         labels,
         learner,
         n_query=1,
         n_stop="min",
+        skip_transform=False,
+        print_progress=True,
     ):
-        self.fm = fm
+        self.X = X
         self.labels = labels
         self.learner = learner
         self.n_query = n_query
         self.n_stop = n_stop
+        self.skip_transform = skip_transform
+        self.print_progress = print_progress
 
     @property
     def _results(self):
@@ -166,17 +173,27 @@ class Simulate:
             initial=sum(self._results["label"]) if hasattr(self, "_results") else 0,
             total=sum(self.labels),
             desc="Relevant records found",
+            disable=not self.print_progress,
         )
         pbar_total = tqdm(
             initial=len(self._results) if hasattr(self, "_results") else 0,
             total=len(self.labels),
             desc="Records labeled       ",
+            disable=not self.print_progress,
         )
 
         while not self._stop_review():
+            # compute the feature matrix for the labeled records if not in _X_features
+            # cache
+            if not hasattr(self, "_X_features"):
+                if not self.skip_transform:
+                    self._X_features = self.learner.transform(self.X)
+                else:
+                    self._X_features = self.X
+
             # fit the estimator to the labeled records
             self.learner.fit(
-                self.fm[self._results["record_id"].values],
+                self._X_features[self._results["record_id"].values],
                 self._results["label"].values,
             )
 
@@ -185,10 +202,8 @@ class Simulate:
                 np.arange(len(self.labels)), self._results["record_id"].values
             )
 
-            # rank the pool
-            ranked_pool = self.learner.rank(self.fm[pool_record_ids])
-
-            # convert the ranked pool to record ids
+            # rank the pool and convert the ranked pool to record ids
+            ranked_pool = self.learner.rank(self._X_features[pool_record_ids])
             ranked_pool_record_ids = pool_record_ids[ranked_pool]
 
             # label n_query records from the pool

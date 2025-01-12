@@ -52,7 +52,7 @@ class ActiveLearner:
         self.feature_extraction = feature_extraction
 
     def transform(self, X):
-        pass
+        return self.feature_extraction.fit_transform(X)
 
     def fit(self, X, y):
         """Fit the classifier to the data.
