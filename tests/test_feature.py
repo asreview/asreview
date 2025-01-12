@@ -26,19 +26,13 @@ def test_feature_param(feature_extraction):
 
 
 @pytest.mark.parametrize("feature_extraction", extensions("models.feature_extraction"))
-@pytest.mark.parametrize("split_ta", [False, True])
-def test_features(tmpdir, feature_extraction, split_ta):
+def test_features(tmpdir, feature_extraction):
     data_fp = os.path.join("tests", "demo_data", "generic.csv")
 
     data_store = asr.load_dataset(data_fp, dataset_id="test_id")
     model = load_extension("models.feature_extraction", feature_extraction.name)()
 
-    if split_ta:
-        titles = data_store["title"]
-        abstracts = data_store["abstract"]
-        X = model.fit_transform(titles, abstracts)
-    else:
-        X = model.fit_transform(data_store.get_texts())
+    X = model.fit_transform(data_store.get_df())
 
     assert X.shape[0] == len(data_store)
     assert X.shape[1] > 0

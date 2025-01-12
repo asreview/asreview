@@ -36,7 +36,7 @@ def test_simulate_basic(tmpdir, balance_strategy):
     )
 
     sim = asr.Simulate(
-        project.data_store.get_texts(),
+        project.data_store.get_df(),
         labels=project.data_store["included"],
         learner=learner,
     )
@@ -68,7 +68,7 @@ def test_simulate_basic_classifiers(tmpdir, classifier):
     )
 
     sim = asr.Simulate(
-        project.data_store.get_texts(), project.data_store["included"], learner
+        project.data_store.get_df(), project.data_store["included"], learner
     )
     sim.review()
 
@@ -96,7 +96,7 @@ def test_simulate_no_prior(tmpdir):
     )
 
     sim = asr.Simulate(
-        project.data_store.get_texts(),
+        project.data_store.get_df(),
         labels=project.data_store["included"],
         learner=learner,
     )
@@ -126,7 +126,7 @@ def test_simulate_random_prior(tmpdir):
     )
 
     sim = asr.Simulate(
-        project.data_store.get_texts(),
+        project.data_store.get_df(),
         labels=project.data_store["included"],
         learner=learner,
     )
@@ -154,7 +154,7 @@ def test_simulate_n_query(tmpdir):
     )
 
     sim = asr.Simulate(
-        project.data_store.get_texts(),
+        project.data_store.get_df(),
         labels=project.data_store["included"],
         learner=learner,
         n_query=2,
@@ -182,7 +182,7 @@ def test_simulate_n_query_callable(tmpdir):
     )
 
     sim = asr.Simulate(
-        project.data_store.get_texts(),
+        project.data_store.get_df(),
         labels=project.data_store["included"],
         learner=learner,
         n_query=lambda x: 2,
@@ -214,7 +214,7 @@ def test_simulate_n_query_callable_with_args(tmpdir):
     )
 
     sim = asr.Simulate(
-        project.data_store.get_texts(),
+        project.data_store.get_df(),
         labels=project.data_store["included"],
         learner=learner,
         n_query=n_query,

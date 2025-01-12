@@ -63,7 +63,7 @@ def run_model(project):
         try:
             fm = project.get_feature_matrix(feature_model.name)
         except FileNotFoundError:
-            fm = feature_model.fit_transform(project.data_store.get_texts())
+            fm = feature_model.fit_transform(project.data_store.get_df())
             project.add_feature_matrix(fm, feature_model.name)
 
         with open_state(project) as state:
@@ -126,7 +126,7 @@ def run_simulation(project):
     feature_model = load_extension(
         "models.feature_extraction", settings.feature_extraction
     )()
-    fm = feature_model.fit_transform(project.data_store.get_texts())
+    fm = feature_model.fit_transform(project.data_store.get_df())
     project.add_feature_matrix(fm, feature_model.name)
 
     if settings.balance_strategy is not None:

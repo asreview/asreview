@@ -45,8 +45,22 @@ def duplicated(df, pid="doi"):
         s_dups_pid = None
 
     # get the texts, clean them and replace empty strings with None
+
+    try:
+        titles = df["title"]
+    except KeyError:
+        return df["abstract"]
+    try:
+        abstracts = df["abstract"]
+    except KeyError:
+        return df["title"]
+
+    s_title = pd.Series(titles).fillna("")
+    s_abstract = pd.Series(abstracts).fillna("")
+
     s = (
-        pd.Series(get_texts(df))
+        (s_title + " " + s_abstract)
+        .str.strip()
         .str.replace("[^A-Za-z0-9]", "", regex=True)
         .str.lower()
         .str.strip()
@@ -63,28 +77,6 @@ def duplicated(df, pid="doi"):
         s_dups = s_dups_text
 
     return s_dups
-
-
-def get_texts(df):
-    """Get texts from a dataframe containing at least one of 'title' and 'abstract'.
-
-    A text consists of the title and abstract concatenated."""
-    # One of title and abstract is always present.
-    try:
-        titles = df["title"]
-    except KeyError:
-        return df["abstract"]
-    try:
-        abstracts = df["abstract"]
-    except KeyError:
-        return df["title"]
-
-    s_title = pd.Series(titles).fillna("")
-    s_abstract = pd.Series(abstracts).fillna("")
-
-    cur_texts = (s_title + " " + s_abstract).str.strip()
-
-    return cur_texts.values
 
 
 def convert_to_list(value):

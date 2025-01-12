@@ -396,6 +396,8 @@ class Project:
         if settings is None:
             settings = ReviewSettings(**default_model())
 
+        print(settings)
+
         Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
         with open(
             Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"

@@ -14,11 +14,6 @@
 
 """Default model for ASReview environment."""
 
-from asreview.models.balance import Balanced
-from asreview.models.classifiers import NaiveBayesClassifier
-from asreview.models.feature_extraction import Tfidf
-from asreview.models.query import MaxQuery
-
 
 def default_model():
     return {
@@ -26,8 +21,8 @@ def default_model():
         "query_strategy": "max",
         "balance_strategy": "balanced",
         "feature_extraction": "tfidf",
-        "classifier_param": NaiveBayesClassifier().get_params(),
-        "query_param": MaxQuery().get_params(),
-        "balance_param": Balanced().get_params(),
-        "feature_param": Tfidf().get_params(),
+        "classifier_param": {},  # only the overwritten param are stored
+        "query_param": {},
+        "balance_param": {},
+        "feature_param": {},
     }

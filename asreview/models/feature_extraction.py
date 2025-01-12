@@ -12,13 +12,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import Pipeline
+
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 __all__ = ["Tfidf", "OneHot"]
 
 
-class Tfidf(TfidfVectorizer):
+class TextMerger(TransformerMixin, BaseEstimator):
+    """Merge text columns into a single column.
+
+    Merge multiple columns into a single column. This can be useful when
+    multiple columns contain text information that should be combined.
+
+    Parameters
+    ----------
+    columns: list
+        List of columns to merge.
+    sep: str
+        Separator to use when merging the columns.
+    """
+
+    def __init__(self, columns, sep=" "):
+        self.columns = columns
+        self.sep = sep
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        return X[self.columns].apply(lambda x: self.sep.join(x), axis=1)
+
+
+class Tfidf(Pipeline):
     """TF-IDF feature extraction technique (``tfidf``).
 
     Use the standard TF-IDF (Term Frequency-Inverse Document Frequency) feature
@@ -30,9 +58,6 @@ class Tfidf(TfidfVectorizer):
 
     Parameters
     ----------
-    ngram_max: int
-        Can use up to ngrams up to ngram_max. For example in the case of
-        ngram_max=2, monograms and bigrams could be used.
     stop_words: str
         When set to 'english', use stopwords. If set to None or 'none',
         do not use stop words.
@@ -42,10 +67,16 @@ class Tfidf(TfidfVectorizer):
     label = "TF-IDF"
 
     def __init__(self, stop_words="english", **kwargs):
-        super().__init__(stop_words=stop_words, **kwargs)
+        self.stop_words = stop_words
+        super().__init__(
+            [
+                ("text_merger", TextMerger(columns=["title", "abstract"])),
+                ("tfidf", TfidfVectorizer(stop_words=stop_words, **kwargs)),
+            ]
+        )
 
 
-class OneHot(CountVectorizer):
+class OneHot(Pipeline):
     """OneHot feature extraction technique (``onehot``).
 
     Use the standard OneHot feature extraction technique from `SKLearn
@@ -75,10 +106,21 @@ class OneHot(CountVectorizer):
         ngram_range=(1, 3),
         **kwargs,
     ):
+        self.max_df = max_df
+        self.min_df = min_df
+        self.ngram_range = ngram_range
+
         super().__init__(
-            binary=True,
-            max_df=max_df,
-            min_df=min_df,
-            ngram_range=ngram_range,
-            **kwargs,
+            [
+                ("text_merger", TextMerger(columns=["title", "abstract"])),
+                (
+                    "onehot",
+                    CountVectorizer(
+                        max_df=max_df,
+                        min_df=min_df,
+                        ngram_range=ngram_range,
+                        **kwargs,
+                    ),
+                ),
+            ]
         )

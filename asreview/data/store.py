@@ -198,32 +198,3 @@ class DataStore:
                 con,
                 dtype=self.pandas_dtype_mapping,
             )
-
-    def get_texts(self, columns=None, join_char=" "):
-        """Get a list of texts from the data store.
-
-        Gets the texts from multiple columns and the columns using a join character.
-
-        Parameters
-        ----------
-        columns : list[str], optional
-            Columns from which to use the text. If None, it will use the columns
-            ["title", "abstract"]. By default None.
-        join_char : str, optional
-            Character used to join texts from multiple columns into a single text.
-            By default " ".
-
-        Returns
-        -------
-        Iterable[str]
-            For each record in the data store, the values at each of the columns,
-            concatenated using the join character. So the default behavior is to
-            concatenate the title and abstract of each record.
-        """
-        if columns is None:
-            columns = ["title", "abstract"]
-
-        current_texts = self[columns[0]]
-        for column in columns[1:]:
-            current_texts = current_texts + join_char + self[column]
-        return current_texts

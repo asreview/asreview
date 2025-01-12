@@ -57,10 +57,7 @@ def _convert_id_to_idx(data_obj, record_id):
 
 
 def _unpack_params(params):
-    if params is None:
-        return {}
-
-    return params
+    return {} if params is None else params
 
 
 def _print_record(record, use_cli_colors=True):
@@ -202,7 +199,7 @@ def _cli_simulate(argv):
     )
 
     sim = Simulate(
-        data_store.get_texts(),
+        data_store.get_df(),
         data_store["included"],
         learner,
         n_query=args.n_query,
