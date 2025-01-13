@@ -26,14 +26,6 @@ import { ElasIcon } from "icons";
 import { WordMark } from "icons/WordMark";
 import ElasGameDialog from "./ElasGame";
 
-// Ideally, we need a flow for users to pick their avatars
-// in their profile page and display those in every project
-import ElasFireman from "../images/ElasFireMan.jpg";
-import ElasGrad from "../images/ElasGrad.jpg";
-import ElasSuperHero from "../images/ElasSuperHero.jpg";
-
-const avatarImages = [ElasFireman, ElasGrad, ElasSuperHero];
-
 const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
   const [openGame, toggleGame] = useToggle();
   const [expandAvatars, setExpandAvatars] = useToggle(true);
@@ -147,10 +139,11 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
                           placement="bottom"
                           arrow
                         >
-                          <Avatar
-                            src={avatarImages[index % avatarImages.length]}
-                            alt={user.name || ""}
-                          />
+                          <Avatar>
+                            {user?.name
+                              ? user.name.charAt(0).toUpperCase()
+                              : "?"}
+                          </Avatar>
                         </Tooltip>
                       ))}
                     </AvatarGroup>
