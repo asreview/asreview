@@ -174,12 +174,12 @@ const DistancePatternChart = ({ project_id }) => {
       labels: {
         colors: theme.palette.text.secondary,
       },
-      customLegendItems: ["Relevant Records"],
+      customLegendItems: ["Relevant Records", "Distance Between Records"],
       markers: {
         width: 8,
         height: 8,
         radius: 50,
-        fillColors: [theme.palette.grey[600]],
+        fillColors: [theme.palette.grey[600], theme.palette.primary.main],
         strokeWidth: 0,
         offsetX: -4,
       },
@@ -382,6 +382,15 @@ const DistancePatternChart = ({ project_id }) => {
             <Divider />
             <Box>
               <Stack spacing={2}>
+                <Box>
+                  <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
+                    Dashed Line
+                  </Typography>
+                  <Typography variant="body2">
+                    The dashed line shows the distance between your current
+                    labeling and the last relevant record.
+                  </Typography>
+                </Box>
                 <Box>
                   <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
                     Short Distances
