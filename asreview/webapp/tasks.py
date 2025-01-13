@@ -20,6 +20,8 @@ from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
 from asreview.webapp.utils import get_project_path
+from asreview.models.query import TopDownQuery
+from asreview.stopping import StoppingIsFittable
 
 
 def run_task(project_id, simulation=False):
@@ -42,6 +44,8 @@ def run_model(project):
         if s.get_results_table("label")["label"].value_counts().shape[0] < 2:
             return
 
+        labeled = s.get_results_table(columns=["record_id", "label"])
+
     try:
         settings = ReviewSettings.from_file(
             Path(
@@ -52,53 +56,45 @@ def run_model(project):
             )
         )
 
-        query_strategy = load_extension("models.query", settings.query_strategy)()
-
-        if query_strategy.name == "random":
-            raise ValueError("Random query strategy is not available in the webapp.")
-
         feature_model = load_extension(
             "models.feature_extraction", settings.feature_extraction
         )()
+
+        if settings.balance_strategy is not None:
+            balance_model = load_extension(
+                "models.balance", settings.balance_strategy
+            )()
+        else:
+            balance_model = None
+
         try:
             fm = project.get_feature_matrix(feature_model.name)
-        except FileNotFoundError:
+        except ValueError:
             fm = feature_model.fit_transform(project.data_store.get_df())
             project.add_feature_matrix(fm, feature_model.name)
 
-        with open_state(project) as state:
-            labeled = state.get_results_table(columns=["record_id", "label"])
-
-            if settings.balance_strategy is not None:
-                balance_model = load_extension(
-                    "models.balance", settings.balance_strategy
-                )()
-                balance_model_name = balance_model.name
-                sample_weight = balance_model.compute_sample_weight(
-                    labeled["label"].values
-                )
-            else:
-                sample_weight = None
-                balance_model_name = None
-
-            classifier = load_extension("models.classifiers", settings.classifier)()
-            classifier.fit(
-                fm[labeled["record_id"].values],
-                labeled["label"].values,
-                sample_weight=sample_weight,
-            )
-            relevance_scores = classifier.predict_proba(fm)
-
-        ranked_record_ids = query_strategy.query(
-            feature_matrix=fm, relevance_scores=relevance_scores
+        learner = asr.ActiveLearningCycle(
+            query_strategy=load_extension("models.query", settings.query_strategy)(),
+            classifier=load_extension("models.classifiers", settings.classifier)(),
+            balance_strategy=balance_model,
+            feature_extraction=None,  # directly from the feature matrix
         )
+
+        learner.fit(
+            fm[labeled["record_id"].values],
+            labeled["label"].values,
+        )
+
+        ranked_record_ids = learner.rank(fm)
 
         with open_state(project) as state:
             state.add_last_ranking(
                 ranked_record_ids,
-                classifier.name,
-                query_strategy.name,
-                balance_model_name,
+                learner.classifier.name,
+                learner.query_strategy.name,
+                learner.balance_strategy.name
+                if learner.balance_strategy is not None
+                else None,
                 feature_model.name,
                 len(labeled),
             )
@@ -123,27 +119,28 @@ def run_simulation(project):
     with open_state(project) as state:
         priors = state.get_priors()["record_id"].tolist()
 
-    feature_model = load_extension(
-        "models.feature_extraction", settings.feature_extraction
-    )()
-    fm = feature_model.fit_transform(project.data_store.get_df())
-    project.add_feature_matrix(fm, feature_model.name)
-
-    if settings.balance_strategy is not None:
-        balance_model = load_extension("models.balance", settings.balance_strategy)()
-    else:
-        balance_model = None
+    learners = [
+        asr.ActiveLearningCycle(
+            query_strategy=TopDownQuery(),
+            stopping=StoppingIsFittable(),
+        ),
+        asr.ActiveLearningCycle(
+            query_strategy=load_extension("models.query", settings.query_strategy)(),
+            classifier=load_extension("models.classifiers", settings.classifier)(),
+            balance_strategy=load_extension(
+                "models.balance", settings.balance_strategy
+            )(),
+            feature_extraction=load_extension(
+                "models.feature_extraction", settings.feature_extraction
+            )(),
+        ),
+    ]
 
     sim = Simulate(
-        fm,
-        labels=project.data_store["included"],
-        classifier=load_extension("models.classifiers", settings.classifier)(),
-        query_strategy=load_extension("models.query", settings.query_strategy)(),
-        balance_strategy=balance_model,
-        feature_extraction=feature_model,
+        project.data_store.get_df(), project.data_store["included"], learners
     )
     try:
-        sim.label(priors, prior=True)
+        sim.label(priors)
         sim.review()
     except Exception as err:
         project.set_review_error(err)

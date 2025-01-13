@@ -35,12 +35,15 @@ import numpy as np
 import scipy.sparse as sp
 from filelock import FileLock
 
+from asreview.models import DEFAULT_CLASSIFIER
+from asreview.models import DEFAULT_BALANCE
+from asreview.models import DEFAULT_FEATURE_EXTRACTION
+from asreview.models import DEFAULT_QUERY
 from asreview.data import DataStore
 from asreview.data.loader import _from_file
 from asreview.data.loader import _get_reader
 from asreview.datasets import DatasetManager
 from asreview.migrate import migrate_v1_v2
-from asreview.models.config import default_model
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
@@ -394,7 +397,12 @@ class Project:
         config = self.config
 
         if settings is None:
-            settings = ReviewSettings(**default_model())
+            settings = ReviewSettings(
+                classifier=DEFAULT_CLASSIFIER,
+                balance_strategy=DEFAULT_BALANCE,
+                feature_extraction=DEFAULT_FEATURE_EXTRACTION,
+                query_strategy=DEFAULT_QUERY,
+            )
 
         Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
         with open(
@@ -583,7 +591,15 @@ class Project:
                     _check_model(settings)
                 except ValueError as err:
                     warnings.warn(err)
-                    settings = replace(settings, **default_model())
+                    settings = replace(
+                        settings,
+                        **{
+                            "classifier": DEFAULT_CLASSIFIER,
+                            "balance_strategy": DEFAULT_BALANCE,
+                            "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
+                            "query_strategy": DEFAULT_QUERY,
+                        },
+                    )
                     with open(settings_fp) as f:
                         json.dump(asdict(settings), f)
 
