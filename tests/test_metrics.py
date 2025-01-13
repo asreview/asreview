@@ -1,6 +1,6 @@
 import numpy as np
-from numpy.testing import assert_almost_equal
 import pytest
+from numpy.testing import assert_almost_equal
 
 from asreview.metrics import loss
 

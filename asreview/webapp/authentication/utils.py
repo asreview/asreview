@@ -1,5 +1,4 @@
 import datetime as dt
-
 from pathlib import Path
 
 from flask import render_template_string

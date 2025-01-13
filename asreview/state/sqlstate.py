@@ -18,7 +18,6 @@ import time
 
 import pandas as pd
 
-
 REQUIRED_TABLES = [
     "results",
     "last_ranking",

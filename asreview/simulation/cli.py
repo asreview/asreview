@@ -20,13 +20,17 @@ import shutil
 from pathlib import Path
 
 import numpy as np
+from sklearn.utils import check_random_state
 
 from asreview import load_dataset
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
+from asreview.learner import ActiveLearningCycle
+from asreview.models.query import TopDownQuery
 from asreview.project.api import Project
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
+from asreview.stopping import StoppingIsFittable
 from asreview.types import type_n_queries
 from asreview.utils import _format_to_str
 
@@ -56,10 +60,7 @@ def _convert_id_to_idx(data_obj, record_id):
 
 
 def _unpack_params(params):
-    if params is None:
-        return {}
-
-    return params
+    return {} if params is None else params
 
 
 def _print_record(record, use_cli_colors=True):
@@ -189,40 +190,64 @@ def _cli_simulate(argv):
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
         prior_idx = _convert_id_to_idx(data_store, args.prior_record_id)
 
-    fm = feature_model.from_data_store(data_store)
-
-    print("The following records are prior knowledge:\n")
-    for record in data_store.get_records(prior_idx):
-        _print_record(record)
+    learners = [
+        ActiveLearningCycle(
+            query_strategy=TopDownQuery(),
+            stopping=StoppingIsFittable(),
+        ),
+        ActiveLearningCycle(
+            query_strategy=query_model,
+            classifier=classifier_model,
+            balance_strategy=balance_model,
+            feature_extraction=feature_model,
+            n_query=args.n_query,
+        ),
+    ]
 
     sim = Simulate(
-        fm,
+        data_store.get_df(),
         data_store["included"],
-        classifier=classifier_model,
-        query_strategy=query_model,
-        balance_strategy=balance_model,
-        feature_extraction=feature_model,
-        n_query=args.n_query,
-        n_stop=args.n_stop,
+        learners,
+        stopping=args.n_stop,
     )
-    if len(prior_idx) > 0:
-        sim.label(prior_idx, prior=True)
 
-    if args.n_prior_included > 0 or args.n_prior_excluded > 0:
-        sim.label_random(
-            n_included=args.n_prior_included,
-            n_excluded=args.n_prior_excluded,
-            prior=True,
-            random_state=args.prior_seed,
-        )
+    # select or sample prior knowledge and then label it
+    if len(prior_idx) > 0:
+        print("Selected prior knowledge via --prior-idx:\n")
+        for record in data_store.get_records(prior_idx):
+            _print_record(record)
+
+        sim.label(prior_idx)
+
+    if args.n_prior_included > 0:
+        r = check_random_state(args.prior_seed)
+
+        included_idx = np.where(data_store["included"] == 1)[0]
+        if len(included_idx) < args.n_prior_included:
+            raise ValueError(
+                f"Number of included priors requested ({args.n_prior_included})"
+                f" is bigger than number of included records "
+                f"({len(included_idx)})."
+            )
+        sim.label(r.choice(included_idx, args.n_prior_included, replace=False))
+
+    if args.n_prior_excluded > 0:
+        r = check_random_state(args.prior_seed)
+
+        excluded_idx = np.where(data_store["included"] == 0)[0]
+        if len(excluded_idx) < args.n_prior_excluded:
+            raise ValueError(
+                f"Number of excluded priors requested ({args.n_prior_excluded})"
+                f" is bigger than number of excluded records "
+                f"({len(excluded_idx)})."
+            )
+        sim.label(r.choice(excluded_idx, args.n_prior_excluded, replace=False))
+
     sim.review()
 
     if args.output is not None:
-        # Project exists because it was created in previous `if args.output`.
-        project.add_feature_matrix(fm, feature_model)
         project.add_review(settings=settings, reviewer=sim, status="finished")
 
-        # export the project file
         project.export(args.output)
         shutil.rmtree(fp_tmp_simulation)
 

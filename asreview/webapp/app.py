@@ -23,9 +23,9 @@ except ImportError:
     import tomli as tomllib
 
 from flask import Flask
+from flask import redirect
 from flask import request
 from flask import send_from_directory
-from flask import redirect
 from flask.templating import render_template
 from flask_cors import CORS
 from flask_login import LoginManager
@@ -37,11 +37,11 @@ from asreview.webapp import DB
 from asreview.webapp.api import auth
 from asreview.webapp.api import projects
 from asreview.webapp.api import team
+from asreview.webapp.authentication.decorators import login_remote_user
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 from asreview.webapp.authentication.remote_user_handler import RemoteUserHandler
 from asreview.webapp.utils import asreview_path
-from asreview.webapp.authentication.decorators import login_remote_user
 
 
 def create_app(config_path=None):

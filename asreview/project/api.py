@@ -22,29 +22,36 @@ import os
 import shutil
 import tempfile
 import time
-from urllib.request import urlretrieve
+import warnings
 import zipfile
 from dataclasses import asdict
 from dataclasses import replace
 from pathlib import Path
+from urllib.request import urlretrieve
 from uuid import uuid4
-import warnings
 
 import jsonschema
+import numpy as np
+import scipy.sparse as sp
 from filelock import FileLock
 
-from asreview.data.loader import _from_file, _get_reader
+from asreview.models import DEFAULT_CLASSIFIER
+from asreview.models import DEFAULT_BALANCE
+from asreview.models import DEFAULT_FEATURE_EXTRACTION
+from asreview.models import DEFAULT_QUERY
+from asreview.data import DataStore
+from asreview.data.loader import _from_file
+from asreview.data.loader import _get_reader
 from asreview.datasets import DatasetManager
 from asreview.migrate import migrate_v1_v2
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
-from asreview.data import DataStore
 from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
-from asreview.models.default import default_model
-
-from asreview.utils import _check_model, _get_filename_from_url, _is_url
+from asreview.utils import _check_model
+from asreview.utils import _get_filename_from_url
+from asreview.utils import _is_url
 
 try:
     from asreview._version import __version__
@@ -269,33 +276,37 @@ class Project:
         except Exception:
             return []
 
-    @staticmethod
-    def get_matrix_filename(feature_model):
-        """Get the file name of the feature matrix for a specific feature model."""
-        return f"{feature_model.name}_feature_matrix.{feature_model.__file_extension__}"
-
-    def add_feature_matrix(self, feature_matrix, feature_model):
+    def add_feature_matrix(self, feature_matrix, name):
         """Add feature matrix to project file.
 
         Parameters
         ----------
         feature_matrix: numpy.ndarray, scipy.sparse.csr.csr_matrix
             The feature matrix to add to the project file.
-        feature_model: BaseFeatureExtraction
-            Feature extraction class.
+        name: str
+            Name of the feature extractor.
         """
-        matrix_filename = self.get_matrix_filename(feature_model)
-        feature_model.write(
-            Path(self.project_path, PATH_FEATURE_MATRICES, matrix_filename),
-            feature_matrix,
-        )
+        file_name = f"{name}_feature_matrix"
+        file_path = Path(self.project_path, PATH_FEATURE_MATRICES, file_name)
+
+        if sp.issparse(feature_matrix):
+            sp.save_npz(str(file_path), feature_matrix)
+            file_name += ".npz"
+        elif isinstance(feature_matrix, np.ndarray):
+            np.save(file_path, feature_matrix)
+            file_name += ".npy"
+        elif isinstance(feature_matrix, list):
+            np.save(file_path, np.array(feature_matrix))
+            file_name += ".npy"
+        else:
+            raise ValueError("Unsupported feature matrix type")
 
         # Add the feature matrix to the project config.
         config = self.config
 
         feature_matrix_config = {
-            "id": feature_model.name,
-            "filename": matrix_filename,
+            "id": name,
+            "filename": file_name,
         }
 
         # Add container for feature matrices.
@@ -306,23 +317,38 @@ class Project:
 
         self.config = config
 
-    def get_feature_matrix(self, feature_model):
+    def get_feature_matrix(self, name):
         """Get the feature matrix from the project file.
 
         Parameters
         ----------
-        feature_model : BaseFeatureExtraction
-            Feature extraction class for which to get the matrix.
+        name : str
+            Name of the feature extractor for which to get the cached matrix.
 
         Returns
         -------
-        numpy.ndarray, scipy.sparse.csr_matrix:
-            Feature matrix. This should have the same length as the dataset.
+        numpy.ndarray, scipy.sparse:
+            (Sparse) feature matrix.
         """
-        matrix_filename = self.get_matrix_filename(feature_model)
-        return feature_model.read(
-            Path(self.project_path, PATH_FEATURE_MATRICES, matrix_filename)
+        feature_matrix_config = [
+            x for x in self.config["feature_matrices"] if x["id"] == name
+        ]
+
+        if len(feature_matrix_config) == 0:
+            raise ValueError("Feature matrix not found")
+
+        file_path = Path(
+            self.project_path,
+            PATH_FEATURE_MATRICES,
+            feature_matrix_config[0]["filename"],
         )
+
+        if file_path.suffix == ".npz":
+            return sp.load_npz(str(file_path))
+        elif file_path.suffix == ".npy":
+            return np.load(file_path, allow_pickle=False)
+        else:
+            raise ValueError("Unsupported file extension")
 
     @property
     def reviews(self):
@@ -371,7 +397,12 @@ class Project:
         config = self.config
 
         if settings is None:
-            settings = ReviewSettings(**default_model())
+            settings = ReviewSettings(
+                classifier=DEFAULT_CLASSIFIER,
+                balance_strategy=DEFAULT_BALANCE,
+                feature_extraction=DEFAULT_FEATURE_EXTRACTION,
+                query_strategy=DEFAULT_QUERY,
+            )
 
         Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
         with open(
@@ -560,7 +591,15 @@ class Project:
                     _check_model(settings)
                 except ValueError as err:
                     warnings.warn(err)
-                    settings = replace(settings, **default_model())
+                    settings = replace(
+                        settings,
+                        **{
+                            "classifier": DEFAULT_CLASSIFIER,
+                            "balance_strategy": DEFAULT_BALANCE,
+                            "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
+                            "query_strategy": DEFAULT_QUERY,
+                        },
+                    )
                     with open(settings_fp) as f:
                         json.dump(asdict(settings), f)
 

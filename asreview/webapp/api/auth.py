@@ -20,22 +20,19 @@ from flask import request
 from flask_login import current_user
 from flask_login import login_required
 from flask_login import logout_user
-
 from sqlalchemy import and_
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
-from asreview.webapp.authentication.decorators import login_remote_user
 
 from asreview.webapp import DB
+from asreview.webapp.authentication.decorators import login_remote_user
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
-
 from asreview.webapp.authentication.utils import has_email_configuration
 from asreview.webapp.authentication.utils import perform_login_user
-from asreview.webapp.authentication.utils import send_forgot_password_email
 from asreview.webapp.authentication.utils import send_confirm_account_email
-
+from asreview.webapp.authentication.utils import send_forgot_password_email
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 

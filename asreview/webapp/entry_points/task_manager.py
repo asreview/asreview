@@ -1,13 +1,12 @@
 import argparse
-import textwrap
 import os
+import textwrap
 
-from asreview.webapp.task_manager.task_manager import setup_logging
 from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_HOST
 from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_PORT
 from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_WORKERS
 from asreview.webapp.task_manager.task_manager import TaskManager
-
+from asreview.webapp.task_manager.task_manager import setup_logging
 
 description = """\
 This entry point launches an instance of ASReview's task manager. You can

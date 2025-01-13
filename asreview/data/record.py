@@ -1,8 +1,8 @@
 from typing import Optional
 
 import pandas as pd
-
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import ForeignKey
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import MappedAsDataclass
