@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-class ActiveLearner:
+class ActiveLearningCycle:
     """Active learner cycle class
 
     The active learner class is a wrapper around a query strategy and a classifier.
@@ -42,7 +42,7 @@ class ActiveLearner:
 
     Returns
     -------
-    ActiveLearner:
+    ActiveLearningCycle:
         An active learner object.
 
     """

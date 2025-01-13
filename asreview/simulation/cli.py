@@ -25,7 +25,7 @@ from sklearn.utils import check_random_state
 from asreview import load_dataset
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
-from asreview.learner import ActiveLearner
+from asreview.learner import ActiveLearningCycle
 from asreview.models.query import TopDownQuery
 from asreview.project.api import Project
 from asreview.settings import ReviewSettings
@@ -191,11 +191,11 @@ def _cli_simulate(argv):
         prior_idx = _convert_id_to_idx(data_store, args.prior_record_id)
 
     learners = [
-        ActiveLearner(
+        ActiveLearningCycle(
             query_strategy=TopDownQuery(),
             stopping=StoppingIsFittable(),
         ),
-        ActiveLearner(
+        ActiveLearningCycle(
             query_strategy=query_model,
             classifier=classifier_model,
             balance_strategy=balance_model,

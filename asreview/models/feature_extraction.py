@@ -47,20 +47,10 @@ class TextMerger(TransformerMixin, BaseEstimator):
 
 
 class Tfidf(Pipeline):
-    """TF-IDF feature extraction technique (``tfidf``).
+    """TF-IDF feature extraction.
 
-    Use the standard TF-IDF (Term Frequency-Inverse Document Frequency) feature
-    extraction technique from `SKLearn <https://scikit-learn.org/stable/modules/
-    generated/sklearn.feature_extraction.text.TfidfVectorizer.html>`__. Gives a
-    sparse matrix as output. Works well in combination with
-    :class:`asreview.models.classifiers.NaiveBayesClassifier` and other fast
-    training models (given that the features vectors are relatively wide).
-
-    Parameters
-    ----------
-    stop_words: str
-        When set to 'english', use stopwords. If set to None or 'none',
-        do not use stop words.
+    Based on the sklearn implementation of the TF-IDF feature extraction
+    sklearn.feature_extraction.text.TfidfVectorizer.
     """
 
     name = "tfidf"
@@ -77,23 +67,10 @@ class Tfidf(Pipeline):
 
 
 class OneHot(Pipeline):
-    """OneHot feature extraction technique (``onehot``).
+    """One-hot feature extraction.
 
-    Use the standard OneHot feature extraction technique from `SKLearn
-    <https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html>`__.
-
-    Parameters
-    ----------
-    lowercase: bool
-        Convert all characters to lowercase before tokenizing.
-    max_df: float
-        When building the vocabulary ignore terms that have a document
-        frequency strictly higher than the given threshold.
-    min_df: int
-        When building the vocabulary ignore terms that have a document
-        frequency strictly lower than the given threshold.
-        If float, the parameter represents a proportion of documents, integer
-        absolute counts.
+    Based on the sklearn implementation of the one-hot feature extraction
+    sklearn.feature_extraction.text.CountVectorizer with binary=True.
     """
 
     name = "onehot"
@@ -116,6 +93,7 @@ class OneHot(Pipeline):
                 (
                     "onehot",
                     CountVectorizer(
+                        binary=True,
                         max_df=max_df,
                         min_df=min_df,
                         ngram_range=ngram_range,

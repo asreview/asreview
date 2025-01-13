@@ -12,6 +12,12 @@ __all__ = [
 
 
 class SVMClassifier(SVC):
+    """Support vector machine classifier.
+
+    Based on the sklearn implementation of the support vector machine
+    sklearn.svm.SVC.
+    """
+
     name = "svm"
     label = "Support vector machine"
 
@@ -26,6 +32,12 @@ class SVMClassifier(SVC):
 
 
 class RandomForestClassifier(SKRandomForestClassifier):
+    """Random forest classifier.
+
+    Based on the sklearn implementation of the random forest
+    sklearn.ensemble.RandomForestClassifier.
+    """
+
     name = "rf"
     label = "Random forest"
 
@@ -38,6 +50,12 @@ class RandomForestClassifier(SKRandomForestClassifier):
 
 
 class NaiveBayesClassifier(MultinomialNB):
+    """Naive Bayes classifier.
+
+    Based on the sklearn implementation of the naive bayes
+    sklearn.naive_bayes.MultinomialNB.
+    """
+
     name = "nb"
     label = "Naive Bayes"
 
@@ -46,6 +64,12 @@ class NaiveBayesClassifier(MultinomialNB):
 
 
 class LogisticClassifier(LogisticRegression):
+    """Logistic regression classifier.
+
+    Based on the sklearn implementation of the logistic regression
+    sklearn.linear_model.LogisticRegression.
+    """
+
     name = "logistic"
     label = "Logistic regression"
 

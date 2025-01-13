@@ -31,7 +31,7 @@ def test_simulate_basic(tmpdir, balance_strategy):
     else:
         balance_model = None
 
-    learner = asr.ActiveLearner(
+    learner = asr.ActiveLearningCycle(
         query_strategy=load_extension("models.query", "max_random")(),
         classifier=load_extension("models.classifiers", "svm")(),
         balance_strategy=balance_model,
@@ -64,10 +64,10 @@ def test_simulate_basic_classifiers(tmpdir, classifier):
     np.random.seed(42)
 
     learners = [
-        asr.ActiveLearner(
+        asr.ActiveLearningCycle(
             query_strategy=RandomQuery(random_state=42), stopping=StoppingIsFittable()
         ),
-        asr.ActiveLearner(
+        asr.ActiveLearningCycle(
             query_strategy=load_extension("models.query", "max_random")(),
             classifier=load_extension("models.classifiers", classifier)(),
             balance_strategy=load_extension("models.balance", "balanced")(),
@@ -97,8 +97,10 @@ def test_simulate_no_prior(tmpdir):
     np.random.seed(42)
 
     learners = [
-        asr.ActiveLearner(query_strategy=TopDownQuery(), stopping=StoppingIsFittable()),
-        asr.ActiveLearner(
+        asr.ActiveLearningCycle(
+            query_strategy=TopDownQuery(), stopping=StoppingIsFittable()
+        ),
+        asr.ActiveLearningCycle(
             query_strategy=load_extension("models.query", "max_random")(),
             classifier=load_extension("models.classifiers", "nb")(),
             balance_strategy=load_extension("models.balance", "balanced")(),
@@ -130,10 +132,10 @@ def test_simulate_random_prior(tmpdir):
     np.random.seed(42)
 
     learners = [
-        asr.ActiveLearner(
+        asr.ActiveLearningCycle(
             query_strategy=RandomQuery(random_state=535), stopping=StoppingIsFittable()
         ),
-        asr.ActiveLearner(
+        asr.ActiveLearningCycle(
             query_strategy=load_extension("models.query", "max_random")(),
             classifier=load_extension("models.classifiers", "svm")(),
             balance_strategy=load_extension("models.balance", "balanced")(),
@@ -162,8 +164,10 @@ def test_simulate_n_query(tmpdir):
     project.add_dataset(DATA_FP)
 
     learners = [
-        asr.ActiveLearner(query_strategy=TopDownQuery(), stopping=StoppingIsFittable()),
-        asr.ActiveLearner(
+        asr.ActiveLearningCycle(
+            query_strategy=TopDownQuery(), stopping=StoppingIsFittable()
+        ),
+        asr.ActiveLearningCycle(
             query_strategy=load_extension("models.query", "max")(),
             classifier=load_extension("models.classifiers", "svm")(),
             balance_strategy=load_extension("models.balance", "balanced")(),
@@ -193,12 +197,12 @@ def test_simulate_n_query_callable(tmpdir):
     project.add_dataset(DATA_FP)
 
     learners = [
-        asr.ActiveLearner(
+        asr.ActiveLearningCycle(
             query_strategy=TopDownQuery(),
             stopping=StoppingIsFittable(),
             n_query=lambda x: 2,
         ),
-        asr.ActiveLearner(
+        asr.ActiveLearningCycle(
             query_strategy=load_extension("models.query", "max")(),
             classifier=load_extension("models.classifiers", "svm")(),
             balance_strategy=load_extension("models.balance", "balanced")(),
@@ -232,8 +236,10 @@ def test_simulate_n_query_callable_with_args(tmpdir):
         return len(x) // 2
 
     learners = [
-        asr.ActiveLearner(query_strategy=TopDownQuery(), stopping=StoppingIsFittable()),
-        asr.ActiveLearner(
+        asr.ActiveLearningCycle(
+            query_strategy=TopDownQuery(), stopping=StoppingIsFittable()
+        ),
+        asr.ActiveLearningCycle(
             query_strategy=load_extension("models.query", "max")(),
             classifier=load_extension("models.classifiers", "svm")(),
             balance_strategy=load_extension("models.balance", "balanced")(),

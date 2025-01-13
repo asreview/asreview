@@ -16,6 +16,7 @@ __all__ = [
     "StoppingDefault",
     "StoppingN",
     "StoppingQuantile",
+    "StoppingIsFittable",
 ]
 
 
