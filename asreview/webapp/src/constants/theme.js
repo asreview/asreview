@@ -13,7 +13,7 @@ export const theme = {
         },
         background: {
           default: "#fffbf5",
-          paper: "#f5eddf",
+          paper: "#f2ede4",
           record: "#ffffff",
         },
         text: {
@@ -24,7 +24,7 @@ export const theme = {
 
         grey: {
           400: "#DEDBD2",
-          600: "#4A5759",
+          600: "#2A3663",
           800: "#37474F",
         },
       },
@@ -32,7 +32,7 @@ export const theme = {
     dark: {
       palette: {
         primary: {
-          main: "#d5c5a1",
+          main: "#6F7E6F",
         },
         secondary: {
           main: "#adcfae",
@@ -55,7 +55,7 @@ export const theme = {
 
         grey: {
           400: "#4d4d4d",
-          600: "#6F7E6F",
+          600: "#FFCC00",
           800: "#B0B0B0",
         },
       },

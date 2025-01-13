@@ -10,23 +10,22 @@ import {
   Tab,
   Tabs,
   Typography,
+  IconButton,
+  TextField,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-// import { Avatar, AvatarGroup, Tooltip } from "@mui/material";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import {
   EmailIcon,
   FacebookIcon,
+  XIcon,
   WeiboIcon,
   WhatsappIcon,
-  XIcon,
 } from "react-share";
 
-import CheckIcon from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
-// import AddIcon from "@mui/icons-material/Add";
-import { IconButton, TextField } from "@mui/material";
+import DoneIcon from "@mui/icons-material/Done";
 
 import {
   LabelingFrequency,
@@ -39,10 +38,7 @@ import {
   WordCounts,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
-
-// import ElasFireman from "../../images/ElasFireMan.jpg";
-// import ElasGrad from "../../images/ElasGrad.jpg";
-// import ElasSuperHero from "../../images/ElasSuperHero.jpg";
+import { projectStatuses } from "globals.js";
 
 const actions = [
   { icon: <XIcon round />, name: "X" },
@@ -54,9 +50,6 @@ const actions = [
 
 const AnalyticsPage = () => {
   const { project_id } = useParams();
-
-  // Relevant to name editing. Currently goes to local storage, we can do this the proper way
-
   const { data } = useQuery(
     ["fetchInfo", { project_id }],
     ProjectAPI.fetchInfo,
@@ -82,6 +75,15 @@ const AnalyticsPage = () => {
       }),
     { refetchOnWindowFocus: false },
   );
+
+  const { data: statusData } = useQuery(
+    ["fetchProjectStatus", { project_id }],
+    ProjectAPI.fetchProjectStatus,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
+
   const xRef = React.useRef(null);
   const facebookRef = React.useRef(null);
   const weiboRef = React.useRef(null);
@@ -105,8 +107,6 @@ const AnalyticsPage = () => {
     }
   };
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
-  // const [activeProgressTab, setActiveProgressTab] = useState(0);
-  const [activeStoppingTab, setActiveStoppingTab] = useState(0);
   const [activeInsightsTab, setActiveInsightsTab] = useState(0);
 
   // Name editing. Currently goes to local storage, we can do this the proper way
@@ -127,123 +127,138 @@ const AnalyticsPage = () => {
     setCustomName(event.target.value);
   };
 
-  const toggleEditing = () => {
-    if (isEditing) {
+  const handleNameSubmit = () => {
+    if (customName.trim()) {
       localStorage.setItem(`projectName-${project_id}`, customName);
+      setIsEditing(false);
     }
-    setIsEditing(!isEditing);
   };
 
-  // Users for the avatar group
-
-  // const users = [
-  //   { name: "Jonathan", avatar: ElasFireman },
-  //   { name: "Rens", avatar: ElasGrad },
-  //   { name: "Berke", avatar: ElasSuperHero },
-  // ];
-
-  // // Mock handler for adding a new user, this can redirect to the 'Team' tab
-  // const handleAddUser = () => {
-  //   console.log("Add user clicked");
-  // };
-
   return (
-    <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 3 }}>
+    <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 4 }}>
       <Stack spacing={2} className="main-page-body">
         <Box>
+          {statusData?.status === projectStatuses.FINISHED ? (
+            <Box sx={{ textAlign: "center", mb: 1 }}>
+              <Typography
+                variant="subtitle1"
+                textAlign="center"
+                sx={{
+                  fontWeight: "bold",
+                  fontFamily: "Roboto Serif",
+                  pb: 3,
+                  color: "success.main",
+                }}
+              >
+                Finished
+              </Typography>
+            </Box>
+          ) : (
+            <Typography
+              variant="subtitle1"
+              textAlign="center"
+              sx={{ fontWeight: "bold", fontFamily: "Roboto Serif", pb: 3 }}
+            >
+              In Review
+            </Typography>
+          )}
           <Typography
             variant="h4"
-            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 2 }}
+            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 1 }}
           >
             {isEditing ? (
               <TextField
                 value={customName}
                 onChange={handleNameChange}
+                onKeyDown={(e) => e.key === "Enter" && handleNameSubmit()}
+                autoFocus
+                variant="standard"
+                sx={{
+                  "& .MuiInputBase-root": {
+                    fontSize: "h4.fontSize",
+                    fontFamily: "Roboto Serif",
+                  },
+                  width: "auto",
+                  minWidth: "200px",
+                }}
                 InputProps={{
                   endAdornment: (
-                    <IconButton onClick={toggleEditing} edge="end">
-                      <CheckIcon />
+                    <IconButton onClick={handleNameSubmit}>
+                      <DoneIcon />
                     </IconButton>
                   ),
                 }}
               />
             ) : (
-              <>
+              <Box
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  position: "relative",
+                  padding: "0 40px",
+                  margin: "0 -40px",
+                  cursor: "pointer",
+                  "&:hover button": {
+                    opacity: 1,
+                  },
+                }}
+                onClick={() => setIsEditing(true)}
+              >
                 {customName}
-                <IconButton onClick={toggleEditing} sx={{ ml: 1 }}>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditing(true);
+                  }}
+                  sx={{
+                    ml: 1,
+                    opacity: 0,
+                    transition: "opacity 0.2s",
+                    position: "absolute",
+                    right: 0,
+                  }}
+                >
                   <EditIcon />
                 </IconButton>
-              </>
+              </Box>
             )}
           </Typography>
           <Typography
-            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }} // when the avatars are visible, should be pb: 3
+            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }}
           >
             {progressQuery.data && progressQuery.data.n_records} records in
             total
           </Typography>
         </Box>
 
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            pb: 3,
-          }}
+        <Grid
+          container
+          spacing={3}
+          columns={{ xs: 1, md: data?.mode === "simulate" ? 1 : 2 }}
         >
-          {/* <AvatarGroup max={20}>
-            {users.map((user, index) => (
-              <Tooltip key={index} title={user.name} arrow>
-                <Avatar alt={user.name} src={user.avatar} />
-              </Tooltip>
-            ))}
-          </AvatarGroup>
-          <Avatar
-            sx={{
-              bgcolor: "grey.400",
-              width: 40,
-              height: 40,
-              cursor: "pointer",
-            }}
-            onClick={handleAddUser}
-          >
-            <AddIcon />
-          </Avatar> */}
-        </Box>
-        <Grid container columns={{ xs: 1, md: 2 }}>
           <Grid size={1}>
-            <Tabs
-              value={activeHistoryTab}
-              onChange={(event, newValue) => setActiveHistoryTab(newValue)}
-              scrollButtons="auto"
-              variant="scrollable"
-            >
-              <Tab label="Progress" />
-            </Tabs>
+            <Divider sx={{ pb: 2 }}>
+              <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
+                Progress
+              </Typography>
+            </Divider>
             <ReviewProgress project_id={project_id} />
           </Grid>
-          <Grid size={1}>
-            <Tabs
-              value={activeStoppingTab}
-              onChange={(event, newValue) => setActiveStoppingTab(newValue)}
-            >
-              <Tab label="Stopping" />
-            </Tabs>
-            {activeStoppingTab === 0 && (
+          {data?.mode !== "simulate" && (
+            <Grid size={1}>
+              <Divider sx={{ pb: 2 }}>
+                <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
+                  Stopping
+                </Typography>
+              </Divider>
               <StoppingSuggestion project_id={project_id} />
-            )}
-          </Grid>
+            </Grid>
+          )}
         </Grid>
 
-        <Divider
-          sx={{
-            pt: 6,
-            pb: 2,
-          }}
-        >
-          <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
-            Review progress
+        <Divider sx={{ pt: 6, pb: 2 }}>
+          <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
+            Analytics
           </Typography>
         </Divider>
 
@@ -276,14 +291,9 @@ const AnalyticsPage = () => {
           )}
         </Box>
 
-        <Divider
-          sx={{
-            pt: 6,
-            pb: 2,
-          }}
-        >
-          <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
-            Insights in AI
+        <Divider sx={{ pt: 6, pb: 2 }}>
+          <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
+            Insights
           </Typography>
         </Divider>
         <Grid size={1}>
@@ -292,36 +302,8 @@ const AnalyticsPage = () => {
             onChange={(event, newValue) => setActiveInsightsTab(newValue)}
           >
             <Tab label="Words of Importance" />
-            {/* <Tab label="Feature Importance" />
-            <Tab label="Doc2Vec" />
-            <Tab label="BERT" />
-            <Tab label="Random Forest" /> */}
           </Tabs>
           {activeInsightsTab === 0 && <WordCounts project_id={project_id} />}
-          {/* {activeInsightsTab === 1 && (
-            <FeatureImportanceOneWord
-              genericDataQuery={genericDataQuery}
-              progressQuery={progressQuery}
-            />
-          )}
-          {activeInsightsTab === 2 && (
-            <Doc2VecVisualization
-              genericDataQuery={genericDataQuery}
-              progressQuery={progressQuery}
-            />
-          )}
-          {activeInsightsTab === 3 && (
-            <NeuralNetworkVisualization
-              genericDataQuery={genericDataQuery}
-              progressQuery={progressQuery}
-            />
-          )}
-          {activeInsightsTab === 4 && (
-            <RandomForestVisualization
-              genericDataQuery={genericDataQuery}
-              progressQuery={progressQuery}
-            />
-          )} */}
         </Grid>
       </Stack>
       <SpeedDial
@@ -355,4 +337,5 @@ const AnalyticsPage = () => {
     </Container>
   );
 };
+
 export default AnalyticsPage;

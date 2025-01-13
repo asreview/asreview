@@ -1139,16 +1139,19 @@ def api_get_stopping(project):  # noqa: F401
     stopping = ReviewSettings.from_file(settings_fp).stopping
 
     if stopping is None:
-        threshold = 50
+        threshold = None
     else:
         threshold = stopping[0]["params"]["threshold"]
 
     with open_state(project.project_path) as s:
         labels = s.get_results_table(priors=False)["label"]
 
-    if len(labels) > 0 and int(sum(labels == 1)) > 0:
-        last_relevant_index = len(labels) - 1 - np.argmax(labels[::-1] == 1)
-        n_since_last_relevant = int(sum(labels[last_relevant_index + 1 :] == 0))
+    if len(labels) > 0:
+        if int(sum(labels == 1)) > 0:
+            last_relevant_index = len(labels) - 1 - np.argmax(labels[::-1] == 1)
+            n_since_last_relevant = int(sum(labels[last_relevant_index + 1 :] == 0))
+        else:
+            n_since_last_relevant = int(sum(labels == 0))
     else:
         n_since_last_relevant = 0
 
@@ -1161,6 +1164,7 @@ def api_get_stopping(project):  # noqa: F401
                 },
                 "value": n_since_last_relevant,
                 "stop": n_since_last_relevant is not None
+                and threshold is not None
                 and n_since_last_relevant >= threshold,
             }
         ]
