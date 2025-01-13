@@ -67,7 +67,7 @@ class StoppingDefault:
             return True
 
         # Stop when reaching value (if provided)
-        if isinstance(self.value, int) and len(results) >= self.n_stop:
+        if isinstance(self.value, int) and len(results) >= self.value:
             return True
 
         return False

@@ -267,47 +267,6 @@ class Simulate:
 
         return new_labels
 
-    def label_random(
-        self, n_included=None, n_excluded=None, prior=False, random_state=None
-    ):
-        """Label random records.
-
-        Parameters
-        ----------
-        n_included: int
-            Number of included records to label.
-        n_excluded: int
-            Number of excluded records to label.
-        prior: bool
-            If True, the records are labeled based on prior knowledge.
-
-        """
-
-        r = check_random_state(random_state)
-
-        included_idx = np.where(self.labels == 1)[0]
-        excluded_idx = np.where(self.labels == 0)[0]
-
-        if len(included_idx) < n_included:
-            raise ValueError(
-                f"Number of included priors requested ({n_included})"
-                f" is bigger than number of included records "
-                f"({len(included_idx)})."
-            )
-        if len(excluded_idx) < n_excluded:
-            raise ValueError(
-                f"Number of excluded priors requested ({n_excluded})"
-                f" is bigger than number of excluded records "
-                f"({len(excluded_idx)})."
-            )
-
-        init = np.append(
-            r.choice(included_idx, n_included, replace=False),
-            r.choice(excluded_idx, n_excluded, replace=False),
-        )
-
-        self.label(init, prior=prior)
-
     def to_sql(self, fp):
         """Write the data a sql file.
 

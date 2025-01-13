@@ -20,6 +20,7 @@ import shutil
 from pathlib import Path
 
 import numpy as np
+from sklearn.utils import check_random_state
 
 from asreview import load_dataset
 from asreview.datasets import DatasetManager
@@ -30,6 +31,8 @@ from asreview.simulation.simulate import Simulate
 from asreview.types import type_n_queries
 from asreview.utils import _format_to_str
 from asreview.learner import ActiveLearner
+from asreview.models.query import TopDownQuery
+from asreview.stopping import StoppingIsFittable
 
 
 def _set_log_verbosity(verbose):
@@ -187,40 +190,62 @@ def _cli_simulate(argv):
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
         prior_idx = _convert_id_to_idx(data_store, args.prior_record_id)
 
-    print("The following records are prior knowledge:\n")
-    for record in data_store.get_records(prior_idx):
-        _print_record(record)
-
-    learner = ActiveLearner(
-        query_strategy=query_model,
-        classifier=classifier_model,
-        balance_strategy=balance_model,
-        feature_extraction=feature_model,
-    )
+    learners = [
+        ActiveLearner(
+            query_strategy=TopDownQuery(),
+            stopping=StoppingIsFittable(),
+        ),
+        ActiveLearner(
+            query_strategy=query_model,
+            classifier=classifier_model,
+            balance_strategy=balance_model,
+            feature_extraction=feature_model,
+            n_query=args.n_query,
+        ),
+    ]
 
     sim = Simulate(
         data_store.get_df(),
         data_store["included"],
-        learner,
-        n_query=args.n_query,
-        n_stop=args.n_stop,
+        learners,
+        stopping=args.n_stop,
     )
-    if len(prior_idx) > 0:
-        sim.label(prior_idx, prior=True)
 
-    if args.n_prior_included > 0 or args.n_prior_excluded > 0:
-        sim.label_random(
-            n_included=args.n_prior_included,
-            n_excluded=args.n_prior_excluded,
-            prior=True,
-            random_state=args.prior_seed,
-        )
-        print(sim._results)
+    # select or sample prior knowledge and then label it
+    if len(prior_idx) > 0:
+        print("Selected prior knowledge via --prior-idx:\n")
+        for record in data_store.get_records(prior_idx):
+            _print_record(record)
+
+        sim.label(prior_idx)
+
+    if args.n_prior_included > 0:
+        r = check_random_state(args.prior_seed)
+
+        included_idx = np.where(data_store["included"] == 1)[0]
+        if len(included_idx) < args.n_prior_included:
+            raise ValueError(
+                f"Number of included priors requested ({args.n_prior_included})"
+                f" is bigger than number of included records "
+                f"({len(included_idx)})."
+            )
+        sim.label(r.choice(included_idx, args.n_prior_included, replace=False))
+
+    if args.n_prior_excluded > 0:
+        r = check_random_state(args.prior_seed)
+
+        excluded_idx = np.where(data_store["included"] == 0)[0]
+        if len(excluded_idx) < args.n_prior_excluded:
+            raise ValueError(
+                f"Number of excluded priors requested ({args.n_prior_excluded})"
+                f" is bigger than number of excluded records "
+                f"({len(excluded_idx)})."
+            )
+        sim.label(r.choice(excluded_idx, args.n_prior_excluded, replace=False))
 
     sim.review()
 
     if args.output is not None:
-        project.add_feature_matrix(sim._X_features, feature_model.name)
         project.add_review(settings=settings, reviewer=sim, status="finished")
 
         project.export(args.output)
