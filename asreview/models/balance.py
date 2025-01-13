@@ -25,6 +25,9 @@ class Balanced(BaseEstimator):
         self.ratio = ratio
 
     def compute_sample_weight(self, y):
+        if len(set(y)) != 2:
+            raise ValueError("Only binary classification is supported.")
+
         weights = _compute_sample_weight(
             {1: 1.0, 0: sum(y == 1) / (self.ratio * sum(y == 0))}, y=y
         )

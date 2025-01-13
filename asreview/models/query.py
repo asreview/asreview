@@ -50,6 +50,61 @@ def _mix_indices(query_idx_1, query_idx_2, mix_probability=0.95, random_state=No
     return [query_idx_mix[i] for i in sorted(indexes)]
 
 
+class RandomQuery(QueryMixin, BaseEstimator):
+    """Random query strategy.
+
+    Choose the samples to be included at random.
+    """
+
+    name = "random"
+    label = "Random"
+
+    def __init__(self, random_state=None):
+        self.random_state = random_state
+
+    def query(self, p):
+        """Query instances.
+
+        Arguments
+        ---------
+        p: np.array
+            The probabilities of the instances.
+        random_state: int, RandomState
+            Random state for shuffling the indices.
+
+        Returns
+        -------
+        np.array:
+            The indices of the instances to be queried.
+        """
+        return _random_array(len(p), random_state=self.random_state)
+
+
+class TopDownQuery(QueryMixin, BaseEstimator):
+    """Top-down query strategy.
+
+    Query the records in a top-down fashion.
+    """
+
+    name = "top_down"
+    label = "Top-down"
+
+    def query(self, p):
+        """Query instances.
+
+        Arguments
+        ---------
+        p: np.array
+            The probabilities of the instances.
+
+        Returns
+        -------
+        np.array:
+            The indices of the instances to be queried.
+        """
+        return np.arange(len(p))
+
+
 class UncertaintyQuery(QueryMixin, BaseEstimator):
     """Uncertainty query strategy (``uncertainty``).
 
@@ -71,10 +126,8 @@ class UncertaintyQuery(QueryMixin, BaseEstimator):
 
         Arguments
         ---------
-        learner: asreview.models.classifiers.BaseTrainClassifier
-            Classifier object.
-        X: np.array
-            Feature matrix.
+        p: np.array
+            The probabilities of the instances.
 
         Returns
         -------

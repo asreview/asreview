@@ -121,6 +121,8 @@ balanced = "asreview.models.balance:Balanced"
 balanced_optimal = "asreview.models.balance:BalancedOptimal"
 
 [project.entry-points."asreview.models.query"]
+random = "asreview.models.query:RandomQuery"
+top_down = "asreview.models.query:TopDownQuery"
 max = "asreview.models.query:MaxQuery"
 uncertainty = "asreview.models.query:UncertaintyQuery"
 max_random = "asreview.models.query:MaxRandomQuery"

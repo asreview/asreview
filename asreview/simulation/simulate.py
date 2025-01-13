@@ -23,36 +23,27 @@ from tqdm import tqdm
 
 from asreview.metrics import loss
 from asreview.state.contextmanager import open_state
+from asreview.stopping import StoppingDefault
 
 
-def _get_n_query(n_query, results, labels):
-    """Get the number of records to query at each step in the active learning.
-
-    n_query can be an integer or a function that takes the results of the
-    simulation as input. If n_query is a function, it should return an integer.
-    n_query can not be larger than the number of records left to label.
+def _get_name_from_estimator(estimator):
+    """Get the name of the estimator.
 
     Parameters
     ----------
-    n_query: int | callable
-        Number of records to query at each step in the active learning
-        process. Default is 1.
-    results: pd.DataFrame
-        The results of the simulation.
+    estimator: object
+        The estimator to get the name from.
 
     Returns
     -------
-    int
-        Number of records to query at each step in the active learning process.
+    str
+        The name of the estimator.
 
     """
-    n_query = n_query(results) if callable(n_query) else n_query
-    n_query_left = len(labels) - len(results)
+    if estimator is None:
+        return None
 
-    if n_query > n_query_left:
-        return n_query_left
-
-    return n_query
+    return estimator.name
 
 
 class Simulate:
@@ -79,12 +70,12 @@ class Simulate:
     feature_extraction: BaseFeatureModel
         The initialized feature extraction model to use for the simulation. If None,
         the name of the feature extraction model is set to None.
-    n_query: int
-        Number of records to query at each step in the active learning
-        process. Default is 1.
-    n_stop: int
-        Number of steps/queries to perform. Set to None for no limit. Default
-        is "min".
+    stopping: str, int, callable
+        The stopping mechanism to use for the simulation. When stopper is None,
+        all records are simulated. If "min", the simulation stops when all relevant
+        records are found. If an integer, the simulation stops after n_stop queries.
+        If class with .stop() method, the simulation stops when the callable returns
+        True. Default is "min".
     skip_transform: bool
         If True, the feature matrix is not computed in the simulation. It is assumed
         that X is the feature matrix or input to the estimator. Default is False.
@@ -94,17 +85,15 @@ class Simulate:
         self,
         X,
         labels,
-        learner,
-        n_query=1,
-        n_stop="min",
+        learners,
+        stopping="min",
         skip_transform=False,
         print_progress=True,
     ):
         self.X = X
         self.labels = labels
-        self.learner = learner
-        self.n_query = n_query
-        self.n_stop = n_stop
+        self.learners = learners
+        self.stopping = stopping
         self.skip_transform = skip_transform
         self.print_progress = print_progress
 
@@ -128,49 +117,25 @@ class Simulate:
     def _last_ranking(self, value):
         self._Simulate__last_ranking = value
 
-    def _stop_review(self):
-        """Check if the review should be stopped."""
-
-        try:
-            # if the pool is empty, always stop
-            if len(self._results) == len(self.labels):
-                return True
-
-            # If n_stop is set to min, stop after n_stop queries.
-            if self.n_stop == "min" and sum(self.labels) == sum(self._results["label"]):
-                return True
-
-            # Stop when reaching n_stop (if provided)
-            if isinstance(self.n_stop, int) and len(self._results) >= self.n_stop:
-                return True
-        except AttributeError:
-            if len(self.labels) == 0:
-                return True
-
-        return False
-
     def review(self):
         """Start the review process."""
 
-        if not hasattr(self, "_results") or (
-            not (self._results["label"] == 1).any()
-            or not (self._results["label"] == 0).any()
-        ):
-            print("No prior knowledge found. Labeling random records.")
-            argmin_bin = max(
-                np.where(self.labels == 1)[0].min(), np.where(self.labels == 0)[0].min()
+        if not hasattr(self, "_results"):
+            self._results = pd.DataFrame(
+                columns=[
+                    "record_id",
+                    "label",
+                    "classifier",
+                    "query_strategy",
+                    "balance_strategy",
+                    "feature_extraction",
+                    "training_set",
+                    "time",
+                    "note",
+                    "tags",
+                    "user_id",
+                ]
             )
-
-            try:
-                new_idx = list(
-                    set(np.arange(argmin_bin + 1)) - set(self._results["record_id"])
-                )
-            except AttributeError:
-                new_idx = np.arange(argmin_bin + 1)
-
-            self.label(new_idx, prior=True)
-
-        print(self._results)
 
         pbar_rel = tqdm(
             initial=sum(self._results["label"]) if hasattr(self, "_results") else 0,
@@ -185,36 +150,62 @@ class Simulate:
             disable=not self.print_progress,
         )
 
-        while not self._stop_review():
-            # compute the feature matrix for the labeled records if not in _X_features
-            # cache
-            if not hasattr(self, "_X_features"):
-                if not self.skip_transform:
-                    self._X_features = self.learner.transform(self.X)
-                else:
-                    self._X_features = self.X
+        if self.stopping is None or isinstance(self.stopping, (int, str)):
+            stopper = StoppingDefault(self.stopping)
+        else:
+            stopper = self.stopping
 
-            # fit the estimator to the labeled records
-            self.learner.fit(
-                self._X_features[self._results["record_id"].values],
-                self._results["label"].values,
-            )
+        learners = self.learners if isinstance(self.learners, list) else [self.learners]
 
-            # collect the records in the pool
-            pool_record_ids = np.setdiff1d(
-                np.arange(len(self.labels)), self._results["record_id"].values
-            )
+        for learner in learners:
+            # first run the overall simulation until the default stopping is met
+            while not stopper.stop(self._results, self.labels) and not learner.stop(
+                self._results, self.labels
+            ):
+                # compute the feature matrix for the labeled records if not in
+                # _X_features cache
+                if not hasattr(self, "_X_features"):
+                    if (
+                        not self.skip_transform
+                        and learner.feature_extraction is not None
+                    ):
+                        self._X_features = learner.transform(self.X)
+                    elif isinstance(self.X, pd.DataFrame):
+                        self._X_features = self.X.values
+                    else:
+                        self._X_features = self.X
 
-            # rank the pool and convert the ranked pool to record ids
-            ranked_pool = self.learner.rank(self._X_features[pool_record_ids])
-            ranked_pool_record_ids = pool_record_ids[ranked_pool]
+                # fit the estimator to the labeled records
+                if learner.classifier is not None:
+                    learner.fit(
+                        self._X_features[self._results["record_id"].values],
+                        self._results["label"].values,
+                    )
 
-            # label n_query records from the pool
-            n_query = _get_n_query(self.n_query, self._results, self.labels)
-            labeled = self.label(ranked_pool_record_ids[:n_query])
+                # collect the records in the pool
+                pool_record_ids = np.setdiff1d(
+                    np.arange(len(self.labels)), self._results["record_id"].values
+                )
 
-            pbar_rel.update(labeled["label"].sum())
-            pbar_total.update(n_query)
+                # rank the pool and convert the ranked pool to record ids
+                ranked_pool = learner.rank(self._X_features[pool_record_ids])
+                ranked_pool_record_ids = pool_record_ids[ranked_pool]
+
+                # label n_query records from the pool
+                n_query = learner.get_n_query(self._results, self.labels)
+                if not isinstance(n_query, int) or n_query < 1:
+                    raise ValueError(
+                        f"Number of records to query should be an integer "
+                        f"greater than 0, got {n_query}."
+                    )
+
+                labeled = self.label(ranked_pool_record_ids[:n_query], learner=learner)
+
+                pbar_rel.update(labeled["label"].sum())
+                pbar_total.update(n_query)
+            else:
+                if hasattr(self, "_X_features"):
+                    del self._X_features
 
         else:
             pbar_rel.close()
@@ -224,35 +215,30 @@ class Simulate:
                 len(self.labels) - len(self._results["label"])
             )
 
-            print(f"\nLoss: {loss(padded_results):.3f}")
+            if self.print_progress:
+                print(f"\nLoss: {loss(padded_results):.3f}")
 
-    def label(self, record_ids, prior=False):
+    def label(self, record_ids, learner=None):
         """Label the records with the given record_ids.
 
         Parameters
         ----------
         record_ids: list
             The record ids to label.
-        prior: bool
-            If True, the records are labeled based on prior knowledge.
 
         """
 
-        if prior:
+        if learner is None:
             classifier = None
             query_strategy = None
             balance_strategy = None
             feature_extraction = None
             training_set = None
         else:
-            classifier = self.learner.classifier.name
-            query_strategy = self.learner.query_strategy.name
-            balance_strategy = (
-                self.learner.balance_strategy.name
-                if self.learner.balance_strategy
-                else None
-            )
-            feature_extraction = self.learner.feature_extraction.name
+            classifier = _get_name_from_estimator(learner.classifier)
+            query_strategy = _get_name_from_estimator(learner.query_strategy)
+            balance_strategy = _get_name_from_estimator(learner.balance_strategy)
+            feature_extraction = _get_name_from_estimator(learner.feature_extraction)
             training_set = len(self._results)
 
         new_labels = pd.DataFrame(
@@ -271,13 +257,13 @@ class Simulate:
             }
         )
 
-        try:
+        if not hasattr(self, "_results") or self._results.empty:
+            self._results = new_labels
+        else:
             self._results = pd.concat(
                 [self._results, new_labels],
                 ignore_index=True,
             )
-        except AttributeError:
-            self._results = new_labels
 
         return new_labels
 
