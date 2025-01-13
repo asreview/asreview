@@ -6,7 +6,8 @@ import pytest
 
 import asreview as asr
 from asreview.extensions import load_extension
-from asreview.models.query import TopDownQuery, RandomQuery
+from asreview.models.query import RandomQuery
+from asreview.models.query import TopDownQuery
 from asreview.stopping import StoppingIsFittable
 
 DATA_FP = Path("tests", "demo_data", "generic_labels.csv")

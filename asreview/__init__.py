@@ -21,6 +21,7 @@ from asreview.data.loader import load_dataset
 from asreview.extensions import extensions
 from asreview.extensions import get_extension
 from asreview.extensions import load_extension
+from asreview.learner import ActiveLearner
 from asreview.project.api import Project
 from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
@@ -30,7 +31,6 @@ from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
 from asreview.state.sqlstate import SQLiteState
-from asreview.learner import ActiveLearner
 
 try:
     from asreview._version import __version__

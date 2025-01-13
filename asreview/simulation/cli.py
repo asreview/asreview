@@ -25,14 +25,14 @@ from sklearn.utils import check_random_state
 from asreview import load_dataset
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
+from asreview.learner import ActiveLearner
+from asreview.models.query import TopDownQuery
 from asreview.project.api import Project
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
+from asreview.stopping import StoppingIsFittable
 from asreview.types import type_n_queries
 from asreview.utils import _format_to_str
-from asreview.learner import ActiveLearner
-from asreview.models.query import TopDownQuery
-from asreview.stopping import StoppingIsFittable
 
 
 def _set_log_verbosity(verbose):
