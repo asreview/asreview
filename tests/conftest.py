@@ -1,11 +1,10 @@
 import pytest
 from pathlib import Path
-
-from synergy_dataset import Dataset
+import pandas as pd
 
 
 @pytest.fixture
-def demo_data():
+def demo_data(render_data=True):
     """Get a demo dataset.
 
     Returns
@@ -15,15 +14,25 @@ def demo_data():
         every 10th row. The dataset is a sample from the van der Waal 2022 dataset.
     """
 
-    df = Dataset("van_der_Waal_2022").to_frame()
+    if render_data:
+        from synergy_dataset import Dataset
 
-    df_inclusions = df[df["label_included"] == 1].sample(
-        10, replace=False, random_state=535
-    )
-    df = df[df["label_included"] == 0].sample(100, replace=False, random_state=535)
-    df.iloc[::-10] = df_inclusions
+        df = Dataset("van_der_Waal_2022").to_frame(["title", "abstract", "open_access"])
+        df_is_oa = df[df["open_access"].apply(lambda x: x["is_oa"])]
 
-    return df
+        df_inclusions = df_is_oa[df_is_oa["label_included"] == 1].sample(
+            10, replace=False, random_state=165
+        )
+
+        df_is_oa = df_is_oa[df_is_oa["label_included"] == 0].sample(
+            100, replace=False, random_state=535
+        )
+        df_is_oa.iloc[::-10] = df_inclusions
+
+        df_is_oa.to_json(Path("tests", "demo_data.json"), orient="records", lines=True)
+        return df_is_oa
+
+    return pd.read_json(Path("tests", "demo_data.json"), orient="records", lines=True)
 
 
 @pytest.fixture
