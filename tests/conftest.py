@@ -4,7 +4,7 @@ import pandas as pd
 
 
 @pytest.fixture
-def demo_data(render_data=True):
+def demo_data(render_data=False):
     """Get a demo dataset.
 
     Returns
