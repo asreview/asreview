@@ -43,7 +43,7 @@ class TextMerger(TransformerMixin, BaseEstimator):
         return self
 
     def transform(self, X):
-        return X[self.columns].apply(lambda x: self.sep.join(x), axis=1)
+        return X[self.columns].fillna("").apply(lambda x: self.sep.join(x), axis=1)
 
 
 class Tfidf(Pipeline):
