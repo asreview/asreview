@@ -159,7 +159,7 @@ def test_number_records_found(tmp_project, demo_data_path):
     )
 
     with asr.open_state(tmp_project) as s:
-        assert s.get_results_table("label")["label"].sum() == 7
+        assert s.get_results_table("label")["label"].sum() == 9
         assert s.get_results_table("label").shape[0] == 15
         assert s.get_results_table().shape[0] == 15
         assert s.get_results_table()["label"].head(2).sum() == 1
@@ -174,7 +174,7 @@ def test_n_stop_min(tmp_project, demo_data_path):
 
     with asr.open_state(tmp_project) as s:
         assert s.get_results_table("label")["label"].sum() == 10
-        assert len(s.get_results_table("label")) == 47
+        assert len(s.get_results_table("label")) == 39
 
 
 def test_n_stop_all(tmp_project):

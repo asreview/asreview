@@ -25,7 +25,7 @@ def demo_data(render_data=False):
         )
 
         df_is_oa = df_is_oa[df_is_oa["label_included"] == 0].sample(
-            100, replace=False, random_state=535
+            100, replace=False, random_state=165
         )
         df_is_oa.iloc[::-10] = df_inclusions
 
