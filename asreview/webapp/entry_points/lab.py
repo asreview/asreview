@@ -276,7 +276,7 @@ def _lab_parser():
         "--config-path",
         "--flask-configfile",
         type=Path,
-        help="Path to a TOML file containing ASReview parametersfor authentication.",
+        help="Path to a TOML file containing ASReview parameters for authentication.",
     )
 
     parser.add_argument(
