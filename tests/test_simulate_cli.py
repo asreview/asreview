@@ -195,15 +195,13 @@ def test_project_already_exists_error(tmpdir):
     asreview_fp1 = Path(tmpdir, "test1.asreview")
 
     argv = (
-        f"synergy:van_de_Schoot_2018 -o {asreview_fp1} --n-stop 100"
-        f" --seed 535".split()
+        f"synergy:van_de_Schoot_2018 -o {asreview_fp1} --n-stop 100 --seed 535".split()
     )
     _cli_simulate(argv)
 
     # Simulate 100 queries in two steps of 50.
     argv = (
-        f"synergy:van_de_Schoot_2018 -o {asreview_fp1} --n-stop 50"
-        f" --seed 535".split()
+        f"synergy:van_de_Schoot_2018 -o {asreview_fp1} --n-stop 50 --seed 535".split()
     )
     _cli_simulate(argv)
 

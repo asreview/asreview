@@ -156,8 +156,7 @@ def lab_entry_point(argv):
         update_available, latest_version = _check_for_update()
         if not update_available:
             version_str += (
-                " [red][Update available"
-                f": {asr.__version__} -> {latest_version}][/red]"
+                f" [red][Update available: {asr.__version__} -> {latest_version}][/red]"
             )
 
     console.print(host_str)
@@ -171,8 +170,7 @@ def lab_entry_point(argv):
         )
 
     console.print(
-        "\n\nMake regular backups of the ASReview"
-        " projects folder to prevent data loss."
+        "\n\nMake regular backups of the ASReview projects folder to prevent data loss."
     )
     if not args.no_browser:
         _open_browser(start_url)
@@ -278,7 +276,7 @@ def _lab_parser():
         "--config-path",
         "--flask-configfile",
         type=Path,
-        help="Path to a TOML file containing ASReview parameters" "for authentication.",
+        help="Path to a TOML file containing ASReview parameters for authentication.",
     )
 
     parser.add_argument(

@@ -219,7 +219,7 @@ def create_project(driver, base_url, project_data, reading_time=0):
 
     # choose the dataset
     dataset_button = click_element(
-        driver, (By.XPATH, f"//p[text()=\"{project_data['dataset']['label']}\"]")
+        driver, (By.XPATH, f'//p[text()="{project_data["dataset"]["label"]}"]')
     )
     # find the button in the parent and click it (it's clickable)
     dataset_button.find_element(By.XPATH, "../../../..//button").click()
