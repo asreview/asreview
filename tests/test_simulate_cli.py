@@ -198,10 +198,10 @@ def test_n_stop_all(tmp_project):
 
 
 def test_project_already_exists_error(tmp_project, demo_data_path):
-    argv = f"{demo_data_path} -o {tmp_project} --n-stop 100" f" --seed 535".split()
+    argv = f"{demo_data_path} -o {tmp_project} --n-stop 100 --seed 535".split()
     _cli_simulate(argv)
 
     with pytest.raises(ValueError):
         # Simulate 100 queries in two steps of 50.
-        argv = f"{demo_data_path} -o {tmp_project} --n-stop 50" f" --seed 535".split()
+        argv = f"{demo_data_path} -o {tmp_project} --n-stop 50 --seed 535".split()
         _cli_simulate(argv)
