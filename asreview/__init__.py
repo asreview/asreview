@@ -21,6 +21,7 @@ from asreview.data.loader import load_dataset
 from asreview.extensions import extensions
 from asreview.extensions import get_extension
 from asreview.extensions import load_extension
+from asreview.learner import ActiveLearningCycle
 from asreview.project.api import Project
 from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
@@ -44,6 +45,7 @@ __all__ = [
     "Simulate",
     "SQLiteState",
     "ReviewSettings",
+    "ActiveLearningCycle",
     # functions
     "is_project",
     "load_dataset",

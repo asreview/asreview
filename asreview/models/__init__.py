@@ -12,9 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.default import default_model
+DEFAULT_BALANCE = "balanced"
+DEFAULT_FEATURE_EXTRACTION = "tfidf"
+DEFAULT_QUERY = "max"
+DEFAULT_CLASSIFIER = "nb"
 
-__all__ = ["balance", "classifiers", "feature_extraction", "query", "default_model"]
+__all__ = [
+    "balance",
+    "classifiers",
+    "feature_extractor",
+    "query",
+    "DEFAULT_BALANCE",
+    "DEFAULT_FEATURE_EXTRACTION",
+    "DEFAULT_QUERY",
+    "DEFAULT_CLASSIFIER",
+]
 
 """Active learning model components.
 

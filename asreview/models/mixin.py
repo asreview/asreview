@@ -12,20 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = [
-    "Tfidf",
-    "OneHot",
-]
+__all__ = ["QueryMixin"]
 
-from asreview.models.feature_extraction.onehot import OneHot
-from asreview.models.feature_extraction.tfidf import Tfidf
 
-"""Feature extraction converts texts into features.
+class QueryMixin:
+    """Mixin class for all query strategies in ASReview."""
 
-Feature extraction is the process of converting a list of texts into some kind
-of feature matrix.
+    def query(self, p):
+        """Rank the instances of the feature matrix.
 
-There are several feature extraction algorithms available. In configuration
-files, parameters are found under the section ``[feature_param]``.
+        Arguments
+        ---------
+        p: numpy.ndarray
+            The probability of inclusion for each record in the feature matrix.
 
-"""
+        Returns
+        -------
+        numpy.ndarray
+            The QueryStrategy ranks the row numbers of the feature matrix. It returns
+            an array of shape (len(X),) containing the row indices in ranked
+            order.
+        """
+        raise NotImplementedError

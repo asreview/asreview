@@ -14,11 +14,11 @@
 
 import json
 import logging
+import math
 import shutil
 import socket
 import tempfile
 import time
-import math
 from dataclasses import asdict
 from dataclasses import replace
 from pathlib import Path
@@ -35,22 +35,23 @@ from flask import request
 from flask import send_file
 from flask_login import current_user
 from flask_login import login_required
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
-from sklearn.feature_extraction.text import TfidfVectorizer
-
-
 import asreview as asr
-from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
-from asreview.models import default_model
+from asreview.models import DEFAULT_CLASSIFIER
+from asreview.models import DEFAULT_BALANCE
+from asreview.models import DEFAULT_FEATURE_EXTRACTION
+from asreview.models import DEFAULT_QUERY
+from asreview.project.api import PROJECT_MODE_SIMULATE
+from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
-from asreview.project.api import is_project
 from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
@@ -672,7 +673,12 @@ def api_list_algorithms():
 def api_get_algorithms(project):  # noqa: F401
     """Get the algorithms used in the project"""
 
-    settings = ReviewSettings(**default_model())
+    settings = ReviewSettings(
+        classifier=DEFAULT_CLASSIFIER,
+        balance_strategy=DEFAULT_BALANCE,
+        feature_extraction=DEFAULT_FEATURE_EXTRACTION,
+        query_strategy=DEFAULT_QUERY,
+    )
 
     try:
         settings = settings.from_file(
@@ -909,7 +915,15 @@ def api_import_project():
     try:
         _check_model(settings)
     except ValueError as err:
-        settings = replace(settings, **default_model())
+        settings = replace(
+            settings,
+            **{
+                "classifier": DEFAULT_CLASSIFIER,
+                "balance_strategy": DEFAULT_BALANCE,
+                "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
+                "query_strategy": DEFAULT_QUERY,
+            },
+        )
         with open(settings_fp, "w") as f:
             json.dump(asdict(settings), f)
         warnings.append(

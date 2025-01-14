@@ -14,26 +14,25 @@
 
 from functools import wraps
 
+from flask import abort
 from flask import current_app
 from flask import jsonify
 from flask import request
-from flask import abort
 from flask_login import current_user
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import SQLAlchemyError
+from werkzeug.exceptions import HTTPException
 
 import asreview as asr
-from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.api import is_project
+from asreview.project.exceptions import ProjectNotFoundError
+from asreview.webapp import DB
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.authentication.models import User
-from asreview.webapp import DB
-from asreview.webapp.utils import get_project_path
-from asreview.webapp.utils import get_projects
 from asreview.webapp.authentication.remote_user_handler import RemoteUserHandler
 from asreview.webapp.authentication.utils import perform_login_user
-
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-
-from werkzeug.exceptions import HTTPException
+from asreview.webapp.utils import get_project_path
+from asreview.webapp.utils import get_projects
 
 
 def project_authorization(f):
