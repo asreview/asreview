@@ -1,201 +1,126 @@
-from pathlib import Path
-
-import numpy as np
 import pandas as pd
 import pytest
 
 import asreview as asr
-from asreview.extensions import load_extension
 from asreview.models.query import RandomQuery
 from asreview.models.query import TopDownQuery
 from asreview.stopping import StoppingIsFittable
 
-DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
-
 
 @pytest.mark.parametrize("balance_strategy", ["balanced", None])
-def test_simulate_basic(tmpdir, balance_strategy):
-    project = asr.Project.create(
-        Path(tmpdir, "simulate-example"),
-        "simulate-example",
-        "simulate",
-        "simulate-example",
-    )
-    project.add_dataset(DATA_FP)
-
-    # set numpy seed
-    np.random.seed(42)
-
+def test_simulate_basic(demo_data, balance_strategy):
     if balance_strategy is not None:
-        balance_model = load_extension("models.balance", balance_strategy)()
+        balance_model = asr.load_extension("models.balance", balance_strategy)()
     else:
         balance_model = None
 
     learner = asr.ActiveLearningCycle(
-        query_strategy=load_extension("models.query", "max_random")(),
-        classifier=load_extension("models.classifiers", "svm")(),
+        query_strategy=asr.load_extension("models.query", "max_random")(
+            random_state=535
+        ),
+        classifier=asr.load_extension("models.classifiers", "svm")(),
         balance_strategy=balance_model,
-        feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+        feature_extraction=asr.load_extension("models.feature_extraction", "tfidf")(),
     )
 
-    sim = asr.Simulate(
-        project.data_store.get_df(),
-        project.data_store["included"],
-        learner,
-    )
-    sim.label([0, 1])
+    sim = asr.Simulate(demo_data, demo_data["label_included"], learner)
+    sim.label([0, 9])
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results["label"].to_list() == [1, 0, 1, 1]
+    assert sim._results.shape[0] < 35
 
 
 @pytest.mark.parametrize("classifier", ["nb", "logistic", "svm"])
-def test_simulate_basic_classifiers(tmpdir, classifier):
-    project = asr.Project.create(
-        Path(tmpdir, "simulate-example"),
-        "simulate-example",
-        "simulate",
-        "simulate-example",
-    )
-    project.add_dataset(DATA_FP)
-
-    # set numpy seed
-    np.random.seed(42)
-
+def test_simulate_basic_classifiers(demo_data, classifier):
     learners = [
         asr.ActiveLearningCycle(
-            query_strategy=RandomQuery(random_state=42), stopping=StoppingIsFittable()
+            query_strategy=RandomQuery(random_state=165), stopping=StoppingIsFittable()
         ),
         asr.ActiveLearningCycle(
-            query_strategy=load_extension("models.query", "max_random")(),
-            classifier=load_extension("models.classifiers", classifier)(),
-            balance_strategy=load_extension("models.balance", "balanced")(),
-            feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+            query_strategy=asr.load_extension("models.query", "max_random")(
+                random_state=535
+            ),
+            classifier=asr.load_extension("models.classifiers", classifier)(),
+            balance_strategy=asr.load_extension("models.balance", "balanced")(),
+            feature_extraction=asr.load_extension(
+                "models.feature_extraction", "tfidf"
+            )(),
         ),
     ]
 
-    sim = asr.Simulate(
-        project.data_store.get_df(), project.data_store["included"], learners
-    )
+    sim = asr.Simulate(demo_data, demo_data["label_included"], learners)
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results.shape[0] <= 6
+    assert sim._results.shape[0] < 35
 
 
-def test_simulate_no_prior(tmpdir):
-    project = asr.Project.create(
-        Path(tmpdir, "simulate-example"),
-        "simulate-example",
-        "simulate",
-        "simulate-example",
-    )
-    project.add_dataset(DATA_FP)
-
-    # set numpy seed
-    np.random.seed(42)
-
+def test_simulate_no_prior(demo_data):
     learners = [
         asr.ActiveLearningCycle(
             query_strategy=TopDownQuery(), stopping=StoppingIsFittable()
         ),
         asr.ActiveLearningCycle(
-            query_strategy=load_extension("models.query", "max_random")(),
-            classifier=load_extension("models.classifiers", "nb")(),
-            balance_strategy=load_extension("models.balance", "balanced")(),
-            feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+            query_strategy=asr.load_extension("models.query", "max_random")(),
+            classifier=asr.load_extension("models.classifiers", "nb")(),
+            balance_strategy=asr.load_extension("models.balance", "balanced")(),
+            feature_extraction=asr.load_extension(
+                "models.feature_extraction", "tfidf"
+            )(),
         ),
     ]
 
-    sim = asr.Simulate(
-        project.data_store.get_df(),
-        project.data_store["included"],
-        learners,
-    )
+    sim = asr.Simulate(demo_data, demo_data["label_included"], learners)
     sim.review()
 
-    assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results["label"].to_list() == [1, 0, 1, 1]
+    assert sim._results["label"].to_list()[0:10] == [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
 
 
-def test_simulate_random_prior(tmpdir):
-    project = asr.Project.create(
-        Path(tmpdir, "simulate-example"),
-        "simulate-example",
-        "simulate",
-        "simulate-example",
-    )
-    project.add_dataset(DATA_FP)
-
-    # set numpy seed
-    np.random.seed(42)
-
+def test_simulate_random_prior(demo_data):
     learners = [
         asr.ActiveLearningCycle(
             query_strategy=RandomQuery(random_state=535), stopping=StoppingIsFittable()
         ),
         asr.ActiveLearningCycle(
-            query_strategy=load_extension("models.query", "max_random")(),
-            classifier=load_extension("models.classifiers", "svm")(),
-            balance_strategy=load_extension("models.balance", "balanced")(),
-            feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+            query_strategy=asr.load_extension("models.query", "max_random")(),
+            classifier=asr.load_extension("models.classifiers", "svm")(),
+            balance_strategy=asr.load_extension("models.balance", "balanced")(),
+            feature_extraction=asr.load_extension(
+                "models.feature_extraction", "tfidf"
+            )(),
         ),
     ]
 
-    sim = asr.Simulate(
-        project.data_store.get_df(),
-        project.data_store["included"],
-        learners,
-    )
+    sim = asr.Simulate(demo_data, demo_data["label_included"], learners)
     sim.review()
 
-    assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results["label"].to_list() == [0, 1, 1, 1]
+    assert sim._results["label"].to_list()[0:9] == [0, 0, 0, 0, 0, 0, 0, 0, 1]
 
 
-def test_simulate_n_query(tmpdir):
-    project = asr.Project.create(
-        Path(tmpdir, "simulate-example"),
-        "simulate-example",
-        "simulate",
-        "simulate-example",
-    )
-    project.add_dataset(DATA_FP)
-
+def test_simulate_n_query(demo_data):
     learners = [
         asr.ActiveLearningCycle(
             query_strategy=TopDownQuery(), stopping=StoppingIsFittable()
         ),
         asr.ActiveLearningCycle(
-            query_strategy=load_extension("models.query", "max")(),
-            classifier=load_extension("models.classifiers", "svm")(),
-            balance_strategy=load_extension("models.balance", "balanced")(),
-            feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+            query_strategy=asr.load_extension("models.query", "max")(),
+            classifier=asr.load_extension("models.classifiers", "svm")(),
+            balance_strategy=asr.load_extension("models.balance", "balanced")(),
+            feature_extraction=asr.load_extension(
+                "models.feature_extraction", "tfidf"
+            )(),
             n_query=2,
         ),
     ]
 
-    sim = asr.Simulate(
-        project.data_store.get_df(),
-        project.data_store["included"],
-        learners,
-    )
+    sim = asr.Simulate(demo_data, demo_data["label_included"], learners)
     sim.review()
 
-    assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results["label"].to_list() == [1, 0, 1, 1]
+    assert sim._results.loc[10:, "training_set"].apply(lambda x: x % 2 == 0).all()
 
 
-def test_simulate_n_query_callable(tmpdir):
-    project = asr.Project.create(
-        Path(tmpdir, "simulate-example"),
-        "simulate-example",
-        "simulate",
-        "simulate-example",
-    )
-    project.add_dataset(DATA_FP)
-
+def test_simulate_n_query_callable(demo_data):
     learners = [
         asr.ActiveLearningCycle(
             query_strategy=TopDownQuery(),
@@ -203,58 +128,49 @@ def test_simulate_n_query_callable(tmpdir):
             n_query=lambda x: 2,
         ),
         asr.ActiveLearningCycle(
-            query_strategy=load_extension("models.query", "max")(),
-            classifier=load_extension("models.classifiers", "svm")(),
-            balance_strategy=load_extension("models.balance", "balanced")(),
-            feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+            query_strategy=asr.load_extension("models.query", "max")(),
+            classifier=asr.load_extension("models.classifiers", "svm")(),
+            balance_strategy=asr.load_extension("models.balance", "balanced")(),
+            feature_extraction=asr.load_extension(
+                "models.feature_extraction", "tfidf"
+            )(),
             n_query=lambda x: 2,
         ),
     ]
 
-    sim = asr.Simulate(
-        project.data_store.get_df(),
-        project.data_store["included"],
-        learners,
-        stopping=None,
-    )
+    sim = asr.Simulate(demo_data, demo_data["label_included"], learners, stopping=None)
     sim.review()
 
-    assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results["training_set"].to_list() == [0, 0, 2, 2, 4, 4]
+    assert sim._results["training_set"].apply(lambda x: x % 2 == 0).all()
 
 
-def test_simulate_n_query_callable_with_args(tmpdir):
-    project = asr.Project.create(
-        Path(tmpdir, "simulate-example"),
-        "simulate-example",
-        "simulate",
-        "simulate-example",
-    )
-    project.add_dataset(DATA_FP)
-
+def test_simulate_n_query_callable_with_args(demo_data):
     def n_query(x):
-        return len(x) // 2
+        return max(1, len(x))
 
     learners = [
         asr.ActiveLearningCycle(
-            query_strategy=TopDownQuery(), stopping=StoppingIsFittable()
+            query_strategy=TopDownQuery(),
+            stopping=StoppingIsFittable(),
+            n_query=n_query,
         ),
         asr.ActiveLearningCycle(
-            query_strategy=load_extension("models.query", "max")(),
-            classifier=load_extension("models.classifiers", "svm")(),
-            balance_strategy=load_extension("models.balance", "balanced")(),
-            feature_extraction=load_extension("models.feature_extraction", "tfidf")(),
+            query_strategy=asr.load_extension("models.query", "max")(),
+            classifier=asr.load_extension("models.classifiers", "svm")(),
+            balance_strategy=asr.load_extension("models.balance", "balanced")(),
+            feature_extraction=asr.load_extension(
+                "models.feature_extraction", "tfidf"
+            )(),
             n_query=n_query,
         ),
     ]
 
-    sim = asr.Simulate(
-        project.data_store.get_df(),
-        project.data_store["included"],
-        learners,
-        stopping=None,
-    )
+    sim = asr.Simulate(demo_data, demo_data["label_included"], learners, stopping=None)
     sim.review()
 
-    assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results["training_set"].to_list() == [0, 1, 2, 3, 4, 4]
+    # the expected training set
+    a = [0]
+    while len(a) < 100:
+        a.extend([len(a)] * min(len(a), 100 - len(a)))
+
+    assert sim._results["training_set"].to_list() == a

@@ -2,78 +2,58 @@ import json
 from pathlib import Path
 
 import pytest
+from pandas.testing import assert_frame_equal
 
 import asreview as asr
 from asreview.simulation.cli import _cli_simulate
 
-DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
-DATA_FP_URL = "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"  # noqa
-DATA_FP_NO_ABS = Path("tests", "demo_data", "generic_labels_no_abs.csv")
-DATA_FP_NO_TITLE = Path("tests", "demo_data", "generic_labels_no_title.csv")
-CFG_DIR = Path("tests", "cfg_files")
-STATE_DIR = Path("tests", "state_files")
-H5_STATE_FILE = Path(STATE_DIR, "test.h5")
-JSON_STATE_FILE = Path(STATE_DIR, "test.json")
 
-
-def test_dataset_not_found(tmpdir):
-    asreview_fp = Path(tmpdir, "project.asreview")
-    argv = f"does_not.exist -o {asreview_fp}".split()
+def test_dataset_not_found(tmp_project):
+    argv = f"does_not.exist -o {tmp_project}".split()
     with pytest.raises(ValueError):
         _cli_simulate(argv)
 
 
-def test_no_output():
-    _cli_simulate([str(DATA_FP)])
+def test_no_output(demo_data_path):
+    _cli_simulate([str(demo_data_path)])
 
 
-def test_simulate_review_finished(tmpdir):
-    # file path
-    asreview_fp = Path(tmpdir, "test.asreview")
-
-    # simulate entry point
-    _cli_simulate(f"{DATA_FP} -o {asreview_fp}".split())
+def test_simulate_review_finished(tmpdir, demo_data_path, tmp_project):
+    _cli_simulate(f"{demo_data_path} -o {tmp_project}".split())
 
     Path(tmpdir, "test").mkdir(parents=True)
-    project = asr.Project.load(asreview_fp, Path(tmpdir, "test"))
-
+    project = asr.Project.load(tmp_project, Path(tmpdir, "test"))
     assert project.config["reviews"][0]["status"] == "finished"
 
 
-def test_prior_idx(tmpdir):
-    asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{DATA_FP} -o {asreview_fp} --prior-idx 1 4".split()
+def test_prior_idx(tmp_project, demo_data_path):
+    argv = f"{demo_data_path} -o {tmp_project} --prior-idx 0 9".split()
     _cli_simulate(argv)
 
-    with asr.open_state(asreview_fp) as state:
+    with asr.open_state(tmp_project) as state:
         results_table = state.get_results_table()
 
-    print(results_table.iloc[:, 0:4])
-
-    assert results_table["record_id"][0] == 1
-    assert results_table["record_id"][1] == 4
+    assert results_table["record_id"].head(2).to_list() == [0, 9]
     assert results_table["query_strategy"][:1].isnull().all()
     assert results_table["query_strategy"][2:].notnull().all()
 
 
-def test_n_prior_included(tmpdir):
-    asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{DATA_FP} -o {asreview_fp} --n-prior-included 2 --prior-seed 535".split()
+def test_n_prior_included(tmp_project, demo_data_path):
+    argv = f"{demo_data_path} -o {tmp_project} --n-prior-included 2 --prior-seed 535".split()
     _cli_simulate(argv)
 
-    with asr.open_state(asreview_fp) as state:
+    with asr.open_state(tmp_project) as state:
         result = state.get_results_table(["label", "query_strategy"])
 
     prior_included = result["label"] & (result["query_strategy"].isnull())
     assert sum(prior_included) >= 2
 
 
-def test_n_prior_excluded(tmpdir):
-    asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{DATA_FP} -o {asreview_fp} --n-prior-excluded 2 --prior-seed 535".split()
+def test_n_prior_excluded(tmp_project, demo_data_path):
+    argv = f"{demo_data_path} -o {tmp_project} --n-prior-excluded 2 --prior-seed 535".split()
     _cli_simulate(argv)
 
-    with asr.open_state(asreview_fp) as state:
+    with asr.open_state(tmp_project) as state:
         result = state.get_results_table(["label", "query_strategy"])
 
     prior_excluded = ~result["label"] & (result["query_strategy"].isnull())
@@ -81,31 +61,70 @@ def test_n_prior_excluded(tmpdir):
 
 
 @pytest.mark.skip(reason="Not implemented yet.")
-def test_seed(tmpdir):
-    asreview_fp = Path(tmpdir, "test.asreview")
-    argv = f"{DATA_FP} -o {asreview_fp} --seed 42".split()
+def test_seed(tmp_project, demo_data_path):
+    argv = f"{demo_data_path} -o {tmp_project} --seed 535".split()
     _cli_simulate(argv)
 
-    with open(asreview_fp, "r") as f:
+    with open(tmp_project, "r") as f:
         settings_metadata = json.load(f)
 
-    assert settings_metadata["random_seed"] == 42
+    assert settings_metadata["random_seed"] == 535
+
+
+def test_no_seed(tmpdir, demo_data_path):
+    for i in range(10):
+        project_fp = Path(tmpdir, f"tmp_state_{i}.asreview")
+
+        argv = (
+            f"{demo_data_path} -o {project_fp} -c nb "
+            f"--n-prior-excluded 1 --n-prior-included 1 --n-stop 4".split()
+        )
+        _cli_simulate(argv)
+        with asr.open_state(project_fp) as s:
+            priors = s.get_priors()
+
+    assert len(priors) == 2
+
+
+@pytest.mark.parametrize("seed", [(535), (165), (42)])
+def test_model_and_prior_seed(tmpdir, seed, demo_data_path):
+    project1_fp = Path(tmpdir, "tmp_state1.asreview")
+    project2_fp = Path(tmpdir, "tmp_state2.asreview")
+
+    # run the simulations
+    _cli_simulate(
+        f"{demo_data_path} -o {project1_fp} -c rf --prior-seed {seed}"
+        f" --seed {seed}"
+        f" --n-prior-excluded 1 --n-prior-included 1".split()
+    )
+    _cli_simulate(
+        f"{demo_data_path} -o {project2_fp} -c rf --prior-seed {seed}"
+        f" --seed {seed}"
+        f" --n-prior-excluded 1 --n-prior-included 1".split()
+    )
+
+    # open the state file and extract the priors
+    with asr.open_state(project1_fp) as s1:
+        record_table1 = s1.get_results_table().drop("time", axis=1)
+
+    with asr.open_state(project2_fp) as s2:
+        record_table2 = s2.get_results_table().drop("time", axis=1)
+
+    assert_frame_equal(record_table1, record_table2)
 
 
 @pytest.mark.parametrize("model", ["logistic", "nb", "rf", "svm"])
-def test_models(model, tmpdir):
-    asreview_fp = Path(tmpdir, f"test_{model}.asreview")
-    argv = f"{DATA_FP} -o {asreview_fp} -c {model}".split()
-    _cli_simulate(argv)
+def test_models(model, tmpdir, demo_data_path, tmp_project):
+    _cli_simulate(f"{demo_data_path} -o {tmp_project} -c {model}".split())
 
-    with asr.open_state(asreview_fp) as state:
+    with asr.open_state(tmp_project) as state:
         results = state.get_results_table()
-    default_n_priors = 2
-    assert all(results["classifier"][default_n_priors:] == model)
-    assert all(results["balance_strategy"][default_n_priors:] == "balanced")
+
+    assert all(results["classifier"][10:] == model)
+    assert all(results["balance_strategy"][10:] == "balanced")
 
     Path(tmpdir, f"test_{model}").mkdir(parents=True)
-    project = asr.Project.load(asreview_fp, Path(tmpdir, f"test_{model}"))
+    project = asr.Project.load(tmp_project, Path(tmpdir, f"test_{model}"))
 
     settings = asr.ReviewSettings.from_file(
         Path(
@@ -119,12 +138,11 @@ def test_models(model, tmpdir):
     assert settings.classifier == model
 
 
-def test_no_balancing(tmpdir):
-    asreview_fp = Path(tmpdir, "test_no_balance.asreview")
-    argv = f"{DATA_FP} -o {asreview_fp} --no-balance-strategy".split()
+def test_no_balancing(tmp_project, demo_data_path):
+    argv = f"{demo_data_path} -o {tmp_project} --no-balance-strategy".split()
     _cli_simulate(argv)
 
-    with asr.open_state(asreview_fp) as state:
+    with asr.open_state(tmp_project) as state:
         results_balance_strategies = state.get_results_table()["balance_strategy"]
         last_ranking_balance_strategies = state.get_last_ranking_table()[
             "balance_strategy"
@@ -134,130 +152,57 @@ def test_no_balancing(tmpdir):
     assert last_ranking_balance_strategies.isnull().all()
 
 
-def test_number_records_found(tmpdir):
-    dataset = "synergy:van_de_Schoot_2018"
-    asreview_fp = Path(tmpdir, "test.asreview")
-    n_stop = 100
-    priors = [116, 285]
-    seed = 101
+def test_number_records_found(tmp_project, demo_data_path):
+    _cli_simulate(
+        f"{demo_data_path} -o {tmp_project} --n-stop 15"
+        " --prior-idx 0 9 --seed 535".split()
+    )
 
+    with asr.open_state(tmp_project) as s:
+        print(s.get_results_table("label")["label"].sum())
+        assert s.get_results_table("label")["label"].sum() == 8
+        assert s.get_results_table("label").shape[0] == 15
+        assert s.get_results_table().shape[0] == 15
+        assert s.get_results_table()["label"].head(2).sum() == 1
+
+
+def test_n_stop_min(tmp_project, demo_data_path):
     argv = (
-        f"{dataset} -o {asreview_fp} --n-stop {n_stop} "
-        f"--prior-idx {priors[0]} {priors[1]} --seed {seed}".split()
+        f"{demo_data_path} -o {tmp_project} --n-stop min "
+        f"--prior-idx 0 9 --seed 535".split()
     )
     _cli_simulate(argv)
 
-    with asr.open_state(asreview_fp) as s:
-        assert s.get_results_table("label")["label"].sum() == 25
-        assert s.get_results_table("label").shape[0] == n_stop
-        assert s.get_results_table().shape[0] == n_stop
-        assert s.get_results_table()["record_id"].head(2).to_list() == [116, 285]
+    with asr.open_state(tmp_project) as s:
+        assert s.get_results_table("label")["label"].sum() == 10
+        assert len(s.get_results_table("label")) == 20
 
 
-def test_n_stop_min(tmpdir):
-    dataset = "synergy:van_de_Schoot_2018"
-    asreview_fp = Path(tmpdir, "test.asreview")
-    n_stop = "min"
-    priors = [116, 285]
-    seed = 535
-
+def test_n_stop_all(tmp_project):
     argv = (
-        f"{dataset} -o {asreview_fp} --n-stop {n_stop} "
-        f"--prior-idx {priors[0]} {priors[1]} --seed {seed}".split()
+        "synergy:Sep_2021",
+        "-o",
+        f"{tmp_project}",
+        "--n-stop",
+        "-1",
+        "--prior-idx",
+        "116",
+        "10",
+        "--seed",
+        "101",
     )
     _cli_simulate(argv)
 
-    with asr.open_state(asreview_fp) as s:
-        assert s.get_results_table("label")["label"].sum() == 38
-        assert len(s.get_results_table("label")) == 919
+    with asr.open_state(tmp_project) as s:
+        assert s.get_results_table("label")["label"].sum() == 40
+        assert len(s.get_results_table("label")) == 271
 
 
-def test_n_stop_all(tmpdir):
-    dataset = "synergy:van_de_Schoot_2018"
-    asreview_fp = Path(tmpdir, "test.asreview")
-    n_stop = -1
-    priors = [116, 285]
-    seed = 101
-
-    argv = (
-        f"{dataset} -o {asreview_fp} --n-stop {n_stop} "
-        f"--prior-idx {priors[0]} {priors[1]} --seed {seed}".split()
-    )
+def test_project_already_exists_error(tmp_project, demo_data_path):
+    argv = f"{demo_data_path} -o {tmp_project} --n-stop 100" f" --seed 535".split()
     _cli_simulate(argv)
 
-    with asr.open_state(asreview_fp) as s:
-        assert s.get_results_table("label")["label"].sum() == 38
-        assert len(s.get_results_table("label")) == 4544
-
-
-@pytest.mark.xfail(raises=ValueError, reason="Cannot continue simulation.")
-def test_project_already_exists_error(tmpdir):
-    asreview_fp1 = Path(tmpdir, "test1.asreview")
-
-    argv = (
-        f"synergy:van_de_Schoot_2018 -o {asreview_fp1} --n-stop 100"
-        f" --seed 535".split()
-    )
-    _cli_simulate(argv)
-
-    # Simulate 100 queries in two steps of 50.
-    argv = (
-        f"synergy:van_de_Schoot_2018 -o {asreview_fp1} --n-stop 50"
-        f" --seed 535".split()
-    )
-    _cli_simulate(argv)
-
-
-@pytest.mark.skip(reason="Partial simulations are not available.")
-def test_partial_simulation(tmpdir):
-    dataset = "synergy:van_de_Schoot_2018"
-    asreview_fp1 = Path(tmpdir, "test1.asreview")
-    asreview_fp2 = Path(tmpdir, "test2.asreview")
-
-    priors = [284, 285]
-    seed = 101
-
-    # Simulate 100 queries in one go.
-    argv = (
-        f"{dataset} -o {asreview_fp1} --n-stop 100 "
-        f"--prior-idx {priors[0]} {priors[1]} --seed {seed}".split()
-    )
-    _cli_simulate(argv)
-
-    # Simulate 100 queries in two steps of 50.
-    argv = (
-        f"{dataset} -o {asreview_fp2} --n-stop 50 "
-        f"--prior-idx {priors[0]} {priors[1]} --seed {seed}".split()
-    )
-    _cli_simulate(argv)
-
-    argv = (
-        f"{dataset} -o {asreview_fp2} --n-stop 100 "
-        f"--prior-idx {priors[0]} {priors[1]} --seed {seed}".split()
-    )
-    _cli_simulate(argv)
-
-    with asr.open_state(asreview_fp1) as state:
-        dataset1 = state.get_results_table()
-
-    with asr.open_state(asreview_fp2) as state:
-        dataset2 = state.get_results_table()
-
-    assert dataset1.shape == dataset2.shape
-    # All query strategies should match.
-    assert dataset1["query_strategy"].to_list() == dataset2["query_strategy"].to_list()
-    # The first 50 record ids and labels should match.
-    assert (
-        dataset1["record_id"].iloc[:50].to_list()
-        == dataset2["record_id"].iloc[:50].to_list()
-    )
-    assert (
-        dataset1["label"].iloc[:50].to_list() == dataset2["label"].iloc[:50].to_list()
-    )
-
-    # You expect many of the same records in the second 50 records.
-    # With this initial seed there are 89 in the total.
-    assert (
-        len(dataset1["record_id"][dataset1["record_id"].isin(dataset2["record_id"])])
-        == 89
-    )
+    with pytest.raises(ValueError):
+        # Simulate 100 queries in two steps of 50.
+        argv = f"{demo_data_path} -o {tmp_project} --n-stop 50" f" --seed 535".split()
+        _cli_simulate(argv)
