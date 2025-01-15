@@ -97,6 +97,18 @@ class ActiveLearningCycle:
         return n_query
 
     def transform(self, X):
+        """Transform the data.
+
+        Arguments
+        ---------
+        X: np.array
+            The instances to transform.
+
+        Returns
+        -------
+        np.array, scipy.sparse.csr_matrix:
+            The transformed instances.
+        """
         return self.feature_extraction.fit_transform(X)
 
     def fit(self, X, y):
@@ -153,6 +165,20 @@ class ActiveLearningCycle:
                 )
 
     def stop(self, results, data):
+        """Check if the stopping criteria is met.
+
+        Arguments
+        ---------
+        results: pd.DataFrame
+            The results of the simulation.
+        data: pandas.DataFrame
+            The data store object.
+
+        Returns
+        -------
+        bool:
+            True if the stopping criteria is met, False otherwise.
+        """
         if self.stopping is None:
             return False
         return self.stopping.stop(results, data)
