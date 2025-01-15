@@ -16,12 +16,12 @@ from pathlib import Path
 
 import asreview as asr
 from asreview.extensions import load_extension
+from asreview.models.query import TopDownQuery
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
-from asreview.webapp.utils import get_project_path
-from asreview.models.query import TopDownQuery
 from asreview.stopping import StoppingIsFittable
+from asreview.webapp.utils import get_project_path
 
 
 def run_task(project_id, simulation=False):

@@ -41,18 +41,18 @@ from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
 import asreview as asr
+from asreview.data.search import fuzzy_find
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
-from asreview.models import DEFAULT_CLASSIFIER
 from asreview.models import DEFAULT_BALANCE
+from asreview.models import DEFAULT_CLASSIFIER
 from asreview.models import DEFAULT_FEATURE_EXTRACTION
 from asreview.models import DEFAULT_QUERY
 from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
-from asreview.data.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
 from asreview.utils import _check_model

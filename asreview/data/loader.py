@@ -1,8 +1,8 @@
 from io import StringIO
 from pathlib import Path
 
-from asreview.data.store import DataStore
 from asreview.data.record import Record
+from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
 from asreview.utils import _get_filename_from_url
