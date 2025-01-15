@@ -19,15 +19,10 @@ Technical guide
 
 .. autosummary::
     :toctree: reference/
+    :caption: API Reference
     :recursive:
 
     asreview
-
-.. toctree::
-    :maxdepth: 2
-    :caption: API Reference
-
-    reference/asreview
 
 
 Indices and tables
