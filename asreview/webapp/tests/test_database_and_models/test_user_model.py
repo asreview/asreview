@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 import asreview.webapp.tests.utils.config_parser as cp
 import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import User
+from asreview.webapp._authentication.models import User
 
 # #############
 # CREATE

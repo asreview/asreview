@@ -20,7 +20,7 @@ DEFAULT_CLASSIFIER = "nb"
 __all__ = [
     "balance",
     "classifiers",
-    "feature_extractor",
+    "feature_extraction",
     "query",
     "DEFAULT_BALANCE",
     "DEFAULT_FEATURE_EXTRACTION",

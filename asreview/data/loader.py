@@ -1,7 +1,7 @@
 from io import StringIO
 from pathlib import Path
 
-from asreview.data import DataStore
+from asreview.data.store import DataStore
 from asreview.data.record import Record
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension

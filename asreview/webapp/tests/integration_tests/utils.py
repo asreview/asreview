@@ -6,8 +6,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from asreview.webapp.authentication.models import Project
-from asreview.webapp.authentication.models import User
+from asreview.webapp._authentication.models import Project
+from asreview.webapp._authentication.models import User
 
 
 def setup_database_session(uri):

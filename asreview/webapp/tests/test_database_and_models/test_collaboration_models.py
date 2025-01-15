@@ -3,8 +3,8 @@ from sqlalchemy.exc import IntegrityError
 
 import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import Collaboration
-from asreview.webapp.authentication.models import CollaborationInvitation
+from asreview.webapp._authentication.models import Collaboration
+from asreview.webapp._authentication.models import CollaborationInvitation
 
 
 class TestInvitations:

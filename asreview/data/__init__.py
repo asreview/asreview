@@ -13,7 +13,7 @@
 # limitations under the License.
 
 __all__ = [
-    "BaseReader",
+    "base",
     "CSVReader",
     "CSVWriter",
     "ExcelReader",
@@ -21,15 +21,10 @@ __all__ = [
     "RISReader",
     "RISWriter",
     "TSVWriter",
-    "DataStore",
-    "Record",
 ]
 
-from asreview.data.base_reader import BaseReader
-from asreview.data.record import Record
 from asreview.data.ris import RISReader
 from asreview.data.ris import RISWriter
-from asreview.data.store import DataStore
 from asreview.data.tabular import CSVReader
 from asreview.data.tabular import CSVWriter
 from asreview.data.tabular import ExcelReader

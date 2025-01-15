@@ -79,7 +79,8 @@ extensions = [
 autosectionlabel_prefix_document = True
 
 # generate autosummary even if no references
-autosummary_generate = True
+autosummary_ignore_module_all = False
+autodoc_member_order = "bysource"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

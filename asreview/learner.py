@@ -13,8 +13,11 @@
 # limitations under the License.
 
 
+__all__ = []
+
+
 class ActiveLearningCycle:
-    """Active learner cycle class
+    """Active learner cycle class.
 
     The active learner class is a wrapper around a query strategy and a classifier.
     It is used to rank the instances of the feature matrix.

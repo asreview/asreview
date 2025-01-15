@@ -1,8 +1,8 @@
 import asreview.webapp.tests.utils.config_parser as cp
-from asreview.webapp.authentication.models import Collaboration
-from asreview.webapp.authentication.models import CollaborationInvitation
-from asreview.webapp.authentication.models import Project
-from asreview.webapp.authentication.models import User
+from asreview.webapp._authentication.models import Collaboration
+from asreview.webapp._authentication.models import CollaborationInvitation
+from asreview.webapp._authentication.models import Project
+from asreview.webapp._authentication.models import User
 
 
 def create_user(DB, user=1):

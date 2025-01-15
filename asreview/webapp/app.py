@@ -34,13 +34,13 @@ from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
 from asreview.webapp import DB
-from asreview.webapp.api import auth
-from asreview.webapp.api import projects
-from asreview.webapp.api import team
-from asreview.webapp.authentication.decorators import login_remote_user
-from asreview.webapp.authentication.models import User
-from asreview.webapp.authentication.oauth_handler import OAuthHandler
-from asreview.webapp.authentication.remote_user_handler import RemoteUserHandler
+from asreview.webapp._api import auth
+from asreview.webapp._api import projects
+from asreview.webapp._api import team
+from asreview.webapp._authentication.decorators import login_remote_user
+from asreview.webapp._authentication.models import User
+from asreview.webapp._authentication.oauth_handler import OAuthHandler
+from asreview.webapp._authentication.remote_user_handler import RemoteUserHandler
 from asreview.webapp.utils import asreview_path
 
 

@@ -1,7 +1,7 @@
 import random
 
 import asreview.webapp.tests.integration_tests.utils as utils
-from asreview.webapp.authentication.models import Project
+from asreview.webapp._authentication.models import Project
 
 ACCOUNT = {
     "email": "test4@user.org",

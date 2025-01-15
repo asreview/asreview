@@ -46,7 +46,7 @@ def _get_name_from_estimator(estimator):
 
 
 class Simulate:
-    """ASReview Simulation class.
+    """ASReview simulation class.
 
     The simulation will stop when all records have been labeled or when the number of
     steps/queries reaches the n_stop parameter.

@@ -39,7 +39,7 @@ from asreview.models import DEFAULT_CLASSIFIER
 from asreview.models import DEFAULT_BALANCE
 from asreview.models import DEFAULT_FEATURE_EXTRACTION
 from asreview.models import DEFAULT_QUERY
-from asreview.data import DataStore
+from asreview.data.store import DataStore
 from asreview.data.loader import _from_file
 from asreview.data.loader import _get_reader
 from asreview.datasets import DatasetManager

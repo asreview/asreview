@@ -1,6 +1,12 @@
 Technical guide
 ===============
 
+
+.. autosummary::
+    :toctree: technical/reference/
+    :recursive:
+
+
 .. toctree::
     :maxdepth: 2
     :caption: Architecture
@@ -17,13 +23,13 @@ Technical guide
 
     example_api_asreview_file
 
+
+
 .. toctree::
     :maxdepth: 2
     :caption: API Reference
 
-    reference
-    reference_models
-
+    reference/asreview
 
 Indices and tables
 ------------------

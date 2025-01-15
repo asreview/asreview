@@ -7,7 +7,7 @@ from pytest import mark
 import asreview as asr
 from asreview import load_dataset
 from asreview.datasets import DatasetManager
-from asreview.search import fuzzy_find
+from asreview.data.search import fuzzy_find
 
 
 def exists(url):

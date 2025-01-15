@@ -1,7 +1,7 @@
 import configparser
 from pathlib import Path
 
-from asreview.webapp.authentication.models import User
+from asreview.webapp._authentication.models import User
 
 config_file = "asreview.ini"
 config_dir = "config"

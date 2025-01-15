@@ -27,10 +27,10 @@ import asreview as asr
 from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import Project
-from asreview.webapp.authentication.models import User
-from asreview.webapp.authentication.remote_user_handler import RemoteUserHandler
-from asreview.webapp.authentication.utils import perform_login_user
+from asreview.webapp._authentication.models import Project
+from asreview.webapp._authentication.models import User
+from asreview.webapp._authentication.remote_user_handler import RemoteUserHandler
+from asreview.webapp._authentication.utils import perform_login_user
 from asreview.webapp.utils import get_project_path
 from asreview.webapp.utils import get_projects
 
