@@ -79,13 +79,13 @@ requires-python = ">=3.10"
 asreview = "asreview.__main__:main"
 
 [project.entry-points."asreview.entry_points"]
-lab = "asreview.webapp.entry_points.lab:lab_entry_point"
-auth-tool = "asreview.webapp.entry_points.auth_tool:AuthTool"
+lab = "asreview.webapp._entry_points.lab:lab_entry_point"
+auth-tool = "asreview.webapp._entry_points.auth_tool:AuthTool"
 simulate = "asreview.simulation.cli:_cli_simulate"
 algorithms = "asreview.models.cli:cli_algorithms"
 
 [project.entry-points."asreview.entry_points_internal"]
-task-manager = "asreview.webapp.entry_points.task_manager:main"
+task-manager = "asreview.webapp._entry_points.task_manager:main"
 
 [project.entry-points."asreview.readers"]
 ".csv" = "asreview.data:CSVReader"
