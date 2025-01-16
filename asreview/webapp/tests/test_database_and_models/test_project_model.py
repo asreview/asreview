@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import Project
+from asreview.webapp._authentication.models import Project
 from asreview.webapp.utils import asreview_path
 
 # NOTE: projects are created from a user account

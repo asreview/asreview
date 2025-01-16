@@ -60,7 +60,7 @@ server/index
 
 ## Technical guide
 
-All resources for them who develop ASReview and the API
+All technical documentation and reources
 
 ```{toctree}
 :maxdepth: 2

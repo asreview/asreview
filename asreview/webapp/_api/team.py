@@ -7,8 +7,8 @@ from sqlalchemy.exc import SQLAlchemyError
 
 import asreview as asr
 from asreview.webapp import DB
-from asreview.webapp.authentication.models import Project
-from asreview.webapp.authentication.models import User
+from asreview.webapp._authentication.models import Project
+from asreview.webapp._authentication.models import User
 
 bp = Blueprint("team", __name__, url_prefix="/api")
 

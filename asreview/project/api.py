@@ -35,15 +35,15 @@ import numpy as np
 import scipy.sparse as sp
 from filelock import FileLock
 
-from asreview.models import DEFAULT_CLASSIFIER
-from asreview.models import DEFAULT_BALANCE
-from asreview.models import DEFAULT_FEATURE_EXTRACTION
-from asreview.models import DEFAULT_QUERY
-from asreview.data import DataStore
 from asreview.data.loader import _from_file
 from asreview.data.loader import _get_reader
+from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
 from asreview.migrate import migrate_v1_v2
+from asreview.models import DEFAULT_BALANCE
+from asreview.models import DEFAULT_CLASSIFIER
+from asreview.models import DEFAULT_FEATURE_EXTRACTION
+from asreview.models import DEFAULT_QUERY
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA

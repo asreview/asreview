@@ -12,6 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Stopping mechanisms for the review process.
+
+The stopping mechanisms determine when the review process should be stopped.
+This can be based on the properties of the results table or the input dataset.
+
+
+.. warning::
+    This module is experimental and might change.
+
+"""
+
 __all__ = [
     "StoppingDefault",
     "StoppingN",

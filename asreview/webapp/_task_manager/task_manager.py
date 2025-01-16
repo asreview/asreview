@@ -12,9 +12,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 from asreview.webapp import asreview_path
-from asreview.webapp.task_manager.models import Base
-from asreview.webapp.task_manager.models import ProjectQueueModel
-from asreview.webapp.tasks import run_task
+from asreview.webapp._task_manager.models import Base
+from asreview.webapp._task_manager.models import ProjectQueueModel
+from asreview.webapp._tasks import run_task
 
 DEFAULT_TASK_MANAGER_HOST = "localhost"
 DEFAULT_TASK_MANAGER_PORT = 5101

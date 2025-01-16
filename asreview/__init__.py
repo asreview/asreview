@@ -12,12 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Active learning for Systematic Reviews.
+
+Active learning for Systematic Reviews (ASReview) is a package for
+systematic reviews. It is designed to automate the step of screening
+titles and abstracts in a systematic review. It can be used for screening
+any type of text data, such as scientific papers, but also, e.g. legal documents
+or news articles. The package also includes rich simulation functionality, which
+can be used to evaluate the performance of the active learning model.
+"""
+
 import sqlite3
 
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 
 from asreview.data.loader import load_dataset
+from asreview.data.record import Record
+from asreview.data.store import DataStore
 from asreview.extensions import extensions
 from asreview.extensions import get_extension
 from asreview.extensions import load_extension
@@ -26,7 +38,6 @@ from asreview.project.api import Project
 from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
-from asreview.search import fuzzy_find
 from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
@@ -40,17 +51,24 @@ except ImportError:
     __version_tuple__ = (0, 0, 0)
 
 __all__ = [
+    # modules
+    "data",
+    "models",
+    "stopping",
+    "metrics",
+    "datasets",
     # classes
-    "Project",
+    "ActiveLearningCycle",
     "Simulate",
+    "Project",
     "SQLiteState",
     "ReviewSettings",
-    "ActiveLearningCycle",
+    "DataStore",
+    "Record",
     # functions
     "is_project",
     "load_dataset",
     "open_state",
-    "fuzzy_find",
     "extensions",
     "get_extension",
     "load_extension",

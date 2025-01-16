@@ -44,7 +44,7 @@ available interfaces for interacting with the ASReview software:
       simulations, and run :doc:`Subcommand extensions <extensions_dev>` for ASReview. This development section documents all available
       command line options for both :doc:`ASReview LAB <../lab/start>` and :doc:`simulation mode <../lab/simulation_cli>`.
 
-* Layer 1: :doc:`reference`
+* Layer 1: :doc:`reference/asreview`
 
     - The ASReview API is a low level Python interface for ASReview. This
       interface requires detailed knowledge about the workings of the software.
