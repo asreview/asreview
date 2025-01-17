@@ -11,6 +11,7 @@ import {
   Link,
   Stack,
   Typography,
+  LinearProgress,
 } from "@mui/material";
 import {
   DeveloperBoardOutlined,
@@ -37,6 +38,21 @@ const formatCitation = (authors, year) => {
   }
 };
 
+const getColor = (topic) => {
+  switch (topic) {
+    case "Psychology":
+      return "secondary.main";
+    case "Medicine":
+      return "tertiary.main";
+    case "Computer science":
+      return "#8BAAFF";
+    case "Biology":
+      return "#9B6E96";
+    default:
+      return "grey.500";
+  }
+};
+
 const CardIcon = ({ iconName }) => {
   const iconProps = {
     fontSize: "medium",
@@ -44,31 +60,25 @@ const CardIcon = ({ iconName }) => {
   };
 
   let iconType;
-  let iconBGColor;
 
   switch (iconName) {
     case "Psychology":
       iconType = <PsychologyAltOutlined {...iconProps} />;
-      iconBGColor = "secondary.main";
       break;
     case "Medicine":
       iconType = <MedicalServicesOutlined {...iconProps} />;
-      iconBGColor = "tertiary.main";
       break;
     case "Computer science":
       iconType = <DeveloperBoardOutlined {...iconProps} />;
-      iconBGColor = "#8BAAFF";
       break;
     case "Biology":
       iconType = <EmojiNatureOutlined {...iconProps} />;
-      iconBGColor = "#9B6E96";
       break;
     default:
       iconType = null;
-      iconBGColor = "grey.500";
   }
 
-  return <Box sx={{ bgcolor: iconBGColor, p: 1 }}>{iconType}</Box>;
+  return <Box sx={{ bgcolor: getColor(iconName), p: 1 }}>{iconType}</Box>;
 };
 
 const EntryPointDataset = ({
@@ -98,7 +108,15 @@ const EntryPointDataset = ({
         </Stack>
       </Card>
       <Dialog open={open} onClose={toggleOpen}>
-        <DialogTitle>{dataset.title}</DialogTitle>
+        <DialogTitle>
+          {dataset.title}{" "}
+          {dataset.topic && (
+            <Chip
+              label={dataset.topic}
+              sx={{ bgcolor: getColor(dataset.topic) }}
+            />
+          )}
+        </DialogTitle>
         <DialogContent>
           <Stack spacing={1}>
             {dataset.reference && (
@@ -131,6 +149,8 @@ const EntryPointDataset = ({
                 {dataset.link}
               </Link>
             </Typography>
+            <Typography>Number of records: {dataset.n_records}</Typography>
+            <Typography>Number of relevant: {dataset.n_relevant}</Typography>
             <Typography>
               License:{" "}
               <Link
@@ -143,7 +163,17 @@ const EntryPointDataset = ({
               </Link>
             </Typography>
           </Stack>
-          {dataset.topic && <Chip label={dataset.topic} color="primary" />}
+
+          {isAddingDataset && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                Downloading...
+              </Typography>
+              <Box sx={{ width: "100%", mt: 1 }}>
+                <LinearProgress />
+              </Box>
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={toggleOpen}>Close</Button>
