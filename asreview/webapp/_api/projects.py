@@ -35,7 +35,9 @@ from flask import request
 from flask import send_file
 from flask_login import current_user
 from flask_login import login_required
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.utils import compute_sample_weight
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
@@ -751,34 +753,34 @@ def api_set_algorithms(project):  # noqa: F401
 def api_get_wordcounts(project):  # noqa: F401
     """Get the word counts used in the project"""
 
-    df_user_input_data = project.read_input_data()
+    df_data = project.data_store[["record_id", "abstract"]]
 
     with open_state(project.project_path) as s:
-        data = s.get_results_table()
+        results = s.get_results_table(columns=["record_id", "label"])
 
-    record_ids_rel = data[data["label"] == 1]["record_id"].to_list()
-    record_ids_irrel = data[data["label"] == 0]["record_id"].to_list()
-
-    df_rel = df_user_input_data.iloc[record_ids_rel]["abstract"].fillna("").to_list()
-    df_irrel = (
-        df_user_input_data.iloc[record_ids_irrel]["abstract"].fillna("").to_list()
-    )
+    df_data_labels = df_data.merge(results, on="record_id", how="inner")
 
     try:
-        vectorizer = TfidfVectorizer(stop_words="english")
-        tfidf_matrix = vectorizer.fit_transform(df_rel)
-        feature_array = np.array(vectorizer.get_feature_names_out())
-        tfidf_sorting = np.argsort(tfidf_matrix.toarray()).flatten()[::-1]
-        top_n_rel = feature_array[tfidf_sorting][:15]
+        count_vectorizer = CountVectorizer(
+            ngram_range=(1, 2), binary=True, stop_words="english"
+        )
+        fm = count_vectorizer.fit_transform(df_data_labels["abstract"])
 
-        vectorizer = TfidfVectorizer(stop_words="english")
-        tfidf_matrix = vectorizer.fit_transform(df_irrel)
-        feature_array = np.array(vectorizer.get_feature_names_out())
-        tfidf_sorting = np.argsort(tfidf_matrix.toarray()).flatten()[::-1]
-        top_n_irrel = feature_array[tfidf_sorting][:15]
+        nb = MultinomialNB()
+        nb.fit(
+            fm,
+            df_data_labels["label"],
+            sample_weight=compute_sample_weight("balanced", df_data_labels["label"]),
+        )
+
+        weights = nb.feature_log_prob_[1, :] - nb.feature_log_prob_[0, :]
+        feature_names = count_vectorizer.get_feature_names_out()
 
         return jsonify(
-            {"relevant": top_n_rel.tolist(), "irrelevant": top_n_irrel.tolist()}
+            {
+                "relevant": feature_names[np.argsort(weights)][:15:-1].tolist(),
+                "irrelevant": feature_names[np.argsort(weights)][:15].tolist(),
+            }
         )
     except ValueError:
         return jsonify({"relevant": [], "irrelevant": []})
