@@ -89,11 +89,11 @@ To install and start ASReview LAB at http://localhost:5000, run the following:
 
 .. code:: bash
 
-   docker run -p 5000:5000 ghcr.io/asreview/asreview:latest lab
+   docker run -p 5000:5000 ghcr.io/asreview/asreview:v1.6.3 lab
 
 
-More advanced command line options can be given
-afterward, like this:
+or any other `ASReview version available <https://github.com/asreview/asreview/pkgs/container/asreview>`__.
+More advanced command line options can be given afterward, like this:
 
 .. code:: bash
 
