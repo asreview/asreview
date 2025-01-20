@@ -139,7 +139,7 @@ You can also check which images are running with `docker ps`.
 Customize the image
 ~~~~~~~~~~~~~~~~~~~
 
-If you want to add more extensions, or build the Docker image yourself, check the file `Dockerfile <https://github.com/ghcr.io/asreview/asreview/tree/master/Dockerfiles>`.
+If you want to add more extensions, or build the Docker image yourself, check the file `Dockerfile <https://github.com/asreview/asreview/blob/main/Dockerfile>`__.
 Modify it as you see fit, and then build and run the image with:
 
 .. code:: bash
