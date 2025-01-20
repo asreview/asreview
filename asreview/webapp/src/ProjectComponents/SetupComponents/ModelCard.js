@@ -438,7 +438,7 @@ const ModelCard = ({
     },
   );
 
-  console.log(mode);
+  // console.log(mode);
 
   return (
     <Card>
