@@ -1,10 +1,10 @@
 import {
   DeleteForeverOutlined,
   DoneAllOutlined,
-  DownloadOutlined,
-  GroupAdd,
+  FileDownloadOutlined,
+  GroupAddOutlined,
   MoreHoriz,
-  PersonOff,
+  PersonOffOutlined,
   SettingsOutlined,
 } from "@mui/icons-material";
 import { ProjectAPI } from "api";
@@ -167,7 +167,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                   component={Link}
                   to={`/${projectModeURLMap[mode]}/${project.id}/team`}
                 >
-                  <GroupAdd />
+                  <GroupAddOutlined />
                 </IconButton>
               </Tooltip>
             )}
@@ -179,7 +179,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                   component={Link}
                   to={`/${projectModeURLMap[mode]}/${project.id}/team`}
                 >
-                  <PersonOff />
+                  <PersonOffOutlined />
                 </IconButton>
               </Tooltip>
             )}
@@ -245,7 +245,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                 disabled={isExportingProject}
               >
                 <ListItemIcon>
-                  <DownloadOutlined />
+                  <FileDownloadOutlined />
                 </ListItemIcon>
                 <ListItemText>Export project</ListItemText>
               </MenuItem>

@@ -1,7 +1,7 @@
 import {
   Diversity3Outlined,
   EmailOutlined,
-  LibraryBooksOutlined,
+  SchoolOutlined,
   PaymentOutlined,
   StarBorder,
 } from "@mui/icons-material";
@@ -72,7 +72,7 @@ const InteractionButtons = () => {
                 color="inherit"
               >
                 <Stack justifyContent="center" sx={{ alignItems: "center" }}>
-                  <LibraryBooksOutlined fontSize="large" sx={{ m: "0.5rem" }} />
+                  <SchoolOutlined fontSize="large" sx={{ m: "0.5rem" }} />
                   <Typography>Cite</Typography>
                 </Stack>
               </Button>
