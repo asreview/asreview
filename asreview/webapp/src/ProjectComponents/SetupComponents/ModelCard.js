@@ -438,7 +438,6 @@ const ModelCard = ({
     },
   );
 
-
   return (
     <Card>
       <CardHeader
