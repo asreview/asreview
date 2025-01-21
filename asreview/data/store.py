@@ -179,11 +179,14 @@ class DataStore:
                     .first()
                 )
             else:
-                return (
+                records = (
                     session.query(self.record_cls)
                     .filter(self.record_cls.record_id.in_(record_id))
                     .all()
                 )
+
+                record_id_to_position = {id: i for i, id in enumerate(record_id)}
+                return sorted(records, key=lambda r: record_id_to_position[r.record_id])
 
     def get_df(self):
         """Get all data from the data store as a pandas DataFrmae.
