@@ -5,6 +5,7 @@ import {
   GroupAddOutlined,
   MoreHoriz,
   PersonOffOutlined,
+  RemoveDoneOutlined,
   SettingsOutlined,
 } from "@mui/icons-material";
 import { ProjectAPI } from "api";
@@ -228,7 +229,11 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                     }
                   >
                     <ListItemIcon>
-                      <DoneAllOutlined />
+                      {review?.status === projectStatuses.REVIEW ? (
+                        <DoneAllOutlined />
+                      ) : (
+                        <RemoveDoneOutlined />
+                      )}
                     </ListItemIcon>
                     <ListItemText>
                       {review?.status === projectStatuses.REVIEW
