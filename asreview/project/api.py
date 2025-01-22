@@ -235,9 +235,20 @@ class Project:
         # necessary in the input data, we should move it from `Record` to the `Base`
         # class, so that all record implementations have it.
         if self.config["mode"] == PROJECT_MODE_SIMULATE and (
+            all([r.included is None for r in records])
+        ):
+            raise ValueError(
+                "Dataset for simulation mode must have labels for all records - "
+                "got dataset without any labels"
+            )
+
+        if self.config["mode"] == PROJECT_MODE_SIMULATE and (
             any([r.included is None for r in records])
         ):
-            raise ValueError("Import fully labeled dataset")
+            raise ValueError(
+                "Dataset for simulation mode must be fully labeled - "
+                "got records with missing labels"
+            )
 
         self.data_store.add_records(records=records)
 
