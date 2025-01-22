@@ -34,7 +34,6 @@ from flask import jsonify
 from flask import request
 from flask import send_file
 from flask_login import current_user
-from flask_login import login_required
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sqlalchemy import and_
 from werkzeug.exceptions import InternalServerError
@@ -59,6 +58,7 @@ from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import current_user_projects
+from asreview.webapp.authentication.decorators import login_required
 from asreview.webapp.authentication.decorators import project_authorization
 from asreview.webapp.authentication.models import Project
 from asreview.webapp.task_manager.task_manager import DEFAULT_TASK_MANAGER_HOST
@@ -181,7 +181,7 @@ def api_get_projects(projects):  # noqa: F401
             if mode is not None and project_config["mode"] != mode:
                 continue
 
-            if not current_app.config.get("LOGIN_DISABLED", False):
+            if current_app.config.get("AUTHENTICATION", True):
                 project_config["roles"] = {
                     "owner": db_project.owner_id == current_user.id
                 }
@@ -274,7 +274,7 @@ def api_create_project():  # noqa: F401
 
         return jsonify(message=f"Failed to import file. {err}"), 400
 
-    if current_app.config.get("LOGIN_DISABLED", False):
+    if not current_app.config.get("AUTHENTICATION", True):
         return jsonify(project.config), 201
 
     # create a database entry for this project
@@ -315,7 +315,7 @@ def api_get_project_info(project):  # noqa: F401
     """"""
     project_config = project.config
 
-    if current_app.config.get("LOGIN_DISABLED", False):
+    if not current_app.config.get("AUTHENTICATION", True):
         project_config["roles"] = {"owner": True}
         return jsonify(project_config)
 
@@ -550,7 +550,7 @@ def api_get_labeled(project):  # noqa: F401
         next_page = None
         previous_page = None
 
-    if not current_app.config.get("LOGIN_DISABLED", False):
+    if current_app.config.get("AUTHENTICATION", True):
         project_entry = Project.query.filter(
             Project.project_id == project.project_id
         ).one_or_none()
@@ -573,7 +573,7 @@ def api_get_labeled(project):  # noqa: F401
         record_d["state"] = state.to_dict()
         record_d["tags_form"] = project.config.get("tags", None)
 
-        if not current_app.config.get("LOGIN_DISABLED", False):
+        if current_app.config.get("AUTHENTICATION", True):
             record_d["state"]["user"] = users.get(record_d["state"]["user_id"], None)
         else:
             record_d["state"]["user"] = None
@@ -934,7 +934,7 @@ def api_import_project():
             " can be changed in the project settings."
         )
 
-    if not current_app.config.get("LOGIN_DISABLED", False):
+    if current_app.config.get("AUTHENTICATION", True):
         current_user.projects.append(Project(project_id=project.config.get("id")))
         DB.session.commit()
 
@@ -1013,7 +1013,7 @@ def api_export_dataset(project):
     )
 
     # add user information
-    if not current_app.config.get("LOGIN_DISABLED", False) and export_user_details:
+    if current_app.config.get("AUTHENTICATION", False) and export_user_details:
         project_entry = Project.query.filter(
             Project.project_id == project.project_id
         ).one_or_none()
@@ -1268,7 +1268,7 @@ def api_label_record(project, record_id):  # noqa: F401
     retrain_model = bool(request.form.get("retrain_model", default=False))
 
     user_id = (
-        None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
+        None if not current_app.config.get("AUTHENTICATION", True) else current_user.id
     )
 
     with open_state(project.project_path) as state:
@@ -1322,7 +1322,7 @@ def api_get_document(project):  # noqa: F401
     """Retrieve unlabeled record in order of review."""
 
     user_id = (
-        None if current_app.config.get("LOGIN_DISABLED", False) else current_user.id
+        None if not current_app.config.get("AUTHENTICATION", True) else current_user.id
     )
 
     with open_state(project.project_path) as state:
@@ -1365,7 +1365,7 @@ def api_delete_project(project):  # noqa: F401
     if project.project_path.exists() and project.project_path.is_dir():
         try:
             # remove from database if applicable
-            if not current_app.config.get("LOGIN_DISABLED", False):
+            if current_app.config.get("AUTHENTICATION", True):
                 project = Project.query.filter(
                     and_(
                         Project.project_id == project.project_id,

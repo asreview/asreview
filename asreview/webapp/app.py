@@ -79,7 +79,9 @@ def create_app(config_path=None):
     with app.app_context():
         app.register_blueprint(projects.bp)
 
-    if not app.config.get("LOGIN_DISABLED", False):
+    if app.config.get("AUTHENTICATION", True):
+        # set authentication to True when no auth. arguments are provided.
+        app.config["AUTHENTICATION"] = True
         # config JSON Web Tokens
         login_manager = LoginManager(app)
         login_manager.init_app(app)
@@ -147,7 +149,7 @@ def create_app(config_path=None):
             "index.html",
             api_url=app.config.get("API_URL", "/"),
             asreview_version=asreview_version,
-            authentication=str(not app.config.get("LOGIN_DISABLED", False)).lower(),
+            authentication=str(app.config.get("AUTHENTICATION", True)).lower(),
             login_info=app.config.get("LOGIN_INFO", ""),
             allow_account_creation=str(
                 app.config.get("ALLOW_ACCOUNT_CREATION", True)
@@ -162,7 +164,7 @@ def create_app(config_path=None):
     @login_remote_user
     def index_protected(**kwargs):
         if (
-            not app.config.get("LOGIN_DISABLED", False)
+            app.config.get("AUTHENTICATION", True)
             and not current_user.is_authenticated
         ):
             return redirect("/signin")
@@ -174,7 +176,7 @@ def create_app(config_path=None):
     @app.route("/robots.txt")
     def static_from_root():
         return send_from_directory("build", request.path[1:])
-
+    
     # The task manager needs to be configured if not in testing
     if not (app.testing):
         # I want people to be able to configure the host and port of

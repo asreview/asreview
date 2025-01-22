@@ -174,13 +174,13 @@ def client(request):
 
 @pytest.fixture()
 def user(client):
-    if client.application.config["LOGIN_DISABLED"]:
+    if not client.application.config["AUTHENTICATION"]:
         user = None
     else:
         user = au.create_and_signin_user(client, 1)
 
     yield user
-    if not client.application.config["LOGIN_DISABLED"]:
+    if client.application.config["AUTHENTICATION"]:
         crud.delete_everything(DB)
 
 
@@ -197,7 +197,7 @@ def project(request):
 
     if "user" in request.fixturenames:
         user = request.getfixturevalue("user")
-    elif not client.application.config["LOGIN_DISABLED"]:
+    elif client.application.config["AUTHENTICATION"]:
         user = au.create_and_signin_user(client, 1)
     else:
         user = None
@@ -205,5 +205,5 @@ def project(request):
     au.create_project(client, benchmark="synergy:van_der_Valk_2021")
     yield user.projects[0] if user is not None else get_projects()[0]
 
-    if not client.application.config["LOGIN_DISABLED"]:
+    if client.application.config["AUTHENTICATION"]:
         crud.delete_everything(DB)

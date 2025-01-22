@@ -201,7 +201,7 @@ ASReview LAB settings
 
 Login configuration
 
-- `ASREVIEW_LAB_LOGIN_DISABLED` - If true, login is disabled and no password is required to use ASReview LAB.
+- `ASREVIEW_LAB_AUTHENTICATION` - If false, login is disabled and no password is required to use ASReview LAB.
 - `ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI` - Database URI for ASReview LAB.
 
 Account creation configuration

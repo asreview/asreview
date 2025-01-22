@@ -24,10 +24,11 @@
     "react-router-dom": "^6.26.1",
     "react-scripts": "^5.0.1",
     "react-share": "^5.1.1",
+    "toml": "^3.0.0",
     "yup": "^1.4.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "node load-config.js && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

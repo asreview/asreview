@@ -18,7 +18,6 @@ from flask import current_app
 from flask import jsonify
 from flask import request
 from flask_login import current_user
-from flask_login import login_required
 from flask_login import logout_user
 from sqlalchemy import and_
 from sqlalchemy import or_
@@ -27,6 +26,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.webapp import DB
 from asreview.webapp.authentication.decorators import login_remote_user
+from asreview.webapp.authentication.decorators import login_required
 from asreview.webapp.authentication.models import User
 from asreview.webapp.authentication.oauth_handler import OAuthHandler
 from asreview.webapp.authentication.utils import has_email_configuration
@@ -95,7 +95,7 @@ def signin():
 def signup():
     user_id = None
     # Can we create accounts?
-    if current_app.config.get("ALLOW_ACCOUNT_CREATION", False):
+    if current_app.config.get("ALLOW_ACCOUNT_CREATION", True):
         email = request.form.get("email", "").strip()
         name = request.form.get("name", "").strip()
         affiliation = request.form.get("affiliation", "").strip()
