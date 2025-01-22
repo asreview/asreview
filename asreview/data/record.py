@@ -109,8 +109,8 @@ class Record(Base):
     notes: Mapped[Optional[str]] = mapped_column(default=None)
     keywords: Mapped[list] = mapped_column(default_factory=list)
     year: Mapped[Optional[int]] = mapped_column(default=None)
-    doi: Mapped[Optional[str]] = mapped_column(default="")
-    url: Mapped[Optional[str]] = mapped_column(default="")
+    doi: Mapped[Optional[str]] = mapped_column(default=None)
+    url: Mapped[Optional[str]] = mapped_column(default=None)
     included: Mapped[Optional[int]] = mapped_column(default=None)
 
     @validates("authors", "keywords")
