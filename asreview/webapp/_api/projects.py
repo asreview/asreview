@@ -929,7 +929,8 @@ def api_import_project():
         with open(settings_fp, "w") as f:
             json.dump(asdict(settings), f)
         warnings.append(
-            str(err) + " You might need to install an extension to use this model."
+            str(err) + " It might be removed from this version of ASReview LAB or you "
+            "need to install an extension to use this model component."
         )
         warnings.append(
             " The model settings have been reset to the default model and"
