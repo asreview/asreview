@@ -83,7 +83,16 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
                     }
                     modelLogLevel={modelLogLevel}
                     changeDecision={mode === "oracle"}
-                    key={record.record_id}
+                    key={
+                      "record-card-" +
+                      project_id +
+                      "-" +
+                      record?.record_id +
+                      "-" +
+                      record?.state?.note +
+                      "-" +
+                      JSON.stringify(record?.tags_form)
+                    }
                   />
                 )),
               )}

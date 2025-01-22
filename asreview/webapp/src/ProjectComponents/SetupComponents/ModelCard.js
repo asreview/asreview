@@ -438,8 +438,6 @@ const ModelCard = ({
     },
   );
 
-  console.log(mode);
-
   return (
     <Card>
       <CardHeader
