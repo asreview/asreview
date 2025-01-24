@@ -55,7 +55,7 @@ class RandomForestClassifier(SKRandomForestClassifier):
     def __init__(self, n_estimators=100, max_features=10, **kwargs):
         super().__init__(
             n_estimators=int(n_estimators),
-            max_features=int(max_features),
+            max_features=max_features,
             **kwargs,
         )
 
