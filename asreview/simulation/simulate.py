@@ -49,7 +49,7 @@ class Simulate:
     """ASReview simulation class.
 
     The simulation will stop when all records have been labeled or when the number of
-    steps/queries reaches the n_stop parameter.
+    steps/queries reaches the stopping.
 
     To seed the simulation, provide the seed to the classifier, query strategy,
     feature extraction model, and balance strategy or use a global random seed.
@@ -72,7 +72,7 @@ class Simulate:
     stopping: str, int, callable
         The stopping mechanism to use for the simulation. When stopper is None,
         all records are simulated. If "min", the simulation stops when all relevant
-        records are found. If an integer, the simulation stops after n_stop queries.
+        records are found. If an integer, the simulation stops after n queries.
         If class with .stop() method, the simulation stops when the callable returns
         True. Default is "min".
     skip_transform: bool

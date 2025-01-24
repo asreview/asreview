@@ -1,15 +1,18 @@
 import json
 import os
 import sqlite3
-from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
+
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
 import pandas
 
 # from asreview.state.contextmanager import open_state
 from asreview._version import __version__
-from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
 
 
@@ -77,24 +80,23 @@ def _project_state_converter_v1_v2(review_path):
     os.unlink(Path(review_path, "results.sql"))
 
 
-def _project_model_settings_converter_v1_v2(model_settings_path):
-    with open(model_settings_path) as f:
-        model_settings = json.load(f)["settings"]
+def _project_model_settings_converter_v1_v2(fp_settings, fp_learner_metadata):
+    with open(fp_settings) as f:
+        settings = json.load(f)["settings"]
 
-    settings = ReviewSettings(
-        classifier=model_settings.get("model"),
-        query_strategy=model_settings.get("query_strategy"),
-        balance_strategy=model_settings.get("balance_strategy"),
-        feature_extraction=model_settings.get("feature_extraction"),
-        classifier_param=model_settings.get("model_param", None),
-        query_param=model_settings.get("query_param", None),
-        balance_param=model_settings.get("balance_param", None),
-        feature_param=model_settings.get("feature_param", None),
-        n_stop=model_settings.get("n_stop"),
+    settings = dict(
+        classifier=settings.get("model"),
+        query_strategy=settings.get("query_strategy"),
+        balance_strategy=settings.get("balance_strategy"),
+        feature_extraction=settings.get("feature_extraction"),
+        classifier_param=settings.get("model_param", None),
+        query_param=settings.get("query_param", None),
+        balance_param=settings.get("balance_param", None),
+        feature_param=settings.get("feature_param", None),
     )
 
-    with open(model_settings_path, "w") as f:
-        json.dump(asdict(settings), f)
+    with open(fp_learner_metadata, "w") as f:
+        tomllib.dump(settings, f)
 
     return settings
 
@@ -130,5 +132,6 @@ def migrate_v1_v2(folder):
 
         # Update the model settings file
         _project_model_settings_converter_v1_v2(
-            Path(folder, "reviews", review["id"], "settings_metadata.json")
+            Path(folder, "reviews", review["id"], "settings_metadata.json"),
+            Path(folder, "reviews", review["id"], "settings_metadata.json"),
         )

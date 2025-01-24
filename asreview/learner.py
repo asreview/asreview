@@ -12,8 +12,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
+
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+
+from extensions import load_extension
+
+import json
 
 __all__ = []
+
+
+def _unpack_params(params):
+    return {} if params is None else params
+
+
+def _get_name_from_estimator(estimator):
+    """Get the name of the estimator.
+
+    Parameters
+    ----------
+    estimator: object
+        The estimator to get the name from.
+
+    Returns
+    -------
+    str
+        The name of the estimator.
+
+    """
+    if estimator is None:
+        return None
+
+    return estimator.name
 
 
 class ActiveLearningCycle:
@@ -26,8 +60,8 @@ class ActiveLearningCycle:
     only rank the instances based on the query strategy. This can be useful for example
     if you want random screening.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     query_strategy: BaseQueryStrategy
         The query strategy to use.
     classifier: BaseTrainClassifier
@@ -89,18 +123,13 @@ class ActiveLearningCycle:
         """
 
         n_query = self.n_query(results) if callable(self.n_query) else self.n_query
-        n_query_left = len(labels) - len(results)
-
-        if n_query > n_query_left:
-            return n_query_left
-
-        return n_query
+        return min(n_query, len(labels) - len(results))
 
     def transform(self, X):
         """Transform the data.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         X: np.array
             The instances to transform.
 
@@ -114,8 +143,8 @@ class ActiveLearningCycle:
     def fit(self, X, y):
         """Fit the classifier to the data.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         X: np.array
             The instances to fit.
         y: np.array
@@ -132,8 +161,8 @@ class ActiveLearningCycle:
     def rank(self, X):
         """Rank the instances in X.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         X: np.array
             The instances to rank.
 
@@ -167,8 +196,8 @@ class ActiveLearningCycle:
     def stop(self, results, data):
         """Check if the stopping criteria is met.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         results: pd.DataFrame
             The results of the simulation.
         data: pandas.DataFrame
@@ -182,3 +211,117 @@ class ActiveLearningCycle:
         if self.stopping is None:
             return False
         return self.stopping.stop(results, data)
+
+    @classmethod
+    def from_file(cls, fp, load):
+        """Load the active learner from a file.
+
+        Parameters
+        ----------
+
+        Parameters
+        ----------
+        fp: str, Path
+            Review config file.
+        load: object
+            Config reader. Default tomllib.load for TOML (.toml) files,
+            otherwise json.load.
+        """
+        if load is None:
+            if Path(fp).suffix == ".toml":
+                load = tomllib.load
+            else:
+                load = json.load
+
+        with open(fp, "rb") as f:
+            data = load(f)
+
+        errors = []
+
+        if data["query_strategy"] is None:
+            raise ValueError("query strategy is required.")
+
+        try:
+            query_class = load_extension("models.query", data["query_strategy"])
+            query_model = query_class(**_unpack_params(data["query_param"]))
+        except ValueError:
+            errors.append(f"query strategy={data['query_strategy']}")
+
+        if data["classifier"] is not None:
+            try:
+                classifier_class = load_extension(
+                    "models.classifiers", data["classifier"]
+                )
+                classifier_model = classifier_class(
+                    **_unpack_params(data["classifier_param"])
+                )
+            except ValueError:
+                errors.append(f"classifier={data["classifier"]}")
+        else:
+            classifier_model = None
+
+        if data["balance_strategy"] is not None:
+            try:
+                balance_class = load_extension(
+                    "models.balance", data["balance_strategy"]
+                )
+                balance_model = balance_class(**_unpack_params(data["balance_param"]))
+            except ValueError:
+                errors.append(f"balance strategy={data["balance_strategy"]}")
+        else:
+            balance_model = None
+
+        if data["feature_extraction"] is not None:
+            try:
+                feature_class = load_extension(
+                    "models.feature_extraction", data["feature_extraction"]
+                )
+                feature_model = feature_class(**_unpack_params(data["feature_param"]))
+            except ValueError:
+                errors.append(f"feature extractor={data["feature_extraction"]}")
+        else:
+            feature_model = None
+
+        if errors:
+            if len(errors) == 1:
+                raise ValueError("Model component " + errors[0] + " is not available.")
+            else:
+                raise ValueError(
+                    "Model components " + ", ".join(errors) + " are not available."
+                )
+
+        return cls(
+            query_strategy=query_model,
+            classifier=classifier_model,
+            balance_strategy=balance_model,
+            feature_extraction=feature_model,
+            # stopping=None,  # todo: implement stopping
+            n_query=data.get("n_query", 1),
+        )
+
+    def to_dict(self):
+        return {
+            "query_strategy": _get_name_from_estimator(self.query_strategy),
+            "query_param": self.query_strategy.get_params(),
+            "classifier": _get_name_from_estimator(self.classifier),
+            "classifier_param": self.classifier.get_params()
+            if self.classifier is not None
+            else None,
+            "balance_strategy": _get_name_from_estimator(self.balance_strategy),
+            "balance_param": self.balance_strategy.get_params()
+            if self.balance_strategy is not None
+            else None,
+            "feature_extraction": _get_name_from_estimator(self.feature_extraction),
+            "feature_param": self.feature_extraction.get_params()
+            if self.feature_extraction is not None
+            else None,
+            "n_query": self.n_query,
+        }
+
+    def to_file(self, fp):
+        data = self.to_dict()
+        with open(fp, "w") as f:
+            if Path(fp).suffix == ".toml":
+                tomllib.dump(data, f)
+            else:
+                json.dump(data, f)

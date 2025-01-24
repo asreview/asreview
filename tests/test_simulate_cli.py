@@ -126,7 +126,7 @@ def test_models(model, tmpdir, demo_data_path, tmp_project):
     Path(tmpdir, f"test_{model}").mkdir(parents=True)
     project = asr.Project.load(tmp_project, Path(tmpdir, f"test_{model}"))
 
-    settings = asr.ReviewSettings.from_file(
+    learner = asr.ActiveLearningCycle.from_file(
         Path(
             project.project_path,
             "reviews",
@@ -135,7 +135,7 @@ def test_models(model, tmpdir, demo_data_path, tmp_project):
         )
     )
 
-    assert settings.classifier == model
+    assert learner.classifier.name == model
 
 
 def test_no_balancing(tmp_project, demo_data_path):

@@ -130,10 +130,10 @@ def test_print_state(asreview_test_project):
         print(state)
 
 
-def test_settings_state(asreview_test_project):
+def test_al_cycle_state(asreview_test_project):
     project = asr.Project(asreview_test_project)
     review_id = project.reviews[0]["id"]
-    asr.ReviewSettings.from_file(
+    asr.ActiveLearningCycle.from_file(
         Path(project.project_path, "reviews", review_id, "settings_metadata.json")
     )
 
@@ -144,7 +144,7 @@ def test_create_new_state_file(tmpdir):
     with asr.open_state(project) as state:
         state._is_valid_state()
 
-    asr.ReviewSettings.from_file(
+    asr.ActiveLearningCycle.from_file(
         Path(
             project.project_path,
             "reviews",

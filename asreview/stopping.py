@@ -74,6 +74,10 @@ class StoppingDefault:
         if len(results) == len(data):
             return True
 
+        # raise error if data doesn't have labels for all records
+        if data["label"].isna().any():
+            raise ValueError("StoppingDefault requires labels for all records.")
+
         # If value is set to min, stop after value queries.
         if self.value == "min" and sum(data) == sum(results["label"]):
             return True
@@ -178,3 +182,44 @@ class StoppingIsFittable(StoppingN):
 
     def __init__(self):
         super().__init__(n=(1, 1))
+
+
+class NIrrelevantInARow:
+    """Stop the review after n irrelevant records have been labeled in a row.
+
+    Arguments
+    ---------
+    n: int
+        Number of irrelevant records in a row to stop the review at.
+    """
+
+    def __init__(self, n):
+        self.n = n
+
+    def stop(self, results, data):
+        """Check if the review should be stopped.
+
+        This function checks if the review should be stopped based on the results
+        and the labels of the papers.
+
+        Arguments
+        ---------
+        results: pandas.DataFrame
+            DataFrame with the results of the review.
+        data: pandas.DataFrame, list, np.array
+            pandas.DataFrame, list, np.array with all records. Used to determine
+            number of all records in data.
+
+        Returns
+        -------
+        bool:
+            True if the review should be stopped, False otherwise.
+        """
+
+        if len(results) < self.n:
+            return False
+
+        if sum(results["label"].iloc[-self.n :]) == 0:
+            return True
+
+        return False

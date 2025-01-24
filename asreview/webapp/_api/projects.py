@@ -51,13 +51,13 @@ from asreview.models import DEFAULT_BALANCE
 from asreview.models import DEFAULT_CLASSIFIER
 from asreview.models import DEFAULT_FEATURE_EXTRACTION
 from asreview.models import DEFAULT_QUERY
+from asreview.stopping import NIrrelevantInARow
 from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
-from asreview.settings import ReviewSettings
+from asreview.learner import ActiveLearningCycle
 from asreview.state.contextmanager import open_state
-from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import current_user_projects
@@ -675,15 +675,8 @@ def api_list_algorithms():
 def api_get_algorithms(project):  # noqa: F401
     """Get the algorithms used in the project"""
 
-    settings = ReviewSettings(
-        classifier=DEFAULT_CLASSIFIER,
-        balance_strategy=DEFAULT_BALANCE,
-        feature_extraction=DEFAULT_FEATURE_EXTRACTION,
-        query_strategy=DEFAULT_QUERY,
-    )
-
     try:
-        settings = settings.from_file(
+        learner = ActiveLearningCycle.from_file(
             Path(
                 project.project_path,
                 "reviews",
@@ -692,9 +685,14 @@ def api_get_algorithms(project):  # noqa: F401
             )
         )
     except FileNotFoundError:
-        pass
+        learner = asr.ActiveLearningCycle(
+            classifier=DEFAULT_CLASSIFIER,
+            balance_strategy=DEFAULT_BALANCE,
+            feature_extraction=DEFAULT_FEATURE_EXTRACTION,
+            query_strategy=DEFAULT_QUERY,
+        )
 
-    return jsonify(asdict(settings))
+    return jsonify(learner.to_dict())
 
 
 @bp.route("/projects/<project_id>/algorithms", methods=["POST", "PUT"])
@@ -703,7 +701,7 @@ def api_get_algorithms(project):  # noqa: F401
 def api_set_algorithms(project):  # noqa: F401
     """Set the algorithms used in the project"""
 
-    settings = ReviewSettings(
+    learner = ActiveLearningCycle(
         classifier=request.form.get("classifier"),
         query_strategy=request.form.get("query_strategy"),
         balance_strategy=request.form.get("balance_strategy"),
@@ -719,9 +717,9 @@ def api_set_algorithms(project):  # noqa: F401
         ),
         "w",
     ) as f:
-        json.dump(asdict(settings), f)
+        learner.to_file(f)
 
-    return jsonify(asdict(settings))
+    return jsonify(learner.to_dict())
 
 
 # @bp.route("/projects/<project_id>/stopping", methods=["GET"])
@@ -905,35 +903,32 @@ def api_import_project():
     except Exception as err:
         raise ValueError("Failed to import project.") from err
 
-    settings_fp = Path(
+    fp_al_cycle = Path(
         project.project_path,
         "reviews",
         project.config["reviews"][0]["id"],
         "settings_metadata.json",
     )
-    settings = ReviewSettings.from_file(settings_fp)
 
     warnings = []
     try:
-        _check_model(settings)
+        ActiveLearningCycle.from_file(fp_al_cycle)
     except ValueError as err:
-        settings = replace(
-            settings,
-            **{
-                "classifier": DEFAULT_CLASSIFIER,
-                "balance_strategy": DEFAULT_BALANCE,
-                "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
-                "query_strategy": DEFAULT_QUERY,
-            },
+        learner = ActiveLearningCycle(
+            classifier=DEFAULT_CLASSIFIER,
+            balance_strategy=DEFAULT_BALANCE,
+            feature_extraction=DEFAULT_FEATURE_EXTRACTION,
+            query_strategy=DEFAULT_QUERY,
         )
-        with open(settings_fp, "w") as f:
-            json.dump(asdict(settings), f)
+
+        with open(fp_al_cycle, "w") as f:
+            learner.to_file(f)
         warnings.append(
             str(err) + " It might be removed from this version of ASReview LAB or you "
             "need to install an extension to use this model component."
         )
         warnings.append(
-            " The model settings have been reset to the default model and"
+            " The active learning model has been reset to the default model and"
             " can be changed in the project settings."
         )
 
@@ -1147,13 +1142,13 @@ def api_get_progress_info(project):  # noqa: F401
 def api_get_stopping(project):  # noqa: F401
     """Get stopping of a project"""
 
-    settings_fp = Path(
+    fp_al_cycle = Path(
         project.project_path,
         "reviews",
         project.reviews[0]["id"],
         "settings_metadata.json",
     )
-    stopping = ReviewSettings.from_file(settings_fp).stopping
+    stopping = ActiveLearningCycle.from_file(fp_al_cycle).stopping
 
     if stopping is None:
         threshold = None
@@ -1194,30 +1189,20 @@ def api_get_stopping(project):  # noqa: F401
 def api_mutate_stopping(project):  # noqa: F401
     """Mutate stopping of a project"""
 
-    settings_fp = Path(
+    fp_al_cycle = Path(
         project.project_path,
         "reviews",
         project.reviews[0]["id"],
         "settings_metadata.json",
     )
-    settings = ReviewSettings.from_file(settings_fp)
 
-    settings = replace(
-        settings,
-        stopping=[
-            {
-                "id": request.form.get("id", "n_since_last_inclusion"),
-                "params": {
-                    "threshold": request.form.get("threshold", 50, type=int),
-                },
-            }
-        ],
-    )
+    learner = ActiveLearningCycle.from_file(fp_al_cycle)
+    learner.stopping = NIrrelevantInARow(request.form.get("threshold", 50, type=int))
 
-    with open(settings_fp, "w") as f:
-        json.dump(asdict(settings), f)
+    with open(fp_al_cycle, "w") as f:
+        learner.to_file(f)
 
-    return jsonify(settings.stopping)
+    return jsonify(learner.to_dict())
 
 
 @bp.route("/projects/<project_id>/progress_data", methods=["GET"])

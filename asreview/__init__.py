@@ -38,7 +38,6 @@ from asreview.project.api import Project
 from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
-from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
 from asreview.state.sqlstate import SQLiteState
@@ -62,7 +61,6 @@ __all__ = [
     "Simulate",
     "Project",
     "SQLiteState",
-    "ReviewSettings",
     "DataStore",
     "Record",
     # functions

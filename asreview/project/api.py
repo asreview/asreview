@@ -35,6 +35,7 @@ import numpy as np
 import scipy.sparse as sp
 from filelock import FileLock
 
+from asreview.learner import ActiveLearningCycle
 from asreview.data.loader import _from_file
 from asreview.data.loader import _get_reader
 from asreview.data.store import DataStore
@@ -47,9 +48,7 @@ from asreview.models import DEFAULT_QUERY
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
-from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
-from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
 from asreview.utils import _is_url
 
@@ -371,7 +370,7 @@ class Project:
     def add_review(
         self,
         review_id=None,
-        settings=None,
+        learner=None,
         reviewer=None,
         start_time=None,
         status="setup",
@@ -382,8 +381,9 @@ class Project:
         ----------
         review_id: str
             The review_id uuid4.
-        settings: ReviewSettings
-            The settings of the review.
+        learner:
+            An active learning cycle object to add to the review. This object is used
+            to store the configuration of the active learning cycle to file.
         reviewer: object
             A reviewer object with to_sql() method.
         status: str
@@ -402,24 +402,25 @@ class Project:
         if review_id is None:
             review_id = uuid4().hex
 
+        Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
+
         if start_time is None:
             start_time = int(time.time())
 
         config = self.config
 
-        if settings is None:
-            settings = ReviewSettings(
+        if learner is None:
+            learner = ActiveLearningCycle(
+                query_strategy=DEFAULT_QUERY,
                 classifier=DEFAULT_CLASSIFIER,
                 balance_strategy=DEFAULT_BALANCE,
                 feature_extraction=DEFAULT_FEATURE_EXTRACTION,
-                query_strategy=DEFAULT_QUERY,
             )
 
-        Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
         with open(
             Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
         ) as f:
-            json.dump(asdict(settings), f)
+            learner.to_file(f)
 
         fp_state = Path(self.project_path, "reviews", review_id, "results.db")
 
@@ -446,7 +447,7 @@ class Project:
         self.config = config
         return config
 
-    def update_review(self, review_id=None, settings=None, state=None, **kwargs):
+    def update_review(self, review_id=None, learner=None, state=None, **kwargs):
         """Update review metadata.
 
         Parameters
@@ -475,12 +476,12 @@ class Project:
             fp_state = Path(self.project_path, "reviews", review_id, "results.db")
             state.to_sql(fp_state)
 
-        if settings is not None:
+        if learner is not None:
             with open(
                 Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
                 "w",
             ) as f:
-                json.dump(asdict(settings), f)
+                learner.to_file(f)
 
         review_config = config["reviews"][review_index]
         review_config.update(kwargs)
@@ -590,29 +591,26 @@ class Project:
                 raise ValueError("Not possible to import (old) project file.")
 
             if reset_model_if_not_found:
-                settings_fp = Path(
+                learner_fp = Path(
                     tmpdir,
                     "reviews",
                     project_config["reviews"][0]["id"],
                     "settings_metadata.json",
                 )
-                settings = ReviewSettings.from_file(settings_fp)
 
                 try:
-                    _check_model(settings)
+                    ActiveLearningCycle.from_file(learner_fp)
                 except ValueError as err:
                     warnings.warn(err)
-                    settings = replace(
-                        settings,
-                        **{
-                            "classifier": DEFAULT_CLASSIFIER,
-                            "balance_strategy": DEFAULT_BALANCE,
-                            "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
-                            "query_strategy": DEFAULT_QUERY,
-                        },
+
+                    default_learner = ActiveLearningCycle(
+                        query_strategy=DEFAULT_QUERY,
+                        classifier=DEFAULT_CLASSIFIER,
+                        balance_strategy=DEFAULT_BALANCE,
+                        feature_extraction=DEFAULT_FEATURE_EXTRACTION,
                     )
-                    with open(settings_fp) as f:
-                        json.dump(asdict(settings), f)
+                    with open(learner_fp) as f:
+                        default_learner.to_file(f)
 
             if safe_import:
                 # assign a new id to the project.

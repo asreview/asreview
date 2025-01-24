@@ -24,11 +24,9 @@ from sklearn.utils import check_random_state
 
 from asreview import load_dataset
 from asreview.datasets import DatasetManager
-from asreview.extensions import load_extension
 from asreview.learner import ActiveLearningCycle
 from asreview.models.query import TopDownQuery
 from asreview.project.api import Project
-from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.stopping import StoppingIsFittable
 from asreview.types import type_n_queries
@@ -127,38 +125,8 @@ def _cli_simulate(argv):
     else:
         filename = Path(args.dataset).name
 
-    # create a new settings object from arguments
-    settings = ReviewSettings(
-        classifier=args.classifier,
-        query_strategy=args.query_strategy,
-        balance_strategy=args.balance_strategy,
-        feature_extraction=args.feature_extraction,
-        n_stop=args.n_stop,
-    )
-
-    if args.config_file:
-        settings.from_file(args.config_file)
-
     # set the seeds
-    # TODO: set seeds in the settings object
-    # TODO: seed also other tools like tensorflow
     np.random.seed(args.seed)
-
-    classifier_class = load_extension("models.classifiers", settings.classifier)
-    classifier_model = classifier_class(**_unpack_params(settings.classifier_param))
-
-    query_class = load_extension("models.query", settings.query_strategy)
-    query_model = query_class(**_unpack_params(settings.query_param))
-
-    if settings.balance_strategy is None:
-        balance_model = None
-    else:
-        balance_class = load_extension("models.balance", settings.balance_strategy)
-        balance_model = balance_class(**_unpack_params(settings.balance_param))
-
-    feature_model = load_extension(
-        "models.feature_extraction", settings.feature_extraction
-    )(**_unpack_params(settings.feature_param))
 
     # prior knowledge
     if (
@@ -190,18 +158,24 @@ def _cli_simulate(argv):
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
         prior_idx = _convert_id_to_idx(data_store, args.prior_record_id)
 
+    if args.config_file:
+        learner = ActiveLearningCycle.from_file(args.config_file)
+    else:
+        learner = ActiveLearningCycle(
+            classifier=args.classifier,
+            query_strategy=args.query_strategy,
+            balance_strategy=args.balance_strategy,
+            feature_extraction=args.feature_extraction,
+            n_query=args.n_query,
+            stopping=args.n_stop,
+        )
+
     learners = [
         ActiveLearningCycle(
             query_strategy=TopDownQuery(),
             stopping=StoppingIsFittable(),
         ),
-        ActiveLearningCycle(
-            query_strategy=query_model,
-            classifier=classifier_model,
-            balance_strategy=balance_model,
-            feature_extraction=feature_model,
-            n_query=args.n_query,
-        ),
+        learner,
     ]
 
     sim = Simulate(
@@ -246,7 +220,7 @@ def _cli_simulate(argv):
     sim.review()
 
     if args.output is not None:
-        project.add_review(settings=settings, reviewer=sim, status="finished")
+        project.add_review(learner=learner, reviewer=sim, status="finished")
 
         project.export(args.output)
         shutil.rmtree(fp_tmp_simulation)
@@ -385,7 +359,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "--config-file",
         type=str,
         default=None,
-        help="Configuration file with model settings and parameter values.",
+        help="Configuration file for learning cycle.",
     )
 
     # output and verbosity

@@ -17,7 +17,6 @@ from pathlib import Path
 import asreview as asr
 from asreview.extensions import load_extension
 from asreview.models.query import TopDownQuery
-from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
 from asreview.stopping import StoppingIsFittable
@@ -47,7 +46,7 @@ def run_model(project):
         labeled = s.get_results_table(columns=["record_id", "label"])
 
     try:
-        settings = ReviewSettings.from_file(
+        learner = asr.ActiveLearningCycle.from_file(
             Path(
                 project.project_path,
                 "reviews",
@@ -55,30 +54,11 @@ def run_model(project):
                 "settings_metadata.json",
             )
         )
-
-        feature_model = load_extension(
-            "models.feature_extraction", settings.feature_extraction
-        )()
-
-        if settings.balance_strategy is not None:
-            balance_model = load_extension(
-                "models.balance", settings.balance_strategy
-            )()
-        else:
-            balance_model = None
-
         try:
-            fm = project.get_feature_matrix(feature_model.name)
+            fm = project.get_feature_matrix(learner.feature_extraction.name)
         except ValueError:
-            fm = feature_model.fit_transform(project.data_store.get_df())
-            project.add_feature_matrix(fm, feature_model.name)
-
-        learner = asr.ActiveLearningCycle(
-            query_strategy=load_extension("models.query", settings.query_strategy)(),
-            classifier=load_extension("models.classifiers", settings.classifier)(),
-            balance_strategy=balance_model,
-            feature_extraction=None,  # directly from the feature matrix
-        )
+            fm = learner.transform(project.data_store.get_df())
+            project.add_feature_matrix(fm, learner.feature_extraction.name)
 
         learner.fit(
             fm[labeled["record_id"].values],
@@ -95,7 +75,7 @@ def run_model(project):
                 learner.balance_strategy.name
                 if learner.balance_strategy is not None
                 else None,
-                feature_model.name,
+                learner.feature_extraction.name,
                 len(labeled),
             )
 
@@ -107,7 +87,7 @@ def run_model(project):
 
 
 def run_simulation(project):
-    settings = ReviewSettings.from_file(
+    learner = asr.ActiveLearningCycle.from_file(
         Path(
             project.project_path,
             "reviews",
@@ -124,16 +104,7 @@ def run_simulation(project):
             query_strategy=TopDownQuery(),
             stopping=StoppingIsFittable(),
         ),
-        asr.ActiveLearningCycle(
-            query_strategy=load_extension("models.query", settings.query_strategy)(),
-            classifier=load_extension("models.classifiers", settings.classifier)(),
-            balance_strategy=load_extension(
-                "models.balance", settings.balance_strategy
-            )(),
-            feature_extraction=load_extension(
-                "models.feature_extraction", settings.feature_extraction
-            )(),
-        ),
+        learner,
     ]
 
     sim = Simulate(
