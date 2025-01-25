@@ -14,14 +14,14 @@
 
 from pathlib import Path
 
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
-
-from extensions import load_extension
+from asreview.extensions import load_extension
+from asreview.utils import _read_config_file
 
 import json
+from dataclasses import dataclass
+from dataclasses import field
+from dataclasses import asdict
+from typing import Any, Optional
 
 __all__ = []
 
@@ -48,6 +48,20 @@ def _get_name_from_estimator(estimator):
         return None
 
     return estimator.name
+
+
+@dataclass
+class CycleMetaData:
+    query_strategy: str
+    classifier: Optional[str] = None
+    balance_strategy: Optional[str] = None
+    feature_extraction: Optional[str] = None
+    stopping: Optional[str] = None
+    query_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    classifier_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    balance_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    feature_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    n_query: int = 1
 
 
 class ActiveLearningCycle:
@@ -213,11 +227,58 @@ class ActiveLearningCycle:
         return self.stopping.stop(results, data)
 
     @classmethod
-    def from_file(cls, fp, load):
-        """Load the active learner from a file.
+    def from_meta(cls, cycle_meta_data):
+        """Load the active learner from a metadata object.
 
         Parameters
         ----------
+        cycle_meta_data: CycleMetaData
+            The metadata object with the active learner settings.
+
+        Returns
+        -------
+        ActiveLearningCycle:
+            The active learner object.
+        """
+        query_class = load_extension("models.query", cycle_meta_data.query_strategy)
+        query_model = query_class(**cycle_meta_data.query_param)
+
+        if cycle_meta_data.classifier is not None:
+            classifier_class = load_extension(
+                "models.classifiers", cycle_meta_data.classifier
+            )
+            classifier_model = classifier_class(**cycle_meta_data.classifier_param)
+        else:
+            classifier_model = None
+
+        if cycle_meta_data.balance_strategy is not None:
+            balance_class = load_extension(
+                "models.balance", cycle_meta_data.balance_strategy
+            )
+            balance_model = balance_class(**cycle_meta_data.balance_param)
+        else:
+            balance_model = None
+
+        if cycle_meta_data.feature_extraction is not None:
+            feature_class = load_extension(
+                "models.feature_extraction", cycle_meta_data.feature_extraction
+            )
+            feature_model = feature_class(**cycle_meta_data.feature_param)
+        else:
+            feature_model = None
+
+        return cls(
+            query_strategy=query_model,
+            classifier=classifier_model,
+            balance_strategy=balance_model,
+            feature_extraction=feature_model,
+            stopping=None,  # todo: implement stopping
+            n_query=cycle_meta_data.n_query,
+        )
+
+    @classmethod
+    def from_file(cls, fp, load=None):
+        """Load the active learner from a file.
 
         Parameters
         ----------
@@ -227,101 +288,32 @@ class ActiveLearningCycle:
             Config reader. Default tomllib.load for TOML (.toml) files,
             otherwise json.load.
         """
-        if load is None:
-            if Path(fp).suffix == ".toml":
-                load = tomllib.load
-            else:
-                load = json.load
+        if load is not None:
+            with open(fp, "rb") as f:
+                return cls.from_meta(CycleMetaData(**load(f)))
 
-        with open(fp, "rb") as f:
-            data = load(f)
+        return _read_config_file(fp)
 
-        errors = []
-
-        if data["query_strategy"] is None:
-            raise ValueError("query strategy is required.")
-
-        try:
-            query_class = load_extension("models.query", data["query_strategy"])
-            query_model = query_class(**_unpack_params(data["query_param"]))
-        except ValueError:
-            errors.append(f"query strategy={data['query_strategy']}")
-
-        if data["classifier"] is not None:
-            try:
-                classifier_class = load_extension(
-                    "models.classifiers", data["classifier"]
-                )
-                classifier_model = classifier_class(
-                    **_unpack_params(data["classifier_param"])
-                )
-            except ValueError:
-                errors.append(f"classifier={data["classifier"]}")
-        else:
-            classifier_model = None
-
-        if data["balance_strategy"] is not None:
-            try:
-                balance_class = load_extension(
-                    "models.balance", data["balance_strategy"]
-                )
-                balance_model = balance_class(**_unpack_params(data["balance_param"]))
-            except ValueError:
-                errors.append(f"balance strategy={data["balance_strategy"]}")
-        else:
-            balance_model = None
-
-        if data["feature_extraction"] is not None:
-            try:
-                feature_class = load_extension(
-                    "models.feature_extraction", data["feature_extraction"]
-                )
-                feature_model = feature_class(**_unpack_params(data["feature_param"]))
-            except ValueError:
-                errors.append(f"feature extractor={data["feature_extraction"]}")
-        else:
-            feature_model = None
-
-        if errors:
-            if len(errors) == 1:
-                raise ValueError("Model component " + errors[0] + " is not available.")
-            else:
-                raise ValueError(
-                    "Model components " + ", ".join(errors) + " are not available."
-                )
-
-        return cls(
-            query_strategy=query_model,
-            classifier=classifier_model,
-            balance_strategy=balance_model,
-            feature_extraction=feature_model,
-            # stopping=None,  # todo: implement stopping
-            n_query=data.get("n_query", 1),
-        )
-
-    def to_dict(self):
-        return {
-            "query_strategy": _get_name_from_estimator(self.query_strategy),
-            "query_param": self.query_strategy.get_params(),
-            "classifier": _get_name_from_estimator(self.classifier),
-            "classifier_param": self.classifier.get_params()
+    def to_meta(self):
+        return CycleMetaData(
+            query_strategy=_get_name_from_estimator(self.query_strategy),
+            query_param=self.query_strategy.get_params(),
+            classifier=_get_name_from_estimator(self.classifier),
+            classifier_param=self.classifier.get_params()
             if self.classifier is not None
             else None,
-            "balance_strategy": _get_name_from_estimator(self.balance_strategy),
-            "balance_param": self.balance_strategy.get_params()
+            balance_strategy=_get_name_from_estimator(self.balance_strategy),
+            balance_param=self.balance_strategy.get_params()
             if self.balance_strategy is not None
             else None,
-            "feature_extraction": _get_name_from_estimator(self.feature_extraction),
-            "feature_param": self.feature_extraction.get_params()
+            feature_extraction=_get_name_from_estimator(self.feature_extraction),
+            feature_param=self.feature_extraction.get_params()
             if self.feature_extraction is not None
             else None,
-            "n_query": self.n_query,
-        }
+            stopping=None,  # todo: implement stopping
+            n_query=self.n_query,
+        )
 
     def to_file(self, fp):
-        data = self.to_dict()
         with open(fp, "w") as f:
-            if Path(fp).suffix == ".toml":
-                tomllib.dump(data, f)
-            else:
-                json.dump(data, f)
+            json.dump(asdict(self.to_meta()), f)

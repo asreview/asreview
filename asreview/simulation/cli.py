@@ -25,12 +25,13 @@ from sklearn.utils import check_random_state
 from asreview import load_dataset
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
+from asreview.learner import CycleMetaData
 from asreview.models.query import TopDownQuery
 from asreview.project.api import Project
 from asreview.simulation.simulate import Simulate
-from asreview.stopping import StoppingIsFittable
-from asreview.types import type_n_queries
+from asreview.stopping import StoppingIsFittable, StoppingN, StoppingDefault
 from asreview.utils import _format_to_str
+from asreview.utils import _read_config_file
 
 
 def _set_log_verbosity(verbose):
@@ -55,10 +56,6 @@ def _convert_id_to_idx(data_obj, record_id):
             raise KeyError(f"record_id {i} not found in data.")
 
     return result
-
-
-def _unpack_params(params):
-    return {} if params is None else params
 
 
 def _print_record(record, use_cli_colors=True):
@@ -158,16 +155,18 @@ def _cli_simulate(argv):
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
         prior_idx = _convert_id_to_idx(data_store, args.prior_record_id)
 
+    stopper = StoppingDefault() if args.n_stop is None else StoppingN(args.n_stop)
+
     if args.config_file:
-        learner = ActiveLearningCycle.from_file(args.config_file)
+        learner_meta = CycleMetaData(**_read_config_file(args.config_file))
     else:
-        learner = ActiveLearningCycle(
-            classifier=args.classifier,
+        learner_meta = CycleMetaData(
             query_strategy=args.query_strategy,
+            classifier=args.classifier,
             balance_strategy=args.balance_strategy,
             feature_extraction=args.feature_extraction,
+            stopping=stopper,
             n_query=args.n_query,
-            stopping=args.n_stop,
         )
 
     learners = [
@@ -175,14 +174,14 @@ def _cli_simulate(argv):
             query_strategy=TopDownQuery(),
             stopping=StoppingIsFittable(),
         ),
-        learner,
+        ActiveLearningCycle.from_meta(learner_meta),
     ]
 
     sim = Simulate(
         data_store.get_df(),
         data_store["included"],
         learners,
-        stopping=args.n_stop,
+        stopping=stopper,
     )
 
     # select or sample prior knowledge and then label it
@@ -220,7 +219,7 @@ def _cli_simulate(argv):
     sim.review()
 
     if args.output is not None:
-        project.add_review(learner=learner, reviewer=sim, status="finished")
+        project.add_review(learner=learner_meta, reviewer=sim, status="finished")
 
         project.export(args.output)
         shutil.rmtree(fp_tmp_simulation)
@@ -347,17 +346,15 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     )
     parser.add_argument(
         "--n-stop",
-        type=type_n_queries,
-        default="min",
-        help="The number of label actions to simulate. Default, 'min' "
-        "will stop simulating when all relevant records are found. Use -1 "
-        "to simulate all labels actions.",
+        type=int,
+        help="The number of label actions to simulate. If not set, simulation stops "
+        "after last relevant was found. Use -1 to simulate all label actions.",
     )
 
     # configuration file
     parser.add_argument(
         "--config-file",
-        type=str,
+        type=Path,
         default=None,
         help="Configuration file for learning cycle.",
     )

@@ -47,10 +47,7 @@ from asreview.data.search import fuzzy_find
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
-from asreview.models import DEFAULT_BALANCE
-from asreview.models import DEFAULT_CLASSIFIER
-from asreview.models import DEFAULT_FEATURE_EXTRACTION
-from asreview.models import DEFAULT_QUERY
+from asreview.models import get_model_config
 from asreview.stopping import NIrrelevantInARow
 from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.project.api import is_project
@@ -675,24 +672,15 @@ def api_list_algorithms():
 def api_get_algorithms(project):  # noqa: F401
     """Get the algorithms used in the project"""
 
-    try:
-        learner = ActiveLearningCycle.from_file(
-            Path(
-                project.project_path,
-                "reviews",
-                project.reviews[0]["id"],
-                "settings_metadata.json",
-            )
+    with open(
+        Path(
+            project.project_path,
+            "reviews",
+            project.reviews[0]["id"],
+            "settings_metadata.json",
         )
-    except FileNotFoundError:
-        learner = asr.ActiveLearningCycle(
-            classifier=DEFAULT_CLASSIFIER,
-            balance_strategy=DEFAULT_BALANCE,
-            feature_extraction=DEFAULT_FEATURE_EXTRACTION,
-            query_strategy=DEFAULT_QUERY,
-        )
-
-    return jsonify(learner.to_dict())
+    ) as f:
+        return jsonify(json.load(f))
 
 
 @bp.route("/projects/<project_id>/algorithms", methods=["POST", "PUT"])
@@ -701,25 +689,21 @@ def api_get_algorithms(project):  # noqa: F401
 def api_set_algorithms(project):  # noqa: F401
     """Set the algorithms used in the project"""
 
-    learner = ActiveLearningCycle(
+    ActiveLearningCycle(
         classifier=request.form.get("classifier"),
         query_strategy=request.form.get("query_strategy"),
         balance_strategy=request.form.get("balance_strategy"),
         feature_extraction=request.form.get("feature_extraction"),
-    )
-
-    with open(
+    ).to_file(
         Path(
             project.project_path,
             "reviews",
             project.reviews[0]["id"],
             "settings_metadata.json",
-        ),
-        "w",
-    ) as f:
-        learner.to_file(f)
+        )
+    )
 
-    return jsonify(learner.to_dict())
+    return api_get_algorithms(project.project_id)
 
 
 # @bp.route("/projects/<project_id>/stopping", methods=["GET"])
@@ -914,15 +898,9 @@ def api_import_project():
     try:
         ActiveLearningCycle.from_file(fp_al_cycle)
     except ValueError as err:
-        learner = ActiveLearningCycle(
-            classifier=DEFAULT_CLASSIFIER,
-            balance_strategy=DEFAULT_BALANCE,
-            feature_extraction=DEFAULT_FEATURE_EXTRACTION,
-            query_strategy=DEFAULT_QUERY,
-        )
-
         with open(fp_al_cycle, "w") as f:
-            learner.to_file(f)
+            json.dump(get_model_config(), f)
+
         warnings.append(
             str(err) + " It might be removed from this version of ASReview LAB or you "
             "need to install an extension to use this model component."
@@ -1198,11 +1176,9 @@ def api_mutate_stopping(project):  # noqa: F401
 
     learner = ActiveLearningCycle.from_file(fp_al_cycle)
     learner.stopping = NIrrelevantInARow(request.form.get("threshold", 50, type=int))
+    learner.to_file(fp_al_cycle)
 
-    with open(fp_al_cycle, "w") as f:
-        learner.to_file(f)
-
-    return jsonify(learner.to_dict())
+    return api_get_stopping(project.project_id)
 
 
 @bp.route("/projects/<project_id>/progress_data", methods=["GET"])

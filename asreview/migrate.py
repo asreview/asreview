@@ -3,17 +3,13 @@ import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
+from dataclasses import asdict
 
 import pandas
 
-# from asreview.state.contextmanager import open_state
 from asreview._version import __version__
 from asreview.state.sqlstate import SQLiteState
+from asreview.models.models import get_model_config
 
 
 def _project_config_converter_v1_v2(project_json):
@@ -80,25 +76,9 @@ def _project_state_converter_v1_v2(review_path):
     os.unlink(Path(review_path, "results.sql"))
 
 
-def _project_model_settings_converter_v1_v2(fp_settings, fp_learner_metadata):
-    with open(fp_settings) as f:
-        settings = json.load(f)["settings"]
-
-    settings = dict(
-        classifier=settings.get("model"),
-        query_strategy=settings.get("query_strategy"),
-        balance_strategy=settings.get("balance_strategy"),
-        feature_extraction=settings.get("feature_extraction"),
-        classifier_param=settings.get("model_param", None),
-        query_param=settings.get("query_param", None),
-        balance_param=settings.get("balance_param", None),
-        feature_param=settings.get("feature_param", None),
-    )
-
+def _project_model_settings_converter_v1_v2(fp_learner_metadata):
     with open(fp_learner_metadata, "w") as f:
-        tomllib.dump(settings, f)
-
-    return settings
+        json.dump(asdict(get_model_config()), f)
 
 
 def migrate_v1_v2(folder):
@@ -132,6 +112,5 @@ def migrate_v1_v2(folder):
 
         # Update the model settings file
         _project_model_settings_converter_v1_v2(
-            Path(folder, "reviews", review["id"], "settings_metadata.json"),
             Path(folder, "reviews", review["id"], "settings_metadata.json"),
         )

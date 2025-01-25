@@ -28,6 +28,7 @@ __all__ = [
     "StoppingN",
     "StoppingQuantile",
     "StoppingIsFittable",
+    "NIrrelevantInARow",
 ]
 
 
@@ -75,7 +76,7 @@ class StoppingDefault:
             return True
 
         # raise error if data doesn't have labels for all records
-        if data["label"].isna().any():
+        if data.isna().any():
             raise ValueError("StoppingDefault requires labels for all records.")
 
         # If value is set to min, stop after value queries.
@@ -123,17 +124,24 @@ class StoppingN:
             True if the review should be stopped, False otherwise.
         """
 
-        if isinstance(self.n, int) and len(results) >= self.n_labels:
+        if not isinstance(self.n, (int, tuple)):
+            raise ValueError("StoppingN requires an integer or a tuple of integers")
+
+        if self.n == -1:
+            if len(results) == len(data):
+                return True
+            return False
+
+        if isinstance(self.n, int) and len(results) >= self.n:
             return True
-        elif isinstance(self.n, tuple):
+
+        if isinstance(self.n, tuple):
             n_relevant, n_irrelevant = self.n
             if (
                 sum(results["label"] == 1) >= n_relevant
                 and sum(results["label"] == 0) >= n_irrelevant
             ):
                 return True
-        else:
-            raise ValueError("StoppingN requires an integer or a tuple of integers")
 
         return False
 
@@ -219,7 +227,7 @@ class NIrrelevantInARow:
         if len(results) < self.n:
             return False
 
-        if sum(results["label"].iloc[-self.n :]) == 0:
+        if sum(results["included"].iloc[-self.n :]) == 0:
             return True
 
         return False

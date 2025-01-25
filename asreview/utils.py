@@ -14,14 +14,18 @@
 
 __all__ = []
 
+import json
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
-import numpy as np
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
-from asreview.extensions import get_extension
+import numpy as np
 
 
 def _get_filename_from_url(url):
@@ -64,3 +68,15 @@ def _is_url(url):
         )
     except Exception:
         return False
+
+
+def _read_config_file(file_name):
+    """Read the configuration file and return the content as a dictionary."""
+    path = Path(file_name)
+    with open(file_name, "rb") as f:
+        if path.suffix == ".json":
+            return json.load(f)
+        elif path.suffix == ".toml":
+            return tomllib.load(f)
+        else:
+            raise ValueError(f"Unsupported file format: {path.suffix}")

@@ -35,16 +35,13 @@ import numpy as np
 import scipy.sparse as sp
 from filelock import FileLock
 
-from asreview.learner import ActiveLearningCycle
+from asreview.learner import ActiveLearningCycle, CycleMetaData
 from asreview.data.loader import _from_file
 from asreview.data.loader import _get_reader
 from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
 from asreview.migrate import migrate_v1_v2
-from asreview.models import DEFAULT_BALANCE
-from asreview.models import DEFAULT_CLASSIFIER
-from asreview.models import DEFAULT_FEATURE_EXTRACTION
-from asreview.models import DEFAULT_QUERY
+from asreview.models import get_model_config
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
@@ -410,17 +407,18 @@ class Project:
         config = self.config
 
         if learner is None:
-            learner = ActiveLearningCycle(
-                query_strategy=DEFAULT_QUERY,
-                classifier=DEFAULT_CLASSIFIER,
-                balance_strategy=DEFAULT_BALANCE,
-                feature_extraction=DEFAULT_FEATURE_EXTRACTION,
-            )
+            learner_meta = get_model_config()
+        elif isinstance(learner, ActiveLearningCycle):
+            learner_meta = learner.to_meta()
+        elif isinstance(learner, CycleMetaData):
+            learner_meta = learner
+        else:
+            raise ValueError("Invalid learner type.")
 
         with open(
             Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
         ) as f:
-            learner.to_file(f)
+            json.dump(asdict(learner_meta), f)
 
         fp_state = Path(self.project_path, "reviews", review_id, "results.db")
 
@@ -477,11 +475,9 @@ class Project:
             state.to_sql(fp_state)
 
         if learner is not None:
-            with open(
-                Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
-                "w",
-            ) as f:
-                learner.to_file(f)
+            learner.to_file(
+                Path(self.project_path, "reviews", review_id, "settings_metadata.json")
+            )
 
         review_config = config["reviews"][review_index]
         review_config.update(kwargs)
@@ -603,14 +599,9 @@ class Project:
                 except ValueError as err:
                     warnings.warn(err)
 
-                    default_learner = ActiveLearningCycle(
-                        query_strategy=DEFAULT_QUERY,
-                        classifier=DEFAULT_CLASSIFIER,
-                        balance_strategy=DEFAULT_BALANCE,
-                        feature_extraction=DEFAULT_FEATURE_EXTRACTION,
+                    ActiveLearningCycle.from_meta(get_model_config()).to_file(
+                        learner_fp
                     )
-                    with open(learner_fp) as f:
-                        default_learner.to_file(f)
 
             if safe_import:
                 # assign a new id to the project.

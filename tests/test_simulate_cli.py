@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from dataclasses import asdict
 
 import pytest
 from pandas.testing import assert_frame_equal
@@ -166,10 +167,7 @@ def test_number_records_found(tmp_project, demo_data_path):
 
 
 def test_n_stop_min(tmp_project, demo_data_path):
-    argv = (
-        f"{demo_data_path} -o {tmp_project} --n-stop min "
-        f"--prior-idx 0 9 --seed 535".split()
-    )
+    argv = f"{demo_data_path} -o {tmp_project} " f"--prior-idx 0 9 --seed 535".split()
     _cli_simulate(argv)
 
     with asr.open_state(tmp_project) as s:
@@ -205,3 +203,57 @@ def test_project_already_exists_error(tmp_project, demo_data_path):
         # Simulate 100 queries in two steps of 50.
         argv = f"{demo_data_path} -o {tmp_project} --n-stop 50 --seed 535".split()
         _cli_simulate(argv)
+
+
+def test_cycle_config(tmpdir, demo_data_path, tmp_project):
+    cycle_meta = asr.CycleMetaData(
+        query_strategy="max",
+        classifier="nb",
+        balance_strategy="balanced",
+        feature_extraction="tfidf",
+        classifier_param={"alpha": 5},
+    )
+
+    fp_cycle = Path(tmpdir, "cycle.json")
+
+    with open(fp_cycle, "w") as f:
+        json.dump(asdict(cycle_meta), f)
+
+    _cli_simulate(f"{demo_data_path} -o {tmp_project} --config-file {fp_cycle}".split())
+
+    print("test_cycle_config")
+
+    with asr.open_state(tmp_project) as state:
+        results = state.get_results_table()
+
+    assert all(results["classifier"][10:] == "nb")
+    assert all(results["balance_strategy"][10:] == "balanced")
+
+    Path(tmpdir, "test_cycle").mkdir()
+    project = asr.Project.load(tmp_project, Path(tmpdir, "test_cycle"))
+
+    learner = asr.ActiveLearningCycle.from_file(
+        Path(
+            project.project_path,
+            "reviews",
+            project.config["reviews"][0]["id"],
+            "settings_metadata.json",
+        )
+    )
+
+    with open(
+        Path(
+            project.project_path,
+            "reviews",
+            project.config["reviews"][0]["id"],
+            "settings_metadata.json",
+        ),
+        "r",
+    ) as f:
+        cycle_meta = json.load(f)
+        print("cycle_meta", cycle_meta)
+
+    print("learner", learner)
+
+    assert learner.classifier.name == "nb"
+    assert learner.classifier.get_params()["alpha"] == 5
