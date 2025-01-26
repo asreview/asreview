@@ -221,8 +221,6 @@ def test_cycle_config(tmpdir, demo_data_path, tmp_project):
 
     _cli_simulate(f"{demo_data_path} -o {tmp_project} --config-file {fp_cycle}".split())
 
-    print("test_cycle_config")
-
     with asr.open_state(tmp_project) as state:
         results = state.get_results_table()
 
@@ -241,6 +239,9 @@ def test_cycle_config(tmpdir, demo_data_path, tmp_project):
         )
     )
 
+    assert learner.classifier.name == "nb"
+    assert learner.classifier.get_params()["alpha"] == 5
+
     with open(
         Path(
             project.project_path,
@@ -251,9 +252,9 @@ def test_cycle_config(tmpdir, demo_data_path, tmp_project):
         "r",
     ) as f:
         cycle_meta = json.load(f)
-        print("cycle_meta", cycle_meta)
 
-    print("learner", learner)
-
-    assert learner.classifier.name == "nb"
-    assert learner.classifier.get_params()["alpha"] == 5
+    assert cycle_meta["classifier_param"]["alpha"] == 5
+    assert cycle_meta["classifier"] == "nb"
+    assert cycle_meta["balance_strategy"] == "balanced"
+    assert cycle_meta["query_strategy"] == "max"
+    assert cycle_meta["feature_param"] == {}

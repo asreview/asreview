@@ -292,7 +292,7 @@ class ActiveLearningCycle:
             with open(fp, "rb") as f:
                 return cls.from_meta(CycleMetaData(**load(f)))
 
-        return _read_config_file(fp)
+        return cls.from_meta(CycleMetaData(**_read_config_file(fp)))
 
     def to_meta(self):
         return CycleMetaData(

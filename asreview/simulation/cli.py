@@ -165,7 +165,6 @@ def _cli_simulate(argv):
             classifier=args.classifier,
             balance_strategy=args.balance_strategy,
             feature_extraction=args.feature_extraction,
-            stopping=stopper,
             n_query=args.n_query,
         )
 
