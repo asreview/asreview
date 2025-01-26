@@ -167,7 +167,7 @@ def test_number_records_found(tmp_project, demo_data_path):
 
 
 def test_n_stop_min(tmp_project, demo_data_path):
-    argv = f"{demo_data_path} -o {tmp_project} " f"--prior-idx 0 9 --seed 535".split()
+    argv = f"{demo_data_path} -o {tmp_project} --prior-idx 0 9 --seed 535".split()
     _cli_simulate(argv)
 
     with asr.open_state(tmp_project) as s:
