@@ -269,7 +269,7 @@ class ActiveLearningCycle:
             feature_model = None
 
         if cycle_meta_data.stopping is not None:
-            stopping_class = load_extension("stopping", cycle_meta_data.stopping)
+            stopping_class = load_extension("models.stopping", cycle_meta_data.stopping)
             stopping_model = stopping_class(**cycle_meta_data.stopping_param)
         else:
             stopping_model = None
@@ -296,7 +296,7 @@ class ActiveLearningCycle:
             otherwise json.load.
         """
         if load is not None:
-            with open(fp, "rb") as f:
+            with open(fp, "r") as f:
                 return cls.from_meta(CycleMetaData(**load(f)))
 
         return cls.from_meta(CycleMetaData(**_read_config_file(fp)))

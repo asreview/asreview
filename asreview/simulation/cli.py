@@ -29,9 +29,9 @@ from asreview.learner import CycleMetaData
 from asreview.models.query import TopDownQuery
 from asreview.project.api import Project
 from asreview.simulation.simulate import Simulate
-from asreview.stopping import StoppingDefault
-from asreview.stopping import StoppingIsFittable
-from asreview.stopping import StoppingN
+from asreview.models.stopping import LastRelevant
+from asreview.models.stopping import IsFittable
+from asreview.models.stopping import NLabeled
 from asreview.utils import _format_to_str
 from asreview.utils import _read_config_file
 
@@ -157,7 +157,7 @@ def _cli_simulate(argv):
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
         prior_idx = _convert_id_to_idx(data_store, args.prior_record_id)
 
-    stopper = StoppingDefault() if args.n_stop is None else StoppingN(args.n_stop)
+    stopper = LastRelevant() if args.n_stop is None else NLabeled(args.n_stop)
 
     if args.config_file:
         learner_meta = CycleMetaData(**_read_config_file(args.config_file))
@@ -173,7 +173,7 @@ def _cli_simulate(argv):
     learners = [
         ActiveLearningCycle(
             query_strategy=TopDownQuery(),
-            stopping=StoppingIsFittable(),
+            stopping=IsFittable(),
         ),
         ActiveLearningCycle.from_meta(learner_meta),
     ]
@@ -326,7 +326,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     )
     parser.add_argument(
         "--prior-seed",
-        default=None,
         type=int,
         help="Seed for selecting prior records if the --prior-idx option is "
         "not used. If the option --prior-idx is used with one or more "
@@ -334,7 +333,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     )
     parser.add_argument(
         "--seed",
-        default=None,
         type=int,
         help="Seed for the model (classifiers, balance strategies, "
         "feature extraction techniques, and query strategies).",
@@ -356,7 +354,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     parser.add_argument(
         "--config-file",
         type=Path,
-        default=None,
         help="Configuration file for learning cycle.",
     )
 
@@ -364,7 +361,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     parser.add_argument(
         "--output",
         "-o",
-        default=None,
         type=str,
         help="Location to ASReview project file of simulation.",
     )

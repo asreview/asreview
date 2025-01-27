@@ -53,7 +53,7 @@ from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.state.contextmanager import open_state
-from asreview.stopping import NIrrelevantInARow
+from asreview.models.stopping import NConsecutiveIrrelevant
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import current_user_projects
@@ -740,8 +740,8 @@ def api_get_wordcounts(project):  # noqa: F401
                 "irrelevant": feature_names[np.argsort(weights)][:15].tolist(),
             }
         )
-    except ValueError:
-        return jsonify({"relevant": [], "irrelevant": []})
+    except (ValueError, IndexError):
+        return jsonify({"relevant": None, "irrelevant": None})
 
 
 @bp.route("/projects/<project_id>/train", methods=["POST"])
@@ -1105,12 +1105,11 @@ def api_get_stopping(project):  # noqa: F401
     stopping = ActiveLearningCycle.from_file(fp_al_cycle).stopping
 
     if stopping is None:
-        threshold = None
-    else:
-        threshold = stopping[0]["params"]["threshold"]
+        return jsonify({"name": None, "params": None})
 
     with open_state(project.project_path) as s:
-        labels = s.get_results_table(priors=False)["label"]
+        results = s.get_results_table(priors=False)
+        labels = results["label"]
 
     if len(labels) > 0:
         if int(sum(labels == 1)) > 0:
@@ -1121,19 +1120,15 @@ def api_get_stopping(project):  # noqa: F401
     else:
         n_since_last_relevant = 0
 
+    data = project.data_store[["record_id"]]
+
     return jsonify(
-        [
-            {
-                "id": "n_since_last_inclusion",
-                "params": {
-                    "threshold": threshold,
-                },
-                "value": n_since_last_relevant,
-                "stop": n_since_last_relevant is not None
-                and threshold is not None
-                and n_since_last_relevant >= threshold,
-            }
-        ]
+        {
+            "id": stopping.name,
+            "params": stopping.get_params(),
+            "value": n_since_last_relevant,
+            "stop": stopping.stop(results, data),
+        }
     )
 
 
@@ -1150,9 +1145,17 @@ def api_mutate_stopping(project):  # noqa: F401
         "settings_metadata.json",
     )
 
-    learner = ActiveLearningCycle.from_file(fp_al_cycle)
-    learner.stopping = NIrrelevantInARow(request.form.get("threshold", 50, type=int))
-    learner.to_file(fp_al_cycle)
+    with open(fp_al_cycle, "r") as f:
+        data = json.load(f)
+
+    data["stopping"] = NConsecutiveIrrelevant.name
+    data["stopping_param"] = {"n": request.form.get("n", 50, type=int)}
+
+    with open(fp_al_cycle, "w") as f:
+        json.dump(data, f)
+
+    with open(fp_al_cycle, "r") as f:
+        print(json.load(f))
 
     return api_get_stopping(project.project_id)
 

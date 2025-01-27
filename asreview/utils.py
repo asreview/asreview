@@ -73,7 +73,7 @@ def _is_url(url):
 def _read_config_file(file_name):
     """Read the configuration file and return the content as a dictionary."""
     path = Path(file_name)
-    with open(file_name, "rb") as f:
+    with open(file_name, "r") as f:
         if path.suffix == ".json":
             return json.load(f)
         elif path.suffix == ".toml":

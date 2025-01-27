@@ -26,18 +26,43 @@ This can be based on the properties of the results table or the input dataset.
 from sklearn.base import BaseEstimator
 
 __all__ = [
-    "StoppingDefault",
-    "StoppingN",
-    "StoppingQuantile",
-    "StoppingIsFittable",
-    "NIrrelevantInARow",
+    "LastRelevant",
+    "NLabeled",
+    "QuantileLabeled",
+    "IsFittable",
+    "NConsecutiveIrrelevant",
 ]
 
 
-class StoppingDefault(BaseEstimator):
-    """Default stopping mechanism.
+def safe_stop(stop_method):
+    """Decorator to ensure safe stopping conditions."""
 
-    The default stopping mechanism stops the review when all records have been
+    def wrapper(self, results, data):
+        if len(data) == 0:
+            return True
+        if len(results) == len(data):
+            return True
+        return stop_method(self, results, data)
+
+    return wrapper
+
+
+def raise_if_not_simulate(stop_method):
+    """Decorator to only use the stopping mechanism in simulation."""
+
+    def wrapper(self, results, data):
+        if data.isna().any():
+            raise ValueError("Stopping mechanism requires all data to be labeled.")
+
+        return stop_method(self, results, data)
+
+    return wrapper
+
+
+class LastRelevant(BaseEstimator):
+    """Stop after last relevant record.
+
+    The stopping mechanism stops the review when all records have been
     labeled.
 
     Arguments
@@ -47,12 +72,11 @@ class StoppingDefault(BaseEstimator):
         stop when all relevant records are found.
     """
 
-    name = "default"
-    label = "Default"
+    name = "last_relevant"
+    label = "Last Relevant"
 
-    def __init__(self, value="min"):
-        self.value = value
-
+    @safe_stop
+    @raise_if_not_simulate
     def stop(self, results, data):
         """Check if the review should be stopped.
 
@@ -73,29 +97,13 @@ class StoppingDefault(BaseEstimator):
             True if the review should be stopped, False otherwise.
         """
 
-        if len(data) == 0:
-            return True
-
-        # if the pool is empty, always stop
-        if len(results) == len(data):
-            return True
-
-        # raise error if data doesn't have labels for all records
-        if data.isna().any():
-            raise ValueError("StoppingDefault requires labels for all records.")
-
-        # If value is set to min, stop after value queries.
-        if self.value == "min" and sum(data) == sum(results["label"]):
-            return True
-
-        # Stop when reaching value (if provided)
-        if isinstance(self.value, int) and len(results) >= self.value:
+        if sum(data) == sum(results["label"]):
             return True
 
         return False
 
 
-class StoppingN(BaseEstimator):
+class NLabeled(BaseEstimator):
     """Stop the review after n have been labeled.
 
     Arguments
@@ -106,12 +114,13 @@ class StoppingN(BaseEstimator):
         of irrelevant records to find.
     """
 
-    name = "n"
-    label = "Fixed number"
+    name = "n_labeled"
+    label = "N Labeled"
 
     def __init__(self, n):
         self.n = n
 
+    @safe_stop
     def stop(self, results, data):
         """Check if the review should be stopped.
 
@@ -136,8 +145,6 @@ class StoppingN(BaseEstimator):
             raise ValueError("StoppingN requires an integer or a tuple of integers")
 
         if self.n == -1:
-            if len(results) == len(data):
-                return True
             return False
 
         if isinstance(self.n, int) and len(results) >= self.n:
@@ -154,7 +161,7 @@ class StoppingN(BaseEstimator):
         return False
 
 
-class StoppingQuantile(BaseEstimator):
+class QuantileLabeled(BaseEstimator):
     """Stop the review after a certain quantile of the records have been labeled.
 
     Arguments
@@ -163,12 +170,13 @@ class StoppingQuantile(BaseEstimator):
         Quantile of records to label before stopping the review.
     """
 
-    name = "quantile"
-    label = "Quantile"
+    name = "q_labeled"
+    label = "Quantile Labeled"
 
     def __init__(self, quantile):
         self.quantile = quantile
 
+    @safe_stop
     def stop(self, results, data):
         """Check if the review should be stopped.
 
@@ -196,17 +204,17 @@ class StoppingQuantile(BaseEstimator):
         return False
 
 
-class StoppingIsFittable(StoppingN):
+class IsFittable(NLabeled):
     """Stop the review after both classes are found."""
 
-    name = "fittable"
-    label = "Fittable"
+    name = "is_fittable"
+    label = "Is Fittable"
 
     def __init__(self):
         super().__init__(n=(1, 1))
 
 
-class NIrrelevantInARow(BaseEstimator):
+class NConsecutiveIrrelevant(BaseEstimator):
     """Stop the review after n irrelevant records have been labeled in a row.
 
     Arguments
@@ -215,12 +223,13 @@ class NIrrelevantInARow(BaseEstimator):
         Number of irrelevant records in a row to stop the review at.
     """
 
-    name = "n_irrelevant"
-    label = "N Irrelevant in a Row"
+    name = "n_consecutive_irrelevant"
+    label = "N Consecutive Irrelevant"
 
     def __init__(self, n):
         self.n = n
 
+    @safe_stop
     def stop(self, results, data):
         """Check if the review should be stopped.
 
@@ -241,10 +250,7 @@ class NIrrelevantInARow(BaseEstimator):
             True if the review should be stopped, False otherwise.
         """
 
-        if len(results) < self.n:
-            return False
-
-        if sum(results["included"].iloc[-self.n :]) == 0:
+        if len(results) > self.n and sum(results["label"].iloc[-self.n :]) == 0:
             return True
 
         return False

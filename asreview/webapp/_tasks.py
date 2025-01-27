@@ -18,7 +18,7 @@ import asreview as asr
 from asreview.models.query import TopDownQuery
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
-from asreview.stopping import StoppingIsFittable
+from asreview.models.stopping import IsFittable
 from asreview.webapp.utils import get_project_path
 
 
@@ -101,7 +101,7 @@ def run_simulation(project):
     learners = [
         asr.ActiveLearningCycle(
             query_strategy=TopDownQuery(),
-            stopping=StoppingIsFittable(),
+            stopping=IsFittable(),
         ),
         learner,
     ]

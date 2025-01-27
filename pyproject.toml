@@ -128,6 +128,13 @@ uncertainty = "asreview.models.query:UncertaintyQuery"
 max_random = "asreview.models.query:MaxRandomQuery"
 max_uncertainty = "asreview.models.query:MaxUncertaintyQuery"
 
+[project.entry-points."asreview.models.stopping"]
+last_relevant = "asreview.models.stopping:LastRelevant"
+n_labeled = "asreview.models.stopping:NLabeled"
+q_labeled = "asreview.models.stopping:QuantileLabeled"
+is_fittable = "asreview.models.stopping:IsFittable"
+n_consecutive_irrelevant = "asreview.models.stopping:NConsecutiveIrrelevant"
+
 [project.optional-dependencies]
 lint = ["ruff", "check-manifest"]
 test = [

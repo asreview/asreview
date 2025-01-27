@@ -22,7 +22,8 @@ from tqdm import tqdm
 
 from asreview.metrics import loss
 from asreview.state.contextmanager import open_state
-from asreview.stopping import StoppingDefault
+from asreview.models.stopping import LastRelevant
+from asreview.models.stopping import NLabeled
 
 
 def _get_name_from_estimator(estimator):
@@ -69,12 +70,12 @@ class Simulate:
     feature_extraction: BaseFeatureModel
         The initialized feature extraction model to use for the simulation. If None,
         the name of the feature extraction model is set to None.
-    stopping: str, int, callable
+    stopping: int, callable
         The stopping mechanism to use for the simulation. When stopper is None,
-        all records are simulated. If "min", the simulation stops when all relevant
-        records are found. If an integer, the simulation stops after n queries.
-        If class with .stop() method, the simulation stops when the callable returns
-        True. Default is "min".
+        the simulation stops when all relevant records are found. If an integer, the
+        simulation stops after n queries. A stopping or -1 stops the simulation after
+        all records have been labeled. If class with .stop() method, the simulation
+        stops when the callable returns True. Default is None.
     skip_transform: bool
         If True, the feature matrix is not computed in the simulation. It is assumed
         that X is the feature matrix or input to the estimator. Default is False.
@@ -85,7 +86,7 @@ class Simulate:
         X,
         labels,
         learners,
-        stopping="min",
+        stopping=None,
         skip_transform=False,
         print_progress=True,
     ):
@@ -149,8 +150,10 @@ class Simulate:
             disable=not self.print_progress,
         )
 
-        if self.stopping is None or isinstance(self.stopping, (int, str)):
-            stopper = StoppingDefault(self.stopping)
+        if self.stopping is None:
+            stopper = LastRelevant()
+        elif isinstance(self.stopping, int):
+            stopper = NLabeled(self.stopping)
         else:
             stopper = self.stopping
 
@@ -202,6 +205,7 @@ class Simulate:
 
                 pbar_rel.update(labeled["label"].sum())
                 pbar_total.update(n_query)
+
             else:
                 if hasattr(self, "_X_features"):
                     del self._X_features

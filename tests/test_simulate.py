@@ -4,7 +4,7 @@ import pytest
 import asreview as asr
 from asreview.models.query import RandomQuery
 from asreview.models.query import TopDownQuery
-from asreview.stopping import StoppingIsFittable
+from asreview.models.stopping import IsFittable
 
 
 @pytest.mark.parametrize("balance_strategy", ["balanced", None])
@@ -35,7 +35,7 @@ def test_simulate_basic(demo_data, balance_strategy):
 def test_simulate_basic_classifiers(demo_data, classifier):
     learners = [
         asr.ActiveLearningCycle(
-            query_strategy=RandomQuery(random_state=165), stopping=StoppingIsFittable()
+            query_strategy=RandomQuery(random_state=165), stopping=IsFittable()
         ),
         asr.ActiveLearningCycle(
             query_strategy=asr.load_extension("models.query", "max_random")(
@@ -58,9 +58,7 @@ def test_simulate_basic_classifiers(demo_data, classifier):
 
 def test_simulate_no_prior(demo_data):
     learners = [
-        asr.ActiveLearningCycle(
-            query_strategy=TopDownQuery(), stopping=StoppingIsFittable()
-        ),
+        asr.ActiveLearningCycle(query_strategy=TopDownQuery(), stopping=IsFittable()),
         asr.ActiveLearningCycle(
             query_strategy=asr.load_extension("models.query", "max_random")(),
             classifier=asr.load_extension("models.classifiers", "nb")(),
@@ -80,7 +78,7 @@ def test_simulate_no_prior(demo_data):
 def test_simulate_random_prior(demo_data):
     learners = [
         asr.ActiveLearningCycle(
-            query_strategy=RandomQuery(random_state=535), stopping=StoppingIsFittable()
+            query_strategy=RandomQuery(random_state=535), stopping=IsFittable()
         ),
         asr.ActiveLearningCycle(
             query_strategy=asr.load_extension("models.query", "max_random")(),
@@ -100,9 +98,7 @@ def test_simulate_random_prior(demo_data):
 
 def test_simulate_n_query(demo_data):
     learners = [
-        asr.ActiveLearningCycle(
-            query_strategy=TopDownQuery(), stopping=StoppingIsFittable()
-        ),
+        asr.ActiveLearningCycle(query_strategy=TopDownQuery(), stopping=IsFittable()),
         asr.ActiveLearningCycle(
             query_strategy=asr.load_extension("models.query", "max")(),
             classifier=asr.load_extension("models.classifiers", "svm")(),
@@ -124,7 +120,7 @@ def test_simulate_n_query_callable(demo_data):
     learners = [
         asr.ActiveLearningCycle(
             query_strategy=TopDownQuery(),
-            stopping=StoppingIsFittable(),
+            stopping=IsFittable(),
             n_query=lambda x: 2,
         ),
         asr.ActiveLearningCycle(
@@ -151,7 +147,7 @@ def test_simulate_n_query_callable_with_args(demo_data):
     learners = [
         asr.ActiveLearningCycle(
             query_strategy=TopDownQuery(),
-            stopping=StoppingIsFittable(),
+            stopping=IsFittable(),
             n_query=n_query,
         ),
         asr.ActiveLearningCycle(
@@ -165,7 +161,7 @@ def test_simulate_n_query_callable_with_args(demo_data):
         ),
     ]
 
-    sim = asr.Simulate(demo_data, demo_data["label_included"], learners, stopping=None)
+    sim = asr.Simulate(demo_data, demo_data["label_included"], learners, stopping=-1)
     sim.review()
 
     # the expected training set
