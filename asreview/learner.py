@@ -61,6 +61,7 @@ class CycleMetaData:
     classifier_param: Optional[dict[str, Any]] = field(default_factory=dict)
     balance_param: Optional[dict[str, Any]] = field(default_factory=dict)
     feature_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    stopping_param: Optional[dict[str, Any]] = field(default_factory=dict)
     n_query: int = 1
 
 
@@ -267,12 +268,18 @@ class ActiveLearningCycle:
         else:
             feature_model = None
 
+        if cycle_meta_data.stopping is not None:
+            stopping_class = load_extension("stopping", cycle_meta_data.stopping)
+            stopping_model = stopping_class(**cycle_meta_data.stopping_param)
+        else:
+            stopping_model = None
+
         return cls(
             query_strategy=query_model,
             classifier=classifier_model,
             balance_strategy=balance_model,
             feature_extraction=feature_model,
-            stopping=None,  # todo: implement stopping
+            stopping=stopping_model,
             n_query=cycle_meta_data.n_query,
         )
 
@@ -310,7 +317,10 @@ class ActiveLearningCycle:
             feature_param=self.feature_extraction.get_params()
             if self.feature_extraction is not None
             else None,
-            stopping=None,  # todo: implement stopping
+            stopping=_get_name_from_estimator(self.stopping),
+            stopping_param=self.stopping.get_params()
+            if self.stopping is not None
+            else None,
             n_query=self.n_query,
         )
 

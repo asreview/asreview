@@ -23,6 +23,8 @@ This can be based on the properties of the results table or the input dataset.
 
 """
 
+from sklearn.base import BaseEstimator
+
 __all__ = [
     "StoppingDefault",
     "StoppingN",
@@ -32,7 +34,7 @@ __all__ = [
 ]
 
 
-class StoppingDefault:
+class StoppingDefault(BaseEstimator):
     """Default stopping mechanism.
 
     The default stopping mechanism stops the review when all records have been
@@ -44,6 +46,9 @@ class StoppingDefault:
         Number of labels to stop the review at. If set to "min", the review will
         stop when all relevant records are found.
     """
+
+    name = "default"
+    label = "Default"
 
     def __init__(self, value="min"):
         self.value = value
@@ -90,7 +95,7 @@ class StoppingDefault:
         return False
 
 
-class StoppingN:
+class StoppingN(BaseEstimator):
     """Stop the review after n have been labeled.
 
     Arguments
@@ -100,6 +105,9 @@ class StoppingN:
         the number of relevant records to find, the second element is the number
         of irrelevant records to find.
     """
+
+    name = "n"
+    label = "Fixed number"
 
     def __init__(self, n):
         self.n = n
@@ -146,7 +154,7 @@ class StoppingN:
         return False
 
 
-class StoppingQuantile:
+class StoppingQuantile(BaseEstimator):
     """Stop the review after a certain quantile of the records have been labeled.
 
     Arguments
@@ -154,6 +162,9 @@ class StoppingQuantile:
     quantile: float
         Quantile of records to label before stopping the review.
     """
+
+    name = "quantile"
+    label = "Quantile"
 
     def __init__(self, quantile):
         self.quantile = quantile
@@ -188,11 +199,14 @@ class StoppingQuantile:
 class StoppingIsFittable(StoppingN):
     """Stop the review after both classes are found."""
 
+    name = "fittable"
+    label = "Fittable"
+
     def __init__(self):
         super().__init__(n=(1, 1))
 
 
-class NIrrelevantInARow:
+class NIrrelevantInARow(BaseEstimator):
     """Stop the review after n irrelevant records have been labeled in a row.
 
     Arguments
@@ -200,6 +214,9 @@ class NIrrelevantInARow:
     n: int
         Number of irrelevant records in a row to stop the review at.
     """
+
+    name = "n_irrelevant"
+    label = "N Irrelevant in a Row"
 
     def __init__(self, n):
         self.n = n
