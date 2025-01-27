@@ -1,15 +1,15 @@
 import json
 import os
 import sqlite3
+from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
-from dataclasses import asdict
 
 import pandas
 
 from asreview._version import __version__
-from asreview.state.sqlstate import SQLiteState
 from asreview.models.models import get_model_config
+from asreview.state.sqlstate import SQLiteState
 
 
 def _project_config_converter_v1_v2(project_json):

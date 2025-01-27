@@ -15,7 +15,6 @@
 from pathlib import Path
 
 import asreview as asr
-from asreview.extensions import load_extension
 from asreview.models.query import TopDownQuery
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state

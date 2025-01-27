@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
+
+import json
+from dataclasses import asdict
+from dataclasses import dataclass
+from dataclasses import field
+from typing import Any
+from typing import Optional
 
 from asreview.extensions import load_extension
 from asreview.utils import _read_config_file
-
-import json
-from dataclasses import dataclass
-from dataclasses import field
-from dataclasses import asdict
-from typing import Any, Optional
 
 __all__ = []
 

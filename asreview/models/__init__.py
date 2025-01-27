@@ -12,12 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.models import (
-    MODELS_CONFIG,
-    DEFAULT_MODEL_NAME,
-    get_model_config,
-)
-
+from asreview.models.models import DEFAULT_MODEL_NAME
+from asreview.models.models import MODELS_CONFIG
+from asreview.models.models import get_model_config
 
 __all__ = [
     "balance",

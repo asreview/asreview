@@ -25,7 +25,6 @@ import time
 import warnings
 import zipfile
 from dataclasses import asdict
-from dataclasses import replace
 from pathlib import Path
 from urllib.request import urlretrieve
 from uuid import uuid4
@@ -35,11 +34,12 @@ import numpy as np
 import scipy.sparse as sp
 from filelock import FileLock
 
-from asreview.learner import ActiveLearningCycle, CycleMetaData
 from asreview.data.loader import _from_file
 from asreview.data.loader import _get_reader
 from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
+from asreview.learner import ActiveLearningCycle
+from asreview.learner import CycleMetaData
 from asreview.migrate import migrate_v1_v2
 from asreview.models import get_model_config
 from asreview.project.exceptions import ProjectError

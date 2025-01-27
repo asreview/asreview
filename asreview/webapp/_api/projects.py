@@ -20,7 +20,6 @@ import socket
 import tempfile
 import time
 from dataclasses import asdict
-from dataclasses import replace
 from pathlib import Path
 from uuid import uuid4
 
@@ -47,14 +46,14 @@ from asreview.data.search import fuzzy_find
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
+from asreview.learner import ActiveLearningCycle
 from asreview.models import get_model_config
-from asreview.stopping import NIrrelevantInARow
 from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
-from asreview.learner import ActiveLearningCycle
 from asreview.state.contextmanager import open_state
+from asreview.stopping import NIrrelevantInARow
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import current_user_projects

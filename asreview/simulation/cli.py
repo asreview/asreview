@@ -29,7 +29,9 @@ from asreview.learner import CycleMetaData
 from asreview.models.query import TopDownQuery
 from asreview.project.api import Project
 from asreview.simulation.simulate import Simulate
-from asreview.stopping import StoppingIsFittable, StoppingN, StoppingDefault
+from asreview.stopping import StoppingDefault
+from asreview.stopping import StoppingIsFittable
+from asreview.stopping import StoppingN
 from asreview.utils import _format_to_str
 from asreview.utils import _read_config_file
 

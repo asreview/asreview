@@ -1,6 +1,6 @@
 import json
-from pathlib import Path
 from dataclasses import asdict
+from pathlib import Path
 
 import pytest
 from pandas.testing import assert_frame_equal
