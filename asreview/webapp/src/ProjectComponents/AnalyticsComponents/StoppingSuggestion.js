@@ -1,7 +1,7 @@
 import React from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import ArticleIcon from "@mui/icons-material/Article";
-import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
+import { DoneAll } from "@mui/icons-material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import {
@@ -198,7 +198,7 @@ const StoppingSuggestion = ({ project_id }) => {
               color: theme.palette.grey[400],
             }}
           >
-            <DoneRoundedIcon sx={{ fontSize: 30 }} />
+            <DoneAll sx={{ fontSize: 30 }} />
           </IconButton>
         )}
       </Box>
@@ -395,7 +395,7 @@ const StoppingSuggestion = ({ project_id }) => {
                       justifyContent: "center",
                     }}
                   >
-                    <DoneRoundedIcon sx={{ fontSize: 50 }} />
+                    <DoneAll sx={{ fontSize: 50 }} />
                   </Box>
                 )}
               </Box>
@@ -686,7 +686,7 @@ const StoppingSuggestion = ({ project_id }) => {
                     alignItems="flex-start"
                     width="100%"
                   >
-                    <DoneRoundedIcon fontSize="small" color="primary" />
+                    <DoneAll fontSize="small" color="primary" />
                     <Box>
                       <Typography variant="body2" fontWeight="medium">
                         Mark Project as Finished
