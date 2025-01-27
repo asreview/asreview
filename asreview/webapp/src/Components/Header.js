@@ -139,9 +139,12 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
                           placement="bottom"
                           arrow
                         >
-                          <Avatar>
+                          <Avatar sx={{ fontSize: "14px" }}>
                             {user?.name
-                              ? user.name.charAt(0).toUpperCase()
+                              ? user.name
+                                  .split(" ")
+                                  .map((part) => part.charAt(0).toUpperCase())
+                                  .join("")
                               : "?"}
                           </Avatar>
                         </Tooltip>
