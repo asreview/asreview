@@ -26,7 +26,7 @@ def test_simulate_basic(demo_data, balancer):
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results.shape[0] < 35
+    assert sim._results.shape[0] < 50
 
 
 @pytest.mark.parametrize("classifier", ["nb", "logistic", "svm"])

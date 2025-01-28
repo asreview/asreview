@@ -15,7 +15,7 @@
 from sklearn.ensemble import RandomForestClassifier as SKRandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
 
 __all__ = [
     "SVM",
@@ -25,22 +25,19 @@ __all__ = [
 ]
 
 
-class SVM(SVC):
+class SVM(LinearSVC):
     """Support vector machine classifier.
 
     Based on the sklearn implementation of the support vector machine
-    sklearn.svm.SVC.
+    sklearn.svm.LinearSVC.
     """
 
     name = "svm"
     label = "Support vector machine"
 
-    def __init__(self, gamma="auto", C=15.4, kernel="linear", **kwargs):
+    def __init__(self, C=15.4, **kwargs):
         super().__init__(
-            kernel=kernel,
             C=C,
-            gamma=gamma,
-            probability=False,
             **kwargs,
         )
 
@@ -58,7 +55,7 @@ class RandomForest(SKRandomForestClassifier):
     def __init__(self, n_estimators=100, max_features=10, **kwargs):
         super().__init__(
             n_estimators=int(n_estimators),
-            max_features=int(max_features),
+            max_features=max_features,
             **kwargs,
         )
 
