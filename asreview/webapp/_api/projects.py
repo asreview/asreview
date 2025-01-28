@@ -47,7 +47,7 @@ from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
 from asreview.learner import ActiveLearningCycle
-from asreview.learner import CycleMetaData
+from asreview.learner import ActiveLearningCycleData
 from asreview.models import get_model_config
 from asreview.models.stoppers import NConsecutiveIrrelevant
 from asreview.project.api import PROJECT_MODE_SIMULATE
@@ -698,14 +698,14 @@ def api_set_algorithms(project):  # noqa: F401
 
     if fp.exists():
         with open(fp, "r") as f:
-            cycle = CycleMetaData(**json.load(f))
+            cycle = ActiveLearningCycleData(**json.load(f))
 
         cycle.classifier = request.form.get("classifier")
         cycle.querier = request.form.get("querier")
         cycle.balancer = request.form.get("balancer")
         cycle.feature_extractor = request.form.get("feature_extractor")
     else:
-        cycle = CycleMetaData(
+        cycle = ActiveLearningCycleData(
             classifier=request.form.get("classifier"),
             querier=request.form.get("querier"),
             balancer=request.form.get("balancer"),

@@ -85,14 +85,14 @@ class Simulate:
         self,
         X,
         labels,
-        learners,
+        cycles,
         stopper=None,
         skip_transform=False,
         print_progress=True,
     ):
         self.X = X
         self.labels = labels
-        self.learners = learners
+        self.cycles = cycles
         self.stopper = stopper
         self.skip_transform = skip_transform
         self.print_progress = print_progress
@@ -157,29 +157,26 @@ class Simulate:
         else:
             stopper = self.stopper
 
-        learners = self.learners if isinstance(self.learners, list) else [self.learners]
+        cycles = self.cycles if isinstance(self.cycles, list) else [self.cycles]
 
-        for learner in learners:
+        for cycle in cycles:
             # first run the overall simulation until the default stopper is met
-            while not stopper.stop(self._results, self.labels) and not learner.stop(
+            while not stopper.stop(self._results, self.labels) and not cycle.stop(
                 self._results, self.labels
             ):
                 # compute the feature matrix for the labeled records if not in
                 # _X_features cache
                 if not hasattr(self, "_X_features"):
-                    if (
-                        not self.skip_transform
-                        and learner.feature_extractor is not None
-                    ):
-                        self._X_features = learner.transform(self.X)
+                    if not self.skip_transform and cycle.feature_extractor is not None:
+                        self._X_features = cycle.transform(self.X)
                     elif isinstance(self.X, pd.DataFrame):
                         self._X_features = self.X.values
                     else:
                         self._X_features = self.X
 
                 # fit the estimator to the labeled records
-                if learner.classifier is not None:
-                    learner.fit(
+                if cycle.classifier is not None:
+                    cycle.fit(
                         self._X_features[self._results["record_id"].values],
                         self._results["label"].values,
                     )
@@ -190,18 +187,18 @@ class Simulate:
                 )
 
                 # rank the pool and convert the ranked pool to record ids
-                ranked_pool = learner.rank(self._X_features[pool_record_ids])
+                ranked_pool = cycle.rank(self._X_features[pool_record_ids])
                 ranked_pool_record_ids = pool_record_ids[ranked_pool]
 
                 # label n_query records from the pool
-                n_query = learner.get_n_query(self._results, self.labels)
+                n_query = cycle.get_n_query(self._results, self.labels)
                 if not isinstance(n_query, int) or n_query < 1:
                     raise ValueError(
                         f"Number of records to query should be an integer "
                         f"greater than 0, got {n_query}."
                     )
 
-                labeled = self.label(ranked_pool_record_ids[:n_query], learner=learner)
+                labeled = self.label(ranked_pool_record_ids[:n_query], cycle=cycle)
 
                 pbar_rel.update(labeled["label"].sum())
                 pbar_total.update(n_query)
@@ -221,7 +218,7 @@ class Simulate:
             if self.print_progress:
                 print(f"\nLoss: {loss(padded_results):.3f}")
 
-    def label(self, record_ids, learner=None):
+    def label(self, record_ids, cycle=None):
         """Label the records with the given record_ids.
 
         Parameters
@@ -231,17 +228,17 @@ class Simulate:
 
         """
 
-        if learner is None:
+        if cycle is None:
             classifier = None
             querier = None
             balancer = None
             feature_extractor = None
             training_set = None
         else:
-            classifier = _get_name_from_estimator(learner.classifier)
-            querier = _get_name_from_estimator(learner.querier)
-            balancer = _get_name_from_estimator(learner.balancer)
-            feature_extractor = _get_name_from_estimator(learner.feature_extractor)
+            classifier = _get_name_from_estimator(cycle.classifier)
+            querier = _get_name_from_estimator(cycle.querier)
+            balancer = _get_name_from_estimator(cycle.balancer)
+            feature_extractor = _get_name_from_estimator(cycle.feature_extractor)
             training_set = len(self._results)
 
         new_labels = pd.DataFrame(

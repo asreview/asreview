@@ -14,14 +14,14 @@ def test_simulate_basic(demo_data, balancer):
     else:
         balance_model = None
 
-    learner = asr.ActiveLearningCycle(
+    cycle = asr.ActiveLearningCycle(
         querier=asr.load_extension("models.queriers", "max_random")(random_state=535),
         classifier=asr.load_extension("models.classifiers", "svm")(),
         balancer=balance_model,
         feature_extractor=asr.load_extension("models.feature_extractors", "tfidf")(),
     )
 
-    sim = asr.Simulate(demo_data, demo_data["label_included"], learner)
+    sim = asr.Simulate(demo_data, demo_data["label_included"], cycle)
     sim.label([0, 9])
     sim.review()
 
@@ -31,7 +31,7 @@ def test_simulate_basic(demo_data, balancer):
 
 @pytest.mark.parametrize("classifier", ["nb", "logistic", "svm"])
 def test_simulate_basic_classifiers(demo_data, classifier):
-    learners = [
+    cycles = [
         asr.ActiveLearningCycle(querier=Random(random_state=165), stopper=IsFittable()),
         asr.ActiveLearningCycle(
             querier=asr.load_extension("models.queriers", "max_random")(
@@ -45,7 +45,7 @@ def test_simulate_basic_classifiers(demo_data, classifier):
         ),
     ]
 
-    sim = asr.Simulate(demo_data, demo_data["label_included"], learners)
+    sim = asr.Simulate(demo_data, demo_data["label_included"], cycles)
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
@@ -53,7 +53,7 @@ def test_simulate_basic_classifiers(demo_data, classifier):
 
 
 def test_simulate_no_prior(demo_data):
-    learners = [
+    cycles = [
         asr.ActiveLearningCycle(querier=TopDown(), stopper=IsFittable()),
         asr.ActiveLearningCycle(
             querier=asr.load_extension("models.queriers", "max_random")(),
@@ -65,14 +65,14 @@ def test_simulate_no_prior(demo_data):
         ),
     ]
 
-    sim = asr.Simulate(demo_data, demo_data["label_included"], learners)
+    sim = asr.Simulate(demo_data, demo_data["label_included"], cycles)
     sim.review()
 
     assert sim._results["label"].to_list()[0:10] == [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
 
 
 def test_simulate_random_prior(demo_data):
-    learners = [
+    cycles = [
         asr.ActiveLearningCycle(querier=Random(random_state=535), stopper=IsFittable()),
         asr.ActiveLearningCycle(
             querier=asr.load_extension("models.queriers", "max_random")(),
@@ -84,14 +84,14 @@ def test_simulate_random_prior(demo_data):
         ),
     ]
 
-    sim = asr.Simulate(demo_data, demo_data["label_included"], learners)
+    sim = asr.Simulate(demo_data, demo_data["label_included"], cycles)
     sim.review()
 
     assert sim._results["label"].to_list()[0:9] == [0, 0, 0, 0, 0, 0, 0, 0, 1]
 
 
 def test_simulate_n_query(demo_data):
-    learners = [
+    cycles = [
         asr.ActiveLearningCycle(querier=TopDown(), stopper=IsFittable()),
         asr.ActiveLearningCycle(
             querier=asr.load_extension("models.queriers", "max")(),
@@ -104,14 +104,14 @@ def test_simulate_n_query(demo_data):
         ),
     ]
 
-    sim = asr.Simulate(demo_data, demo_data["label_included"], learners)
+    sim = asr.Simulate(demo_data, demo_data["label_included"], cycles)
     sim.review()
 
     assert sim._results.loc[10:, "training_set"].apply(lambda x: x % 2 == 0).all()
 
 
 def test_simulate_n_query_callable(demo_data):
-    learners = [
+    cycles = [
         asr.ActiveLearningCycle(
             querier=TopDown(),
             stopper=IsFittable(),
@@ -128,7 +128,7 @@ def test_simulate_n_query_callable(demo_data):
         ),
     ]
 
-    sim = asr.Simulate(demo_data, demo_data["label_included"], learners, stopper=None)
+    sim = asr.Simulate(demo_data, demo_data["label_included"], cycles, stopper=None)
     sim.review()
 
     assert sim._results["training_set"].apply(lambda x: x % 2 == 0).all()
@@ -138,7 +138,7 @@ def test_simulate_n_query_callable_with_args(demo_data):
     def n_query(x):
         return max(1, len(x))
 
-    learners = [
+    cycles = [
         asr.ActiveLearningCycle(
             querier=TopDown(),
             stopper=IsFittable(),
@@ -155,7 +155,7 @@ def test_simulate_n_query_callable_with_args(demo_data):
         ),
     ]
 
-    sim = asr.Simulate(demo_data, demo_data["label_included"], learners, stopper=-1)
+    sim = asr.Simulate(demo_data, demo_data["label_included"], cycles, stopper=-1)
     sim.review()
 
     # the expected training set

@@ -51,7 +51,7 @@ def _get_name_from_estimator(estimator):
 
 
 @dataclass
-class CycleMetaData:
+class ActiveLearningCycleData:
     querier: str
     classifier: Optional[str] = None
     balancer: Optional[str] = None
@@ -68,8 +68,7 @@ class CycleMetaData:
 class ActiveLearningCycle:
     """Active learner cycle class.
 
-    The active learner class is a wrapper around a query strategy and a classifier.
-    It is used to rank the instances of the feature matrix.
+    The active learner cycle class is a wrapper around the various learner components.
 
     The classifier is optional, if no classifier is provided, the active learner will
     only rank the instances based on the query strategy. This can be useful for example
@@ -90,12 +89,6 @@ class ActiveLearningCycle:
     n_query: int, callable
         The number of instances to query at once. If None, the querier
         will determine the number of instances to query. Default is None.
-
-
-    Returns
-    -------
-    ActiveLearningCycle:
-        An active learner object.
 
     """
 
@@ -239,7 +232,7 @@ class ActiveLearningCycle:
         Returns
         -------
         ActiveLearningCycle:
-            The active learner object.
+            The active learner cycle object.
         """
         query_class = load_extension("models.queriers", cycle_meta_data.querier)
         query_model = query_class(**cycle_meta_data.querier_param)
@@ -295,12 +288,12 @@ class ActiveLearningCycle:
         """
         if load is not None:
             with open(fp, "r") as f:
-                return cls.from_meta(CycleMetaData(**load(f)))
+                return cls.from_meta(ActiveLearningCycleData(**load(f)))
 
-        return cls.from_meta(CycleMetaData(**_read_config_file(fp)))
+        return cls.from_meta(ActiveLearningCycleData(**_read_config_file(fp)))
 
     def to_meta(self):
-        return CycleMetaData(
+        return ActiveLearningCycleData(
             querier=_get_name_from_estimator(self.querier),
             querier_param=self.querier.get_params(),
             classifier=_get_name_from_estimator(self.classifier),
