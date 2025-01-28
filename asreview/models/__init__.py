@@ -17,10 +17,11 @@ from asreview.models.models import MODELS_CONFIG
 from asreview.models.models import get_model_config
 
 __all__ = [
-    "balance",
+    "balancers",
     "classifiers",
-    "feature_extraction",
-    "query",
+    "feature_extractors",
+    "queriers",
+    "stoppers",
     "MODELS_CONFIG",
     "DEFAULT_MODEL_NAME",
     "get_model_config",
@@ -29,4 +30,4 @@ __all__ = [
 """Active learning model components.
 
 Components like classifiers, query strategies, balance strategies, and
-feature_extraction techniques."""
+feature_extractor techniques."""

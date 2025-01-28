@@ -2,25 +2,23 @@ import pandas as pd
 import pytest
 
 import asreview as asr
-from asreview.models.query import RandomQuery
-from asreview.models.query import TopDownQuery
-from asreview.models.stopping import IsFittable
+from asreview.models.queriers import Random
+from asreview.models.queriers import TopDown
+from asreview.models.stoppers import IsFittable
 
 
-@pytest.mark.parametrize("balance_strategy", ["balanced", None])
-def test_simulate_basic(demo_data, balance_strategy):
-    if balance_strategy is not None:
-        balance_model = asr.load_extension("models.balance", balance_strategy)()
+@pytest.mark.parametrize("balancer", ["balanced", None])
+def test_simulate_basic(demo_data, balancer):
+    if balancer is not None:
+        balance_model = asr.load_extension("models.balancers", balancer)()
     else:
         balance_model = None
 
     learner = asr.ActiveLearningCycle(
-        query_strategy=asr.load_extension("models.query", "max_random")(
-            random_state=535
-        ),
+        querier=asr.load_extension("models.queriers", "max_random")(random_state=535),
         classifier=asr.load_extension("models.classifiers", "svm")(),
-        balance_strategy=balance_model,
-        feature_extraction=asr.load_extension("models.feature_extraction", "tfidf")(),
+        balancer=balance_model,
+        feature_extractor=asr.load_extension("models.feature_extractors", "tfidf")(),
     )
 
     sim = asr.Simulate(demo_data, demo_data["label_included"], learner)
@@ -34,17 +32,15 @@ def test_simulate_basic(demo_data, balance_strategy):
 @pytest.mark.parametrize("classifier", ["nb", "logistic", "svm"])
 def test_simulate_basic_classifiers(demo_data, classifier):
     learners = [
+        asr.ActiveLearningCycle(querier=Random(random_state=165), stopper=IsFittable()),
         asr.ActiveLearningCycle(
-            query_strategy=RandomQuery(random_state=165), stopping=IsFittable()
-        ),
-        asr.ActiveLearningCycle(
-            query_strategy=asr.load_extension("models.query", "max_random")(
+            querier=asr.load_extension("models.queriers", "max_random")(
                 random_state=535
             ),
             classifier=asr.load_extension("models.classifiers", classifier)(),
-            balance_strategy=asr.load_extension("models.balance", "balanced")(),
-            feature_extraction=asr.load_extension(
-                "models.feature_extraction", "tfidf"
+            balancer=asr.load_extension("models.balancers", "balanced")(),
+            feature_extractor=asr.load_extension(
+                "models.feature_extractors", "tfidf"
             )(),
         ),
     ]
@@ -58,13 +54,13 @@ def test_simulate_basic_classifiers(demo_data, classifier):
 
 def test_simulate_no_prior(demo_data):
     learners = [
-        asr.ActiveLearningCycle(query_strategy=TopDownQuery(), stopping=IsFittable()),
+        asr.ActiveLearningCycle(querier=TopDown(), stopper=IsFittable()),
         asr.ActiveLearningCycle(
-            query_strategy=asr.load_extension("models.query", "max_random")(),
+            querier=asr.load_extension("models.queriers", "max_random")(),
             classifier=asr.load_extension("models.classifiers", "nb")(),
-            balance_strategy=asr.load_extension("models.balance", "balanced")(),
-            feature_extraction=asr.load_extension(
-                "models.feature_extraction", "tfidf"
+            balancer=asr.load_extension("models.balancers", "balanced")(),
+            feature_extractor=asr.load_extension(
+                "models.feature_extractors", "tfidf"
             )(),
         ),
     ]
@@ -77,15 +73,13 @@ def test_simulate_no_prior(demo_data):
 
 def test_simulate_random_prior(demo_data):
     learners = [
+        asr.ActiveLearningCycle(querier=Random(random_state=535), stopper=IsFittable()),
         asr.ActiveLearningCycle(
-            query_strategy=RandomQuery(random_state=535), stopping=IsFittable()
-        ),
-        asr.ActiveLearningCycle(
-            query_strategy=asr.load_extension("models.query", "max_random")(),
+            querier=asr.load_extension("models.queriers", "max_random")(),
             classifier=asr.load_extension("models.classifiers", "svm")(),
-            balance_strategy=asr.load_extension("models.balance", "balanced")(),
-            feature_extraction=asr.load_extension(
-                "models.feature_extraction", "tfidf"
+            balancer=asr.load_extension("models.balancers", "balanced")(),
+            feature_extractor=asr.load_extension(
+                "models.feature_extractors", "tfidf"
             )(),
         ),
     ]
@@ -98,13 +92,13 @@ def test_simulate_random_prior(demo_data):
 
 def test_simulate_n_query(demo_data):
     learners = [
-        asr.ActiveLearningCycle(query_strategy=TopDownQuery(), stopping=IsFittable()),
+        asr.ActiveLearningCycle(querier=TopDown(), stopper=IsFittable()),
         asr.ActiveLearningCycle(
-            query_strategy=asr.load_extension("models.query", "max")(),
+            querier=asr.load_extension("models.queriers", "max")(),
             classifier=asr.load_extension("models.classifiers", "svm")(),
-            balance_strategy=asr.load_extension("models.balance", "balanced")(),
-            feature_extraction=asr.load_extension(
-                "models.feature_extraction", "tfidf"
+            balancer=asr.load_extension("models.balancers", "balanced")(),
+            feature_extractor=asr.load_extension(
+                "models.feature_extractors", "tfidf"
             )(),
             n_query=2,
         ),
@@ -119,22 +113,22 @@ def test_simulate_n_query(demo_data):
 def test_simulate_n_query_callable(demo_data):
     learners = [
         asr.ActiveLearningCycle(
-            query_strategy=TopDownQuery(),
-            stopping=IsFittable(),
+            querier=TopDown(),
+            stopper=IsFittable(),
             n_query=lambda x: 2,
         ),
         asr.ActiveLearningCycle(
-            query_strategy=asr.load_extension("models.query", "max")(),
+            querier=asr.load_extension("models.queriers", "max")(),
             classifier=asr.load_extension("models.classifiers", "svm")(),
-            balance_strategy=asr.load_extension("models.balance", "balanced")(),
-            feature_extraction=asr.load_extension(
-                "models.feature_extraction", "tfidf"
+            balancer=asr.load_extension("models.balancers", "balanced")(),
+            feature_extractor=asr.load_extension(
+                "models.feature_extractors", "tfidf"
             )(),
             n_query=lambda x: 2,
         ),
     ]
 
-    sim = asr.Simulate(demo_data, demo_data["label_included"], learners, stopping=None)
+    sim = asr.Simulate(demo_data, demo_data["label_included"], learners, stopper=None)
     sim.review()
 
     assert sim._results["training_set"].apply(lambda x: x % 2 == 0).all()
@@ -146,22 +140,22 @@ def test_simulate_n_query_callable_with_args(demo_data):
 
     learners = [
         asr.ActiveLearningCycle(
-            query_strategy=TopDownQuery(),
-            stopping=IsFittable(),
+            querier=TopDown(),
+            stopper=IsFittable(),
             n_query=n_query,
         ),
         asr.ActiveLearningCycle(
-            query_strategy=asr.load_extension("models.query", "max")(),
+            querier=asr.load_extension("models.queriers", "max")(),
             classifier=asr.load_extension("models.classifiers", "svm")(),
-            balance_strategy=asr.load_extension("models.balance", "balanced")(),
-            feature_extraction=asr.load_extension(
-                "models.feature_extraction", "tfidf"
+            balancer=asr.load_extension("models.balancers", "balanced")(),
+            feature_extractor=asr.load_extension(
+                "models.feature_extractors", "tfidf"
             )(),
             n_query=n_query,
         ),
     ]
 
-    sim = asr.Simulate(demo_data, demo_data["label_included"], learners, stopping=-1)
+    sim = asr.Simulate(demo_data, demo_data["label_included"], learners, stopper=-1)
     sim.review()
 
     # the expected training set

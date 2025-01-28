@@ -1,1 +1,0 @@
-{"classifier": "nb", "query_strategy": "max", "balance_strategy": "balanced", "feature_extraction": "tfidf", "classifier_param": {"alpha": 3.822}, "query_param": {}, "balance_param": {}, "feature_param": {}}

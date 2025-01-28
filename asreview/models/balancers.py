@@ -17,7 +17,6 @@ from sklearn.utils.class_weight import compute_sample_weight as _compute_sample_
 
 __all__ = [
     "Balanced",
-    "BalancedOptimal",
 ]
 
 
@@ -46,13 +45,3 @@ class Balanced(BaseEstimator):
             {1: 1.0, 0: sum(y == 1) / (self.ratio * sum(y == 0))}, y=y
         )
         return weights * (len(y) / sum(weights))
-
-
-class BalancedOptimal(Balanced):
-    """Balanced optimal sample weight"""
-
-    name = "balanced_optimal"
-    label = "Balanced Optimal Sample Weight"
-
-    def __init__(self):
-        super(BalancedOptimal, self).__init__(ratio=1.5)

@@ -35,8 +35,8 @@ def test_prior_idx(tmp_project, demo_data_path):
         results_table = state.get_results_table()
 
     assert results_table["record_id"].head(2).to_list() == [0, 9]
-    assert results_table["query_strategy"][:1].isnull().all()
-    assert results_table["query_strategy"][2:].notnull().all()
+    assert results_table["querier"][:1].isnull().all()
+    assert results_table["querier"][2:].notnull().all()
 
 
 def test_n_prior_included(tmp_project, demo_data_path):
@@ -44,9 +44,9 @@ def test_n_prior_included(tmp_project, demo_data_path):
     _cli_simulate(argv)
 
     with asr.open_state(tmp_project) as state:
-        result = state.get_results_table(["label", "query_strategy"])
+        result = state.get_results_table(["label", "querier"])
 
-    prior_included = result["label"] & (result["query_strategy"].isnull())
+    prior_included = result["label"] & (result["querier"].isnull())
     assert sum(prior_included) >= 2
 
 
@@ -55,9 +55,9 @@ def test_n_prior_excluded(tmp_project, demo_data_path):
     _cli_simulate(argv)
 
     with asr.open_state(tmp_project) as state:
-        result = state.get_results_table(["label", "query_strategy"])
+        result = state.get_results_table(["label", "querier"])
 
-    prior_excluded = ~result["label"] & (result["query_strategy"].isnull())
+    prior_excluded = ~result["label"] & (result["querier"].isnull())
     assert sum(prior_excluded) >= 2
 
 
@@ -122,7 +122,7 @@ def test_models(model, tmpdir, demo_data_path, tmp_project):
         results = state.get_results_table()
 
     assert all(results["classifier"][10:] == model)
-    assert all(results["balance_strategy"][10:] == "balanced")
+    assert all(results["balancer"][10:] == "balanced")
 
     Path(tmpdir, f"test_{model}").mkdir(parents=True)
     project = asr.Project.load(tmp_project, Path(tmpdir, f"test_{model}"))
@@ -140,14 +140,12 @@ def test_models(model, tmpdir, demo_data_path, tmp_project):
 
 
 def test_no_balancing(tmp_project, demo_data_path):
-    argv = f"{demo_data_path} -o {tmp_project} --no-balance-strategy".split()
+    argv = f"{demo_data_path} -o {tmp_project} --no-balancer".split()
     _cli_simulate(argv)
 
     with asr.open_state(tmp_project) as state:
-        results_balance_strategies = state.get_results_table()["balance_strategy"]
-        last_ranking_balance_strategies = state.get_last_ranking_table()[
-            "balance_strategy"
-        ]
+        results_balance_strategies = state.get_results_table()["balancer"]
+        last_ranking_balance_strategies = state.get_last_ranking_table()["balancer"]
 
     assert results_balance_strategies.isnull().all()
     assert last_ranking_balance_strategies.isnull().all()
@@ -207,10 +205,10 @@ def test_project_already_exists_error(tmp_project, demo_data_path):
 
 def test_cycle_config(tmpdir, demo_data_path, tmp_project):
     cycle_meta = asr.CycleMetaData(
-        query_strategy="max",
+        querier="max",
         classifier="nb",
-        balance_strategy="balanced",
-        feature_extraction="tfidf",
+        balancer="balanced",
+        feature_extractor="tfidf",
         classifier_param={"alpha": 5},
     )
 
@@ -225,7 +223,7 @@ def test_cycle_config(tmpdir, demo_data_path, tmp_project):
         results = state.get_results_table()
 
     assert all(results["classifier"][10:] == "nb")
-    assert all(results["balance_strategy"][10:] == "balanced")
+    assert all(results["balancer"][10:] == "balanced")
 
     Path(tmpdir, "test_cycle").mkdir()
     project = asr.Project.load(tmp_project, Path(tmpdir, "test_cycle"))
@@ -255,6 +253,6 @@ def test_cycle_config(tmpdir, demo_data_path, tmp_project):
 
     assert cycle_meta["classifier_param"]["alpha"] == 5
     assert cycle_meta["classifier"] == "nb"
-    assert cycle_meta["balance_strategy"] == "balanced"
-    assert cycle_meta["query_strategy"] == "max"
-    assert cycle_meta["feature_param"] == {}
+    assert cycle_meta["balancer"] == "balanced"
+    assert cycle_meta["querier"] == "max"
+    assert cycle_meta["feature_extractor_param"] == {}

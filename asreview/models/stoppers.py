@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Stopping mechanisms for the review process.
+"""Stopper mechanisms for the review process.
 
-The stopping mechanisms determine when the review process should be stopped.
+The stopper mechanisms determine when the review process should be stopped.
 This can be based on the properties of the results table or the input dataset.
 
 
@@ -52,7 +52,7 @@ def raise_if_not_simulate(stop_method):
 
     def wrapper(self, results, data):
         if data.isna().any():
-            raise ValueError("Stopping mechanism requires all data to be labeled.")
+            raise ValueError("Stopper mechanism requires all data to be labeled.")
 
         return stop_method(self, results, data)
 
@@ -142,7 +142,7 @@ class NLabeled(BaseEstimator):
         """
 
         if not isinstance(self.n, (int, tuple)):
-            raise ValueError("StoppingN requires an integer or a tuple of integers")
+            raise ValueError("StopperN requires an integer or a tuple of integers")
 
         if self.n == -1:
             return False
@@ -231,9 +231,9 @@ class NConsecutiveIrrelevant(BaseEstimator):
 
     @safe_stop
     def stop(self, results, data):
-        """Check if the review should be stopped.
+        """Check if the review cycle should be stopped.
 
-        This function checks if the review should be stopped based on the results
+        This function checks if the review cycle should be stopped based on the results
         and the labels of the papers.
 
         Arguments

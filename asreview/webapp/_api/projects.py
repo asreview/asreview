@@ -46,14 +46,15 @@ from asreview.data.search import fuzzy_find
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
-from asreview.learner import ActiveLearningCycle, CycleMetaData
+from asreview.learner import ActiveLearningCycle
+from asreview.learner import CycleMetaData
 from asreview.models import get_model_config
+from asreview.models.stoppers import NConsecutiveIrrelevant
 from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.state.contextmanager import open_state
-from asreview.models.stopping import NConsecutiveIrrelevant
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import current_user_projects
@@ -600,12 +601,12 @@ def api_get_labeled_stats(project):  # noqa: F401
 
     try:
         with open_state(project.project_path) as s:
-            data = s.get_results_table(["label", "query_strategy"])
-            data_prior = data[data["query_strategy"].isnull()]
+            data = s.get_results_table(["label", "querier"])
+            data_prior = data[data["querier"].isnull()]
 
             # If the 'include_priors' flag is set to False, filter out records that have a query strategy marked as prior.
             if not include_priors:
-                data = data[data["query_strategy"] != "prior"]
+                data = data[data["querier"] != "prior"]
 
         return jsonify(
             {
@@ -636,17 +637,17 @@ def api_list_algorithms():
     """List the names and labels of available algorithms"""
 
     entry_points_per_submodel = [
-        extensions("models.balance"),
+        extensions("models.balancers"),
         extensions("models.classifiers"),
-        extensions("models.feature_extraction"),
-        extensions("models.query"),
+        extensions("models.feature_extractors"),
+        extensions("models.queriers"),
     ]
 
     payload = {
-        "balance_strategy": [],
+        "balancer": [],
         "classifier": [],
-        "feature_extraction": [],
-        "query_strategy": [],
+        "feature_extractor": [],
+        "querier": [],
     }
 
     for entry_points, key in zip(entry_points_per_submodel, payload.keys()):
@@ -700,15 +701,15 @@ def api_set_algorithms(project):  # noqa: F401
             cycle = CycleMetaData(**json.load(f))
 
         cycle.classifier = request.form.get("classifier")
-        cycle.query_strategy = request.form.get("query_strategy")
-        cycle.balance_strategy = request.form.get("balance_strategy")
-        cycle.feature_extraction = request.form.get("feature_extraction")
+        cycle.querier = request.form.get("querier")
+        cycle.balancer = request.form.get("balancer")
+        cycle.feature_extractor = request.form.get("feature_extractor")
     else:
         cycle = CycleMetaData(
             classifier=request.form.get("classifier"),
-            query_strategy=request.form.get("query_strategy"),
-            balance_strategy=request.form.get("balance_strategy"),
-            feature_extraction=request.form.get("feature_extraction"),
+            querier=request.form.get("querier"),
+            balancer=request.form.get("balancer"),
+            feature_extractor=request.form.get("feature_extractor"),
         )
 
     with open(fp, "w") as f:
@@ -968,9 +969,9 @@ def api_export_dataset(project):
     df_results.drop(
         columns=[
             "classifier",
-            "query_strategy",
-            "balance_strategy",
-            "feature_extraction",
+            "querier",
+            "balancer",
+            "feature_extractor",
             "training_set",
         ],
         inplace=True,
@@ -1105,8 +1106,8 @@ def api_get_progress_info(project):  # noqa: F401
 @bp.route("/projects/<project_id>/stopping", methods=["GET"])
 @login_required
 @project_authorization
-def api_get_stopping(project):  # noqa: F401
-    """Get stopping of a project"""
+def api_get_stopper(project):  # noqa: F401
+    """Get stopper of a project"""
 
     fp_al_cycle = Path(
         project.project_path,
@@ -1114,9 +1115,9 @@ def api_get_stopping(project):  # noqa: F401
         project.reviews[0]["id"],
         "settings_metadata.json",
     )
-    stopping = ActiveLearningCycle.from_file(fp_al_cycle).stopping
+    stopper = ActiveLearningCycle.from_file(fp_al_cycle).stopper
 
-    if stopping is None:
+    if stopper is None:
         return jsonify({"name": None, "params": None})
 
     with open_state(project.project_path) as s:
@@ -1136,10 +1137,10 @@ def api_get_stopping(project):  # noqa: F401
 
     return jsonify(
         {
-            "id": stopping.name,
-            "params": stopping.get_params(),
+            "id": stopper.name,
+            "params": stopper.get_params(),
             "value": n_since_last_relevant,
-            "stop": stopping.stop(results, data),
+            "stop": stopper.stop(results, data),
         }
     )
 
@@ -1147,8 +1148,8 @@ def api_get_stopping(project):  # noqa: F401
 @bp.route("/projects/<project_id>/stopping", methods=["POST", "PUT"])
 @login_required
 @project_authorization
-def api_mutate_stopping(project):  # noqa: F401
-    """Mutate stopping of a project"""
+def api_mutate_stopper(project):  # noqa: F401
+    """Mutate stopper of a project"""
 
     fp_al_cycle = Path(
         project.project_path,
@@ -1160,8 +1161,8 @@ def api_mutate_stopping(project):  # noqa: F401
     with open(fp_al_cycle, "r") as f:
         data = json.load(f)
 
-    data["stopping"] = NConsecutiveIrrelevant.name
-    data["stopping_param"] = {"n": request.form.get("n", 50, type=int)}
+    data["stopper"] = NConsecutiveIrrelevant.name
+    data["stopper_param"] = {"n": request.form.get("n", 50, type=int)}
 
     with open(fp_al_cycle, "w") as f:
         json.dump(data, f)
@@ -1169,7 +1170,7 @@ def api_mutate_stopping(project):  # noqa: F401
     with open(fp_al_cycle, "r") as f:
         print(json.load(f))
 
-    return api_get_stopping(project.project_id)
+    return api_get_stopper(project.project_id)
 
 
 @bp.route("/projects/<project_id>/progress_data", methods=["GET"])

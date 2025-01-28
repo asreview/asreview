@@ -44,7 +44,14 @@ def _project_state_converter_v1_v2(review_path):
 
     df_results = pandas.read_sql_query(
         "SELECT * FROM results WHERE label is not NULL", conn
-    ).rename(columns={"notes": "note"})
+    ).rename(
+        columns={
+            "notes": "note",
+            "query_strategy": "querier",
+            "balance_strategy": "balancer",
+            "feature_extraction": "feature_extractor",
+        }
+    )
     df_results["tags"] = None
     df_results["user_id"] = None
     df_results["time"] = pandas.to_datetime(df_results["labeling_time"]).astype("int64")

@@ -52,16 +52,16 @@ def _get_name_from_estimator(estimator):
 
 @dataclass
 class CycleMetaData:
-    query_strategy: str
+    querier: str
     classifier: Optional[str] = None
-    balance_strategy: Optional[str] = None
-    feature_extraction: Optional[str] = None
-    stopping: Optional[str] = None
-    query_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    balancer: Optional[str] = None
+    feature_extractor: Optional[str] = None
+    stopper: Optional[str] = None
+    querier_param: Optional[dict[str, Any]] = field(default_factory=dict)
     classifier_param: Optional[dict[str, Any]] = field(default_factory=dict)
-    balance_param: Optional[dict[str, Any]] = field(default_factory=dict)
-    feature_param: Optional[dict[str, Any]] = field(default_factory=dict)
-    stopping_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    balancer_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    feature_extractor_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    stopper_param: Optional[dict[str, Any]] = field(default_factory=dict)
     n_query: int = 1
 
 
@@ -77,15 +77,15 @@ class ActiveLearningCycle:
 
     Parameters
     ----------
-    query_strategy: BaseQueryStrategy
+    querier: BaseQueryStrategy
         The query strategy to use.
     classifier: BaseTrainClassifier
         The classifier to use. Default is None.
-    balance_strategy: BaseTrainClassifier
+    balancer: BaseTrainClassifier
         The balance strategy to use. Default is None.
-    feature_extraction: BaseFeatureExtraction
+    feature_extractor: BaseFeatureExtraction
         The feature extraction method to use. Default is None.
-    stopping: BaseStopping
+    stopper: BaseStopper
         The stopping criteria. Default is None.
     n_query: int, callable
         The number of instances to query at once. If None, the querier
@@ -101,18 +101,18 @@ class ActiveLearningCycle:
 
     def __init__(
         self,
-        query_strategy,
+        querier,
         classifier=None,
-        balance_strategy=None,
-        feature_extraction=None,
-        stopping=None,
+        balancer=None,
+        feature_extractor=None,
+        stopper=None,
         n_query=1,
     ):
-        self.query_strategy = query_strategy
+        self.querier = querier
         self.classifier = classifier
-        self.balance_strategy = balance_strategy
-        self.feature_extraction = feature_extraction
-        self.stopping = stopping
+        self.balancer = balancer
+        self.feature_extractor = feature_extractor
+        self.stopper = stopper
         self.n_query = n_query
 
     def get_n_query(self, results, labels):
@@ -153,7 +153,7 @@ class ActiveLearningCycle:
         np.array, scipy.sparse.csr_matrix:
             The transformed instances.
         """
-        return self.feature_extraction.fit_transform(X)
+        return self.feature_extractor.fit_transform(X)
 
     def fit(self, X, y):
         """Fit the classifier to the data.
@@ -165,10 +165,10 @@ class ActiveLearningCycle:
         y: np.array
             The labels of the instances.
         """
-        if self.balance_strategy is None:
+        if self.balancer is None:
             sample_weight = None
         else:
-            sample_weight = self.balance_strategy.compute_sample_weight(y)
+            sample_weight = self.balancer.compute_sample_weight(y)
 
         self.classifier.fit(X, y, sample_weight=sample_weight)
         return self
@@ -188,19 +188,19 @@ class ActiveLearningCycle:
         """
 
         if self.classifier is None:
-            return self.query_strategy.query(X)
+            return self.querier.query(X)
 
         try:
             proba = self.classifier.predict_proba(X)
-            return self.query_strategy.query(proba[:, 1])
+            return self.querier.query(proba[:, 1])
         except AttributeError:
             try:
                 scores = self.classifier.decision_function(X)
 
-                if "proba" in self.query_strategy.get_params():
-                    self.query_strategy.set_params(proba=False)
+                if "proba" in self.querier.get_params():
+                    self.querier.set_params(proba=False)
 
-                return self.query_strategy.query(scores)
+                return self.querier.query(scores)
 
             except AttributeError:
                 raise AttributeError(
@@ -223,9 +223,9 @@ class ActiveLearningCycle:
         bool:
             True if the stopping criteria is met, False otherwise.
         """
-        if self.stopping is None:
+        if self.stopper is None:
             return False
-        return self.stopping.stop(results, data)
+        return self.stopper.stop(results, data)
 
     @classmethod
     def from_meta(cls, cycle_meta_data):
@@ -241,8 +241,8 @@ class ActiveLearningCycle:
         ActiveLearningCycle:
             The active learner object.
         """
-        query_class = load_extension("models.query", cycle_meta_data.query_strategy)
-        query_model = query_class(**cycle_meta_data.query_param)
+        query_class = load_extension("models.queriers", cycle_meta_data.querier)
+        query_model = query_class(**cycle_meta_data.querier_param)
 
         if cycle_meta_data.classifier is not None:
             classifier_class = load_extension(
@@ -252,34 +252,32 @@ class ActiveLearningCycle:
         else:
             classifier_model = None
 
-        if cycle_meta_data.balance_strategy is not None:
-            balance_class = load_extension(
-                "models.balance", cycle_meta_data.balance_strategy
-            )
-            balance_model = balance_class(**cycle_meta_data.balance_param)
+        if cycle_meta_data.balancer is not None:
+            balance_class = load_extension("models.balancers", cycle_meta_data.balancer)
+            balance_model = balance_class(**cycle_meta_data.balancer_param)
         else:
             balance_model = None
 
-        if cycle_meta_data.feature_extraction is not None:
+        if cycle_meta_data.feature_extractor is not None:
             feature_class = load_extension(
-                "models.feature_extraction", cycle_meta_data.feature_extraction
+                "models.feature_extractors", cycle_meta_data.feature_extractor
             )
-            feature_model = feature_class(**cycle_meta_data.feature_param)
+            feature_model = feature_class(**cycle_meta_data.feature_extractor_param)
         else:
             feature_model = None
 
-        if cycle_meta_data.stopping is not None:
-            stopping_class = load_extension("models.stopping", cycle_meta_data.stopping)
-            stopping_model = stopping_class(**cycle_meta_data.stopping_param)
+        if cycle_meta_data.stopper is not None:
+            stopper_class = load_extension("models.stoppers", cycle_meta_data.stopper)
+            stopper_model = stopper_class(**cycle_meta_data.stopper_param)
         else:
-            stopping_model = None
+            stopper_model = None
 
         return cls(
-            query_strategy=query_model,
+            querier=query_model,
             classifier=classifier_model,
-            balance_strategy=balance_model,
-            feature_extraction=feature_model,
-            stopping=stopping_model,
+            balancer=balance_model,
+            feature_extractor=feature_model,
+            stopper=stopper_model,
             n_query=cycle_meta_data.n_query,
         )
 
@@ -303,23 +301,23 @@ class ActiveLearningCycle:
 
     def to_meta(self):
         return CycleMetaData(
-            query_strategy=_get_name_from_estimator(self.query_strategy),
-            query_param=self.query_strategy.get_params(),
+            querier=_get_name_from_estimator(self.querier),
+            querier_param=self.querier.get_params(),
             classifier=_get_name_from_estimator(self.classifier),
             classifier_param=self.classifier.get_params()
             if self.classifier is not None
             else None,
-            balance_strategy=_get_name_from_estimator(self.balance_strategy),
-            balance_param=self.balance_strategy.get_params()
-            if self.balance_strategy is not None
+            balancer=_get_name_from_estimator(self.balancer),
+            balancer_param=self.balancer.get_params()
+            if self.balancer is not None
             else None,
-            feature_extraction=_get_name_from_estimator(self.feature_extraction),
-            feature_param=self.feature_extraction.get_params()
-            if self.feature_extraction is not None
+            feature_extractor=_get_name_from_estimator(self.feature_extractor),
+            feature_extractor_param=self.feature_extractor.get_params()
+            if self.feature_extractor is not None
             else None,
-            stopping=_get_name_from_estimator(self.stopping),
-            stopping_param=self.stopping.get_params()
-            if self.stopping is not None
+            stopper=_get_name_from_estimator(self.stopper),
+            stopper_param=self.stopper.get_params()
+            if self.stopper is not None
             else None,
             n_query=self.n_query,
         )

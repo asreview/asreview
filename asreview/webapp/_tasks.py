@@ -15,10 +15,10 @@
 from pathlib import Path
 
 import asreview as asr
-from asreview.models.query import TopDownQuery
+from asreview.models.queriers import TopDown
+from asreview.models.stoppers import IsFittable
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
-from asreview.models.stopping import IsFittable
 from asreview.webapp.utils import get_project_path
 
 
@@ -54,10 +54,10 @@ def run_model(project):
             )
         )
         try:
-            fm = project.get_feature_matrix(learner.feature_extraction.name)
+            fm = project.get_feature_matrix(learner.feature_extractor.name)
         except ValueError:
             fm = learner.transform(project.data_store.get_df())
-            project.add_feature_matrix(fm, learner.feature_extraction.name)
+            project.add_feature_matrix(fm, learner.feature_extractor.name)
 
         learner.fit(
             fm[labeled["record_id"].values],
@@ -70,11 +70,9 @@ def run_model(project):
             state.add_last_ranking(
                 ranked_record_ids,
                 learner.classifier.name,
-                learner.query_strategy.name,
-                learner.balance_strategy.name
-                if learner.balance_strategy is not None
-                else None,
-                learner.feature_extraction.name,
+                learner.querier.name,
+                learner.balancer.name if learner.balancer is not None else None,
+                learner.feature_extractor.name,
                 len(labeled),
             )
 
@@ -100,8 +98,8 @@ def run_simulation(project):
 
     learners = [
         asr.ActiveLearningCycle(
-            query_strategy=TopDownQuery(),
-            stopping=IsFittable(),
+            querier=TopDown(),
+            stopper=IsFittable(),
         ),
         learner,
     ]

@@ -26,12 +26,12 @@ from asreview import load_dataset
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import CycleMetaData
-from asreview.models.query import TopDownQuery
+from asreview.models.queriers import TopDown
+from asreview.models.stoppers import IsFittable
+from asreview.models.stoppers import LastRelevant
+from asreview.models.stoppers import NLabeled
 from asreview.project.api import Project
 from asreview.simulation.simulate import Simulate
-from asreview.models.stopping import LastRelevant
-from asreview.models.stopping import IsFittable
-from asreview.models.stopping import NLabeled
 from asreview.utils import _format_to_str
 from asreview.utils import _read_config_file
 
@@ -163,17 +163,17 @@ def _cli_simulate(argv):
         learner_meta = CycleMetaData(**_read_config_file(args.config_file))
     else:
         learner_meta = CycleMetaData(
-            query_strategy=args.query_strategy,
+            querier=args.querier,
             classifier=args.classifier,
-            balance_strategy=args.balance_strategy,
-            feature_extraction=args.feature_extraction,
+            balancer=args.balancer,
+            feature_extractor=args.feature_extractor,
             n_query=args.n_query,
         )
 
     learners = [
         ActiveLearningCycle(
-            query_strategy=TopDownQuery(),
-            stopping=IsFittable(),
+            querier=TopDown(),
+            stopper=IsFittable(),
         ),
         ActiveLearningCycle.from_meta(learner_meta),
     ]
@@ -182,7 +182,7 @@ def _cli_simulate(argv):
         data_store.get_df(),
         data_store["included"],
         learners,
-        stopping=stopper,
+        stopper=stopper,
     )
 
     # select or sample prior knowledge and then label it
@@ -293,36 +293,35 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     )
     parser.add_argument(
         "-q",
-        "--query-strategy",
+        "--querier",
         type=str,
         default="max",
-        help="The query strategy for active learning. Default: 'max'.",
+        help="The querier for active learning. Default: 'max'.",
     )
     parser.add_argument(
         "-b",
-        "--balance-strategy",
+        "--balancer",
         type=str,
-        dest="balance_strategy",
+        dest="balancer",
         default="balanced",
         help="Data rebalancing strategy mainly for RNN methods. Helps against"
         " imbalanced dataset with few inclusions and many exclusions. "
         "Default: 'balanced'",
     )
     parser.add_argument(
-        "--no-balance-strategy",
+        "--no-balancer",
         action="store_const",
         const=None,
-        dest="balance_strategy",
+        dest="balancer",
         help="Do not use a balance strategy.",
     )
     parser.add_argument(
         "-e",
-        "--feature-extraction",
+        "--feature-extractor",
         type=str,
         default="tfidf",
-        help="Feature extraction method. Some combinations of feature"
-        " extraction method and prediction model are impossible/ill"
-        " advised. Default: 'tfidf'.",
+        help="Feature extraction algorithm. Some combinations of feature"
+        " extractors and classifiers are not supported or feasible. Default: 'tfidf'.",
     )
     parser.add_argument(
         "--prior-seed",

@@ -54,7 +54,6 @@ __all__ = [
     # modules
     "data",
     "models",
-    "stopping",
     "metrics",
     "datasets",
     # classes

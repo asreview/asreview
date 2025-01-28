@@ -19,10 +19,10 @@ MODELS_CONFIG = [
         "name": "elas_u4",
         "label": "ELAS u4",
         "value": CycleMetaData(
-            query_strategy="max",
+            querier="max",
             classifier="nb",
-            balance_strategy="balanced",
-            feature_extraction="tfidf",
+            balancer="balanced",
+            feature_extractor="tfidf",
         ),
     }
 ]

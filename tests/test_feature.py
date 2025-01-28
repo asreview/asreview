@@ -10,27 +10,27 @@ REQUIRES_AI_MODEL_DEP = ["doc2vec", "embedding-idf", "sbert"]
 
 
 def test_feature():
-    assert len(extensions("models.feature_extraction")) >= 2
+    assert len(extensions("models.feature_extractors")) >= 2
 
 
-@pytest.mark.parametrize("feature_extraction", extensions("models.feature_extraction"))
-def test_feature_name(feature_extraction):
-    model = load_extension("models.feature_extraction", feature_extraction.name)()
-    assert model.name == feature_extraction.name
+@pytest.mark.parametrize("feature_extractor", extensions("models.feature_extractors"))
+def test_feature_name(feature_extractor):
+    model = load_extension("models.feature_extractors", feature_extractor.name)()
+    assert model.name == feature_extractor.name
 
 
-@pytest.mark.parametrize("feature_extraction", extensions("models.feature_extraction"))
-def test_feature_param(feature_extraction):
-    model = load_extension("models.feature_extraction", feature_extraction.name)()
+@pytest.mark.parametrize("feature_extractor", extensions("models.feature_extractors"))
+def test_feature_extractor_param(feature_extractor):
+    model = load_extension("models.feature_extractors", feature_extractor.name)()
     assert isinstance(model.get_params(), dict)
 
 
-@pytest.mark.parametrize("feature_extraction", extensions("models.feature_extraction"))
-def test_features(tmpdir, feature_extraction):
+@pytest.mark.parametrize("feature_extractor", extensions("models.feature_extractors"))
+def test_features(tmpdir, feature_extractor):
     data_fp = os.path.join("tests", "demo_data", "generic.csv")
 
     data_store = asr.load_dataset(data_fp, dataset_id="test_id")
-    model = load_extension("models.feature_extraction", feature_extraction.name)()
+    model = load_extension("models.feature_extractors", feature_extractor.name)()
 
     X = model.fit_transform(data_store.get_df())
 

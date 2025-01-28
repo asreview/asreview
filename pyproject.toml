@@ -107,33 +107,32 @@ task-manager = "asreview.webapp._entry_points.task_manager:main"
 synergy = "asreview.datasets:SynergyDataGroup"
 
 [project.entry-points."asreview.models.classifiers"]
-svm = "asreview.models.classifiers:SVMClassifier"
-nb = "asreview.models.classifiers:NaiveBayesClassifier"
-rf = "asreview.models.classifiers:RandomForestClassifier"
-logistic = "asreview.models.classifiers:LogisticClassifier"
+svm = "asreview.models.classifiers:SVM"
+nb = "asreview.models.classifiers:NaiveBayes"
+rf = "asreview.models.classifiers:RandomForest"
+logistic = "asreview.models.classifiers:Logistic"
 
-[project.entry-points."asreview.models.feature_extraction"]
-tfidf = "asreview.models.feature_extraction:Tfidf"
-onehot = "asreview.models.feature_extraction:OneHot"
+[project.entry-points."asreview.models.feature_extractors"]
+tfidf = "asreview.models.feature_extractors:Tfidf"
+onehot = "asreview.models.feature_extractors:OneHot"
 
-[project.entry-points."asreview.models.balance"]
-balanced = "asreview.models.balance:Balanced"
-balanced_optimal = "asreview.models.balance:BalancedOptimal"
+[project.entry-points."asreview.models.balancers"]
+balanced = "asreview.models.balancers:Balanced"
 
-[project.entry-points."asreview.models.query"]
-random = "asreview.models.query:RandomQuery"
-top_down = "asreview.models.query:TopDownQuery"
-max = "asreview.models.query:MaxQuery"
-uncertainty = "asreview.models.query:UncertaintyQuery"
-max_random = "asreview.models.query:MaxRandomQuery"
-max_uncertainty = "asreview.models.query:MaxUncertaintyQuery"
+[project.entry-points."asreview.models.queriers"]
+random = "asreview.models.queriers:Random"
+top_down = "asreview.models.queriers:TopDown"
+max = "asreview.models.queriers:Max"
+uncertainty = "asreview.models.queriers:Uncertainty"
+max_random = "asreview.models.queriers:HybridMaxRandom"
+max_uncertainty = "asreview.models.queriers:HybridMaxUncertainty"
 
-[project.entry-points."asreview.models.stopping"]
-last_relevant = "asreview.models.stopping:LastRelevant"
-n_labeled = "asreview.models.stopping:NLabeled"
-q_labeled = "asreview.models.stopping:QuantileLabeled"
-is_fittable = "asreview.models.stopping:IsFittable"
-n_consecutive_irrelevant = "asreview.models.stopping:NConsecutiveIrrelevant"
+[project.entry-points."asreview.models.stoppers"]
+last_relevant = "asreview.models.stoppers:LastRelevant"
+n_labeled = "asreview.models.stoppers:NLabeled"
+q_labeled = "asreview.models.stoppers:QuantileLabeled"
+is_fittable = "asreview.models.stoppers:IsFittable"
+n_consecutive_irrelevant = "asreview.models.stoppers:NConsecutiveIrrelevant"
 
 [project.optional-dependencies]
 lint = ["ruff", "check-manifest"]

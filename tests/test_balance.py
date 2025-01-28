@@ -5,29 +5,29 @@ from sklearn.utils.estimator_checks import check_estimator
 
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
-from asreview.models.balance import Balanced
+from asreview.models.balancers import Balanced
 
 
 def test_balancers():
-    assert len(extensions("models.balance")) >= 1
+    assert len(extensions("models.balancers")) >= 1
 
 
-@pytest.mark.parametrize("balance_strategy", extensions("models.balance"))
-def test_balance_model_name(balance_strategy):
-    model = load_extension("models.balance", balance_strategy.name)()
-    assert model.name == balance_strategy.name
+@pytest.mark.parametrize("balancer", extensions("models.balancers"))
+def test_balance_model_name(balancer):
+    model = load_extension("models.balancers", balancer.name)()
+    assert model.name == balancer.name
 
 
-@pytest.mark.parametrize("balance_strategy", extensions("models.balance"))
-def test_balance_model_param(balance_strategy):
-    model = load_extension("models.balance", balance_strategy.name)()
+@pytest.mark.parametrize("balancer", extensions("models.balancers"))
+def test_balance_model_param(balancer):
+    model = load_extension("models.balancers", balancer.name)()
     assert isinstance(model.get_params(), dict)
 
 
-@pytest.mark.parametrize("balance_strategy", extensions("models.balance"))
+@pytest.mark.parametrize("balancer", extensions("models.balancers"))
 @pytest.mark.skip(reason="Check estimator is not working for balance models.")
-def test_balance_check_estimator(balance_strategy):
-    model = load_extension("models.balance", balance_strategy.name)()
+def test_balance_check_estimator(balancer):
+    model = load_extension("models.balancers", balancer.name)()
     assert check_estimator(model)
 
 
