@@ -1,5 +1,11 @@
-import { AccountCircle, GroupAdd, Logout, Person } from "@mui/icons-material";
 import {
+  AccountCircleOutlined,
+  GroupAddOutlined,
+  LogoutOutlined,
+  PersonOutlined,
+} from "@mui/icons-material";
+import {
+  Avatar,
   Badge,
   Box,
   ClickAwayListener,
@@ -41,7 +47,7 @@ const SignOutItem = () => {
   return (
     <MenuItem id="signout" onClick={handleSignOut}>
       <ListItemIcon>
-        <Logout fontSize="small" />
+        <LogoutOutlined fontSize="small" />
       </ListItemIcon>
       <ListItemText disableTypography>
         <Typography variant="body2">Sign out</Typography>
@@ -139,7 +145,9 @@ const ProfilePopper = () => {
               onClick={handleClick}
               color="inherit"
             >
-              <AccountCircle sx={{ fontSize: 32, opacity: 0.6 }} />
+              <Avatar sx={{ width: 32, height: 32 }}>
+                {data?.name?.[0]?.toUpperCase()}
+              </Avatar>
             </IconButton>
           </Tooltip>
           <Popper
@@ -154,7 +162,6 @@ const ProfilePopper = () => {
                 spacing={2}
                 sx={{ alignItems: "center", p: 2 }}
               >
-                <AccountCircle />
                 <TypographySubtitle1Medium>
                   {data?.name}
                 </TypographySubtitle1Medium>
@@ -164,7 +171,7 @@ const ProfilePopper = () => {
               <MenuList>
                 <MenuItem onClick={handleProfile}>
                   <ListItemIcon>
-                    <Person fontSize="small" />
+                    <PersonOutlined fontSize="small" />
                   </ListItemIcon>
                   <ListItemText disableTypography>
                     <Typography variant="body2">Profile</Typography>
@@ -183,7 +190,7 @@ const ProfilePopper = () => {
                           },
                         }}
                       >
-                        <GroupAdd fontSize="small" />
+                        <GroupAddOutlined fontSize="small" />
                       </Badge>
                     </ListItemIcon>
                     <ListItemText disableTypography>
