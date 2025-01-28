@@ -77,14 +77,14 @@ def choose_project_algorithms():
     """Randomly chooses a model plus the appropriate feature
     extraction, query strategy and balance strategy."""
     classifier = random.choice(["svm", "nb", "logistic"])
-    feature_extraction = random.choice(["tfidf"])
+    feature_extractor = random.choice(["tfidf"])
     data = {
         "classifier": classifier,
-        "feature_extraction": feature_extraction,
-        "query_strategy": random.choice(
+        "feature_extractor": feature_extractor,
+        "querier": random.choice(
             ["max", "max_random", "max_uncertainty", "random", "uncertainty"]
         ),
-        "balance_strategy": random.choice(["balanced", None]),
+        "balancer": random.choice(["balanced", None]),
     }
     return data
 

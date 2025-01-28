@@ -22,7 +22,7 @@ def test_project_migration_1_to_2(tmpdir):
         state.get_last_ranking_table()
         state.get_decision_changes()
 
-    settings = asr.ReviewSettings.from_file(
+    learner = asr.ActiveLearningCycle.from_file(
         Path(
             project.project_path,
             "reviews",
@@ -31,4 +31,4 @@ def test_project_migration_1_to_2(tmpdir):
         )
     )
 
-    assert isinstance(settings.classifier, str)
+    assert isinstance(learner.classifier.name, str)

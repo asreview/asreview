@@ -21,8 +21,9 @@ import pandas as pd
 from tqdm import tqdm
 
 from asreview.metrics import loss
+from asreview.models.stoppers import LastRelevant
+from asreview.models.stoppers import NLabeled
 from asreview.state.contextmanager import open_state
-from asreview.stopping import StoppingDefault
 
 
 def _get_name_from_estimator(estimator):
@@ -49,7 +50,7 @@ class Simulate:
     """ASReview simulation class.
 
     The simulation will stop when all records have been labeled or when the number of
-    steps/queries reaches the n_stop parameter.
+    steps/queries reaches the stopping.
 
     To seed the simulation, provide the seed to the classifier, query strategy,
     feature extraction model, and balance strategy or use a global random seed.
@@ -62,19 +63,19 @@ class Simulate:
         The labels to use for the simulation.
     classifier: BaseModel
         The initialized classifier to use for the simulation.
-    query_strategy: BaseQueryModel
+    querier: BaseQueryModel
         The initialized query strategy to use for the simulation.
-    balance_strategy: BaseBalanceModel
+    balancer: BaseBalanceModel
         The initialized balance strategy to use for the simulation.
-    feature_extraction: BaseFeatureModel
+    feature_extractor: BaseFeatureModel
         The initialized feature extraction model to use for the simulation. If None,
         the name of the feature extraction model is set to None.
-    stopping: str, int, callable
+    stopper: int, callable
         The stopping mechanism to use for the simulation. When stopper is None,
-        all records are simulated. If "min", the simulation stops when all relevant
-        records are found. If an integer, the simulation stops after n_stop queries.
-        If class with .stop() method, the simulation stops when the callable returns
-        True. Default is "min".
+        the simulation stops when all relevant records are found. If an integer, the
+        simulation stops after n queries. A stopper or -1 stops the simulation after
+        all records have been labeled. If class with .stop() method, the simulation
+        stops when the callable returns True. Default is None.
     skip_transform: bool
         If True, the feature matrix is not computed in the simulation. It is assumed
         that X is the feature matrix or input to the estimator. Default is False.
@@ -85,14 +86,14 @@ class Simulate:
         X,
         labels,
         learners,
-        stopping="min",
+        stopper=None,
         skip_transform=False,
         print_progress=True,
     ):
         self.X = X
         self.labels = labels
         self.learners = learners
-        self.stopping = stopping
+        self.stopper = stopper
         self.skip_transform = skip_transform
         self.print_progress = print_progress
 
@@ -125,9 +126,9 @@ class Simulate:
                     "record_id",
                     "label",
                     "classifier",
-                    "query_strategy",
-                    "balance_strategy",
-                    "feature_extraction",
+                    "querier",
+                    "balancer",
+                    "feature_extractor",
                     "training_set",
                     "time",
                     "note",
@@ -149,15 +150,17 @@ class Simulate:
             disable=not self.print_progress,
         )
 
-        if self.stopping is None or isinstance(self.stopping, (int, str)):
-            stopper = StoppingDefault(self.stopping)
+        if self.stopper is None:
+            stopper = LastRelevant()
+        elif isinstance(self.stopper, int):
+            stopper = NLabeled(self.stopper)
         else:
-            stopper = self.stopping
+            stopper = self.stopper
 
         learners = self.learners if isinstance(self.learners, list) else [self.learners]
 
         for learner in learners:
-            # first run the overall simulation until the default stopping is met
+            # first run the overall simulation until the default stopper is met
             while not stopper.stop(self._results, self.labels) and not learner.stop(
                 self._results, self.labels
             ):
@@ -166,7 +169,7 @@ class Simulate:
                 if not hasattr(self, "_X_features"):
                     if (
                         not self.skip_transform
-                        and learner.feature_extraction is not None
+                        and learner.feature_extractor is not None
                     ):
                         self._X_features = learner.transform(self.X)
                     elif isinstance(self.X, pd.DataFrame):
@@ -202,6 +205,7 @@ class Simulate:
 
                 pbar_rel.update(labeled["label"].sum())
                 pbar_total.update(n_query)
+
             else:
                 if hasattr(self, "_X_features"):
                     del self._X_features
@@ -229,15 +233,15 @@ class Simulate:
 
         if learner is None:
             classifier = None
-            query_strategy = None
-            balance_strategy = None
-            feature_extraction = None
+            querier = None
+            balancer = None
+            feature_extractor = None
             training_set = None
         else:
             classifier = _get_name_from_estimator(learner.classifier)
-            query_strategy = _get_name_from_estimator(learner.query_strategy)
-            balance_strategy = _get_name_from_estimator(learner.balance_strategy)
-            feature_extraction = _get_name_from_estimator(learner.feature_extraction)
+            querier = _get_name_from_estimator(learner.querier)
+            balancer = _get_name_from_estimator(learner.balancer)
+            feature_extractor = _get_name_from_estimator(learner.feature_extractor)
             training_set = len(self._results)
 
         new_labels = pd.DataFrame(
@@ -245,9 +249,9 @@ class Simulate:
                 "record_id": record_ids,
                 "label": self.labels[record_ids],
                 "classifier": classifier,
-                "query_strategy": query_strategy,
-                "balance_strategy": balance_strategy,
-                "feature_extraction": feature_extraction,
+                "querier": querier,
+                "balancer": balancer,
+                "feature_extractor": feature_extractor,
                 "training_set": training_set,
                 "time": time.time(),
                 "note": None,

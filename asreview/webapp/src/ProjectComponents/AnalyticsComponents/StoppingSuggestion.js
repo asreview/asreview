@@ -33,6 +33,7 @@ const StoppingSuggestion = ({ project_id }) => {
   const theme = useTheme();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
   const [stoppingRuleThreshold, setStoppingRuleThreshold] =
     React.useState(null);
   const [customThreshold, setCustomThreshold] = React.useState("");
@@ -56,12 +57,12 @@ const StoppingSuggestion = ({ project_id }) => {
     {
       refetchOnWindowFocus: false,
       onSuccess: (data) => {
-        const hasThreshold = Boolean(data[0]?.params?.threshold);
+        const hasThreshold = Boolean(data?.params?.n);
         setIsThresholdSet(hasThreshold);
 
         if (hasThreshold) {
-          setStoppingRuleThreshold(data[0].params.threshold);
-          if (data[0]?.value >= data[0]?.params?.threshold) {
+          setStoppingRuleThreshold(data.params.n);
+          if (data?.value >= data?.params?.n) {
             setOpenCompletionPopup(true);
           }
         }
@@ -84,8 +85,8 @@ const StoppingSuggestion = ({ project_id }) => {
   );
 
   React.useEffect(() => {
-    if (data && data[0]?.value && data[0]?.params?.threshold) {
-      const targetValue = (data[0].value / data[0].params.threshold) * 100;
+    if (data && data?.value && data?.params?.n) {
+      const targetValue = (data.value / data.params.n) * 100;
       setProgress(0);
 
       const duration = 300;
@@ -113,13 +114,13 @@ const StoppingSuggestion = ({ project_id }) => {
   const legendData = [
     {
       label: "Threshold",
-      value: data?.[0]?.params?.threshold || 0,
+      value: data?.params?.n || 0,
       color: theme.palette.grey[400],
       type: "stopping",
     },
     {
       label: "Current",
-      value: data?.[0]?.value || 0,
+      value: data?.value || 0,
       color: theme.palette.primary.main,
     },
   ];
@@ -155,7 +156,6 @@ const StoppingSuggestion = ({ project_id }) => {
     });
     updateStoppingRule({
       project_id: project_id,
-      id: "n_since_last_included",
       threshold: stoppingRuleThreshold + 20,
     });
     setOpenCompletionPopup(false);
@@ -611,8 +611,7 @@ const StoppingSuggestion = ({ project_id }) => {
                 if (finalThreshold !== null && finalThreshold !== "") {
                   updateStoppingRule({
                     project_id: project_id,
-                    id: "n_since_last_included",
-                    threshold: finalThreshold,
+                    n: finalThreshold,
                   });
                 }
               }}

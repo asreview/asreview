@@ -13,7 +13,56 @@
 # limitations under the License.
 
 
+import json
+from dataclasses import asdict
+from dataclasses import dataclass
+from dataclasses import field
+from typing import Any
+from typing import Optional
+
+from asreview.extensions import load_extension
+from asreview.utils import _read_config_file
+
 __all__ = []
+
+
+def _unpack_params(params):
+    return {} if params is None else params
+
+
+def _get_name_from_estimator(estimator):
+    """Get the name of the estimator.
+
+    Parameters
+    ----------
+    estimator: object
+        The estimator to get the name from.
+
+    Returns
+    -------
+    str
+        The name of the estimator.
+
+    """
+    if estimator is None:
+        return None
+
+    return estimator.name
+
+
+@dataclass
+class CycleMetaData:
+    querier: str
+    classifier: Optional[str] = None
+    balancer: Optional[str] = None
+    feature_extractor: Optional[str] = None
+    stopper: Optional[str] = None
+    querier_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    classifier_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    balancer_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    feature_extractor_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    stopper_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    n_query: int = 1
 
 
 class ActiveLearningCycle:
@@ -26,17 +75,17 @@ class ActiveLearningCycle:
     only rank the instances based on the query strategy. This can be useful for example
     if you want random screening.
 
-    Arguments
-    ---------
-    query_strategy: BaseQueryStrategy
+    Parameters
+    ----------
+    querier: BaseQueryStrategy
         The query strategy to use.
     classifier: BaseTrainClassifier
         The classifier to use. Default is None.
-    balance_strategy: BaseTrainClassifier
+    balancer: BaseTrainClassifier
         The balance strategy to use. Default is None.
-    feature_extraction: BaseFeatureExtraction
+    feature_extractor: BaseFeatureExtraction
         The feature extraction method to use. Default is None.
-    stopping: BaseStopping
+    stopper: BaseStopper
         The stopping criteria. Default is None.
     n_query: int, callable
         The number of instances to query at once. If None, the querier
@@ -52,18 +101,18 @@ class ActiveLearningCycle:
 
     def __init__(
         self,
-        query_strategy,
+        querier,
         classifier=None,
-        balance_strategy=None,
-        feature_extraction=None,
-        stopping=None,
+        balancer=None,
+        feature_extractor=None,
+        stopper=None,
         n_query=1,
     ):
-        self.query_strategy = query_strategy
+        self.querier = querier
         self.classifier = classifier
-        self.balance_strategy = balance_strategy
-        self.feature_extraction = feature_extraction
-        self.stopping = stopping
+        self.balancer = balancer
+        self.feature_extractor = feature_extractor
+        self.stopper = stopper
         self.n_query = n_query
 
     def get_n_query(self, results, labels):
@@ -89,18 +138,13 @@ class ActiveLearningCycle:
         """
 
         n_query = self.n_query(results) if callable(self.n_query) else self.n_query
-        n_query_left = len(labels) - len(results)
-
-        if n_query > n_query_left:
-            return n_query_left
-
-        return n_query
+        return min(n_query, len(labels) - len(results))
 
     def transform(self, X):
         """Transform the data.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         X: np.array
             The instances to transform.
 
@@ -109,22 +153,22 @@ class ActiveLearningCycle:
         np.array, scipy.sparse.csr_matrix:
             The transformed instances.
         """
-        return self.feature_extraction.fit_transform(X)
+        return self.feature_extractor.fit_transform(X)
 
     def fit(self, X, y):
         """Fit the classifier to the data.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         X: np.array
             The instances to fit.
         y: np.array
             The labels of the instances.
         """
-        if self.balance_strategy is None:
+        if self.balancer is None:
             sample_weight = None
         else:
-            sample_weight = self.balance_strategy.compute_sample_weight(y)
+            sample_weight = self.balancer.compute_sample_weight(y)
 
         self.classifier.fit(X, y, sample_weight=sample_weight)
         return self
@@ -132,8 +176,8 @@ class ActiveLearningCycle:
     def rank(self, X):
         """Rank the instances in X.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         X: np.array
             The instances to rank.
 
@@ -144,19 +188,19 @@ class ActiveLearningCycle:
         """
 
         if self.classifier is None:
-            return self.query_strategy.query(X)
+            return self.querier.query(X)
 
         try:
             proba = self.classifier.predict_proba(X)
-            return self.query_strategy.query(proba[:, 1])
+            return self.querier.query(proba[:, 1])
         except AttributeError:
             try:
                 scores = self.classifier.decision_function(X)
 
-                if "proba" in self.query_strategy.get_params():
-                    self.query_strategy.set_params(proba=False)
+                if "proba" in self.querier.get_params():
+                    self.querier.set_params(proba=False)
 
-                return self.query_strategy.query(scores)
+                return self.querier.query(scores)
 
             except AttributeError:
                 raise AttributeError(
@@ -167,8 +211,8 @@ class ActiveLearningCycle:
     def stop(self, results, data):
         """Check if the stopping criteria is met.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         results: pd.DataFrame
             The results of the simulation.
         data: pandas.DataFrame
@@ -179,6 +223,105 @@ class ActiveLearningCycle:
         bool:
             True if the stopping criteria is met, False otherwise.
         """
-        if self.stopping is None:
+        if self.stopper is None:
             return False
-        return self.stopping.stop(results, data)
+        return self.stopper.stop(results, data)
+
+    @classmethod
+    def from_meta(cls, cycle_meta_data):
+        """Load the active learner from a metadata object.
+
+        Parameters
+        ----------
+        cycle_meta_data: CycleMetaData
+            The metadata object with the active learner settings.
+
+        Returns
+        -------
+        ActiveLearningCycle:
+            The active learner object.
+        """
+        query_class = load_extension("models.queriers", cycle_meta_data.querier)
+        query_model = query_class(**cycle_meta_data.querier_param)
+
+        if cycle_meta_data.classifier is not None:
+            classifier_class = load_extension(
+                "models.classifiers", cycle_meta_data.classifier
+            )
+            classifier_model = classifier_class(**cycle_meta_data.classifier_param)
+        else:
+            classifier_model = None
+
+        if cycle_meta_data.balancer is not None:
+            balance_class = load_extension("models.balancers", cycle_meta_data.balancer)
+            balance_model = balance_class(**cycle_meta_data.balancer_param)
+        else:
+            balance_model = None
+
+        if cycle_meta_data.feature_extractor is not None:
+            feature_class = load_extension(
+                "models.feature_extractors", cycle_meta_data.feature_extractor
+            )
+            feature_model = feature_class(**cycle_meta_data.feature_extractor_param)
+        else:
+            feature_model = None
+
+        if cycle_meta_data.stopper is not None:
+            stopper_class = load_extension("models.stoppers", cycle_meta_data.stopper)
+            stopper_model = stopper_class(**cycle_meta_data.stopper_param)
+        else:
+            stopper_model = None
+
+        return cls(
+            querier=query_model,
+            classifier=classifier_model,
+            balancer=balance_model,
+            feature_extractor=feature_model,
+            stopper=stopper_model,
+            n_query=cycle_meta_data.n_query,
+        )
+
+    @classmethod
+    def from_file(cls, fp, load=None):
+        """Load the active learner from a file.
+
+        Parameters
+        ----------
+        fp: str, Path
+            Review config file.
+        load: object
+            Config reader. Default tomllib.load for TOML (.toml) files,
+            otherwise json.load.
+        """
+        if load is not None:
+            with open(fp, "r") as f:
+                return cls.from_meta(CycleMetaData(**load(f)))
+
+        return cls.from_meta(CycleMetaData(**_read_config_file(fp)))
+
+    def to_meta(self):
+        return CycleMetaData(
+            querier=_get_name_from_estimator(self.querier),
+            querier_param=self.querier.get_params(),
+            classifier=_get_name_from_estimator(self.classifier),
+            classifier_param=self.classifier.get_params()
+            if self.classifier is not None
+            else None,
+            balancer=_get_name_from_estimator(self.balancer),
+            balancer_param=self.balancer.get_params()
+            if self.balancer is not None
+            else None,
+            feature_extractor=_get_name_from_estimator(self.feature_extractor),
+            feature_extractor_param=self.feature_extractor.get_params()
+            if self.feature_extractor is not None
+            else None,
+            stopper=_get_name_from_estimator(self.stopper),
+            stopper_param=self.stopper.get_params()
+            if self.stopper is not None
+            else None,
+            n_query=self.n_query,
+        )
+
+    def to_file(self, fp):
+        with open(fp, "w") as f:
+            json.dump(asdict(self.to_meta()), f)

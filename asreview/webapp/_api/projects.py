@@ -20,7 +20,6 @@ import socket
 import tempfile
 import time
 from dataclasses import asdict
-from dataclasses import replace
 from pathlib import Path
 from uuid import uuid4
 
@@ -47,17 +46,15 @@ from asreview.data.search import fuzzy_find
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
-from asreview.models import DEFAULT_BALANCE
-from asreview.models import DEFAULT_CLASSIFIER
-from asreview.models import DEFAULT_FEATURE_EXTRACTION
-from asreview.models import DEFAULT_QUERY
+from asreview.learner import ActiveLearningCycle
+from asreview.learner import CycleMetaData
+from asreview.models import get_model_config
+from asreview.models.stoppers import NConsecutiveIrrelevant
 from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
-from asreview.settings import ReviewSettings
 from asreview.state.contextmanager import open_state
-from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import current_user_projects
@@ -604,12 +601,12 @@ def api_get_labeled_stats(project):  # noqa: F401
 
     try:
         with open_state(project.project_path) as s:
-            data = s.get_results_table(["label", "query_strategy"])
-            data_prior = data[data["query_strategy"].isnull()]
+            data = s.get_results_table(["label", "querier"])
+            data_prior = data[data["querier"].isnull()]
 
             # If the 'include_priors' flag is set to False, filter out records that have a query strategy marked as prior.
             if not include_priors:
-                data = data[data["query_strategy"] != "prior"]
+                data = data[data["querier"] != "prior"]
 
         return jsonify(
             {
@@ -640,17 +637,17 @@ def api_list_algorithms():
     """List the names and labels of available algorithms"""
 
     entry_points_per_submodel = [
-        extensions("models.balance"),
+        extensions("models.balancers"),
         extensions("models.classifiers"),
-        extensions("models.feature_extraction"),
-        extensions("models.query"),
+        extensions("models.feature_extractors"),
+        extensions("models.queriers"),
     ]
 
     payload = {
-        "balance_strategy": [],
+        "balancer": [],
         "classifier": [],
-        "feature_extraction": [],
-        "query_strategy": [],
+        "feature_extractor": [],
+        "querier": [],
     }
 
     for entry_points, key in zip(entry_points_per_submodel, payload.keys()):
@@ -675,26 +672,15 @@ def api_list_algorithms():
 def api_get_algorithms(project):  # noqa: F401
     """Get the algorithms used in the project"""
 
-    settings = ReviewSettings(
-        classifier=DEFAULT_CLASSIFIER,
-        balance_strategy=DEFAULT_BALANCE,
-        feature_extraction=DEFAULT_FEATURE_EXTRACTION,
-        query_strategy=DEFAULT_QUERY,
-    )
-
-    try:
-        settings = settings.from_file(
-            Path(
-                project.project_path,
-                "reviews",
-                project.reviews[0]["id"],
-                "settings_metadata.json",
-            )
+    with open(
+        Path(
+            project.project_path,
+            "reviews",
+            project.reviews[0]["id"],
+            "settings_metadata.json",
         )
-    except FileNotFoundError:
-        pass
-
-    return jsonify(asdict(settings))
+    ) as f:
+        return jsonify(json.load(f))
 
 
 @bp.route("/projects/<project_id>/algorithms", methods=["POST", "PUT"])
@@ -703,48 +689,33 @@ def api_get_algorithms(project):  # noqa: F401
 def api_set_algorithms(project):  # noqa: F401
     """Set the algorithms used in the project"""
 
-    settings = ReviewSettings(
-        classifier=request.form.get("classifier"),
-        query_strategy=request.form.get("query_strategy"),
-        balance_strategy=request.form.get("balance_strategy"),
-        feature_extraction=request.form.get("feature_extraction"),
+    fp = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "settings_metadata.json",
     )
 
-    with open(
-        Path(
-            project.project_path,
-            "reviews",
-            project.reviews[0]["id"],
-            "settings_metadata.json",
-        ),
-        "w",
-    ) as f:
-        json.dump(asdict(settings), f)
+    if fp.exists():
+        with open(fp, "r") as f:
+            cycle = CycleMetaData(**json.load(f))
 
-    return jsonify(asdict(settings))
+        cycle.classifier = request.form.get("classifier")
+        cycle.querier = request.form.get("querier")
+        cycle.balancer = request.form.get("balancer")
+        cycle.feature_extractor = request.form.get("feature_extractor")
+    else:
+        cycle = CycleMetaData(
+            classifier=request.form.get("classifier"),
+            querier=request.form.get("querier"),
+            balancer=request.form.get("balancer"),
+            feature_extractor=request.form.get("feature_extractor"),
+        )
 
+    with open(fp, "w") as f:
+        json.dump(asdict(cycle), f)
 
-# @bp.route("/projects/<project_id>/stopping", methods=["GET"])
-# @login_required
-# @project_authorization
-# def api_get_stopping(project):  # noqa: F401
-#     """Get the stopping algorithms used in the project"""
-
-#     stopping = Stopping()
-
-#     try:
-#         stopping = stopping.from_file(
-#             Path(
-#                 project.project_path,
-#                 "reviews",
-#                 project.reviews[0]["id"],
-#                 "stopping_metadata.json",
-#             )
-#         )
-#     except FileNotFoundError:
-#         pass
-
-#     return jsonify(asdict(stopping))
+    return jsonify({**asdict(cycle)})
 
 
 @bp.route("/projects/<project_id>/wordcounts", methods=["GET"])
@@ -782,8 +753,8 @@ def api_get_wordcounts(project):  # noqa: F401
                 "irrelevant": feature_names[np.argsort(weights)][:15].tolist(),
             }
         )
-    except ValueError:
-        return jsonify({"relevant": [], "irrelevant": []})
+    except (ValueError, IndexError):
+        return jsonify({"relevant": None, "irrelevant": None})
 
 
 @bp.route("/projects/<project_id>/train", methods=["POST"])
@@ -905,35 +876,26 @@ def api_import_project():
     except Exception as err:
         raise ValueError("Failed to import project.") from err
 
-    settings_fp = Path(
+    fp_al_cycle = Path(
         project.project_path,
         "reviews",
         project.config["reviews"][0]["id"],
         "settings_metadata.json",
     )
-    settings = ReviewSettings.from_file(settings_fp)
 
     warnings = []
     try:
-        _check_model(settings)
+        ActiveLearningCycle.from_file(fp_al_cycle)
     except ValueError as err:
-        settings = replace(
-            settings,
-            **{
-                "classifier": DEFAULT_CLASSIFIER,
-                "balance_strategy": DEFAULT_BALANCE,
-                "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
-                "query_strategy": DEFAULT_QUERY,
-            },
-        )
-        with open(settings_fp, "w") as f:
-            json.dump(asdict(settings), f)
+        with open(fp_al_cycle, "w") as f:
+            json.dump(get_model_config(), f)
+
         warnings.append(
             str(err) + " It might be removed from this version of ASReview LAB or you "
             "need to install an extension to use this model component."
         )
         warnings.append(
-            " The model settings have been reset to the default model and"
+            " The active learning model has been reset to the default model and"
             " can be changed in the project settings."
         )
 
@@ -1007,9 +969,9 @@ def api_export_dataset(project):
     df_results.drop(
         columns=[
             "classifier",
-            "query_strategy",
-            "balance_strategy",
-            "feature_extraction",
+            "querier",
+            "balancer",
+            "feature_extractor",
             "training_set",
         ],
         inplace=True,
@@ -1144,24 +1106,23 @@ def api_get_progress_info(project):  # noqa: F401
 @bp.route("/projects/<project_id>/stopping", methods=["GET"])
 @login_required
 @project_authorization
-def api_get_stopping(project):  # noqa: F401
-    """Get stopping of a project"""
+def api_get_stopper(project):  # noqa: F401
+    """Get stopper of a project"""
 
-    settings_fp = Path(
+    fp_al_cycle = Path(
         project.project_path,
         "reviews",
         project.reviews[0]["id"],
         "settings_metadata.json",
     )
-    stopping = ReviewSettings.from_file(settings_fp).stopping
+    stopper = ActiveLearningCycle.from_file(fp_al_cycle).stopper
 
-    if stopping is None:
-        threshold = None
-    else:
-        threshold = stopping[0]["params"]["threshold"]
+    if stopper is None:
+        return jsonify({"name": None, "params": None})
 
     with open_state(project.project_path) as s:
-        labels = s.get_results_table(priors=False)["label"]
+        results = s.get_results_table(priors=False)
+        labels = results["label"]
 
     if len(labels) > 0:
         if int(sum(labels == 1)) > 0:
@@ -1172,52 +1133,44 @@ def api_get_stopping(project):  # noqa: F401
     else:
         n_since_last_relevant = 0
 
+    data = project.data_store[["record_id"]]
+
     return jsonify(
-        [
-            {
-                "id": "n_since_last_inclusion",
-                "params": {
-                    "threshold": threshold,
-                },
-                "value": n_since_last_relevant,
-                "stop": n_since_last_relevant is not None
-                and threshold is not None
-                and n_since_last_relevant >= threshold,
-            }
-        ]
+        {
+            "id": stopper.name,
+            "params": stopper.get_params(),
+            "value": n_since_last_relevant,
+            "stop": stopper.stop(results, data),
+        }
     )
 
 
 @bp.route("/projects/<project_id>/stopping", methods=["POST", "PUT"])
 @login_required
 @project_authorization
-def api_mutate_stopping(project):  # noqa: F401
-    """Mutate stopping of a project"""
+def api_mutate_stopper(project):  # noqa: F401
+    """Mutate stopper of a project"""
 
-    settings_fp = Path(
+    fp_al_cycle = Path(
         project.project_path,
         "reviews",
         project.reviews[0]["id"],
         "settings_metadata.json",
     )
-    settings = ReviewSettings.from_file(settings_fp)
 
-    settings = replace(
-        settings,
-        stopping=[
-            {
-                "id": request.form.get("id", "n_since_last_inclusion"),
-                "params": {
-                    "threshold": request.form.get("threshold", 50, type=int),
-                },
-            }
-        ],
-    )
+    with open(fp_al_cycle, "r") as f:
+        data = json.load(f)
 
-    with open(settings_fp, "w") as f:
-        json.dump(asdict(settings), f)
+    data["stopper"] = NConsecutiveIrrelevant.name
+    data["stopper_param"] = {"n": request.form.get("n", 50, type=int)}
 
-    return jsonify(settings.stopping)
+    with open(fp_al_cycle, "w") as f:
+        json.dump(data, f)
+
+    with open(fp_al_cycle, "r") as f:
+        print(json.load(f))
+
+    return api_get_stopper(project.project_id)
 
 
 @bp.route("/projects/<project_id>/progress_data", methods=["GET"])

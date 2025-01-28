@@ -18,14 +18,14 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 
 __all__ = [
-    "SVMClassifier",
-    "RandomForestClassifier",
-    "NaiveBayesClassifier",
-    "LogisticClassifier",
+    "SVM",
+    "RandomForest",
+    "NaiveBayes",
+    "Logistic",
 ]
 
 
-class SVMClassifier(LinearSVC):
+class SVM(LinearSVC):
     """Support vector machine classifier.
 
     Based on the sklearn implementation of the support vector machine
@@ -42,7 +42,7 @@ class SVMClassifier(LinearSVC):
         )
 
 
-class RandomForestClassifier(SKRandomForestClassifier):
+class RandomForest(SKRandomForestClassifier):
     """Random forest classifier.
 
     Based on the sklearn implementation of the random forest
@@ -60,7 +60,7 @@ class RandomForestClassifier(SKRandomForestClassifier):
         )
 
 
-class NaiveBayesClassifier(MultinomialNB):
+class NaiveBayes(MultinomialNB):
     """Naive Bayes classifier.
 
     Based on the sklearn implementation of the naive bayes
@@ -74,7 +74,7 @@ class NaiveBayesClassifier(MultinomialNB):
         super().__init__(alpha=alpha, **kwargs)
 
 
-class LogisticClassifier(LogisticRegression):
+class Logistic(LogisticRegression):
     """Logistic regression classifier.
 
     Based on the sklearn implementation of the logistic regression

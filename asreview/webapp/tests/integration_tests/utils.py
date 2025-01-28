@@ -240,7 +240,7 @@ def create_project(driver, base_url, project_data, reading_time=0):
 
     # PAGE 3, MODEL
     # adding feature extraction mode
-    feature_extr_type = project_data["model"]["feature_extraction"]
+    feature_extr_type = project_data["model"]["feature_extractor"]
     select_from_dropdown(driver, "div#select-feature-extraction", feature_extr_type)
 
     # classifier
@@ -248,12 +248,12 @@ def create_project(driver, base_url, project_data, reading_time=0):
     select_from_dropdown(driver, "div#select-classifier", classifier)
 
     # query stratgey
-    query_strategy = project_data["model"]["query_strategy"]
-    select_from_dropdown(driver, "div#select-query-strategy", query_strategy)
+    querier = project_data["model"]["querier"]
+    select_from_dropdown(driver, "div#select-query-strategy", querier)
 
     # balance strategy
-    balance_strategy = project_data["model"]["balance_strategy"]
-    select_from_dropdown(driver, "div#select-balance-strategy", balance_strategy)
+    balancer = project_data["model"]["balancer"]
+    select_from_dropdown(driver, "div#select-balance-strategy", balancer)
 
     # click on next
     click_element(driver, "button#next")

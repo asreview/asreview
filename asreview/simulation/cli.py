@@ -24,15 +24,16 @@ from sklearn.utils import check_random_state
 
 from asreview import load_dataset
 from asreview.datasets import DatasetManager
-from asreview.extensions import load_extension
 from asreview.learner import ActiveLearningCycle
-from asreview.models.query import TopDownQuery
+from asreview.learner import CycleMetaData
+from asreview.models.queriers import TopDown
+from asreview.models.stoppers import IsFittable
+from asreview.models.stoppers import LastRelevant
+from asreview.models.stoppers import NLabeled
 from asreview.project.api import Project
-from asreview.settings import ReviewSettings
 from asreview.simulation.simulate import Simulate
-from asreview.stopping import StoppingIsFittable
-from asreview.types import type_n_queries
 from asreview.utils import _format_to_str
+from asreview.utils import _read_config_file
 
 
 def _set_log_verbosity(verbose):
@@ -57,10 +58,6 @@ def _convert_id_to_idx(data_obj, record_id):
             raise KeyError(f"record_id {i} not found in data.")
 
     return result
-
-
-def _unpack_params(params):
-    return {} if params is None else params
 
 
 def _print_record(record, use_cli_colors=True):
@@ -127,38 +124,8 @@ def _cli_simulate(argv):
     else:
         filename = Path(args.dataset).name
 
-    # create a new settings object from arguments
-    settings = ReviewSettings(
-        classifier=args.classifier,
-        query_strategy=args.query_strategy,
-        balance_strategy=args.balance_strategy,
-        feature_extraction=args.feature_extraction,
-        n_stop=args.n_stop,
-    )
-
-    if args.config_file:
-        settings.from_file(args.config_file)
-
     # set the seeds
-    # TODO: set seeds in the settings object
-    # TODO: seed also other tools like tensorflow
     np.random.seed(args.seed)
-
-    classifier_class = load_extension("models.classifiers", settings.classifier)
-    classifier_model = classifier_class(**_unpack_params(settings.classifier_param))
-
-    query_class = load_extension("models.query", settings.query_strategy)
-    query_model = query_class(**_unpack_params(settings.query_param))
-
-    if settings.balance_strategy is None:
-        balance_model = None
-    else:
-        balance_class = load_extension("models.balance", settings.balance_strategy)
-        balance_model = balance_class(**_unpack_params(settings.balance_param))
-
-    feature_model = load_extension(
-        "models.feature_extraction", settings.feature_extraction
-    )(**_unpack_params(settings.feature_param))
 
     # prior knowledge
     if (
@@ -190,25 +157,32 @@ def _cli_simulate(argv):
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
         prior_idx = _convert_id_to_idx(data_store, args.prior_record_id)
 
+    stopper = LastRelevant() if args.n_stop is None else NLabeled(args.n_stop)
+
+    if args.config_file:
+        learner_meta = CycleMetaData(**_read_config_file(args.config_file))
+    else:
+        learner_meta = CycleMetaData(
+            querier=args.querier,
+            classifier=args.classifier,
+            balancer=args.balancer,
+            feature_extractor=args.feature_extractor,
+            n_query=args.n_query,
+        )
+
     learners = [
         ActiveLearningCycle(
-            query_strategy=TopDownQuery(),
-            stopping=StoppingIsFittable(),
+            querier=TopDown(),
+            stopper=IsFittable(),
         ),
-        ActiveLearningCycle(
-            query_strategy=query_model,
-            classifier=classifier_model,
-            balance_strategy=balance_model,
-            feature_extraction=feature_model,
-            n_query=args.n_query,
-        ),
+        ActiveLearningCycle.from_meta(learner_meta),
     ]
 
     sim = Simulate(
         data_store.get_df(),
         data_store["included"],
         learners,
-        stopping=args.n_stop,
+        stopper=stopper,
     )
 
     # select or sample prior knowledge and then label it
@@ -246,7 +220,7 @@ def _cli_simulate(argv):
     sim.review()
 
     if args.output is not None:
-        project.add_review(settings=settings, reviewer=sim, status="finished")
+        project.add_review(learner=learner_meta, reviewer=sim, status="finished")
 
         project.export(args.output)
         shutil.rmtree(fp_tmp_simulation)
@@ -319,40 +293,38 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     )
     parser.add_argument(
         "-q",
-        "--query-strategy",
+        "--querier",
         type=str,
         default="max",
-        help="The query strategy for active learning. Default: 'max'.",
+        help="The querier for active learning. Default: 'max'.",
     )
     parser.add_argument(
         "-b",
-        "--balance-strategy",
+        "--balancer",
         type=str,
-        dest="balance_strategy",
+        dest="balancer",
         default="balanced",
         help="Data rebalancing strategy mainly for RNN methods. Helps against"
         " imbalanced dataset with few inclusions and many exclusions. "
         "Default: 'balanced'",
     )
     parser.add_argument(
-        "--no-balance-strategy",
+        "--no-balancer",
         action="store_const",
         const=None,
-        dest="balance_strategy",
+        dest="balancer",
         help="Do not use a balance strategy.",
     )
     parser.add_argument(
         "-e",
-        "--feature-extraction",
+        "--feature-extractor",
         type=str,
         default="tfidf",
-        help="Feature extraction method. Some combinations of feature"
-        " extraction method and prediction model are impossible/ill"
-        " advised. Default: 'tfidf'.",
+        help="Feature extraction algorithm. Some combinations of feature"
+        " extractors and classifiers are not supported or feasible. Default: 'tfidf'.",
     )
     parser.add_argument(
         "--prior-seed",
-        default=None,
         type=int,
         help="Seed for selecting prior records if the --prior-idx option is "
         "not used. If the option --prior-idx is used with one or more "
@@ -360,7 +332,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     )
     parser.add_argument(
         "--seed",
-        default=None,
         type=int,
         help="Seed for the model (classifiers, balance strategies, "
         "feature extraction techniques, and query strategies).",
@@ -373,26 +344,22 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     )
     parser.add_argument(
         "--n-stop",
-        type=type_n_queries,
-        default="min",
-        help="The number of label actions to simulate. Default, 'min' "
-        "will stop simulating when all relevant records are found. Use -1 "
-        "to simulate all labels actions.",
+        type=int,
+        help="The number of label actions to simulate. If not set, simulation stops "
+        "after last relevant was found. Use -1 to simulate all label actions.",
     )
 
     # configuration file
     parser.add_argument(
         "--config-file",
-        type=str,
-        default=None,
-        help="Configuration file with model settings and parameter values.",
+        type=Path,
+        help="Configuration file for learning cycle.",
     )
 
     # output and verbosity
     parser.add_argument(
         "--output",
         "-o",
-        default=None,
         type=str,
         help="Location to ASReview project file of simulation.",
     )

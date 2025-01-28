@@ -6,22 +6,22 @@ from asreview.extensions import load_extension
 
 
 def test_classifiers():
-    assert len(extensions("models.query")) >= 4
+    assert len(extensions("models.queriers")) >= 4
 
 
-@pytest.mark.parametrize("query", extensions("models.query"))
+@pytest.mark.parametrize("query", extensions("models.queriers"))
 def test_classifier_name(query):
-    model = load_extension("models.query", query.name)()
+    model = load_extension("models.queriers", query.name)()
     assert model.name == query.name
 
 
-@pytest.mark.parametrize("query", extensions("models.query"))
+@pytest.mark.parametrize("query", extensions("models.queriers"))
 def test_classifier_param(query):
-    model = load_extension("models.query", query.name)()
+    model = load_extension("models.queriers", query.name)()
     assert isinstance(model.get_params(), dict)
 
 
-@pytest.mark.parametrize("query", extensions("models.query"))
+@pytest.mark.parametrize("query", extensions("models.queriers"))
 def test_query(query):
     n_sample, n_features = 100, 50
     X = np.random.rand(n_sample, n_features)
@@ -31,7 +31,7 @@ def test_query(query):
     classifier.fit(X, y)
     proba = classifier.predict_proba(X)
 
-    query_strategy = load_extension("models.query", query.name)()
-    query_idx = query_strategy.query(proba[:, 1])
+    querier = load_extension("models.queriers", query.name)()
+    query_idx = querier.query(proba[:, 1])
     assert len(query_idx) == len(np.unique(query_idx))
     assert len(query_idx) == X.shape[0]

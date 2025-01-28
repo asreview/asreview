@@ -20,10 +20,12 @@ from sklearn.utils import check_random_state
 from asreview.models.mixin import QueryMixin
 
 __all__ = [
-    "MaxQuery",
-    "MaxRandomQuery",
-    "MaxUncertaintyQuery",
-    "UncertaintyQuery",
+    "Max",
+    "HybridMaxRandom",
+    "HybridMaxUncertainty",
+    "Uncertainty",
+    "Random",
+    "TopDown",
 ]
 
 
@@ -50,7 +52,7 @@ def _mix_indices(query_idx_1, query_idx_2, mix_probability=0.95, random_state=No
     return [query_idx_mix[i] for i in sorted(indexes)]
 
 
-class RandomQuery(QueryMixin, BaseEstimator):
+class Random(QueryMixin, BaseEstimator):
     """Random query strategy.
 
     Choose the samples to be included at random.
@@ -80,7 +82,7 @@ class RandomQuery(QueryMixin, BaseEstimator):
         return _random_array(len(p), random_state=self.random_state)
 
 
-class TopDownQuery(QueryMixin, BaseEstimator):
+class TopDown(QueryMixin, BaseEstimator):
     """Top-down query strategy.
 
     Query the records in a top-down fashion.
@@ -105,8 +107,8 @@ class TopDownQuery(QueryMixin, BaseEstimator):
         return np.arange(len(p))
 
 
-class UncertaintyQuery(QueryMixin, BaseEstimator):
-    """Uncertainty query strategy (``uncertainty``).
+class Uncertainty(QueryMixin, BaseEstimator):
+    """Uncertainty query strategy.
 
     Choose the most uncertain samples according to the model (i.e. closest to
     0.5 probability). If decision functions are used, the samples closest to
@@ -145,8 +147,8 @@ class UncertaintyQuery(QueryMixin, BaseEstimator):
         return np.argsort(np.abs(p - u))
 
 
-class MaxQuery(UncertaintyQuery):
-    """Maximum query strategy (``max``).
+class Max(QueryMixin, BaseEstimator):
+    """Maximum query strategy.
 
     Choose the most likely samples to be included according to the model.
     """
@@ -158,7 +160,7 @@ class MaxQuery(UncertaintyQuery):
         return np.argsort(-p)
 
 
-class MaxUncertaintyQuery(QueryMixin, BaseEstimator):
+class HybridMaxUncertainty(QueryMixin, BaseEstimator):
     """95% Maximum and 5% Uncertainty query strategy.
 
     A mix of maximum and random query strategies with a mix ratio of 0.95.
@@ -178,14 +180,14 @@ class MaxUncertaintyQuery(QueryMixin, BaseEstimator):
 
     def query(self, p):
         return _mix_indices(
-            MaxQuery().query(p),
-            UncertaintyQuery(u=self.u, proba=self.proba).query(p),
+            Max().query(p),
+            Uncertainty(u=self.u, proba=self.proba).query(p),
             self.probability,
             self.random_state,
         )
 
 
-class MaxRandomQuery(QueryMixin, BaseEstimator):
+class HybridMaxRandom(QueryMixin, BaseEstimator):
     """95% Maximum and 5% Random query strategy.
 
     A mix of maximum and random query strategies with a mix ratio of 0.95.
@@ -211,7 +213,7 @@ class MaxRandomQuery(QueryMixin, BaseEstimator):
 
     def query(self, p):
         return _mix_indices(
-            MaxQuery().query(p),
+            Max().query(p),
             _random_array(len(p), self.random_state),
             self.probability,
             self.random_state,

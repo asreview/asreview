@@ -38,10 +38,10 @@ PROJECT = {
         ],
     },
     "model": {
-        "feature_extraction": "tfidf",
+        "feature_extractor": "tfidf",
         "classifier": "nb",
-        "query_strategy": "max",
-        "balance_strategy": "balanced",
+        "querier": "max",
+        "balancer": "balanced",
     },
 }
 

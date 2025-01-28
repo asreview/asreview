@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Stopping mechanisms for the review process.
+"""Stopper mechanisms for the review process.
 
-The stopping mechanisms determine when the review process should be stopped.
+The stopper mechanisms determine when the review process should be stopped.
 This can be based on the properties of the results table or the input dataset.
 
 
@@ -23,18 +23,46 @@ This can be based on the properties of the results table or the input dataset.
 
 """
 
+from sklearn.base import BaseEstimator
+
 __all__ = [
-    "StoppingDefault",
-    "StoppingN",
-    "StoppingQuantile",
-    "StoppingIsFittable",
+    "LastRelevant",
+    "NLabeled",
+    "QuantileLabeled",
+    "IsFittable",
+    "NConsecutiveIrrelevant",
 ]
 
 
-class StoppingDefault:
-    """Default stopping mechanism.
+def safe_stop(stop_method):
+    """Decorator to ensure safe stopping conditions."""
 
-    The default stopping mechanism stops the review when all records have been
+    def wrapper(self, results, data):
+        if len(data) == 0:
+            return True
+        if len(results) == len(data):
+            return True
+        return stop_method(self, results, data)
+
+    return wrapper
+
+
+def raise_if_not_simulate(stop_method):
+    """Decorator to only use the stopping mechanism in simulation."""
+
+    def wrapper(self, results, data):
+        if data.isna().any():
+            raise ValueError("Stopper mechanism requires all data to be labeled.")
+
+        return stop_method(self, results, data)
+
+    return wrapper
+
+
+class LastRelevant(BaseEstimator):
+    """Stop after last relevant record.
+
+    The stopping mechanism stops the review when all records have been
     labeled.
 
     Arguments
@@ -44,9 +72,11 @@ class StoppingDefault:
         stop when all relevant records are found.
     """
 
-    def __init__(self, value="min"):
-        self.value = value
+    name = "last_relevant"
+    label = "Last Relevant"
 
+    @safe_stop
+    @raise_if_not_simulate
     def stop(self, results, data):
         """Check if the review should be stopped.
 
@@ -67,25 +97,13 @@ class StoppingDefault:
             True if the review should be stopped, False otherwise.
         """
 
-        if len(data) == 0:
-            return True
-
-        # if the pool is empty, always stop
-        if len(results) == len(data):
-            return True
-
-        # If value is set to min, stop after value queries.
-        if self.value == "min" and sum(data) == sum(results["label"]):
-            return True
-
-        # Stop when reaching value (if provided)
-        if isinstance(self.value, int) and len(results) >= self.value:
+        if sum(data) == sum(results["label"]):
             return True
 
         return False
 
 
-class StoppingN:
+class NLabeled(BaseEstimator):
     """Stop the review after n have been labeled.
 
     Arguments
@@ -96,9 +114,13 @@ class StoppingN:
         of irrelevant records to find.
     """
 
+    name = "n_labeled"
+    label = "N Labeled"
+
     def __init__(self, n):
         self.n = n
 
+    @safe_stop
     def stop(self, results, data):
         """Check if the review should be stopped.
 
@@ -119,22 +141,27 @@ class StoppingN:
             True if the review should be stopped, False otherwise.
         """
 
-        if isinstance(self.n, int) and len(results) >= self.n_labels:
+        if not isinstance(self.n, (int, tuple)):
+            raise ValueError("StopperN requires an integer or a tuple of integers")
+
+        if self.n == -1:
+            return False
+
+        if isinstance(self.n, int) and len(results) >= self.n:
             return True
-        elif isinstance(self.n, tuple):
+
+        if isinstance(self.n, tuple):
             n_relevant, n_irrelevant = self.n
             if (
                 sum(results["label"] == 1) >= n_relevant
                 and sum(results["label"] == 0) >= n_irrelevant
             ):
                 return True
-        else:
-            raise ValueError("StoppingN requires an integer or a tuple of integers")
 
         return False
 
 
-class StoppingQuantile:
+class QuantileLabeled(BaseEstimator):
     """Stop the review after a certain quantile of the records have been labeled.
 
     Arguments
@@ -143,9 +170,13 @@ class StoppingQuantile:
         Quantile of records to label before stopping the review.
     """
 
+    name = "q_labeled"
+    label = "Quantile Labeled"
+
     def __init__(self, quantile):
         self.quantile = quantile
 
+    @safe_stop
     def stop(self, results, data):
         """Check if the review should be stopped.
 
@@ -173,8 +204,53 @@ class StoppingQuantile:
         return False
 
 
-class StoppingIsFittable(StoppingN):
+class IsFittable(NLabeled):
     """Stop the review after both classes are found."""
+
+    name = "is_fittable"
+    label = "Is Fittable"
 
     def __init__(self):
         super().__init__(n=(1, 1))
+
+
+class NConsecutiveIrrelevant(BaseEstimator):
+    """Stop the review after n irrelevant records have been labeled in a row.
+
+    Arguments
+    ---------
+    n: int
+        Number of irrelevant records in a row to stop the review at.
+    """
+
+    name = "n_consecutive_irrelevant"
+    label = "N Consecutive Irrelevant"
+
+    def __init__(self, n):
+        self.n = n
+
+    @safe_stop
+    def stop(self, results, data):
+        """Check if the review cycle should be stopped.
+
+        This function checks if the review cycle should be stopped based on the results
+        and the labels of the papers.
+
+        Arguments
+        ---------
+        results: pandas.DataFrame
+            DataFrame with the results of the review.
+        data: pandas.DataFrame, list, np.array
+            pandas.DataFrame, list, np.array with all records. Used to determine
+            number of all records in data.
+
+        Returns
+        -------
+        bool:
+            True if the review should be stopped, False otherwise.
+        """
+
+        if len(results) > self.n and sum(results["label"].iloc[-self.n :]) == 0:
+            return True
+
+        return False

@@ -43,8 +43,8 @@ def cli_algorithms(argv):  # noqa
     s = "Available active learning algorithms for ASReview. \n\n"
 
     s += _format_algorithm(
-        values=extensions("models.feature_extraction"),
-        name="feature_extraction",
+        values=extensions("models.feature_extractors"),
+        name="feature_extractor",
         description="feature extraction algorithms",
     )
 
@@ -55,13 +55,13 @@ def cli_algorithms(argv):  # noqa
     )
 
     s += _format_algorithm(
-        values=extensions("models.query"),
+        values=extensions("models.queriers"),
         name="query_strategies",
         description="query strategies",
     )
 
     s += _format_algorithm(
-        values=extensions("models.balance"),
+        values=extensions("models.balancers"),
         name="balance_strategies",
         description="balance strategies",
     )

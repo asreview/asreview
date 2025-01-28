@@ -331,10 +331,10 @@ def test_list_algorithms(client, user):
     r = au.get_project_algorithms_options(client)
     assert r.status_code == 200
     expected_keys = [
-        "balance_strategy",
+        "balancer",
         "classifier",
-        "feature_extraction",
-        "query_strategy",
+        "feature_extractor",
+        "querier",
     ]
     for key in expected_keys:
         assert key in r.json.keys()
@@ -358,10 +358,10 @@ def test_get_project_algorithms(client, project):
     # get the project algorithms
     r = au.get_project_algorithms(client, project)
     assert r.status_code == 200
-    assert r.json["balance_strategy"] == r.json["balance_strategy"]
-    assert r.json["feature_extraction"] == r.json["feature_extraction"]
+    assert r.json["balancer"] == r.json["balancer"]
+    assert r.json["feature_extractor"] == r.json["feature_extractor"]
     assert r.json["classifier"] == r.json["classifier"]
-    assert r.json["query_strategy"] == r.json["query_strategy"]
+    assert r.json["querier"] == r.json["querier"]
 
 
 # Test starting the model
