@@ -46,7 +46,7 @@ from asreview.data.search import fuzzy_find
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
-from asreview.learner import ActiveLearningCycle
+from asreview.learner import ActiveLearningCycle, CycleMetaData
 from asreview.models import get_model_config
 from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.project.api import is_project
@@ -688,21 +688,33 @@ def api_get_algorithms(project):  # noqa: F401
 def api_set_algorithms(project):  # noqa: F401
     """Set the algorithms used in the project"""
 
-    ActiveLearningCycle(
-        classifier=request.form.get("classifier"),
-        query_strategy=request.form.get("query_strategy"),
-        balance_strategy=request.form.get("balance_strategy"),
-        feature_extraction=request.form.get("feature_extraction"),
-    ).to_file(
-        Path(
-            project.project_path,
-            "reviews",
-            project.reviews[0]["id"],
-            "settings_metadata.json",
-        )
+    fp = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "settings_metadata.json",
     )
 
-    return api_get_algorithms(project.project_id)
+    if fp.exists():
+        with open(fp, "r") as f:
+            cycle = CycleMetaData(**json.load(f))
+
+        cycle.classifier = request.form.get("classifier")
+        cycle.query_strategy = request.form.get("query_strategy")
+        cycle.balance_strategy = request.form.get("balance_strategy")
+        cycle.feature_extraction = request.form.get("feature_extraction")
+    else:
+        cycle = CycleMetaData(
+            classifier=request.form.get("classifier"),
+            query_strategy=request.form.get("query_strategy"),
+            balance_strategy=request.form.get("balance_strategy"),
+            feature_extraction=request.form.get("feature_extraction"),
+        )
+
+    with open(fp, "w") as f:
+        json.dump(asdict(cycle), f)
+
+    return jsonify({**asdict(cycle)})
 
 
 @bp.route("/projects/<project_id>/wordcounts", methods=["GET"])
