@@ -39,7 +39,7 @@ from asreview.data.loader import _get_reader
 from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
-from asreview.learner import CycleMetaData
+from asreview.learner import ActiveLearningCycleData
 from asreview.migrate import migrate_v1_v2
 from asreview.models import get_model_config
 from asreview.project.exceptions import ProjectError
@@ -367,7 +367,7 @@ class Project:
     def add_review(
         self,
         review_id=None,
-        learner=None,
+        cycle=None,
         reviewer=None,
         start_time=None,
         status="setup",
@@ -378,7 +378,7 @@ class Project:
         ----------
         review_id: str
             The review_id uuid4.
-        learner:
+        cycle:
             An active learning cycle object to add to the review. This object is used
             to store the configuration of the active learning cycle to file.
         reviewer: object
@@ -406,19 +406,19 @@ class Project:
 
         config = self.config
 
-        if learner is None:
-            learner_meta = get_model_config()
-        elif isinstance(learner, ActiveLearningCycle):
-            learner_meta = learner.to_meta()
-        elif isinstance(learner, CycleMetaData):
-            learner_meta = learner
+        if cycle is None:
+            cycle_meta = get_model_config()
+        elif isinstance(cycle, ActiveLearningCycle):
+            cycle_meta = cycle.to_meta()
+        elif isinstance(cycle, ActiveLearningCycleData):
+            cycle_meta = cycle
         else:
-            raise ValueError("Invalid learner type.")
+            raise ValueError("Invalid cycle type.")
 
         with open(
             Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
         ) as f:
-            json.dump(asdict(learner_meta), f)
+            json.dump(asdict(cycle_meta), f)
 
         fp_state = Path(self.project_path, "reviews", review_id, "results.db")
 
@@ -445,7 +445,7 @@ class Project:
         self.config = config
         return config
 
-    def update_review(self, review_id=None, learner=None, state=None, **kwargs):
+    def update_review(self, review_id=None, cycle=None, state=None, **kwargs):
         """Update review metadata.
 
         Parameters
@@ -474,8 +474,8 @@ class Project:
             fp_state = Path(self.project_path, "reviews", review_id, "results.db")
             state.to_sql(fp_state)
 
-        if learner is not None:
-            learner.to_file(
+        if cycle is not None:
+            cycle.to_file(
                 Path(self.project_path, "reviews", review_id, "settings_metadata.json")
             )
 
@@ -587,7 +587,7 @@ class Project:
                 raise ValueError("Not possible to import (old) project file.")
 
             if reset_model_if_not_found:
-                learner_fp = Path(
+                cycle_fp = Path(
                     tmpdir,
                     "reviews",
                     project_config["reviews"][0]["id"],
@@ -595,13 +595,11 @@ class Project:
                 )
 
                 try:
-                    ActiveLearningCycle.from_file(learner_fp)
+                    ActiveLearningCycle.from_file(cycle_fp)
                 except ValueError as err:
                     warnings.warn(err)
 
-                    ActiveLearningCycle.from_meta(get_model_config()).to_file(
-                        learner_fp
-                    )
+                    ActiveLearningCycle.from_meta(get_model_config()).to_file(cycle_fp)
 
             if safe_import:
                 # assign a new id to the project.

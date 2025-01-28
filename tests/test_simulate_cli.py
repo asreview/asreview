@@ -127,7 +127,7 @@ def test_models(model, tmpdir, demo_data_path, tmp_project):
     Path(tmpdir, f"test_{model}").mkdir(parents=True)
     project = asr.Project.load(tmp_project, Path(tmpdir, f"test_{model}"))
 
-    learner = asr.ActiveLearningCycle.from_file(
+    cycle = asr.ActiveLearningCycle.from_file(
         Path(
             project.project_path,
             "reviews",
@@ -136,7 +136,7 @@ def test_models(model, tmpdir, demo_data_path, tmp_project):
         )
     )
 
-    assert learner.classifier.name == model
+    assert cycle.classifier.name == model
 
 
 def test_no_balancing(tmp_project, demo_data_path):
@@ -204,7 +204,7 @@ def test_project_already_exists_error(tmp_project, demo_data_path):
 
 
 def test_cycle_config(tmpdir, demo_data_path, tmp_project):
-    cycle_meta = asr.CycleMetaData(
+    cycle_meta = asr.ActiveLearningCycleData(
         querier="max",
         classifier="nb",
         balancer="balanced",
@@ -228,7 +228,7 @@ def test_cycle_config(tmpdir, demo_data_path, tmp_project):
     Path(tmpdir, "test_cycle").mkdir()
     project = asr.Project.load(tmp_project, Path(tmpdir, "test_cycle"))
 
-    learner = asr.ActiveLearningCycle.from_file(
+    cycle = asr.ActiveLearningCycle.from_file(
         Path(
             project.project_path,
             "reviews",
@@ -237,8 +237,8 @@ def test_cycle_config(tmpdir, demo_data_path, tmp_project):
         )
     )
 
-    assert learner.classifier.name == "nb"
-    assert learner.classifier.get_params()["alpha"] == 5
+    assert cycle.classifier.name == "nb"
+    assert cycle.classifier.get_params()["alpha"] == 5
 
     with open(
         Path(

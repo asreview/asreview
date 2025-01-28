@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.learner import CycleMetaData
+from asreview.learner import ActiveLearningCycleData
 
 MODELS_CONFIG = [
     {
         "name": "elas_u4",
         "label": "ELAS u4",
-        "value": CycleMetaData(
+        "value": ActiveLearningCycleData(
             querier="max",
             classifier="nb",
             balancer="balanced",

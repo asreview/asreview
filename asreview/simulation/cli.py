@@ -25,7 +25,7 @@ from sklearn.utils import check_random_state
 from asreview import load_dataset
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
-from asreview.learner import CycleMetaData
+from asreview.learner import ActiveLearningCycleData
 from asreview.models.queriers import TopDown
 from asreview.models.stoppers import IsFittable
 from asreview.models.stoppers import LastRelevant
@@ -160,9 +160,9 @@ def _cli_simulate(argv):
     stopper = LastRelevant() if args.n_stop is None else NLabeled(args.n_stop)
 
     if args.config_file:
-        learner_meta = CycleMetaData(**_read_config_file(args.config_file))
+        cycle_meta = ActiveLearningCycleData(**_read_config_file(args.config_file))
     else:
-        learner_meta = CycleMetaData(
+        cycle_meta = ActiveLearningCycleData(
             querier=args.querier,
             classifier=args.classifier,
             balancer=args.balancer,
@@ -170,18 +170,18 @@ def _cli_simulate(argv):
             n_query=args.n_query,
         )
 
-    learners = [
+    cycles = [
         ActiveLearningCycle(
             querier=TopDown(),
             stopper=IsFittable(),
         ),
-        ActiveLearningCycle.from_meta(learner_meta),
+        ActiveLearningCycle.from_meta(cycle_meta),
     ]
 
     sim = Simulate(
         data_store.get_df(),
         data_store["included"],
-        learners,
+        cycles,
         stopper=stopper,
     )
 
@@ -220,7 +220,7 @@ def _cli_simulate(argv):
     sim.review()
 
     if args.output is not None:
-        project.add_review(learner=learner_meta, reviewer=sim, status="finished")
+        project.add_review(cycle=cycle_meta, reviewer=sim, status="finished")
 
         project.export(args.output)
         shutil.rmtree(fp_tmp_simulation)

@@ -34,7 +34,7 @@ from asreview.extensions import extensions
 from asreview.extensions import get_extension
 from asreview.extensions import load_extension
 from asreview.learner import ActiveLearningCycle
-from asreview.learner import CycleMetaData
+from asreview.learner import ActiveLearningCycleData
 from asreview.project.api import Project
 from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
@@ -58,7 +58,7 @@ __all__ = [
     "datasets",
     # classes
     "ActiveLearningCycle",
-    "CycleMetaData",
+    "ActiveLearningCycleData",
     "Simulate",
     "Project",
     "SQLiteState",

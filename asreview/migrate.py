@@ -83,8 +83,8 @@ def _project_state_converter_v1_v2(review_path):
     os.unlink(Path(review_path, "results.sql"))
 
 
-def _project_model_settings_converter_v1_v2(fp_learner_metadata):
-    with open(fp_learner_metadata, "w") as f:
+def _project_model_settings_converter_v1_v2(fp_cycle_metadata):
+    with open(fp_cycle_metadata, "w") as f:
         json.dump(asdict(get_model_config()), f)
 
 

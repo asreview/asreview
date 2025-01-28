@@ -45,7 +45,7 @@ def run_model(project):
         labeled = s.get_results_table(columns=["record_id", "label"])
 
     try:
-        learner = asr.ActiveLearningCycle.from_file(
+        cycle = asr.ActiveLearningCycle.from_file(
             Path(
                 project.project_path,
                 "reviews",
@@ -54,25 +54,25 @@ def run_model(project):
             )
         )
         try:
-            fm = project.get_feature_matrix(learner.feature_extractor.name)
+            fm = project.get_feature_matrix(cycle.feature_extractor.name)
         except ValueError:
-            fm = learner.transform(project.data_store.get_df())
-            project.add_feature_matrix(fm, learner.feature_extractor.name)
+            fm = cycle.transform(project.data_store.get_df())
+            project.add_feature_matrix(fm, cycle.feature_extractor.name)
 
-        learner.fit(
+        cycle.fit(
             fm[labeled["record_id"].values],
             labeled["label"].values,
         )
 
-        ranked_record_ids = learner.rank(fm)
+        ranked_record_ids = cycle.rank(fm)
 
         with open_state(project) as state:
             state.add_last_ranking(
                 ranked_record_ids,
-                learner.classifier.name,
-                learner.querier.name,
-                learner.balancer.name if learner.balancer is not None else None,
-                learner.feature_extractor.name,
+                cycle.classifier.name,
+                cycle.querier.name,
+                cycle.balancer.name if cycle.balancer is not None else None,
+                cycle.feature_extractor.name,
                 len(labeled),
             )
 
@@ -84,7 +84,7 @@ def run_model(project):
 
 
 def run_simulation(project):
-    learner = asr.ActiveLearningCycle.from_file(
+    cycle = asr.ActiveLearningCycle.from_file(
         Path(
             project.project_path,
             "reviews",
@@ -96,17 +96,15 @@ def run_simulation(project):
     with open_state(project) as state:
         priors = state.get_priors()["record_id"].tolist()
 
-    learners = [
+    cycles = [
         asr.ActiveLearningCycle(
             querier=TopDown(),
             stopper=IsFittable(),
         ),
-        learner,
+        cycle,
     ]
 
-    sim = Simulate(
-        project.data_store.get_df(), project.data_store["included"], learners
-    )
+    sim = Simulate(project.data_store.get_df(), project.data_store["included"], cycles)
     try:
         sim.label(priors)
         sim.review()
