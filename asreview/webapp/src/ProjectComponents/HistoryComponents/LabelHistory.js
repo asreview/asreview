@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import * as React from "react";
 
-import { DownloadOutlined } from "@mui/icons-material";
+import { FileDownloadOutlined } from "@mui/icons-material";
 import { useToggle } from "hooks/useToggle";
 import { useParams } from "react-router-dom";
 import { ExportDialog, Filter, LabeledRecord } from ".";
@@ -77,13 +77,13 @@ const LabelHistory = ({
                   sx={{ float: "right" }}
                   color="inherit"
                 >
-                  <DownloadOutlined />
+                  <FileDownloadOutlined />
                 </IconButton>
               )}
               {!mobileScreen && (
                 <Button
                   onClick={toggleOpen}
-                  startIcon={<DownloadOutlined />}
+                  startIcon={<FileDownloadOutlined />}
                   sx={{ float: "right" }}
                 >
                   Export

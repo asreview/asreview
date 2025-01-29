@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 
 import {
-  AutoAwesomeOutlined,
+  CategoryOutlined,
   DriveFolderUploadOutlined,
   FileUploadOutlined,
   LinkOutlined,
@@ -103,7 +103,7 @@ const Upload = ({ mode }) => {
             value="discover"
             label={
               <Box>
-                <AutoAwesomeOutlined sx={{ fontSize: 32 }} />
+                <CategoryOutlined sx={{ fontSize: 32 }} />
                 <Typography>Discover</Typography>
               </Box>
             }

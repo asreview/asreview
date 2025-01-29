@@ -11,6 +11,7 @@ import {
 import { ProjectAPI } from "api";
 import { projectModes, projectStatuses } from "globals.js";
 import { useToggle } from "hooks/useToggle";
+import ReviewScreenOutlined from "icons/ReviewScreenOutlined";
 import { ProjectDeleteDialog } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 import * as React from "react";
@@ -153,8 +154,9 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                 variant="outlined"
                 color="secondary"
                 sx={{ borderRadius: 20 }}
+                endIcon={<ReviewScreenOutlined />}
               >
-                Open Reviewer
+                Review
               </Button>
             </Grid>
           )}
