@@ -26,7 +26,7 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
   const [readMoreOpen, toggleReadMore] = useToggle();
 
   return (
-    <CardContent aria-label="record title abstract">
+    <CardContent aria-label="record title abstract" sx={{ m: 1 }}>
       <Stack spacing={1}>
         <Stack
           direction="row"
@@ -120,15 +120,16 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
           )}
         </Typography>
 
-        <Typography sx={{ color: "text.secondary", fontWeight: "bold" }}>
-          {record.keywords &&
-            record.keywords.map((keyword, index) => (
+        {record.keywords && (
+          <Typography sx={{ color: "text.secondary", fontWeight: "bold" }}>
+            {record.keywords.map((keyword, index) => (
               <span key={index}>
                 {index > 0 && " • "}
                 {keyword}
               </span>
             ))}
-        </Typography>
+          </Typography>
+        )}
       </Stack>
     </CardContent>
   );
