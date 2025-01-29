@@ -1,5 +1,4 @@
 import {
-  AccountCircleOutlined,
   GroupAddOutlined,
   LogoutOutlined,
   PersonOutlined,
