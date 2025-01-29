@@ -10,7 +10,12 @@ import {
   Stack,
   TextField,
   Typography,
+  IconButton,
+  InputAdornment,
+  OutlinedInput,
+  InputLabel,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 
@@ -102,39 +107,67 @@ const SignUpForm = () => {
             {formik.touched.email && formik.errors.email ? (
               <FHT error={true}>{formik.errors.email}</FHT>
             ) : null}
-            <TextField
-              required={true}
-              id="password"
-              label="Password"
-              size="small"
-              fullWidth
-              type={showPassword ? "text" : "password"}
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              slotProps={{
-                htmlInput: {
-                  autoComplete: "new-password",
-                },
-              }}
-            />
-            <TextField
-              required={true}
-              id="confirmPassword"
-              label="Confirm Password"
-              size="small"
-              fullWidth
-              type={showPassword ? "text" : "password"}
-              onKeyDown={handleEnterKey}
-              value={formik.values.confirmPassword}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              slotProps={{
-                htmlInput: {
-                  autoComplete: "new-password",
-                },
-              }}
-            />
+
+            <FormControl variant="outlined">
+              <InputLabel htmlFor="password">Password</InputLabel>
+              <OutlinedInput
+                id="password"
+                type={showPassword ? "text" : "password"}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={
+                        showPassword
+                          ? "hide the password"
+                          : "display the password"
+                      }
+                      onClick={toggleShowPassword}
+                      onMouseDown={(event) => event.preventDefault()}
+                      onMouseUp={(event) => event.preventDefault()}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+                label="Password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+            </FormControl>
+
+            <FormControl variant="outlined">
+              <InputLabel htmlFor="confirmPassword">
+                Confirm Password
+              </InputLabel>
+              <OutlinedInput
+                id="confirmPassword"
+                type={showPassword ? "text" : "password"}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={
+                        showPassword
+                          ? "hide the password"
+                          : "display the password"
+                      }
+                      onClick={toggleShowPassword}
+                      onMouseDown={(event) => event.preventDefault()}
+                      onMouseUp={(event) => event.preventDefault()}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+                label="Confirm Password"
+                value={formik.values.confirmPassword}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                onKeyDown={handleEnterKey}
+              />
+            </FormControl>
 
             <Typography variant="body2" sx={{ marginTop: "7px !important" }}>
               {passwordRequirements}
@@ -147,16 +180,6 @@ const SignUpForm = () => {
               <FHT error={true}>{formik.errors.confirmPassword}</FHT>
             ) : null}
             <FormControl>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    id="public"
-                    color="primary"
-                    onChange={toggleShowPassword}
-                  />
-                }
-                label="Show password"
-              />
               {false && (
                 <>
                   <FormControlLabel
