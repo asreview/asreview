@@ -9,7 +9,12 @@ import {
   Stack,
   TextField,
   Typography,
+  IconButton,
+  InputAdornment,
+  OutlinedInput,
+  InputLabel,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -132,7 +137,6 @@ const ProfilePage = (props) => {
         true,
       );
 
-      // show password field?
       if (data.message.origin === "asreview") {
         setShowPasswordFields(true);
       } else {
@@ -145,10 +149,6 @@ const ProfilePage = (props) => {
       console.log("Did not fetch profile data from backend", err);
     },
   });
-
-  const returnType = () => {
-    return !showPassword ? "password" : "text";
-  };
 
   const oldPasswordHasValue = () => {
     return (
@@ -168,9 +168,9 @@ const ProfilePage = (props) => {
   const renderPasswordFields = (formik) => {
     return (
       <>
-        <FormControl>
-          <Stack direction="column" spacing={2}>
-            <Typography variant="h6">Change email & password</Typography>
+        <Stack direction="column" spacing={2}>
+          <Typography variant="h6">Change email & password</Typography>
+          <FormControl>
             <TextField
               required={true}
               id="email"
@@ -184,57 +184,102 @@ const ProfilePage = (props) => {
             {formik.touched.email && formik.errors.email ? (
               <FHT error={true}>{formik.errors.email}</FHT>
             ) : null}
-            <TextField
+          </FormControl>
+
+          <FormControl variant="outlined">
+            <InputLabel htmlFor="oldPassword">Old Password</InputLabel>
+            <OutlinedInput
               id="oldPassword"
+              type={showPassword ? "text" : "password"}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label={
+                      showPassword
+                        ? "hide the password"
+                        : "display the password"
+                    }
+                    onClick={toggleShowPassword}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onMouseUp={(event) => event.preventDefault()}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
               label="Old Password"
-              size="small"
-              fullWidth
-              type={returnType()}
               value={formik.values.oldPassword}
               onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              slotProps={{
-                htmlInput: {
-                  autoComplete: "off",
-                },
-              }}
             />
-            <TextField
+          </FormControl>
+
+          <FormControl
+            variant="outlined"
+            style={{ opacity: passwordFieldOpacity() }}
+          >
+            <InputLabel htmlFor="newPassword">New Password</InputLabel>
+            <OutlinedInput
               id="newPassword"
+              type={showPassword ? "text" : "password"}
+              disabled={oldPasswordHasValue()}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label={
+                      showPassword
+                        ? "hide the password"
+                        : "display the password"
+                    }
+                    onClick={toggleShowPassword}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onMouseUp={(event) => event.preventDefault()}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
               label="New Password"
-              size="small"
-              fullWidth
-              type={returnType()}
               value={formik.values.newPassword}
               onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              style={{ opacity: passwordFieldOpacity() }}
-              disabled={oldPasswordHasValue()}
-              slotProps={{
-                htmlInput: {
-                  autoComplete: "new-password",
-                },
-              }}
             />
-            <TextField
+          </FormControl>
+
+          <FormControl
+            variant="outlined"
+            style={{ opacity: passwordFieldOpacity() }}
+          >
+            <InputLabel htmlFor="confirmPassword">
+              Confirm New Password
+            </InputLabel>
+            <OutlinedInput
               id="confirmPassword"
+              type={showPassword ? "text" : "password"}
+              disabled={oldPasswordHasValue()}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label={
+                      showPassword
+                        ? "hide the password"
+                        : "display the password"
+                    }
+                    onClick={toggleShowPassword}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onMouseUp={(event) => event.preventDefault()}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
               label="Confirm New Password"
-              size="small"
-              fullWidth
-              type={returnType()}
               value={formik.values.confirmPassword}
               onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              style={{ opacity: passwordFieldOpacity() }}
-              disabled={oldPasswordHasValue()}
-              slotProps={{
-                htmlInput: {
-                  autoComplete: "new-password",
-                },
-              }}
             />
-          </Stack>
-        </FormControl>
+          </FormControl>
+        </Stack>
         <Typography variant="body2" sx={{ marginTop: "7px !important" }}>
           {passwordRequirements}
         </Typography>
@@ -244,18 +289,6 @@ const ProfilePage = (props) => {
         {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
           <FHT error={true}>{formik.errors.confirmPassword}</FHT>
         ) : null}
-        <FormControl>
-          <FormControlLabel
-            control={
-              <Checkbox
-                id="public"
-                color="primary"
-                onChange={toggleShowPassword}
-              />
-            }
-            label="Show passwords"
-          />
-        </FormControl>
         <Divider />
       </>
     );
