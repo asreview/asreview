@@ -1,22 +1,19 @@
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Alert,
   Button,
   CardActions,
   CardContent,
-  Checkbox,
   FormHelperText as FHT,
   FormControl,
-  FormControlLabel,
-  Snackbar,
-  Stack,
-  TextField,
-  Typography,
   IconButton,
   InputAdornment,
-  OutlinedInput,
   InputLabel,
+  OutlinedInput,
+  Snackbar,
+  Stack,
+  Typography,
 } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { OTPFormField } from "Components";
 import AuthAPI from "api/AuthAPI";
 import { useFormik } from "formik";
