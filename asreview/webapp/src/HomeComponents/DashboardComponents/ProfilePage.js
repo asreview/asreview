@@ -2,7 +2,6 @@ import {
   Button,
   Checkbox,
   Container,
-  Divider,
   FormHelperText as FHT,
   FormControl,
   FormControlLabel,
@@ -289,7 +288,6 @@ const ProfilePage = (props) => {
         {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
           <FHT error={true}>{formik.errors.confirmPassword}</FHT>
         ) : null}
-        <Divider />
       </>
     );
   };
@@ -372,20 +370,18 @@ const ProfilePage = (props) => {
             )}
           </Stack>
 
-          <Stack direction="row" spacing={1}>
-            <span>
-              <Button onClick={handleReset} sx={{ marginRight: "15px" }}>
-                reset
-              </Button>
-              <Button
-                id="save"
-                disabled={!formik.isValid || loadingSaveButton}
-                variant="contained"
-                onClick={handleSubmit}
-              >
-                Save
-              </Button>
-            </span>
+          <Stack direction="row" spacing={1} sx={{ mt: 3 }}>
+            <Button
+              id="save"
+              disabled={!formik.isValid || loadingSaveButton}
+              variant="contained"
+              onClick={handleSubmit}
+            >
+              Save
+            </Button>
+            <Button onClick={handleReset} sx={{ marginRight: "15px" }}>
+              reset
+            </Button>
           </Stack>
         </>
       )}
