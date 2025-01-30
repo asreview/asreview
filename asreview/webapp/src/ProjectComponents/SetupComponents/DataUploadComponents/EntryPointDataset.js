@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CardActionArea,
   CardContent,
   Chip,
   Dialog,
@@ -98,14 +99,16 @@ const EntryPointDataset = ({
   return (
     <>
       <Card onClick={toggleOpen} elevation={0}>
-        <Stack direction="row" spacing={1}>
-          <CardIcon iconName={dataset.topic} />
-          <CardContent>
-            <Typography>
-              {formatCitation(dataset.authors, dataset.year)}
-            </Typography>
-          </CardContent>
-        </Stack>
+        <CardActionArea>
+          <Stack direction="row" spacing={1}>
+            <CardIcon iconName={dataset.topic} />
+            <CardContent>
+              <Typography>
+                {formatCitation(dataset.authors, dataset.year)}
+              </Typography>
+            </CardContent>
+          </Stack>
+        </CardActionArea>
       </Card>
       <Dialog open={open} onClose={toggleOpen}>
         <DialogTitle>
