@@ -16,18 +16,21 @@ from asreview.learner import ActiveLearningCycleData
 
 MODELS_CONFIG = [
     {
-        "name": "elas_u4",
-        "label": "ELAS u4",
+        "name": "elas_u2",
+        "label": "ELAS u2",
         "value": ActiveLearningCycleData(
             querier="max",
             classifier="nb",
+            classifier_param={"alpha": 3.822},
             balancer="balanced",
+            balancer_param={"ratio": 1.2},
             feature_extractor="tfidf",
+            feature_extractor_param={"stop_words": "english"},
         ),
     }
 ]
 
-DEFAULT_MODEL_NAME = "elas_u4"
+DEFAULT_MODEL_NAME = "elas_u2"
 
 
 def get_model_config(name=None):
