@@ -14,7 +14,7 @@
 
 """Performance metrics for activate learning results."""
 
-__all__ = ["loss"]
+__all__ = ["loss", "ndcg"]
 
 import numpy as np
 
@@ -39,3 +39,30 @@ def loss(labels: list[int]):
     return float(
         (Ny * (Nx - (Ny - 1) / 2) - np.cumsum(labels).sum()) / (Ny * (Nx - Ny))
     )
+
+
+def ndcg(labels: list[int]):
+    """Compute the Normalized Discounted Cumulative Gain (NDCG) https://doi.org/10.48550/arXiv.1304.6480 for binary labels.
+
+    Arguments
+    ---------
+    labels: list
+        List of binary labels (0 or 1).
+
+    Returns
+    -------
+    float:
+        The NDCG score.
+    """
+    labels = np.asarray(labels)
+
+    def dcg_binary(binary_labels):
+        gains = binary_labels  # Gains are the binary labels
+        discounts = 1.0 / np.log2(np.arange(2, len(binary_labels) + 2))
+        return np.sum(gains * discounts)
+
+    ideal_labels = np.sort(labels)[::-1]  # Ideal ranking (sorted labels)
+    actual_dcg = dcg_binary(labels)  # Use binary DCG
+    ideal_dcg = dcg_binary(ideal_labels)  # Use binary DCG for ideal
+
+    return actual_dcg / ideal_dcg if ideal_dcg > 0 else 0.0
