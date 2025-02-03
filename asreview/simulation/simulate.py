@@ -21,8 +21,9 @@ import pandas as pd
 from tqdm import tqdm
 
 from asreview.metrics import loss
+from asreview.models.stoppers import LastRelevant
+from asreview.models.stoppers import NLabeled
 from asreview.state.contextmanager import open_state
-from asreview.stopping import StoppingDefault
 
 
 def _get_name_from_estimator(estimator):
@@ -46,10 +47,10 @@ def _get_name_from_estimator(estimator):
 
 
 class Simulate:
-    """ASReview Simulation class.
+    """ASReview simulation class.
 
     The simulation will stop when all records have been labeled or when the number of
-    steps/queries reaches the n_stop parameter.
+    steps/queries reaches the stopping.
 
     To seed the simulation, provide the seed to the classifier, query strategy,
     feature extraction model, and balance strategy or use a global random seed.
@@ -62,19 +63,19 @@ class Simulate:
         The labels to use for the simulation.
     classifier: BaseModel
         The initialized classifier to use for the simulation.
-    query_strategy: BaseQueryModel
+    querier: BaseQueryModel
         The initialized query strategy to use for the simulation.
-    balance_strategy: BaseBalanceModel
+    balancer: BaseBalanceModel
         The initialized balance strategy to use for the simulation.
-    feature_extraction: BaseFeatureModel
+    feature_extractor: BaseFeatureModel
         The initialized feature extraction model to use for the simulation. If None,
         the name of the feature extraction model is set to None.
-    stopping: str, int, callable
+    stopper: int, callable
         The stopping mechanism to use for the simulation. When stopper is None,
-        all records are simulated. If "min", the simulation stops when all relevant
-        records are found. If an integer, the simulation stops after n_stop queries.
-        If class with .stop() method, the simulation stops when the callable returns
-        True. Default is "min".
+        the simulation stops when all relevant records are found. If an integer, the
+        simulation stops after n queries. A stopper or -1 stops the simulation after
+        all records have been labeled. If class with .stop() method, the simulation
+        stops when the callable returns True. Default is None.
     skip_transform: bool
         If True, the feature matrix is not computed in the simulation. It is assumed
         that X is the feature matrix or input to the estimator. Default is False.
@@ -84,15 +85,15 @@ class Simulate:
         self,
         X,
         labels,
-        learners,
-        stopping="min",
+        cycles,
+        stopper=None,
         skip_transform=False,
         print_progress=True,
     ):
         self.X = X
         self.labels = labels
-        self.learners = learners
-        self.stopping = stopping
+        self.cycles = cycles
+        self.stopper = stopper
         self.skip_transform = skip_transform
         self.print_progress = print_progress
 
@@ -125,9 +126,9 @@ class Simulate:
                     "record_id",
                     "label",
                     "classifier",
-                    "query_strategy",
-                    "balance_strategy",
-                    "feature_extraction",
+                    "querier",
+                    "balancer",
+                    "feature_extractor",
                     "training_set",
                     "time",
                     "note",
@@ -149,34 +150,33 @@ class Simulate:
             disable=not self.print_progress,
         )
 
-        if self.stopping is None or isinstance(self.stopping, (int, str)):
-            stopper = StoppingDefault(self.stopping)
+        if self.stopper is None:
+            stopper = LastRelevant()
+        elif isinstance(self.stopper, int):
+            stopper = NLabeled(self.stopper)
         else:
-            stopper = self.stopping
+            stopper = self.stopper
 
-        learners = self.learners if isinstance(self.learners, list) else [self.learners]
+        cycles = self.cycles if isinstance(self.cycles, list) else [self.cycles]
 
-        for learner in learners:
-            # first run the overall simulation until the default stopping is met
-            while not stopper.stop(self._results, self.labels) and not learner.stop(
+        for cycle in cycles:
+            # first run the overall simulation until the default stopper is met
+            while not stopper.stop(self._results, self.labels) and not cycle.stop(
                 self._results, self.labels
             ):
                 # compute the feature matrix for the labeled records if not in
                 # _X_features cache
                 if not hasattr(self, "_X_features"):
-                    if (
-                        not self.skip_transform
-                        and learner.feature_extraction is not None
-                    ):
-                        self._X_features = learner.transform(self.X)
+                    if not self.skip_transform and cycle.feature_extractor is not None:
+                        self._X_features = cycle.transform(self.X)
                     elif isinstance(self.X, pd.DataFrame):
                         self._X_features = self.X.values
                     else:
                         self._X_features = self.X
 
                 # fit the estimator to the labeled records
-                if learner.classifier is not None:
-                    learner.fit(
+                if cycle.classifier is not None:
+                    cycle.fit(
                         self._X_features[self._results["record_id"].values],
                         self._results["label"].values,
                     )
@@ -187,21 +187,22 @@ class Simulate:
                 )
 
                 # rank the pool and convert the ranked pool to record ids
-                ranked_pool = learner.rank(self._X_features[pool_record_ids])
+                ranked_pool = cycle.rank(self._X_features[pool_record_ids])
                 ranked_pool_record_ids = pool_record_ids[ranked_pool]
 
                 # label n_query records from the pool
-                n_query = learner.get_n_query(self._results, self.labels)
+                n_query = cycle.get_n_query(self._results, self.labels)
                 if not isinstance(n_query, int) or n_query < 1:
                     raise ValueError(
                         f"Number of records to query should be an integer "
                         f"greater than 0, got {n_query}."
                     )
 
-                labeled = self.label(ranked_pool_record_ids[:n_query], learner=learner)
+                labeled = self.label(ranked_pool_record_ids[:n_query], cycle=cycle)
 
                 pbar_rel.update(labeled["label"].sum())
                 pbar_total.update(n_query)
+
             else:
                 if hasattr(self, "_X_features"):
                     del self._X_features
@@ -217,7 +218,7 @@ class Simulate:
             if self.print_progress:
                 print(f"\nLoss: {loss(padded_results):.3f}")
 
-    def label(self, record_ids, learner=None):
+    def label(self, record_ids, cycle=None):
         """Label the records with the given record_ids.
 
         Parameters
@@ -227,17 +228,17 @@ class Simulate:
 
         """
 
-        if learner is None:
+        if cycle is None:
             classifier = None
-            query_strategy = None
-            balance_strategy = None
-            feature_extraction = None
+            querier = None
+            balancer = None
+            feature_extractor = None
             training_set = None
         else:
-            classifier = _get_name_from_estimator(learner.classifier)
-            query_strategy = _get_name_from_estimator(learner.query_strategy)
-            balance_strategy = _get_name_from_estimator(learner.balance_strategy)
-            feature_extraction = _get_name_from_estimator(learner.feature_extraction)
+            classifier = _get_name_from_estimator(cycle.classifier)
+            querier = _get_name_from_estimator(cycle.querier)
+            balancer = _get_name_from_estimator(cycle.balancer)
+            feature_extractor = _get_name_from_estimator(cycle.feature_extractor)
             training_set = len(self._results)
 
         new_labels = pd.DataFrame(
@@ -245,9 +246,9 @@ class Simulate:
                 "record_id": record_ids,
                 "label": self.labels[record_ids],
                 "classifier": classifier,
-                "query_strategy": query_strategy,
-                "balance_strategy": balance_strategy,
-                "feature_extraction": feature_extraction,
+                "querier": querier,
+                "balancer": balancer,
+                "feature_extractor": feature_extractor,
                 "training_set": training_set,
                 "time": time.time(),
                 "note": None,

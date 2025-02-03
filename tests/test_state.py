@@ -38,7 +38,7 @@ TEST_BALANCE_STRATEGIES = [
     "double",
     "double",
 ]
-TEST_FEATURE_EXTRACTION = [
+TEST_feature_extractor = [
     None,
     None,
     None,
@@ -66,16 +66,18 @@ TEST_NOTES = [
 
 TEST_N_PRIORS = 4
 
-TEST_STATE_FP = Path("tests", "asreview_files", "test_state_example_converted.asreview")
+TEST_STATE_FP = Path(
+    "tests", "asreview_files", "test_project_example_converted.asreview"
+)
 TEST_POOL_START = [157, 301, 536, 567, 416, 171, 659, 335, 329, 428]
 
 
 @pytest.fixture
 def asreview_test_project(tmpdir):
     shutil.copytree(
-        TEST_STATE_FP, Path(tmpdir, "test_state_example_converted.asreview")
+        TEST_STATE_FP, Path(tmpdir, "test_project_example_converted.asreview")
     )
-    return Path(tmpdir, "test_state_example_converted.asreview")
+    return Path(tmpdir, "test_project_example_converted.asreview")
 
 
 def test_init_project_folder(tmpdir):
@@ -130,10 +132,10 @@ def test_print_state(asreview_test_project):
         print(state)
 
 
-def test_settings_state(asreview_test_project):
+def test_al_cycle_state(asreview_test_project):
     project = asr.Project(asreview_test_project)
     review_id = project.reviews[0]["id"]
-    asr.ReviewSettings.from_file(
+    asr.ActiveLearningCycle.from_file(
         Path(project.project_path, "reviews", review_id, "settings_metadata.json")
     )
 
@@ -144,7 +146,7 @@ def test_create_new_state_file(tmpdir):
     with asr.open_state(project) as state:
         state._is_valid_state()
 
-    asr.ReviewSettings.from_file(
+    asr.ActiveLearningCycle.from_file(
         Path(
             project.project_path,
             "reviews",
@@ -156,7 +158,7 @@ def test_create_new_state_file(tmpdir):
 
 def test_get_dataset(asreview_test_project):
     with asr.open_state(asreview_test_project) as state:
-        assert isinstance(state.get_results_table(["query_strategy"]), pd.DataFrame)
+        assert isinstance(state.get_results_table(["querier"]), pd.DataFrame)
         assert isinstance(state.get_results_table(), pd.DataFrame)
 
         # Try getting a specific column.
@@ -165,15 +167,14 @@ def test_get_dataset(asreview_test_project):
             == TEST_RECORD_IDS
         )
         assert (
-            state.get_results_table(["feature_extraction"])[
-                "feature_extraction"
+            state.get_results_table(["feature_extractor"])[
+                "feature_extractor"
             ].to_list()
-            == TEST_FEATURE_EXTRACTION
+            == TEST_feature_extractor
         )
         # Try getting all columns and that picking the right column.
         assert (
-            state.get_results_table()["balance_strategy"].to_list()
-            == TEST_BALANCE_STRATEGIES
+            state.get_results_table()["balancer"].to_list() == TEST_BALANCE_STRATEGIES
         )
         # Try getting a specific column with column name as string, instead of
         # list containing column name.
@@ -190,9 +191,9 @@ def test_get_dataset_drop_prior(asreview_test_project):
             len(state.get_results_table(priors=False))
             == len(TEST_RECORD_IDS) - TEST_N_PRIORS
         )
-        assert (state.get_results_table(priors=False)["query_strategy"].notnull()).all()
-        assert "query_strategy" in state.get_results_table(priors=False).columns
-        assert "query_strategy" not in state.get_results_table("label", priors=False)
+        assert (state.get_results_table(priors=False)["querier"].notnull()).all()
+        assert "querier" in state.get_results_table(priors=False).columns
+        assert "querier" not in state.get_results_table("label", priors=False)
 
 
 def test_get_dataset_drop_pending(tmpdir):
@@ -205,7 +206,7 @@ def test_get_dataset_drop_pending(tmpdir):
         state.query_top_ranked(3)
 
         assert "label" in state.get_results_table(pending=False).columns
-        assert "label" not in state.get_results_table("balance_strategy", pending=False)
+        assert "label" not in state.get_results_table("balancer", pending=False)
         assert len(state.get_results_table(pending=False)) == 3
         assert state.get_results_table(pending=False)["label"].notna().all()
 
@@ -223,10 +224,7 @@ def test_get_results_record(asreview_test_project):
 
 def test_get_query_strategies(asreview_test_project):
     with asr.open_state(asreview_test_project) as state:
-        assert (
-            state.get_results_table()["query_strategy"].to_list()
-            == TEST_QUERY_STRATEGIES
-        )
+        assert state.get_results_table()["querier"].to_list() == TEST_QUERY_STRATEGIES
 
 
 def test_get_classifiers(asreview_test_project):
@@ -307,9 +305,9 @@ def test_query_top_ranked(tmpdir):
         data = state.get_results_table(pending=True)
         assert data["record_id"].to_list() == [2, 1, 0, 3, 4]
         assert data["classifier"].to_list() == ["nb"] * 5
-        assert data["query_strategy"].to_list() == ["max"] * 5
-        assert data["balance_strategy"].to_list() == ["balanced"] * 5
-        assert data["feature_extraction"].to_list() == ["tfidf"] * 5
+        assert data["querier"].to_list() == ["max"] * 5
+        assert data["balancer"].to_list() == ["balanced"] * 5
+        assert data["feature_extractor"].to_list() == ["tfidf"] * 5
         assert data["training_set"].to_list() == [4] * 5
 
 
@@ -330,9 +328,9 @@ def test_add_labeling_data(tmpdir):
         assert data["record_id"].to_list() == TEST_RECORD_IDS[:6]
         assert data["label"].to_list() == TEST_LABELS[:6]
         assert data["classifier"].to_list() == [None] * 6
-        assert data["query_strategy"].to_list() == [None] * 6
-        assert data["balance_strategy"].to_list() == [None] * 6
-        assert data["feature_extraction"].to_list() == [None] * 6
+        assert data["querier"].to_list() == [None] * 6
+        assert data["balancer"].to_list() == [None] * 6
+        assert data["feature_extractor"].to_list() == [None] * 6
         assert data["training_set"].isna().all()
 
         state.query_top_ranked(3)
@@ -455,18 +453,18 @@ def test_last_ranking(tmpdir):
     record_ids = [1, 2, 3, 4, 5, 6]
     ranking = [1, 3, 4, 6, 2, 5]
     classifier = "nb"
-    query_strategy = "max"
-    balance_strategy = "balanced"
-    feature_extraction = "tfidf"
+    querier = "max"
+    balancer = "balanced"
+    feature_extractor = "tfidf"
     training_set = 2
 
     with asr.open_state(project_path) as state:
         state.add_last_ranking(
             ranking,
             classifier,
-            query_strategy,
-            balance_strategy,
-            feature_extraction,
+            querier,
+            balancer,
+            feature_extractor,
             training_set,
         )
 
@@ -476,9 +474,9 @@ def test_last_ranking(tmpdir):
             "record_id",
             "ranking",
             "classifier",
-            "query_strategy",
-            "balance_strategy",
-            "feature_extraction",
+            "querier",
+            "balancer",
+            "feature_extractor",
             "training_set",
             "time",
         ]
@@ -522,18 +520,18 @@ def test_add_extra_column(tmpdir):
     record_ids = [1, 2, 3, 4, 5, 6]
     ranking = [1, 3, 4, 6, 2, 5]
     classifier = "nb"
-    query_strategy = "max"
-    balance_strategy = "balanced"
-    feature_extraction = "tfidf"
+    querier = "max"
+    balancer = "balanced"
+    feature_extractor = "tfidf"
     training_set = 2
 
     with asr.open_state(project_path) as state:
         state.add_last_ranking(
             ranking,
             classifier,
-            query_strategy,
-            balance_strategy,
-            feature_extraction,
+            querier,
+            balancer,
+            feature_extractor,
             training_set,
         )
 

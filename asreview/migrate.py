@@ -7,9 +7,8 @@ from pathlib import Path
 
 import pandas
 
-# from asreview.state.contextmanager import open_state
 from asreview._version import __version__
-from asreview.settings import ReviewSettings
+from asreview.models.models import get_model_config
 from asreview.state.sqlstate import SQLiteState
 
 
@@ -45,7 +44,14 @@ def _project_state_converter_v1_v2(review_path):
 
     df_results = pandas.read_sql_query(
         "SELECT * FROM results WHERE label is not NULL", conn
-    ).rename(columns={"notes": "note"})
+    ).rename(
+        columns={
+            "notes": "note",
+            "query_strategy": "querier",
+            "balance_strategy": "balancer",
+            "feature_extraction": "feature_extractor",
+        }
+    )
     df_results["tags"] = None
     df_results["user_id"] = None
     df_results["time"] = pandas.to_datetime(df_results["labeling_time"]).astype("int64")
@@ -77,26 +83,9 @@ def _project_state_converter_v1_v2(review_path):
     os.unlink(Path(review_path, "results.sql"))
 
 
-def _project_model_settings_converter_v1_v2(model_settings_path):
-    with open(model_settings_path) as f:
-        model_settings = json.load(f)["settings"]
-
-    settings = ReviewSettings(
-        classifier=model_settings.get("model"),
-        query_strategy=model_settings.get("query_strategy"),
-        balance_strategy=model_settings.get("balance_strategy"),
-        feature_extraction=model_settings.get("feature_extraction"),
-        classifier_param=model_settings.get("model_param", None),
-        query_param=model_settings.get("query_param", None),
-        balance_param=model_settings.get("balance_param", None),
-        feature_param=model_settings.get("feature_param", None),
-        n_stop=model_settings.get("n_stop"),
-    )
-
-    with open(model_settings_path, "w") as f:
-        json.dump(asdict(settings), f)
-
-    return settings
+def _project_model_settings_converter_v1_v2(fp_cycle_metadata):
+    with open(fp_cycle_metadata, "w") as f:
+        json.dump(asdict(get_model_config()), f)
 
 
 def migrate_v1_v2(folder):
@@ -130,5 +119,5 @@ def migrate_v1_v2(folder):
 
         # Update the model settings file
         _project_model_settings_converter_v1_v2(
-            Path(folder, "reviews", review["id"], "settings_metadata.json")
+            Path(folder, "reviews", review["id"], "settings_metadata.json"),
         )

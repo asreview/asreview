@@ -38,12 +38,12 @@ const ModelFlowChart = ({ record }) => {
   const classifierName = data?.classifier.filter(
     (classifier) => classifier.name === record.state.classifier,
   )[0].label;
-  const featureExtractionName = data?.feature_extraction.filter(
-    (feature_extraction) =>
-      feature_extraction.name === record.state.feature_extraction,
+  const featureExtractionName = data?.feature_extractor.filter(
+    (feature_extractor) =>
+      feature_extractor.name === record.state.feature_extractor,
   )[0].label;
-  const queryStrategyName = data?.query_strategy.filter(
-    (query_strategy) => query_strategy.name === record.state.query_strategy,
+  const queryStrategyName = data?.querier.filter(
+    (querier) => querier.name === record.state.querier,
   )[0].label;
 
   return (
@@ -82,8 +82,8 @@ const RecordCardModelTraining = ({ record, modelLogLevel, sx }) => {
   }
 
   if (
-    record?.state?.query_strategy === "top-down" ||
-    record?.state?.query_strategy === "random"
+    record?.state?.querier === "top-down" ||
+    record?.state?.querier === "random"
   ) {
     return (
       <Alert severity="warning" icon={<ModelTraining />} sx={sx}>

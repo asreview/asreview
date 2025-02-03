@@ -97,7 +97,7 @@ const ExpandMoreButton = styled((props) => {
 }));
 
 const getFullModel = (model) => {
-  let name = model.feature_extraction + "-" + model.classifier;
+  let name = model.feature_extractor + "-" + model.classifier;
   let defaultModel = DEFAULT_MODELS.filter((e) => e.name === name);
 
   if (defaultModel.length === 1) {
@@ -164,7 +164,7 @@ const ModelSelectDialog = ({
   const queryClient = useQueryClient();
 
   const [selectedModel, setSelectedModel] = React.useState({
-    name: model.feature_extraction + "-" + model.classifier,
+    name: model.feature_extractor + "-" + model.classifier,
     ...model,
   });
 
@@ -174,7 +174,7 @@ const ModelSelectDialog = ({
       setSelectedModel({
         ...selectedModel,
         name: event.target.value,
-        feature_extraction: parts[0],
+        feature_extractor: parts[0],
         classifier: parts[1],
       });
     } else {
@@ -256,7 +256,7 @@ const ModelSelectDialog = ({
               }
               key="labse-logistic"
               disabled={
-                modelOptions?.feature_extraction.find(
+                modelOptions?.feature_extractor.find(
                   (v) => v.name === "labse",
                 ) === undefined
               }
@@ -312,7 +312,7 @@ const ModelSelectDialog = ({
                 modelOptions?.classifier.find(
                   (v) => v.name === "dynamic_nn",
                 ) === undefined ||
-                modelOptions?.feature_extraction.find(
+                modelOptions?.feature_extractor.find(
                   (v) => v.name === "doc2vec",
                 ) === undefined
               }
@@ -335,14 +335,14 @@ const ModelSelectDialog = ({
               <Box>
                 <Stack direction="column" spacing={3}>
                   <ModelSelect
-                    name="feature_extraction"
+                    name="feature_extractor"
                     label="Feature extraction technique"
-                    items={modelOptions?.feature_extraction}
+                    items={modelOptions?.feature_extractor}
                     model={selectedModel}
                     handleModel={(event) => {
                       setSelectedModel({
                         ...selectedModel,
-                        feature_extraction: event.target.value,
+                        feature_extractor: event.target.value,
                       });
                     }}
                   />
@@ -438,8 +438,6 @@ const ModelCard = ({
     },
   );
 
-  console.log(mode);
-
   return (
     <Card>
       <CardHeader
@@ -471,8 +469,8 @@ const ModelCard = ({
           <Typography paragraph>
             {"The  model consists of a"}{" "}
             {
-              modelOptions?.feature_extraction.find(
-                (v) => v.name === modelConfig.feature_extraction,
+              modelOptions?.feature_extractor.find(
+                (v) => v.name === modelConfig.feature_extractor,
               )?.label
             }{" "}
             {"feature extractor and a"}{" "}
@@ -537,19 +535,19 @@ const ModelCard = ({
               <Select
                 labelId="select-query"
                 id="select-query"
-                value={modelConfig?.query_strategy}
+                value={modelConfig?.querier}
                 label="Query strategy"
                 onChange={(event) => {
                   mutate({
                     project_id: project_id,
                     ...modelConfig,
-                    query_strategy: event.target.value,
+                    querier: event.target.value,
                     trainNewModel: trainNewModel,
                   });
                 }}
                 disabled={isLoadingMutate || !editable}
               >
-                {modelOptions?.query_strategy.map((value) => (
+                {modelOptions?.querier.map((value) => (
                   <MenuItem value={value.name} key={value.name}>
                     {value.label}
                   </MenuItem>
@@ -613,13 +611,13 @@ const ModelCard = ({
                 <Select
                   labelId="select-balance"
                   id="select-balance"
-                  value={modelConfig?.balance_strategy}
+                  value={modelConfig?.balancer}
                   label="Balance strategy"
                   onChange={(event) => {
                     mutate({
                       project_id: project_id,
                       ...modelConfig,
-                      balance_strategy: event.target.value,
+                      balancer: event.target.value,
                       trainNewModel: trainNewModel,
                     });
                   }}
@@ -629,7 +627,7 @@ const ModelCard = ({
                     <em>None</em>
                   </MenuItem>
 
-                  {modelOptions?.balance_strategy.map((value) => (
+                  {modelOptions?.balancer.map((value) => (
                     <MenuItem value={value.name} key={value.name}>
                       {value.label}
                     </MenuItem>

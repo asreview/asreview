@@ -1,7 +1,7 @@
 import random
 
 import asreview.webapp.tests.integration_tests.utils as utils
-from asreview.webapp.authentication.models import Project
+from asreview.webapp._authentication.models import Project
 
 ACCOUNT = {
     "email": "test4@user.org",
@@ -38,10 +38,10 @@ PROJECT = {
         ],
     },
     "model": {
-        "feature_extraction": "tfidf",
+        "feature_extractor": "tfidf",
         "classifier": "nb",
-        "query_strategy": "max",
-        "balance_strategy": "balanced",
+        "querier": "max",
+        "balancer": "balanced",
     },
 }
 

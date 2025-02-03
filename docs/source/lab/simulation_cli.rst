@@ -197,4 +197,4 @@ and install them via extensions.
 
 Some models require additional dependencies to be installed. Use
 :code:`pip install asreview[all]` to install all additional dependencies
-at once or check the installation instruction in the :doc:`../technical/reference`.
+at once or check the installation instruction in the :doc:`../technical/reference/asreview`.

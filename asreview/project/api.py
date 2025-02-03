@@ -25,7 +25,6 @@ import time
 import warnings
 import zipfile
 from dataclasses import asdict
-from dataclasses import replace
 from pathlib import Path
 from urllib.request import urlretrieve
 from uuid import uuid4
@@ -35,21 +34,18 @@ import numpy as np
 import scipy.sparse as sp
 from filelock import FileLock
 
-from asreview.models import DEFAULT_CLASSIFIER
-from asreview.models import DEFAULT_BALANCE
-from asreview.models import DEFAULT_FEATURE_EXTRACTION
-from asreview.models import DEFAULT_QUERY
-from asreview.data import DataStore
 from asreview.data.loader import _from_file
 from asreview.data.loader import _get_reader
+from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
+from asreview.learner import ActiveLearningCycle
+from asreview.learner import ActiveLearningCycleData
 from asreview.migrate import migrate_v1_v2
+from asreview.models import get_model_config
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
-from asreview.settings import ReviewSettings
 from asreview.state.sqlstate import SQLiteState
-from asreview.utils import _check_model
 from asreview.utils import _get_filename_from_url
 from asreview.utils import _is_url
 
@@ -235,9 +231,20 @@ class Project:
         # necessary in the input data, we should move it from `Record` to the `Base`
         # class, so that all record implementations have it.
         if self.config["mode"] == PROJECT_MODE_SIMULATE and (
+            all([r.included is None for r in records])
+        ):
+            raise ValueError(
+                "Dataset for simulation mode must have labels for all records - "
+                "got dataset without any labels"
+            )
+
+        if self.config["mode"] == PROJECT_MODE_SIMULATE and (
             any([r.included is None for r in records])
         ):
-            raise ValueError("Import fully labeled dataset")
+            raise ValueError(
+                "Dataset for simulation mode must be fully labeled - "
+                "got records with missing labels"
+            )
 
         self.data_store.add_records(records=records)
 
@@ -360,7 +367,7 @@ class Project:
     def add_review(
         self,
         review_id=None,
-        settings=None,
+        cycle=None,
         reviewer=None,
         start_time=None,
         status="setup",
@@ -371,8 +378,9 @@ class Project:
         ----------
         review_id: str
             The review_id uuid4.
-        settings: ReviewSettings
-            The settings of the review.
+        cycle:
+            An active learning cycle object to add to the review. This object is used
+            to store the configuration of the active learning cycle to file.
         reviewer: object
             A reviewer object with to_sql() method.
         status: str
@@ -391,24 +399,26 @@ class Project:
         if review_id is None:
             review_id = uuid4().hex
 
+        Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
+
         if start_time is None:
             start_time = int(time.time())
 
         config = self.config
 
-        if settings is None:
-            settings = ReviewSettings(
-                classifier=DEFAULT_CLASSIFIER,
-                balance_strategy=DEFAULT_BALANCE,
-                feature_extraction=DEFAULT_FEATURE_EXTRACTION,
-                query_strategy=DEFAULT_QUERY,
-            )
+        if cycle is None:
+            cycle_meta = get_model_config()
+        elif isinstance(cycle, ActiveLearningCycle):
+            cycle_meta = cycle.to_meta()
+        elif isinstance(cycle, ActiveLearningCycleData):
+            cycle_meta = cycle
+        else:
+            raise ValueError("Invalid cycle type.")
 
-        Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
         with open(
             Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
         ) as f:
-            json.dump(asdict(settings), f)
+            json.dump(asdict(cycle_meta), f)
 
         fp_state = Path(self.project_path, "reviews", review_id, "results.db")
 
@@ -435,7 +445,7 @@ class Project:
         self.config = config
         return config
 
-    def update_review(self, review_id=None, settings=None, state=None, **kwargs):
+    def update_review(self, review_id=None, cycle=None, state=None, **kwargs):
         """Update review metadata.
 
         Parameters
@@ -464,12 +474,10 @@ class Project:
             fp_state = Path(self.project_path, "reviews", review_id, "results.db")
             state.to_sql(fp_state)
 
-        if settings is not None:
-            with open(
-                Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
-                "w",
-            ) as f:
-                json.dump(asdict(settings), f)
+        if cycle is not None:
+            cycle.to_file(
+                Path(self.project_path, "reviews", review_id, "settings_metadata.json")
+            )
 
         review_config = config["reviews"][review_index]
         review_config.update(kwargs)
@@ -579,29 +587,19 @@ class Project:
                 raise ValueError("Not possible to import (old) project file.")
 
             if reset_model_if_not_found:
-                settings_fp = Path(
+                cycle_fp = Path(
                     tmpdir,
                     "reviews",
                     project_config["reviews"][0]["id"],
                     "settings_metadata.json",
                 )
-                settings = ReviewSettings.from_file(settings_fp)
 
                 try:
-                    _check_model(settings)
+                    ActiveLearningCycle.from_file(cycle_fp)
                 except ValueError as err:
                     warnings.warn(err)
-                    settings = replace(
-                        settings,
-                        **{
-                            "classifier": DEFAULT_CLASSIFIER,
-                            "balance_strategy": DEFAULT_BALANCE,
-                            "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
-                            "query_strategy": DEFAULT_QUERY,
-                        },
-                    )
-                    with open(settings_fp) as f:
-                        json.dump(asdict(settings), f)
+
+                    ActiveLearningCycle.from_meta(get_model_config()).to_file(cycle_fp)
 
             if safe_import:
                 # assign a new id to the project.

@@ -6,7 +6,7 @@ from flask.testing import FlaskClient
 import asreview as asr
 import asreview.webapp.tests.utils.crud as crud
 import asreview.webapp.tests.utils.misc as misc
-from asreview.webapp.authentication.models import Project
+from asreview.webapp._authentication.models import Project
 from asreview.webapp.tests.utils.config_parser import all_users
 from asreview.webapp.tests.utils.config_parser import get_user
 from asreview.webapp.tests.utils.misc import get_project_id

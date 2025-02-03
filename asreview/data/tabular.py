@@ -17,7 +17,7 @@ __all__ = ["CSVReader"]
 
 import pandas as pd
 
-from asreview.data.base_reader import BaseReader
+from asreview.data.base import BaseReader
 from asreview.data.config import COLUMN_DEFINITIONS
 
 

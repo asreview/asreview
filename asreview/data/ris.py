@@ -22,7 +22,7 @@ from urllib.request import urlopen
 import pandas as pd
 import rispy
 
-from asreview.data.base_reader import BaseReader
+from asreview.data.base import BaseReader
 from asreview.utils import _is_url
 
 ASREVIEW_PARSE_RE = r"\bASReview_\w+\b"

@@ -1,15 +1,17 @@
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Alert,
   Button,
   CardActions,
   CardContent,
-  Checkbox,
   FormHelperText as FHT,
   FormControl,
-  FormControlLabel,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
   Snackbar,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import { OTPFormField } from "Components";
@@ -110,30 +112,65 @@ const ResetPassword = () => {
 
               <Typography variant="body2">{passwordRequirements}</Typography>
 
-              <TextField
-                required
-                id="password"
-                label="Password"
-                size="small"
-                fullWidth
-                variant="outlined"
-                type={!showPassword ? "password" : "text"}
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              <TextField
-                required
-                id="confirmPassword"
-                label="Confirm Password"
-                size="small"
-                fullWidth
-                variant="outlined"
-                type={!showPassword ? "password" : "text"}
-                value={formik.values.confirmPassword}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
+              <FormControl variant="outlined">
+                <InputLabel htmlFor="password">Password</InputLabel>
+                <OutlinedInput
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={
+                          showPassword
+                            ? "hide the password"
+                            : "display the password"
+                        }
+                        onClick={toggleShowPassword}
+                        onMouseDown={(event) => event.preventDefault()}
+                        onMouseUp={(event) => event.preventDefault()}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  label="Password"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+              </FormControl>
+
+              <FormControl variant="outlined">
+                <InputLabel htmlFor="confirmPassword">
+                  Confirm Password
+                </InputLabel>
+                <OutlinedInput
+                  id="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={
+                          showPassword
+                            ? "hide the password"
+                            : "display the password"
+                        }
+                        onClick={toggleShowPassword}
+                        onMouseDown={(event) => event.preventDefault()}
+                        onMouseUp={(event) => event.preventDefault()}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  label="Confirm Password"
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+              </FormControl>
             </Stack>
           </FormControl>
 
@@ -145,14 +182,7 @@ const ResetPassword = () => {
             <FHT error>{formik.errors.confirmPassword}</FHT>
           )}
 
-          <FormControl>
-            <FormControlLabel
-              control={
-                <Checkbox color="primary" onChange={toggleShowPassword} />
-              }
-              label="Show password"
-            />
-          </FormControl>
+          {/* Remove the show password checkbox since we now have the toggle buttons */}
           {errorMessage && <InlineErrorHandler message={errorMessage} />}
         </Stack>
       </CardContent>

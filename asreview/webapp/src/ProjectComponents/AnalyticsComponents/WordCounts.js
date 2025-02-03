@@ -48,7 +48,7 @@ const WordExample = () => {
         </Typography>
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
           {words.relevant.map((word) => (
-            <WordTag key={word} word={word} color="primary.main" />
+            <WordTag key={word} word={word} color="grey.600" />
           ))}
         </Stack>
       </Box>
@@ -58,7 +58,7 @@ const WordExample = () => {
         </Typography>
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
           {words.irrelevant.map((word) => (
-            <WordTag key={word} word={word} color="grey.600" />
+            <WordTag key={word} word={word} color="primary.main" />
           ))}
         </Stack>
       </Box>
@@ -77,11 +77,6 @@ const WordCounts = () => {
       refetchOnWindowFocus: false,
     },
   );
-
-  const topWords = {
-    relevant: data?.relevant?.slice(0, 8) || [],
-    irrelevant: data?.irrelevant?.slice(0, 8) || [],
-  };
 
   return (
     <Card sx={{ bgcolor: "transparent" }}>
@@ -124,10 +119,12 @@ const WordCounts = () => {
                 In Relevant Records
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                {topWords.relevant.length > 0 ? (
-                  topWords.relevant.map((word) => (
-                    <WordTag key={word} word={word} color="primary.main" />
-                  ))
+                {data?.relevant ? (
+                  data?.relevant
+                    .slice(0, 12)
+                    .map((word) => (
+                      <WordTag key={word} word={word} color="grey.600" />
+                    ))
                 ) : (
                   <Typography variant="body2" color="text.secondary">
                     No words available yet
@@ -145,10 +142,12 @@ const WordCounts = () => {
                 In Not Relevant Records
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                {topWords.irrelevant.length > 0 ? (
-                  topWords.irrelevant.map((word) => (
-                    <WordTag key={word} word={word} color="grey.600" />
-                  ))
+                {data?.irrelevant ? (
+                  data?.irrelevant
+                    .slice(0, 8)
+                    .map((word) => (
+                      <WordTag key={word} word={word} color="primary.main" />
+                    ))
                 ) : (
                   <Typography variant="body2" color="text.secondary">
                     No words available yet

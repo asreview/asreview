@@ -337,9 +337,9 @@ class ProjectAPI {
   static mutateModelConfig(variables) {
     let body = new FormData();
     body.set("classifier", variables.classifier);
-    body.set("query_strategy", variables.query_strategy);
-    body.set("balance_strategy", variables.balance_strategy);
-    body.set("feature_extraction", variables.feature_extraction);
+    body.set("querier", variables.querier);
+    body.set("balancer", variables.balancer);
+    body.set("feature_extractor", variables.feature_extractor);
 
     const url = api_url + `projects/${variables.project_id}/algorithms`;
     return new Promise((resolve, reject) => {
@@ -565,8 +565,7 @@ class ProjectAPI {
 
   static mutateStopping(variables) {
     let body = new FormData();
-    body.set("id", variables.id);
-    body.set("threshold", variables.threshold);
+    body.set("n", variables.n);
 
     const url = api_url + `projects/${variables.project_id}/stopping`;
     return new Promise((resolve, reject) => {

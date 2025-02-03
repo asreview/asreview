@@ -9,6 +9,8 @@ export const WordMark = (props) => {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 653.77 162.94"
+      width="100%"
+      height="100%"
       {...props}
     >
       <rect

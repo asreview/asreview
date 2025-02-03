@@ -17,12 +17,12 @@ Technical guide
 
     example_api_asreview_file
 
-.. toctree::
-    :maxdepth: 2
+.. autosummary::
+    :toctree: reference/
     :caption: API Reference
+    :recursive:
 
-    reference
-    reference_models
+    asreview
 
 
 Indices and tables

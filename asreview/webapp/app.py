@@ -34,13 +34,13 @@ from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
 from asreview.webapp import DB
-from asreview.webapp.api import auth
-from asreview.webapp.api import projects
-from asreview.webapp.api import team
-from asreview.webapp.authentication.decorators import login_remote_user
-from asreview.webapp.authentication.models import User
-from asreview.webapp.authentication.oauth_handler import OAuthHandler
-from asreview.webapp.authentication.remote_user_handler import RemoteUserHandler
+from asreview.webapp._api import auth
+from asreview.webapp._api import projects
+from asreview.webapp._api import team
+from asreview.webapp._authentication.decorators import login_remote_user
+from asreview.webapp._authentication.models import User
+from asreview.webapp._authentication.oauth_handler import OAuthHandler
+from asreview.webapp._authentication.remote_user_handler import RemoteUserHandler
 from asreview.webapp.utils import asreview_path
 
 
@@ -79,14 +79,19 @@ def create_app(config_path=None):
     with app.app_context():
         app.register_blueprint(projects.bp)
 
+    # Login Manager
+    login_manager = LoginManager(app)
+    login_manager.init_app(app)
+    login_manager.session_protection = "strong"
+
+    if app.config.get("AUTHENTICATION", True) is False:
+        @login_manager.user_loader
+        def load_user(user_id):
+            return False
+
     if app.config.get("AUTHENTICATION", True):
         # set authentication to True when no auth. arguments are provided.
         app.config["AUTHENTICATION"] = True
-        # config JSON Web Tokens
-        login_manager = LoginManager(app)
-        login_manager.init_app(app)
-        login_manager.session_protection = "strong"
-
         app.config["LOGIN_DURATION"] = int(app.config.get("LOGIN_DURATION", 31))
 
         # Register a callback function for current_user.

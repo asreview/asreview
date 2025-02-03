@@ -65,7 +65,7 @@ const ReviewPage = () => {
                 "-" +
                 data?.result?.record_id +
                 "-" +
-                data?.result?.state?.note
+                JSON.stringify(data?.result?.tags_form)
               }
               project_id={project_id}
               record={data?.result}

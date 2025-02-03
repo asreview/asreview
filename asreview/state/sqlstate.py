@@ -28,9 +28,9 @@ RESULTS_TABLE_COLUMNS_PANDAS_DTYPES = {
     "record_id": "Int64",
     "label": "Int64",
     "classifier": "object",
-    "query_strategy": "object",
-    "balance_strategy": "object",
-    "feature_extraction": "object",
+    "querier": "object",
+    "balancer": "object",
+    "feature_extractor": "object",
     "training_set": "Int64",
     "time": "Float64",
     "note": "object",
@@ -42,9 +42,9 @@ RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
     "record_id": "Int64",
     "ranking": "Int64",
     "classifier": "object",
-    "query_strategy": "object",
-    "balance_strategy": "object",
-    "feature_extraction": "object",
+    "querier": "object",
+    "balancer": "object",
+    "feature_extractor": "object",
     "training_set": "Int64",
     "time": "Float64",
 }
@@ -103,9 +103,9 @@ class SQLiteState:
                             (record_id INTEGER UNIQUE,
                             label INTEGER,
                             classifier TEXT,
-                            query_strategy TEXT,
-                            balance_strategy TEXT,
-                            feature_extraction TEXT,
+                            querier TEXT,
+                            balancer TEXT,
+                            feature_extractor TEXT,
                             training_set INTEGER,
                             time FLOAT,
                             note TEXT,
@@ -118,9 +118,9 @@ class SQLiteState:
                             (record_id INTEGER UNIQUE,
                             ranking INT,
                             classifier TEXT,
-                            query_strategy TEXT,
-                            balance_strategy TEXT,
-                            feature_extraction TEXT,
+                            querier TEXT,
+                            balancer TEXT,
+                            feature_extractor TEXT,
                             training_set INTEGER,
                             time FLOAT)"""
         )
@@ -232,9 +232,9 @@ class SQLiteState:
         self,
         ranked_record_ids,
         classifier,
-        query_strategy,
-        balance_strategy,
-        feature_extraction,
+        querier,
+        balancer,
+        feature_extractor,
         training_set=None,
     ):
         """Save the ranking of the last iteration of the model.
@@ -248,11 +248,11 @@ class SQLiteState:
             A list of records ids in the order that they were ranked.
         classifier: str
             Name of the classifier of the model.
-        query_strategy: str
+        querier: str
             Name of the query strategy of the model.
-        balance_strategy: str
+        balancer: str
             Name of the balance strategy of the model.
-        feature_extraction: str
+        feature_extractor: str
             Name of the feature extraction method of the model.
         training_set: int
             Number of labeled records available at the time of training.
@@ -263,9 +263,9 @@ class SQLiteState:
                 "record_id": ranked_record_ids,
                 "ranking": range(len(ranked_record_ids)),
                 "classifier": classifier,
-                "query_strategy": query_strategy,
-                "balance_strategy": balance_strategy,
-                "feature_extraction": feature_extraction,
+                "querier": querier,
+                "balancer": balancer,
+                "feature_extractor": feature_extractor,
                 "training_set": training_set,
                 "time": time.time(),
             }
@@ -337,7 +337,7 @@ class SQLiteState:
         -------
         pd.DataFrame
             Dataframe with columns 'record_id', 'ranking', 'classifier',
-            'query_strategy', 'balance_strategy', 'feature_extraction',
+            'querier', 'balancer', 'feature_extractor',
             'training_set' and 'time'. It has one row for each record in the
             dataset, and is ordered by ranking.
         """
@@ -369,10 +369,10 @@ class SQLiteState:
         con = self._conn
         cur = con.cursor()
         cur.execute(
-            """INSERT INTO results (record_id, classifier, query_strategy,
-            balance_strategy, feature_extraction, training_set, user_id)
-            SELECT record_id, classifier, query_strategy,
-            balance_strategy, feature_extraction, training_set, ? AS user_id
+            """INSERT INTO results (record_id, classifier, querier,
+            balancer, feature_extractor, training_set, user_id)
+            SELECT record_id, classifier, querier,
+            balancer, feature_extractor, training_set, ? AS user_id
             FROM (
                 SELECT last_ranking.*
                 FROM last_ranking
@@ -446,7 +446,7 @@ class SQLiteState:
         if (not priors) or (not pending):
             sql_where = []
             if not priors:
-                sql_where.append("query_strategy is not NULL")
+                sql_where.append("querier is not NULL")
             if not pending:
                 sql_where.append("label is not NULL")
 
@@ -486,7 +486,7 @@ class SQLiteState:
         """
 
         df_results = pd.read_sql_query(
-            "SELECT * FROM results WHERE query_strategy is NULL AND label is not NULL",
+            "SELECT * FROM results WHERE querier is NULL AND label is not NULL",
             self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
         )

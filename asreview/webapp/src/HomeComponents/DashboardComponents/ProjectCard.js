@@ -1,15 +1,17 @@
 import {
   DeleteForeverOutlined,
   DoneAllOutlined,
-  DownloadOutlined,
-  GroupAdd,
+  FileDownloadOutlined,
+  GroupAddOutlined,
   MoreHoriz,
-  PersonOff,
+  PersonOffOutlined,
+  RemoveDoneOutlined,
   SettingsOutlined,
 } from "@mui/icons-material";
 import { ProjectAPI } from "api";
 import { projectModes, projectStatuses } from "globals.js";
 import { useToggle } from "hooks/useToggle";
+import ReviewScreenOutlined from "icons/ReviewScreenOutlined";
 import { ProjectDeleteDialog } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 import * as React from "react";
@@ -152,8 +154,9 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                 variant="outlined"
                 color="secondary"
                 sx={{ borderRadius: 20 }}
+                endIcon={<ReviewScreenOutlined />}
               >
-                Open Reviewer
+                Review
               </Button>
             </Grid>
           )}
@@ -167,7 +170,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                   component={Link}
                   to={`/${projectModeURLMap[mode]}/${project.id}/team`}
                 >
-                  <GroupAdd />
+                  <GroupAddOutlined />
                 </IconButton>
               </Tooltip>
             )}
@@ -179,7 +182,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                   component={Link}
                   to={`/${projectModeURLMap[mode]}/${project.id}/team`}
                 >
-                  <PersonOff />
+                  <PersonOffOutlined />
                 </IconButton>
               </Tooltip>
             )}
@@ -228,7 +231,11 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                     }
                   >
                     <ListItemIcon>
-                      <DoneAllOutlined />
+                      {review?.status === projectStatuses.REVIEW ? (
+                        <DoneAllOutlined />
+                      ) : (
+                        <RemoveDoneOutlined />
+                      )}
                     </ListItemIcon>
                     <ListItemText>
                       {review?.status === projectStatuses.REVIEW
@@ -245,7 +252,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                 disabled={isExportingProject}
               >
                 <ListItemIcon>
-                  <DownloadOutlined />
+                  <FileDownloadOutlined />
                 </ListItemIcon>
                 <ListItemText>Export project</ListItemText>
               </MenuItem>

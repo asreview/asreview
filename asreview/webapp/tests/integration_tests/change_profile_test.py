@@ -1,5 +1,5 @@
 import asreview.webapp.tests.integration_tests.utils as utils
-from asreview.webapp.authentication.models import User
+from asreview.webapp._authentication.models import User
 
 ACCOUNT = {
     "email": "test4@user.org",
