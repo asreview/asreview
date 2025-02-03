@@ -406,19 +406,19 @@ class Project:
 
         config = self.config
 
-        if cycle is None:
-            cycle_meta = get_model_config()
-        elif isinstance(cycle, ActiveLearningCycle):
-            cycle_meta = cycle.to_meta()
-        elif isinstance(cycle, ActiveLearningCycleData):
-            cycle_meta = cycle
-        else:
-            raise ValueError("Invalid cycle type.")
+        if cycle is not None:
+            if isinstance(cycle, ActiveLearningCycle):
+                cycle_meta = cycle.to_meta()
+            elif isinstance(cycle, ActiveLearningCycleData):
+                cycle_meta = cycle
+            else:
+                raise ValueError("Invalid cycle type.")
 
-        with open(
-            Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
-        ) as f:
-            json.dump(asdict(cycle_meta), f)
+            with open(
+                Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
+                "w",
+            ) as f:
+                json.dump(asdict(cycle_meta), f)
 
         fp_state = Path(self.project_path, "reviews", review_id, "results.db")
 
@@ -599,7 +599,11 @@ class Project:
                 except ValueError as err:
                     warnings.warn(err)
 
-                    ActiveLearningCycle.from_meta(get_model_config()).to_file(cycle_fp)
+                    default_model = get_model_config()
+
+                    ActiveLearningCycle.from_meta(default_model["value"]).to_file(
+                        cycle_fp
+                    )
 
             if safe_import:
                 # assign a new id to the project.

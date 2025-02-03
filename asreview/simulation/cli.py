@@ -220,7 +220,7 @@ def _cli_simulate(argv):
     sim.review()
 
     if args.output is not None:
-        project.add_review(cycle=cycle_meta, reviewer=sim, status="finished")
+        project.add_review(reviewer=sim, status="finished")
 
         project.export(args.output)
         shutil.rmtree(fp_tmp_simulation)

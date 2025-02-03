@@ -327,7 +327,7 @@ def test_get_labeled_stats(client, project):
 
 
 # Test listing the available algorithms
-def test_list_algorithms(client, user):
+def test_list_models(client, user):
     r = au.get_project_algorithms_options(client)
     assert r.status_code == 200
     expected_keys = [

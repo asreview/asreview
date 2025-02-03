@@ -18,13 +18,58 @@ MODELS_CONFIG = [
     {
         "name": "elas_u4",
         "label": "ELAS u4",
+        "type": "ultra",
         "value": ActiveLearningCycleData(
             querier="max",
             classifier="nb",
             balancer="balanced",
             feature_extractor="tfidf",
         ),
-    }
+    },
+    {
+        "name": "elas_u3",
+        "label": "ELAS u3",
+        "type": "ultra",
+        "value": ActiveLearningCycleData(
+            querier="max",
+            classifier="nb",
+            balancer="balanced",
+            feature_extractor="tfidf",
+        ),
+    },
+    {
+        "name": "elas_l2",
+        "label": "ELAS l2",
+        "type": "lang",
+        "value": ActiveLearningCycleData(
+            querier="max",
+            classifier="nb",
+            balancer="balanced",
+            feature_extractor="tfidf",
+        ),
+    },
+    {
+        "name": "elas_h3",
+        "label": "ELAS h3",
+        "type": "heavy",
+        "value": ActiveLearningCycleData(
+            querier="max",
+            classifier="nb",
+            balancer="balanced",
+            feature_extractor="tfidf",
+        ),
+    },
+    {
+        "name": "elas_h2",
+        "label": "ELAS h2",
+        "type": "heavy",
+        "value": ActiveLearningCycleData(
+            querier="max",
+            classifier="nb",
+            balancer="balanced",
+            feature_extractor="tfidf",
+        ),
+    },
 ]
 
 DEFAULT_MODEL_NAME = "elas_u4"
@@ -50,6 +95,6 @@ def get_model_config(name=None):
 
     for model_config in MODELS_CONFIG:
         if model_config["name"] == name:
-            return model_config["value"]
+            return model_config
 
     return None

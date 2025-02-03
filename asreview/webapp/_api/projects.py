@@ -48,6 +48,7 @@ from asreview.extensions import extensions
 from asreview.extensions import load_extension
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
+from asreview.models import MODELS_CONFIG
 from asreview.models import get_model_config
 from asreview.models.stoppers import NConsecutiveIrrelevant
 from asreview.project.api import PROJECT_MODE_SIMULATE
@@ -244,6 +245,17 @@ def api_create_project():  # noqa: F401
             return jsonify(message="No file or dataset found to import."), 400
 
         project.add_review()
+
+        with open(
+            Path(
+                project.project_path,
+                "reviews",
+                project.reviews[0]["id"],
+                "settings_metadata.json",
+            ),
+            "w",
+        ) as f:
+            json.dump({"name": get_model_config()["name"]}, f)
 
         n_labeled = project.data_store["included"].notnull().sum()
 
@@ -631,9 +643,9 @@ def api_get_labeled_stats(project):  # noqa: F401
         )
 
 
-@bp.route("/algorithms", methods=["GET"])
+@bp.route("/learners", methods=["GET"])
 @login_required
-def api_list_algorithms():
+def api_list_learners():
     """List the names and labels of available algorithms"""
 
     entry_points_per_submodel = [
@@ -644,33 +656,43 @@ def api_list_algorithms():
     ]
 
     payload = {
-        "balancer": [],
-        "classifier": [],
-        "feature_extractor": [],
-        "querier": [],
+        "learners": [
+            {
+                "name": learner["name"],
+                "label": learner["label"],
+                "type": learner["type"],
+            }
+            for learner in MODELS_CONFIG
+        ],
+        "models": {
+            "balancer": [],
+            "classifier": [],
+            "feature_extractor": [],
+            "querier": [],
+        },
     }
 
-    for entry_points, key in zip(entry_points_per_submodel, payload.keys()):
+    for entry_points, key in zip(entry_points_per_submodel, payload["models"].keys()):
         for e in entry_points:
             model_class = e.load()
 
             if hasattr(model_class, "label"):
-                payload[key].append(
+                payload["models"][key].append(
                     {"name": model_class.name, "label": model_class.label}
                 )
             else:
-                payload[key].append(
+                payload["models"][key].append(
                     {"name": model_class.name, "label": model_class.name}
                 )
 
     return jsonify(payload)
 
 
-@bp.route("/projects/<project_id>/algorithms", methods=["GET"])
+@bp.route("/projects/<project_id>/learner", methods=["GET"])
 @login_required
 @project_authorization
-def api_get_algorithms(project):  # noqa: F401
-    """Get the algorithms used in the project"""
+def api_get_learner(project):  # noqa: F401
+    """Get the latest learner used in the project"""
 
     with open(
         Path(
@@ -683,11 +705,14 @@ def api_get_algorithms(project):  # noqa: F401
         return jsonify(json.load(f))
 
 
-@bp.route("/projects/<project_id>/algorithms", methods=["POST", "PUT"])
+@bp.route("/projects/<project_id>/learner", methods=["POST", "PUT"])
 @login_required
 @project_authorization
-def api_set_algorithms(project):  # noqa: F401
-    """Set the algorithms used in the project"""
+def api_set_learner(project):  # noqa: F401
+    """Set the learner used in the project"""
+
+    name = request.form.get("name")
+    params = json.loads(request.form.get("params", "{}"))
 
     fp = Path(
         project.project_path,
@@ -696,26 +721,11 @@ def api_set_algorithms(project):  # noqa: F401
         "settings_metadata.json",
     )
 
-    if fp.exists():
-        with open(fp, "r") as f:
-            cycle = ActiveLearningCycleData(**json.load(f))
-
-        cycle.classifier = request.form.get("classifier")
-        cycle.querier = request.form.get("querier")
-        cycle.balancer = request.form.get("balancer")
-        cycle.feature_extractor = request.form.get("feature_extractor")
-    else:
-        cycle = ActiveLearningCycleData(
-            classifier=request.form.get("classifier"),
-            querier=request.form.get("querier"),
-            balancer=request.form.get("balancer"),
-            feature_extractor=request.form.get("feature_extractor"),
-        )
-
     with open(fp, "w") as f:
-        json.dump(asdict(cycle), f)
+        settings = {"name": name, "params": params}
+        json.dump(settings, f)
 
-    return jsonify({**asdict(cycle)})
+    return jsonify(settings)
 
 
 @bp.route("/projects/<project_id>/wordcounts", methods=["GET"])
