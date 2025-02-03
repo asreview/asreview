@@ -85,6 +85,7 @@ def create_app(config_path=None):
     login_manager.session_protection = "strong"
 
     if app.config.get("AUTHENTICATION", True) is False:
+
         @login_manager.user_loader
         def load_user(user_id):
             return False
@@ -168,10 +169,7 @@ def create_app(config_path=None):
     @app.route("/<path:url>", methods=["GET"])
     @login_remote_user
     def index_protected(**kwargs):
-        if (
-            app.config.get("AUTHENTICATION", True)
-            and not current_user.is_authenticated
-        ):
+        if app.config.get("AUTHENTICATION", True) and not current_user.is_authenticated:
             return redirect("/signin")
 
         return index(**kwargs)
@@ -181,7 +179,7 @@ def create_app(config_path=None):
     @app.route("/robots.txt")
     def static_from_root():
         return send_from_directory("build", request.path[1:])
-    
+
     # The task manager needs to be configured if not in testing
     if not (app.testing):
         # I want people to be able to configure the host and port of

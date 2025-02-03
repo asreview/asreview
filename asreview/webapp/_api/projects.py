@@ -320,7 +320,7 @@ def api_get_project_info(project):  # noqa: F401
 
         if db_project:
             project_config["roles"] = {"owner": db_project.owner_id == current_user.id}
-    
+
     else:
         project_config["roles"] = {"owner": True}
 
