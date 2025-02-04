@@ -79,18 +79,12 @@ def create_app(config_path=None):
     with app.app_context():
         app.register_blueprint(projects.bp)
 
-    # Login Manager
-    login_manager = LoginManager(app)
-    login_manager.init_app(app)
-    login_manager.session_protection = "strong"
-
-    if app.config.get("AUTHENTICATION", True) is False:
-
-        @login_manager.user_loader
-        def load_user(user_id):
-            return False
-
     if app.config.get("AUTHENTICATION", True):
+        # Login Manager
+        login_manager = LoginManager(app)
+        login_manager.init_app(app)
+        login_manager.session_protection = "strong"
+
         # set authentication to True when no auth. arguments are provided.
         app.config["AUTHENTICATION"] = True
         app.config["LOGIN_DURATION"] = int(app.config.get("LOGIN_DURATION", 31))
