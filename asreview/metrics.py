@@ -42,7 +42,9 @@ def loss(labels: list[int]):
 
 
 def ndcg(labels: list[int]):
-    """Compute the Normalized Discounted Cumulative Gain (NDCG) https://doi.org/10.48550/arXiv.1304.6480 for binary labels.
+    """Compute the Normalized Discounted Cumulative Gain (NDCG)
+    
+    Basesd on: https://doi.org/10.48550/arXiv.1304.6480
 
     Arguments
     ---------
@@ -54,15 +56,12 @@ def ndcg(labels: list[int]):
     float:
         The NDCG score.
     """
-    labels = np.asarray(labels)
+    Ny = sum(labels)
+    Nx = len(labels)
+    if Ny == 0 or Nx == Ny:
+        raise ValueError("Labels must contain two distinct classes.")
 
-    def dcg_binary(binary_labels):
-        gains = binary_labels  # Gains are the binary labels
-        discounts = 1.0 / np.log2(np.arange(2, len(binary_labels) + 2))
-        return np.sum(gains * discounts)
+    dcg = np.sum(labels / np.log2(np.arange(2, Nx + 2)))
+    idcg = np.sum(1 / np.log2(np.arange(2, Ny + 2)))
 
-    ideal_labels = np.sort(labels)[::-1]  # Ideal ranking (sorted labels)
-    actual_dcg = dcg_binary(labels)  # Use binary DCG
-    ideal_dcg = dcg_binary(ideal_labels)  # Use binary DCG for ideal
-
-    return actual_dcg / ideal_dcg if ideal_dcg > 0 else 0.0
+    return(float(dcg/idcg))
