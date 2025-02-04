@@ -20,7 +20,8 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from asreview.metrics import loss, ndcg
+from asreview.metrics import loss
+from asreview.metrics import ndcg
 from asreview.models.stoppers import LastRelevant
 from asreview.models.stoppers import NLabeled
 from asreview.state.contextmanager import open_state
