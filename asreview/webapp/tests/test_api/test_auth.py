@@ -124,10 +124,7 @@ def test_unsuccessful_signin_with_unconfirmed_account(client_auth_verified):
 
 
 # Successfully signing in a user must return a 200 response
-@pytest.mark.parametrize(
-    "client_fixture",
-    ["client_auth", "client_implicit_auth"]
-)
+@pytest.mark.parametrize("client_fixture", ["client_auth", "client_implicit_auth"])
 def test_successful_signin(request, client_fixture):
     # get client
     client = request.getfixturevalue(client_fixture)
@@ -182,10 +179,7 @@ def test_unsuccessful_signin_wrong_email(client_auth):
 
 
 # Signing out must return a 200 status and an appropriate message
-@pytest.mark.parametrize(
-    "client_fixture",
-    ["client_auth", "client_implicit_auth"]
-)
+@pytest.mark.parametrize("client_fixture", ["client_auth", "client_implicit_auth"])
 def test_signout(request, client_fixture):
     # get client
     client = request.getfixturevalue(client_fixture)
@@ -292,16 +286,11 @@ def test_confirm_route_returns_400_if_app_not_verified(client_auth):
 # ###################
 
 
-
-
-
 # Test user data if we request is
 @pytest.mark.parametrize(
     "attribute", ["email", "identifier", "name", "origin", "affiliation"]
 )
-@pytest.mark.parametrize(
-    "client_fixture", ["client_auth", "client_implicit_auth"]
-)
+@pytest.mark.parametrize("client_fixture", ["client_auth", "client_implicit_auth"])
 def test_get_profile(request, client_fixture, attribute):
     # get client
     client = request.getfixturevalue(client_fixture)
