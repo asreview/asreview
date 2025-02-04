@@ -2,7 +2,8 @@ import numpy as np
 import pytest
 from numpy.testing import assert_almost_equal
 
-from asreview.metrics import loss, ndcg
+from asreview.metrics import loss
+from asreview.metrics import ndcg
 
 
 @pytest.mark.parametrize(
