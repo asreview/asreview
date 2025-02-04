@@ -102,9 +102,19 @@ def lab_entry_point(argv):
     if args.salt:
         app.config["SALT"] = args.salt
 
-    # by default, the application is authenticated but lab is not
+    # By default, the application is authenticated but lab is not.
+    # Behavior:
+    # ENV var for auth | CLI par for auth | App is authenticated
+    # ==========================================================
+    #       True       |        True      |         True
+    #       True       |        False     |         True
+    #       False      |        True      |         True
+    #       False      |        False     |         False
+    #       None       |        True      |         True
+    #       None       |        False     |         False
+    # ==========================================================
     app.config["AUTHENTICATION"] = (
-        app.config.get("AUTHENTICATION", False) and args.authentication is not True
+        app.config.get("AUTHENTICATION", False) or args.authentication
     )
 
     # clean all projects
@@ -255,7 +265,7 @@ def _lab_parser():
     parser.add_argument(
         "--enable-auth",
         dest="authentication",
-        default=None,
+        default=False,
         action="store_true",
         help="Enable authentication.",
     )
