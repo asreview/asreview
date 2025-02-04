@@ -170,13 +170,7 @@ def client_remote_auth(asreview_path_fixture):
         DB.engine.raw_connection().close()
 
 
-@pytest.fixture(
-    params=[
-        "client_auth",
-        "client_implicit_auth",
-        "client_no_auth"
-    ]
-)
+@pytest.fixture(params=["client_auth", "client_implicit_auth", "client_no_auth"])
 def client(request):
     """This fixture provides different Flask client (authenticated
     and unauthenticated) for every test that uses it."""
