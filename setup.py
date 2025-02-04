@@ -51,7 +51,7 @@ REQUIRES = [
     "setuptools",
     "flask>=2.3.0",
     "flask_cors",
-    "flask-login>=0.6.3",
+    "flask-login==0.6.3",
     "flask-mail",
     "Werkzeug>=2.3.2",
     "openpyxl>=3.0.3",
