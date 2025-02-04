@@ -43,7 +43,7 @@ def loss(labels: list[int]):
 
 def ndcg(labels: list[int]):
     """Compute the Normalized Discounted Cumulative Gain (NDCG)
-    
+
     Basesd on: https://doi.org/10.48550/arXiv.1304.6480
 
     Arguments
@@ -64,4 +64,4 @@ def ndcg(labels: list[int]):
     dcg = np.sum(labels / np.log2(np.arange(2, Nx + 2)))
     idcg = np.sum(1 / np.log2(np.arange(2, Ny + 2)))
 
-    return(float(dcg/idcg))
+    return float(dcg / idcg)
