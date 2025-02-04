@@ -1,14 +1,9 @@
-// if (process.env.NODE_ENV !== 'development') {
-//   console.log('Skipping config load: Not in development mode');
-//   process.exit(0);
-// }
-
 const fs = require("fs");
 const toml = require("toml");
 
-// Load and parse the TOML file, can this be an argument? Also on Windows?
+// Load and parse TOML file if present in .asreview-config
 const config = toml.parse(
-  fs.readFileSync("../../asreview_config.toml", "utf-8"),
+  fs.readFileSync("../../.asreview-config/asreview-config.toml", "utf-8"),
 );
 
 // Map shared variables to React environment variables

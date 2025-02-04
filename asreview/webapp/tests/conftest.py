@@ -56,6 +56,8 @@ def _get_app(app_type="auth-basic", path=None):
         config_path = str(base_dir / "auth_remote_config.toml")
     elif app_type == "no-auth":
         config_path = str(base_dir / "no_auth_config.toml")
+    elif app_type == "implicit-auth":
+        config_path = str(base_dir / "implicit_auth_config.toml")
     else:
         raise ValueError(f"Unknown config {app_type}")
     # create app
@@ -103,6 +105,18 @@ def client_auth(asreview_path_fixture):
     """Flask client for basic authenticated app, account
     creation allowed."""
     app = _get_app("auth-basic", path=asreview_path_fixture)
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
+
+
+@pytest.fixture
+def client_implicit_auth(asreview_path_fixture):
+    """Flask client to check if the app is authenticated when
+    authentication configuration is missing."""
+    app = _get_app("implicit-auth", path=asreview_path_fixture)
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)
@@ -159,7 +173,8 @@ def client_remote_auth(asreview_path_fixture):
 @pytest.fixture(
     params=[
         "client_auth",
-        "client_no_auth",
+        "client_implicit_auth",
+        "client_no_auth"
     ]
 )
 def client(request):

@@ -33,7 +33,6 @@ def _asreview_file_archive():
     )
 
 
-# Test getting all projects
 def test_get_projects(client, user, project):
     r = au.get_all_projects(client)
     assert r.status_code == 200

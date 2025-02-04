@@ -1,0 +1,5 @@
+TESTING = true
+DEBUG = true
+SECRET_KEY = "my_very_secret_key"
+SECURITY_PASSWORD_SALT = "my_salt"
+ALLOW_ACCOUNT_CREATION = true
