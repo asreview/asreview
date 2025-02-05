@@ -288,6 +288,11 @@ export default function ReviewProgress({ project_id }) {
                   ]}
                   height={180}
                   width={180}
+                  sx={{
+                    "& .MuiPieArc-root": {
+                      strokeWidth: 0,
+                    },
+                  }}
                 />
               </Box>
             )}
@@ -353,6 +358,11 @@ export default function ReviewProgress({ project_id }) {
                   ]}
                   height={180}
                   width={180}
+                  sx={{
+                    "& .MuiPieArc-root": {
+                      strokeWidth: 0,
+                    },
+                  }}
                 />
               </Box>
             </Box>

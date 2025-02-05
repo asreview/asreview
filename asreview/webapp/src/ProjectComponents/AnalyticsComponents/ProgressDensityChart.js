@@ -1,4 +1,5 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useState, useRef } from "react";
+import GetAppIcon from "@mui/icons-material/GetApp";
 import {
   Box,
   Card,
@@ -14,45 +15,29 @@ import {
   Button,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import GetAppIcon from "@mui/icons-material/GetApp";
 import { toPng, toJpeg, toSvg } from "html-to-image";
-import Chart from "react-apexcharts";
-
 import { CardErrorHandler } from "Components";
-
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
+import { LineChart, legendClasses } from "@mui/x-charts";
 
 const calculateProgressDensity = (data) => {
   return data.map((entry, index, arr) => {
-    // Create a rolling window of up to 10 entries
     const window = arr.slice(Math.max(0, index - 9), index + 1);
-
-    // Calculate the mean of the 'label' over the window
     const mean =
       window.reduce((acc, curr) => acc + curr.label, 0) / window.length;
-
-    // Calculate the relevant counts
     let relevant;
     if (index + 1 < 10) {
-      // For the first 9 items, scale to the number of items in the window
       relevant = mean * (index + 1);
     } else {
-      // After 10 items, scale to 10
       relevant = mean * 10;
     }
-
-    // Round to 1 decimal place to match the backend behavior
-    return {
-      x: index + 1,
-      y: Math.round(relevant * 10) / 10,
-    };
+    return { x: index + 1, y: Math.round(relevant * 10) / 10 };
   });
 };
 
 export default function ProgressDensityChart(props) {
   const theme = useTheme();
   const chartRef = useRef(null);
-
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [anchorPosition, setAnchorPosition] = useState({ top: 0, left: 0 });
   const [anchorElMenu, setAnchorElMenu] = useState(null);
@@ -79,8 +64,7 @@ export default function ProgressDensityChart(props) {
 
   const handleDownload = (format) => {
     setAnchorElMenu(null);
-
-    const node = chartRef.current.querySelector(".apexcharts-canvas");
+    const node = chartRef.current;
     const downloadFileName = `chart.${format}`;
 
     switch (format) {
@@ -97,10 +81,7 @@ export default function ProgressDensityChart(props) {
           });
         break;
       case "jpeg":
-        toJpeg(node, {
-          quality: 1,
-          bgcolor: theme.palette.background.paper,
-        })
+        toJpeg(node, { quality: 1, bgcolor: theme.palette.background.paper })
           .then((dataUrl) => {
             const link = document.createElement("a");
             link.download = downloadFileName;
@@ -128,120 +109,31 @@ export default function ProgressDensityChart(props) {
     }
   };
 
-  const seriesArray = useCallback(() => {
-    if (props.genericDataQuery.data) {
-      return [
-        {
-          name: "Relevant records",
-          data: calculateProgressDensity(props.genericDataQuery.data),
-        },
-      ];
-    } else {
-      return [];
-    }
-  }, [props.genericDataQuery.data]);
+  const processChartData = () => {
+    if (!props.genericDataQuery.data) return null;
 
-  const optionsChart = useCallback(() => {
+    const formattedData = calculateProgressDensity(props.genericDataQuery.data);
+
     return {
-      chart: {
-        animations: {
-          enabled: false,
+      xAxis: formattedData.map((item) => item.x),
+      series: [
+        {
+          data: formattedData.map((item) => item.y),
+          label: "Relevant records",
+          color:
+            theme.palette.mode === "light"
+              ? theme.palette.grey[600]
+              : theme.palette.grey[600],
+          area: true,
+          showMark: false,
+          curve: "linear",
         },
-        background: "transparent",
-        id: "ASReviewLABprogressDensity",
-        type: "area",
-        stacked: true,
-        toolbar: {
-          show: false,
-        },
-      },
-      colors: [
-        theme.palette.mode === "light"
-          ? theme.palette.primary.light
-          : theme.palette.primary.main,
-        theme.palette.grey[600],
       ],
-      dataLabels: {
-        enabled: false,
-      },
-      fill: {
-        type: "gradient",
-        gradient: {
-          shadeIntensity: theme.palette.mode === "light" ? 0.9 : 0.2,
-          opacityFrom: 0.5,
-          opacityTo: 0.9,
-        },
-      },
-      legend: {
-        position: "top",
-        horizontalAlign: "left",
-        fontSize: "14px",
-        fontFamily: theme.typography.subtitle2.fontFamily,
-        fontWeight: theme.typography.subtitle2.fontWeight,
-        labels: {
-          colors: theme.palette.text.secondary,
-        },
-        markers: {
-          width: 8,
-          height: 8,
-          offsetX: -4,
-        },
-        itemMargin: {
-          horizontal: 16,
-        },
-      },
-      markers: {
-        size: 0,
-      },
-      noData: {
-        text: "No data available",
-      },
-      stroke: {
-        curve: "smooth",
-        lineCap: "round",
-        width: 2,
-      },
-      theme: {
-        mode: theme.palette.mode,
-      },
-      tooltip: {},
-      xaxis: {
-        decimalsInFloat: 0,
-        title: {
-          text: "Records Reviewed",
-        },
-        type: "numeric",
-        labels: {
-          show: true,
-        },
-        axisTicks: {
-          show: false,
-        },
-        tooltip: {
-          enabled: false,
-        },
-      },
-      yaxis: {
-        showAlways: false,
-        max: 10,
-        min: 0,
-        tickAmount: 5,
-        title: {
-          text: "Relevant Records per 10 Records",
-        },
-      },
     };
-  }, [theme]);
+  };
 
-  const [series, setSeries] = useState(seriesArray());
-  const [options, setOptions] = useState(optionsChart());
+  const chartData = processChartData();
 
-  useEffect(() => {
-    setSeries(seriesArray());
-    setOptions(optionsChart());
-  }, [seriesArray, optionsChart]);
-
-  // Inline SVG for a "mountain" scenario: starts high, forms a couple of peaks,
   const goodScenarioSVG = (
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
       <path
@@ -251,21 +143,18 @@ export default function ProgressDensityChart(props) {
            Q55,20 65,30
            Q75,50 85,50
            L95,50"
-        stroke={theme.palette.primary.main}
+        stroke={theme.palette.grey[600]}
         strokeWidth="2"
         fill="none"
       />
     </svg>
   );
 
-  // Inline SVG for bad scenario: never takes off, stays low
   const badScenarioSVG = (
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
-      {" "}
-      {/* A line starting near bottom-left and staying low to bottom-right */}
       <path
         d="M5,50 C20,45 40,40 60,42 80,43 90,45 95,50"
-        stroke={theme.palette.primary.main}
+        stroke={theme.palette.grey[600]}
         strokeWidth="2"
         fill="none"
       />
@@ -281,7 +170,7 @@ export default function ProgressDensityChart(props) {
       />
       <CardContent>
         <Stack>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 0 }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <IconButton onClick={handleDownloadClick}>
               <GetAppIcon fontSize="small" />
             </IconButton>
@@ -309,19 +198,71 @@ export default function ProgressDensityChart(props) {
               <StyledLightBulb fontSize="small" />
             </IconButton>
           </Box>
-          {props.genericDataQuery.isLoading ? (
-            <Skeleton variant="rectangular" height={400} width="100%" />
-          ) : (
-            <div ref={chartRef}>
-              <Chart
-                options={options}
-                series={series}
-                type="area"
+
+          <Box ref={chartRef}>
+            {props.genericDataQuery.isLoading ? (
+              <Skeleton variant="rectangular" height={400} width="100%" />
+            ) : chartData ? (
+              <LineChart
                 height={400}
-                width="100%"
+                series={[
+                  {
+                    ...chartData.series[0],
+                    area: true,
+                    type: "line",
+                  },
+                ]}
+                xAxis={[
+                  {
+                    data: chartData.xAxis,
+                    label: "Records Reviewed",
+                    tickMinStep: 1,
+                  },
+                ]}
+                yAxis={[
+                  {
+                    label: "Relevant Records per 10 Records",
+                    min: 0,
+                    max: 10,
+                    tickAmount: 5,
+                  },
+                ]}
+                slotProps={{
+                  legend: {
+                    direction: "row",
+                    position: { vertical: "top", horizontal: "left" },
+                    padding: { top: -10 },
+                    itemMarkWidth: 14,
+                    itemMarkHeight: 14,
+                    markGap: 5,
+                    itemGap: 10,
+                    labelStyle: {
+                      fontSize: 12,
+                      fill: theme.palette.text.secondary,
+                    },
+                  },
+                }}
+                sx={{
+                  ".MuiAreaElement-root": {
+                    fillOpacity: 0.2,
+                  },
+                  ".MuiChartsLegend-root": {
+                    transform: "translate(24px, 8px)",
+                  },
+                  ".MuiLineElement-root": {
+                    strokeWidth: 2,
+                  },
+                  [`& .${legendClasses.mark}`]: {
+                    ry: 10,
+                  },
+                }}
               />
-            </div>
-          )}
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No data available
+              </Typography>
+            )}
+          </Box>
         </Stack>
       </CardContent>
 

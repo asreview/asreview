@@ -1,10 +1,19 @@
 import React from "react";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
+import React from "react";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import {
+  Box,
+  Button,
   Box,
   Button,
   Card,
   CardContent,
+  Divider,
+  IconButton,
+  Popover,
+  Skeleton,
+  Stack,
   Divider,
   IconButton,
   Popover,
@@ -77,6 +86,11 @@ const WordCounts = () => {
       refetchOnWindowFocus: false,
     },
   );
+
+  const topWords = {
+    relevant: data?.relevant?.slice(0, 8) || [],
+    irrelevant: data?.irrelevant?.slice(0, 8) || [],
+  };
 
   return (
     <Card sx={{ bgcolor: "transparent" }}>

@@ -1130,6 +1130,12 @@ def api_get_stopper(project):  # noqa: F401
             n_since_last_relevant = int(sum(labels[last_relevant_index + 1 :] == 0))
         else:
             n_since_last_relevant = int(sum(labels == 0))
+    if len(labels) > 0:
+        if int(sum(labels == 1)) > 0:
+            last_relevant_index = len(labels) - 1 - np.argmax(labels[::-1] == 1)
+            n_since_last_relevant = int(sum(labels[last_relevant_index + 1 :] == 0))
+        else:
+            n_since_last_relevant = int(sum(labels == 0))
     else:
         n_since_last_relevant = 0
 
@@ -1311,6 +1317,17 @@ def api_get_document(project):  # noqa: F401
 
     return jsonify({"result": item, "pool_empty": False, "has_ranking": True})
 
+@bp.route("/projects/<project_id>/ranking_history/<record_id>", methods=["GET"])
+@login_required
+@project_authorization
+def api_get_ranking_history(project, record_id):
+    """Retrieve ranking history for a specific record."""
+    try:
+        with open_state(project.project_path) as state:
+            ranking_history = state.get_ranking_history(int(record_id))
+            return jsonify({"ranking_history": ranking_history})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @bp.route("/projects/<project_id>/delete", methods=["DELETE"])
 @login_required
