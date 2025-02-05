@@ -1,12 +1,12 @@
 from flask import Blueprint
 from flask import jsonify
 from flask_login import current_user
-from flask_login import login_required
 from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
 
 import asreview as asr
 from asreview.webapp import DB
+from asreview.webapp._authentication.decorators import login_required
 from asreview.webapp._authentication.models import Project
 from asreview.webapp._authentication.models import User
 

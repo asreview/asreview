@@ -18,7 +18,6 @@ from flask import current_app
 from flask import jsonify
 from flask import request
 from flask_login import current_user
-from flask_login import login_required
 from flask_login import logout_user
 from sqlalchemy import and_
 from sqlalchemy import or_
@@ -27,6 +26,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import login_remote_user
+from asreview.webapp._authentication.decorators import login_required
 from asreview.webapp._authentication.models import User
 from asreview.webapp._authentication.oauth_handler import OAuthHandler
 from asreview.webapp._authentication.utils import has_email_configuration

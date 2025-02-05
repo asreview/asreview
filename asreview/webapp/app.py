@@ -79,12 +79,14 @@ def create_app(config_path=None):
     with app.app_context():
         app.register_blueprint(projects.bp)
 
-    if not app.config.get("LOGIN_DISABLED", False):
-        # config JSON Web Tokens
+    if app.config.get("AUTHENTICATION", True):
+        # Login Manager
         login_manager = LoginManager(app)
         login_manager.init_app(app)
         login_manager.session_protection = "strong"
 
+        # set authentication to True when no auth. arguments are provided.
+        app.config["AUTHENTICATION"] = True
         app.config["LOGIN_DURATION"] = int(app.config.get("LOGIN_DURATION", 31))
 
         # Register a callback function for current_user.
@@ -147,7 +149,7 @@ def create_app(config_path=None):
             "index.html",
             api_url=app.config.get("API_URL", "/"),
             asreview_version=asreview_version,
-            authentication=str(not app.config.get("LOGIN_DISABLED", False)).lower(),
+            authentication=str(app.config.get("AUTHENTICATION", True)).lower(),
             login_info=app.config.get("LOGIN_INFO", ""),
             allow_account_creation=str(
                 app.config.get("ALLOW_ACCOUNT_CREATION", True)
@@ -161,10 +163,7 @@ def create_app(config_path=None):
     @app.route("/<path:url>", methods=["GET"])
     @login_remote_user
     def index_protected(**kwargs):
-        if (
-            not app.config.get("LOGIN_DISABLED", False)
-            and not current_user.is_authenticated
-        ):
+        if app.config.get("AUTHENTICATION", True) and not current_user.is_authenticated:
             return redirect("/signin")
 
         return index(**kwargs)

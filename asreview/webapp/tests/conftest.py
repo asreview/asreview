@@ -56,6 +56,8 @@ def _get_app(app_type="auth-basic", path=None):
         config_path = str(base_dir / "auth_remote_config.toml")
     elif app_type == "no-auth":
         config_path = str(base_dir / "no_auth_config.toml")
+    elif app_type == "implicit-auth":
+        config_path = str(base_dir / "implicit_auth_config.toml")
     else:
         raise ValueError(f"Unknown config {app_type}")
     # create app
@@ -111,6 +113,18 @@ def client_auth(asreview_path_fixture):
 
 
 @pytest.fixture
+def client_implicit_auth(asreview_path_fixture):
+    """Flask client to check if the app is authenticated when
+    authentication configuration is missing."""
+    app = _get_app("implicit-auth", path=asreview_path_fixture)
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
+
+
+@pytest.fixture
 def client_auth_no_creation(asreview_path_fixture):
     """Flask client for an authenticated app, account
     creation not allowed."""
@@ -156,12 +170,7 @@ def client_remote_auth(asreview_path_fixture):
         DB.engine.raw_connection().close()
 
 
-@pytest.fixture(
-    params=[
-        "client_auth",
-        "client_no_auth",
-    ]
-)
+@pytest.fixture(params=["client_auth", "client_implicit_auth", "client_no_auth"])
 def client(request):
     """This fixture provides different Flask client (authenticated
     and unauthenticated) for every test that uses it."""
@@ -174,13 +183,13 @@ def client(request):
 
 @pytest.fixture()
 def user(client):
-    if client.application.config["LOGIN_DISABLED"]:
+    if not client.application.config["AUTHENTICATION"]:
         user = None
     else:
         user = au.create_and_signin_user(client, 1)
 
     yield user
-    if not client.application.config["LOGIN_DISABLED"]:
+    if client.application.config["AUTHENTICATION"]:
         crud.delete_everything(DB)
 
 
@@ -197,7 +206,7 @@ def project(request):
 
     if "user" in request.fixturenames:
         user = request.getfixturevalue("user")
-    elif not client.application.config["LOGIN_DISABLED"]:
+    elif client.application.config["AUTHENTICATION"]:
         user = au.create_and_signin_user(client, 1)
     else:
         user = None
@@ -205,5 +214,5 @@ def project(request):
     au.create_project(client, benchmark="synergy:van_der_Valk_2021")
     yield user.projects[0] if user is not None else get_projects()[0]
 
-    if not client.application.config["LOGIN_DISABLED"]:
+    if client.application.config["AUTHENTICATION"]:
         crud.delete_everything(DB)

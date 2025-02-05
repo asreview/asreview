@@ -33,13 +33,12 @@ def _asreview_file_archive():
     )
 
 
-# Test getting all projects
 def test_get_projects(client, user, project):
     r = au.get_all_projects(client)
     assert r.status_code == 200
     assert len(r.json["result"]) == 1
     found_project = r.json["result"][0]
-    if not client.application.config.get("LOGIN_DISABLED"):
+    if client.application.config.get("AUTHENTICATION"):
         assert found_project["id"] == project.project_id
         assert found_project["roles"]["owner"]
     else:
@@ -48,7 +47,7 @@ def test_get_projects(client, user, project):
 
 # Test create a project
 def test_create_projects(client, user):
-    if not client.application.config["LOGIN_DISABLED"]:
+    if client.application.config["AUTHENTICATION"]:
         au.create_and_signin_user(client, 1)
 
     r = au.create_project(client, "oracle", benchmark="synergy:van_der_Valk_2021")
@@ -145,7 +144,7 @@ def test_upgrade_an_old_project(client, user):
 
     # we need to make sure this new, old-style project can be found
     # under current user if the app is authenticated
-    if not client.application.config.get("LOGIN_DISABLED"):
+    if client.application.config.get("AUTHENTICATION"):
         new_project = Project(project_id=project.config.get("id"))
         project = crud.create_project(DB, user, new_project)
     # try to convert
@@ -164,7 +163,7 @@ def test_import_project_files(client, user, project, fp):
     assert r.status_code == 200
     assert isinstance(r.json["data"], dict)
 
-    if not client.application.config.get("LOGIN_DISABLED"):
+    if client.application.config.get("AUTHENTICATION"):
         # assert it exists in the database
         assert crud.count_projects() == 2
         project = crud.last_project()
@@ -198,7 +197,7 @@ def test_upload_benchmark_data_to_project(client, user, upload_data):
     r = au.create_project(client, **upload_data)
     project = user.projects[0] if user is not None else get_projects()[0]
     assert r.status_code == 201
-    if not client.application.config.get("LOGIN_DISABLED"):
+    if client.application.config.get("AUTHENTICATION"):
         assert r.json["id"] == project.project_id
     else:
         assert r.json["id"] == project.config.get("id")
