@@ -47,8 +47,8 @@ from asreview.extensions import extensions
 from asreview.extensions import load_extension
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
-from asreview.models import MODELS_CONFIG
-from asreview.models import get_model_config
+from asreview.models import AI_MODEL_CONFIGURATIONS
+from asreview.models import get_ai_config
 from asreview.models.stoppers import NConsecutiveIrrelevant
 from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.project.api import is_project
@@ -255,7 +255,7 @@ def api_create_project():  # noqa: F401
             ),
             "w",
         ) as f:
-            model = get_model_config()
+            model = get_ai_config()
             json.dump(
                 {"name": model["name"], "current_value": asdict(model["value"])}, f
             )
@@ -664,7 +664,7 @@ def api_list_learners():
                 "label": learner["label"],
                 "type": learner["type"],
             }
-            for learner in MODELS_CONFIG
+            for learner in AI_MODEL_CONFIGURATIONS
         ],
         "models": {
             "balancer": [],
@@ -719,7 +719,7 @@ def api_set_learner(project):  # noqa: F401
         current_value = json.loads(request.form.get("current_value", "{}"))
         current_value = {k: v for k, v in current_value.items() if v != ""}
     else:
-        current_value = asdict(get_model_config(name)["value"])
+        current_value = asdict(get_ai_config(name)["value"])
 
     fp = Path(
         project.project_path,
@@ -907,7 +907,7 @@ def api_import_project():
         ActiveLearningCycle.from_file(fp_al_cycle)
     except ValueError as err:
         with open(fp_al_cycle, "w") as f:
-            model = get_model_config()
+            model = get_ai_config()
             json.dump(
                 {"name": model["name"], "current_value": asdict(model["value"])}, f
             )

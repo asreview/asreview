@@ -14,7 +14,7 @@
 
 from asreview.learner import ActiveLearningCycleData
 
-MODELS_CONFIG = [
+AI_MODEL_CONFIGURATIONS = [
     {
         "name": "elas_u4",
         "label": "ELAS u4",
@@ -72,28 +72,28 @@ MODELS_CONFIG = [
     },
 ]
 
-DEFAULT_MODEL_NAME = "elas_u4"
 
-
-def get_model_config(name=None):
-    """Get the model configuration.
+def get_ai_config(name=None):
+    """Get the AI configuration.
 
     Parameters
     ----------
     name: str
-        The name of the model configuration. If None, the default model
+        The name of the AU configuration. If None, the default AI
         configuration is returned.
 
     Returns
     -------
     dict:
-        The default model configuration.
+        The default AI configuration.
     """
 
     if name is None:
-        name = DEFAULT_MODEL_NAME
+        name = filter(
+            lambda x: x["type"] == "ultra", AI_MODEL_CONFIGURATIONS
+        ).__next__()
 
-    for model_config in MODELS_CONFIG:
+    for model_config in AI_MODEL_CONFIGURATIONS:
         if model_config["name"] == name:
             return model_config
 

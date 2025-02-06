@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas
 
 from asreview._version import __version__
-from asreview.models.models import get_model_config
+from asreview.models.models import get_ai_config
 from asreview.state.sqlstate import SQLiteState
 
 
@@ -85,7 +85,7 @@ def _project_state_converter_v1_v2(review_path):
 
 def _project_model_settings_converter_v1_v2(fp_cycle_metadata):
     with open(fp_cycle_metadata, "w") as f:
-        default_model = get_model_config()
+        default_model = get_ai_config()
         json.dump({"name": default_model["name"], **default_model["value"]}, f)
 
 

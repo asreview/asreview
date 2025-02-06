@@ -41,7 +41,7 @@ from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
 from asreview.migrate import migrate_v1_v2
-from asreview.models import get_model_config
+from asreview.models import get_ai_config
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
@@ -609,7 +609,7 @@ class Project:
                     warnings.warn(err)
 
                     with open(cycle_fp) as f:
-                        model = get_model_config()
+                        model = get_ai_config()
                         json.dump(
                             {
                                 "name": model["name"],
