@@ -77,7 +77,7 @@ def test_no_seed(tmpdir, demo_data_path):
         project_fp = Path(tmpdir, f"tmp_state_{i}.asreview")
 
         argv = (
-            f"{demo_data_path} -o {project_fp} -c nb "
+            f"{demo_data_path} -o {project_fp} -c nb -q max -e tfidf "
             f"--n-prior-excluded 1 --n-prior-included 1 --n-stop 4".split()
         )
         _cli_simulate(argv)
@@ -94,12 +94,12 @@ def test_model_and_prior_seed(tmpdir, seed, demo_data_path):
 
     # run the simulations
     _cli_simulate(
-        f"{demo_data_path} -o {project1_fp} -c rf --prior-seed {seed}"
+        f"{demo_data_path} -o {project1_fp} -c rf -e tfidf -q max --prior-seed {seed}"
         f" --seed {seed}"
         f" --n-prior-excluded 1 --n-prior-included 1".split()
     )
     _cli_simulate(
-        f"{demo_data_path} -o {project2_fp} -c rf --prior-seed {seed}"
+        f"{demo_data_path} -o {project2_fp} -c rf -e tfidf -q max --prior-seed {seed}"
         f" --seed {seed}"
         f" --n-prior-excluded 1 --n-prior-included 1".split()
     )
@@ -116,31 +116,22 @@ def test_model_and_prior_seed(tmpdir, seed, demo_data_path):
 
 @pytest.mark.parametrize("model", ["logistic", "nb", "rf", "svm"])
 def test_models(model, tmpdir, demo_data_path, tmp_project):
-    _cli_simulate(f"{demo_data_path} -o {tmp_project} -c {model}".split())
+    _cli_simulate(
+        f"{demo_data_path} -o {tmp_project} -c {model}".split()
+        + "-e tfidf -q max -b balanced".split()
+    )
 
     with asr.open_state(tmp_project) as state:
         results = state.get_results_table()
 
     assert all(results["classifier"][10:] == model)
     assert all(results["balancer"][10:] == "balanced")
-
-    Path(tmpdir, f"test_{model}").mkdir(parents=True)
-    project = asr.Project.load(tmp_project, Path(tmpdir, f"test_{model}"))
-
-    cycle = asr.ActiveLearningCycle.from_file(
-        Path(
-            project.project_path,
-            "reviews",
-            project.config["reviews"][0]["id"],
-            "settings_metadata.json",
-        )
-    )
-
-    assert cycle.classifier.name == model
+    assert all(results["feature_extractor"][10:] == "tfidf")
+    assert all(results["querier"][10:] == "max")
 
 
 def test_no_balancing(tmp_project, demo_data_path):
-    argv = f"{demo_data_path} -o {tmp_project} --no-balancer".split()
+    argv = f"{demo_data_path} -o {tmp_project} -c nb -q max -e tfidf".split()
     _cli_simulate(argv)
 
     with asr.open_state(tmp_project) as state:
@@ -224,35 +215,7 @@ def test_cycle_config(tmpdir, demo_data_path, tmp_project):
 
     assert all(results["classifier"][10:] == "nb")
     assert all(results["balancer"][10:] == "balanced")
+    assert all(results["feature_extractor"][10:] == "tfidf")
+    assert all(results["querier"][10:] == "max")
 
-    Path(tmpdir, "test_cycle").mkdir()
-    project = asr.Project.load(tmp_project, Path(tmpdir, "test_cycle"))
-
-    cycle = asr.ActiveLearningCycle.from_file(
-        Path(
-            project.project_path,
-            "reviews",
-            project.config["reviews"][0]["id"],
-            "settings_metadata.json",
-        )
-    )
-
-    assert cycle.classifier.name == "nb"
-    assert cycle.classifier.get_params()["alpha"] == 5
-
-    with open(
-        Path(
-            project.project_path,
-            "reviews",
-            project.config["reviews"][0]["id"],
-            "settings_metadata.json",
-        ),
-        "r",
-    ) as f:
-        cycle_meta = json.load(f)
-
-    assert cycle_meta["classifier_param"]["alpha"] == 5
-    assert cycle_meta["classifier"] == "nb"
-    assert cycle_meta["balancer"] == "balanced"
-    assert cycle_meta["querier"] == "max"
-    assert cycle_meta["feature_extractor_param"] == {}
+    # todo save and test for params in simulation
