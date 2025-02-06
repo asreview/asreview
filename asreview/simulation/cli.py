@@ -291,7 +291,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "--ai",
         type=str,
         default=get_ai_config()["name"],
-        help=f"The AI to simulate with. Default {get_ai_config()["name"]}.",
+        help=f"The AI to simulate with. Default {get_ai_config()['name']}.",
     )
     parser.add_argument(
         "-c",
