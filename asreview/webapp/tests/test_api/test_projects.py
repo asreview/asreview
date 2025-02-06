@@ -326,7 +326,7 @@ def test_get_labeled_stats(client, project):
 
 
 # Test listing the available algorithms
-def test_list_models(client, user):
+def test_list_learners(client, user):
     r = au.get_project_algorithms_options(client)
     assert r.status_code == 200
     expected_keys = [
@@ -336,9 +336,9 @@ def test_list_models(client, user):
         "querier",
     ]
     for key in expected_keys:
-        assert key in r.json.keys()
-        assert isinstance(r.json[key], list)
-        for item in r.json[key]:
+        assert key in r.json["models"].keys()
+        assert isinstance(r.json["models"][key], list)
+        for item in r.json["models"][key]:
             assert "name" in item.keys()
             assert "label" in item.keys()
 
@@ -357,10 +357,17 @@ def test_get_project_algorithms(client, project):
     # get the project algorithms
     r = au.get_project_algorithms(client, project)
     assert r.status_code == 200
-    assert r.json["balancer"] == r.json["balancer"]
-    assert r.json["feature_extractor"] == r.json["feature_extractor"]
-    assert r.json["classifier"] == r.json["classifier"]
-    assert r.json["querier"] == r.json["querier"]
+
+    print(r.json)
+    assert r.json["current_value"]["balancer"] == r.json["current_value"]["balancer"]
+    assert (
+        r.json["current_value"]["feature_extractor"]
+        == r.json["current_value"]["feature_extractor"]
+    )
+    assert (
+        r.json["current_value"]["classifier"] == r.json["current_value"]["classifier"]
+    )
+    assert r.json["current_value"]["querier"] == r.json["current_value"]["querier"]
 
 
 # Test starting the model
