@@ -79,7 +79,7 @@ def get_ai_config(name=None):
     Parameters
     ----------
     name: str
-        The name of the AU configuration. If None, the default AI
+        The name of the AI configuration. If None, the default AI
         configuration is returned.
 
     Returns
@@ -89,7 +89,7 @@ def get_ai_config(name=None):
     """
 
     if name is None:
-        name = filter(
+        return filter(
             lambda x: x["type"] == "ultra", AI_MODEL_CONFIGURATIONS
         ).__next__()
 

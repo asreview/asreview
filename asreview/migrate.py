@@ -86,7 +86,13 @@ def _project_state_converter_v1_v2(review_path):
 def _project_model_settings_converter_v1_v2(fp_cycle_metadata):
     with open(fp_cycle_metadata, "w") as f:
         default_model = get_ai_config()
-        json.dump({"name": default_model["name"], **default_model["value"]}, f)
+        json.dump(
+            {
+                "name": default_model["name"],
+                "current_value": asdict(default_model["value"]),
+            },
+            f,
+        )
 
 
 def migrate_v1_v2(folder):
