@@ -255,7 +255,10 @@ def api_create_project():  # noqa: F401
             ),
             "w",
         ) as f:
-            json.dump({"name": get_model_config()["name"]}, f)
+            model = get_model_config()
+            json.dump(
+                {"name": model["name"], "current_value": asdict(model["value"])}, f
+            )
 
         n_labeled = project.data_store["included"].notnull().sum()
 
@@ -710,8 +713,13 @@ def api_get_learner(project):  # noqa: F401
 def api_set_learner(project):  # noqa: F401
     """Set the learner used in the project"""
 
-    name = request.form.get("name")
-    params = json.loads(request.form.get("params", "{}"))
+    name = request.form.get("name", "custom")
+
+    if name == "custom":
+        current_value = json.loads(request.form.get("current_value", "{}"))
+        current_value = {k: v for k, v in current_value.items() if v != ""}
+    else:
+        current_value = asdict(get_model_config(name)["value"])
 
     fp = Path(
         project.project_path,
@@ -721,8 +729,10 @@ def api_set_learner(project):  # noqa: F401
     )
 
     with open(fp, "w") as f:
-        settings = {"name": name, "params": params}
+        settings = {"name": name, "current_value": current_value}
         json.dump(settings, f)
+
+    project.remove_review_error()
 
     return jsonify(settings)
 
@@ -897,7 +907,10 @@ def api_import_project():
         ActiveLearningCycle.from_file(fp_al_cycle)
     except ValueError as err:
         with open(fp_al_cycle, "w") as f:
-            json.dump(get_model_config(), f)
+            model = get_model_config()
+            json.dump(
+                {"name": model["name"], "current_value": asdict(model["value"])}, f
+            )
 
         warnings.append(
             str(err) + " It might be removed from this version of ASReview LAB or you "
@@ -1124,7 +1137,11 @@ def api_get_stopper(project):  # noqa: F401
         project.reviews[0]["id"],
         "settings_metadata.json",
     )
-    stopper = ActiveLearningCycle.from_file(fp_al_cycle).stopper
+
+    with open(fp_al_cycle, "r") as f:
+        cycle = ActiveLearningCycleData(**json.load(f).get("current_value", {}))
+
+    stopper = ActiveLearningCycle.from_meta(cycle).stopper
 
     if stopper is None:
         return jsonify({"name": None, "params": None})
@@ -1170,14 +1187,11 @@ def api_mutate_stopper(project):  # noqa: F401
     with open(fp_al_cycle, "r") as f:
         data = json.load(f)
 
-    data["stopper"] = NConsecutiveIrrelevant.name
-    data["stopper_param"] = {"n": request.form.get("n", 50, type=int)}
+    data["current_value"]["stopper"] = NConsecutiveIrrelevant.name
+    data["current_value"]["stopper_param"] = {"n": request.form.get("n", 50, type=int)}
 
     with open(fp_al_cycle, "w") as f:
         json.dump(data, f)
-
-    with open(fp_al_cycle, "r") as f:
-        print(json.load(f))
 
     return api_get_stopper(project.project_id)
 

@@ -337,7 +337,7 @@ class ProjectAPI {
   static mutateLearner(variables) {
     let body = new FormData();
     body.set("name", variables.name);
-    body.set("params", JSON.stringify(variables.params));
+    body.set("current_value", JSON.stringify(variables.current_value));
 
     const url = api_url + `projects/${variables.project_id}/learner`;
     return new Promise((resolve, reject) => {

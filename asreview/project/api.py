@@ -418,7 +418,7 @@ class Project:
                 Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
                 "w",
             ) as f:
-                json.dump(asdict(cycle_meta), f)
+                json.dump({"current_value": asdict(cycle_meta)}, f)
 
         fp_state = Path(self.project_path, "reviews", review_id, "results.db")
 
@@ -475,9 +475,18 @@ class Project:
             state.to_sql(fp_state)
 
         if cycle is not None:
-            cycle.to_file(
-                Path(self.project_path, "reviews", review_id, "settings_metadata.json")
-            )
+            if isinstance(cycle, ActiveLearningCycle):
+                cycle_meta = cycle.to_meta()
+            elif isinstance(cycle, ActiveLearningCycleData):
+                cycle_meta = cycle
+            else:
+                raise ValueError("Invalid cycle type.")
+
+            with open(
+                Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
+                "w",
+            ) as f:
+                json.dump({"current_value": asdict(cycle_meta)}, f)
 
         review_config = config["reviews"][review_index]
         review_config.update(kwargs)
@@ -595,15 +604,19 @@ class Project:
                 )
 
                 try:
-                    ActiveLearningCycle.from_file(cycle_fp)
+                    ActiveLearningCycle.from_file(cycle_fp["current_value"])
                 except ValueError as err:
                     warnings.warn(err)
 
-                    default_model = get_model_config()
-
-                    ActiveLearningCycle.from_meta(default_model["value"]).to_file(
-                        cycle_fp
-                    )
+                    with open(cycle_fp) as f:
+                        model = get_model_config()
+                        json.dump(
+                            {
+                                "name": model["name"],
+                                "current_value": asdict(model["value"]),
+                            },
+                            f,
+                        )
 
             if safe_import:
                 # assign a new id to the project.

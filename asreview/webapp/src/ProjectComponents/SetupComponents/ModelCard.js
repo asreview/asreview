@@ -41,6 +41,12 @@ const ModelComponentSelect = ({
       onChange={onChange}
       required={required}
     >
+      {!required && (
+        <MenuItem value="">
+          <em>None</em>
+        </MenuItem>
+      )}
+
       {items.map((value) => (
         <MenuItem
           key={`result-item-${value.name}`}
@@ -100,7 +106,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
   return (
     <Card>
       <CardHeader
-        title={isLoading ? <Skeleton width={100} /> : "AI model"}
+        title={isLoading ? <Skeleton width={60} /> : "AI"}
         subheader={
           isLoading ? (
             <Skeleton width="80%" />
@@ -108,8 +114,8 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
             <>
               <>
                 {projectModes.SIMULATION === mode
-                  ? "Select or compose an AI model to simulate the performance of your review process. "
-                  : "Select or compose an AI model to accelerate your review process. "}
+                  ? "Select or compose an AI to simulate the performance of your review process. "
+                  : "Select or compose an AI to accelerate your review process. "}
               </>
               <Link
                 underline="none"
@@ -128,7 +134,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
           <Skeleton variant="rectangular" height={56} />
         ) : (
           <FormControl fullWidth>
-            <InputLabel id="model-select-label">Select Model</InputLabel>
+            <InputLabel id="model-select-label">Select learner</InputLabel>
             <Select
               labelId="model-select-label"
               value={modelConfig.name}
@@ -136,14 +142,14 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                 mutate({
                   project_id: project_id,
                   name: event.target.value,
-                  params: {},
+                  current_value: {},
                 });
               }}
               label="Select Model"
               sx={{ mb: 3 }}
             >
               <ListSubheader>
-                Ultra - Lightweight and performant model for every dataset
+                Ultra - Lightweight and performant learner for every dataset
               </ListSubheader>
 
               {learnerOptions.learners
@@ -172,7 +178,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
               <Divider />
 
               <ListSubheader>
-                Heavy - Modern, heavyweight model for heavy work
+                Heavy - Modern, heavyweight learner for heavy work
               </ListSubheader>
 
               {learnerOptions.learners
@@ -199,14 +205,14 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                       name="querier"
                       label="Querier"
                       items={learnerOptions?.models?.querier}
-                      value={modelConfig.params?.querier}
+                      value={modelConfig.current_value?.querier}
                       required={true}
                       onChange={(event) => {
                         mutate({
                           project_id: project_id,
                           ...modelConfig,
-                          params: {
-                            ...modelConfig.params,
+                          current_value: {
+                            ...modelConfig.current_value,
                             querier: event.target.value,
                           },
                         });
@@ -216,13 +222,13 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                       name="feature_extractor"
                       label="Feature extractor"
                       items={learnerOptions?.models?.feature_extractor}
-                      value={modelConfig?.params?.feature_extractor}
+                      value={modelConfig?.current_value?.feature_extractor}
                       onChange={(event) => {
                         mutate({
                           project_id: project_id,
                           ...modelConfig,
-                          params: {
-                            ...modelConfig.params,
+                          current_value: {
+                            ...modelConfig.current_value,
                             feature_extractor: event.target.value,
                           },
                         });
@@ -232,13 +238,13 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                       name="classifier"
                       label="Classifier"
                       items={learnerOptions?.models?.classifier}
-                      value={modelConfig.params?.classifier}
+                      value={modelConfig.current_value?.classifier}
                       onChange={(event) => {
                         mutate({
                           project_id: project_id,
                           ...modelConfig,
-                          params: {
-                            ...modelConfig.params,
+                          current_value: {
+                            ...modelConfig.current_value,
                             classifier: event.target.value,
                           },
                         });
@@ -248,13 +254,13 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                       name="balancer"
                       label="Balancer"
                       items={learnerOptions?.models?.balancer}
-                      value={modelConfig.params?.balancer}
+                      value={modelConfig.current_value?.balancer}
                       onChange={(event) => {
                         mutate({
                           project_id: project_id,
                           ...modelConfig,
-                          params: {
-                            ...modelConfig.params,
+                          current_value: {
+                            ...modelConfig.current_value,
                             balancer: event.target.value,
                           },
                         });

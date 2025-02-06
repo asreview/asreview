@@ -97,4 +97,4 @@ def get_model_config(name=None):
         if model_config["name"] == name:
             return model_config
 
-    return None
+    raise ValueError(f"Model configuration {name} not found.")
