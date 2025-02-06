@@ -85,15 +85,19 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
     },
   });
 
-  const { data: learnerOptions, isLoading: isLoadingLearnerOptions } = useQuery(
-    "fetchLearners",
-    ProjectAPI.fetchLearners,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const {
+    data: learnerOptions,
+    isLoading: isLoadingLearnerOptions,
+    error: errorLearnerOptions,
+  } = useQuery("fetchLearners", ProjectAPI.fetchLearners, {
+    refetchOnWindowFocus: false,
+  });
 
-  const { data: modelConfig, isLoading: isLoadingModelConfig } = useQuery(
+  const {
+    data: modelConfig,
+    isLoading: isLoadingModelConfig,
+    error: errorModelConfig,
+  } = useQuery(
     ["fetchLearner", { project_id: project_id }],
     ProjectAPI.fetchLearner,
     {
@@ -102,6 +106,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
   );
 
   const isLoading = isLoadingLearnerOptions || isLoadingModelConfig;
+  const error = errorLearnerOptions || errorModelConfig;
 
   return (
     <Card>
@@ -133,144 +138,152 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
         {isLoading ? (
           <Skeleton variant="rectangular" height={56} />
         ) : (
-          <FormControl fullWidth>
-            <InputLabel id="model-select-label">Select learner</InputLabel>
-            <Select
-              labelId="model-select-label"
-              value={modelConfig.name}
-              onChange={(event) => {
-                mutate({
-                  project_id: project_id,
-                  name: event.target.value,
-                  current_value: {},
-                });
-              }}
-              label="Select Model"
-              sx={{ mb: 3 }}
-            >
-              <ListSubheader>
-                Ultra - Lightweight and performant learner for every dataset
-              </ListSubheader>
+          <>
+            {!error ? (
+              <FormControl fullWidth>
+                <InputLabel id="model-select-label">Select learner</InputLabel>
+                <Select
+                  labelId="model-select-label"
+                  value={modelConfig.name}
+                  onChange={(event) => {
+                    mutate({
+                      project_id: project_id,
+                      name: event.target.value,
+                      current_value: {},
+                    });
+                  }}
+                  label="Select Model"
+                  sx={{ mb: 3 }}
+                >
+                  <ListSubheader>
+                    Ultra - Lightweight and performant learner for every dataset
+                  </ListSubheader>
 
-              {learnerOptions.learners
-                .filter((learner) => learner.type === "ultra")
-                .map((learner) => (
-                  <MenuItem key={learner.name} value={learner.name}>
-                    {learner.label}
-                  </MenuItem>
-                ))}
+                  {learnerOptions.learners
+                    .filter((learner) => learner.type === "ultra")
+                    .map((learner) => (
+                      <MenuItem key={learner.name} value={learner.name}>
+                        {learner.label}
+                      </MenuItem>
+                    ))}
 
-              <Divider />
+                  <Divider />
 
-              <ListSubheader>
-                Language Agnostic - Optimized for handling multiple languages at
-                once
-              </ListSubheader>
+                  <ListSubheader>
+                    Language Agnostic - Optimized for handling multiple
+                    languages at once
+                  </ListSubheader>
 
-              {learnerOptions.learners
-                .filter((learner) => learner.type === "lang")
-                .map((learner) => (
-                  <MenuItem key={learner.name} value={learner.name}>
-                    {learner.label}
-                  </MenuItem>
-                ))}
+                  {learnerOptions.learners
+                    .filter((learner) => learner.type === "lang")
+                    .map((learner) => (
+                      <MenuItem key={learner.name} value={learner.name}>
+                        {learner.label}
+                      </MenuItem>
+                    ))}
 
-              <Divider />
+                  <Divider />
 
-              <ListSubheader>
-                Heavy - Modern, heavyweight learner for heavy work
-              </ListSubheader>
+                  <ListSubheader>
+                    Heavy - Modern, heavyweight learner for heavy work
+                  </ListSubheader>
 
-              {learnerOptions.learners
-                .filter((learner) => learner.type === "heavy")
-                .map((learner) => (
-                  <MenuItem key={learner.name} value={learner.name}>
-                    {learner.label}
-                  </MenuItem>
-                ))}
-              <Divider />
+                  {learnerOptions.learners
+                    .filter((learner) => learner.type === "heavy")
+                    .map((learner) => (
+                      <MenuItem key={learner.name} value={learner.name}>
+                        {learner.label}
+                      </MenuItem>
+                    ))}
+                  <Divider />
 
-              <ListSubheader>
-                Custom - Built your own learner from available components
-              </ListSubheader>
-              <MenuItem value="custom">Custom </MenuItem>
-            </Select>
+                  <ListSubheader>
+                    Custom - Built your own learner from available components
+                  </ListSubheader>
+                  <MenuItem value="custom">Custom </MenuItem>
+                </Select>
 
-            {modelConfig.name === "custom" && learnerOptions && (
-              <>
-                <Divider sx={{ mb: 3 }} />
-                <Box>
-                  <Stack direction="column" spacing={3}>
-                    <ModelComponentSelect
-                      name="querier"
-                      label="Querier"
-                      items={learnerOptions?.models?.querier}
-                      value={modelConfig.current_value?.querier}
-                      required={true}
-                      onChange={(event) => {
-                        mutate({
-                          project_id: project_id,
-                          ...modelConfig,
-                          current_value: {
-                            ...modelConfig.current_value,
-                            querier: event.target.value,
-                          },
-                        });
-                      }}
-                    />
-                    <ModelComponentSelect
-                      name="feature_extractor"
-                      label="Feature extractor"
-                      items={learnerOptions?.models?.feature_extractor}
-                      value={modelConfig?.current_value?.feature_extractor}
-                      onChange={(event) => {
-                        mutate({
-                          project_id: project_id,
-                          ...modelConfig,
-                          current_value: {
-                            ...modelConfig.current_value,
-                            feature_extractor: event.target.value,
-                          },
-                        });
-                      }}
-                    />
-                    <ModelComponentSelect
-                      name="classifier"
-                      label="Classifier"
-                      items={learnerOptions?.models?.classifier}
-                      value={modelConfig.current_value?.classifier}
-                      onChange={(event) => {
-                        mutate({
-                          project_id: project_id,
-                          ...modelConfig,
-                          current_value: {
-                            ...modelConfig.current_value,
-                            classifier: event.target.value,
-                          },
-                        });
-                      }}
-                    />
-                    <ModelComponentSelect
-                      name="balancer"
-                      label="Balancer"
-                      items={learnerOptions?.models?.balancer}
-                      value={modelConfig.current_value?.balancer}
-                      onChange={(event) => {
-                        mutate({
-                          project_id: project_id,
-                          ...modelConfig,
-                          current_value: {
-                            ...modelConfig.current_value,
-                            balancer: event.target.value,
-                          },
-                        });
-                      }}
-                    />
-                  </Stack>
-                </Box>
-              </>
+                {modelConfig.name === "custom" && learnerOptions && (
+                  <>
+                    <Divider sx={{ mb: 3 }} />
+                    <Box>
+                      <Stack direction="column" spacing={3}>
+                        <ModelComponentSelect
+                          name="querier"
+                          label="Querier"
+                          items={learnerOptions?.models?.querier}
+                          value={modelConfig.current_value?.querier}
+                          required={true}
+                          onChange={(event) => {
+                            mutate({
+                              project_id: project_id,
+                              ...modelConfig,
+                              current_value: {
+                                ...modelConfig.current_value,
+                                querier: event.target.value,
+                              },
+                            });
+                          }}
+                        />
+                        <ModelComponentSelect
+                          name="feature_extractor"
+                          label="Feature extractor"
+                          items={learnerOptions?.models?.feature_extractor}
+                          value={modelConfig?.current_value?.feature_extractor}
+                          onChange={(event) => {
+                            mutate({
+                              project_id: project_id,
+                              ...modelConfig,
+                              current_value: {
+                                ...modelConfig.current_value,
+                                feature_extractor: event.target.value,
+                              },
+                            });
+                          }}
+                        />
+                        <ModelComponentSelect
+                          name="classifier"
+                          label="Classifier"
+                          items={learnerOptions?.models?.classifier}
+                          value={modelConfig.current_value?.classifier}
+                          onChange={(event) => {
+                            mutate({
+                              project_id: project_id,
+                              ...modelConfig,
+                              current_value: {
+                                ...modelConfig.current_value,
+                                classifier: event.target.value,
+                              },
+                            });
+                          }}
+                        />
+                        <ModelComponentSelect
+                          name="balancer"
+                          label="Balancer"
+                          items={learnerOptions?.models?.balancer}
+                          value={modelConfig.current_value?.balancer}
+                          onChange={(event) => {
+                            mutate({
+                              project_id: project_id,
+                              ...modelConfig,
+                              current_value: {
+                                ...modelConfig.current_value,
+                                balancer: event.target.value,
+                              },
+                            });
+                          }}
+                        />
+                      </Stack>
+                    </Box>
+                  </>
+                )}
+              </FormControl>
+            ) : (
+              <Typography variant="body1" color="error">
+                Failed to load AI.
+              </Typography>
             )}
-          </FormControl>
+          </>
         )}
       </CardContent>
     </Card>

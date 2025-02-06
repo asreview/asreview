@@ -902,29 +902,27 @@ def api_import_project():
         "settings_metadata.json",
     )
 
-    if project.config["mode"] != PROJECT_MODE_SIMULATE:
-        with open(fp_al_cycle, "r") as f:
-            current_cycle = json.load(f)["current_value"]
+    with open(fp_al_cycle, "r") as f:
+        current_cycle = json.load(f)["current_value"]
 
-        warnings = []
-        try:
-            ActiveLearningCycle.from_meta(ActiveLearningCycleData(**current_cycle))
-        except ValueError as err:
-            with open(fp_al_cycle, "w") as f:
-                model = get_ai_config()
-                json.dump(
-                    {"name": model["name"], "current_value": asdict(model["value"])}, f
-                )
+    warnings = []
+    try:
+        ActiveLearningCycle.from_meta(ActiveLearningCycleData(**current_cycle))
+    except ValueError as err:
+        with open(fp_al_cycle, "w") as f:
+            model = get_ai_config()
+            json.dump(
+                {"name": model["name"], "current_value": asdict(model["value"])}, f
+            )
 
-            warnings.append(
-                str(err)
-                + " It might be removed from this version of ASReview LAB or you "
-                "need to install an extension to use this model component."
-            )
-            warnings.append(
-                " The active learning model has been reset to the default model and"
-                " can be changed in the project settings."
-            )
+        warnings.append(
+            str(err) + " It might be removed from this version of ASReview LAB or you "
+            "need to install an extension to use this model component."
+        )
+        warnings.append(
+            " The active learning model has been reset to the default model and"
+            " can be changed in the project settings."
+        )
 
     if current_app.config.get("AUTHENTICATION", True):
         current_user.projects.append(Project(project_id=project.config.get("id")))
