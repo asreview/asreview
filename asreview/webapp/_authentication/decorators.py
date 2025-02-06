@@ -19,6 +19,7 @@ from flask import current_app
 from flask import jsonify
 from flask import request
 from flask_login import current_user
+from flask_login.config import EXEMPT_METHODS
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import HTTPException
@@ -35,13 +36,29 @@ from asreview.webapp.utils import get_project_path
 from asreview.webapp.utils import get_projects
 
 
+def login_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_app.config.get("AUTHENTICATION"):
+            pass
+        elif request.method in EXEMPT_METHODS:
+            pass
+        else:
+            if not (bool(current_user) and current_user.is_authenticated):
+                return jsonify({"message": "Login required."}), 401
+
+        return func(*args, **kwargs)
+
+    return decorated_view
+
+
 def project_authorization(f):
     """Decorator function that checks if current user can access
     a project in an authenticated situation"""
 
     @wraps(f)
     def decorated_function(project_id, *args, **kwargs):
-        if current_app.config.get("LOGIN_DISABLED", False):
+        if not current_app.config.get("AUTHENTICATION", True):
             project_path = get_project_path(project_id)
             if not is_project(project_path):
                 raise ProjectNotFoundError(f"Project '{project_id}' not found")
@@ -75,7 +92,7 @@ def current_user_projects(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if current_app.config.get("LOGIN_DISABLED", False):
+        if not current_app.config.get("AUTHENTICATION", True):
             projects = [(project, None) for project in get_projects(None)]
         else:
             # authenticated with User accounts
@@ -96,7 +113,7 @@ def login_remote_user(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if (
-            not current_app.config.get("LOGIN_DISABLED", False)
+            current_app.config.get("AUTHENTICATION", True)
             and not current_user.is_authenticated
         ):
             remote_user_handler = current_app.config.get("REMOTE_USER", False)

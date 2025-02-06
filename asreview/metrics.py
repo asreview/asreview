@@ -14,7 +14,7 @@
 
 """Performance metrics for activate learning results."""
 
-__all__ = ["loss"]
+__all__ = ["loss", "ndcg"]
 
 import numpy as np
 
@@ -39,3 +39,29 @@ def loss(labels: list[int]):
     return float(
         (Ny * (Nx - (Ny - 1) / 2) - np.cumsum(labels).sum()) / (Ny * (Nx - Ny))
     )
+
+
+def ndcg(labels: list[int]):
+    """Compute the Normalized Discounted Cumulative Gain (NDCG)
+
+    Basesd on: https://doi.org/10.48550/arXiv.1304.6480
+
+    Arguments
+    ---------
+    labels: list
+        List of binary labels (0 or 1).
+
+    Returns
+    -------
+    float:
+        The NDCG score.
+    """
+    Ny = sum(labels)
+    Nx = len(labels)
+    if Ny == 0 or Nx == Ny:
+        raise ValueError("Labels must contain two distinct classes.")
+
+    dcg = np.sum(labels / np.log2(np.arange(2, Nx + 2)))
+    idcg = np.sum(1 / np.log2(np.arange(2, Ny + 2)))
+
+    return float(dcg / idcg)

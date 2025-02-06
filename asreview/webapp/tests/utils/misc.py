@@ -34,7 +34,7 @@ def get_project_id(project):
        (authenticated app) or an asr.Project
     object
        (unauthenticated app)."""
-    if current_app.config.get("LOGIN_DISABLED"):
+    if not current_app.config.get("AUTHENTICATION"):
         return project.config["id"]
 
     return project.project_id

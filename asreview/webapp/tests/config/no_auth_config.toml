@@ -1,3 +1,3 @@
 TESTING = true
 DEBUG = true
-LOGIN_DISABLED = true
+AUTHENTICATION = false
