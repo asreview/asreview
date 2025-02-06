@@ -132,7 +132,7 @@ const App = () => {
               {window.authentication && window.allowTeams && (
                 <Route path="team" element={<TeamPage />} />
               )}
-              <Route path="settings" element={<DetailsPage />} />
+              <Route path="setup" element={<DetailsPage />} />
             </>
           </Route>
           <Route
@@ -152,7 +152,7 @@ const App = () => {
             {window.authentication && window.allowTeams && (
               <Route path="team" element={<TeamPage />} />
             )}
-            <Route path="settings" element={<DetailsPage />} />
+            <Route path="setup" element={<DetailsPage />} />
           </Route>
           <Route path="*" element={<RouteNotFound />} />
         </Routes>

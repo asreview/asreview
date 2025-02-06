@@ -263,12 +263,12 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                 ) && (
                   <MenuItem
                     component={Link}
-                    to={`/${projectModeURLMap[mode]}/${project.id}/settings`}
+                    to={`/${projectModeURLMap[mode]}/${project.id}/setup`}
                   >
                     <ListItemIcon>
                       <SettingsOutlined />
                     </ListItemIcon>
-                    <ListItemText>Settings</ListItemText>
+                    <ListItemText>Setup</ListItemText>
                   </MenuItem>
                 )}
               <MenuItem

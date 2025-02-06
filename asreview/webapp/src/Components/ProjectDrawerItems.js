@@ -25,7 +25,7 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
     "t",
     () => window.authentication && window.allowTeams && navigate("team"),
   );
-  useHotkeys("s", () => navigate("settings"));
+  useHotkeys("s", () => navigate("setup"));
 
   return (
     <Box
@@ -95,9 +95,9 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
         )}
 
         <DrawerItem
-          key={"project-settings"}
-          to={`settings`}
-          primary={"Settings"}
+          key={"project-setup"}
+          to={`setup`}
+          primary={"Setup"}
           rail={rail}
           onClick={onClick}
           icon={<SettingsOutlined />}

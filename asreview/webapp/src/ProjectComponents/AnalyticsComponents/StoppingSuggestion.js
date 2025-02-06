@@ -145,7 +145,7 @@ const StoppingSuggestion = ({ project_id }) => {
       project_id: project_id,
       status: projectStatuses.REVIEW,
     });
-    navigate(`/reviews/${project_id}/settings`);
+    navigate(`/reviews/${project_id}/setup`);
     setOpenCompletionPopup(false);
   };
 
