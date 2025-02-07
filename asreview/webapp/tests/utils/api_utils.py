@@ -282,7 +282,7 @@ def get_labeled_project_data_stats(
 
 
 def get_project_algorithms_options(client: FlaskClient):
-    response = client.get("/api/algorithms")
+    response = client.get("/api/learners")
     return response
 
 
@@ -290,13 +290,13 @@ def set_project_algorithms(
     client: FlaskClient, project: Union[Project, asr.Project], data: dict
 ):
     response = client.post(
-        f"/api/projects/{get_project_id(project)}/algorithms", data=data
+        f"/api/projects/{get_project_id(project)}/learner", data=data
     )
     return response
 
 
 def get_project_algorithms(client: FlaskClient, project: Union[Project, asr.Project]):
-    response = client.get(f"/api/projects/{get_project_id(project)}/algorithms")
+    response = client.get(f"/api/projects/{get_project_id(project)}/learner")
     return response
 
 

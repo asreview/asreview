@@ -28,8 +28,8 @@ const ModelFlowChart = ({ record }) => {
   const mobile = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   const { data, isLoading } = useQuery(
-    ["fetchModelOptions"],
-    ProjectAPI.fetchModelOptions,
+    ["fetchLearners"],
+    ProjectAPI.fetchLearners,
     {
       refetchOnWindowFocus: false,
     },

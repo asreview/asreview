@@ -47,7 +47,8 @@ from asreview.extensions import extensions
 from asreview.extensions import load_extension
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
-from asreview.models import get_model_config
+from asreview.models import AI_MODEL_CONFIGURATIONS
+from asreview.models import get_ai_config
 from asreview.models.stoppers import NConsecutiveIrrelevant
 from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.project.api import is_project
@@ -66,6 +67,15 @@ from asreview.webapp._tasks import run_model
 from asreview.webapp._tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
+
+try:
+    import importlib.metadata
+
+    importlib.metadata.distribution("asreview-nemo")
+    NEMO_INSTALLED = True
+except importlib.metadata.PackageNotFoundError:
+    NEMO_INSTALLED = False
+
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -136,14 +146,14 @@ def _run_model(project):
 @bp.errorhandler(ValueError)
 def value_error(e):
     message = str(e) if str(e) else "Incorrect value."
-    logging.error(message)
+    logging.exception(e)
     return jsonify(message=message), 400
 
 
 @bp.errorhandler(ProjectNotFoundError)
 def project_not_found(e):
     message = str(e) if str(e) else "Project not found."
-    logging.error(message)
+    logging.exception(message)
     return jsonify(message=message), 404
 
 
@@ -153,7 +163,7 @@ def error_500(e):
 
     if original is None or str(e.original_exception) == "":
         # direct 500 error, such as abort(500)
-        logging.error(e)
+        logging.exception(e)
         return jsonify(message="Whoops, something went wrong."), 500
 
     # wrapped unhandled error
@@ -244,6 +254,20 @@ def api_create_project():  # noqa: F401
             return jsonify(message="No file or dataset found to import."), 400
 
         project.add_review()
+
+        with open(
+            Path(
+                project.project_path,
+                "reviews",
+                project.reviews[0]["id"],
+                "settings_metadata.json",
+            ),
+            "w",
+        ) as f:
+            model = get_ai_config()
+            json.dump(
+                {"name": model["name"], "current_value": asdict(model["value"])}, f
+            )
 
         n_labeled = project.data_store["included"].notnull().sum()
 
@@ -363,7 +387,7 @@ def api_demo_data_project():  # noqa: F401
             )
 
         except Exception as err:
-            logging.error(err)
+            logging.exception(err)
             return jsonify(message="Failed to load plugin datasets."), 500
 
     elif subset == "benchmark":
@@ -372,7 +396,7 @@ def api_demo_data_project():  # noqa: F401
             result_datasets = manager.list(include=["synergy", "benchmark-nature"])
 
         except Exception as err:
-            logging.error(err)
+            logging.exception(err)
             return jsonify(message="Failed to load benchmark datasets."), 500
 
     else:
@@ -630,9 +654,9 @@ def api_get_labeled_stats(project):  # noqa: F401
         )
 
 
-@bp.route("/algorithms", methods=["GET"])
+@bp.route("/learners", methods=["GET"])
 @login_required
-def api_list_algorithms():
+def api_list_learners():
     """List the names and labels of available algorithms"""
 
     entry_points_per_submodel = [
@@ -643,33 +667,45 @@ def api_list_algorithms():
     ]
 
     payload = {
-        "balancer": [],
-        "classifier": [],
-        "feature_extractor": [],
-        "querier": [],
+        "learners": [
+            {
+                "name": learner["name"],
+                "label": learner["label"],
+                "type": learner["type"],
+                "is_available": learner.get("extensions", None) is None
+                or NEMO_INSTALLED,
+            }
+            for learner in AI_MODEL_CONFIGURATIONS
+        ],
+        "models": {
+            "balancer": [],
+            "classifier": [],
+            "feature_extractor": [],
+            "querier": [],
+        },
     }
 
-    for entry_points, key in zip(entry_points_per_submodel, payload.keys()):
+    for entry_points, key in zip(entry_points_per_submodel, payload["models"].keys()):
         for e in entry_points:
             model_class = e.load()
 
             if hasattr(model_class, "label"):
-                payload[key].append(
+                payload["models"][key].append(
                     {"name": model_class.name, "label": model_class.label}
                 )
             else:
-                payload[key].append(
+                payload["models"][key].append(
                     {"name": model_class.name, "label": model_class.name}
                 )
 
     return jsonify(payload)
 
 
-@bp.route("/projects/<project_id>/algorithms", methods=["GET"])
+@bp.route("/projects/<project_id>/learner", methods=["GET"])
 @login_required
 @project_authorization
-def api_get_algorithms(project):  # noqa: F401
-    """Get the algorithms used in the project"""
+def api_get_learner(project):  # noqa: F401
+    """Get the latest learner used in the project"""
 
     with open(
         Path(
@@ -682,11 +718,19 @@ def api_get_algorithms(project):  # noqa: F401
         return jsonify(json.load(f))
 
 
-@bp.route("/projects/<project_id>/algorithms", methods=["POST", "PUT"])
+@bp.route("/projects/<project_id>/learner", methods=["POST", "PUT"])
 @login_required
 @project_authorization
-def api_set_algorithms(project):  # noqa: F401
-    """Set the algorithms used in the project"""
+def api_set_learner(project):  # noqa: F401
+    """Set the learner used in the project"""
+
+    name = request.form.get("name", "custom")
+
+    if name == "custom":
+        current_value = json.loads(request.form.get("current_value", "{}"))
+        current_value = {k: v for k, v in current_value.items() if v != ""}
+    else:
+        current_value = asdict(get_ai_config(name)["value"])
 
     fp = Path(
         project.project_path,
@@ -695,26 +739,13 @@ def api_set_algorithms(project):  # noqa: F401
         "settings_metadata.json",
     )
 
-    if fp.exists():
-        with open(fp, "r") as f:
-            cycle = ActiveLearningCycleData(**json.load(f))
-
-        cycle.classifier = request.form.get("classifier")
-        cycle.querier = request.form.get("querier")
-        cycle.balancer = request.form.get("balancer")
-        cycle.feature_extractor = request.form.get("feature_extractor")
-    else:
-        cycle = ActiveLearningCycleData(
-            classifier=request.form.get("classifier"),
-            querier=request.form.get("querier"),
-            balancer=request.form.get("balancer"),
-            feature_extractor=request.form.get("feature_extractor"),
-        )
-
     with open(fp, "w") as f:
-        json.dump(asdict(cycle), f)
+        settings = {"name": name, "current_value": current_value}
+        json.dump(settings, f)
 
-    return jsonify({**asdict(cycle)})
+    project.remove_review_error()
+
+    return jsonify(settings)
 
 
 @bp.route("/projects/<project_id>/wordcounts", methods=["GET"])
@@ -770,7 +801,7 @@ def api_train(project):  # noqa: F401
         _run_model(project)
 
     except Exception as err:
-        logging.error(err)
+        logging.exception(err)
         message = f"Failed to train the model. {err}"
         return jsonify(message=message), 400
 
@@ -882,12 +913,18 @@ def api_import_project():
         "settings_metadata.json",
     )
 
+    with open(fp_al_cycle, "r") as f:
+        current_cycle = json.load(f)["current_value"]
+
     warnings = []
     try:
-        ActiveLearningCycle.from_file(fp_al_cycle)
+        ActiveLearningCycle.from_meta(ActiveLearningCycleData(**current_cycle))
     except ValueError as err:
         with open(fp_al_cycle, "w") as f:
-            json.dump(get_model_config(), f)
+            model = get_ai_config()
+            json.dump(
+                {"name": model["name"], "current_value": asdict(model["value"])}, f
+            )
 
         warnings.append(
             str(err) + " It might be removed from this version of ASReview LAB or you "
@@ -1114,7 +1151,11 @@ def api_get_stopper(project):  # noqa: F401
         project.reviews[0]["id"],
         "settings_metadata.json",
     )
-    stopper = ActiveLearningCycle.from_file(fp_al_cycle).stopper
+
+    with open(fp_al_cycle, "r") as f:
+        cycle = ActiveLearningCycleData(**json.load(f).get("current_value", {}))
+
+    stopper = ActiveLearningCycle.from_meta(cycle).stopper
 
     if stopper is None:
         return jsonify({"name": None, "params": None})
@@ -1160,14 +1201,11 @@ def api_mutate_stopper(project):  # noqa: F401
     with open(fp_al_cycle, "r") as f:
         data = json.load(f)
 
-    data["stopper"] = NConsecutiveIrrelevant.name
-    data["stopper_param"] = {"n": request.form.get("n", 50, type=int)}
+    data["current_value"]["stopper"] = NConsecutiveIrrelevant.name
+    data["current_value"]["stopper_param"] = {"n": request.form.get("n", 50, type=int)}
 
     with open(fp_al_cycle, "w") as f:
         json.dump(data, f)
-
-    with open(fp_al_cycle, "r") as f:
-        print(json.load(f))
 
     return api_get_stopper(project.project_id)
 
@@ -1338,7 +1376,7 @@ def api_delete_project(project):  # noqa: F401
             shutil.rmtree(project.project_path)
 
         except Exception as err:
-            logging.error(err)
+            logging.exception(err)
             return jsonify(message="Failed to delete project."), 500
 
         return jsonify({"success": True})

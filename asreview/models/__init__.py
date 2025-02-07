@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.models import DEFAULT_MODEL_NAME
-from asreview.models.models import MODELS_CONFIG
-from asreview.models.models import get_model_config
+from asreview.models.models import AI_MODEL_CONFIGURATIONS
+from asreview.models.models import get_ai_config
 
 __all__ = [
     "balancers",
@@ -22,9 +21,8 @@ __all__ = [
     "feature_extractors",
     "queriers",
     "stoppers",
-    "MODELS_CONFIG",
-    "DEFAULT_MODEL_NAME",
-    "get_model_config",
+    "AI_MODEL_CONFIGURATIONS",
+    "get_ai_config",
 ]
 
 """Active learning model components.
