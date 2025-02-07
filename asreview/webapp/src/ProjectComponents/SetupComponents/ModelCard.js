@@ -156,7 +156,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                   sx={{ mb: 3 }}
                 >
                   <ListSubheader>
-                    <Typography color="primary"></Typography>
+                    Ultra - Fast, lightweight learner for performant reviewing
                   </ListSubheader>
 
                   {learnerOptions.learners
