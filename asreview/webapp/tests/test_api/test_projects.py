@@ -346,6 +346,7 @@ def test_list_learners(client, user):
 # Test setting the algorithms
 def test_set_project_algorithms(client, project):
     data = misc.choose_project_algorithms()
+    data["current_value"] = json.dumps(data["current_value"])
 
     r = au.set_project_algorithms(client, project, data=data)
     assert r.status_code == 200
