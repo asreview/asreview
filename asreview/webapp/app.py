@@ -16,6 +16,7 @@ import json
 import logging
 import os
 from pathlib import Path
+import sys
 
 try:
     import tomllib
@@ -64,6 +65,8 @@ def create_app(config_path=None):
         template_folder="build",
     )
 
+    print(sys.argv)
+
     app.config.from_prefixed_env("ASREVIEW_LAB")
 
     # load config from file
@@ -78,6 +81,14 @@ def create_app(config_path=None):
 
     with app.app_context():
         app.register_blueprint(projects.bp)
+
+    # create_app is also called from the asreview lab entrypoint. The entrypoint
+    # assumes no authentication unless explicit configured. That opposes default
+    # configuration when the app is started by running Flask. Set authentication
+    # to False when the app is started with the entrypoint and no auth configuration
+    # is set.
+    if "lab" in sys.argv and "--enable-auth" not in sys.argv:
+        app.config["AUTHENTICATION"] = False
 
     if app.config.get("AUTHENTICATION", True):
         # Login Manager
