@@ -156,14 +156,18 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                   sx={{ mb: 3 }}
                 >
                   <ListSubheader>
-                    Ultra - Lightweight and performant learner for every dataset
+                    <Typography color="primary"></Typography>
                   </ListSubheader>
 
                   {learnerOptions.learners
                     .filter((learner) => learner.type === "ultra")
                     .map((learner) => (
-                      <MenuItem key={learner.name} value={learner.name}>
-                        {learner.label}
+                      <MenuItem
+                        key={learner.name}
+                        value={learner.name}
+                        disabled={!learner.is_available}
+                      >
+                        <Typography>{learner.label}</Typography>
                       </MenuItem>
                     ))}
 
@@ -177,8 +181,27 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                   {learnerOptions.learners
                     .filter((learner) => learner.type === "lang")
                     .map((learner) => (
-                      <MenuItem key={learner.name} value={learner.name}>
-                        {learner.label}
+                      <MenuItem
+                        key={learner.name}
+                        value={learner.name}
+                        disabled={!learner.is_available}
+                      >
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          sx={{
+                            width: 1,
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                          }}
+                        >
+                          <Typography>{learner.label}</Typography>
+                          {!learner.is_available && (
+                            <Typography color="error">
+                              Requires the free ASReview-NEMO extension
+                            </Typography>
+                          )}
+                        </Stack>
                       </MenuItem>
                     ))}
 
@@ -191,8 +214,27 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                   {learnerOptions.learners
                     .filter((learner) => learner.type === "heavy")
                     .map((learner) => (
-                      <MenuItem key={learner.name} value={learner.name}>
-                        {learner.label}
+                      <MenuItem
+                        key={learner.name}
+                        value={learner.name}
+                        disabled={!learner.is_available}
+                      >
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          sx={{
+                            width: 1,
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                          }}
+                        >
+                          <Typography>{learner.label}</Typography>
+                          {!learner.is_available && (
+                            <Typography color="error">
+                              Requires the free ASReview-NEMO extension
+                            </Typography>
+                          )}
+                        </Stack>
                       </MenuItem>
                     ))}
                   <Divider />
