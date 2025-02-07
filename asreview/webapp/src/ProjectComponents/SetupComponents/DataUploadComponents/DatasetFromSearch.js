@@ -7,7 +7,7 @@ import { ProjectAPI } from "api";
 import { InlineErrorHandler } from "Components";
 import { StyledInputSearch } from "StyledComponents/StyledInputSearch";
 
-const DatasetFromOpenAlex = ({ mode, setDataset }) => {
+const DatasetFromSearch = ({ mode, setDataset }) => {
   // const [localURI, setURI] = React.useState("");
 
   const { error, isError } = useMutation(ProjectAPI.createProject, {
@@ -47,4 +47,4 @@ const DatasetFromOpenAlex = ({ mode, setDataset }) => {
   );
 };
 
-export default DatasetFromOpenAlex;
+export default DatasetFromSearch;
