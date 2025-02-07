@@ -137,14 +137,14 @@ def _run_model(project):
 @bp.errorhandler(ValueError)
 def value_error(e):
     message = str(e) if str(e) else "Incorrect value."
-    logging.error(message)
+    logging.exception(e)
     return jsonify(message=message), 400
 
 
 @bp.errorhandler(ProjectNotFoundError)
 def project_not_found(e):
     message = str(e) if str(e) else "Project not found."
-    logging.error(message)
+    logging.exception(message)
     return jsonify(message=message), 404
 
 
@@ -154,7 +154,7 @@ def error_500(e):
 
     if original is None or str(e.original_exception) == "":
         # direct 500 error, such as abort(500)
-        logging.error(e)
+        logging.exception(e)
         return jsonify(message="Whoops, something went wrong."), 500
 
     # wrapped unhandled error
@@ -378,7 +378,7 @@ def api_demo_data_project():  # noqa: F401
             )
 
         except Exception as err:
-            logging.error(err)
+            logging.exception(err)
             return jsonify(message="Failed to load plugin datasets."), 500
 
     elif subset == "benchmark":
@@ -387,7 +387,7 @@ def api_demo_data_project():  # noqa: F401
             result_datasets = manager.list(include=["synergy", "benchmark-nature"])
 
         except Exception as err:
-            logging.error(err)
+            logging.exception(err)
             return jsonify(message="Failed to load benchmark datasets."), 500
 
     else:
@@ -790,7 +790,7 @@ def api_train(project):  # noqa: F401
         _run_model(project)
 
     except Exception as err:
-        logging.error(err)
+        logging.exception(err)
         message = f"Failed to train the model. {err}"
         return jsonify(message=message), 400
 
@@ -1365,7 +1365,7 @@ def api_delete_project(project):  # noqa: F401
             shutil.rmtree(project.project_path)
 
         except Exception as err:
-            logging.error(err)
+            logging.exception(err)
             return jsonify(message="Failed to delete project."), 500
 
         return jsonify({"success": True})
