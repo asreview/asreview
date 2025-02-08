@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import inspect
 import json
 import logging
 import os
 from pathlib import Path
-import sys
 
 try:
     import tomllib
@@ -65,8 +65,6 @@ def create_app(config_path=None):
         template_folder="build",
     )
 
-    print(sys.argv)
-
     app.config.from_prefixed_env("ASREVIEW_LAB")
 
     # load config from file
@@ -87,7 +85,8 @@ def create_app(config_path=None):
     # configuration when the app is started by running Flask. Set authentication
     # to False when the app is started with the entrypoint and no auth configuration
     # is set.
-    if "lab" in sys.argv and "--enable-auth" not in sys.argv:
+    if len(inspect.stack()) > 0 and \
+        inspect.stack()[1].function == "lab_entry_point":
         app.config["AUTHENTICATION"] = False
 
     if app.config.get("AUTHENTICATION", True):

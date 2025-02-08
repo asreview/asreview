@@ -117,6 +117,14 @@ def lab_entry_point(argv):
         app.config.get("AUTHENTICATION", False) or args.authentication
     )
 
+    if "--test-mode" in argv:
+        # if this is a test, there is no need to start the server,
+        # return the app.
+        return app
+    
+    # NO MORE APP CONFIGURATION BELOW THIS LINE
+    # =========================================
+
     # clean all projects
     # TODO@{Casper}: this needs a little bit
     # of work, we need to access all sub-folders
@@ -211,7 +219,7 @@ def lab_entry_point(argv):
                 "\n\n[red]Error: unable to startup the model server.[/red]\n\n"
             )
             return
-
+    
     try:
         waitress.serve(app, host=args.host, port=port, threads=6)
     except KeyboardInterrupt:
@@ -328,6 +336,14 @@ def _lab_parser():
         dest="skip_update_check",
         action="store_true",
         help="Skip checking for updates.",
+    )
+
+    parser.add_argument(
+        "--test-mode",
+        dest="test_mode",
+        default=False,
+        action="store_true",
+        help="Avoid starting the lab server"
     )
 
     return parser
