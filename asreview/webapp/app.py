@@ -85,8 +85,7 @@ def create_app(config_path=None):
     # configuration when the app is started by running Flask. Set authentication
     # to False when the app is started with the entrypoint and no auth configuration
     # is set.
-    if len(inspect.stack()) > 0 and \
-        inspect.stack()[1].function == "lab_entry_point":
+    if len(inspect.stack()) > 0 and inspect.stack()[1].function == "lab_entry_point":
         app.config["AUTHENTICATION"] = False
 
     if app.config.get("AUTHENTICATION", True):
