@@ -2,11 +2,9 @@ import React, { useContext } from "react";
 import { useQuery, useQueryClient } from "react-query";
 
 import {
-  Alert,
   Button,
   Card,
   CardContent,
-  CardHeader,
   Divider,
   // FormControl,
   // FormControlLabel,
@@ -14,14 +12,16 @@ import {
   // Radio,
   // RadioGroup,
   Link,
+  Skeleton,
   Typography,
 } from "@mui/material";
 import { LabelHistoryPrior } from "ProjectComponents/HistoryComponents";
-import { ProjectContext } from "context/ProjectContext";
+import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
 import { ProjectAPI } from "api";
+import { ProjectContext } from "context/ProjectContext";
+import { projectModes } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 import { AddPriorKnowledge } from "./SearchComponents";
-import { projectModes } from "globals.js";
 
 const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
   const project_id = useContext(ProjectContext);
@@ -32,7 +32,7 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
   // const [priorType, setPriorType] = React.useState("records");
   const priorType = "records";
 
-  const { data } = useQuery(
+  const { data, isLoading } = useQuery(
     ["fetchLabeledStats", { project_id: project_id }],
     ProjectAPI.fetchLabeledStats,
     {
@@ -47,7 +47,7 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
 
   return (
     <Card>
-      <CardHeader
+      <LoadingCardHeader
         title="Prior knowledge"
         subheader={
           <>
@@ -61,6 +61,7 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
             </Link>
           </>
         }
+        isLoading={isLoading}
       />
 
       {/* <CardContent>
@@ -97,44 +98,56 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
       {priorType === "records" && (
         <>
           <CardContent>
-            {(data?.n_prior_inclusions === 0 ||
-              data?.n_prior_exclusions === 0) && (
-              <Typography>
-                Search for one or more relevant records and label them relevant.
-                It's also possible to label irrelevant records.
-              </Typography>
+            {isLoading ? (
+              <Skeleton variant="rectangular" height={56} />
+            ) : (
+              <>
+                {(data?.n_prior_inclusions === 0 ||
+                  data?.n_prior_exclusions === 0) && (
+                  <Typography>
+                    Search for one or more relevant records and label them
+                    relevant. It's also possible to label irrelevant records.
+                  </Typography>
+                )}
+                {data?.n_prior_inclusions !== 0 &&
+                  data?.n_prior_exclusions !== 0 && (
+                    <Typography>
+                      You added{" "}
+                      {`${data?.n_prior_inclusions} relevant records and ${data?.n_prior_exclusions} records that aren't relevant.`}
+                    </Typography>
+                  )}
+              </>
             )}
-            {data?.n_prior_inclusions !== 0 &&
-              data?.n_prior_exclusions !== 0 && (
-                <Typography>
-                  You added{" "}
-                  {`${data?.n_prior_inclusions} relevant records and ${data?.n_prior_exclusions} records that aren't relevant.`}
-                </Typography>
-              )}
           </CardContent>
-
           <CardContent>
-            <Button
-              id={"add-prior-search"}
-              onClick={() => setOpenPriorSearch(true)}
-              variant="contained"
-              disabled={!editable}
-              sx={{ mr: 2 }}
-            >
-              Search
-            </Button>
+            {isLoading ? (
+              <Skeleton variant="rectangular" width={100} height={36} />
+            ) : (
+              <>
+                <Button
+                  id={"add-prior-search"}
+                  onClick={() => setOpenPriorSearch(true)}
+                  variant="contained"
+                  disabled={!editable}
+                  sx={{ mr: 2 }}
+                >
+                  Search
+                </Button>
 
-            <Button
-              id={"add-prior-view"}
-              onClick={toggleOpenPriorView}
-              disabled={
-                data?.n_prior_inclusions === 0 && data?.n_prior_exclusions === 0
-              }
-            >
-              {openPriorView
-                ? "Hide records"
-                : "Show records (" + data?.n_prior + ")"}
-            </Button>
+                <Button
+                  id={"add-prior-view"}
+                  onClick={toggleOpenPriorView}
+                  disabled={
+                    data?.n_prior_inclusions === 0 &&
+                    data?.n_prior_exclusions === 0
+                  }
+                >
+                  {openPriorView
+                    ? "Hide records"
+                    : "Show records (" + data?.n_prior + ")"}
+                </Button>
+              </>
+            )}
           </CardContent>
         </>
       )}
@@ -152,13 +165,13 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
         </>
       )}
 
-      {(priorType === "criteria" || priorType === "file") && (
+      {/* {(priorType === "criteria" || priorType === "file") && (
         <CardContent>
           <Alert severity="info">
             Coming soon! Keep an eye on our website and socials.
           </Alert>
         </CardContent>
-      )}
+      )} */}
 
       <AddPriorKnowledge open={openPriorSearch} onClose={onClosePriorSearch} />
     </Card>
