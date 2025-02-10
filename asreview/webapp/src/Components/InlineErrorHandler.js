@@ -5,16 +5,29 @@ import { Warning } from "@mui/icons-material";
 export default function InlineErrorHandler({
   message,
   button = true,
-  refetch = true,
+  refetch = null,
+  buttonText = "Try to refresh",
 }) {
+  if (!message) return null;
+
   return (
-    <Stack direction="row" spacing={1} sx={{ justifyContent: "center" }}>
+    <Stack
+      direction="row"
+      spacing={1}
+      alignItems="center"
+      sx={{
+        justifyContent: "center",
+        py: 1,
+      }}
+    >
       <Warning color="error" fontSize="small" />
       <Typography variant="body2">
         {message}{" "}
-        <Link component="button" underline="none" onClick={refetch}>
-          {button ? "Try to refresh" : ""}
-        </Link>
+        {button && refetch && (
+          <Link component="button" underline="none" onClick={refetch}>
+            {buttonText}
+          </Link>
+        )}
       </Typography>
     </Stack>
   );
