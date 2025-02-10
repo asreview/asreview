@@ -21,3 +21,4 @@ export { default as SignInForm } from "./SignInForm";
 export { default as SignInOAuthCallback } from "./SignInOAuthCallback";
 export { default as SignUpForm } from "./SignUpForm";
 export { default as ScrollToTop } from "./ScrollToTop";
+export { default as ErrorBoundary } from "./ErrorBoundary";
