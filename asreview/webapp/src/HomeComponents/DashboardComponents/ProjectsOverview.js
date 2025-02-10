@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 
 import { ProjectAPI } from "api";
-import { InteractionButtons } from "Components";
+import { InlineErrorHandler, InteractionButtons } from "Components";
 import { projectModes, projectStatuses } from "globals.js";
 import { ProjectCard } from "HomeComponents/DashboardComponents";
 import { Upload } from "ProjectComponents/SetupComponents";
@@ -28,7 +28,7 @@ const ProjectsOverview = ({ mode }) => {
     return false;
   };
 
-  const { data } = useQuery(
+  const { data, isError, error, refetch } = useQuery(
     ["fetchProjects", { subset: mode }],
     ProjectAPI.fetchProjects,
     {
@@ -53,6 +53,13 @@ const ProjectsOverview = ({ mode }) => {
         <Upload mode={mode} />
       </Container>
       <Container maxWidth="md">
+        {isError && (
+          <InlineErrorHandler
+            message={error?.message}
+            button
+            refetch={refetch}
+          />
+        )}
         <Stack spacing={6}>
           <>
             {/* Divider between In Review and Finished with a Chip */}
