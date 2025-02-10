@@ -154,7 +154,6 @@ def create_app(config_path=None):
             allow_account_creation=str(
                 app.config.get("ALLOW_ACCOUNT_CREATION", True)
             ).lower(),
-            allow_teams=str(app.config.get("ALLOW_TEAMS", True)).lower(),
             email_verification=str(app.config.get("EMAIL_VERIFICATION", False)).lower(),
             oauth=oauth_params,
         )
