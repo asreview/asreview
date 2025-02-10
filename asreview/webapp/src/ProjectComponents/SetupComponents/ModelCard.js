@@ -2,7 +2,6 @@ import {
   Box,
   Card,
   CardContent,
-  CardHeader,
   Divider,
   FormControl,
   FormHelperText,
@@ -21,6 +20,7 @@ import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectModes } from "globals.js";
 import { useContext } from "react";
+import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
 
 const ModelComponentSelect = ({
   name,
@@ -110,27 +110,22 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
 
   return (
     <Card>
-      <CardHeader
-        title={isLoading ? <Skeleton width={60} /> : "AI"}
+      <LoadingCardHeader
+        isLoading={isLoading}
+        title="AI"
         subheader={
-          isLoading ? (
-            <Skeleton width="80%" />
-          ) : (
-            <>
-              <>
-                {projectModes.SIMULATION === mode
-                  ? "Select or compose an AI to simulate the performance of your review process. "
-                  : "Select or compose an AI to accelerate your review process. "}
-              </>
-              <Link
-                underline="none"
-                href={`https://asreview.nl/blog/active-learning-explained/`}
-                target="_blank"
-              >
-                learn more
-              </Link>
-            </>
-          )
+          <>
+            {projectModes.SIMULATION === mode
+              ? "Select or compose an AI to simulate the performance of your review process. "
+              : "Select or compose an AI to accelerate your review process. "}
+            <Link
+              underline="none"
+              href={`https://asreview.nl/blog/active-learning-explained/`}
+              target="_blank"
+            >
+              learn more
+            </Link>
+          </>
         }
       />
 
