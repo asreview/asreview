@@ -1,4 +1,3 @@
-import { axiosErrorHandler } from "./axiosErrorHandler";
 import axios from "axios";
 
 class UtilsAPI {
@@ -11,8 +10,8 @@ class UtilsAPI {
         .then((result) => {
           resolve(result.data.resources.faq["items"]);
         })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
+        .catch(() => {
+          reject({ message: "Failed to load FAQ" });
         });
     });
   };

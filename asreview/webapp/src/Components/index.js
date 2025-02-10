@@ -1,5 +1,4 @@
 export { default as AuthPage } from "./AuthPage";
-export { default as BoxErrorHandler } from "./BoxErrorHandler";
 export { default as CardErrorHandler } from "./CardErrorHandler";
 export { default as CiteDialog } from "./CiteDialog";
 export { default as ConfirmAccount } from "./ConfirmAccount";

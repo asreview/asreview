@@ -4,7 +4,7 @@ import React from "react";
 import { InView } from "react-intersection-observer";
 import { useInfiniteQuery } from "react-query";
 
-import { BoxErrorHandler } from "Components";
+import { InlineErrorHandler } from "Components";
 import { RecordCard } from "ProjectComponents/ReviewComponents";
 import { ProjectAPI } from "api";
 
@@ -58,9 +58,7 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
 
   return (
     <Box aria-label="labeled record">
-      {isError && (
-        <BoxErrorHandler error={error} queryKey="fetchLabeledRecord" />
-      )}
+      {isError && <InlineErrorHandler message={error?.message} />}
       {/* {n_prior !== 0 && !isError && (isLoading || !mounted.current) && (
         <Box className={classes.loading}>
           <CircularProgress />
