@@ -16,11 +16,13 @@ import {
   DialogContentText,
   DialogTitle,
   Link,
+  Skeleton,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { ProjectContext } from "context/ProjectContext";
+import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
 import { useContext } from "react";
 
 import { ProjectAPI } from "api";
@@ -396,14 +398,20 @@ const TagCard = (props) => {
   /**
    * Fetch project info
    */
-  useQuery(["fetchInfo", { project_id: project_id }], ProjectAPI.fetchInfo, {
-    onSuccess: (data) => {
-      setTags(
-        data["tags"] === undefined || data["tags"] === null ? [] : data["tags"],
-      );
+  const { isLoading } = useQuery(
+    ["fetchInfo", { project_id: project_id }],
+    ProjectAPI.fetchInfo,
+    {
+      onSuccess: (data) => {
+        setTags(
+          data["tags"] === undefined || data["tags"] === null
+            ? []
+            : data["tags"],
+        );
+      },
+      refetchOnWindowFocus: false,
     },
-    refetchOnWindowFocus: false,
-  });
+  );
 
   /**
    * Mutate project info
@@ -448,7 +456,7 @@ const TagCard = (props) => {
 
   return (
     <Card>
-      <CardHeader
+      <LoadingCardHeader
         title="Labeling tags"
         subheader={
           <>
@@ -465,37 +473,46 @@ const TagCard = (props) => {
             </Link>
           </>
         }
+        isLoading={isLoading}
       />
-      {tags.length !== 0 && (
-        <CardContent>
-          {tags.map((c) => (
-            <Group
-              group={c}
-              key={c.id}
-              editTagGroup={editTagGroup}
-              mobileScreen={props.mobileScreen}
+      <CardContent>
+        {isLoading ? (
+          <Skeleton variant="rectangular" height={56} />
+        ) : (
+          <>
+            {tags.length !== 0 &&
+              tags.map((c) => (
+                <Group
+                  group={c}
+                  key={c.id}
+                  editTagGroup={editTagGroup}
+                  mobileScreen={props.mobileScreen}
+                />
+              ))}
+            <AddGroupDialog
+              title="Add group of tags"
+              open={groupDialogOpen}
+              handleClose={() => setGroupDialogOpen(false)}
+              handleAdd={addTagGroup}
+              handleAddTags={editTagGroup}
+              groups={tags}
             />
-          ))}
-        </CardContent>
-      )}
-
-      <AddGroupDialog
-        title="Add group of tags"
-        open={groupDialogOpen}
-        handleClose={() => setGroupDialogOpen(false)}
-        handleAdd={addTagGroup}
-        handleAddTags={editTagGroup}
-        groups={tags}
-      />
+          </>
+        )}
+      </CardContent>
 
       <CardContent>
-        <Button
-          onClick={() => setGroupDialogOpen(true)}
-          disabled={isMutatingInfo}
-          variant="contained"
-        >
-          Add tags
-        </Button>
+        {isLoading ? (
+          <Skeleton variant="rectangular" width={100} height={36} />
+        ) : (
+          <Button
+            onClick={() => setGroupDialogOpen(true)}
+            disabled={isMutatingInfo}
+            variant="contained"
+          >
+            Add tags
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
