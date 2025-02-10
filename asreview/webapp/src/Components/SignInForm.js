@@ -3,6 +3,7 @@ import {
   Button,
   CardActions,
   CardContent,
+  CardHeader,
   FormControl,
   IconButton,
   InputAdornment,
@@ -10,7 +11,6 @@ import {
   OutlinedInput,
   Stack,
   TextField,
-  Typography,
 } from "@mui/material";
 import { ForgotPassword } from "Components";
 import * as React from "react";
@@ -72,9 +72,9 @@ const SignInForm = () => {
     <>
       {!forgotPassword && (
         <>
+          <CardHeader title="Sign in" />
           <CardContent>
             <Stack spacing={3}>
-              <Typography variant="h5">Sign in</Typography>
               <TextField
                 id="email"
                 label="Email"

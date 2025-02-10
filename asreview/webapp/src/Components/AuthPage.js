@@ -1,20 +1,12 @@
-import {
-  Alert,
-  Box,
-  Card,
-  CardContent,
-  Divider,
-  Fade,
-  Stack,
-} from "@mui/material";
+import { Alert, Box, Card, CardContent, Fade, Stack } from "@mui/material";
 
 import {
-  ForgotPassword,
   ConfirmAccount,
+  ForgotPassword,
   HelpPrivacyTermsButton,
+  ResetPassword,
   SignInForm,
   SignUpForm,
-  ResetPassword,
 } from "Components";
 
 import { WordMark } from "icons/WordMark";
@@ -32,34 +24,30 @@ const AuthPage = ({
       justifyContent="center"
       alignItems="center"
       minHeight="100vh"
+      sx={(theme) => ({
+        [theme.breakpoints.down(500)]: {
+          p: 2,
+        },
+      })}
     >
-      <Fade in>
+      <Fade in timeout={1000}>
         <Stack
-          sx={(theme) => ({
+          sx={{
             width: "100%",
             maxWidth: 500,
-          })}
+          }}
           spacing={3}
         >
-          <Card
-            sx={(theme) => ({
-              [theme.breakpoints.down(500)]: {
-                boxShadow: 0,
-              },
-            })}
-          >
-            <CardContent>
-              <Stack spacing={3}>
-                <Box display="flex" justifyContent="center">
-                  <WordMark style={{ maxWidth: "130px", paddingTop: 10 }} />
-                </Box>
-                {typeof window.loginInfo === "string" &&
-                  window.loginInfo.length > 0 && (
-                    <Alert severity="info">{window.loginInfo}</Alert>
-                  )}
-                <Divider />
-              </Stack>
-            </CardContent>
+          <Box display="flex" justifyContent="center">
+            <WordMark style={{ maxWidth: "130px", paddingTop: 10 }} />
+          </Box>
+          <Card>
+            {typeof window.loginInfo === "string" &&
+              window.loginInfo.length > 0 && (
+                <CardContent>
+                  <Alert severity="info">{window.loginInfo}</Alert>
+                </CardContent>
+              )}
 
             {signUp && <SignUpForm />}
 
