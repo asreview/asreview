@@ -9,7 +9,6 @@ import {
   Button,
   Card,
   CardContent,
-  CardHeader,
   Dialog,
   DialogActions,
   DialogContent,
@@ -22,8 +21,8 @@ import {
   Typography,
 } from "@mui/material";
 import { ProjectContext } from "context/ProjectContext";
-import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
 import { useContext } from "react";
+import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
 
 import { ProjectAPI } from "api";
 import { useMutation, useQuery } from "react-query";
@@ -462,8 +461,7 @@ const TagCard = (props) => {
           <>
             <>
               Tags and tag groups are used to label records with additional
-              information. Tags are not used by the machine learning
-              algorithms.{" "}
+              information. Tags are not used by the machine learning algorithms.
             </>
             <Link
               underline="none"
