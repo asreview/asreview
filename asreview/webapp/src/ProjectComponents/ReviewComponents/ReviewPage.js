@@ -45,6 +45,13 @@ const ReviewPage = () => {
     },
   );
 
+  const afterDecision = () => {
+    window.scrollTo({ top: 0 });
+    queryClient.invalidateQueries({
+      queryKey: ["fetchRecord", { project_id }],
+    });
+  };
+
   return (
     <Container
       aria-label="review page"
@@ -71,7 +78,7 @@ const ReviewPage = () => {
               }
               project_id={project_id}
               record={data?.result}
-              afterDecision={() => queryClient.invalidateQueries("fetchRecord")}
+              afterDecision={afterDecision}
               fontSize={fontSize}
               showBorder={showBorder}
               modelLogLevel={modelLogLevel}

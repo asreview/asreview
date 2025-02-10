@@ -20,8 +20,6 @@ import { RecordCardLabeler, RecordCardModelTraining } from ".";
 
 import { fontSizeOptions } from "globals.js";
 
-const transitionSpeed = 300;
-
 const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
   const [readMoreOpen, toggleReadMore] = useToggle();
 
@@ -147,10 +145,11 @@ const RecordCard = ({
   collapseAbstract = false,
   hotkeys = false,
   transitionType = "fade",
+  transitionSpeed = { enter: 500, exit: 100 },
   landscape = false,
   changeDecision = true,
 }) => {
-  const [state, setState] = React.useState({ open: true });
+  const [open, setOpen] = React.useState(true);
 
   const styledRepoCard = (
     <Box>
@@ -193,7 +192,9 @@ const RecordCard = ({
               record_id={record.record_id}
               label={record.state?.label}
               labelFromDataset={record.included}
-              decisionCallback={() => setState({ open: false })}
+              onDecisionClose={
+                transitionType ? () => setOpen(false) : afterDecision
+              }
               retrainAfterDecision={retrainAfterDecision}
               note={record.state?.note}
               labelTime={record.state?.time}
@@ -214,7 +215,7 @@ const RecordCard = ({
   if (transitionType === "fade") {
     return (
       <Fade
-        in={state.open}
+        in={open}
         timeout={transitionSpeed}
         onExited={afterDecision}
         unmountOnExit
@@ -225,7 +226,7 @@ const RecordCard = ({
   } else if (transitionType === "collapse") {
     return (
       <Collapse
-        in={state.open}
+        in={open}
         timeout={transitionSpeed}
         onExited={afterDecision}
         unmountOnExit

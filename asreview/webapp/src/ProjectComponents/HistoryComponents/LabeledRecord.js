@@ -8,8 +8,8 @@ import { InlineErrorHandler } from "Components";
 import { RecordCard } from "ProjectComponents/ReviewComponents";
 import { ProjectAPI } from "api";
 
-import { useReviewSettings } from "context/ReviewSettingsContext";
 import { useMediaQuery } from "@mui/material";
+import { useReviewSettings } from "context/ReviewSettingsContext";
 
 const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
   const { orientation, modelLogLevel } = useReviewSettings();
@@ -75,7 +75,8 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
                     record={record}
                     collapseAbstract={true}
                     disabled={true}
-                    transitionType="none"
+                    transitionType="collapse"
+                    transitionSpeed={{ enter: 500, exit: 800 }}
                     landscape={
                       orientation === "landscape" && !landscapeDisabled
                     }
