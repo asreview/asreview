@@ -462,7 +462,8 @@ const TagCard = (props) => {
           <>
             <>
               Tags and tag groups are used to label records with additional
-              information. Tags are not used by the machine learning algorithms.{" "}
+              information. Tags are not used by the machine learning
+              algorithms.{" "}
             </>
             <Link
               underline="none"
