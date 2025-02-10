@@ -1,6 +1,5 @@
 import { Container, Stack } from "@mui/material";
-import { useQuery } from "react-query";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 
 import {
   ModelCard,
@@ -8,31 +7,24 @@ import {
   TagCard,
 } from "ProjectComponents/SetupComponents";
 
-import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 
 const DetailsPage = () => {
   const { project_id } = useParams();
-
-  const { data } = useQuery(
-    ["fetchInfo", { project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const location = useLocation();
+  const mode = location.pathname.includes("reviews") ? "oracle" : "simulate";
 
   return (
     <ProjectContext.Provider value={project_id}>
       <Container maxWidth="md" aria-label="details page" sx={{ mb: 3 }}>
         <Stack spacing={3}>
-          {data?.mode === "oracle" && <TagCard editable={false} />}
+          {mode === "oracle" && <TagCard editable={false} />}
           <ModelCard
-            mode={data?.mode}
-            editable={data?.mode === "oracle"}
+            mode={mode}
+            editable={mode === "oracle"}
             showWarning={true}
           />
-          <PriorCard editable={data?.mode === "oracle"} mode={data?.mode} />
+          <PriorCard editable={mode === "oracle"} mode={mode} />
         </Stack>
       </Container>
     </ProjectContext.Provider>
