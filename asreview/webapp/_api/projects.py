@@ -1308,10 +1308,10 @@ def api_update_note(project, record_id):  # noqa: F401
     return jsonify({"success": True})
 
 
-@bp.route("/projects/<project_id>/get_document", methods=["GET"])
+@bp.route("/projects/<project_id>/get_record", methods=["GET"])
 @login_required
 @project_authorization
-def api_get_document(project):  # noqa: F401
+def api_get_record(project):  # noqa: F401
     """Retrieve unlabeled record in order of review."""
 
     user_id = (

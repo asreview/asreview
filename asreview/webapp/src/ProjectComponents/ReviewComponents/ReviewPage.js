@@ -1,4 +1,4 @@
-import { useMediaQuery } from "@mui/material";
+import { useMediaQuery, Button, Box, Typography } from "@mui/material";
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
@@ -20,14 +20,16 @@ const ReviewPage = () => {
 
   const [tagValues, setTagValues] = React.useState({});
 
-  const { refetch, data, isSuccess } = useQuery(
+  const { refetch, data, isSuccess, isError, error } = useQuery(
     ["fetchRecord", { project_id }],
     ProjectAPI.fetchRecord,
     {
       refetchOnWindowFocus: false,
       retry: false,
-      refetchInterval: (data) =>
-        data?.result && !data?.pool_empty ? -1 : 4000,
+      refetchInterval: (data, query) => {
+        if (query.state.error) return false;
+        return data?.result && !data?.pool_empty ? -1 : 4000;
+      },
       refetchIntervalInBackground: true,
     },
   );
@@ -87,6 +89,22 @@ const ReviewPage = () => {
 
           {data?.result === null && data?.pool_empty && <ReviewPageFinished />}
         </>
+      )}
+
+      {isError && (
+        <Box sx={{ textAlign: "center", mt: 4 }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            ASReview LAB failed to load a new record
+          </Typography>
+          {error?.message && (
+            <Typography variant="body1" color="error" gutterBottom>
+              {error.message}
+            </Typography>
+          )}
+          <Button variant="contained" onClick={() => refetch()} sx={{ mt: 2 }}>
+            Try to load again
+          </Button>
+        </Box>
       )}
     </Container>
   );

@@ -355,7 +355,7 @@ def get_project_current_document(
     client: FlaskClient,
     project: Union[Project, asr.Project],
 ):
-    response = client.get(f"/api/projects/{get_project_id(project)}/get_document")
+    response = client.get(f"/api/projects/{get_project_id(project)}/get_record")
     return response
 
 
