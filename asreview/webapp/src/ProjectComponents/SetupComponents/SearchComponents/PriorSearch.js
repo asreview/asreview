@@ -62,6 +62,7 @@ const PriorSearch = () => {
                 collapseAbstract={true}
                 retrainAfterDecision={false}
                 transitionType="collapse"
+                transitionSpeed={{ enter: 500, exit: 800 }}
                 showNotes={false}
                 key={`result-record-${index}`}
               />

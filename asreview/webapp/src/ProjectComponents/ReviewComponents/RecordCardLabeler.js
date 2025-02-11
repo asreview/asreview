@@ -136,14 +136,12 @@ const RecordCardLabeler = ({
   showNotes = true,
   labelTime = null,
   user = null,
-  decisionCallback,
+  onDecisionClose = null,
   hotkeys = false,
   landscape = false,
   retrainAfterDecision = true,
   changeDecision = true,
 }) => {
-  const queryClient = useQueryClient();
-
   const [editState] = useToggle(!(label === 1 || label === 0));
   const [showNotesDialog, toggleShowNotesDialog] = useToggle(false);
   const [tagValuesState, setTagValuesState] = React.useState(
@@ -154,12 +152,9 @@ const RecordCardLabeler = ({
     ProjectAPI.mutateClassification,
     {
       onSuccess: () => {
-        // invalidate queries
-        queryClient.invalidateQueries({
-          queryKey: ["fetchRecord", { project_id }],
-        });
-
-        decisionCallback();
+        if (onDecisionClose) {
+          onDecisionClose();
+        }
       },
     },
   );
