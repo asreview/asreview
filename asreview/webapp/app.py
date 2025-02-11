@@ -45,7 +45,7 @@ from asreview.webapp._authentication.remote_user_handler import RemoteUserHandle
 from asreview.webapp.utils import asreview_path
 
 
-def create_app(config_path=None):
+def create_app(**config_vars):
     """Create a new ASReview webapp.
 
     For use with WSGI servers, such as gunicorn:
@@ -66,9 +66,8 @@ def create_app(config_path=None):
     )
 
     app.config.from_prefixed_env("ASREVIEW_LAB")
-
-    # load config from file
-    if config_fp := (config_path or app.config.get("CONFIG_PATH", None)):
+    app.config.from_mapping(**config_vars)
+    if config_fp := app.config.get("CONFIG_PATH", None):
         app.config.from_file(Path(config_fp).absolute(), load=tomllib.load, text=False)
 
     # if there are no cors and config is in debug mode, add default cors
@@ -79,14 +78,6 @@ def create_app(config_path=None):
 
     with app.app_context():
         app.register_blueprint(projects.bp)
-
-    # create_app is also called from the asreview lab entrypoint. The entrypoint
-    # assumes no authentication unless explicit configured. That opposes default
-    # configuration when the app is started by running Flask. Set authentication
-    # to False when the app is started with the entrypoint and no auth configuration
-    # is set.
-    if len(inspect.stack()) > 0 and inspect.stack()[1].function == "lab_entry_point":
-        app.config["AUTHENTICATION"] = False
 
     if app.config.get("AUTHENTICATION", True):
         # Login Manager
