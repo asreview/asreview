@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "react-query";
 import {
   Alert,
   Box,
-  Button,
+  // Button,
   Card,
   CardContent,
   CardHeader,
@@ -19,15 +19,10 @@ import DatasetChart from "ProjectComponents/AnalyticsComponents/DatasetChart";
 const DatasetCard = ({
   project_id,
   dataset_path,
-  onResetDataset,
+  // onResetDataset,
   hideLabeledInfo = false,
 }) => {
-  const {
-    data,
-    // error: fetchDataError,
-    // isError: isFetchDataError,
-    isFetching: isFetchingData,
-  } = useQuery(
+  const { data, isFetching: isFetchingData } = useQuery(
     ["fetchData", { project_id: project_id }],
     ProjectAPI.fetchData,
     {
@@ -35,13 +30,13 @@ const DatasetCard = ({
     },
   );
 
-  const { mutate: deleteProject } = useMutation(
-    ProjectAPI.mutateDeleteProject,
-    {
-      mutationKey: ["mutateDeleteProject"],
-      onSuccess: onResetDataset,
-    },
-  );
+  // const { mutate: deleteProject } = useMutation(
+  //   ProjectAPI.mutateDeleteProject,
+  //   {
+  //     mutationKey: ["mutateDeleteProject"],
+  //     onSuccess: onResetDataset,
+  //   },
+  // );
 
   return (
     <Card>
@@ -153,7 +148,7 @@ const DatasetCard = ({
               knowledge.
             </Alert>
           )}
-        {isFetchingData ? (
+        {/* {isFetchingData ? (
           <Skeleton>
             <Button />
           </Skeleton>
@@ -167,7 +162,7 @@ const DatasetCard = ({
           >
             Change
           </Button>
-        )}
+        )} */}
       </CardContent>
     </Card>
   );
