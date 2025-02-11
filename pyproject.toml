@@ -140,7 +140,6 @@ test = [
     "pytest",
     "pytest-random-order",
     "pytest-selenium",
-    "waitress"
 ]
 docs = [
     "ipython",

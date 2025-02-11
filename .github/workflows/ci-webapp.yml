@@ -53,7 +53,7 @@ jobs:
           python setup.py compile_assets
       - name: Install pytest and package
         run: |
-          pip install pytest pytest-random-order pytest-xdist
+          pip install pytest pytest-random-order pytest-xdist waitress
           pip install --no-cache-dir .
       - name: Test flask web app
         run: |
