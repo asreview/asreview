@@ -14,6 +14,7 @@ import {
   InputAdornment,
   OutlinedInput,
   InputLabel,
+  CardHeader,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useMutation } from "react-query";
@@ -87,9 +88,9 @@ const SignUpForm = () => {
 
   return (
     <>
+      <CardHeader title="Create your profile" />
       <CardContent>
         <Stack spacing={3}>
-          <Typography variant="h5">Create your profile</Typography>
           <Stack spacing={3} component="form" noValidate>
             <TextField
               required={true}
