@@ -139,7 +139,8 @@ test = [
     "coverage",
     "pytest",
     "pytest-random-order",
-    "pytest-selenium"
+    "pytest-selenium",
+    "waitress"
 ]
 docs = [
     "ipython",
