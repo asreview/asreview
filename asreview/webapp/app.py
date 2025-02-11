@@ -65,7 +65,7 @@ def create_app(**config_vars):
     )
 
     app.config.from_prefixed_env("ASREVIEW_LAB")
-    app.config.from_mapping(**config_vars)
+    app.config.from_mapping(**{k.upper(): v for k, v in config_vars.items()})
     if config_fp := app.config.get("CONFIG_PATH", None):
         app.config.from_file(Path(config_fp).absolute(), load=tomllib.load, text=False)
 
