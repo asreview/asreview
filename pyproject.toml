@@ -65,6 +65,7 @@ dependencies = [
     "requests",
     "tqdm",
     "rich",
+    "waitress",
     "gevent>=20",
     "datahugger>=0.2",
     "synergy_dataset",
