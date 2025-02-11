@@ -94,10 +94,10 @@ def lab_entry_point(argv):
         _check_for_update()
 
     app = create_app(
-        CONFIG_PATH=args.config_path,
-        SECRET_KEY=args.secret_key,
-        SALT=args.salt,
-        AUTHENTICATION=args.authentication,
+        config_path=args.config_path,
+        secret_key=args.secret_key,
+        salt=args.salt,
+        authentication=args.authentication,
     )
 
     # By default, the application is authenticated but lab is not.
