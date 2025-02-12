@@ -32,7 +32,7 @@ export const theme = {
     dark: {
       palette: {
         primary: {
-          main: "#6F7E6F",
+          main: "#8d8f8d",
         },
         secondary: {
           main: "#adcfae",
