@@ -44,7 +44,7 @@ from asreview.webapp._authentication.remote_user_handler import RemoteUserHandle
 from asreview.webapp.utils import asreview_path
 
 
-def create_app(config_path=None):
+def create_app(**config_vars):
     """Create a new ASReview webapp.
 
     For use with WSGI servers, such as gunicorn:
@@ -65,9 +65,8 @@ def create_app(config_path=None):
     )
 
     app.config.from_prefixed_env("ASREVIEW_LAB")
-
-    # load config from file
-    if config_fp := (config_path or app.config.get("CONFIG_PATH", None)):
+    app.config.from_mapping(**{k.upper(): v for k, v in config_vars.items()})
+    if config_fp := app.config.get("CONFIG_PATH", None):
         app.config.from_file(Path(config_fp).absolute(), load=tomllib.load, text=False)
 
     # if there are no cors and config is in debug mode, add default cors

@@ -358,8 +358,6 @@ def test_get_project_algorithms(client, project):
     # get the project algorithms
     r = au.get_project_algorithms(client, project)
     assert r.status_code == 200
-
-    print(r.json)
     assert r.json["current_value"]["balancer"] == r.json["current_value"]["balancer"]
     assert (
         r.json["current_value"]["feature_extractor"]
