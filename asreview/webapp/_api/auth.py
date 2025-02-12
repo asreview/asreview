@@ -164,7 +164,7 @@ def signup():
                 DB.session.rollback()
                 result = (403, f"Unable to create your account! Reason: {str(e)}")
     else:
-        result = (400, "The app is not configured to create accounts")
+        result = (404, "The app is not configured to create accounts")
 
     (status, message) = result
     response = jsonify({"message": message, "user_id": user_id})

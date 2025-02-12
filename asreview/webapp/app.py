@@ -109,6 +109,9 @@ def create_app(config_path=None):
         # store oauth config in oauth handler
         if bool(app.config.get("OAUTH", False)):
             app.config["OAUTH"] = OAuthHandler(app.config["OAUTH"])
+            # explicitly set account creation to False when oAuth is
+            # used to avoid account conflicts.
+            app.config["ALLOW_ACCOUNT_CREATION"] = False
         if bool(app.config.get("REMOTE_USER", False)):
             app.config["REMOTE_USER"] = RemoteUserHandler(app.config["REMOTE_USER"])
 

@@ -1,0 +1,13 @@
+TESTING = true
+DEBUG = true
+SECRET_KEY = "my_very_secret_key"
+SECURITY_PASSWORD_SALT = "my_salt"
+AUTHENTICATION = true
+
+[OAUTH]
+        [OAUTH.GitHub]
+        AUTHORIZATION_URL = "https://url.com"
+        TOKEN_URL = "https://url.com"
+        CLIENT_ID = "12345678"
+        CLIENT_SECRET = "secret"
+        SCOPE = ""
