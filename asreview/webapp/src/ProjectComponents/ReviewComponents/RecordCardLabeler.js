@@ -1,6 +1,7 @@
 import {
   Alert,
   AlertTitle,
+  Paper,
   Box,
   Button,
   CardActions,
@@ -254,29 +255,54 @@ const RecordCardLabeler = ({
             <Divider />
             <CardContent>
               {note && (
-                <Alert
-                  severity="info"
-                  color="primary"
-                  icon={<NoteAltOutlinedIcon />}
+                <Paper
+                  elevation={0}
                   sx={{
+                    p: 2,
                     mb: 2,
+                    // backgroundColor: (theme) => theme.palette.info.light,
                   }}
                 >
-                  <AlertTitle>Note</AlertTitle>
-                  {note}
-                </Alert>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <NoteAltOutlinedIcon />
+                    <Typography variant="subtitle1">Note</Typography>
+                  </Stack>
+                  <Typography sx={{ mt: 1 }}>{note}</Typography>
+                </Paper>
               )}
               {labelFromDataset === 0 && (
-                <Alert severity="info" color="primary" icon={<LabelOutlined />}>
-                  <AlertTitle>Not relevant</AlertTitle>
-                  Label in dataset is not relevant
-                </Alert>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    // backgroundColor: (theme) => theme.palette.info.light,
+                  }}
+                >
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <LabelOutlined />
+                    <Typography variant="subtitle1">Not relevant</Typography>
+                  </Stack>
+                  <Typography sx={{ mt: 1 }}>
+                    Label in dataset is not relevant
+                  </Typography>
+                </Paper>
               )}
               {labelFromDataset === 1 && (
-                <Alert severity="info" color="primary" icon={<LabelOutlined />}>
-                  <AlertTitle>Relevant</AlertTitle>
-                  Label in dataset is relevant
-                </Alert>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    // backgroundColor: (theme) => theme.palette.info.light,
+                  }}
+                >
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <LabelOutlined />
+                    <Typography variant="subtitle1">Relevant</Typography>
+                  </Stack>
+                  <Typography sx={{ mt: 1 }}>
+                    Label in dataset is relevant
+                  </Typography>
+                </Paper>
               )}
             </CardContent>
           </>
@@ -284,14 +310,24 @@ const RecordCardLabeler = ({
 
         {isError && (
           <CardContent>
-            <Alert severity="error">
-              Failed to label record. {error?.message}
-            </Alert>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                backgroundColor: (theme) => theme.palette.error.light,
+              }}
+            >
+              <Typography color="error">
+                Failed to label record. {error?.message}
+              </Typography>
+            </Paper>
           </CardContent>
         )}
         <CardActions
           sx={(theme) => ({
-            bgcolor: theme.palette.secondary.dark,
+            // bgcolor: theme.palette.secondary.main,
+            bgcolor: alpha(theme.palette.secondary.dark, 1),
+
             display: "block",
             color: theme.palette.getContrastText(theme.palette.secondary.dark),
           })}
