@@ -3,10 +3,10 @@ export const theme = {
     light: {
       palette: {
         primary: {
-          main: "#A08F63",
+          main: "#7e7667",
         },
         secondary: {
-          main: "#6E9B73",
+          main: "#6E9B73", // green
         },
         tertiary: {
           main: "#ffe08b",
@@ -24,7 +24,7 @@ export const theme = {
 
         grey: {
           400: "#DEDBD2",
-          600: "#2A3663",
+          600: "#e3c46d", // yellow
           800: "#37474F",
         },
       },
