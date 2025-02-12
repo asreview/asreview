@@ -32,7 +32,12 @@ export const DrawerItem = ({
         },
         "&.active": {
           ".MuiBox-root": {
-            bgcolor: alpha(theme.palette.secondary.light, 0.6),
+            bgcolor: alpha(
+              theme.palette.mode === "dark"
+                ? theme.palette.secondary.dark
+                : theme.palette.secondary.light,
+              0.6,
+            ),
           },
           ".MuiTypography-root": {
             fontWeight: "bold",
