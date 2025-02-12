@@ -105,9 +105,18 @@ def create_app(**config_vars):
         with app.app_context():
             # create tables in case they don't exist
             DB.create_all()
+
         # store oauth config in oauth handler
         if bool(app.config.get("OAUTH", False)):
+            # set configuration
             app.config["OAUTH"] = OAuthHandler(app.config["OAUTH"])
+            # check if user set ALLOW_ACCOUNT_CREATION to True, then
+            # raise error
+            if app.config.get("ALLOW_ACCOUNT_CREATION"):
+                raise ValueError(
+                    "When oAuth is used for authentication, the app"
+                    "won't allow account creation"
+                )
             # explicitly set account creation to False when oAuth is
             # used to avoid account conflicts.
             app.config["ALLOW_ACCOUNT_CREATION"] = False
