@@ -21,8 +21,8 @@ def test_impossible_to_signup_when_not_allowed(client_auth_no_creation):
     user = get_user(1)
     # post form data
     r = au.signup_user(client_auth_no_creation, user)
-    # check if we get a 400 status
-    assert r.status_code == 400
+
+    assert r.status_code == 404
     assert r.json["message"] == "The app is not configured to create accounts"
 
 
