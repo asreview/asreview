@@ -4,10 +4,12 @@ from inspect import getfullargspec
 
 import pytest
 
-import asreview.webapp.tests.utils.api_utils as au
-import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
+from asreview.webapp.tests.conftest import _get_app
+import asreview.webapp.tests.utils.api_utils as au
 from asreview.webapp.tests.utils.config_parser import get_user
+import asreview.webapp.tests.utils.crud as crud
+
 
 # ###################
 # SIGNUP
@@ -15,15 +17,28 @@ from asreview.webapp.tests.utils.config_parser import get_user
 
 
 # test that creating a user when the app runs a no-creation
-# policy, is impossible
-def test_impossible_to_signup_when_not_allowed(client_auth_no_creation):
+# policy, is impossible. This happens when explicitly
+# ALLOW_ACCOUNT_CREATION is set to False or oAuth is configured.
+@pytest.mark.parametrize("client_fixture", ["client_auth_no_creation", "client_oauth"])
+def test_deny_signup_when_not_allowed(request, client_fixture):
+    # get client
+    client = request.getfixturevalue(client_fixture)
     # get user data
     user = get_user(1)
     # post form data
-    r = au.signup_user(client_auth_no_creation, user)
+    r = au.signup_user(client, user)
 
     assert r.status_code == 404
     assert r.json["message"] == "The app is not configured to create accounts"
+
+
+# test Exception when allow account creation and oAuth are explicitly
+# configured
+def test_raise_error_when_both_oauth_and_signup_is_allowed(asreview_path_fixture):
+    with pytest.raises(ValueError):
+        _get_app(
+            app_type="oauth-with-allowed-account-creation", path=asreview_path_fixture
+        )
 
 
 # Successful signup returns a 200 but with an unconfirmed user and
