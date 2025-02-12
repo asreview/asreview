@@ -31,9 +31,7 @@ import { InlineErrorHandler } from ".";
 const SignupSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
   name: Yup.string().required("Full name is required"),
-  affiliation: Yup.string()
-    .min(2, "Affiliation must be at least 2 characters long")
-    .required("Affiliation is required"),
+  affiliation: Yup.string(),
   password: passwordValidation(Yup.string()).required("Password is required"),
   confirmPassword: Yup.string()
     .required("Password confirmation is required")
@@ -99,7 +97,7 @@ const SignUpForm = () => {
               label="Email"
               size="small"
               type="email"
-              autoComplete="email"
+              autoComplete="off"
               fullWidth
               value={formik.values.email}
               onChange={formik.handleChange}
@@ -132,6 +130,7 @@ const SignUpForm = () => {
                   </InputAdornment>
                 }
                 label="Password"
+                autoComplete="new-password"
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -163,6 +162,7 @@ const SignUpForm = () => {
                   </InputAdornment>
                 }
                 label="Confirm Password"
+                autoComplete="new-password"
                 value={formik.values.confirmPassword}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -220,7 +220,6 @@ const SignUpForm = () => {
               <FHT error={true}>{formik.errors.name}</FHT>
             ) : null}
             <TextField
-              required={true}
               id="affiliation"
               label="Affiliation"
               size="small"
