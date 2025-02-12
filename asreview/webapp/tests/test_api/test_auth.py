@@ -19,10 +19,7 @@ import asreview.webapp.tests.utils.crud as crud
 # test that creating a user when the app runs a no-creation
 # policy, is impossible. This happens when explicitly
 # ALLOW_ACCOUNT_CREATION is set to False or oAuth is configured.
-@pytest.mark.parametrize(
-    "client_fixture",
-    ["client_auth_no_creation", "client_oauth"]
-)
+@pytest.mark.parametrize("client_fixture", ["client_auth_no_creation", "client_oauth"])
 def test_deny_signup_when_not_allowed(request, client_fixture):
     # get client
     client = request.getfixturevalue(client_fixture)
@@ -37,12 +34,10 @@ def test_deny_signup_when_not_allowed(request, client_fixture):
 
 # test Exception when allow account creation and oAuth are explicitly
 # configured
-def test_raise_error_when_both_oauth_and_signup_is_allowed(
-        asreview_path_fixture):
+def test_raise_error_when_both_oauth_and_signup_is_allowed(asreview_path_fixture):
     with pytest.raises(ValueError):
         _get_app(
-            app_type="oauth-with-allowed-account-creation",
-            path=asreview_path_fixture
+            app_type="oauth-with-allowed-account-creation", path=asreview_path_fixture
         )
 
 
