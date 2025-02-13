@@ -174,9 +174,21 @@ class BaseDataSet:
 
         return self._filename
 
-    def to_file(self, path):
-        # todo return without store
-        urlretrieve(self.filepath, path)
+    def to_file(self, path=None):
+        #Download the file and save it if path provided
+        try: 
+            with urlopen(self.filepath) as response:
+                data=response.read() #read the data
+                
+                if path: 
+                    with open(path,'wb') as f:
+                        f.write(data) #write the data in path provided
+                
+                else:
+                    return data # return the data without storing
+        
+        except URLError as e :
+            raise Exception("URL Error")
 
 
 class BaseDataGroup(ABC):
