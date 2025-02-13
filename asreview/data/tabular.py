@@ -18,7 +18,7 @@ __all__ = ["CSVReader"]
 import pandas as pd
 
 from asreview.data.base import BaseReader
-from asreview.data.config import COLUMN_DEFINITIONS
+from asreview.data.record import Record
 
 
 class CSVReader(BaseReader):
@@ -106,9 +106,9 @@ class ExcelReader(BaseReader):
 
         best_sheet = None
         sheet_obj_val = -1
-        wanted_columns = []
-        for _, type_list in COLUMN_DEFINITIONS.items():
-            wanted_columns.extend(type_list)
+        wanted_columns = Record.get_columns()
+        for col_names in cls.__alternative_column_names__.values():
+            wanted_columns.extend(col_names)
 
         for sheet_name in dfs:
             col_names = set([col.lower() for col in list(dfs[sheet_name])])
