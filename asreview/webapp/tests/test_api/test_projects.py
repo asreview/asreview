@@ -478,7 +478,7 @@ def test_retrieve_document_for_review(client, project):
 
     assert r.status_code == 200
     assert isinstance(r.json, dict)
-    assert not r.json["pool_empty"]
+    assert r.json["status"] == "review"
     assert isinstance(r.json["result"], dict)
     assert isinstance(r.json["result"]["record_id"], int)
 
