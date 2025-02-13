@@ -213,7 +213,7 @@ class RISReader(BaseReader):
     @classmethod
     def clean_data(cls, df):
         # We drop the 'label' column if it's available. For RIS files ASReview stores
-        # and loads the labels from the notes field. 
+        # and loads the labels from the notes field.
         df.drop("label", axis=1, inplace=True, errors="ignore")
         return super().clean_data(df)
 

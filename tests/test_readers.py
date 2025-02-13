@@ -193,17 +193,17 @@ def test_ris_lb_tag(tmpdir):
     record = """TY  - JOUR
 LB  - 1
 TI  - This is the title
-ER  - 
+ER  -
 
 TY  - JOUR
 LB  - 0
 TI  - This is the second title
-ER  - 
+ER  -
 
 TY  - JOUR
 LB  - 28362428
 TI  - This is another title
-ER  - 
+ER  -
 """
     fp = Path(tmpdir, "lb_data.ris")
     with open(fp, "w") as f:
