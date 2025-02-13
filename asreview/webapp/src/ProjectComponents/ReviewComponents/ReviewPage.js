@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  Link,
-  Stack,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, Button, Stack, Typography, useMediaQuery } from "@mui/material";
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
@@ -15,8 +8,8 @@ import { RecordCard } from ".";
 
 import { ProjectAPI } from "api";
 
-import FinishSetup from "./ReviewPageTraining";
 import ElasFinished from "images/ElasFinished.svg";
+import FinishSetup from "./ReviewPageTraining";
 
 import { useReviewSettings } from "context/ReviewSettingsContext";
 
