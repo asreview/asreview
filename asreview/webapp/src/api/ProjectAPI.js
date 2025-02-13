@@ -597,23 +597,6 @@ class ProjectAPI {
     });
   }
 
-  static fetchRankingHistory({ project_id, record_id }) {
-    const url = api_url + `projects/${project_id}/ranking_history/${record_id}`;
-    console.log("Making API call to:", url); // Debug log
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url, { withCredentials: true })
-        .then((result) => {
-          console.log("API response:", result.data); // Debug log
-          resolve(result["data"]);
-        })
-        .catch((error) => {
-          console.error("Error fetching ranking history:", error);
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static mutateClassification(variables) {
     let body = new FormData();
     body.set("record_id", variables.record_id);

@@ -15,7 +15,7 @@
 import json
 import sqlite3
 import time
-import os
+
 import pandas as pd
 
 REQUIRED_TABLES = [
@@ -254,46 +254,14 @@ class SQLiteState:
             Name of the balance strategy of the model.
         feature_extractor: str
             Name of the feature extraction method of the model.
-        training_set: int 
+        training_set: int
             Number of labeled records available at the time of training.
         """
-        # Ensure we have ranked_record_ids as a list for consistency
-        ranked_record_ids = list(ranked_record_ids)
-        
-        # Get ALL labeled records (both included and excluded) from results table
-        labeled_records_query = """
-            SELECT DISTINCT record_id 
-            FROM results 
-            WHERE label IS NOT NULL 
-            OR label = 0 
-            OR label = 1
-        """
-        labeled_records = set(pd.read_sql_query(labeled_records_query, self._conn)["record_id"])
 
-        # Get all records that have ever been labeled to double check
-        historical_labeled_query = """
-            SELECT DISTINCT record_id 
-            FROM results 
-            WHERE time IS NOT NULL
-        """
-        historical_labeled = set(pd.read_sql_query(historical_labeled_query, self._conn)["record_id"])
-        
-        # Combine both sets to ensure we catch all labeled records
-        all_labeled_records = labeled_records.union(historical_labeled)
-        
-        # Filter to get truly active records
-        active_record_ids = [rid for rid in ranked_record_ids if rid not in all_labeled_records]
-        
-        # Verify no duplicates in active records
-        if len(set(active_record_ids)) != len(active_record_ids):
-            print("Warning: Duplicate records found in active records - removing duplicates")
-            active_record_ids = list(dict.fromkeys(active_record_ids))
-
-        # Save the ranking to the `last_ranking` table with only active records
-        ranking_df = pd.DataFrame(
+        pd.DataFrame(
             {
-                "record_id": active_record_ids,
-                "ranking": range(len(active_record_ids)),
+                "record_id": ranked_record_ids,
+                "ranking": range(len(ranked_record_ids)),
                 "classifier": classifier,
                 "querier": querier,
                 "balancer": balancer,
@@ -301,85 +269,7 @@ class SQLiteState:
                 "training_set": training_set,
                 "time": time.time(),
             }
-        )
-        
-        # Verify the ranking table data
-        assert ranking_df["ranking"].is_monotonic_increasing, "Rankings should be monotonically increasing"
-        assert not ranking_df["record_id"].duplicated().any(), "No duplicate record IDs should exist"
-        
-        # Save to database
-        ranking_df.to_sql("last_ranking", self._conn, if_exists="replace", index=False)
-
-        # Handle ranking history CSV
-        csv_filename = "ranking_history.csv"
-
-        # Read or create CSV file
-        if os.path.exists(csv_filename):
-            df = pd.read_csv(csv_filename)
-            
-            # Verify all record_ids are present
-            all_records = set(ranked_record_ids)
-            existing_records = set(df["record_id"])
-            missing_records = all_records - existing_records
-            
-            if missing_records:
-                print(f"Adding {len(missing_records)} missing records to history")
-                new_records_df = pd.DataFrame({"record_id": list(missing_records)})
-                df = pd.concat([df, new_records_df], ignore_index=True)
-        else:
-            df = pd.DataFrame({"record_id": ranked_record_ids})
-
-        # Create new step column
-        step = df.shape[1] - 1
-        
-        # Create positions mapping ensuring continuous ranking
-        rankings = {rid: pos for pos, rid in enumerate(active_record_ids)}
-        
-        # Map new positions, ensuring labeled papers get -1
-        df[f"step_{step}"] = df["record_id"].apply(
-            lambda x: rankings.get(x, -1 if x in all_labeled_records else None)
-        )
-        
-        # Verify no papers are lost (None values)
-        if df[f"step_{step}"].isna().any():
-            print("Warning: Some papers have no position assigned - marking as labeled")
-            df[f"step_{step}"] = df[f"step_{step}"].fillna(-1)
-        
-        # Final verification
-        value_counts = df[f"step_{step}"].value_counts()
-        if len(value_counts[value_counts != -1]) != len(active_record_ids):
-            print("Warning: Mismatch between active records and position assignments")
-            
-        # Verify positions are continuous
-        active_positions = sorted(df[df[f"step_{step}"] != -1][f"step_{step}"].unique())
-        if active_positions and (
-            active_positions[0] != 0 or 
-            active_positions[-1] != len(active_positions) - 1 or
-            len(active_positions) != len(set(active_positions))
-        ):
-            print("Warning: Positions are not continuous or zero-based")
-
-        # Save CSV
-        df.to_csv(csv_filename, index=False)
-
-    def get_ranking_history(self, record_id):
-        """Retrieve the ranking history for a specific record."""
-        csv_filename = "ranking_history.csv"
-        if not os.path.exists(csv_filename):
-            return "No ranking history available."
-
-        # Read the CSV file
-        df = pd.read_csv(csv_filename)
-
-        # Filter rows for the specific record_id
-        record_history = df[df["record_id"] == record_id]
-
-        if record_history.empty:
-            return "No ranking history available."
-
-        # Extract rankings and format as text (e.g., "5 -> 3 -> 0")
-        rankings = record_history.iloc[0, 1:].tolist()  # Skip the record_id column
-        return " -> ".join(map(str, rankings))
+        ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
     def add_labeling_data(self, record_ids, labels, tags=None, user_id=None):
         """Add the data corresponding to a labeling action to the state file.

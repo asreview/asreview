@@ -4,4 +4,3 @@ export { default as ReviewPage } from "./ReviewPage";
 export { default as ReviewPageFinished } from "./ReviewPageFinished";
 export { default as TagsTable } from "./TagsTable";
 export { default as RecordCardModelTraining } from "./RecordCardModelTraining";
-export { default as RankingJourney } from "./RankingJourney";
