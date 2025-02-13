@@ -213,3 +213,34 @@ ER  -
     assert len(records) == 3
     for record in records:
         assert record.included is None
+
+
+def test_ris_author_tags(tmpdir):
+    record = """TY  - JOUR
+AU  - author0
+AU  - author1
+AU  - author2
+TI  - This is the title
+ER  -
+
+TY  - JOUR
+A1  - author0
+A1  - author1
+A1  - author2
+TI  - This is the second title
+ER  -
+
+TY  - JOUR
+AU  - author0
+A1  - author1
+A1  - author2
+TI  - This is another title
+ER  -
+"""
+    fp = Path(tmpdir, "author_tags_data.ris")
+    with open(fp, "w") as f:
+        f.write(record)
+
+    records = RISReader.read_records(fp, dataset_id="foo")
+    for record in records:
+        assert record.authors == ["author0", "author1", "author2"]
