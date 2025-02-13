@@ -170,33 +170,9 @@ const AnalyticsPage = () => {
       <Stack
         spacing={2}
         className="main-page-body"
-        sx={{ pb: { xs: -4, md: 0 } }}
+        sx={{ pt: { xs: 0, md: 2 } }}
       >
         <Box>
-          {statusData?.status === projectStatuses.FINISHED ? (
-            <Box sx={{ textAlign: "center", mb: 1 }}>
-              <Typography
-                variant="subtitle1"
-                textAlign="center"
-                sx={{
-                  fontWeight: "bold",
-                  fontFamily: "Roboto Serif",
-                  pb: 3,
-                  color: "success.main",
-                }}
-              >
-                Finished
-              </Typography>
-            </Box>
-          ) : (
-            <Typography
-              variant="subtitle1"
-              textAlign="center"
-              sx={{ fontWeight: "bold", fontFamily: "Roboto Serif", pb: 3 }}
-            >
-              In Review
-            </Typography>
-          )}
           <Typography
             variant="subtitle1"
             pyt

@@ -68,7 +68,7 @@ const DistancePatternChart = ({ project_id }) => {
   };
 
   const analytics = processData();
-  const stoppingThreshold = stoppingQuery.data?.[0]?.params?.threshold;
+  const stoppingThreshold = stoppingQuery.data?.params?.n;
   const currentPosition = analytics?.currentPosition || 0;
   const lastRelevant = analytics?.relevantPositions?.slice(-1)[0] || 0;
   const currentDistance = currentPosition - lastRelevant;
@@ -84,7 +84,7 @@ const DistancePatternChart = ({ project_id }) => {
   const maxY = Math.max(
     ...(analytics?.lines?.map((line) => Math.max(line[0].y, line[1].y)) || []),
     currentDistance,
-    stoppingThreshold,
+    stoppingThreshold || 0,
   );
 
   const createSeries = () => {

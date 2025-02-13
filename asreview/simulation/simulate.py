@@ -14,7 +14,6 @@
 
 __all__ = []
 
-import os
 import time
 import numpy as np
 import pandas as pd
@@ -239,39 +238,6 @@ class Simulate:
             feature_matrix=self.fm,
             relevance_scores=relevance_scores,
         )
-        
-        # Get ALL labeled papers - both 0 and 1 labels
-        labeled_records = set(self._results["record_id"].values)
-        
-        # Get list of papers that should still be in the stack
-        active_papers = [rid for rid in ranked_record_ids if rid not in labeled_records]
-        
-        # Verify we have the expected number of active papers
-        expected_active = len(ranked_record_ids) - len(labeled_records)
-        if len(active_papers) != expected_active:
-            print(f"Warning: Expected {expected_active} active papers but found {len(active_papers)}")
-        
-        # Save ranking history to CSV with strict labeled paper tracking
-        csv_filename = "ranking_history.csv"
-        
-        if os.path.exists(csv_filename):
-            df = pd.read_csv(csv_filename) 
-        else:
-            df = pd.DataFrame({"record_id": ranked_record_ids})
-        
-        step = df.shape[1] - 1  
-        
-        # Ensure every paper is either active with a position or marked as labeled (-1)
-        rankings = {rid: i for i, rid in enumerate(active_papers)}
-        df[f"step_{step}"] = df["record_id"].apply(lambda x: rankings.get(x, -1))
-        
-        # Double check no papers were missed
-        unmarked = df[df[f"step_{step}"].isna()]
-        if not unmarked.empty:
-            print(f"Warning: {len(unmarked)} papers have no position assigned")
-            df[f"step_{step}"] = df[f"step_{step}"].fillna(-1)
-        
-        df.to_csv(csv_filename, index=False)
 
         self._last_ranking = pd.DataFrame(
             {

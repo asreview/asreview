@@ -11,6 +11,8 @@ import { ProjectAPI } from "api";
 import FinishSetup from "./ReviewPageTraining";
 
 import { useReviewSettings } from "context/ReviewSettingsContext";
+import StoppingReachedDialog from "./StoppingReachedDialog";
+import { projectStatuses } from "globals.js";
 
 const ReviewPage = () => {
   let { project_id } = useParams();
@@ -31,6 +33,44 @@ const ReviewPage = () => {
       refetchIntervalInBackground: true,
     },
   );
+
+  const [showStoppingDialog, setShowStoppingDialog] = React.useState(false);
+  const [dismissedThresholdValue, setDismissedThresholdValue] =
+    React.useState(null);
+
+  const { data: statusData } = useQuery(
+    ["fetchProjectStatus", { project_id }],
+    ProjectAPI.fetchProjectStatus,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  const handleCloseDialog = () => {
+    setShowStoppingDialog(false);
+    setDismissedThresholdValue(
+      queryClient.getQueryData(["fetchStopping", { project_id }])?.params?.n,
+    );
+  };
+
+  useQuery(["fetchStopping", { project_id }], ProjectAPI.fetchStopping, {
+    refetchOnWindowFocus: false,
+    refetchInterval: (data) =>
+      statusData?.status === projectStatuses.FINISHED ? -1 : 4000,
+    onSuccess: (data) => {
+      const hasThreshold = Boolean(data?.params?.n);
+      if (
+        hasThreshold &&
+        data?.value >= data?.params?.n &&
+        data?.params?.n !== dismissedThresholdValue &&
+        statusData?.status !== projectStatuses.FINISHED &&
+        (dismissedThresholdValue === null ||
+          data?.params?.n > dismissedThresholdValue)
+      ) {
+        setShowStoppingDialog(true);
+      }
+    },
+  });
 
   let showBorder = useMediaQuery((theme) => theme.breakpoints.up("md"), {
     noSsr: true,
@@ -69,7 +109,10 @@ const ReviewPage = () => {
               }
               project_id={project_id}
               record={data?.result}
-              afterDecision={() => queryClient.invalidateQueries("fetchRecord")}
+              afterDecision={() => {
+                queryClient.invalidateQueries("fetchRecord");
+                queryClient.invalidateQueries("fetchStopping");
+              }}
               fontSize={fontSize}
               showBorder={showBorder}
               modelLogLevel={modelLogLevel}
@@ -86,6 +129,12 @@ const ReviewPage = () => {
           )}
 
           {data?.result === null && data?.pool_empty && <ReviewPageFinished />}
+
+          <StoppingReachedDialog
+            open={showStoppingDialog}
+            onClose={handleCloseDialog}
+            project_id={project_id}
+          />
         </>
       )}
     </Container>

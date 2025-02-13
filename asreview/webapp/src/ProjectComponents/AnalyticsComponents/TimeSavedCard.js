@@ -14,11 +14,11 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { useQuery } from "react-query";
 import { ProjectAPI } from "api";
-import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 const AVG_TIME_PER_RECORD = 1.2;
-const ROTATION_INTERVAL = 6000;
+const ROTATION_INTERVAL = 5000;
 
 const ACTIVITIES = [
   // Repeatable enjoyable activities
@@ -44,7 +44,7 @@ const ACTIVITIES = [
     baseHours: 25,
   },
 
-  // Significant one-time achievements (for larger time savings)
+  // Significant one-time achievements
   {
     minHours: 50,
     maxHours: 1000,
@@ -89,6 +89,22 @@ const ACTIVITIES = [
     getText: () => `Visit every major art museum in Paris`,
     baseHours: 30,
     oneTime: true,
+  },
+
+  // Research & Academic
+  {
+    minHours: 8,
+    maxHours: 1000,
+    getText: (hours) =>
+      `Write ${Math.floor(hours / 8)} research papers you're excited about`,
+    baseHours: 8,
+  },
+  {
+    minHours: 2,
+    maxHours: 1000,
+    getText: (hours) =>
+      `Read ${Math.floor(hours / 2)} papers you actually want to read`,
+    baseHours: 2,
   },
 
   // Humorous but relatable
@@ -172,30 +188,30 @@ const TimeSavedCard = ({ project_id }) => {
         bgcolor: "transparent",
         position: "relative",
         borderRadius: 3,
-        mb: 4,
+        mb: 3,
       }}
     >
-      <CardContent sx={{ p: 3 }}>
-        <Box sx={{ position: "absolute", top: 16, right: 16 }}>
+      <CardContent sx={{ p: 2 }}>
+        <Box sx={{ position: "absolute", top: 8, right: 8 }}>
           <IconButton
             size="small"
             onClick={(e) => setInfoAnchorEl(e.currentTarget)}
           >
-            <LightbulbOutlinedIcon fontSize="small" />
+            <StyledLightBulb fontSize="small" />
           </IconButton>
         </Box>
 
-        <Grid container spacing={4}>
+        <Grid container spacing={3}>
           <Grid item xs={12} md={5}>
             <Stack
-              spacing={2}
+              spacing={1}
               alignItems="center"
               justifyContent="center"
               sx={{ height: "100%" }}
             >
               <Stack direction="row" spacing={1} alignItems="center">
                 <AccessTimeIcon
-                  sx={{ fontSize: 24, color: theme.palette.primary.main }}
+                  sx={{ fontSize: 20, color: theme.palette.primary.main }}
                 />
                 <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
                   Time Saved
@@ -203,7 +219,7 @@ const TimeSavedCard = ({ project_id }) => {
               </Stack>
 
               <Typography
-                variant="h2"
+                variant="h3"
                 sx={{
                   fontWeight: "bold",
                   color: theme.palette.primary.main,
@@ -213,7 +229,7 @@ const TimeSavedCard = ({ project_id }) => {
                 {hoursSaved.toLocaleString()}
                 <Typography
                   component="span"
-                  variant="h4"
+                  variant="h5"
                   sx={{
                     ml: 1,
                     fontWeight: "normal",
@@ -221,7 +237,7 @@ const TimeSavedCard = ({ project_id }) => {
                     fontFamily: "Roboto Serif",
                   }}
                 >
-                  hours
+                  hrs
                 </Typography>
               </Typography>
 
@@ -230,7 +246,7 @@ const TimeSavedCard = ({ project_id }) => {
                 color="text.secondary"
                 textAlign="center"
               >
-                That's about {Math.round(hoursSaved / 8)} working days
+                ≈ {Math.round(hoursSaved / 8)} working days
               </Typography>
             </Stack>
           </Grid>
@@ -242,9 +258,9 @@ const TimeSavedCard = ({ project_id }) => {
           />
 
           <Grid item xs={12} md={6}>
-            <Stack spacing={2}>
+            <Stack spacing={1}>
               <Typography
-                variant="h6"
+                variant="subtitle1"
                 sx={{
                   fontFamily: "Roboto Serif",
                   color: theme.palette.text.secondary,
@@ -256,7 +272,7 @@ const TimeSavedCard = ({ project_id }) => {
 
               <Box
                 sx={{
-                  minHeight: 100,
+                  minHeight: 80,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -284,12 +300,11 @@ const TimeSavedCard = ({ project_id }) => {
                     }}
                   >
                     <Typography
-                      variant="h5"
+                      variant="h6"
                       sx={{
                         fontFamily: "Roboto Serif",
                         color: theme.palette.grey[800],
-                        mb: 1,
-                        lineHeight: 1.3,
+                        lineHeight: 1.2,
                       }}
                     >
                       {activity}
@@ -298,13 +313,13 @@ const TimeSavedCard = ({ project_id }) => {
                 ))}
               </Box>
 
-              <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+              <Box sx={{ display: "flex", justifyContent: "center", gap: 0.5 }}>
                 {activities.map((_, index) => (
                   <Box
                     key={index}
                     sx={{
-                      width: 6,
-                      height: 6,
+                      width: 4,
+                      height: 4,
                       borderRadius: "50%",
                       bgcolor:
                         index === currentActivityIndex
