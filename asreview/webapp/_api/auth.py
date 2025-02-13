@@ -34,12 +34,20 @@ from asreview.webapp._authentication.utils import perform_login_user
 from asreview.webapp._authentication.utils import send_confirm_account_email
 from asreview.webapp._authentication.utils import send_forgot_password_email
 
+
 bp = Blueprint("auth", __name__, url_prefix="/auth")
+
+def _signed_in_payload(user):
+    return {
+        "logged_in": True,
+        "name": user.get_name(),
+        "id": user.id,
+        "message": f"User {user.identifier} is logged in.",
+    }
 
 # ------------------
 #      ROUTES
 # ------------------
-
 
 @bp.route("/signin", methods=["POST"])
 def signin():
@@ -61,18 +69,10 @@ def signin():
         # user exists and is confirmed: verify password
         if user.verify_password(password):
             if perform_login_user(user, current_app):
-                result = (
-                    200,
-                    {
-                        "logged_in": True,
-                        "name": user.get_name(),
-                        "id": user.id,
-                        "message": f"User {user.identifier} is logged in.",
-                    },
-                )
+                result = (200, _signed_in_payload(user))
             else:
                 result = (
-                    404,
+                    401,
                     {"message": "Unable to login user with verified password."},
                 )
         else:
@@ -198,8 +198,13 @@ def confirm_account():
     else:
         user = user.confirm_user()
         try:
+            # commit changes
             DB.session.commit()
-            result = (200, "Account confirmed")
+            # sign user in
+            if perform_login_user(user, current_app):
+                result = (200, _signed_in_payload(user))
+            else:
+                result = (401, "Account confirmed, but unable to sign in.")
         except SQLAlchemyError:
             DB.session.rollback()
             result = (500, "Account not confirmed")
@@ -296,7 +301,11 @@ def reset_password():
             try:
                 user = user.reset_password(new_password)
                 DB.session.commit()
-                result = (200, "Password updated.")
+                # sign user in after password is reset
+                if perform_login_user(user, current_app):
+                    result = (200, _signed_in_payload(user))
+                else:
+                    result = (401, "Password reset, but unable to sign in.")
             except ValueError as e:
                 DB.session.rollback()
                 result = (500, f"Unable to reset your password! Reason: {str(e)}")
@@ -456,7 +465,7 @@ def oauth_callback():
             },
         )
     else:
-        result = (400, {"message": f"OAuth provider {provider} could not be found"})
+        result = (401, {"message": f"OAuth provider {provider} could not be found"})
 
     status, message = result
     response = jsonify(message)
