@@ -1,9 +1,7 @@
 export { default as AuthPage } from "./AuthPage";
-export { default as BoxErrorHandler } from "./BoxErrorHandler";
 export { default as CardErrorHandler } from "./CardErrorHandler";
 export { default as CiteDialog } from "./CiteDialog";
 export { default as ConfirmAccount } from "./ConfirmAccount";
-export { default as DialogErrorHandler } from "./DialogErrorHandler";
 export { default as ForgotPassword } from "./ForgotPassword";
 export { default as Header } from "./Header";
 export { default as CommunityDialog } from "./CommunityDialog";
@@ -22,3 +20,4 @@ export { default as SignInForm } from "./SignInForm";
 export { default as SignInOAuthCallback } from "./SignInOAuthCallback";
 export { default as SignUpForm } from "./SignUpForm";
 export { default as ScrollToTop } from "./ScrollToTop";
+export { default as ErrorBoundary } from "./ErrorBoundary";

@@ -34,7 +34,7 @@ def get_project_id(project):
        (authenticated app) or an asr.Project
     object
        (unauthenticated app)."""
-    if current_app.config.get("LOGIN_DISABLED"):
+    if not current_app.config.get("AUTHENTICATION"):
         return project.config["id"]
 
     return project.project_id
@@ -79,12 +79,15 @@ def choose_project_algorithms():
     classifier = random.choice(["svm", "nb", "logistic"])
     feature_extractor = random.choice(["tfidf"])
     data = {
-        "classifier": classifier,
-        "feature_extractor": feature_extractor,
-        "querier": random.choice(
-            ["max", "max_random", "max_uncertainty", "random", "uncertainty"]
-        ),
-        "balancer": random.choice(["balanced", None]),
+        "name": "custom",
+        "current_value": {
+            "classifier": classifier,
+            "feature_extractor": feature_extractor,
+            "querier": random.choice(
+                ["max", "max_random", "max_uncertainty", "random", "uncertainty"]
+            ),
+            "balancer": random.choice(["balanced", None]),
+        },
     }
     return data
 

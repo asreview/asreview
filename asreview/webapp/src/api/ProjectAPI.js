@@ -305,8 +305,8 @@ class ProjectAPI {
     });
   }
 
-  static fetchModelOptions({ queryKey }) {
-    const url = api_url + `algorithms`;
+  static fetchLearners({ queryKey }) {
+    const url = api_url + `learners`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, { withCredentials: true })
@@ -319,9 +319,9 @@ class ProjectAPI {
     });
   }
 
-  static fetchModelConfig({ queryKey }) {
+  static fetchLearner({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `projects/${project_id}/algorithms`;
+    const url = api_url + `projects/${project_id}/learner`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, { withCredentials: true })
@@ -334,14 +334,12 @@ class ProjectAPI {
     });
   }
 
-  static mutateModelConfig(variables) {
+  static mutateLearner(variables) {
     let body = new FormData();
-    body.set("classifier", variables.classifier);
-    body.set("querier", variables.querier);
-    body.set("balancer", variables.balancer);
-    body.set("feature_extractor", variables.feature_extractor);
+    body.set("name", variables.name);
+    body.set("current_value", JSON.stringify(variables.current_value));
 
-    const url = api_url + `projects/${variables.project_id}/algorithms`;
+    const url = api_url + `projects/${variables.project_id}/learner`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
@@ -688,7 +686,7 @@ class ProjectAPI {
 
   static fetchRecord({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `projects/${project_id}/get_document`;
+    const url = api_url + `projects/${project_id}/get_record`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, { withCredentials: true })

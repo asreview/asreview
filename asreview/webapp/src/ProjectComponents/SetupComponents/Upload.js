@@ -24,7 +24,7 @@ import { SetupDialog } from "ProjectComponents/SetupComponents";
 import {
   DatasetFromEntryPoint,
   DatasetFromFile,
-  DatasetFromOpenAlex,
+  DatasetFromSearch,
   DatasetFromURI,
 } from "ProjectComponents/SetupComponents/DataUploadComponents";
 
@@ -88,14 +88,14 @@ const Upload = ({ mode }) => {
           />
           {mode === projectModes.ORACLE && (
             <Tab
-              value="openalex"
+              value="search"
               label={
                 <Box>
                   <SearchOutlined sx={{ fontSize: 32 }} />
-                  <Typography>OpenAlex</Typography>
+                  <Typography>Search</Typography>
                 </Box>
               }
-              onClick={() => clickTab("openalex")}
+              onClick={() => clickTab("search")}
               sx={{ mx: 1 }}
             />
           )}
@@ -129,8 +129,8 @@ const Upload = ({ mode }) => {
         {uploadSource === "url" && (
           <DatasetFromURI mode={mode} setSetupProjectId={setSetupProjectId} />
         )}
-        {mode === projectModes.ORACLE && uploadSource === "openalex" && (
-          <DatasetFromOpenAlex
+        {mode === projectModes.ORACLE && uploadSource === "search" && (
+          <DatasetFromSearch
             mode={mode}
             setSetupProjectId={setSetupProjectId}
           />

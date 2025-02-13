@@ -18,7 +18,6 @@ from flask import current_app
 from flask import jsonify
 from flask import request
 from flask_login import current_user
-from flask_login import login_required
 from flask_login import logout_user
 from sqlalchemy import and_
 from sqlalchemy import or_
@@ -27,6 +26,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import login_remote_user
+from asreview.webapp._authentication.decorators import login_required
 from asreview.webapp._authentication.models import User
 from asreview.webapp._authentication.oauth_handler import OAuthHandler
 from asreview.webapp._authentication.utils import has_email_configuration
@@ -164,7 +164,7 @@ def signup():
                 DB.session.rollback()
                 result = (403, f"Unable to create your account! Reason: {str(e)}")
     else:
-        result = (400, "The app is not configured to create accounts")
+        result = (404, "The app is not configured to create accounts")
 
     (status, message) = result
     response = jsonify({"message": message, "user_id": user_id})

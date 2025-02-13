@@ -3,6 +3,7 @@ import {
   Button,
   CardActions,
   CardContent,
+  CardHeader,
   FormHelperText as FHT,
   FormControl,
   Snackbar,
@@ -72,9 +73,9 @@ const ConfirmAccount = () => {
 
   return (
     <form onSubmit={formik.handleSubmit}>
+      <CardHeader title="Confirm your account" />
       <CardContent>
         <Stack spacing={2}>
-          <Typography variant="h5">Confirm your account</Typography>
           <FormControl>
             <Stack spacing={2}>
               <Typography variant="body2">

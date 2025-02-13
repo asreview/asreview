@@ -59,13 +59,13 @@ dependencies = [
     "flask-mail",
     "Werkzeug>=2.3.2",
     "openpyxl>=3.0.3",
-    "xlsxwriter>=3",
     "jsonschema",
     "filelock",
     "Flask-SQLAlchemy>=3.0.2",
     "requests",
     "tqdm",
     "rich",
+    "waitress",
     "gevent>=20",
     "datahugger>=0.2",
     "synergy_dataset",
@@ -140,7 +140,7 @@ test = [
     "coverage",
     "pytest",
     "pytest-random-order",
-    "pytest-selenium"
+    "pytest-selenium",
 ]
 docs = [
     "ipython",

@@ -10,8 +10,17 @@ const axiosErrorHandler = (error) => {
       api_error["message"] = "Whoops, something went wrong.";
     }
   } else if (error.request) {
+    // This branch executes when the request was made but no response received
+    // Typical scenarios: no internet connection, server down, etc.
     console.log(error.request);
-    api_error["message"] = "Error, no response received.";
+    // Check if the failed request was to localhost
+    const isLocalhost =
+      error.config?.url?.includes("localhost") ||
+      error.config?.url?.includes("127.0.0.1");
+
+    api_error["message"] = isLocalhost
+      ? "Cannot connect to the local server. Please check if the ASReview terminal is still running."
+      : "Cannot connect to the server. Please check your internet connection.";
   } else {
     api_error["message"] = "Unexpected error.";
     console.log(error);

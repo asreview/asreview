@@ -146,14 +146,15 @@ def test_create_new_state_file(tmpdir):
     with asr.open_state(project) as state:
         state._is_valid_state()
 
-    asr.ActiveLearningCycle.from_file(
-        Path(
-            project.project_path,
-            "reviews",
-            project.reviews[0]["id"],
-            "settings_metadata.json",
+    with pytest.raises(FileNotFoundError):
+        asr.ActiveLearningCycle.from_file(
+            Path(
+                project.project_path,
+                "reviews",
+                project.reviews[0]["id"],
+                "settings_metadata.json",
+            )
         )
-    )
 
 
 def test_get_dataset(asreview_test_project):

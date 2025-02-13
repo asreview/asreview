@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import asreview as asr
@@ -22,13 +23,17 @@ def test_project_migration_1_to_2(tmpdir):
         state.get_last_ranking_table()
         state.get_decision_changes()
 
-    cycle = asr.ActiveLearningCycle.from_file(
+    with open(
         Path(
             project.project_path,
             "reviews",
             project.reviews[0]["id"],
             "settings_metadata.json",
         )
-    )
+    ) as f:
+        data = json.load(f)
+
+    cycle_data = asr.ActiveLearningCycleData(**data["current_value"])
+    cycle = asr.ActiveLearningCycle.from_meta(cycle_data)
 
     assert isinstance(cycle.classifier.name, str)

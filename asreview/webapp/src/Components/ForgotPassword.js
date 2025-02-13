@@ -2,9 +2,9 @@ import {
   Button,
   CardActions,
   CardContent,
+  CardHeader,
   Stack,
   TextField,
-  Typography,
 } from "@mui/material";
 import * as React from "react";
 import { useMutation } from "react-query";
@@ -38,10 +38,10 @@ const ForgotPassword = ({ showNotification }) => {
 
   return (
     <>
+      <CardHeader title="Forgot your password?" />
       <CardContent>
         <Stack spacing={3}>
           <Stack spacing={2}>
-            <Typography variant="h5">Forgot your password?</Typography>
             {window.emailVerification && (
               <p>
                 Enter your email address, click on the submit button and an

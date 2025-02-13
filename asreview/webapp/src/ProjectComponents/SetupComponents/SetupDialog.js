@@ -151,6 +151,7 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
             setShowSettings(false);
           },
         }}
+        closeAfterTransition={false}
       >
         {data && (
           <ProjectContext.Provider value={data.id}>

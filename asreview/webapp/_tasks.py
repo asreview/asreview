@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 from pathlib import Path
 
 import asreview as asr
@@ -20,6 +21,19 @@ from asreview.models.stoppers import IsFittable
 from asreview.simulation.simulate import Simulate
 from asreview.state.contextmanager import open_state
 from asreview.webapp.utils import get_project_path
+
+
+def _read_cycle(project):
+    fp_cycle_metadata = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "settings_metadata.json",
+    )
+
+    with open(fp_cycle_metadata, "r") as f:
+        cycle_data = asr.ActiveLearningCycleData(**json.load(f)["current_value"])
+        return asr.ActiveLearningCycle.from_meta(cycle_data)
 
 
 def run_task(project_id, simulation=False):
@@ -45,14 +59,7 @@ def run_model(project):
         labeled = s.get_results_table(columns=["record_id", "label"])
 
     try:
-        cycle = asr.ActiveLearningCycle.from_file(
-            Path(
-                project.project_path,
-                "reviews",
-                project.reviews[0]["id"],
-                "settings_metadata.json",
-            )
-        )
+        cycle = _read_cycle(project)
         try:
             fm = project.get_feature_matrix(cycle.feature_extractor.name)
         except ValueError:
@@ -84,15 +91,6 @@ def run_model(project):
 
 
 def run_simulation(project):
-    cycle = asr.ActiveLearningCycle.from_file(
-        Path(
-            project.project_path,
-            "reviews",
-            project.reviews[0]["id"],
-            "settings_metadata.json",
-        )
-    )
-
     with open_state(project) as state:
         priors = state.get_priors()["record_id"].tolist()
 
@@ -101,7 +99,7 @@ def run_simulation(project):
             querier=TopDown(),
             stopper=IsFittable(),
         ),
-        cycle,
+        _read_cycle(project),
     ]
 
     sim = Simulate(project.data_store.get_df(), project.data_store["included"], cycles)

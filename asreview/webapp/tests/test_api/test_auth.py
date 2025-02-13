@@ -4,10 +4,12 @@ from inspect import getfullargspec
 
 import pytest
 
-import asreview.webapp.tests.utils.api_utils as au
-import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
+from asreview.webapp.tests.conftest import _get_app
+import asreview.webapp.tests.utils.api_utils as au
 from asreview.webapp.tests.utils.config_parser import get_user
+import asreview.webapp.tests.utils.crud as crud
+
 
 # ###################
 # SIGNUP
@@ -15,15 +17,28 @@ from asreview.webapp.tests.utils.config_parser import get_user
 
 
 # test that creating a user when the app runs a no-creation
-# policy, is impossible
-def test_impossible_to_signup_when_not_allowed(client_auth_no_creation):
+# policy, is impossible. This happens when explicitly
+# ALLOW_ACCOUNT_CREATION is set to False or oAuth is configured.
+@pytest.mark.parametrize("client_fixture", ["client_auth_no_creation", "client_oauth"])
+def test_deny_signup_when_not_allowed(request, client_fixture):
+    # get client
+    client = request.getfixturevalue(client_fixture)
     # get user data
     user = get_user(1)
     # post form data
-    r = au.signup_user(client_auth_no_creation, user)
-    # check if we get a 400 status
-    assert r.status_code == 400
+    r = au.signup_user(client, user)
+
+    assert r.status_code == 404
     assert r.json["message"] == "The app is not configured to create accounts"
+
+
+# test Exception when allow account creation and oAuth are explicitly
+# configured
+def test_raise_error_when_both_oauth_and_signup_is_allowed(asreview_path_fixture):
+    with pytest.raises(ValueError):
+        _get_app(
+            app_type="oauth-with-allowed-account-creation", path=asreview_path_fixture
+        )
 
 
 # Successful signup returns a 200 but with an unconfirmed user and
@@ -124,15 +139,18 @@ def test_unsuccessful_signin_with_unconfirmed_account(client_auth_verified):
 
 
 # Successfully signing in a user must return a 200 response
-def test_successful_signin(client_auth):
+@pytest.mark.parametrize("client_fixture", ["client_auth", "client_implicit_auth"])
+def test_successful_signin(request, client_fixture):
+    # get client
+    client = request.getfixturevalue(client_fixture)
     # get user data
     user = get_user(1)
     # create user with signup, no confirmation
-    r = au.signup_user(client_auth, user)
+    r = au.signup_user(client, user)
     # check if we get a 201 status
     assert r.status_code == 201
     # signin
-    r = au.signin_user(client_auth, user)
+    r = au.signin_user(client, user)
     assert r.status_code == 200
     assert r.json["message"] == f"User {user.identifier} is logged in."
 
@@ -176,11 +194,14 @@ def test_unsuccessful_signin_wrong_email(client_auth):
 
 
 # Signing out must return a 200 status and an appropriate message
-def test_signout(client_auth):
+@pytest.mark.parametrize("client_fixture", ["client_auth", "client_implicit_auth"])
+def test_signout(request, client_fixture):
+    # get client
+    client = request.getfixturevalue(client_fixture)
     # create user
-    user = au.create_and_signin_user(client_auth)
+    user = au.create_and_signin_user(client)
     # signout
-    r = au.signout_user(client_auth)
+    r = au.signout_user(client)
     # expect a 200
     assert r.status_code == 200
     assert (
@@ -284,10 +305,14 @@ def test_confirm_route_returns_400_if_app_not_verified(client_auth):
 @pytest.mark.parametrize(
     "attribute", ["email", "identifier", "name", "origin", "affiliation"]
 )
-def test_get_profile(client_auth, attribute):
-    user = au.create_and_signin_user(client_auth)
+@pytest.mark.parametrize("client_fixture", ["client_auth", "client_implicit_auth"])
+def test_get_profile(request, client_fixture, attribute):
+    # get client
+    client = request.getfixturevalue(client_fixture)
+    # get user
+    user = au.create_and_signin_user(client)
     # get profile
-    r = au.get_profile(client_auth)
+    r = au.get_profile(client)
     assert r.status_code == 200
     # assert if none is blank
     assert r.json["message"][attribute] != ""
