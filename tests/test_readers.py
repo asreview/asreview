@@ -189,7 +189,7 @@ def test_real_datasets(dataset_fp):
     assert len(data) > 5
 
 
-def test_res_lb_tag(tmpdir):
+def test_ris_lb_tag(tmpdir):
     record = """TY  - JOUR
 LB  - 1
 TI  - This is the title
