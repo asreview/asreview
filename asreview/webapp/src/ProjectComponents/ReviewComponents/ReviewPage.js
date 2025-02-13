@@ -1,13 +1,14 @@
-import { useMediaQuery, Button, Box, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography, useMediaQuery } from "@mui/material";
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 
 import { Container } from "@mui/material";
-import { RecordCard, ReviewPageFinished } from ".";
+import { RecordCard } from ".";
 
 import { ProjectAPI } from "api";
 
+import ElasFinished from "images/ElasFinished.svg";
 import FinishSetup from "./ReviewPageTraining";
 
 import { useReviewSettings } from "context/ReviewSettingsContext";
@@ -27,8 +28,8 @@ const ReviewPage = () => {
       refetchOnWindowFocus: false,
       retry: false,
       refetchInterval: (data, query) => {
-        if (query.state.error) return false;
-        return data?.result && !data?.pool_empty ? -1 : 4000;
+        if (query.state.error || data?.status !== "setup") return false;
+        return 4000;
       },
       refetchIntervalInBackground: true,
     },
@@ -66,7 +67,11 @@ const ReviewPage = () => {
     >
       {isSuccess && (
         <>
-          {data?.result !== null && (
+          {data?.status === "setup" && (
+            <FinishSetup project_id={project_id} refetch={refetch} />
+          )}
+
+          {data?.status === "review" && data?.result !== null && (
             <RecordCard
               key={
                 "record-card-" +
@@ -89,12 +94,35 @@ const ReviewPage = () => {
               landscape={orientation === "landscape" && !landscapeDisabled}
             />
           )}
-
-          {data?.result === null && !data?.pool_empty && (
-            <FinishSetup project_id={project_id} refetch={refetch} />
+          {data?.status === "review" && data?.result === null && (
+            <Stack spacing={3} sx={{ alignItems: "center" }}>
+              <img
+                src={ElasFinished}
+                alt="Celebration for reviewing all records"
+                width="400"
+              />
+              <Typography variant="h5">
+                Wow! You have reviewed all the records.
+              </Typography>
+            </Stack>
           )}
 
-          {data?.result === null && data?.pool_empty && <ReviewPageFinished />}
+          {data?.status === "finished" && (
+            <Stack spacing={1} sx={{ alignItems: "center" }}>
+              <img
+                src={ElasFinished}
+                alt="Celebration for finished project"
+                width="400"
+              />
+              <Typography variant="h5">
+                Congratulations! You have finished this project.
+              </Typography>
+              <Typography>
+                You have stopped reviewing and marked this project as finished.
+                You can change this on the project dashboard.
+              </Typography>
+            </Stack>
+          )}
         </>
       )}
 

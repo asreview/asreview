@@ -1318,6 +1318,9 @@ def api_get_record(project):  # noqa: F401
         current_user.id if current_app.config.get("AUTHENTICATION", True) else None
     )
 
+    if project.config["reviews"][0]["status"] == "finished":
+        return jsonify({"result": None, "status": "finished"})
+
     with open_state(project.project_path) as state:
         pending = state.get_pending(user_id=user_id)
 
@@ -1329,11 +1332,9 @@ def api_get_record(project):  # noqa: F401
                 pool = state.get_pool()
 
                 if not ranking.empty and pool.empty:
-                    project.update_review(status="finished")
-
-                return jsonify(
-                    {"result": None, "pool_empty": not ranking.empty and pool.empty}
-                )
+                    return jsonify({"result": None, "status": "review"})
+                else:
+                    return jsonify({"result": None, "status": "setup"})
 
     item = asdict(project.data_store.get_records(pending["record_id"].iloc[0]))
     item["state"] = pending.iloc[0].to_dict()
@@ -1346,7 +1347,7 @@ def api_get_record(project):  # noqa: F401
     except ValueError:
         pass
 
-    return jsonify({"result": item, "pool_empty": False, "has_ranking": True})
+    return jsonify({"result": item, "status": "review"})
 
 
 @bp.route("/projects/<project_id>/delete", methods=["DELETE"])
