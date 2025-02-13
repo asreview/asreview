@@ -57,8 +57,6 @@ const ReviewPage = () => {
 
   useQuery(["fetchStopping", { project_id }], ProjectAPI.fetchStopping, {
     refetchOnWindowFocus: false,
-    refetchInterval: (data) =>
-      statusData?.status === projectStatuses.FINISHED ? -1 : 4000,
     onSuccess: (data) => {
       const hasThreshold = Boolean(data?.params?.n);
       if (
@@ -90,6 +88,9 @@ const ReviewPage = () => {
     queryClient.invalidateQueries({
       queryKey: ["fetchRecord", { project_id }],
     });
+    queryClient.invalidateQueries({
+      queryKey: ["fetchStopping", { project_id }],
+    });
   };
 
   return (
@@ -118,10 +119,7 @@ const ReviewPage = () => {
               }
               project_id={project_id}
               record={data?.result}
-              afterDecision={() => {
-                queryClient.invalidateQueries("fetchRecord");
-                queryClient.invalidateQueries("fetchStopping");
-              }}
+              afterDecision={afterDecision}
               fontSize={fontSize}
               showBorder={showBorder}
               modelLogLevel={modelLogLevel}
