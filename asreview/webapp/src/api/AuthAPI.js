@@ -153,6 +153,7 @@ class AuthAPI {
         method: "post",
         url: url,
         data: body,
+        withCredentials: true,
       })
         .then((result) => {
           resolve(result["data"]);
@@ -174,6 +175,7 @@ class AuthAPI {
         method: "post",
         url: url,
         data: body,
+        withCredentials: true,
       })
         .then((result) => {
           resolve(result["data"]);

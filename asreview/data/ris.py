@@ -23,6 +23,7 @@ import pandas as pd
 import rispy
 
 from asreview.data.base import BaseReader
+from asreview.data.utils import convert_to_list
 from asreview.utils import _is_url
 
 ASREVIEW_PARSE_RE = r"\bASReview_\w+\b"
@@ -209,6 +210,26 @@ class RISReader(BaseReader):
             df["included"] = df["included"].astype("Int64")
 
         return df
+
+    @classmethod
+    def clean_data(cls, df):
+        # We drop the 'label' column if it's available. For RIS files ASReview stores
+        # and loads the labels from the notes field.
+        df.drop("label", axis=1, inplace=True, errors="ignore")
+
+        # We combine the values of 'authors' and 'first_authors' into one list of
+        # authors. Internally we only use the authors when searching for a record, so
+        # it does not matter too much if combining the two lists leads to the wrong
+        # order of authors, or duplicate authors appearing in the list.
+        if "authors" not in df:
+            df["authors"] = None
+        df["authors"] = df["authors"].apply(convert_to_list)
+        if "first_authors" not in df:
+            df["first_authors"] = None
+        df["first_authors"] = df["first_authors"].apply(convert_to_list)
+        df["authors"] = df["authors"] + df["first_authors"]
+
+        return super().clean_data(df)
 
 
 class RISWriter:
