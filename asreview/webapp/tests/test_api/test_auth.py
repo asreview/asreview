@@ -227,8 +227,8 @@ def test_token_confirmation_after_signup(client_auth_verified):
     r = au.confirm_user(client_auth_verified, user)
     payload = json.loads(r.text)
     assert r.status_code == 200
-    assert isinstance(payload["message"], dict)
-    assert payload["message"]["logged_in"]
+    assert isinstance(payload, dict)
+    assert payload["logged_in"]
 
 
 # A token expires in 24 hours, test confirmation response after
@@ -410,8 +410,8 @@ def test_reset_password(client_auth_verified):
     # reset it
     r = au.reset_password(client_auth_verified, user)
     assert r.status_code == 200
-    assert isinstance(r.json["message"], dict)
-    assert r.json["message"]["logged_in"]
+    assert isinstance(r.json, dict)
+    assert r.json["logged_in"]
 
 
 # Test reset password: id not found
