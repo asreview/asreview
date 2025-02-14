@@ -1,5 +1,3 @@
-import React from "react";
-import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import {
   Box,
   Button,
@@ -13,8 +11,10 @@ import {
   Typography,
 } from "@mui/material";
 import { ProjectAPI } from "api";
+import React from "react";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 const WordTag = ({ word, color = "primary.main" }) => (
   <Box
@@ -77,11 +77,6 @@ const WordCounts = () => {
       refetchOnWindowFocus: false,
     },
   );
-
-  const topWords = {
-    relevant: data?.relevant?.slice(0, 8) || [],
-    irrelevant: data?.irrelevant?.slice(0, 8) || [],
-  };
 
   return (
     <Card sx={{ bgcolor: "transparent" }}>
