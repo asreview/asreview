@@ -80,7 +80,7 @@ const ResetPassword = () => {
     },
     onSuccess: () => {
       formik.setValues(initialValues, false);
-      navigate("/signin");
+      navigate("/");
     },
     onError: (data) => {
       setErrorMessage(data.message);

@@ -63,7 +63,8 @@ const ConfirmAccount = () => {
     },
     onSuccess: () => {
       formik.setValues(initialValues, false);
-      navigate("/signin");
+      // if successful, than the user is signed in.
+      navigate("/");
     },
     onError: (data) => {
       setErrorMessage(data.message);
