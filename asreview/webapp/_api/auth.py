@@ -87,6 +87,7 @@ def signin():
                 result = (404, {"message": f"Please login with the {service} service."})
 
     status, message = result
+    print(message)
     response = jsonify(message)
     return response, status
 
@@ -209,8 +210,10 @@ def confirm_account():
             DB.session.rollback()
             result = (500, "Account not confirmed")
 
-    status, message = result
-    response = jsonify({"message": message})
+    status, payload = result
+    payload = {"message": payload} if isinstance(payload, str) else payload
+
+    response = jsonify(payload)
     return response, status
 
 
@@ -315,8 +318,10 @@ def reset_password():
     else:
         result = (404, "Reset-password feature is not used in this app.")
 
-    status, message = result
-    response = jsonify({"message": message})
+    status, payload = result
+    payload = {"message": payload} if isinstance(payload, str) else payload
+
+    response = jsonify(payload)
     return response, status
 
 
