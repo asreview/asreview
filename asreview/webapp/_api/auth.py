@@ -90,7 +90,6 @@ def signin():
                 result = (404, {"message": f"Please login with the {service} service."})
 
     status, message = result
-    print(message)
     response = jsonify(message)
     return response, status
 
