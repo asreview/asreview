@@ -37,6 +37,7 @@ from asreview.webapp._authentication.utils import send_forgot_password_email
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
+
 def _signed_in_payload(user):
     return {
         "logged_in": True,
@@ -45,9 +46,11 @@ def _signed_in_payload(user):
         "message": f"User {user.identifier} is logged in.",
     }
 
+
 # ------------------
 #      ROUTES
 # ------------------
+
 
 @bp.route("/signin", methods=["POST"])
 def signin():
