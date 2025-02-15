@@ -78,23 +78,24 @@ const StoppingSuggestion = ({ project_id }) => {
   React.useEffect(() => {
     if (data && data?.value && data?.params?.n) {
       const targetValue = Math.min((data.value / data.params.n) * 100, 100);
-      setProgress(0);
+      let start;
 
-      const duration = 300;
-      const intervalTime = 10;
-      const increment = targetValue / (duration / intervalTime);
-      let currentProgress = 0;
+      const animate = (timestamp) => {
+        if (!start) start = timestamp;
+        const progress = timestamp - start;
+        const currentValue = Math.min(
+          (progress / 300) * targetValue,
+          targetValue,
+        );
 
-      const timer = setInterval(() => {
-        currentProgress += increment;
-        if (currentProgress >= targetValue) {
-          currentProgress = targetValue;
-          clearInterval(timer);
+        setProgress(currentValue);
+
+        if (currentValue < targetValue) {
+          requestAnimationFrame(animate);
         }
-        setProgress(currentProgress);
-      }, intervalTime);
+      };
 
-      return () => clearInterval(timer);
+      requestAnimationFrame(animate);
     }
   }, [data]);
 
