@@ -7,3 +7,4 @@ export { default as LabelingHistory } from "./LabelingHistory";
 export { default as LabelingFrequency } from "./LabelingFrequency";
 export { default as StoppingSuggestion } from "./StoppingSuggestion";
 export { default as WordCounts } from "./WordCounts";
+export { default as TimeSavedCard } from "./TimeSavedCard";

@@ -12,6 +12,8 @@ import ElasFinished from "images/ElasFinished.svg";
 import FinishSetup from "./ReviewPageTraining";
 
 import { useReviewSettings } from "context/ReviewSettingsContext";
+import StoppingReachedDialog from "./StoppingReachedDialog";
+import { projectStatuses } from "globals.js";
 
 const ReviewPage = () => {
   let { project_id } = useParams();
@@ -35,6 +37,42 @@ const ReviewPage = () => {
     },
   );
 
+  const [showStoppingDialog, setShowStoppingDialog] = React.useState(false);
+  const [dismissedThresholdValue, setDismissedThresholdValue] =
+    React.useState(null);
+
+  const { data: statusData } = useQuery(
+    ["fetchProjectStatus", { project_id }],
+    ProjectAPI.fetchProjectStatus,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  const handleCloseDialog = () => {
+    setShowStoppingDialog(false);
+    setDismissedThresholdValue(
+      queryClient.getQueryData(["fetchStopping", { project_id }])?.params?.n,
+    );
+  };
+
+  useQuery(["fetchStopping", { project_id }], ProjectAPI.fetchStopping, {
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      const hasThreshold = Boolean(data?.params?.n);
+      if (
+        hasThreshold &&
+        data?.value >= data?.params?.n &&
+        data?.params?.n !== dismissedThresholdValue &&
+        statusData?.status !== projectStatuses.FINISHED &&
+        (dismissedThresholdValue === null ||
+          data?.params?.n > dismissedThresholdValue)
+      ) {
+        setShowStoppingDialog(true);
+      }
+    },
+  });
+
   let showBorder = useMediaQuery((theme) => theme.breakpoints.up("md"), {
     noSsr: true,
   });
@@ -50,6 +88,9 @@ const ReviewPage = () => {
     window.scrollTo({ top: 0 });
     queryClient.invalidateQueries({
       queryKey: ["fetchRecord", { project_id }],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["fetchStopping", { project_id }],
     });
   };
 
@@ -106,7 +147,11 @@ const ReviewPage = () => {
               </Typography>
             </Stack>
           )}
-
+          <StoppingReachedDialog
+            open={showStoppingDialog}
+            onClose={handleCloseDialog}
+            project_id={project_id}
+          />
           {data?.status === "finished" && (
             <Stack spacing={1} sx={{ alignItems: "center" }}>
               <img
