@@ -45,20 +45,11 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
   };
 
   const handleSelectDifferentModel = () => {
-    mutate({
-      project_id: project_id,
-      status: projectStatuses.REVIEW,
-    });
     navigate(`/reviews/${project_id}/settings`);
     onClose();
   };
 
   const handleReviewMore = () => {
-    mutate({
-      project_id: project_id,
-      status: projectStatuses.REVIEW,
-    });
-
     queryClient
       .fetchQuery(["fetchStopping", { project_id }], ProjectAPI.fetchStopping)
       .then((data) => {
