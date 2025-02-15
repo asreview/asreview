@@ -169,7 +169,11 @@ const AnalyticsPage = () => {
                   ? "success"
                   : "inherit"
               }
-              onClick={() => setOpenStatusDialog(true)}
+              onClick={
+                data?.mode === "simulate"
+                  ? null
+                  : () => setOpenStatusDialog(true)
+              }
             />
           </Typography>
         </Box>
