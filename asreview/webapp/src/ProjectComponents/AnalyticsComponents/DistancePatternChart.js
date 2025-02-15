@@ -189,13 +189,15 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                     fontWeight="bold"
                     sx={{ mb: 1 }}
                   >
-                    Relevant Frequency
+                    Wave of not relevant records
                   </Typography>
                   <Typography variant="body2">
                     This visualization shows how far apart your relevant
-                    findings are from each other. The blue dots represent
-                    relevant records, and the height of the lines shows how many
-                    not relevant records you reviewed in between.
+                    findings are from each other. The height of the "wave" shows
+                    how many not relevant records you reviewed in between the
+                    relevant records. If the wave exceeds the stopping
+                    threshold, you might be reaching the end of your relevant
+                    records.
                   </Typography>
                 </Box>
                 <Divider />
@@ -207,20 +209,7 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                         fontWeight="bold"
                         sx={{ mb: 1 }}
                       >
-                        Dashed Line
-                      </Typography>
-                      <Typography variant="body2">
-                        The dashed line shows the distance between your current
-                        labeling and the last relevant record.
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography
-                        variant="body2"
-                        fontWeight="bold"
-                        sx={{ mb: 1 }}
-                      >
-                        Short Distances
+                        Small "Waves"
                       </Typography>
                       <Typography variant="body2">
                         Finding relevant records close together suggests you're
@@ -233,7 +222,7 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                         fontWeight="bold"
                         sx={{ mb: 1 }}
                       >
-                        Growing Distances
+                        Big "Waves"
                       </Typography>
                       <Typography variant="body2">
                         When distances between relevant findings get close to
