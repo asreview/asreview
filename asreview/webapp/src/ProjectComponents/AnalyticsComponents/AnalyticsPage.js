@@ -140,18 +140,43 @@ const AnalyticsPage = () => {
 
   return (
     <Container maxWidth="md" aria-label="analytics page">
-      <Stack
-        spacing={2}
-        className="main-page-body"
-        sx={{ pt: { xs: 0, md: 2 } }}
-      >
-        <Box>
+      <Stack spacing={2} className="main-page-body">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 3,
+            pt: { xs: 4, sm: 0 },
+            pb: { xs: 0, sm: 6 },
+            width: "100%",
+            textAlign: "center",
+          }}
+        >
           <Typography
-            variant="subtitle1"
-            textAlign="center"
-            color="text.secondary"
+            variant="h4"
+            sx={{
+              fontFamily: "Roboto Serif",
+              color: "text.secondary",
+              textAlign: "center",
+            }}
           >
-            {progressQuery?.data?.n_records} records •{" "}
+            {data?.name}
+          </Typography>
+
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            justifyContent="center"
+            sx={{
+              color: "text.secondary",
+              typography: "body1",
+            }}
+          >
+            <Typography sx={{ fontSize: "0.875rem" }}>
+              {progressQuery?.data?.n_records} records
+            </Typography>
             <Chip
               label={
                 statusData?.status === projectStatuses.FINISHED
@@ -163,30 +188,49 @@ const AnalyticsPage = () => {
                   <DoneAll />
                 ) : null
               }
-              variant="outlined"
-              color={
+              variant={
                 statusData?.status === projectStatuses.FINISHED
-                  ? "success"
-                  : "inherit"
+                  ? "filled"
+                  : "outlined"
               }
+              color="primary"
               onClick={
                 data?.mode === "simulate"
                   ? null
                   : () => setOpenStatusDialog(true)
               }
+              sx={{
+                "&.MuiChip-filled": {
+                  backgroundColor: "primary.light",
+                },
+                "&.MuiChip-outlined": {
+                  borderColor: "primary.main",
+                  color: "primary.main",
+                },
+                "&:hover": {
+                  backgroundColor:
+                    statusData?.status === projectStatuses.FINISHED
+                      ? "primary.light"
+                      : "transparent",
+                },
+              }}
             />
-          </Typography>
+          </Stack>
         </Box>
         <Dialog
           open={openStatusDialog}
           onClose={() => setOpenStatusDialog(false)}
+          PaperProps={{
+            sx: { px: 1 },
+          }}
         >
-          <DialogTitle>
+          <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <DoneAll color="primary" />
             {statusData?.status === projectStatuses.FINISHED
               ? "Resume Review"
               : "Mark as Finished"}
           </DialogTitle>
-          <DialogContent>
+          <DialogContent sx={{ pt: 1 }}>
             <Typography>
               {statusData?.status === projectStatuses.FINISHED
                 ? "Are you sure you want to resume reviewing? This will change the project status back to 'In Review'."
@@ -205,6 +249,7 @@ const AnalyticsPage = () => {
               }}
               variant="contained"
               color="primary"
+              startIcon={<DoneAll />}
             >
               {statusData?.status === projectStatuses.FINISHED
                 ? "Resume Review"
@@ -213,20 +258,9 @@ const AnalyticsPage = () => {
           </DialogActions>
         </Dialog>
 
-        <Typography
-          variant="h4"
-          sx={{
-            fontFamily: "Roboto Serif",
-            textAlign: "center",
-            pb: { xs: 6, md: 10 },
-          }}
-        >
-          {data?.name}
-        </Typography>
-
         {statusData?.status === projectStatuses.FINISHED &&
           data?.mode !== "simulate" && (
-            <Grid size={1}>
+            <Grid size={1} sx={{ pt: 6 }}>
               <TimeSavedCard project_id={project_id} />
             </Grid>
           )}
@@ -237,30 +271,43 @@ const AnalyticsPage = () => {
           columns={{ xs: 1, md: data?.mode === "simulate" ? 1 : 2 }}
         >
           <Grid size={1}>
-            <Divider sx={{ pb: 2 }}>
-              <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
+            <Box>
+              <Typography
+                variant="h6"
+                color="text.secondary"
+                sx={{ fontFamily: "Roboto Serif", mb: 2, pt: 2 }}
+              >
                 Progress
               </Typography>
-            </Divider>
+              <Divider />
+            </Box>
             <ReviewProgress project_id={project_id} />
           </Grid>
           {data?.mode !== "simulate" && (
             <Grid size={1}>
-              <Divider sx={{ pb: 2 }}>
-                <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
+              <Box>
+                <Typography
+                  variant="h6"
+                  color="text.secondary"
+                  sx={{ fontFamily: "Roboto Serif", mb: 2, pt: 2 }}
+                >
                   Stopping
                 </Typography>
-              </Divider>
+                <Divider />
+              </Box>
               <StoppingSuggestion project_id={project_id} />
             </Grid>
           )}
         </Grid>
 
-        <Divider sx={{ pt: 6, pb: 2 }}>
-          <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
-            Analytics
-          </Typography>
-        </Divider>
+        <Typography
+          variant="h6"
+          color="text.secondary"
+          sx={{ fontFamily: "Roboto Serif", mb: 2, pt: 6 }}
+        >
+          Analytics
+        </Typography>
+        <Divider />
 
         <Box>
           <Tabs
@@ -291,11 +338,14 @@ const AnalyticsPage = () => {
           )}
         </Box>
 
-        <Divider sx={{ pt: 6, pb: 2 }}>
-          <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
-            Insights
-          </Typography>
-        </Divider>
+        <Typography
+          variant="h6"
+          color="text.secondary"
+          sx={{ fontFamily: "Roboto Serif", mb: 2, pt: 4 }}
+        >
+          Insights
+        </Typography>
+        <Divider />
         <Grid size={1}>
           <Tabs
             value={activeInsightsTab}
