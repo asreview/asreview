@@ -1,7 +1,13 @@
-import { Share, DoneAll } from "@mui/icons-material";
+import { DoneAll, Share } from "@mui/icons-material";
 import {
   Box,
+  Button,
+  Chip,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   Grid2 as Grid,
   SpeedDial,
@@ -10,27 +16,17 @@ import {
   Tab,
   Tabs,
   Typography,
-  IconButton,
-  TextField,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Button,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import React, { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import {
   EmailIcon,
   FacebookIcon,
-  XIcon,
   WeiboIcon,
   WhatsappIcon,
+  XIcon,
 } from "react-share";
-
-import EditIcon from "@mui/icons-material/Edit";
-import DoneIcon from "@mui/icons-material/Done";
 
 import {
   LabelingFrequency,
@@ -40,8 +36,8 @@ import {
   ReviewProgress,
   ShareFabAction,
   StoppingSuggestion,
-  WordCounts,
   TimeSavedCard,
+  WordCounts,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
 import { projectStatuses } from "globals.js";
@@ -142,29 +138,6 @@ const AnalyticsPage = () => {
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
   const [activeInsightsTab, setActiveInsightsTab] = useState(0);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [customName, setCustomName] = useState(
-    () => localStorage.getItem(`projectName-${project_id}`) || data?.name || "",
-  );
-
-  useEffect(() => {
-    if (data?.name && !localStorage.getItem(`projectName-${project_id}`)) {
-      setCustomName(data.name);
-      localStorage.setItem(`projectName-${project_id}`, data.name);
-    }
-  }, [data, project_id]);
-
-  const handleNameChange = (event) => {
-    setCustomName(event.target.value);
-  };
-
-  const handleNameSubmit = () => {
-    if (customName.trim()) {
-      localStorage.setItem(`projectName-${project_id}`, customName);
-      setIsEditing(false);
-    }
-  };
-
   return (
     <Container maxWidth="md" aria-label="analytics page">
       <Stack
@@ -175,102 +148,48 @@ const AnalyticsPage = () => {
         <Box>
           <Typography
             variant="subtitle1"
-            pyt
             textAlign="center"
-            sx={{
-              fontWeight: "bold",
-              fontFamily: "Roboto Serif",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 1,
-            }}
+            color="text.secondary"
           >
-            {progressQuery.data && (
-              <Typography variant="subtitle1" color="text.secondary">
-                {progressQuery.data.n_records} records
-              </Typography>
-            )}
-            <Typography
-              variant="subtitle1"
-              color="text.secondary"
-              sx={{
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              •
-            </Typography>
-            <Button
-              onClick={() => setOpenStatusDialog(true)}
-              variant="outlined"
-              size="small"
-              startIcon={
+            {progressQuery?.data?.n_records} records •{" "}
+            <Chip
+              label={
+                statusData?.status === projectStatuses.FINISHED
+                  ? "Finished"
+                  : "In Review"
+              }
+              icon={
                 statusData?.status === projectStatuses.FINISHED ? (
                   <DoneAll />
                 ) : null
               }
-              sx={{
-                textTransform: "none",
-                borderRadius: 2,
-                color:
-                  statusData?.status === projectStatuses.FINISHED
-                    ? "success.main"
-                    : "inherit",
-                borderColor:
-                  statusData?.status === projectStatuses.FINISHED
-                    ? "success.main"
-                    : "inherit",
-                "&:hover": {
-                  borderColor:
-                    statusData?.status === projectStatuses.FINISHED
-                      ? "success.main"
-                      : "inherit",
-                  backgroundColor: "action.hover",
-                },
-              }}
-            >
-              {statusData?.status === projectStatuses.FINISHED
-                ? "Finished"
-                : "In Review"}
-            </Button>
+              variant="outlined"
+              color={
+                statusData?.status === projectStatuses.FINISHED
+                  ? "success"
+                  : "inherit"
+              }
+              onClick={() => setOpenStatusDialog(true)}
+            />
           </Typography>
         </Box>
         <Dialog
           open={openStatusDialog}
           onClose={() => setOpenStatusDialog(false)}
-          PaperProps={{
-            sx: { borderRadius: 3 },
-          }}
         >
-          <DialogTitle
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              pb: 1,
-            }}
-          >
-            {statusData?.status === projectStatuses.FINISHED ? (
-              <>
-                <EditIcon color="primary" />
-                Resume Review
-              </>
-            ) : (
-              <>
-                <DoneAll color="primary" />
-                Mark as Finished
-              </>
-            )}
+          <DialogTitle>
+            {statusData?.status === projectStatuses.FINISHED
+              ? "Resume Review"
+              : "Mark as Finished"}
           </DialogTitle>
           <DialogContent>
-            <Typography sx={{ mt: 2 }}>
+            <Typography>
               {statusData?.status === projectStatuses.FINISHED
                 ? "Are you sure you want to resume reviewing? This will change the project status back to 'In Review'."
                 : "Are you sure you want to mark this project as finished? This indicates that you have completed your review."}
             </Typography>
           </DialogContent>
-          <DialogActions sx={{ p: 2, pt: 0 }}>
+          <DialogActions>
             <Button onClick={() => setOpenStatusDialog(false)}>Cancel</Button>
             <Button
               onClick={() => {
@@ -298,61 +217,7 @@ const AnalyticsPage = () => {
             pb: { xs: 6, md: 10 },
           }}
         >
-          {isEditing ? (
-            <TextField
-              value={customName}
-              onChange={handleNameChange}
-              onKeyDown={(e) => e.key === "Enter" && handleNameSubmit()}
-              autoFocus
-              variant="standard"
-              sx={{
-                "& .MuiInputBase-root": {
-                  fontFamily: "Roboto Serif",
-                },
-                width: "auto",
-                minWidth: "200px",
-              }}
-              InputProps={{
-                endAdornment: (
-                  <IconButton onClick={handleNameSubmit}>
-                    <DoneIcon />
-                  </IconButton>
-                ),
-              }}
-            />
-          ) : (
-            <Box
-              sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                position: "relative",
-                padding: "0 40px",
-                margin: "0 -40px",
-                cursor: "pointer",
-                "&:hover button": {
-                  opacity: 1,
-                },
-              }}
-              onClick={() => setIsEditing(true)}
-            >
-              {customName}
-              <IconButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEditing(true);
-                }}
-                sx={{
-                  ml: 1,
-                  opacity: 0,
-                  transition: "opacity 0.2s",
-                  position: "absolute",
-                  right: 0,
-                }}
-              >
-                <EditIcon />
-              </IconButton>
-            </Box>
-          )}
+          {data?.name}
         </Typography>
 
         {statusData?.status === projectStatuses.FINISHED &&
