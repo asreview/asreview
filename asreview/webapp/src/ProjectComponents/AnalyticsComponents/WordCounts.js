@@ -19,15 +19,17 @@ import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 const WordTag = ({ word, color = "primary.main" }) => (
   <Box
     sx={{
-      border: 1,
-      borderColor: "divider",
       borderRadius: 1.5,
       px: 1.5,
       py: 0.75,
       fontSize: "0.875rem",
-      color: color,
+      bgcolor: color,
       minWidth: 50,
       textAlign: "center",
+      color: (theme) =>
+        theme.palette.getContrastText(
+          theme.palette[color.split(".")[0]][color.split(".")[1]] || color,
+        ),
     }}
   >
     {word}
@@ -48,7 +50,7 @@ const WordExample = () => {
         </Typography>
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
           {words.relevant.map((word) => (
-            <WordTag key={word} word={word} color="grey.600" />
+            <WordTag key={word} word={word} color="tertiary.dark" />
           ))}
         </Stack>
       </Box>
@@ -123,7 +125,7 @@ const WordCounts = () => {
                   data?.relevant
                     .slice(0, 12)
                     .map((word) => (
-                      <WordTag key={word} word={word} color="grey.600" />
+                      <WordTag key={word} word={word} color="tertiary.dark" />
                     ))
                 ) : (
                   <Typography variant="body2" color="text.secondary">

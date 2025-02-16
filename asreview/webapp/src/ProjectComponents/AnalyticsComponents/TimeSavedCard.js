@@ -233,7 +233,7 @@ const TimeSavedCard = ({ project_id }) => {
                   sx={{
                     ml: 1,
                     fontWeight: "normal",
-                    color: theme.palette.text.secondary,
+                    color: "text.secondary",
                     fontFamily: "Roboto Serif",
                   }}
                 >
@@ -263,7 +263,7 @@ const TimeSavedCard = ({ project_id }) => {
                 variant="subtitle1"
                 sx={{
                   fontFamily: "Roboto Serif",
-                  color: theme.palette.text.secondary,
+                  color: "text.secondary",
                   textAlign: "center",
                 }}
               >

@@ -204,7 +204,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                       height: "8px",
                       bgcolor:
                         decision.label === 1
-                          ? "grey.600"
+                          ? "tertiary.dark"
                           : decision.label === 0
                             ? "primary.light"
                             : "grey.400",
@@ -281,7 +281,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                     sx={{
                       width: 16,
                       height: 8,
-                      bgcolor: "grey.600",
+                      bgcolor: "tertiary.dark",
                       borderRadius: 3,
                     }}
                   />

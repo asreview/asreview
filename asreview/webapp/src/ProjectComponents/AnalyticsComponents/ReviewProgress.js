@@ -80,8 +80,8 @@ export default function ReviewProgress({ project_id }) {
               : data.n_included_no_priors,
           color:
             theme.palette.mode === "light"
-              ? theme.palette.grey[600]
-              : theme.palette.grey[600],
+              ? theme.palette.tertiary.dark
+              : theme.palette.tertiary.dark,
         },
         {
           label: "Unlabeled",
@@ -102,8 +102,8 @@ export default function ReviewProgress({ project_id }) {
           priorValue: includePrior ? data.n_included.toLocaleString() : null,
           color:
             theme.palette.mode === "light"
-              ? theme.palette.grey[600]
-              : theme.palette.grey[600],
+              ? theme.palette.tertiary.dark
+              : theme.palette.tertiary.dark,
         },
         {
           label: "Not Relevant",
@@ -138,7 +138,7 @@ export default function ReviewProgress({ project_id }) {
     {
       label: "Relevant",
       value: 5,
-      color: theme.palette.grey[600],
+      color: theme.palette.tertiary.dark,
     },
     {
       label: "Unlabeled",

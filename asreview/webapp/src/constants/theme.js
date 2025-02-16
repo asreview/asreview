@@ -1,19 +1,44 @@
+// Theme for the ASReview webapp.
+// The theme is based on the Material-UI theme.
+
+import { dark } from "@mui/material/styles/createPalette";
+
+// - The primary color is a greybrown color which is used
+// for the main color of buttons and other primary elements.
+// - The secondary color is a green color which is used for
+// elements that need to stand out or focused. Think about
+// the color of the buttons in the navrail or the color of
+// the label section in the RecordCard.
+// - The tertiary color is a yellow color which is used for
+// elements that indicate relevant records or information.
+// Think about the color of the relevant label in the
+// RecordCard or the color of relevant records on the
+// Dashboard.
+// - grey.400 is a light grey color which is used for
+// elements that indicate unlabeled records or information.
+// - The primary color is also used for elements that below to
+// not relevant records, like the color of the not relevant
+// label in the RecordCard.
+// - The background color is a light beige color which is used
+// for the background of the app.
+
 export const theme = {
   colorSchemes: {
     light: {
       palette: {
         primary: {
-          main: "#7e7667",
+          main: "#7e7667", // greybrown
         },
         secondary: {
           main: "#6E9B73", // green
         },
         tertiary: {
-          main: "#ffe08b",
+          main: "#ffe08b", // yellow, alternative: e3c46d
+          dark: "#e3c46d", // yellow, alternative: ffe08b
         },
         background: {
-          default: "#fffbf5",
-          paper: "#f2ede4",
+          default: "#fffdfa",
+          paper: "#f2ece4",
           record: "#ffffff",
         },
         text: {
@@ -24,8 +49,6 @@ export const theme = {
 
         grey: {
           400: "#DEDBD2",
-          600: "#e3c46d", // yellow
-          800: "#37474F",
         },
       },
     },
@@ -55,8 +78,6 @@ export const theme = {
 
         grey: {
           400: "#4d4d4d",
-          600: "#FFCC00",
-          800: "#B0B0B0",
         },
       },
     },
