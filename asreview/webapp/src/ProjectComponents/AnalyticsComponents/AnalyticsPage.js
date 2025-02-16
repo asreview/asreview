@@ -221,7 +221,7 @@ const AnalyticsPage = () => {
           open={openStatusDialog}
           onClose={() => setOpenStatusDialog(false)}
           PaperProps={{
-            sx: { px: 1 },
+            sx: { px: 1, py: 2 },
           }}
         >
           <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
