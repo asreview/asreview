@@ -292,10 +292,17 @@ export default function ReviewProgress({ project_id }) {
                       endAngle: 360,
                       cx: 90,
                       cy: 90,
+                      highlightScope: {
+                        highlighted: "none",
+                        faded: "none",
+                      },
                     },
                   ]}
                   height={180}
                   width={180}
+                  tooltip={{
+                    trigger: false,
+                  }}
                   sx={{
                     "& .MuiPieArc-root": {
                       strokeWidth: 0,
@@ -324,7 +331,7 @@ export default function ReviewProgress({ project_id }) {
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Review Progress
               </Typography>
-              <Typography variant="body2">
+              <Typography variant="body2" sx={{ textAlign: "justify" }}>
                 This visualization shows how far you are from the beginning. It
                 displays the number of relevant, not relevant, and unlabeled
                 records in your dataset.
@@ -335,7 +342,7 @@ export default function ReviewProgress({ project_id }) {
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Prior Knowledge
               </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
+              <Typography variant="body2" sx={{ mb: 1, textAlign: "justify" }}>
                 You can include the prior knowledge in your dataset to this
                 visualization. This option is enabled from{" "}
                 <strong>Settings</strong>.
@@ -362,10 +369,17 @@ export default function ReviewProgress({ project_id }) {
                       endAngle: 320,
                       cx: 90,
                       cy: 90,
+                      highlightScope: {
+                        highlighted: "none",
+                        faded: "none",
+                      },
                     },
                   ]}
                   height={180}
                   width={180}
+                  tooltip={{
+                    trigger: false,
+                  }}
                   sx={{
                     "& .MuiPieArc-root": {
                       strokeWidth: 0,
