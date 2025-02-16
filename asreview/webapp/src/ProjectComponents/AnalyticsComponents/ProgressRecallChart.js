@@ -303,7 +303,7 @@ export default function ProgressRecallChart(props) {
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Progress Recall
               </Typography>
-              <Typography variant="body2">
+              <Typography variant="body2" sx={{ textAlign: "justify" }}>
                 This chart compares the model's ability to find relevant records
                 early against a random approach. A good model quickly identifies
                 a large portion of relevant records, while random grows more
@@ -312,12 +312,19 @@ export default function ProgressRecallChart(props) {
             </Box>
             <Divider />
             <Box>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+              <Typography
+                variant="subtitle1"
+                fontWeight="bold"
+                sx={{ mb: 1, textAlign: "justify" }}
+              >
                 Comparing Examples
               </Typography>
               <Stack spacing={2}>
                 <Box>
-                  <Typography variant="body2" sx={{ mb: 1 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ mb: 1, textAlign: "justify" }}
+                  >
                     <strong>Good:</strong> {""}
                     The model's performance curve rises steeply early in the
                     process, significantly outperforming random selection.
@@ -325,7 +332,10 @@ export default function ProgressRecallChart(props) {
                   {goodScenarioSVG}
                 </Box>
                 <Box>
-                  <Typography variant="body2" sx={{ mb: 1 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ mb: 1, textAlign: "justify" }}
+                  >
                     <strong>Bad:</strong> {""}
                     The model's performance curve stays close to random
                     selection, indicating limited effectiveness in identifying

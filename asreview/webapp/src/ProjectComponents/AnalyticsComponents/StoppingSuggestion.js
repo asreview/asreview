@@ -386,7 +386,7 @@ const StoppingSuggestion = ({ project_id }) => {
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Stopping Suggestion
               </Typography>
-              <Typography variant="body2">
+              <Typography variant="body2" sx={{ textAlign: "justify" }}>
                 This visualization shows how far you are from the end. It allows
                 you to set a stopping threshold, which is the number of
                 consecutive not relevant records you label before deciding to
@@ -402,7 +402,7 @@ const StoppingSuggestion = ({ project_id }) => {
               </Typography>
               <Stack direction="row" spacing={1} alignItems="center">
                 <EditIcon fontSize="small" />
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ textAlign: "justify" }}>
                   You can manually edit and optimize the threshold for your
                   project to determine when this suggestion appears.
                 </Typography>
