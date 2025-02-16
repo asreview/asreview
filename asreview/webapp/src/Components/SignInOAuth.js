@@ -22,7 +22,8 @@ const generateOAuthUrl = (config) => {
   );
 };
 
-const SignInOauth = ({ oAuthConfig }) => {
+const SignInOAuth = ({ oAuthData }) => {
+  console.log(oAuthData);
   const navigate = useNavigate();
 
   const [errorMessage, setErrorMessage] = React.useState("");
@@ -72,8 +73,9 @@ const SignInOauth = ({ oAuthConfig }) => {
     <>
       <Stack direction="row">
         <Typography variant="body1">Or sign in with:</Typography>
-        {Object.keys(oAuthConfig.services).map((provider) => {
-          let config = oAuthConfig.services[provider];
+        {Object.keys(oAuthData).map((provider) => {
+          console.log(provider);
+          let config = oAuthData[provider];
           return (
             <OauthPopup
               url={generateOAuthUrl(config)}
@@ -98,4 +100,4 @@ const SignInOauth = ({ oAuthConfig }) => {
   );
 };
 
-export default SignInOauth;
+export default SignInOAuth;

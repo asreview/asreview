@@ -16,7 +16,7 @@ import { ForgotPassword } from "Components";
 import * as React from "react";
 import { useMutation } from "react-query";
 import { useLocation, useNavigate } from "react-router-dom";
-import { InlineErrorHandler } from ".";
+import { InlineErrorHandler, SignInOAuth } from ".";
 
 import AuthAPI from "api/AuthAPI";
 import { useToggle } from "hooks/useToggle";
@@ -73,6 +73,7 @@ const SignInForm = () => {
       {!forgotPassword && (
         <>
           <CardHeader title="Sign in" />
+
           <CardContent>
             <Stack spacing={3}>
               <TextField
@@ -120,11 +121,6 @@ const SignInForm = () => {
               </FormControl>
             </Stack>
             {isError && <InlineErrorHandler message={error.message} />}
-
-            {/* {window.oAuthConfig?.services &&
-        Object.keys(window.oAuthConfig.services).length > 0 && (
-          <SignInOAuth oAuthConfig={window.oAuthConfig} />
-        )} */}
           </CardContent>
           <CardActions sx={{ p: 2 }}>
             <Button
@@ -155,6 +151,10 @@ const SignInForm = () => {
               </Button>
             )}
           </CardActions>
+
+          {window.oAuthData && Object.keys(window.oAuthData).length > 0 && (
+            <SignInOAuth oAuthData={window.oAuthData} />
+          )}
         </>
       )}
       {forgotPassword && (

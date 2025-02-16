@@ -114,14 +114,17 @@ def create_app(**config_vars):
             # raise error
             if app.config.get("ALLOW_ACCOUNT_CREATION"):
                 raise ValueError(
-                    "When oAuth is used for authentication, the app"
-                    "won't allow account creation"
+                    "When oAuth is used for authentication, the app "
+                    "will not allow account creation"
                 )
             # explicitly set account creation to False when oAuth is
             # used to avoid account conflicts.
             app.config["ALLOW_ACCOUNT_CREATION"] = False
         if bool(app.config.get("REMOTE_USER", False)):
             app.config["REMOTE_USER"] = RemoteUserHandler(app.config["REMOTE_USER"])
+
+        print(json.dumps(app.config.get("OAUTH").front_end_params()))
+
 
         with app.app_context():
             app.register_blueprint(auth.bp)
@@ -155,6 +158,8 @@ def create_app(**config_vars):
         oauth_params = None
         if isinstance(app.config.get("OAUTH", False), OAuthHandler):
             oauth_params = json.dumps(app.config.get("OAUTH").front_end_params())
+        else:
+            oauth_params = str(False).lower()
 
         return render_template(
             "index.html",
