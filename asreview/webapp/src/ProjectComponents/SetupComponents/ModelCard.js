@@ -6,21 +6,33 @@ import {
   FormControl,
   FormHelperText,
   InputLabel,
-  Link,
   ListSubheader,
   MenuItem,
   Select,
   Skeleton,
   Stack,
   Typography,
+  IconButton,
+  Popover,
+  Button,
+  Grid,
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import React from "react";
+import BoltIcon from "@mui/icons-material/Bolt";
+import LanguageIcon from "@mui/icons-material/Language";
+import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
+import SearchIcon from "@mui/icons-material/Search";
+import ExtractIcon from "@mui/icons-material/ContentCopy";
+import PsychologyIcon from "@mui/icons-material/Psychology";
+import BalanceIcon from "@mui/icons-material/Balance";
 
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectModes } from "globals.js";
 import { useContext } from "react";
 import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 const ModelComponentSelect = ({
   name,
@@ -75,6 +87,7 @@ const ModelComponentSelect = ({
 const ModelCard = ({ mode = null, trainNewModel = false }) => {
   const project_id = useContext(ProjectContext);
   const queryClient = useQueryClient();
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   const { mutate } = useMutation(ProjectAPI.mutateLearner, {
     onSuccess: (data) => {
@@ -108,26 +121,31 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
   const isLoading = isLoadingLearnerOptions || isLoadingModelConfig;
   const error = errorLearnerOptions || errorModelConfig;
 
+  const handlePopoverOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
-    <Card>
+    <Card sx={{ position: "relative" }}>
       <LoadingCardHeader
         isLoading={isLoading}
         title="AI"
         subheader={
-          <>
-            {projectModes.SIMULATION === mode
-              ? "Select or compose an AI to simulate the performance of your review process. "
-              : "Select or compose an AI to accelerate your review process. "}
-            <Link
-              underline="none"
-              href={`https://asreview.nl/blog/active-learning-explained/`}
-              target="_blank"
-            >
-              learn more
-            </Link>
-          </>
+          projectModes.SIMULATION === mode
+            ? "Select or compose an AI to simulate the performance of your review process."
+            : "Select or compose an AI to accelerate your review process."
         }
       />
+
+      <Box sx={{ position: "absolute", top: 16, right: 16 }}>
+        <IconButton size="small" onClick={handlePopoverOpen}>
+          <StyledLightBulb fontSize="small" />
+        </IconButton>
+      </Box>
 
       <CardContent>
         {isLoading ? (
@@ -323,6 +341,352 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
           </>
         )}
       </CardContent>
+
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handlePopoverClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            maxWidth: 480,
+          },
+        }}
+      >
+        <Box
+          sx={(theme) => ({
+            p: 3,
+            maxHeight: "80vh", // Limit height to 80% of viewport
+            overflow: "auto", // Enable scrolling
+            // Custom scrollbar styling
+            "&::-webkit-scrollbar": {
+              width: "8px",
+              background: "transparent",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: (theme) => theme.palette.grey[300],
+              borderRadius: "4px",
+              "&:hover": {
+                background: (theme) => theme.palette.grey[400],
+              },
+            },
+            "&::-webkit-scrollbar-track": {
+              background: "transparent",
+              borderRadius: "4px",
+            },
+            // Firefox scrollbar styling
+            scrollbarWidth: "thin",
+            scrollbarColor: (theme) => `${theme.palette.grey[300]} transparent`,
+          })}
+        >
+          <Stack spacing={3}>
+            <Box>
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                AI Models Explained
+              </Typography>
+              <Typography variant="body2" sx={{ textAlign: "justify" }}>
+                The AI model is the engine that powers your systematic review.
+                It learns from your decisions to identify relevant records and
+                accelerate your review process.
+              </Typography>
+            </Box>
+
+            <Divider />
+
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
+                Choose Your Model
+              </Typography>
+              <Stack spacing={2}>
+                <Box
+                  sx={(theme) => ({
+                    p: 2,
+                    border: 1,
+                    borderColor: "divider",
+                    borderRadius: 2,
+                    bgcolor:
+                      theme.palette.mode === "light"
+                        ? "background.paper"
+                        : "transparent",
+                  })}
+                >
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Box
+                      sx={{
+                        bgcolor: "background.paper",
+                        borderRadius: "50%",
+                        p: 1,
+                        display: "flex",
+                      }}
+                    >
+                      <BoltIcon sx={{ color: "text.secondary" }} />
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2">Ultra</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Fast & efficient for most reviews
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                      >
+                        Quick • Lightweight
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Box>
+
+                <Box
+                  sx={(theme) => ({
+                    p: 2,
+                    border: 1,
+                    borderColor: "divider",
+                    borderRadius: 2,
+                    bgcolor:
+                      theme.palette.mode === "light"
+                        ? "background.paper"
+                        : "transparent",
+                  })}
+                >
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Box
+                      sx={{
+                        bgcolor: "background.paper",
+                        borderRadius: "50%",
+                        p: 1,
+                        display: "flex",
+                      }}
+                    >
+                      <LanguageIcon sx={{ color: "text.secondary" }} />
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2">
+                        Language Agnostic
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Optimized for multilingual content
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                      >
+                        Multilingual • Flexible
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Box>
+
+                <Box
+                  sx={(theme) => ({
+                    p: 2,
+                    border: 1,
+                    borderColor: "divider",
+                    borderRadius: 2,
+                    bgcolor:
+                      theme.palette.mode === "light"
+                        ? "background.paper"
+                        : "transparent",
+                  })}
+                >
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Box
+                      sx={{
+                        bgcolor: "background.paper",
+                        borderRadius: "50%",
+                        p: 1,
+                        display: "flex",
+                      }}
+                    >
+                      <PrecisionManufacturingIcon
+                        sx={{ color: "text.secondary" }}
+                      />
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2">Heavy</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Advanced models for complex reviews
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                      >
+                        Powerful • Precise
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Box>
+              </Stack>
+            </Box>
+
+            <Divider />
+
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
+                Custom Model Components
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Box
+                    sx={(theme) => ({
+                      p: 2,
+                      border: 1,
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      height: "100%",
+                      bgcolor:
+                        theme.palette.mode === "light"
+                          ? "background.paper"
+                          : "transparent",
+                    })}
+                  >
+                    <Stack spacing={1}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <SearchIcon sx={{ color: "text.secondary" }} />
+                        <Typography variant="subtitle2">Querier</Typography>
+                      </Box>
+                      <Typography variant="body2" color="text.secondary">
+                        Selects which records to show you next, prioritizing
+                        potentially relevant ones
+                      </Typography>
+                    </Stack>
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box
+                    sx={(theme) => ({
+                      p: 2,
+                      border: 1,
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      height: "100%",
+                      bgcolor:
+                        theme.palette.mode === "light"
+                          ? "background.paper"
+                          : "transparent",
+                    })}
+                  >
+                    <Stack spacing={1}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <ExtractIcon sx={{ color: "text.secondary" }} />
+                        <Typography variant="subtitle2">
+                          Feature Extractor
+                        </Typography>
+                      </Box>
+                      <Typography variant="body2" color="text.secondary">
+                        Converts text into numerical features that the AI can
+                        understand
+                      </Typography>
+                    </Stack>
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box
+                    sx={(theme) => ({
+                      p: 2,
+                      border: 1,
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      height: "100%",
+                      bgcolor:
+                        theme.palette.mode === "light"
+                          ? "background.paper"
+                          : "transparent",
+                    })}
+                  >
+                    <Stack spacing={1}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <PsychologyIcon sx={{ color: "text.secondary" }} />
+                        <Typography variant="subtitle2">Classifier</Typography>
+                      </Box>
+                      <Typography variant="body2" color="text.secondary">
+                        Makes predictions about relevance based on your
+                        decisions
+                      </Typography>
+                    </Stack>
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box
+                    sx={(theme) => ({
+                      p: 2,
+                      border: 1,
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      height: "100%",
+                      bgcolor:
+                        theme.palette.mode === "light"
+                          ? "background.paper"
+                          : "transparent",
+                    })}
+                  >
+                    <Stack spacing={1}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <BalanceIcon sx={{ color: "text.secondary" }} />
+                        <Typography variant="subtitle2">Balancer</Typography>
+                      </Box>
+                      <Typography variant="body2" color="text.secondary">
+                        Handles imbalanced data to improve learning accuracy
+                      </Typography>
+                    </Stack>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+
+            <Divider />
+
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
+                Tips for Best Results
+              </Typography>
+              <Stack spacing={2}>
+                <Typography variant="body2">
+                  • Start with <strong>Ultra</strong> model for most reviews -
+                  it's fast and effective
+                </Typography>
+                <Typography variant="body2">
+                  • Use <strong>Language Agnostic</strong> for multilingual
+                  datasets
+                </Typography>
+                <Typography variant="body2">
+                  • Try <strong>Heavy</strong> models for large, complex
+                  systematic reviews
+                </Typography>
+              </Stack>
+            </Box>
+
+            <Button
+              href="https://asreview.readthedocs.io/en/latest/guides/activelearning.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="text"
+              size="small"
+              sx={{ textTransform: "none", p: 0 }}
+            >
+              Learn more →
+            </Button>
+          </Stack>
+        </Box>
+      </Popover>
     </Card>
   );
 };
