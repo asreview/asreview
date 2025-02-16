@@ -123,9 +123,6 @@ def create_app(**config_vars):
         if bool(app.config.get("REMOTE_USER", False)):
             app.config["REMOTE_USER"] = RemoteUserHandler(app.config["REMOTE_USER"])
 
-        print(json.dumps(app.config.get("OAUTH").front_end_params()))
-
-
         with app.app_context():
             app.register_blueprint(auth.bp)
             app.register_blueprint(team.bp)
