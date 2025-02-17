@@ -1,8 +1,6 @@
 // Theme for the ASReview webapp.
 // The theme is based on the Material-UI theme.
-
-import { dark } from "@mui/material/styles/createPalette";
-
+//
 // - The primary color is a greybrown color which is used
 // for the main color of buttons and other primary elements.
 // - The secondary color is a green color which is used for
