@@ -187,11 +187,11 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                   <Typography
                     variant="subtitle1"
                     fontWeight="bold"
-                    sx={{ mb: 1 }}
+                    sx={{ mb: 1, textAlign: "justify" }}
                   >
                     Wave of not relevant records
                   </Typography>
-                  <Typography variant="body2">
+                  <Typography variant="body2" sx={{ textAlign: "justify" }}>
                     This visualization shows how far apart your relevant
                     findings are from each other. The height of the "wave" shows
                     how many not relevant records you reviewed in between the
@@ -207,11 +207,11 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                       <Typography
                         variant="body2"
                         fontWeight="bold"
-                        sx={{ mb: 1 }}
+                        sx={{ mb: 1, textAlign: "justify" }}
                       >
                         Small "Waves"
                       </Typography>
-                      <Typography variant="body2">
+                      <Typography variant="body2" sx={{ textAlign: "justify" }}>
                         Finding relevant records close together suggests you're
                         in a productive area.
                       </Typography>
@@ -220,11 +220,11 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                       <Typography
                         variant="body2"
                         fontWeight="bold"
-                        sx={{ mb: 1 }}
+                        sx={{ mb: 1, textAlign: "justify" }}
                       >
                         Big "Waves"
                       </Typography>
-                      <Typography variant="body2">
+                      <Typography variant="body2" sx={{ textAlign: "justify" }}>
                         When distances between relevant findings get close to
                         your stopping threshold, you might be reaching the end
                         of your relevant records.
@@ -237,7 +237,7 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                   <Typography
                     variant="subtitle1"
                     fontWeight="bold"
-                    sx={{ mb: 1 }}
+                    sx={{ mb: 1, textAlign: "justify" }}
                   >
                     Example Visualization
                   </Typography>
