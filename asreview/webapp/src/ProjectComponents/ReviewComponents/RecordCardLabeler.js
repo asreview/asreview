@@ -184,8 +184,8 @@ const RecordCardLabeler = ({
   const [anchorEl, setAnchorEl] = React.useState(null);
   const openMenu = Boolean(anchorEl);
 
-  useHotkeys("v", () => hotkeys && !isLoading && !isSuccess && makeDecision(1));
-  useHotkeys("x", () => hotkeys && !isLoading && !isSuccess && makeDecision(0));
+  useHotkeys("r", () => hotkeys && !isLoading && !isSuccess && makeDecision(1));
+  useHotkeys("i", () => hotkeys && !isLoading && !isSuccess && makeDecision(0));
   useHotkeys(
     "n",
     () => hotkeys && !isLoading && !isSuccess && toggleShowNotesDialog(),
@@ -299,9 +299,10 @@ const RecordCardLabeler = ({
           {editState && (
             <>
               <Tooltip
-                title="Add to my collection (V)"
+                title="Add to collection of relevant (keyboard shortcut: R)"
                 enterDelay={800}
                 leaveDelay={200}
+                placement="bottom"
               >
                 <Button
                   id="relevant"
@@ -320,9 +321,10 @@ const RecordCardLabeler = ({
                 </Button>
               </Tooltip>
               <Tooltip
-                title="Mark as not relevant and don't show again (X)"
+                title="Mark as not relevant (keyboard shortcut: I)"
                 enterDelay={800}
                 leaveDelay={200}
+                placement="bottom"
               >
                 <Button
                   id="irrelevant"
@@ -343,7 +345,7 @@ const RecordCardLabeler = ({
 
           {editState && showNotes && (
             <>
-              <Tooltip title="Add note">
+              <Tooltip title="Add note (keyboard shortcut: N)">
                 <IconButton
                   onClick={toggleShowNotesDialog}
                   aria-label="add note"

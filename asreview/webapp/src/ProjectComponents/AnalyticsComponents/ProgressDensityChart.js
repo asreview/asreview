@@ -232,12 +232,7 @@ export default function ProgressDensityChart(props) {
                     direction: "row",
                     position: { vertical: "top", horizontal: "left" },
                     padding: { top: -10 },
-                    itemMarkWidth: 14,
-                    itemMarkHeight: 14,
-                    markGap: 5,
-                    itemGap: 10,
                     labelStyle: {
-                      fontSize: 12,
                       fill: theme.palette.text.secondary,
                     },
                   },

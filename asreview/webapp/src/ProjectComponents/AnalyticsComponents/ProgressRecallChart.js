@@ -242,11 +242,13 @@ export default function ProgressRecallChart(props) {
                   {
                     data: chartData.xAxis,
                     label: "Records Reviewed",
+                    tickMinStep: 1,
                   },
                 ]}
                 yAxis={[
                   {
                     label: "Relevant Records",
+                    tickMinStep: 1,
                   },
                 ]}
                 slotProps={{
@@ -254,12 +256,7 @@ export default function ProgressRecallChart(props) {
                     direction: mobileScreen ? "column" : "row",
                     position: { vertical: "top", horizontal: "left" },
                     padding: { top: -10 },
-                    itemMarkWidth: 14,
-                    itemMarkHeight: 14,
-                    markGap: 5,
-                    itemGap: 10,
                     labelStyle: {
-                      fontSize: 12,
                       fill: theme.palette.text.secondary,
                     },
                   },
@@ -345,7 +342,6 @@ export default function ProgressRecallChart(props) {
                 </Box>
               </Stack>
             </Box>
-            <Divider />
             <Button
               href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
               target="_blank"

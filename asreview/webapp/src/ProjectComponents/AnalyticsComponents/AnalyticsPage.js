@@ -29,7 +29,7 @@ import {
 } from "react-share";
 
 import {
-  LabelingFrequency,
+  DistancePatternChart,
   LabelingHistory,
   ProgressDensityChart,
   ProgressRecallChart,
@@ -322,9 +322,9 @@ const AnalyticsPage = () => {
             variant="scrollable"
           >
             <Tab label="History" />
-            <Tab label="Frequency" />
             <Tab label="Density" />
             <Tab label="Recall" />
+            <Tab label="Wave" />
           </Tabs>
           {activeHistoryTab === 0 && (
             <LabelingHistory
@@ -332,14 +332,18 @@ const AnalyticsPage = () => {
               progressQuery={progressQuery}
             />
           )}
+
           {activeHistoryTab === 1 && (
-            <LabelingFrequency project_id={project_id} />
-          )}
-          {activeHistoryTab === 2 && (
             <ProgressDensityChart genericDataQuery={genericDataQuery} />
           )}
-          {activeHistoryTab === 3 && (
+          {activeHistoryTab === 2 && (
             <ProgressRecallChart genericDataQuery={genericDataQuery} />
+          )}
+          {activeHistoryTab === 3 && (
+            <DistancePatternChart
+              project_id={project_id}
+              showLast={data?.mode !== "simulate"}
+            />
           )}
         </Box>
 
