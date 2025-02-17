@@ -114,8 +114,8 @@ def create_app(**config_vars):
             # raise error
             if app.config.get("ALLOW_ACCOUNT_CREATION"):
                 raise ValueError(
-                    "When oAuth is used for authentication, the app"
-                    "won't allow account creation"
+                    "When oAuth is used for authentication, the app "
+                    "will not allow account creation"
                 )
             # explicitly set account creation to False when oAuth is
             # used to avoid account conflicts.
@@ -152,9 +152,10 @@ def create_app(**config_vars):
     @app.route("/oauth_callback", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
     def index(**kwargs):
-        oauth_params = None
         if isinstance(app.config.get("OAUTH", False), OAuthHandler):
             oauth_params = json.dumps(app.config.get("OAUTH").front_end_params())
+        else:
+            oauth_params = str(False).lower()
 
         return render_template(
             "index.html",
