@@ -226,15 +226,7 @@ const StoppingSuggestion = ({ project_id }) => {
               flexDirection="column"
               alignItems="center"
               justifyContent="center"
-              sx={{ textAlign: "center" }}
             >
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                Choose the number of{" "}
-                <strong>
-                  consecutive not relevant records you want to label
-                </strong>{" "}
-                before considering to stop screening.
-              </Typography>
               <Button
                 variant="contained"
                 size="small"
@@ -386,13 +378,25 @@ const StoppingSuggestion = ({ project_id }) => {
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Stopping Suggestion
               </Typography>
-              <Typography variant="body2" sx={{ textAlign: "justify" }}>
+              <Typography variant="body2" sx={{ textAlign: "justify", mb: 2 }}>
                 This visualization shows how far you are from the end. It allows
                 you to set a stopping threshold, which is the number of
-                consecutive not relevant records you label before deciding to
-                stop screening. The more not relevant records you label without
-                finding relevant ones, the higher the chance that remaining
-                records are also not relevant.
+                consecutive not relevant records you need to label before
+                stopping.
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  p: 1.5,
+                  bgcolor: "action.hover",
+                  borderRadius: 1,
+                  borderLeft: (theme) =>
+                    `4px solid ${theme.palette.primary.main}`,
+                }}
+              >
+                The circle resets when you find a relevant record. The more not
+                relevant records you label without finding relevant ones, the
+                higher the chance that remaining records are also not relevant.
               </Typography>
             </Box>
             <Divider />

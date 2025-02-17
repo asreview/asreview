@@ -144,13 +144,14 @@ const AnalyticsPage = () => {
         <Box
           sx={{
             display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 3,
-            pt: { xs: 4, sm: 0 },
-            pb: { xs: 0, sm: 6 },
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "center", sm: "center" },
+            justifyContent: { xs: "center", sm: "space-between" },
+            pt: { xs: 4, sm: 2 },
+            pb: { xs: 2, sm: 4 },
             width: "100%",
-            textAlign: "center",
+            textAlign: { xs: "center", sm: "left" },
+            gap: { xs: 2, sm: 0 },
           }}
         >
           <Typography
@@ -158,7 +159,6 @@ const AnalyticsPage = () => {
             sx={{
               fontFamily: "Roboto Serif",
               color: "text.secondary",
-              textAlign: "center",
             }}
           >
             {data?.name}
@@ -166,16 +166,21 @@ const AnalyticsPage = () => {
 
           <Stack
             direction="row"
-            spacing={2}
+            spacing={3}
             alignItems="center"
-            justifyContent="center"
             sx={{
               color: "text.secondary",
               typography: "body1",
+              whiteSpace: "nowrap",
             }}
           >
-            <Typography sx={{ fontSize: "0.875rem" }}>
-              {progressQuery?.data?.n_records} records
+            <Typography
+              sx={{
+                fontSize: "0.875rem",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {progressQuery?.data?.n_records?.toLocaleString()} records
             </Typography>
             <Chip
               label={
@@ -303,7 +308,7 @@ const AnalyticsPage = () => {
         <Typography
           variant="h6"
           color="text.secondary"
-          sx={{ fontFamily: "Roboto Serif", mb: 2, pt: 6 }}
+          sx={{ fontFamily: "Roboto Serif", mb: 2, pt: 4 }}
         >
           Analytics
         </Typography>
