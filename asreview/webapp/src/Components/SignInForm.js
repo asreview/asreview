@@ -74,83 +74,88 @@ const SignInForm = () => {
         <>
           <CardHeader title="Sign in" />
 
-          <CardContent>
-            <Stack spacing={3}>
-              <TextField
-                id="email"
-                label="Email"
-                name="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                variant="outlined"
-                fullWidth
-                autoFocus
-                autoComplete="email"
-              />
-              <FormControl sx={{ m: 1 }} variant="outlined">
-                <InputLabel htmlFor="password">Password</InputLabel>
-                <OutlinedInput
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label={
-                          showPassword
-                            ? "hide the password"
-                            : "display the password"
-                        }
-                        onClick={toggleShowPassword}
-                        onMouseDown={(event) => {
-                          event.preventDefault();
-                        }}
-                        onMouseUp={(event) => {
-                          event.preventDefault();
-                        }}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                  label="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </FormControl>
-            </Stack>
-            {isError && <InlineErrorHandler message={error.message} />}
-          </CardContent>
-          <CardActions sx={{ p: 2 }}>
-            <Button
-              id="sign-in"
-              disabled={isLoading}
-              variant="contained"
-              color="primary"
-              onClick={handleSubmit}
-            >
-              Sign in
-            </Button>
-            {window.allowAccountCreation && (
-              <Button
-                id="create-profile"
-                onClick={() => navigate("/signup")}
-                sx={{ textTransform: "none" }}
-              >
-                Create profile
-              </Button>
-            )}
-            {window.emailVerification && (
-              <Button
-                id="forgot-password"
-                onClick={() => navigate("/forgot_password")}
-                sx={{ textTransform: "none" }}
-              >
-                Forgot password
-              </Button>
-            )}
-          </CardActions>
+          {!window.oAuthData && (
+            <>
+              <CardContent>
+                <Stack spacing={3}>
+                  <TextField
+                    id="email"
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    variant="outlined"
+                    fullWidth
+                    autoFocus
+                    autoComplete="email"
+                  />
+                  <FormControl sx={{ m: 1 }} variant="outlined">
+                    <InputLabel htmlFor="password">Password</InputLabel>
+                    <OutlinedInput
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label={
+                              showPassword
+                                ? "hide the password"
+                                : "display the password"
+                            }
+                            onClick={toggleShowPassword}
+                            onMouseDown={(event) => {
+                              event.preventDefault();
+                            }}
+                            onMouseUp={(event) => {
+                              event.preventDefault();
+                            }}
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      }
+                      label="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </FormControl>
+                </Stack>
+                {isError && <InlineErrorHandler message={error.message} />}
+              </CardContent>
+
+              <CardActions sx={{ p: 2 }}>
+                <Button
+                  id="sign-in"
+                  disabled={isLoading}
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSubmit}
+                >
+                  Sign in
+                </Button>
+                {window.allowAccountCreation && (
+                  <Button
+                    id="create-profile"
+                    onClick={() => navigate("/signup")}
+                    sx={{ textTransform: "none" }}
+                  >
+                    Create profile
+                  </Button>
+                )}
+                {window.emailVerification && (
+                  <Button
+                    id="forgot-password"
+                    onClick={() => navigate("/forgot_password")}
+                    sx={{ textTransform: "none" }}
+                  >
+                    Forgot password
+                  </Button>
+                )}
+              </CardActions>
+            </>
+          )}
 
           {window.oAuthData && Object.keys(window.oAuthData).length > 0 && (
             <SignInOAuth oAuthData={window.oAuthData} />

@@ -71,7 +71,6 @@ const SignInOAuth = ({ oAuthData }) => {
   return (
     <>
       <Stack direction="row">
-        <Typography variant="body1">Or sign in with:</Typography>
         {Object.keys(oAuthData).map((provider) => {
           let config = oAuthData[provider];
           return (
