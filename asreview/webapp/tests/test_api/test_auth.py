@@ -72,7 +72,7 @@ def test_successful_signup_no_confirmation(client_auth):
 
 
 # test basic signing up with email verification
-def test_successful_signup_no_confirmation(client_auth_verified):
+def test_successful_signup_with_confirmation(client_auth_verified):
     # get user data
     user = get_user(1)
     # post form data
