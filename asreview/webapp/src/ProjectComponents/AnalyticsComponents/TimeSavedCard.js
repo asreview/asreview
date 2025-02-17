@@ -9,7 +9,7 @@ import {
   IconButton,
   Popover,
   Button,
-  Grid,
+  Grid2 as Grid,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useQuery } from "react-query";
@@ -202,7 +202,7 @@ const TimeSavedCard = ({ project_id }) => {
         </Box>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} md={5}>
+          <Grid item size={{ xs: 12, md: 5 }}>
             <Stack
               spacing={1}
               alignItems="center"
@@ -257,7 +257,7 @@ const TimeSavedCard = ({ project_id }) => {
             sx={{ display: { xs: "none", md: "block" } }}
           />
 
-          <Grid item xs={12} md={6}>
+          <Grid item size={{ xs: 12, md: 5 }}>
             <Stack spacing={1}>
               <Typography
                 variant="subtitle1"
