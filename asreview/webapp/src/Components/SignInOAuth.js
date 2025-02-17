@@ -2,7 +2,7 @@
 // following URL: https://tasoskakour.com/blog/react-use-oauth2
 
 import { GitHub, Google } from "@mui/icons-material";
-import { IconButton, Stack, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import AuthAPI from "api/AuthAPI";
 import { Orcid } from "icons";
 import * as React from "react";
@@ -68,9 +68,22 @@ const SignInOAuth = ({ oAuthData }) => {
     }
   };
 
+  const getProviderName = (provider) => {
+    if (provider === "orcid") {
+      return "ORCID";
+    }
+    if (provider === "github") {
+      return "GitHub";
+    }
+    return provider.charAt(0).toUpperCase() + provider.slice(1);
+  };
+
   return (
     <>
-      <Stack direction="row">
+      <Stack
+        spacing={2}
+        sx={{ width: "100%", p: 2, pb: 5, alignItems: "center" }}
+      >
         {Object.keys(oAuthData).map((provider) => {
           let config = oAuthData[provider];
           return (
@@ -82,12 +95,39 @@ const SignInOAuth = ({ oAuthData }) => {
               width={POPUP_WIDTH}
               height={POPUP_HEIGHT}
             >
-              <IconButton
-                onClick={() => "true"} //handleOauthSignIn(provider)}
+              <Button
                 key={provider}
+                onClick={() => {
+                  "true";
+                }} // handleOAuthSignIn(provider)}
+                variant="contained"
+                startIcon={getIcon(provider)}
+                sx={{
+                  textTransform: "none",
+                  width: "280px",
+                  backgroundColor:
+                    provider === "google"
+                      ? "#fff"
+                      : provider === "github"
+                        ? "#24292e"
+                        : provider === "orcid"
+                          ? "#A6CE39"
+                          : "primary",
+                  color: provider === "google" ? "#757575" : "#fff",
+                  "&:hover": {
+                    backgroundColor:
+                      provider === "google"
+                        ? "#f5f5f5"
+                        : provider === "github"
+                          ? "#2f363d"
+                          : provider === "orcid"
+                            ? "#93b934"
+                            : "primary",
+                  },
+                }}
               >
-                {getIcon(provider)}
-              </IconButton>
+                Sign in with {getProviderName(provider)}
+              </Button>
             </OauthPopup>
           );
         })}
