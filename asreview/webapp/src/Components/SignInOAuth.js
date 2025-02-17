@@ -2,7 +2,7 @@
 // following URL: https://tasoskakour.com/blog/react-use-oauth2
 
 import { GitHub, Google } from "@mui/icons-material";
-import { Button, Stack, Typography } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import AuthAPI from "api/AuthAPI";
 import { Orcid } from "icons";
 import * as React from "react";
