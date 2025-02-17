@@ -62,6 +62,7 @@ export const theme = {
         },
         tertiary: {
           main: "#e3c46d",
+          dark: "#e3c46d",
         },
         background: {
           default: "#16130b",
@@ -78,6 +79,7 @@ export const theme = {
 
         grey: {
           400: "#4d4d4d",
+          600: "#333333",
         },
       },
     },
