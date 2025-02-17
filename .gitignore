@@ -74,5 +74,3 @@ asreview/_version.py
 
 ### ASReview config ###
 .asreview-config/
-
-.vscode/tasks.json
