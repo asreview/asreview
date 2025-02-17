@@ -227,14 +227,6 @@ def api_create_project():  # noqa: F401
         project_name=request.form["mode"] + "_" + time.strftime("%Y%m%d-%H%M%S"),
     )
 
-    # get the project config to modify behavior of dataset
-    project_config = project.config
-
-    # remove old dataset if present
-    if "dataset_path" in project_config and project_config["dataset_path"] is not None:
-        logging.warning("Removing old dataset and adding new dataset.")
-        project.remove_dataset()
-
     # create dataset folder if not present
     project.data_dir.mkdir(exist_ok=True)
 
@@ -428,7 +420,7 @@ def api_get_project_data(project):  # noqa: F401
             "n_missing_abstract": int(data.abstract.isnull().sum()),
             "n_missing_urn": int(data.url.isnull().sum()),
             "n_english": None,
-            "filename": Path(project.config["dataset_path"]).stem,
+            "filename": Path(project.config["datasets"][0]["name"]).stem,
         }
     )
 
@@ -439,7 +431,7 @@ def api_get_project_data(project):  # noqa: F401
 def api_list_dataset_writers(project):
     """List the name and label of available dataset writer"""
 
-    fp_data = Path(project.config["dataset_path"])
+    fp_data = Path(project.config["datasets"][0]["name"])
 
     readers = extensions("readers")
     writers = extensions("writers")

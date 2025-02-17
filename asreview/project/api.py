@@ -250,15 +250,13 @@ class Project:
 
         # This config update assumes that the project only has one dataset.
         self.update_config(
-            dataset_path=file_name,
             name=file_name.rsplit(".", 1)[0],
             datasets=[{"id": dataset_id, "name": file_name}],
         )
 
     def remove_dataset(self):
         """Remove dataset from project."""
-        # reset dataset_path
-        self.update_config(dataset_path=None)
+        self.update_config(datasets=None)
 
         # remove datasets from project
         shutil.rmtree(self.data_dir)
