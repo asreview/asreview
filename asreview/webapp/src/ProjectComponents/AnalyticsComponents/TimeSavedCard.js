@@ -210,9 +210,7 @@ const TimeSavedCard = ({ project_id }) => {
               sx={{ height: "100%" }}
             >
               <Stack direction="row" spacing={1} alignItems="center">
-                <AccessTimeIcon
-                  sx={{ fontSize: 20, color: theme.palette.primary.main }}
-                />
+                <AccessTimeIcon sx={{ fontSize: 20, color: "text.primary" }} />
                 <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
                   Time Saved
                 </Typography>
@@ -222,7 +220,7 @@ const TimeSavedCard = ({ project_id }) => {
                 variant="h3"
                 sx={{
                   fontWeight: "bold",
-                  color: theme.palette.primary.main,
+                  color: "text.primary",
                   fontFamily: "Roboto Serif",
                 }}
               >
@@ -303,7 +301,6 @@ const TimeSavedCard = ({ project_id }) => {
                       variant="h6"
                       sx={{
                         fontFamily: "Roboto Serif",
-                        color: theme.palette.grey[800],
                         lineHeight: 1.2,
                       }}
                     >

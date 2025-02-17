@@ -50,7 +50,7 @@ const WordExample = () => {
         </Typography>
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
           {words.relevant.map((word) => (
-            <WordTag key={word} word={word} color="tertiary.dark" />
+            <WordTag key={word} word={word} color="tertiary.main" />
           ))}
         </Stack>
       </Box>

@@ -20,6 +20,8 @@
 // - The background color is a light beige color which is used
 // for the background of the app.
 
+import { alpha, getContrastRatio } from "@mui/material/styles";
+
 export const theme = {
   colorSchemes: {
     light: {
@@ -30,9 +32,13 @@ export const theme = {
         secondary: {
           main: "#6E9B73", // green
         },
+        // custom color for relevant elements
         tertiary: {
           main: "#ffe08b", // yellow, alternative: e3c46d
-          dark: "#e3c46d", // yellow, alternative: ffe08b
+          light: alpha("#ffe08b", 0.5),
+          dark: "#e3c46d",
+          contrastText:
+            getContrastRatio("#ffe08b", "#000") >= 3 ? "#000" : "#fff",
         },
         background: {
           default: "#fffdfa",
@@ -40,7 +46,7 @@ export const theme = {
           record: "#ffffff",
         },
         text: {
-          primary: "#3E2723",
+          primary: "#2b1d1a",
           secondary: "#6D4C41",
         },
         error: { main: "#ba1a1a" },
@@ -58,9 +64,13 @@ export const theme = {
         secondary: {
           main: "#adcfae",
         },
+        // custom color for relevant elements
         tertiary: {
           main: "#e3c46d",
-          dark: "#e3c46d",
+          light: alpha("#ffe08b", 0.5),
+          dark: "#FFCC00",
+          contrastText:
+            getContrastRatio("#e3c46d", "#000") >= 3 ? "#000" : "#fff",
         },
         background: {
           default: "#16130b",
