@@ -83,7 +83,7 @@ def test_successful_signup_no_confirmation(client_auth_verified):
     assert "An email has been sent" in payload["message"]
     user = crud.get_user_by_identifier(user.identifier)
     assert not user.confirmed
-    assert bool(re.fullmatch(r'^\d+$', user.token))
+    assert bool(re.fullmatch(r"^\d+$", user.token))
 
 
 # Test user data if we request is
