@@ -188,6 +188,9 @@ def api_get_projects(projects):  # noqa: F401
         try:
             project_config = project.config
 
+            if not project_config["version"].startswith("2."):
+                continue
+
             if mode is not None and project_config["mode"] != mode:
                 continue
 
