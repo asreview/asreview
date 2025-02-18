@@ -112,7 +112,7 @@ const StoppingSuggestion = ({ project_id }) => {
     {
       label: "Current",
       value: data?.value || 0,
-      color: theme.palette.primary.main,
+      color: theme.palette.grey[600],
     },
   ];
 
@@ -138,7 +138,7 @@ const StoppingSuggestion = ({ project_id }) => {
             borderRadius: 50,
             backgroundColor: theme.palette.grey[400],
             "& .MuiLinearProgress-bar": {
-              backgroundColor: theme.palette.primary.main,
+              backgroundColor: theme.palette.grey[600],
               borderRadius: 50,
             },
           }}
@@ -342,7 +342,7 @@ const StoppingSuggestion = ({ project_id }) => {
                     backgroundColor: theme.palette.grey[400],
                     transition: "value 1s linear",
                     "& .MuiLinearProgress-bar": {
-                      backgroundColor: theme.palette.primary.main,
+                      backgroundColor: theme.palette.grey[600],
                       borderRadius: 50,
                     },
                   }}

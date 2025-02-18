@@ -14,9 +14,10 @@
 // Dashboard.
 // - grey.400 is a light grey color which is used for
 // elements that indicate unlabeled records or information.
-// - The primary color is also used for elements that below to
+// - grey.600 is used for elements that belong to
 // not relevant records, like the color of the not relevant
-// label in the RecordCard.
+// label in the RecordCard and not relevant records on the
+// Dashboard.
 // - The background color is a light beige color which is used
 // for the background of the app.
 
@@ -27,7 +28,7 @@ export const theme = {
     light: {
       palette: {
         primary: {
-          main: "#7e7667", // greybrown
+          main: "#7a6958", // greybrown
         },
         secondary: {
           main: "#6E9B73", // green
@@ -53,7 +54,7 @@ export const theme = {
 
         grey: {
           400: "#DEDBD2",
-          600: "#7e7667",
+          600: "#7d766a",
         },
       },
     },

@@ -60,7 +60,7 @@ const WordExample = () => {
         </Typography>
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
           {words.irrelevant.map((word) => (
-            <WordTag key={word} word={word} color="primary.main" />
+            <WordTag key={word} word={word} color="grey.600" />
           ))}
         </Stack>
       </Box>
@@ -148,7 +148,7 @@ const WordCounts = () => {
                   data?.irrelevant
                     .slice(0, 8)
                     .map((word) => (
-                      <WordTag key={word} word={word} color="primary.main" />
+                      <WordTag key={word} word={word} color="grey.600" />
                     ))
                 ) : (
                   <Typography variant="body2" color="text.secondary">
