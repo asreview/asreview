@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 from inspect import getfullargspec
+import re
 
 import pytest
 
@@ -50,22 +51,39 @@ def test_successful_signup_confirmed(client_auth_verified):
     r = au.signup_user(client_auth_verified, user)
     # check if we get a 200 status
     assert r.status_code == 201
-    assert (
-        r.json["message"]
-        == f"An email has been sent to {user.email} "
-        + "to verify your account. Please follow instructions."
-    )
+    assert f"An email has been sent to {user.email}" in r.json["message"]
 
 
-# test basic signing up
+# test basic signing up, no email verification, user is
+# logged in after signup
 def test_successful_signup_no_confirmation(client_auth):
     # get user data
     user = get_user(1)
     # post form data
-    r = au.signup_user(client_auth, user)
+    response = au.signup_user(client_auth, user)
+    # check if user is confirmed
+    user = crud.get_user_by_identifier(user.identifier)
+    assert user.confirmed
     # check if we get a 201 status
-    assert r.status_code == 201
-    assert r.json["message"] == f'User "{user.email}" created.'
+    payload = json.loads(response.text)
+    assert response.status_code == 201
+    assert isinstance(payload, dict)
+    assert payload["logged_in"]
+
+
+# test basic signing up with email verification
+def test_successful_signup_with_confirmation(client_auth_verified):
+    # get user data
+    user = get_user(1)
+    # post form data
+    response = au.signup_user(client_auth_verified, user)
+    # check if we get a 201 status
+    payload = json.loads(response.text)
+    assert response.status_code == 201
+    assert "An email has been sent" in payload["message"]
+    user = crud.get_user_by_identifier(user.identifier)
+    assert not user.confirmed
+    assert bool(re.fullmatch(r"^\d+$", user.token))
 
 
 # Test user data if we request is
