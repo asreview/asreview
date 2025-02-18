@@ -16,8 +16,33 @@ from asreview.learner import ActiveLearningCycleData
 
 AI_MODEL_CONFIGURATIONS = [
     {
+        # ELAS u4 is the default model for this version ASReview LAB. The model
+        # parameters have been optimized on the SYNERGY dataset. After expert
+        # elicitation, the model and parameters have been chosen.
         "name": "elas_u4",
         "label": "ELAS u4",
+        "type": "ultra",
+        "value": ActiveLearningCycleData(
+            querier="max",
+            classifier="svm",
+            classifier_param={"loss": "squared_hinge", "C": 0.15},
+            balancer="balanced",
+            balancer_param={"ratio": 5},
+            feature_extractor="tfidf",
+            feature_extractor_param={
+                "ngram_range": (1, 2),
+                "sublinear_tf": True,
+                "min_df": 1,
+                "max_df": 0.9,
+            },
+        ),
+    },
+    {
+        # ELAS u3 mimics the performance of ASReview LAB version 1. The model
+        # has an updated and optimized balancer, as "double" balance has been
+        # deprecated in this version of ASReview LAB.
+        "name": "elas_u3",
+        "label": "ELAS u3",
         "type": "ultra",
         "value": ActiveLearningCycleData(
             querier="max",
@@ -29,17 +54,10 @@ AI_MODEL_CONFIGURATIONS = [
             feature_extractor_param={"stop_words": "english"},
         ),
     },
-    {
-        "name": "elas_u3",
-        "label": "ELAS u3",
-        "type": "ultra",
-        "value": ActiveLearningCycleData(
-            querier="max",
-            classifier="nb",
-            balancer="balanced",
-            feature_extractor="tfidf",
-        ),
-    },
+    # ELAS u2 refers to the model that was used in the ASReview LAB version 1. The
+    # model is not available in the current version of ASReview LAB.
+    # ELAS u1 refers to the model that was used in the ASReview LAB version 0. The
+    # model is not available in the current version of ASReview LAB.
     {
         "name": "elas_l2",
         "label": "ELAS l2",
@@ -47,9 +65,11 @@ AI_MODEL_CONFIGURATIONS = [
         "extensions": ["asreview-nemo"],
         "value": ActiveLearningCycleData(
             querier="max",
-            classifier="nb",
+            classifier="svm",
+            classifier_param={"loss": "squared_hinge", "C": 0.4},
             balancer="balanced",
-            feature_extractor="tfidf",
+            balancer_param={"ratio": 5},
+            feature_extractor="multilingual-e5-large",
         ),
     },
     {
@@ -59,21 +79,11 @@ AI_MODEL_CONFIGURATIONS = [
         "extensions": ["asreview-nemo"],
         "value": ActiveLearningCycleData(
             querier="max",
-            classifier="nb",
+            classifier="svm",
+            classifier_param={"loss": "squared_hinge", "C": 0.16},
             balancer="balanced",
-            feature_extractor="tfidf",
-        ),
-    },
-    {
-        "name": "elas_h2",
-        "label": "ELAS h2",
-        "type": "heavy",
-        "extensions": ["asreview-nemo"],
-        "value": ActiveLearningCycleData(
-            querier="max",
-            classifier="nb",
-            balancer="balanced",
-            feature_extractor="tfidf",
+            balancer_param={"ratio": 5},
+            feature_extractor="xlm-roberta",
         ),
     },
 ]
