@@ -10,14 +10,12 @@ from asreview.project.schema import SCHEMA
 
 def test_project_migration_1_to_2(tmpdir):
     asreview_v1_file = Path(
-        # "asreview",
-        # "webapp",
+        "asreview",
+        "webapp",
         "tests",
-        # "asreview-project-file-archive",
-        # "v1.5",
-        # "asreview-project-v1-5-startreview.asreview",
-        "asreview_files",
-        "a_Dinosaurs_v1_project.asreview",
+        "asreview-project-file-archive",
+        "v1.5",
+        "asreview-project-v1-5-startreview.asreview",
     )
 
     assert asreview_v1_file.exists()
