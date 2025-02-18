@@ -31,7 +31,7 @@ export const theme = {
           main: "#7a6958", // greybrown
         },
         secondary: {
-          main: "#6E9B73", // green
+          main: "#719166", // green
         },
         // custom color for relevant elements
         tertiary: {
@@ -61,10 +61,10 @@ export const theme = {
     dark: {
       palette: {
         primary: {
-          main: "#8d8f8d",
+          main: "#a69c8b",
         },
         secondary: {
-          main: "#adcfae",
+          main: "#5d7d59",
         },
         // custom color for relevant elements
         tertiary: {
