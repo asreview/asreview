@@ -41,8 +41,8 @@ export const theme = {
             getContrastRatio("#ffe08b", "#000") >= 3 ? "#000" : "#fff",
         },
         background: {
-          default: "#fffdfa",
-          paper: "#f2ece4",
+          default: "#fffcf7", // #fffdfa
+          paper: "#f7f2e6", // #f5f0e6
           record: "#ffffff",
         },
         text: {
@@ -53,6 +53,7 @@ export const theme = {
 
         grey: {
           400: "#DEDBD2",
+          600: "#7e7667",
         },
       },
     },
