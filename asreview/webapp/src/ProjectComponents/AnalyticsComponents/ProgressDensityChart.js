@@ -122,8 +122,8 @@ export default function ProgressDensityChart(props) {
           label: "Relevant records",
           color:
             theme.palette.mode === "light"
-              ? theme.palette.grey[600]
-              : theme.palette.grey[600],
+              ? theme.palette.tertiary.dark
+              : theme.palette.tertiary.dark,
           area: true,
           showMark: false,
           curve: "linear",
@@ -143,7 +143,7 @@ export default function ProgressDensityChart(props) {
            Q55,20 65,30
            Q75,50 85,50
            L95,50"
-        stroke={theme.palette.grey[600]}
+        stroke={theme.palette.tertiary.dark}
         strokeWidth="2"
         fill="none"
       />
@@ -154,7 +154,7 @@ export default function ProgressDensityChart(props) {
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
       <path
         d="M5,50 C20,45 40,40 60,42 80,43 90,45 95,50"
-        stroke={theme.palette.grey[600]}
+        stroke={theme.palette.tertiary.dark}
         strokeWidth="2"
         fill="none"
       />

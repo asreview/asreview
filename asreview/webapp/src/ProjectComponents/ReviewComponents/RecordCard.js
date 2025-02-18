@@ -87,7 +87,7 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
           <Typography
             className={"fontSize" + fontSize}
             variant="body2"
-            sx={{ color: "text.secondary", whiteSpace: "pre-line" }}
+            sx={{ whiteSpace: "pre-line" }}
             fontStyle={"italic"}
           >
             No abstract available
@@ -97,7 +97,7 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
         <Typography
           className={"fontSize" + fontSizeOptions[fontSize]}
           variant="body2"
-          sx={{ color: "text.secondary", whiteSpace: "pre-line" }}
+          sx={{ whiteSpace: "pre-line" }}
         >
           {!(record.abstract === "" || record.abstract === null) &&
           collapseAbstract &&
@@ -119,7 +119,7 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
         </Typography>
 
         {record.keywords && (
-          <Typography sx={{ color: "text.secondary", fontWeight: "bold" }}>
+          <Typography sx={{ fontWeight: "bold" }}>
             {record.keywords.map((keyword, index) => (
               <span key={index}>
                 {index > 0 && " • "}

@@ -9,7 +9,7 @@ import {
   IconButton,
   Popover,
   Button,
-  Grid,
+  Grid2 as Grid,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useQuery } from "react-query";
@@ -202,7 +202,7 @@ const TimeSavedCard = ({ project_id }) => {
         </Box>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} md={5}>
+          <Grid item size={{ xs: 12, md: 5 }}>
             <Stack
               spacing={1}
               alignItems="center"
@@ -210,9 +210,7 @@ const TimeSavedCard = ({ project_id }) => {
               sx={{ height: "100%" }}
             >
               <Stack direction="row" spacing={1} alignItems="center">
-                <AccessTimeIcon
-                  sx={{ fontSize: 20, color: theme.palette.primary.main }}
-                />
+                <AccessTimeIcon sx={{ fontSize: 20, color: "text.primary" }} />
                 <Typography variant="h6" sx={{ fontFamily: "Roboto Serif" }}>
                   Time Saved
                 </Typography>
@@ -222,7 +220,7 @@ const TimeSavedCard = ({ project_id }) => {
                 variant="h3"
                 sx={{
                   fontWeight: "bold",
-                  color: theme.palette.primary.main,
+                  color: "text.primary",
                   fontFamily: "Roboto Serif",
                 }}
               >
@@ -233,7 +231,7 @@ const TimeSavedCard = ({ project_id }) => {
                   sx={{
                     ml: 1,
                     fontWeight: "normal",
-                    color: theme.palette.text.secondary,
+                    color: "text.secondary",
                     fontFamily: "Roboto Serif",
                   }}
                 >
@@ -257,13 +255,13 @@ const TimeSavedCard = ({ project_id }) => {
             sx={{ display: { xs: "none", md: "block" } }}
           />
 
-          <Grid item xs={12} md={6}>
+          <Grid item size={{ xs: 12, md: 5 }}>
             <Stack spacing={1}>
               <Typography
                 variant="subtitle1"
                 sx={{
                   fontFamily: "Roboto Serif",
-                  color: theme.palette.text.secondary,
+                  color: "text.secondary",
                   textAlign: "center",
                 }}
               >
@@ -303,7 +301,6 @@ const TimeSavedCard = ({ project_id }) => {
                       variant="h6"
                       sx={{
                         fontFamily: "Roboto Serif",
-                        color: theme.palette.grey[800],
                         lineHeight: 1.2,
                       }}
                     >
