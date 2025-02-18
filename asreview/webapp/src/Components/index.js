@@ -17,6 +17,7 @@ export { default as ProjectDrawerItems } from "./ProjectDrawerItems";
 export { default as ResetPassword } from "./ResetPassword";
 export { default as SettingsDialog } from "./SettingsDialog";
 export { default as SignInForm } from "./SignInForm";
+export { default as SignInOAuth } from "./SignInOAuth";
 export { default as SignInOAuthCallback } from "./SignInOAuthCallback";
 export { default as SignUpForm } from "./SignUpForm";
 export { default as ScrollToTop } from "./ScrollToTop";

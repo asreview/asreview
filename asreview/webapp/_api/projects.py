@@ -19,6 +19,7 @@ import shutil
 import socket
 import tempfile
 import time
+import zipfile
 from dataclasses import asdict
 from pathlib import Path
 from uuid import uuid4
@@ -187,6 +188,9 @@ def api_get_projects(projects):  # noqa: F401
         try:
             project_config = project.config
 
+            if not project_config["version"].startswith("2."):
+                continue
+
             if mode is not None and project_config["mode"] != mode:
                 continue
 
@@ -226,14 +230,6 @@ def api_create_project():  # noqa: F401
         project_mode=request.form["mode"],
         project_name=request.form["mode"] + "_" + time.strftime("%Y%m%d-%H%M%S"),
     )
-
-    # get the project config to modify behavior of dataset
-    project_config = project.config
-
-    # remove old dataset if present
-    if "dataset_path" in project_config and project_config["dataset_path"] is not None:
-        logging.warning("Removing old dataset and adding new dataset.")
-        project.remove_dataset()
 
     # create dataset folder if not present
     project.data_dir.mkdir(exist_ok=True)
@@ -428,7 +424,7 @@ def api_get_project_data(project):  # noqa: F401
             "n_missing_abstract": int(data.abstract.isnull().sum()),
             "n_missing_urn": int(data.url.isnull().sum()),
             "n_english": None,
-            "filename": Path(project.config["dataset_path"]).stem,
+            "filename": Path(project.config["datasets"][0]["name"]).stem,
         }
     )
 
@@ -439,7 +435,7 @@ def api_get_project_data(project):  # noqa: F401
 def api_list_dataset_writers(project):
     """List the name and label of available dataset writer"""
 
-    fp_data = Path(project.config["dataset_path"])
+    fp_data = Path(project.config["datasets"][0]["name"])
 
     readers = extensions("readers")
     writers = extensions("writers")
@@ -895,9 +891,25 @@ def api_update_review_status(project, review_id):
 def api_import_project():
     """Import project"""
 
+    warnings = []
+
     # raise error if file not given
     if "file" not in request.files:
         return jsonify(message="No ASReview file found to import."), 400
+
+    with zipfile.ZipFile(request.files["file"], "r") as zip_obj:
+        try:
+            with zip_obj.open("project.json") as f:
+                project_config = json.load(f)
+        except KeyError as err:
+            raise ValueError("Invalid ASReview project file.") from err
+
+    if project_config["version"].startswith("1."):
+        warnings.append(
+            "This project was created in an older version of ASReview LAB (version 1)."
+            " The active learning model has been reset to the default model and"
+            " can be changed in the project settings."
+        )
 
     try:
         project = asr.Project.load(
@@ -916,7 +928,6 @@ def api_import_project():
     with open(fp_al_cycle, "r") as f:
         current_cycle = json.load(f)["current_value"]
 
-    warnings = []
     try:
         ActiveLearningCycle.from_meta(ActiveLearningCycleData(**current_cycle))
     except ValueError as err:
@@ -931,7 +942,7 @@ def api_import_project():
             "need to install an extension to use this model component."
         )
         warnings.append(
-            " The active learning model has been reset to the default model and"
+            "The active learning model has been reset to the default model and"
             " can be changed in the project settings."
         )
 

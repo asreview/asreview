@@ -33,9 +33,7 @@ SCHEMA = {
             "reviews": [
                 {
                     "id": "4793de70a8d44eb4baa68bac2853c91a",
-                    "start_time": 1648205610,
                     "status": "review",
-                    "end_time": 1648405610,
                 }
             ],
             "feature_matrices": [
@@ -113,7 +111,6 @@ SCHEMA = {
                 [
                     {
                         "id": "4793de70a8d44eb4baa68bac2853c91a",
-                        "start_time": 1648205610,
                         "status": "review",
                     }
                 ]
@@ -131,11 +128,10 @@ SCHEMA = {
                         "examples": [
                             {
                                 "id": "4793de70a8d44eb4baa68bac2853c91a",
-                                "start_time": 1648205610,
                                 "status": "review",
                             }
                         ],
-                        "required": ["id", "start_time", "status"],
+                        "required": ["id", "status"],
                         "properties": {
                             "id": {
                                 "$id": "#/properties/reviews/items/anyOf/0/properties/id",
@@ -144,22 +140,6 @@ SCHEMA = {
                                 "description": "A unique UUID4 identifier of the review.",
                                 "default": "",
                                 "examples": ["4793de70a8d44eb4baa68bac2853c91a"],
-                            },
-                            "start_time": {
-                                "$id": "#/properties/reviews/items/anyOf/0/properties/start_time",
-                                "type": ["integer", "null"],
-                                "title": "The unix start_time of the review.",
-                                "description": "The unix start date and time of the review.",
-                                "default": "",
-                                "examples": [1648205610],
-                            },
-                            "end_time": {
-                                "$id": "#/properties/reviews/items/anyOf/0/properties/start_time",
-                                "type": ["integer", "null"],
-                                "title": "The unix end_time of the review.",
-                                "description": "The unix end date and time of the review.",
-                                "default": "",
-                                "examples": [1648405610],
                             },
                             "status": {
                                 "$id": "#/properties/reviews/items/anyOf/0/properties/status",
@@ -171,7 +151,7 @@ SCHEMA = {
                                 "examples": ["review"],
                             },
                         },
-                        "additionalProperties": True,
+                        "additionalProperties": False,
                     }
                 ],
             },
@@ -347,13 +327,58 @@ SCHEMA = {
                 ]
             ],
         },
-        "dataset_path": {
-            "$id": "#/properties/dataset_path",
-            "type": ["string", "null"],
-            "title": "The dataset_path schema",
-            "description": "Name of the dataset file.",
-            "default": "",
-            "examples": ["example.ris"],
+        "datasets": {
+            "$id": "#/properties/datasets",
+            "type": "array",
+            "title": "The datasets schema",
+            "description": "The list of datasets in the project.",
+            "default": [],
+            "additionalItems": False,
+            "items": {
+                "$id": "#/properties/datasets/items",
+                "anyOf": [
+                    {
+                        "$id": "#/properties/datasets/items/anyOf/0",
+                        "type": "object",
+                        "title": "The first anyOf schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "required": ["id", "name"],
+                        "properties": {
+                            "id": {
+                                "$id": "#/properties/datasets/items/anyOf/0/properties/id",
+                                "type": "string",
+                                "title": "The id of the dataset.",
+                                "description": "A unique UUID4 identifier of the dataset.",
+                                "default": "",
+                                "examples": ["4793de70a8d44eb4baa68bac2853c91a"],
+                            },
+                            "name": {
+                                "$id": "#/properties/datasets/items/anyOf/0/properties/name",
+                                "type": "string",
+                                "title": "The filename of the dataset.",
+                                "description": "The name of the dataset file.",
+                                "default": "",
+                                "examples": ["example.ris"],
+                            },
+                        },
+                        "additionalProperties": False,
+                        "examples": [
+                            {
+                                "id": "4793de70a8d44eb4baa68bac2853c91a",
+                                "name": "example.ris",
+                            }
+                        ],
+                    }
+                ],
+            },
+            "examples": [
+                [
+                    {
+                        "id": "4793de70a8d44eb4baa68bac2853c91a",
+                        "name": "example.ris",
+                    }
+                ]
+            ],
         },
     },
     "additionalProperties": True,
