@@ -21,10 +21,7 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
   useHotkeys("d", () => navigate(""));
   useHotkeys("r", () => navigate("reviewer"));
   useHotkeys("c", () => navigate("collection"));
-  useHotkeys(
-    "t",
-    () => window.authentication && window.allowTeams && navigate("team"),
-  );
+  useHotkeys("t", () => window.authentication && navigate("team"));
   useHotkeys("s", () => navigate("settings"));
 
   return (
@@ -82,7 +79,7 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
           component={NavLink}
         />
 
-        {window.authentication && window.allowTeams && (
+        {window.authentication && (
           <DrawerItem
             key={"project-team"}
             to={`team`}

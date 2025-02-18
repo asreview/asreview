@@ -33,13 +33,12 @@ def _asreview_file_archive():
     )
 
 
-# Test getting all projects
 def test_get_projects(client, user, project):
     r = au.get_all_projects(client)
     assert r.status_code == 200
     assert len(r.json["result"]) == 1
     found_project = r.json["result"][0]
-    if not client.application.config.get("LOGIN_DISABLED"):
+    if client.application.config.get("AUTHENTICATION"):
         assert found_project["id"] == project.project_id
         assert found_project["roles"]["owner"]
     else:
@@ -48,7 +47,7 @@ def test_get_projects(client, user, project):
 
 # Test create a project
 def test_create_projects(client, user):
-    if not client.application.config["LOGIN_DISABLED"]:
+    if client.application.config["AUTHENTICATION"]:
         au.create_and_signin_user(client, 1)
 
     r = au.create_project(client, "oracle", benchmark="synergy:van_der_Valk_2021")
@@ -145,7 +144,7 @@ def test_upgrade_an_old_project(client, user):
 
     # we need to make sure this new, old-style project can be found
     # under current user if the app is authenticated
-    if not client.application.config.get("LOGIN_DISABLED"):
+    if client.application.config.get("AUTHENTICATION"):
         new_project = Project(project_id=project.config.get("id"))
         project = crud.create_project(DB, user, new_project)
     # try to convert
@@ -164,7 +163,7 @@ def test_import_project_files(client, user, project, fp):
     assert r.status_code == 200
     assert isinstance(r.json["data"], dict)
 
-    if not client.application.config.get("LOGIN_DISABLED"):
+    if client.application.config.get("AUTHENTICATION"):
         # assert it exists in the database
         assert crud.count_projects() == 2
         project = crud.last_project()
@@ -198,7 +197,7 @@ def test_upload_benchmark_data_to_project(client, user, upload_data):
     r = au.create_project(client, **upload_data)
     project = user.projects[0] if user is not None else get_projects()[0]
     assert r.status_code == 201
-    if not client.application.config.get("LOGIN_DISABLED"):
+    if client.application.config.get("AUTHENTICATION"):
         assert r.json["id"] == project.project_id
     else:
         assert r.json["id"] == project.config.get("id")
@@ -327,7 +326,7 @@ def test_get_labeled_stats(client, project):
 
 
 # Test listing the available algorithms
-def test_list_algorithms(client, user):
+def test_list_learners(client, user):
     r = au.get_project_algorithms_options(client)
     assert r.status_code == 200
     expected_keys = [
@@ -337,9 +336,9 @@ def test_list_algorithms(client, user):
         "querier",
     ]
     for key in expected_keys:
-        assert key in r.json.keys()
-        assert isinstance(r.json[key], list)
-        for item in r.json[key]:
+        assert key in r.json["models"].keys()
+        assert isinstance(r.json["models"][key], list)
+        for item in r.json["models"][key]:
             assert "name" in item.keys()
             assert "label" in item.keys()
 
@@ -347,6 +346,7 @@ def test_list_algorithms(client, user):
 # Test setting the algorithms
 def test_set_project_algorithms(client, project):
     data = misc.choose_project_algorithms()
+    data["current_value"] = json.dumps(data["current_value"])
 
     r = au.set_project_algorithms(client, project, data=data)
     assert r.status_code == 200
@@ -358,10 +358,15 @@ def test_get_project_algorithms(client, project):
     # get the project algorithms
     r = au.get_project_algorithms(client, project)
     assert r.status_code == 200
-    assert r.json["balancer"] == r.json["balancer"]
-    assert r.json["feature_extractor"] == r.json["feature_extractor"]
-    assert r.json["classifier"] == r.json["classifier"]
-    assert r.json["querier"] == r.json["querier"]
+    assert r.json["current_value"]["balancer"] == r.json["current_value"]["balancer"]
+    assert (
+        r.json["current_value"]["feature_extractor"]
+        == r.json["current_value"]["feature_extractor"]
+    )
+    assert (
+        r.json["current_value"]["classifier"] == r.json["current_value"]["classifier"]
+    )
+    assert r.json["current_value"]["querier"] == r.json["current_value"]["querier"]
 
 
 # Test starting the model
@@ -473,7 +478,7 @@ def test_retrieve_document_for_review(client, project):
 
     assert r.status_code == 200
     assert isinstance(r.json, dict)
-    assert not r.json["pool_empty"]
+    assert r.json["status"] == "review"
     assert isinstance(r.json["result"], dict)
     assert isinstance(r.json["result"]["record_id"], int)
 

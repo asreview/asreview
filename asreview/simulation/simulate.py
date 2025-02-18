@@ -21,6 +21,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from asreview.metrics import loss
+from asreview.metrics import ndcg
 from asreview.models.stoppers import LastRelevant
 from asreview.models.stoppers import NLabeled
 from asreview.state.contextmanager import open_state
@@ -216,7 +217,9 @@ class Simulate:
             )
 
             if self.print_progress:
-                print(f"\nLoss: {loss(padded_results):.3f}")
+                print(
+                    f"\nLoss: {loss(padded_results):.3f}\nNDCG: {ndcg(padded_results):.3f}"
+                )
 
     def label(self, record_ids, cycle=None):
         """Label the records with the given record_ids.

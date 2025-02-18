@@ -18,7 +18,6 @@ from flask import current_app
 from flask import jsonify
 from flask import request
 from flask_login import current_user
-from flask_login import login_required
 from flask_login import logout_user
 from sqlalchemy import and_
 from sqlalchemy import or_
@@ -27,6 +26,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import login_remote_user
+from asreview.webapp._authentication.decorators import login_required
 from asreview.webapp._authentication.models import User
 from asreview.webapp._authentication.oauth_handler import OAuthHandler
 from asreview.webapp._authentication.utils import has_email_configuration
@@ -34,7 +34,18 @@ from asreview.webapp._authentication.utils import perform_login_user
 from asreview.webapp._authentication.utils import send_confirm_account_email
 from asreview.webapp._authentication.utils import send_forgot_password_email
 
+
 bp = Blueprint("auth", __name__, url_prefix="/auth")
+
+
+def _signed_in_payload(user):
+    return {
+        "logged_in": True,
+        "name": user.get_name(),
+        "id": user.id,
+        "message": f"User {user.identifier} is logged in.",
+    }
+
 
 # ------------------
 #      ROUTES
@@ -61,18 +72,10 @@ def signin():
         # user exists and is confirmed: verify password
         if user.verify_password(password):
             if perform_login_user(user, current_app):
-                result = (
-                    200,
-                    {
-                        "logged_in": True,
-                        "name": user.get_name(),
-                        "id": user.id,
-                        "message": f"User {user.identifier} is logged in.",
-                    },
-                )
+                result = (200, _signed_in_payload(user))
             else:
                 result = (
-                    404,
+                    401,
                     {"message": "Unable to login user with verified password."},
                 )
         else:
@@ -164,7 +167,7 @@ def signup():
                 DB.session.rollback()
                 result = (403, f"Unable to create your account! Reason: {str(e)}")
     else:
-        result = (400, "The app is not configured to create accounts")
+        result = (404, "The app is not configured to create accounts")
 
     (status, message) = result
     response = jsonify({"message": message, "user_id": user_id})
@@ -198,14 +201,21 @@ def confirm_account():
     else:
         user = user.confirm_user()
         try:
+            # commit changes
             DB.session.commit()
-            result = (200, "Account confirmed")
+            # sign user in
+            if perform_login_user(user, current_app):
+                result = (200, _signed_in_payload(user))
+            else:
+                result = (401, "Account confirmed, but unable to sign in.")
         except SQLAlchemyError:
             DB.session.rollback()
             result = (500, "Account not confirmed")
 
-    status, message = result
-    response = jsonify({"message": message})
+    status, payload = result
+    payload = {"message": payload} if isinstance(payload, str) else payload
+
+    response = jsonify(payload)
     return response, status
 
 
@@ -296,7 +306,11 @@ def reset_password():
             try:
                 user = user.reset_password(new_password)
                 DB.session.commit()
-                result = (200, "Password updated.")
+                # sign user in after password is reset
+                if perform_login_user(user, current_app):
+                    result = (200, _signed_in_payload(user))
+                else:
+                    result = (401, "Password reset, but unable to sign in.")
             except ValueError as e:
                 DB.session.rollback()
                 result = (500, f"Unable to reset your password! Reason: {str(e)}")
@@ -306,8 +320,10 @@ def reset_password():
     else:
         result = (404, "Reset-password feature is not used in this app.")
 
-    status, message = result
-    response = jsonify({"message": message})
+    status, payload = result
+    payload = {"message": payload} if isinstance(payload, str) else payload
+
+    response = jsonify(payload)
     return response, status
 
 
@@ -456,7 +472,7 @@ def oauth_callback():
             },
         )
     else:
-        result = (400, {"message": f"OAuth provider {provider} could not be found"})
+        result = (401, {"message": f"OAuth provider {provider} could not be found"})
 
     status, message = result
     response = jsonify(message)

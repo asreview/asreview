@@ -1,8 +1,8 @@
 import { Stack, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import Chart from "react-apexcharts";
+import { PieChart } from "@mui/x-charts";
 
-const chartcolor = (theme, part, total) => {
+const getChartColor = (theme, part, total) => {
   switch (true) {
     case part / total < 0.75:
       return [theme.palette.error.main];
@@ -15,77 +15,43 @@ const chartcolor = (theme, part, total) => {
 
 export default function DatasetChart({ label, part, total }) {
   const theme = useTheme();
+  const percentage = Math.round((part / total) * 1000) / 10;
 
   return (
-    <Stack direction="column">
-      <Chart
-        options={{
-          chart: {
-            background: "transparent",
-            id: "ASReviewLABDatasetChart",
-            type: "radialBar",
+    <Stack direction="column" alignItems="center">
+      <PieChart
+        series={[
+          {
+            data: [
+              { value: percentage, color: getChartColor(theme, part, total) },
+              { value: 100 - percentage, color: theme.palette.grey[200] },
+            ],
+            innerRadius: 60,
           },
-          states: {
-            hover: {
-              filter: {
-                type: "none",
-              },
-            },
-            active: {
-              filter: {
-                type: "none",
-              },
-            },
-          },
-          plotOptions: {
-            radialBar: {
-              hollow: {
-                margin: 15,
-                size: "50%",
-              },
-              dataLabels: {
-                name: {
-                  show: false,
-                },
-                value: {
-                  show: true,
-                  offsetY: 7,
-                  fontSize: theme.typography.subtitle1.fontSize,
-                  fontWeight: "bold",
-                  fontFamily: theme.typography.subtitle1.fontFamily,
-                  color: theme.palette.text.secondary,
-                  formatter: function (val) {
-                    return Math.round((part / total) * 1000) / 10 + "%";
-                  },
-                },
-              },
-            },
-          },
-          colors: [
-            theme.palette.mode === "light"
-              ? theme.palette.secondary.light
-              : theme.palette.secondary.main,
-            theme.palette.mode === "light"
-              ? theme.palette.primary.light
-              : theme.palette.primary.main,
-          ],
-          fill: {
-            colors: chartcolor(theme, part, total),
-          },
-          markers: {
-            size: 0,
-          },
-          noData: {
-            text: "No data available",
-          },
-          theme: {
-            mode: theme.palette.mode,
+        ]}
+        height={180}
+        width={180}
+        slotProps={{
+          legend: {
+            hidden: true,
           },
         }}
-        series={[Math.round((part / total) * 10000) / 100]}
-        type="radialBar"
-        width="100%"
-      />
+        margin={{ right: 5, left: 5, top: 5, bottom: 5 }}
+      >
+        <text
+          x="50%"
+          y="50%"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          style={{
+            fontSize: theme.typography.h6.fontSize,
+            fontWeight: "bold",
+            fill: theme.palette.text.secondary,
+          }}
+        >
+          {`${percentage}%`}
+        </text>
+      </PieChart>
       <Typography align="center" variant="subtitle1">
         {label}
       </Typography>

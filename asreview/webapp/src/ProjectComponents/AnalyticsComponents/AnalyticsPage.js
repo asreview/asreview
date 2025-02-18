@@ -1,7 +1,13 @@
-import { Share } from "@mui/icons-material";
+import { DoneAll, Share } from "@mui/icons-material";
 import {
   Box,
+  Button,
+  Chip,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   Grid2 as Grid,
   SpeedDial,
@@ -10,31 +16,27 @@ import {
   Tab,
   Tabs,
   Typography,
-  IconButton,
-  TextField,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
-import { useQuery } from "react-query";
+import React, { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import {
   EmailIcon,
   FacebookIcon,
-  XIcon,
   WeiboIcon,
   WhatsappIcon,
+  XIcon,
 } from "react-share";
 
-import EditIcon from "@mui/icons-material/Edit";
-import DoneIcon from "@mui/icons-material/Done";
-
 import {
-  LabelingFrequency,
+  DistancePatternChart,
   LabelingHistory,
   ProgressDensityChart,
   ProgressRecallChart,
   ReviewProgress,
   ShareFabAction,
   StoppingSuggestion,
+  TimeSavedCard,
   WordCounts,
 } from "ProjectComponents/AnalyticsComponents";
 import { ProjectAPI } from "api";
@@ -50,6 +52,8 @@ const actions = [
 
 const AnalyticsPage = () => {
   const { project_id } = useParams();
+  const queryClient = useQueryClient();
+
   const { data } = useQuery(
     ["fetchInfo", { project_id }],
     ProjectAPI.fetchInfo,
@@ -66,7 +70,6 @@ const AnalyticsPage = () => {
       }),
     { refetchOnWindowFocus: false },
   );
-  // New unified query for fetching data
   const genericDataQuery = useQuery(
     ["fetchGenericData", { project_id }],
     ({ queryKey }) =>
@@ -83,6 +86,32 @@ const AnalyticsPage = () => {
       refetchOnWindowFocus: false,
     },
   );
+
+  const [openStatusDialog, setOpenStatusDialog] = useState(false);
+
+  const { mutate: updateStatus } = useMutation(
+    (status) =>
+      ProjectAPI.mutateReviewStatus({
+        project_id: project_id,
+        status: status,
+      }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["fetchProjectStatus", { project_id }]);
+        setOpenStatusDialog(false);
+      },
+    },
+  );
+
+  const [openCompletionDialog, setOpenCompletionDialog] = useState(false);
+
+  const handleFinishProject = () => {
+    updateStatus({
+      project_id: project_id,
+      status: projectStatuses.FINISHED,
+    });
+    setOpenCompletionDialog(false);
+  };
 
   const xRef = React.useRef(null);
   const facebookRef = React.useRef(null);
@@ -109,127 +138,98 @@ const AnalyticsPage = () => {
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
   const [activeInsightsTab, setActiveInsightsTab] = useState(0);
 
-  // Name editing. Currently goes to local storage, we can do this the proper way
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [customName, setCustomName] = useState(
-    () => localStorage.getItem(`projectName-${project_id}`) || data?.name || "",
-  );
-
-  useEffect(() => {
-    if (data?.name && !localStorage.getItem(`projectName-${project_id}`)) {
-      setCustomName(data.name);
-      localStorage.setItem(`projectName-${project_id}`, data.name);
-    }
-  }, [data, project_id]);
-
-  const handleNameChange = (event) => {
-    setCustomName(event.target.value);
-  };
-
-  const handleNameSubmit = () => {
-    if (customName.trim()) {
-      localStorage.setItem(`projectName-${project_id}`, customName);
-      setIsEditing(false);
-    }
-  };
-
   return (
-    <Container maxWidth="md" aria-label="analytics page" sx={{ mb: 4 }}>
-      <Stack spacing={2} className="main-page-body">
+    <Container maxWidth="md" aria-label="analytics page">
+      <Stack
+        spacing={2}
+        className="main-page-body"
+        sx={{ pt: { xs: 0, md: 2 } }}
+      >
         <Box>
-          {statusData?.status === projectStatuses.FINISHED ? (
-            <Box sx={{ textAlign: "center", mb: 1 }}>
-              <Typography
-                variant="subtitle1"
-                textAlign="center"
-                sx={{
-                  fontWeight: "bold",
-                  fontFamily: "Roboto Serif",
-                  pb: 3,
-                  color: "success.main",
-                }}
-              >
-                Finished
-              </Typography>
-            </Box>
-          ) : (
-            <Typography
-              variant="subtitle1"
-              textAlign="center"
-              sx={{ fontWeight: "bold", fontFamily: "Roboto Serif", pb: 3 }}
-            >
-              In Review
-            </Typography>
-          )}
           <Typography
-            variant="h4"
-            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 1 }}
+            variant="subtitle1"
+            textAlign="center"
+            color="text.secondary"
           >
-            {isEditing ? (
-              <TextField
-                value={customName}
-                onChange={handleNameChange}
-                onKeyDown={(e) => e.key === "Enter" && handleNameSubmit()}
-                autoFocus
-                variant="standard"
-                sx={{
-                  "& .MuiInputBase-root": {
-                    fontSize: "h4.fontSize",
-                    fontFamily: "Roboto Serif",
-                  },
-                  width: "auto",
-                  minWidth: "200px",
-                }}
-                InputProps={{
-                  endAdornment: (
-                    <IconButton onClick={handleNameSubmit}>
-                      <DoneIcon />
-                    </IconButton>
-                  ),
-                }}
-              />
-            ) : (
-              <Box
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  position: "relative",
-                  padding: "0 40px",
-                  margin: "0 -40px",
-                  cursor: "pointer",
-                  "&:hover button": {
-                    opacity: 1,
-                  },
-                }}
-                onClick={() => setIsEditing(true)}
-              >
-                {customName}
-                <IconButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsEditing(true);
-                  }}
-                  sx={{
-                    ml: 1,
-                    opacity: 0,
-                    transition: "opacity 0.2s",
-                    position: "absolute",
-                    right: 0,
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
-              </Box>
-            )}
-          </Typography>
-          <Typography
-            sx={{ fontFamily: "Roboto Serif", textAlign: "center", pb: 6 }}
-          >
-            {progressQuery.data && progressQuery.data.n_records} records in
-            total
+            {progressQuery?.data?.n_records} records •{" "}
+            <Chip
+              label={
+                statusData?.status === projectStatuses.FINISHED
+                  ? "Finished"
+                  : "In Review"
+              }
+              icon={
+                statusData?.status === projectStatuses.FINISHED ? (
+                  <DoneAll />
+                ) : null
+              }
+              variant="outlined"
+              color={
+                statusData?.status === projectStatuses.FINISHED
+                  ? "success"
+                  : "inherit"
+              }
+              onClick={
+                data?.mode === "simulate"
+                  ? null
+                  : () => setOpenStatusDialog(true)
+              }
+            />
           </Typography>
         </Box>
+        <Dialog
+          open={openStatusDialog}
+          onClose={() => setOpenStatusDialog(false)}
+        >
+          <DialogTitle>
+            {statusData?.status === projectStatuses.FINISHED
+              ? "Resume Review"
+              : "Mark as Finished"}
+          </DialogTitle>
+          <DialogContent>
+            <Typography>
+              {statusData?.status === projectStatuses.FINISHED
+                ? "Are you sure you want to resume reviewing? This will change the project status back to 'In Review'."
+                : "Are you sure you want to mark this project as finished? This indicates that you have completed your review."}
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenStatusDialog(false)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                updateStatus(
+                  statusData?.status === projectStatuses.FINISHED
+                    ? projectStatuses.REVIEW
+                    : projectStatuses.FINISHED,
+                );
+              }}
+              variant="contained"
+              color="primary"
+            >
+              {statusData?.status === projectStatuses.FINISHED
+                ? "Resume Review"
+                : "Mark as Finished"}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Typography
+          variant="h4"
+          sx={{
+            fontFamily: "Roboto Serif",
+            textAlign: "center",
+            pb: { xs: 6, md: 10 },
+          }}
+        >
+          {data?.name}
+        </Typography>
+
+        {statusData?.status === projectStatuses.FINISHED &&
+          data?.mode !== "simulate" && (
+            <Grid size={1}>
+              <TimeSavedCard project_id={project_id} />
+            </Grid>
+          )}
 
         <Grid
           container
@@ -270,9 +270,9 @@ const AnalyticsPage = () => {
             variant="scrollable"
           >
             <Tab label="History" />
-            <Tab label="Frequency" />
             <Tab label="Density" />
             <Tab label="Recall" />
+            <Tab label="Wave" />
           </Tabs>
           {activeHistoryTab === 0 && (
             <LabelingHistory
@@ -280,14 +280,18 @@ const AnalyticsPage = () => {
               progressQuery={progressQuery}
             />
           )}
+
           {activeHistoryTab === 1 && (
-            <LabelingFrequency project_id={project_id} />
-          )}
-          {activeHistoryTab === 2 && (
             <ProgressDensityChart genericDataQuery={genericDataQuery} />
           )}
-          {activeHistoryTab === 3 && (
+          {activeHistoryTab === 2 && (
             <ProgressRecallChart genericDataQuery={genericDataQuery} />
+          )}
+          {activeHistoryTab === 3 && (
+            <DistancePatternChart
+              project_id={project_id}
+              showLast={data?.mode !== "simulate"}
+            />
           )}
         </Box>
 
@@ -306,6 +310,7 @@ const AnalyticsPage = () => {
           {activeInsightsTab === 0 && <WordCounts project_id={project_id} />}
         </Grid>
       </Stack>
+
       <SpeedDial
         ariaLabel="share project analytics"
         icon={<Share />}
@@ -326,6 +331,7 @@ const AnalyticsPage = () => {
           />
         ))}
       </SpeedDial>
+
       <ShareFabAction
         progressQueryData={progressQuery.data}
         xRef={xRef}
@@ -334,6 +340,33 @@ const AnalyticsPage = () => {
         whatsappRef={whatsappRef}
         emailRef={emailRef}
       />
+
+      {/* Completion Dialog */}
+      <Dialog
+        open={openCompletionDialog}
+        onClose={() => setOpenCompletionDialog(false)}
+      >
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <DoneAll color="primary" />
+          Finish Project
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{ mt: 1 }}>
+            Are you sure you want to mark this project as finished? This will
+            indicate that you have completed your review.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenCompletionDialog(false)}>Cancel</Button>
+          <Button
+            onClick={handleFinishProject}
+            color="primary"
+            variant="contained"
+          >
+            Finish Project
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

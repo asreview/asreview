@@ -14,10 +14,11 @@
 
 from asreview.learner import ActiveLearningCycleData
 
-MODELS_CONFIG = [
+AI_MODEL_CONFIGURATIONS = [
     {
-        "name": "elas_u2",
-        "label": "ELAS u2",
+        "name": "elas_u4",
+        "label": "ELAS u4",
+        "type": "ultra",
         "value": ActiveLearningCycleData(
             querier="max",
             classifier="nb",
@@ -27,32 +28,79 @@ MODELS_CONFIG = [
             feature_extractor="tfidf",
             feature_extractor_param={"stop_words": "english"},
         ),
-    }
+    },
+    {
+        "name": "elas_u3",
+        "label": "ELAS u3",
+        "type": "ultra",
+        "value": ActiveLearningCycleData(
+            querier="max",
+            classifier="nb",
+            balancer="balanced",
+            feature_extractor="tfidf",
+        ),
+    },
+    {
+        "name": "elas_l2",
+        "label": "ELAS l2",
+        "type": "lang",
+        "extensions": ["asreview-nemo"],
+        "value": ActiveLearningCycleData(
+            querier="max",
+            classifier="nb",
+            balancer="balanced",
+            feature_extractor="tfidf",
+        ),
+    },
+    {
+        "name": "elas_h3",
+        "label": "ELAS h3",
+        "type": "heavy",
+        "extensions": ["asreview-nemo"],
+        "value": ActiveLearningCycleData(
+            querier="max",
+            classifier="nb",
+            balancer="balanced",
+            feature_extractor="tfidf",
+        ),
+    },
+    {
+        "name": "elas_h2",
+        "label": "ELAS h2",
+        "type": "heavy",
+        "extensions": ["asreview-nemo"],
+        "value": ActiveLearningCycleData(
+            querier="max",
+            classifier="nb",
+            balancer="balanced",
+            feature_extractor="tfidf",
+        ),
+    },
 ]
 
-DEFAULT_MODEL_NAME = "elas_u2"
 
-
-def get_model_config(name=None):
-    """Get the model configuration.
+def get_ai_config(name=None):
+    """Get the AI configuration.
 
     Parameters
     ----------
     name: str
-        The name of the model configuration. If None, the default model
+        The name of the AI configuration. If None, the default AI
         configuration is returned.
 
     Returns
     -------
     dict:
-        The default model configuration.
+        The default AI configuration.
     """
 
     if name is None:
-        name = DEFAULT_MODEL_NAME
+        return filter(
+            lambda x: x["type"] == "ultra", AI_MODEL_CONFIGURATIONS
+        ).__next__()
 
-    for model_config in MODELS_CONFIG:
+    for model_config in AI_MODEL_CONFIGURATIONS:
         if model_config["name"] == name:
-            return model_config["value"]
+            return model_config
 
-    return None
+    raise ValueError(f"Model configuration {name} not found.")

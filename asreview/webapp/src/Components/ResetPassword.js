@@ -4,6 +4,7 @@ import {
   Button,
   CardActions,
   CardContent,
+  CardHeader,
   FormHelperText as FHT,
   FormControl,
   IconButton,
@@ -79,7 +80,7 @@ const ResetPassword = () => {
     },
     onSuccess: () => {
       formik.setValues(initialValues, false);
-      navigate("/signin");
+      navigate("/");
     },
     onError: (data) => {
       setErrorMessage(data.message);
@@ -89,9 +90,9 @@ const ResetPassword = () => {
 
   return (
     <form onSubmit={formik.handleSubmit}>
+      <CardHeader title="Reset your password" />
       <CardContent>
         <Stack spacing={2}>
-          <Typography variant="h5">Reset your password</Typography>
           <FormControl>
             <Stack spacing={2}>
               <Typography variant="body2">

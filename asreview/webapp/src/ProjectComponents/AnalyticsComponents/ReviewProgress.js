@@ -61,7 +61,11 @@ export default function ReviewProgress({ project_id }) {
     : [
         {
           label: "Not Relevant",
-          value: data.n_excluded_no_priors,
+          value:
+            data.n_excluded_no_priors > 0 &&
+            data.n_excluded_no_priors / data.n_records < 0.005
+              ? data.n_records * 0.005
+              : data.n_excluded_no_priors,
           color:
             theme.palette.mode === "light"
               ? theme.palette.primary.light
@@ -69,7 +73,11 @@ export default function ReviewProgress({ project_id }) {
         },
         {
           label: "Relevant",
-          value: data.n_included_no_priors,
+          value:
+            data.n_included_no_priors > 0 &&
+            data.n_included_no_priors / data.n_records < 0.005
+              ? data.n_records * 0.005
+              : data.n_included_no_priors,
           color:
             theme.palette.mode === "light"
               ? theme.palette.grey[600]
@@ -276,7 +284,7 @@ export default function ReviewProgress({ project_id }) {
                         value: item.value,
                         color: item.color,
                       })),
-                      innerRadius: 20,
+                      innerRadius: 10,
                       outerRadius: 80,
                       paddingAngle: 5,
                       cornerRadius: 10,
@@ -288,6 +296,11 @@ export default function ReviewProgress({ project_id }) {
                   ]}
                   height={180}
                   width={180}
+                  sx={{
+                    "& .MuiPieArc-root": {
+                      strokeWidth: 0,
+                    },
+                  }}
                 />
               </Box>
             )}
@@ -341,7 +354,7 @@ export default function ReviewProgress({ project_id }) {
                         value: item.value,
                         color: item.color,
                       })),
-                      innerRadius: 20,
+                      innerRadius: 10,
                       outerRadius: 80,
                       paddingAngle: 5,
                       cornerRadius: 10,
@@ -353,6 +366,11 @@ export default function ReviewProgress({ project_id }) {
                   ]}
                   height={180}
                   width={180}
+                  sx={{
+                    "& .MuiPieArc-root": {
+                      strokeWidth: 0,
+                    },
+                  }}
                 />
               </Box>
             </Box>

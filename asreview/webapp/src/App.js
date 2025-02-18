@@ -129,7 +129,7 @@ const App = () => {
                 path="collection"
                 element={<LabelHistory mode={"oracle"} />}
               />
-              {window.authentication && window.allowTeams && (
+              {window.authentication && (
                 <Route path="team" element={<TeamPage />} />
               )}
               <Route path="settings" element={<DetailsPage />} />
@@ -149,7 +149,7 @@ const App = () => {
               path="collection"
               element={<LabelHistory mode={"simulate"} />}
             />
-            {window.authentication && window.allowTeams && (
+            {window.authentication && (
               <Route path="team" element={<TeamPage />} />
             )}
             <Route path="settings" element={<DetailsPage />} />

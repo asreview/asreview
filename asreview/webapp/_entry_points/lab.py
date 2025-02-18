@@ -93,19 +93,30 @@ def lab_entry_point(argv):
     if not args.skip_update_check:
         _check_for_update()
 
-    app = create_app(config_path=args.config_path)
-
-    # override config with command line arguments
-    if args.secret_key:
-        app.config["SECRET_KEY"] = args.secret_key
-
-    if args.salt:
-        app.config["SALT"] = args.salt
-
-    # by default, the application is authenticated but lab is not
-    app.config["LOGIN_DISABLED"] = (
-        app.config.get("LOGIN_DISABLED", True) and args.login_disabled is not False
+    app = create_app(
+        config_path=args.config_path,
+        secret_key=args.secret_key,
+        salt=args.salt,
+        authentication=args.authentication,
     )
+
+    # By default, the application is authenticated but lab is not.
+    # Behavior:
+    # ENV var for auth | CLI par for auth | App is authenticated
+    # ==========================================================
+    #       True       |        True      |         True
+    #       True       |        False     |         True
+    #       False      |        True      |         True
+    #       False      |        False     |         False
+    #       None       |        True      |         True
+    #       None       |        False     |         False
+    # ==========================================================
+
+    if app.testing:
+        return app
+
+    # NO MORE APP CONFIGURATION BELOW THIS LINE
+    # =========================================
 
     # clean all projects
     # TODO@{Casper}: this needs a little bit
@@ -254,9 +265,9 @@ def _lab_parser():
 
     parser.add_argument(
         "--enable-auth",
-        dest="login_disabled",
-        default=None,
-        action="store_false",
+        dest="authentication",
+        default=False,
+        action="store_true",
         help="Enable authentication.",
     )
 
