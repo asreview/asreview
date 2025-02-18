@@ -33,9 +33,7 @@ SCHEMA = {
             "reviews": [
                 {
                     "id": "4793de70a8d44eb4baa68bac2853c91a",
-                    "start_time": 1648205610,
                     "status": "review",
-                    "end_time": 1648405610,
                 }
             ],
             "feature_matrices": [
