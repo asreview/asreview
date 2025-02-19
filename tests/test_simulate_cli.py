@@ -161,7 +161,7 @@ def test_n_stop_min(tmp_project, demo_data_path):
 
     with asr.open_state(tmp_project) as s:
         assert s.get_results_table("label")["label"].sum() == 10
-        assert len(s.get_results_table("label")) == 39
+        assert len(s.get_results_table("label")) == 45
 
 
 def test_n_stop_all(tmp_project):
