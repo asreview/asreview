@@ -279,7 +279,7 @@ export default function ProgressDensityChart(props) {
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Progress Density
               </Typography>
-              <Typography variant="body2" sx={{ textAlign: "justify" }}>
+              <Typography variant="body2" align="justify">
                 This chart shows how many relevant records are found per 10
                 documents. Initially, you might find many relevant records, but
                 as you proceed, relevancy often tapers off.
@@ -290,16 +290,14 @@ export default function ProgressDensityChart(props) {
               <Typography
                 variant="subtitle1"
                 fontWeight="bold"
-                sx={{ mb: 1, textAlign: "justify" }}
+                align="justify"
+                sx={{ mb: 1 }}
               >
                 Comparing Examples
               </Typography>
               <Stack spacing={2}>
                 <Box>
-                  <Typography
-                    variant="body2"
-                    sx={{ mb: 1, textAlign: "justify" }}
-                  >
+                  <Typography variant="body2" align="justify" sx={{ mb: 1 }}>
                     <strong>Good:</strong> {""} Most relevant records are
                     discovered early in the review process, followed by a
                     natural decline in new findings.
@@ -307,10 +305,7 @@ export default function ProgressDensityChart(props) {
                   {goodScenarioSVG}
                 </Box>
                 <Box>
-                  <Typography
-                    variant="body2"
-                    sx={{ mb: 1, textAlign: "justify" }}
-                  >
+                  <Typography variant="body2" align="justify" sx={{ mb: 1 }}>
                     <strong>Bad:</strong> {""} Few relevant records are found
                     throughout the review process. This may indicate potential
                     issues.

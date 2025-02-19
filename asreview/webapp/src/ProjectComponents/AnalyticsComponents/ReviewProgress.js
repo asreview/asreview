@@ -316,7 +316,7 @@ export default function ReviewProgress({ project_id }) {
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Review Progress
               </Typography>
-              <Typography variant="body2" sx={{ textAlign: "justify" }}>
+              <Typography variant="body2" align="justify">
                 This visualization shows how far you are from the beginning. It
                 displays the number of relevant, not relevant, and unlabeled
                 records in your dataset.

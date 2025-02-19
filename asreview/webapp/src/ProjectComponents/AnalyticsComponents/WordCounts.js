@@ -186,7 +186,7 @@ const WordCounts = () => {
                 >
                   Common Words
                 </Typography>
-                <Typography variant="body2" sx={{ textAlign: "justify" }}>
+                <Typography variant="body2" align="justify">
                   The are the frequently occurring words in your relevant and
                   not relevant records.
                 </Typography>
@@ -200,7 +200,7 @@ const WordCounts = () => {
                 >
                   Interpretation Guide
                 </Typography>
-                <Typography variant="body2" sx={{ textAlign: "justify" }}>
+                <Typography variant="body2" align="justify">
                   Use these patterns to validate if the model is learning from
                   your decisions. {""}
                   <strong>However,</strong> {""} while they can indicate

@@ -533,7 +533,7 @@ const TagCard = (props) => {
               <Typography variant="h6" sx={{ mb: 1 }}>
                 Organizing with Tags
               </Typography>
-              <Typography variant="body2" sx={{ textAlign: "justify" }}>
+              <Typography variant="body2" align="justify">
                 Tags help you categorize and analyze your records
                 systematically. Create meaningful groups and labels to track
                 important aspects of your review.

@@ -406,7 +406,7 @@ const StoppingSuggestion = ({ project_id }) => {
               </Typography>
               <Stack direction="row" spacing={1} alignItems="center">
                 <EditIcon fontSize="small" />
-                <Typography variant="body2" sx={{ textAlign: "justify" }}>
+                <Typography variant="body2" align="justify">
                   You can manually edit and optimize the threshold for your
                   project to determine when this suggestion appears.
                 </Typography>

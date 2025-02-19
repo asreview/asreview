@@ -392,7 +392,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
               <Typography variant="h6" sx={{ mb: 1 }}>
                 AI Models Explained
               </Typography>
-              <Typography variant="body2" sx={{ textAlign: "justify" }}>
+              <Typography variant="body2" align="justify">
                 The AI model is the engine that powers your systematic review.
                 It learns from your decisions to identify relevant records and
                 accelerate your review process.

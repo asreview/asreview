@@ -232,7 +232,7 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
               <Typography variant="h6" sx={{ mb: 1 }}>
                 Prior Knowledge Explained
               </Typography>
-              <Typography variant="body2" sx={{ textAlign: "justify" }}>
+              <Typography variant="body2" align="justify">
                 Prior knowledge helps the AI understand your research criteria
                 from the start, making the learning process more efficient.
               </Typography>
