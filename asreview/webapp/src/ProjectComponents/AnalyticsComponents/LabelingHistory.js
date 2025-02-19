@@ -153,22 +153,12 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                 onClick={() => setViewMode("chronological")}
                 variant={viewMode === "chronological" ? "filled" : "outlined"}
                 color="primary"
-                sx={{
-                  "&.MuiChip-filled": {
-                    backgroundColor: "primary.light",
-                  },
-                }}
               />
               <Chip
                 label="Grouped"
                 onClick={() => setViewMode("grouped")}
                 variant={viewMode === "grouped" ? "filled" : "outlined"}
                 color="primary"
-                sx={{
-                  "&.MuiChip-filled": {
-                    backgroundColor: "primary.light",
-                  },
-                }}
               />
             </Box>
             <Box sx={{ position: "absolute", top: 8, right: 8 }}>
@@ -204,9 +194,9 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                       height: "8px",
                       bgcolor:
                         decision.label === 1
-                          ? "grey.600"
+                          ? "tertiary.dark"
                           : decision.label === 0
-                            ? "primary.light"
+                            ? "grey.600"
                             : "grey.400",
                       borderRadius: 3,
                     }}
@@ -271,7 +261,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
               </Typography>
               <Typography
                 variant="body2"
-                sx={{ mt: 1, color: "primary.light" }}
+                sx={{ mt: 1, color: "grey.600" }}
               ></Typography>
             </Box>
             <Box>
@@ -281,7 +271,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                     sx={{
                       width: 16,
                       height: 8,
-                      bgcolor: "grey.600",
+                      bgcolor: "tertiary.dark",
                       borderRadius: 3,
                     }}
                   />
@@ -292,7 +282,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                     sx={{
                       width: 16,
                       height: 8,
-                      bgcolor: "primary.light",
+                      bgcolor: "grey.600",
                       borderRadius: 3,
                     }}
                   />

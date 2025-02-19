@@ -251,7 +251,7 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                       series={[
                         {
                           data: [0, 3, 0, 0, 4, 0, 0, 7, 0, 19],
-                          color: theme.palette.primary.main,
+                          color: theme.palette.grey[600],
                         },
                         {
                           data: [
@@ -309,7 +309,7 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                 {
                   data: distance,
                   label: "Distance Between Records",
-                  color: theme.palette.primary.main,
+                  color: theme.palette.grey[600],
                 },
                 {
                   data: stopLine,

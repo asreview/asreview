@@ -252,9 +252,6 @@ const AnalyticsPage = () => {
                     : projectStatuses.FINISHED,
                 );
               }}
-              variant="contained"
-              color="primary"
-              startIcon={<DoneAll />}
             >
               {statusData?.status === projectStatuses.FINISHED
                 ? "Resume Review"

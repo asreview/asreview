@@ -250,15 +250,13 @@ class Project:
 
         # This config update assumes that the project only has one dataset.
         self.update_config(
-            dataset_path=file_name,
             name=file_name.rsplit(".", 1)[0],
             datasets=[{"id": dataset_id, "name": file_name}],
         )
 
     def remove_dataset(self):
         """Remove dataset from project."""
-        # reset dataset_path
-        self.update_config(dataset_path=None)
+        self.update_config(datasets=None)
 
         # remove datasets from project
         shutil.rmtree(self.data_dir)
@@ -369,7 +367,6 @@ class Project:
         review_id=None,
         cycle=None,
         reviewer=None,
-        start_time=None,
         status="setup",
     ):
         """Add new review metadata.
@@ -386,8 +383,6 @@ class Project:
         status: str
             The status of the review. One of 'setup', 'running',
             'finished'.
-        start_time:
-            Start of the review.
 
         """
 
@@ -400,9 +395,6 @@ class Project:
             review_id = uuid4().hex
 
         Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
-
-        if start_time is None:
-            start_time = int(time.time())
 
         config = self.config
 
@@ -431,9 +423,7 @@ class Project:
 
         review_config = {
             "id": review_id,
-            "start_time": int(time.time()),
             "status": status,
-            # "end_time": int(time.time())
         }
 
         # add container for reviews
@@ -456,9 +446,6 @@ class Project:
         status: str
             The status of the review. One of 'setup', 'running',
             'finished'.
-        start_time:
-            Start of the review.
-        end_time: End time of the review.
         """
 
         # read the file with project info
@@ -529,9 +516,7 @@ class Project:
             Identifier of the review to mark as finished.
         """
 
-        self.update_review(
-            review_id=review_id, status="finished", end_time=int(time.time())
-        )
+        self.update_review(review_id=review_id, status="finished")
 
     def export(self, export_fp):
         if Path(export_fp).suffix != ".asreview":

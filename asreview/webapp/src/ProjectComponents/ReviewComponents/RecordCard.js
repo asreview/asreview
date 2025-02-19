@@ -79,7 +79,6 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
             </Tooltip>
           )}
         </Stack>
-
         <Box>
           {(record.abstract === "" || record.abstract === null) && (
             <Typography

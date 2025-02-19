@@ -79,7 +79,7 @@ def choose_project_algorithms():
     classifier = random.choice(["svm", "nb", "logistic"])
     feature_extractor = random.choice(["tfidf"])
     data = {
-        "name": "custom",
+        "name": None,
         "current_value": {
             "classifier": classifier,
             "feature_extractor": feature_extractor,

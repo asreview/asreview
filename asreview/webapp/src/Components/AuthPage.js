@@ -1,4 +1,12 @@
-import { Alert, Box, Card, CardContent, Fade, Stack } from "@mui/material";
+import {
+  Box,
+  Card,
+  Fade,
+  Grid2 as Grid,
+  CardContent,
+  Alert,
+  Typography,
+} from "@mui/material";
 
 import {
   ConfirmAccount,
@@ -9,8 +17,6 @@ import {
   SignUpForm,
 } from "Components";
 
-import { WordMark } from "icons/WordMark";
-
 const AuthPage = ({
   signIn = false,
   signUp = false,
@@ -19,55 +25,91 @@ const AuthPage = ({
   confirmAccount = false,
 }) => {
   return (
-    <Box
-      display="flex"
+    <Grid
+      container
+      maxWidth="lg"
       justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      sx={(theme) => ({
-        [theme.breakpoints.down(500)]: {
-          p: 2,
-        },
-      })}
+      sx={{
+        minHeight: "100vh",
+        margin: "0 auto", // Center horizontally
+        alignItems: "center", // Center vertically
+        padding: 2,
+      }}
     >
-      <Fade in timeout={1000}>
-        <Stack
-          sx={{
-            width: "100%",
-            maxWidth: 500,
-          }}
-          spacing={3}
-        >
-          <Box display="flex" justifyContent="center">
-            <WordMark style={{ maxWidth: "130px", paddingTop: 10 }} />
-          </Box>
-          <Card>
-            {typeof window.loginInfo === "string" &&
-              window.loginInfo.length > 0 && (
-                <CardContent>
-                  <Alert severity="info">{window.loginInfo}</Alert>
-                </CardContent>
+      <Grid
+        justifyContent={"center"}
+        justifyItems={"center"}
+        size={{
+          xs: 12,
+          md: "auto",
+        }}
+      >
+        <Fade in timeout={1000}>
+          <Box sx={{ width: { xs: "100%", sm: "400px" } }}>
+            <Card>
+              {typeof window.loginInfo === "string" &&
+                window.loginInfo.length > 0 && (
+                  <CardContent>
+                    <Alert severity="info" color="secondary">
+                      {window.loginInfo}
+                    </Alert>
+                  </CardContent>
+                )}
+
+              {signUp && <SignUpForm />}
+              {signIn && (
+                <SignInForm
+                  allowAccountCreation={window.allowAccountCreation}
+                  emailVerification={window.emailVerification}
+                />
               )}
+              {confirmAccount && <ConfirmAccount />}
+              {forgotPassword && <ForgotPassword />}
+              {resetPassword && <ResetPassword />}
+            </Card>
+            <HelpPrivacyTermsButton />
+          </Box>
+        </Fade>
+      </Grid>
 
-            {signUp && <SignUpForm />}
+      <Grid
+        size={{
+          xs: 12,
+          md: "grow",
+        }}
+        display={{ xs: "none", md: "flex" }}
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        padding={4}
+      >
+        <Typography variant="h4" align="center" fontFamily={"Roboto Serif"}>
+          Welcome to{" "}
+          <Typography
+            component="span"
+            sx={{ fontFamily: "kanit", fontSize: "130%", mr: 0.5 }}
+          >
+            ASReview
+          </Typography>
+          <Typography
+            component="span"
+            sx={{ fontFamily: "kanit", fontSize: "130%" }}
+            color="#FFCC00"
+          >
+            LAB
+          </Typography>
+        </Typography>
 
-            {signIn && (
-              <SignInForm
-                allowAccountCreation={window.allowAccountCreation}
-                emailVerification={window.emailVerification}
-              />
-            )}
-
-            {confirmAccount && <ConfirmAccount />}
-
-            {forgotPassword && <ForgotPassword />}
-
-            {resetPassword && <ResetPassword />}
-          </Card>
-          <HelpPrivacyTermsButton />
-        </Stack>
-      </Fade>
-    </Box>
+        <Typography
+          variant="h6"
+          align="center"
+          marginTop={2}
+          fontFamily={"Roboto Serif"}
+        >
+          Transparent systematic reviews with AI
+        </Typography>
+      </Grid>
+    </Grid>
   );
 };
 

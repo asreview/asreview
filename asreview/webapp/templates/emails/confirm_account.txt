@@ -9,7 +9,7 @@ You have changed your email address.
 Below you find a 6-digits code. Use it to confirm your email address.
 Please note that the code will expire in 20 minutes.
 
-  {{ token }}
+{{ token }}
 
 After confirmation you will be redirected to the signin page. Use your account
 credentials and start using ASReview.

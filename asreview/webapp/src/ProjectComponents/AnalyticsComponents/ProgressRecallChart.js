@@ -131,17 +131,14 @@ export default function ProgressRecallChart(props) {
         {
           data: calculatedData.map((item) => item.asreview),
           label: "Relevant by ASReview LAB",
-          color: theme.palette.grey[600],
+          color: theme.palette.tertiary.dark,
           showMark: false,
           curve: "linear",
         },
         {
           data: calculatedData.map((item) => item.random),
           label: "Random Relevant",
-          color:
-            theme.palette.mode === "light"
-              ? theme.palette.primary.light
-              : theme.palette.primary.main,
+          color: theme.palette.grey[600],
           showMark: false,
           curve: "linear",
         },
@@ -155,17 +152,13 @@ export default function ProgressRecallChart(props) {
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
       <path
         d="M5,55 Q10,10 15,8 T95,5"
-        stroke={theme.palette.grey[600]}
+        stroke={theme.palette.tertiary.dark}
         strokeWidth="2"
         fill="none"
       />
       <path
         d="M5,55 C25,45 50,35 75,25 95,20 95,20 95,20"
-        stroke={
-          theme.palette.mode === "light"
-            ? theme.palette.primary.light
-            : theme.palette.primary.main
-        }
+        stroke={theme.palette.grey[600]}
         strokeWidth="2"
         fill="none"
       />
@@ -176,17 +169,13 @@ export default function ProgressRecallChart(props) {
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
       <path
         d="M5,55 C25,50 50,40 75,35 90,30 95,28 95,27"
-        stroke={theme.palette.grey[600]}
+        stroke={theme.palette.tertiary.dark}
         strokeWidth="2"
         fill="none"
       />
       <path
         d="M5,55 C25,52 50,45 75,40 90,35 95,33 95,32"
-        stroke={
-          theme.palette.mode === "light"
-            ? theme.palette.primary.light
-            : theme.palette.primary.main
-        }
+        stroke={theme.palette.grey[600]}
         strokeWidth="2"
         fill="none"
       />
@@ -194,7 +183,7 @@ export default function ProgressRecallChart(props) {
   );
 
   return (
-    <Card sx={{ backgroundColor: "transparent" }}>
+    <Card sx={{ bgcolor: "transparent" }}>
       <CardErrorHandler
         queryKey={"fetchGenericData"}
         error={props.progressRecallQuery?.error}

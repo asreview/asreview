@@ -66,10 +66,7 @@ export default function ReviewProgress({ project_id }) {
             data.n_excluded_no_priors / data.n_records < 0.005
               ? data.n_records * 0.005
               : data.n_excluded_no_priors,
-          color:
-            theme.palette.mode === "light"
-              ? theme.palette.primary.light
-              : theme.palette.primary.main,
+          color: theme.palette.grey[600],
         },
         {
           label: "Relevant",
@@ -78,10 +75,7 @@ export default function ReviewProgress({ project_id }) {
             data.n_included_no_priors / data.n_records < 0.005
               ? data.n_records * 0.005
               : data.n_included_no_priors,
-          color:
-            theme.palette.mode === "light"
-              ? theme.palette.grey[600]
-              : theme.palette.grey[600],
+          color: theme.palette.tertiary.dark,
         },
         {
           label: "Unlabeled",
@@ -100,19 +94,13 @@ export default function ReviewProgress({ project_id }) {
           label: "Relevant",
           value: data.n_included_no_priors.toLocaleString(),
           priorValue: includePrior ? data.n_included.toLocaleString() : null,
-          color:
-            theme.palette.mode === "light"
-              ? theme.palette.grey[600]
-              : theme.palette.grey[600],
+          color: theme.palette.tertiary.dark,
         },
         {
           label: "Not Relevant",
           value: data.n_excluded_no_priors.toLocaleString(),
           priorValue: includePrior ? data.n_excluded.toLocaleString() : null,
-          color:
-            theme.palette.mode === "light"
-              ? theme.palette.primary.light
-              : theme.palette.primary.main,
+          color: theme.palette.grey[600],
         },
         {
           label: "Unlabeled",
@@ -130,15 +118,12 @@ export default function ReviewProgress({ project_id }) {
     {
       label: "Not Relevant",
       value: 25,
-      color:
-        theme.palette.mode === "light"
-          ? theme.palette.primary.light
-          : theme.palette.primary.main,
+      color: theme.palette.grey[600],
     },
     {
       label: "Relevant",
       value: 5,
-      color: theme.palette.grey[600],
+      color: theme.palette.tertiary.dark,
     },
     {
       label: "Unlabeled",

@@ -149,15 +149,18 @@ def signup():
                 if email_verification:
                     # send email
                     send_confirm_account_email(user, current_app, "create")
-                    # result
-                    result = (
-                        201,
+                    message = (
                         f"An email has been sent to {user.email} to verify "
-                        + "your account. Please follow instructions.",
+                        "your account. Please follow instructions."
                     )
+                    # result
+                    result = (201, {"message": message, "user_id": user_id})
                 else:
-                    # result is a 201 with message
-                    result = (201, f'User "{identifier}" created.')
+                    # immediately log user in
+                    if perform_login_user(user, current_app):
+                        result = (201, _signed_in_payload(user))
+                    else:
+                        result = (401, "Account confirmed, but unable to sign in.")
             except ValueError as e:
                 result = (400, f"Unable to create your account! Reason: {str(e)}")
             except IntegrityError as e:
@@ -169,8 +172,10 @@ def signup():
     else:
         result = (404, "The app is not configured to create accounts")
 
-    (status, message) = result
-    response = jsonify({"message": message, "user_id": user_id})
+    status, payload = result
+    payload = {"message": payload} if isinstance(payload, str) else payload
+
+    response = jsonify(payload)
     return response, status
 
 
