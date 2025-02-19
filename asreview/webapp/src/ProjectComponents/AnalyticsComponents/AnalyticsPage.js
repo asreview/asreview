@@ -203,8 +203,6 @@ const AnalyticsPage = () => {
                     : projectStatuses.FINISHED,
                 );
               }}
-              variant="contained"
-              color="primary"
             >
               {statusData?.status === projectStatuses.FINISHED
                 ? "Resume Review"

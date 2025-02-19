@@ -67,8 +67,12 @@ const SignUpForm = () => {
       // if (typeof showNotification === "function") {
       //   showNotification(`A confirmation email has been sent to ${email}.`);
       // }
-      let userId = data.user_id;
-      navigate(`/confirm_account?user_id=${userId}`);
+      if (window.emailVerification) {
+        let userId = data.user_id;
+        navigate(`/confirm_account?user_id=${userId}`);
+      } else {
+        navigate("/");
+      }
     },
   });
 
