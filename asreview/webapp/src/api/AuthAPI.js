@@ -12,12 +12,18 @@ class AuthAPI {
     body.set("public", variables.publicAccount === true ? 1 : 0);
 
     const url = auth_url + `signup`;
+    let axiosParams = {
+      method: "post",
+      url: url,
+      data: body,
+    };
+
+    if (!window.emailVerification) {
+      axiosParams.withCredentials = true;
+    }
+
     return new Promise((resolve, reject) => {
-      axios({
-        method: "post",
-        url: url,
-        data: body,
-      })
+      axios(axiosParams)
         .then((result) => {
           resolve(result["data"]);
         })
@@ -153,6 +159,7 @@ class AuthAPI {
         method: "post",
         url: url,
         data: body,
+        withCredentials: true,
       })
         .then((result) => {
           resolve(result["data"]);
@@ -174,6 +181,7 @@ class AuthAPI {
         method: "post",
         url: url,
         data: body,
+        withCredentials: true,
       })
         .then((result) => {
           resolve(result["data"]);

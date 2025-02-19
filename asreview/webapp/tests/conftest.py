@@ -58,6 +58,12 @@ def _get_app(app_type="auth-basic", path=None):
         config_path = str(base_dir / "no_auth_config.toml")
     elif app_type == "implicit-auth":
         config_path = str(base_dir / "implicit_auth_config.toml")
+    elif app_type == "oauth":
+        config_path = str(base_dir / "auth_with_oauth.toml")
+    elif app_type == "oauth-with-allowed-account-creation":
+        config_path = str(
+            base_dir / "auth_with_oauth_and_allowed_account_creation.toml"
+        )
     else:
         raise ValueError(f"Unknown config {app_type}")
     # create app
@@ -163,6 +169,31 @@ def client_remote_auth(asreview_path_fixture):
     """Flask client for remotely authenticated app, account
     creation not allowed."""
     app = _get_app("auth-remote", path=asreview_path_fixture)
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
+
+
+@pytest.fixture
+def client_oauth(asreview_path_fixture):
+    """Flask client for oauth authenticated app, account
+    creation not allowed."""
+    app = _get_app("oauth", path=asreview_path_fixture)
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
+
+
+@pytest.fixture
+def client_oauth_with_account_creation(asreview_path_fixture):
+    """Flask client for oauth authenticated app, account
+    creation has been configured."""
+    app = _get_app("oauth-with-allowed-account-creation", path=asreview_path_fixture)
+
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)

@@ -4,12 +4,12 @@ import React from "react";
 import { InView } from "react-intersection-observer";
 import { useInfiniteQuery } from "react-query";
 
-import { BoxErrorHandler } from "Components";
+import { InlineErrorHandler } from "Components";
 import { RecordCard } from "ProjectComponents/ReviewComponents";
 import { ProjectAPI } from "api";
 
-import { useReviewSettings } from "context/ReviewSettingsContext";
 import { useMediaQuery } from "@mui/material";
+import { useReviewSettings } from "context/ReviewSettingsContext";
 
 const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
   const { orientation, modelLogLevel } = useReviewSettings();
@@ -58,9 +58,7 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
 
   return (
     <Box aria-label="labeled record">
-      {isError && (
-        <BoxErrorHandler error={error} queryKey="fetchLabeledRecord" />
-      )}
+      {isError && <InlineErrorHandler message={error?.message} />}
       {/* {n_prior !== 0 && !isError && (isLoading || !mounted.current) && (
         <Box className={classes.loading}>
           <CircularProgress />
@@ -77,7 +75,8 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
                     record={record}
                     collapseAbstract={true}
                     disabled={true}
-                    transitionType="none"
+                    transitionType="collapse"
+                    transitionSpeed={{ enter: 500, exit: 800 }}
                     landscape={
                       orientation === "landscape" && !landscapeDisabled
                     }

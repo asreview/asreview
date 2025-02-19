@@ -3,6 +3,7 @@ import {
   Button,
   CardActions,
   CardContent,
+  CardHeader,
   FormHelperText as FHT,
   FormControl,
   Snackbar,
@@ -62,7 +63,8 @@ const ConfirmAccount = () => {
     },
     onSuccess: () => {
       formik.setValues(initialValues, false);
-      navigate("/signin");
+      // if successful, than the user is signed in.
+      navigate("/");
     },
     onError: (data) => {
       setErrorMessage(data.message);
@@ -72,9 +74,9 @@ const ConfirmAccount = () => {
 
   return (
     <form onSubmit={formik.handleSubmit}>
+      <CardHeader title="Confirm your account" />
       <CardContent>
         <Stack spacing={2}>
-          <Typography variant="h5">Confirm your account</Typography>
           <FormControl>
             <Stack spacing={2}>
               <Typography variant="body2">

@@ -26,16 +26,31 @@ export const DrawerItem = ({
         },
         "&:hover": {
           ".MuiBox-root": {
-            bgcolor: alpha(theme.palette.primary.main, 0.2),
+            bgcolor: alpha(theme.palette.grey[600], 0.2),
           },
           bgcolor: "transparent",
         },
         "&.active": {
           ".MuiBox-root": {
-            bgcolor: alpha(theme.palette.secondary.light, 0.6),
+            bgcolor: alpha(
+              theme.palette.mode === "dark"
+                ? theme.palette.secondary.dark
+                : theme.palette.secondary.light,
+              0.6,
+            ),
           },
           ".MuiTypography-root": {
             fontWeight: "bold",
+          },
+        },
+        "&.active:hover": {
+          ".MuiBox-root": {
+            bgcolor: alpha(
+              theme.palette.mode === "dark"
+                ? theme.palette.secondary.dark
+                : theme.palette.secondary.light,
+              0.8,
+            ),
           },
         },
       })}
@@ -58,6 +73,7 @@ export const DrawerItem = ({
             </>
           }
           sx={{
+            px: 0.5,
             textAlign: "center",
           }}
         />

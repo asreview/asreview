@@ -11,7 +11,6 @@ import {
   FormControlLabel,
   List,
   ListItem,
-  ListItemButton,
   ListItemText,
   Radio,
   RadioGroup,
@@ -198,35 +197,20 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
               secondary={"Useful for wide screens"}
             />
           </ListItem>
-          <Divider sx={{ my: 2 }} />
-          <ListItem>
-            <Typography
-              color="textSecondary"
-              display="block"
-              variant="subtitle2"
-            >
-              OTHER
-            </Typography>
-          </ListItem>
-          <ListItem>
-            <ListItemButton
-              component={"a"}
-              href="https://asreview.readthedocs.io/en/latest/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <ListItemText
-                id="switch-list-label-about"
-                primary={
-                  <React.Fragment>
-                    About ASReview LAB <OpenInNewIconStyled />
-                  </React.Fragment>
-                }
-                secondary={`Version ${window.asreviewVersion}`}
-              />
-            </ListItemButton>
-          </ListItem>
         </List>
+        <Divider sx={{ my: 2 }} />
+        <Typography
+          color="textSecondary"
+          display="block"
+          variant="subtitle2"
+          sx={{ mt: 2, textAlign: "center" }}
+          component="a"
+          href="https://asreview.readthedocs.io/en/latest/about.html"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          About ASReview LAB ({window.asreviewVersion}) <OpenInNewIconStyled />
+        </Typography>
       </DialogContent>
       <Dialog open={fontSizeSetting} onClose={toggleFontSizeSetting}>
         <DialogTitle>Font size</DialogTitle>

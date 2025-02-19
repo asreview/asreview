@@ -1,6 +1,4 @@
 import {
-  Alert,
-  AlertTitle,
   Box,
   Button,
   CardActions,
@@ -20,6 +18,7 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  Paper,
   Stack,
   TextField,
   Tooltip,
@@ -136,14 +135,12 @@ const RecordCardLabeler = ({
   showNotes = true,
   labelTime = null,
   user = null,
-  decisionCallback,
+  onDecisionClose = null,
   hotkeys = false,
   landscape = false,
   retrainAfterDecision = true,
   changeDecision = true,
 }) => {
-  const queryClient = useQueryClient();
-
   const [editState] = useToggle(!(label === 1 || label === 0));
   const [showNotesDialog, toggleShowNotesDialog] = useToggle(false);
   const [tagValuesState, setTagValuesState] = React.useState(
@@ -154,12 +151,9 @@ const RecordCardLabeler = ({
     ProjectAPI.mutateClassification,
     {
       onSuccess: () => {
-        // invalidate queries
-        queryClient.invalidateQueries({
-          queryKey: ["fetchRecord", { project_id }],
-        });
-
-        decisionCallback();
+        if (onDecisionClose) {
+          onDecisionClose();
+        }
       },
     },
   );
@@ -189,8 +183,8 @@ const RecordCardLabeler = ({
   const [anchorEl, setAnchorEl] = React.useState(null);
   const openMenu = Boolean(anchorEl);
 
-  useHotkeys("v", () => hotkeys && !isLoading && !isSuccess && makeDecision(1));
-  useHotkeys("x", () => hotkeys && !isLoading && !isSuccess && makeDecision(0));
+  useHotkeys("r", () => hotkeys && !isLoading && !isSuccess && makeDecision(1));
+  useHotkeys("i", () => hotkeys && !isLoading && !isSuccess && makeDecision(0));
   useHotkeys(
     "n",
     () => hotkeys && !isLoading && !isSuccess && toggleShowNotesDialog(),
@@ -201,8 +195,8 @@ const RecordCardLabeler = ({
     <Stack
       sx={(theme) => ({
         bgcolor: alpha(
-          theme.palette.secondary.light,
-          theme.palette.action.selectedOpacity * 2,
+          theme.palette.secondary.main,
+          theme.palette.action.selectedOpacity * 1.5,
         ),
         justifyContent: "space-between",
         alignItems: "stretch",
@@ -259,29 +253,54 @@ const RecordCardLabeler = ({
             <Divider />
             <CardContent>
               {note && (
-                <Alert
-                  severity="info"
-                  color="primary"
-                  icon={<NoteAltOutlinedIcon />}
+                <Paper
+                  elevation={0}
                   sx={{
+                    p: 2,
                     mb: 2,
+                    bgcolor: "background.default",
                   }}
                 >
-                  <AlertTitle>Note</AlertTitle>
-                  {note}
-                </Alert>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <NoteAltOutlinedIcon />
+                    <Typography variant="subtitle1">Note</Typography>
+                  </Stack>
+                  <Typography sx={{ mt: 1 }}>{note}</Typography>
+                </Paper>
               )}
               {labelFromDataset === 0 && (
-                <Alert severity="info" color="primary" icon={<LabelOutlined />}>
-                  <AlertTitle>Not relevant</AlertTitle>
-                  Label in dataset is not relevant
-                </Alert>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    bgcolor: "background.default",
+                  }}
+                >
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <LabelOutlined />
+                    <Typography variant="subtitle1">Not relevant</Typography>
+                  </Stack>
+                  <Typography sx={{ mt: 1 }}>
+                    This record is labeled as not relevant in the dataset
+                  </Typography>
+                </Paper>
               )}
               {labelFromDataset === 1 && (
-                <Alert severity="info" color="primary" icon={<LabelOutlined />}>
-                  <AlertTitle>Relevant</AlertTitle>
-                  Label in dataset is relevant
-                </Alert>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    bgcolor: "background.default",
+                  }}
+                >
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <LabelOutlined />
+                    <Typography variant="subtitle1">Relevant</Typography>
+                  </Stack>
+                  <Typography sx={{ mt: 1 }}>
+                    This record is labeled as relevant in the dataset
+                  </Typography>
+                </Paper>
               )}
             </CardContent>
           </>
@@ -289,24 +308,34 @@ const RecordCardLabeler = ({
 
         {isError && (
           <CardContent>
-            <Alert severity="error">
-              Failed to label record. {error?.message}
-            </Alert>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                bgcolor: (theme) => theme.palette.error.light,
+              }}
+            >
+              <Typography color="error">
+                Failed to label record. {error?.message}
+              </Typography>
+            </Paper>
           </CardContent>
         )}
         <CardActions
           sx={(theme) => ({
-            bgcolor: theme.palette.secondary.dark,
+            bgcolor: alpha(theme.palette.secondary.dark, 1),
+
             display: "block",
-            color: theme.palette.getContrastText(theme.palette.secondary.dark),
+            color: theme.palette.getContrastText(theme.palette.secondary.main),
           })}
         >
           {editState && (
             <>
               <Tooltip
-                title="Add to my collection (V)"
-                enterDelay={800}
+                title="Add to collection of relevant (keyboard shortcut: R)"
+                enterDelay={2000}
                 leaveDelay={200}
+                placement="bottom"
               >
                 <Button
                   id="relevant"
@@ -325,9 +354,10 @@ const RecordCardLabeler = ({
                 </Button>
               </Tooltip>
               <Tooltip
-                title="Mark as not relevant and don't show again (X)"
-                enterDelay={800}
+                title="Mark as not relevant (keyboard shortcut: I)"
+                enterDelay={2000}
                 leaveDelay={200}
+                placement="bottom"
               >
                 <Button
                   id="irrelevant"
@@ -348,7 +378,12 @@ const RecordCardLabeler = ({
 
           {editState && showNotes && (
             <>
-              <Tooltip title="Add note">
+              <Tooltip
+                title="Add note (keyboard shortcut: N)"
+                enterDelay={2000}
+                leaveDelay={200}
+                placement="bottom"
+              >
                 <IconButton
                   onClick={toggleShowNotesDialog}
                   aria-label="add note"

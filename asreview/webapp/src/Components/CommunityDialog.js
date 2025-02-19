@@ -13,13 +13,12 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Stack,
   Typography,
 } from "@mui/material";
 
 import { Description, Feedback, QuestionAnswer } from "@mui/icons-material";
 
-import { BoxErrorHandler, OpenInNewIconStyled } from "Components";
+import { InlineErrorHandler, OpenInNewIconStyled } from "Components";
 
 import { useMediaQuery } from "@mui/material";
 import { UtilsAPI } from "api";
@@ -27,14 +26,11 @@ import { feedbackURL } from "globals.js";
 import { StyledDialog } from "StyledComponents/StyledDialog";
 
 const CommunityDialog = ({ onHelp, toggleHelp }) => {
-  const { data, error, isError, isFetched } = useQuery(
-    "fetchFAQ",
-    UtilsAPI.fetchFAQ,
-    {
-      enabled: onHelp,
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data, error, isError } = useQuery("fetchFAQ", UtilsAPI.fetchFAQ, {
+    enabled: onHelp,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
 
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
@@ -55,9 +51,8 @@ const CommunityDialog = ({ onHelp, toggleHelp }) => {
               Frequently Asked Questions
             </Typography>
           </ListItem>
-          {!isError &&
-            isFetched &&
-            data.map((element, index) => (
+          {data &&
+            data.map((element) => (
               <ListItem key={element.url}>
                 <ListItemButton
                   component={"a"}
@@ -71,18 +66,18 @@ const CommunityDialog = ({ onHelp, toggleHelp }) => {
                   <ListItemText
                     key={element.title}
                     primary={
-                      <React.Fragment>
+                      <>
                         {element.title} <OpenInNewIconStyled />
-                      </React.Fragment>
+                      </>
                     }
                   />
                 </ListItemButton>
               </ListItem>
             ))}
           {isError && (
-            <Stack>
-              <BoxErrorHandler error={error} queryKey="fetchFAQ" />
-            </Stack>
+            <ListItem>
+              <InlineErrorHandler message={error?.message} button={false} />
+            </ListItem>
           )}
           <ListItem
             component={"a"}

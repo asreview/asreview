@@ -100,76 +100,77 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
             {isReviewPath && (
               <Tooltip title={"Go on adventure with Elas"} placement={"right"}>
                 <IconButton onClick={toggleGame}>
-                  <ElasIcon color={"primary"} />
+                  <ElasIcon color={"grey.600"} />
                 </IconButton>
               </Tooltip>
             )}
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            {project_id && (
-              <>
-                <IconButton
-                  size="small"
-                  onClick={setExpandAvatars}
-                  sx={{
-                    mr: 1,
-                  }}
-                >
-                  {expandAvatars ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-                </IconButton>
+          {window.authentication === true && (
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              {project_id && (
+                <>
+                  <IconButton
+                    size="small"
+                    onClick={setExpandAvatars}
+                    sx={{
+                      mr: 1,
+                    }}
+                  >
+                    {expandAvatars ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                  </IconButton>
 
-                <Collapse in={expandAvatars} orientation="horizontal">
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <AvatarGroup
-                      max={20}
-                      sx={{
-                        "& .MuiAvatar-root": {
-                          width: 32,
-                          height: 32,
-                          border: 1,
-                          borderColor: "background.paper",
-                        },
-                      }}
-                    >
-                      {users.map((user, index) => (
-                        <Tooltip
-                          key={user.id || index}
-                          title={user.name || ""}
-                          placement="bottom"
-                          arrow
-                        >
-                          <Avatar>
-                            {user?.name
-                              ? user.name.charAt(0).toUpperCase()
-                              : "?"}
-                          </Avatar>
-                        </Tooltip>
-                      ))}
-                    </AvatarGroup>
-
-                    <Tooltip title="Add team member" arrow>
-                      <IconButton
-                        onClick={handleAddUser}
-                        size="small"
+                  <Collapse in={expandAvatars} orientation="horizontal">
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <AvatarGroup
+                        max={20}
                         sx={{
-                          ml: 0.5,
-                          "& .MuiSvgIcon-root": {
-                            fontSize: "1.2rem",
-                            fontWeight: "bold",
+                          "& .MuiAvatar-root": {
+                            width: 32,
+                            height: 32,
+                            border: 1,
+                            borderColor: "background.paper",
                           },
                         }}
                       >
-                        <AddIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                </Collapse>
-              </>
-            )}
+                        {users.map((user, index) => (
+                          <Tooltip
+                            key={user.id || index}
+                            title={user.name || ""}
+                            placement="bottom"
+                            arrow
+                          >
+                            <Avatar>
+                              {user?.name
+                                ? user.name.charAt(0).toUpperCase()
+                                : "?"}
+                            </Avatar>
+                          </Tooltip>
+                        ))}
+                      </AvatarGroup>
 
-            {window.authentication === true && <ProfilePopper />}
-          </Box>
+                      <Tooltip title="Add team member" arrow>
+                        <IconButton
+                          onClick={handleAddUser}
+                          size="small"
+                          sx={{
+                            ml: 0.5,
+                            "& .MuiSvgIcon-root": {
+                              fontSize: "1.2rem",
+                              fontWeight: "bold",
+                            },
+                          }}
+                        >
+                          <AddIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  </Collapse>
+                </>
+              )}
+              <ProfilePopper />
+            </Box>
+          )}
         </Toolbar>
       </AppBar>
       <Toolbar aria-label="placeholder toolbar" />

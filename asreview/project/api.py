@@ -41,7 +41,7 @@ from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
 from asreview.migrate import migrate_v1_v2
-from asreview.models import get_model_config
+from asreview.models import get_ai_config
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
@@ -250,15 +250,13 @@ class Project:
 
         # This config update assumes that the project only has one dataset.
         self.update_config(
-            dataset_path=file_name,
             name=file_name.rsplit(".", 1)[0],
             datasets=[{"id": dataset_id, "name": file_name}],
         )
 
     def remove_dataset(self):
         """Remove dataset from project."""
-        # reset dataset_path
-        self.update_config(dataset_path=None)
+        self.update_config(datasets=None)
 
         # remove datasets from project
         shutil.rmtree(self.data_dir)
@@ -369,7 +367,6 @@ class Project:
         review_id=None,
         cycle=None,
         reviewer=None,
-        start_time=None,
         status="setup",
     ):
         """Add new review metadata.
@@ -386,8 +383,6 @@ class Project:
         status: str
             The status of the review. One of 'setup', 'running',
             'finished'.
-        start_time:
-            Start of the review.
 
         """
 
@@ -401,24 +396,21 @@ class Project:
 
         Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
 
-        if start_time is None:
-            start_time = int(time.time())
-
         config = self.config
 
-        if cycle is None:
-            cycle_meta = get_model_config()
-        elif isinstance(cycle, ActiveLearningCycle):
-            cycle_meta = cycle.to_meta()
-        elif isinstance(cycle, ActiveLearningCycleData):
-            cycle_meta = cycle
-        else:
-            raise ValueError("Invalid cycle type.")
+        if cycle is not None:
+            if isinstance(cycle, ActiveLearningCycle):
+                cycle_meta = cycle.to_meta()
+            elif isinstance(cycle, ActiveLearningCycleData):
+                cycle_meta = cycle
+            else:
+                raise ValueError("Invalid cycle type.")
 
-        with open(
-            Path(self.project_path, "reviews", review_id, "settings_metadata.json"), "w"
-        ) as f:
-            json.dump(asdict(cycle_meta), f)
+            with open(
+                Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
+                "w",
+            ) as f:
+                json.dump({"current_value": asdict(cycle_meta)}, f)
 
         fp_state = Path(self.project_path, "reviews", review_id, "results.db")
 
@@ -431,9 +423,7 @@ class Project:
 
         review_config = {
             "id": review_id,
-            "start_time": int(time.time()),
             "status": status,
-            # "end_time": int(time.time())
         }
 
         # add container for reviews
@@ -456,9 +446,6 @@ class Project:
         status: str
             The status of the review. One of 'setup', 'running',
             'finished'.
-        start_time:
-            Start of the review.
-        end_time: End time of the review.
         """
 
         # read the file with project info
@@ -475,9 +462,18 @@ class Project:
             state.to_sql(fp_state)
 
         if cycle is not None:
-            cycle.to_file(
-                Path(self.project_path, "reviews", review_id, "settings_metadata.json")
-            )
+            if isinstance(cycle, ActiveLearningCycle):
+                cycle_meta = cycle.to_meta()
+            elif isinstance(cycle, ActiveLearningCycleData):
+                cycle_meta = cycle
+            else:
+                raise ValueError("Invalid cycle type.")
+
+            with open(
+                Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
+                "w",
+            ) as f:
+                json.dump({"current_value": asdict(cycle_meta)}, f)
 
         review_config = config["reviews"][review_index]
         review_config.update(kwargs)
@@ -520,9 +516,7 @@ class Project:
             Identifier of the review to mark as finished.
         """
 
-        self.update_review(
-            review_id=review_id, status="finished", end_time=int(time.time())
-        )
+        self.update_review(review_id=review_id, status="finished")
 
     def export(self, export_fp):
         if Path(export_fp).suffix != ".asreview":
@@ -595,11 +589,19 @@ class Project:
                 )
 
                 try:
-                    ActiveLearningCycle.from_file(cycle_fp)
+                    ActiveLearningCycle.from_file(cycle_fp["current_value"])
                 except ValueError as err:
                     warnings.warn(err)
 
-                    ActiveLearningCycle.from_meta(get_model_config()).to_file(cycle_fp)
+                    with open(cycle_fp) as f:
+                        model = get_ai_config()
+                        json.dump(
+                            {
+                                "name": model["name"],
+                                "current_value": asdict(model["value"]),
+                            },
+                            f,
+                        )
 
             if safe_import:
                 # assign a new id to the project.

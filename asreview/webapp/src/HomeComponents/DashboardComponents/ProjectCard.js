@@ -6,7 +6,6 @@ import {
   MoreHoriz,
   PersonOffOutlined,
   RemoveDoneOutlined,
-  SettingsOutlined,
 } from "@mui/icons-material";
 import { ProjectAPI } from "api";
 import { projectModes, projectStatuses } from "globals.js";
@@ -256,21 +255,6 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                 </ListItemIcon>
                 <ListItemText>Export project</ListItemText>
               </MenuItem>
-              {review?.status !== projectStatuses.SETUP &&
-                !(
-                  mode === projectModes.SIMULATION &&
-                  review?.status === projectStatuses.REVIEW
-                ) && (
-                  <MenuItem
-                    component={Link}
-                    to={`/${projectModeURLMap[mode]}/${project.id}/setup`}
-                  >
-                    <ListItemIcon>
-                      <SettingsOutlined />
-                    </ListItemIcon>
-                    <ListItemText>Setup</ListItemText>
-                  </MenuItem>
-                )}
               <MenuItem
                 onClick={handleClickDelete}
                 disabled={!project?.roles.owner}

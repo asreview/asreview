@@ -88,7 +88,6 @@ const ProfilePopper = () => {
     onSuccess: (data) => {
       setProjectInvitations(data["invited_for_projects"] || []);
     },
-    enabled: window.allowTeams,
   });
 
   const acceptInvitation = useMutation(
@@ -176,7 +175,7 @@ const ProfilePopper = () => {
                     <Typography variant="body2">Profile</Typography>
                   </ListItemText>
                 </MenuItem>
-                {window.allowTeams && projectInvitations.length > 0 && (
+                {projectInvitations.length > 0 && (
                   <MenuItem onClick={openAcceptanceDialog}>
                     <ListItemIcon>
                       <Badge
@@ -205,7 +204,7 @@ const ProfilePopper = () => {
           </Popper>
         </Box>
       </ClickAwayListener>
-      {window.allowTeams && data && (
+      {data && (
         <InvitationsDialog
           open={onAcceptanceDialog}
           onClose={toggleAcceptanceDialog}

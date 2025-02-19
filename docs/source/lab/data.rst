@@ -95,6 +95,7 @@ acceptance in ASReview:
 **Cochrane**         ✅       N/A      ✅       N/A
 **Embase**           ✅       N/A      ✅       ✅
 **Eric (Ovid)**      ✅*      N/A      N/A      N/A
+**OpenAlex**         ✅       N/A      ✅       N/A
 **Psychinfo (Ovid)** ✅*      N/A      N/A      N/A
 **Pubmed**           X        N/A      X        N/A
 **Scopus**           ✅       N/A      ✅       N/A

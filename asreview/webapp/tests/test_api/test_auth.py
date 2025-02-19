@@ -1,13 +1,16 @@
 import datetime as dt
 import json
 from inspect import getfullargspec
+import re
 
 import pytest
 
-import asreview.webapp.tests.utils.api_utils as au
-import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
+from asreview.webapp.tests.conftest import _get_app
+import asreview.webapp.tests.utils.api_utils as au
 from asreview.webapp.tests.utils.config_parser import get_user
+import asreview.webapp.tests.utils.crud as crud
+
 
 # ###################
 # SIGNUP
@@ -15,15 +18,28 @@ from asreview.webapp.tests.utils.config_parser import get_user
 
 
 # test that creating a user when the app runs a no-creation
-# policy, is impossible
-def test_impossible_to_signup_when_not_allowed(client_auth_no_creation):
+# policy, is impossible. This happens when explicitly
+# ALLOW_ACCOUNT_CREATION is set to False or oAuth is configured.
+@pytest.mark.parametrize("client_fixture", ["client_auth_no_creation", "client_oauth"])
+def test_deny_signup_when_not_allowed(request, client_fixture):
+    # get client
+    client = request.getfixturevalue(client_fixture)
     # get user data
     user = get_user(1)
     # post form data
-    r = au.signup_user(client_auth_no_creation, user)
-    # check if we get a 400 status
-    assert r.status_code == 400
+    r = au.signup_user(client, user)
+
+    assert r.status_code == 404
     assert r.json["message"] == "The app is not configured to create accounts"
+
+
+# test Exception when allow account creation and oAuth are explicitly
+# configured
+def test_raise_error_when_both_oauth_and_signup_is_allowed(asreview_path_fixture):
+    with pytest.raises(ValueError):
+        _get_app(
+            app_type="oauth-with-allowed-account-creation", path=asreview_path_fixture
+        )
 
 
 # Successful signup returns a 200 but with an unconfirmed user and
@@ -35,22 +51,39 @@ def test_successful_signup_confirmed(client_auth_verified):
     r = au.signup_user(client_auth_verified, user)
     # check if we get a 200 status
     assert r.status_code == 201
-    assert (
-        r.json["message"]
-        == f"An email has been sent to {user.email} "
-        + "to verify your account. Please follow instructions."
-    )
+    assert f"An email has been sent to {user.email}" in r.json["message"]
 
 
-# test basic signing up
+# test basic signing up, no email verification, user is
+# logged in after signup
 def test_successful_signup_no_confirmation(client_auth):
     # get user data
     user = get_user(1)
     # post form data
-    r = au.signup_user(client_auth, user)
+    response = au.signup_user(client_auth, user)
+    # check if user is confirmed
+    user = crud.get_user_by_identifier(user.identifier)
+    assert user.confirmed
     # check if we get a 201 status
-    assert r.status_code == 201
-    assert r.json["message"] == f'User "{user.email}" created.'
+    payload = json.loads(response.text)
+    assert response.status_code == 201
+    assert isinstance(payload, dict)
+    assert payload["logged_in"]
+
+
+# test basic signing up with email verification
+def test_successful_signup_with_confirmation(client_auth_verified):
+    # get user data
+    user = get_user(1)
+    # post form data
+    response = au.signup_user(client_auth_verified, user)
+    # check if we get a 201 status
+    payload = json.loads(response.text)
+    assert response.status_code == 201
+    assert "An email has been sent" in payload["message"]
+    user = crud.get_user_by_identifier(user.identifier)
+    assert not user.confirmed
+    assert bool(re.fullmatch(r"^\d+$", user.token))
 
 
 # Test user data if we request is
@@ -212,7 +245,8 @@ def test_token_confirmation_after_signup(client_auth_verified):
     r = au.confirm_user(client_auth_verified, user)
     payload = json.loads(r.text)
     assert r.status_code == 200
-    assert payload["message"] == "Account confirmed"
+    assert isinstance(payload, dict)
+    assert payload["logged_in"]
 
 
 # A token expires in 24 hours, test confirmation response after
@@ -394,7 +428,8 @@ def test_reset_password(client_auth_verified):
     # reset it
     r = au.reset_password(client_auth_verified, user)
     assert r.status_code == 200
-    assert r.json["message"] == "Password updated."
+    assert isinstance(r.json, dict)
+    assert r.json["logged_in"]
 
 
 # Test reset password: id not found

@@ -12,7 +12,12 @@ import {
   Toolbar,
   useMediaQuery,
 } from "@mui/material";
-import { CommunityDialog, Header, SettingsDialog } from "Components";
+import {
+  CommunityDialog,
+  Header,
+  SettingsDialog,
+  ErrorBoundary,
+} from "Components";
 import { Link, Outlet } from "react-router-dom";
 
 import { useToggle } from "hooks/useToggle";
@@ -181,7 +186,9 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
           toggleNavDrawer={toggleMobileDrawer}
           menuOpenButton={mobileScreen}
         />
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </Box>
     </ReviewSettingsProvider>
   );

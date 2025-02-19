@@ -66,7 +66,6 @@ secure way (https).
     SESSION_COOKIE_SAMESITE = "Lax"
     SQLALCHEMY_TRACK_MODIFICATIONS = true
     ALLOW_ACCOUNT_CREATION = true
-    ALLOW_TEAMS = false
     EMAIL_VERIFICATION = false
 
     MAIL_SERVER = "<smtp-server>"
@@ -223,10 +222,6 @@ Mail configuration
 
 - `ASRVIEW_LAB_EMAIL_VERIFICATION` - If true, email verification is required for new accounts.
 - `ASREVIEW_LAB_MAIL_*` - Mail related config from https://pythonhosted.org/Flask-Mail/#configuring-flask-mail
-
-Teams configuration
-
-- `ASREVIEW_LAB_ALLOW_TEAMS`` - If true, teams are enabled and users can create teams.
 
 CORS configuration
 

@@ -26,6 +26,7 @@ from asreview import load_dataset
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
+from asreview.models.models import get_ai_config
 from asreview.models.queriers import TopDown
 from asreview.models.stoppers import IsFittable
 from asreview.models.stoppers import LastRelevant
@@ -161,7 +162,7 @@ def _cli_simulate(argv):
 
     if args.config_file:
         cycle_meta = ActiveLearningCycleData(**_read_config_file(args.config_file))
-    else:
+    elif args.classifier or args.querier or args.balancer or args.feature_extractor:
         cycle_meta = ActiveLearningCycleData(
             querier=args.querier,
             classifier=args.classifier,
@@ -169,6 +170,8 @@ def _cli_simulate(argv):
             feature_extractor=args.feature_extractor,
             n_query=args.n_query,
         )
+    else:
+        cycle_meta = get_ai_config(args.ai.lower())["value"]
 
     cycles = [
         ActiveLearningCycle(
@@ -220,7 +223,7 @@ def _cli_simulate(argv):
     sim.review()
 
     if args.output is not None:
-        project.add_review(cycle=cycle_meta, reviewer=sim, status="finished")
+        project.add_review(reviewer=sim, status="finished")
 
         project.export(args.output)
         shutil.rmtree(fp_tmp_simulation)
@@ -285,17 +288,21 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="Prior indices by record-id.",
     )
     parser.add_argument(
+        "--ai",
+        type=str,
+        default=get_ai_config()["name"],
+        help=f"The AI to simulate with. Default {get_ai_config()['name']}.",
+    )
+    parser.add_argument(
         "-c",
         "--classifier",
         type=str,
-        default="nb",
         help="The classifier for active learning. Default: 'nb'.",
     )
     parser.add_argument(
         "-q",
         "--querier",
         type=str,
-        default="max",
         help="The querier for active learning. Default: 'max'.",
     )
     parser.add_argument(
@@ -303,23 +310,14 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "--balancer",
         type=str,
         dest="balancer",
-        default="balanced",
         help="Data rebalancing strategy mainly for RNN methods. Helps against"
         " imbalanced dataset with few inclusions and many exclusions. "
         "Default: 'balanced'",
     )
     parser.add_argument(
-        "--no-balancer",
-        action="store_const",
-        const=None,
-        dest="balancer",
-        help="Do not use a balance strategy.",
-    )
-    parser.add_argument(
         "-e",
         "--feature-extractor",
         type=str,
-        default="tfidf",
         help="Feature extraction algorithm. Some combinations of feature"
         " extractors and classifiers are not supported or feasible. Default: 'tfidf'.",
     )

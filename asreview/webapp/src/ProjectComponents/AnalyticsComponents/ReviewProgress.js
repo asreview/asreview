@@ -61,19 +61,21 @@ export default function ReviewProgress({ project_id }) {
     : [
         {
           label: "Not Relevant",
-          value: data.n_excluded_no_priors,
-          color:
-            theme.palette.mode === "light"
-              ? theme.palette.primary.light
-              : theme.palette.primary.main,
+          value:
+            data.n_excluded_no_priors > 0 &&
+            data.n_excluded_no_priors / data.n_records < 0.005
+              ? data.n_records * 0.005
+              : data.n_excluded_no_priors,
+          color: theme.palette.grey[600],
         },
         {
           label: "Relevant",
-          value: data.n_included_no_priors,
-          color:
-            theme.palette.mode === "light"
-              ? theme.palette.grey[600]
-              : theme.palette.grey[600],
+          value:
+            data.n_included_no_priors > 0 &&
+            data.n_included_no_priors / data.n_records < 0.005
+              ? data.n_records * 0.005
+              : data.n_included_no_priors,
+          color: theme.palette.tertiary.dark,
         },
         {
           label: "Unlabeled",
@@ -92,19 +94,13 @@ export default function ReviewProgress({ project_id }) {
           label: "Relevant",
           value: data.n_included_no_priors.toLocaleString(),
           priorValue: includePrior ? data.n_included.toLocaleString() : null,
-          color:
-            theme.palette.mode === "light"
-              ? theme.palette.grey[600]
-              : theme.palette.grey[600],
+          color: theme.palette.tertiary.dark,
         },
         {
           label: "Not Relevant",
           value: data.n_excluded_no_priors.toLocaleString(),
           priorValue: includePrior ? data.n_excluded.toLocaleString() : null,
-          color:
-            theme.palette.mode === "light"
-              ? theme.palette.primary.light
-              : theme.palette.primary.main,
+          color: theme.palette.grey[600],
         },
         {
           label: "Unlabeled",
@@ -122,15 +118,12 @@ export default function ReviewProgress({ project_id }) {
     {
       label: "Not Relevant",
       value: 25,
-      color:
-        theme.palette.mode === "light"
-          ? theme.palette.primary.light
-          : theme.palette.primary.main,
+      color: theme.palette.grey[600],
     },
     {
       label: "Relevant",
       value: 5,
-      color: theme.palette.grey[600],
+      color: theme.palette.tertiary.dark,
     },
     {
       label: "Unlabeled",
@@ -276,7 +269,7 @@ export default function ReviewProgress({ project_id }) {
                         value: item.value,
                         color: item.color,
                       })),
-                      innerRadius: 20,
+                      innerRadius: 10,
                       outerRadius: 80,
                       paddingAngle: 5,
                       cornerRadius: 10,
@@ -288,6 +281,11 @@ export default function ReviewProgress({ project_id }) {
                   ]}
                   height={180}
                   width={180}
+                  sx={{
+                    "& .MuiPieArc-root": {
+                      strokeWidth: 0,
+                    },
+                  }}
                 />
               </Box>
             )}
@@ -341,7 +339,7 @@ export default function ReviewProgress({ project_id }) {
                         value: item.value,
                         color: item.color,
                       })),
-                      innerRadius: 20,
+                      innerRadius: 10,
                       outerRadius: 80,
                       paddingAngle: 5,
                       cornerRadius: 10,
@@ -353,6 +351,11 @@ export default function ReviewProgress({ project_id }) {
                   ]}
                   height={180}
                   width={180}
+                  sx={{
+                    "& .MuiPieArc-root": {
+                      strokeWidth: 0,
+                    },
+                  }}
                 />
               </Box>
             </Box>

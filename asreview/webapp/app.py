@@ -44,7 +44,7 @@ from asreview.webapp._authentication.remote_user_handler import RemoteUserHandle
 from asreview.webapp.utils import asreview_path
 
 
-def create_app(config_path=None):
+def create_app(**config_vars):
     """Create a new ASReview webapp.
 
     For use with WSGI servers, such as gunicorn:
@@ -65,9 +65,8 @@ def create_app(config_path=None):
     )
 
     app.config.from_prefixed_env("ASREVIEW_LAB")
-
-    # load config from file
-    if config_fp := (config_path or app.config.get("CONFIG_PATH", None)):
+    app.config.from_mapping(**{k.upper(): v for k, v in config_vars.items()})
+    if config_fp := app.config.get("CONFIG_PATH", None):
         app.config.from_file(Path(config_fp).absolute(), load=tomllib.load, text=False)
 
     # if there are no cors and config is in debug mode, add default cors
@@ -106,9 +105,21 @@ def create_app(config_path=None):
         with app.app_context():
             # create tables in case they don't exist
             DB.create_all()
+
         # store oauth config in oauth handler
         if bool(app.config.get("OAUTH", False)):
+            # set configuration
             app.config["OAUTH"] = OAuthHandler(app.config["OAUTH"])
+            # check if user set ALLOW_ACCOUNT_CREATION to True, then
+            # raise error
+            if app.config.get("ALLOW_ACCOUNT_CREATION"):
+                raise ValueError(
+                    "When oAuth is used for authentication, the app "
+                    "will not allow account creation"
+                )
+            # explicitly set account creation to False when oAuth is
+            # used to avoid account conflicts.
+            app.config["ALLOW_ACCOUNT_CREATION"] = False
         if bool(app.config.get("REMOTE_USER", False)):
             app.config["REMOTE_USER"] = RemoteUserHandler(app.config["REMOTE_USER"])
 
@@ -141,9 +152,10 @@ def create_app(config_path=None):
     @app.route("/oauth_callback", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
     def index(**kwargs):
-        oauth_params = None
         if isinstance(app.config.get("OAUTH", False), OAuthHandler):
             oauth_params = json.dumps(app.config.get("OAUTH").front_end_params())
+        else:
+            oauth_params = str(False).lower()
 
         return render_template(
             "index.html",
@@ -154,7 +166,6 @@ def create_app(config_path=None):
             allow_account_creation=str(
                 app.config.get("ALLOW_ACCOUNT_CREATION", True)
             ).lower(),
-            allow_teams=str(app.config.get("ALLOW_TEAMS", True)).lower(),
             email_verification=str(app.config.get("EMAIL_VERIFICATION", False)).lower(),
             oauth=oauth_params,
         )

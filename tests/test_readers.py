@@ -7,6 +7,7 @@ from pytest import mark
 
 from asreview.data.loader import _from_file
 from asreview.data.loader import load_records
+from asreview.data.ris import RISReader
 from asreview.utils import _is_url
 
 
@@ -186,3 +187,60 @@ def test_load_records_from_url(tmpdir):
 def test_real_datasets(dataset_fp):
     data = load_records(dataset_fp)
     assert len(data) > 5
+
+
+def test_ris_lb_tag(tmpdir):
+    record = """TY  - JOUR
+LB  - 1
+TI  - This is the title
+ER  -
+
+TY  - JOUR
+LB  - 0
+TI  - This is the second title
+ER  -
+
+TY  - JOUR
+LB  - 28362428
+TI  - This is another title
+ER  -
+"""
+    fp = Path(tmpdir, "lb_data.ris")
+    with open(fp, "w") as f:
+        f.write(record)
+
+    records = RISReader.read_records(fp, dataset_id="foo")
+    assert len(records) == 3
+    for record in records:
+        assert record.included is None
+
+
+def test_ris_author_tags(tmpdir):
+    record = """TY  - JOUR
+AU  - author0
+AU  - author1
+AU  - author2
+TI  - This is the title
+ER  -
+
+TY  - JOUR
+A1  - author0
+A1  - author1
+A1  - author2
+TI  - This is the second title
+ER  -
+
+TY  - JOUR
+AU  - author0
+A1  - author1
+A1  - author2
+TI  - This is another title
+ER  -
+"""
+    fp = Path(tmpdir, "author_tags_data.ris")
+    with open(fp, "w") as f:
+        f.write(record)
+
+    records = RISReader.read_records(fp, dataset_id="foo")
+    for record in records:
+        assert record.authors == ["author0", "author1", "author2"]

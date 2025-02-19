@@ -1,8 +1,6 @@
 import React from "react";
 import EditIcon from "@mui/icons-material/Edit";
-import ArticleIcon from "@mui/icons-material/Article";
-import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
-import SettingsIcon from "@mui/icons-material/Settings";
+import { DoneAll } from "@mui/icons-material";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import {
   Box,
@@ -18,7 +16,6 @@ import {
   TextField,
   Typography,
   LinearProgress,
-  Dialog,
   Divider,
   MenuItem,
   Select,
@@ -26,22 +23,19 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useNavigate } from "react-router-dom";
-import { projectStatuses } from "globals.js";
+import StoppingReachedDialog from "../ReviewComponents/StoppingReachedDialog";
 
 const StoppingSuggestion = ({ project_id }) => {
   const theme = useTheme();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
-
   const [stoppingRuleThreshold, setStoppingRuleThreshold] =
     React.useState(null);
   const [customThreshold, setCustomThreshold] = React.useState("");
   const [isThresholdSet, setIsThresholdSet] = React.useState(null);
   const [anchorElEdit, setAnchorElEdit] = React.useState(null);
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
-  const [openCompletionPopup, setOpenCompletionPopup] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
+  const [showStoppingDialog, setShowStoppingDialog] = React.useState(false);
 
   const { data: projectData } = useQuery(
     ["fetchData", { project_id }],
@@ -62,9 +56,6 @@ const StoppingSuggestion = ({ project_id }) => {
 
         if (hasThreshold) {
           setStoppingRuleThreshold(data.params.n);
-          if (data?.value >= data?.params?.n) {
-            setOpenCompletionPopup(true);
-          }
         }
       },
     },
@@ -86,7 +77,7 @@ const StoppingSuggestion = ({ project_id }) => {
 
   React.useEffect(() => {
     if (data && data?.value && data?.params?.n) {
-      const targetValue = (data.value / data.params.n) * 100;
+      const targetValue = Math.min((data.value / data.params.n) * 100, 100);
       setProgress(0);
 
       const duration = 300;
@@ -121,45 +112,9 @@ const StoppingSuggestion = ({ project_id }) => {
     {
       label: "Current",
       value: data?.value || 0,
-      color: theme.palette.primary.main,
+      color: theme.palette.grey[600],
     },
   ];
-
-  const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(["fetchProjectStatus", { project_id }]);
-      queryClient.invalidateQueries(["fetchProjectInfo", { project_id }]);
-    },
-  });
-
-  const handleFinishProject = () => {
-    mutate({
-      project_id: project_id,
-      status: projectStatuses.FINISHED,
-    });
-    setOpenCompletionPopup(false);
-  };
-
-  const handleSelectDifferentModel = () => {
-    mutate({
-      project_id: project_id,
-      status: projectStatuses.REVIEW,
-    });
-    navigate(`/reviews/${project_id}/setup`);
-    setOpenCompletionPopup(false);
-  };
-
-  const handleRemindLater = () => {
-    mutate({
-      project_id: project_id,
-      status: projectStatuses.REVIEW,
-    });
-    updateStoppingRule({
-      project_id: project_id,
-      threshold: stoppingRuleThreshold + 20,
-    });
-    setOpenCompletionPopup(false);
-  };
 
   const handleHelpPopoverOpen = (event) => {
     setAnchorElInfo(event.currentTarget);
@@ -183,7 +138,7 @@ const StoppingSuggestion = ({ project_id }) => {
             borderRadius: 50,
             backgroundColor: theme.palette.grey[400],
             "& .MuiLinearProgress-bar": {
-              backgroundColor: theme.palette.primary.main,
+              backgroundColor: theme.palette.grey[600],
               borderRadius: 50,
             },
           }}
@@ -198,11 +153,21 @@ const StoppingSuggestion = ({ project_id }) => {
               color: theme.palette.grey[400],
             }}
           >
-            <DoneRoundedIcon sx={{ fontSize: 30 }} />
+            <DoneAll sx={{ fontSize: 30 }} />
           </IconButton>
         )}
       </Box>
     );
+  };
+
+  const handleStoppingCircleClick = () => {
+    if (progress >= 100) {
+      setShowStoppingDialog(true);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setShowStoppingDialog(false);
   };
 
   return (
@@ -365,7 +330,7 @@ const StoppingSuggestion = ({ project_id }) => {
                   position: "relative",
                   cursor: progress >= 100 ? "pointer" : "default",
                 }}
-                onClick={() => progress >= 100 && setOpenCompletionPopup(true)}
+                onClick={handleStoppingCircleClick}
               >
                 <LinearProgress
                   variant="determinate"
@@ -377,7 +342,7 @@ const StoppingSuggestion = ({ project_id }) => {
                     backgroundColor: theme.palette.grey[400],
                     transition: "value 1s linear",
                     "& .MuiLinearProgress-bar": {
-                      backgroundColor: theme.palette.primary.main,
+                      backgroundColor: theme.palette.grey[600],
                       borderRadius: 50,
                     },
                   }}
@@ -395,7 +360,7 @@ const StoppingSuggestion = ({ project_id }) => {
                       justifyContent: "center",
                     }}
                   >
-                    <DoneRoundedIcon sx={{ fontSize: 50 }} />
+                    <DoneAll sx={{ fontSize: 50 }} />
                   </Box>
                 )}
               </Box>
@@ -632,148 +597,11 @@ const StoppingSuggestion = ({ project_id }) => {
           </Stack>
         </Box>
       </Popover>
-      <Dialog
-        open={openCompletionPopup}
-        onClose={() => setOpenCompletionPopup(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <Box sx={{ p: 2.5 }}>
-          <Stack spacing={2.5}>
-            <Box>
-              <Typography
-                fontWeight="bold"
-                sx={{ fontFamily: "Roboto Serif", mt: 1, fontSize: 24 }}
-                align="center"
-              >
-                Stopping suggestion reached,
-              </Typography>
-              <Typography
-                fontWeight="bold"
-                sx={{ fontFamily: "Roboto Serif", mb: 3, fontSize: 24 }}
-                align="center"
-              >
-                how do you want to proceed?
-              </Typography>
-              <Typography variant="body2">
-                You've reached your stopping threshold for this project. This
-                indicates that all relevant records have likely been found. You
-                can always return to this menu by clicking on the stopping
-                circle.
-              </Typography>
-            </Box>
-
-            <Divider />
-
-            <Box>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                Available Actions
-              </Typography>
-              <Stack spacing={2}>
-                <Button
-                  onClick={handleFinishProject}
-                  sx={{
-                    justifyContent: "flex-start",
-                    textAlign: "left",
-                    p: 1,
-                    textTransform: "none",
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="flex-start"
-                    width="100%"
-                  >
-                    <DoneRoundedIcon fontSize="small" color="primary" />
-                    <Box>
-                      <Typography variant="body2" fontWeight="medium">
-                        Mark Project as Finished
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Complete your review and export your results
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Button>
-
-                <Button
-                  onClick={handleSelectDifferentModel}
-                  sx={{
-                    justifyContent: "flex-start",
-                    textAlign: "left",
-                    p: 1,
-                    textTransform: "none",
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="flex-start"
-                    width="100%"
-                  >
-                    <SettingsIcon fontSize="small" color="primary" />
-                    <Box>
-                      <Typography variant="body2" fontWeight="medium">
-                        Continue with Different Model
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Switch to an alternative model for further screening
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Button>
-
-                <Button
-                  onClick={handleRemindLater}
-                  sx={{
-                    justifyContent: "flex-start",
-                    textAlign: "left",
-                    p: 1,
-                    textTransform: "none",
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="flex-start"
-                    width="100%"
-                  >
-                    <ArticleIcon fontSize="small" color="primary" />
-                    <Box>
-                      <Typography variant="body2" fontWeight="medium">
-                        Review 20 More Records
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Continue screening with an increased threshold
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Button>
-              </Stack>
-            </Box>
-            <Divider />
-            <Button
-              href="https://github.com/asreview/asreview/discussions/557"
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ textTransform: "none", p: 0 }}
-            >
-              Learn more about stopping →
-            </Button>
-
-            <Box align="center" mt={2}>
-              <Button
-                onClick={() => setOpenCompletionPopup(false)}
-                variant="contained"
-                sx={{ textTransform: "none" }}
-              >
-                Close
-              </Button>
-            </Box>
-          </Stack>
-        </Box>
-      </Dialog>
+      <StoppingReachedDialog
+        open={showStoppingDialog}
+        onClose={handleCloseDialog}
+        project_id={project_id}
+      />
     </Card>
   );
 };

@@ -93,14 +93,12 @@ def lab_entry_point(argv):
     if not args.skip_update_check:
         _check_for_update()
 
-    app = create_app(config_path=args.config_path)
-
-    # override config with command line arguments
-    if args.secret_key:
-        app.config["SECRET_KEY"] = args.secret_key
-
-    if args.salt:
-        app.config["SALT"] = args.salt
+    app = create_app(
+        config_path=args.config_path,
+        secret_key=args.secret_key,
+        salt=args.salt,
+        authentication=args.authentication,
+    )
 
     # By default, the application is authenticated but lab is not.
     # Behavior:
@@ -113,9 +111,12 @@ def lab_entry_point(argv):
     #       None       |        True      |         True
     #       None       |        False     |         False
     # ==========================================================
-    app.config["AUTHENTICATION"] = (
-        app.config.get("AUTHENTICATION", False) or args.authentication
-    )
+
+    if app.testing:
+        return app
+
+    # NO MORE APP CONFIGURATION BELOW THIS LINE
+    # =========================================
 
     # clean all projects
     # TODO@{Casper}: this needs a little bit

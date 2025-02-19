@@ -33,9 +33,7 @@ const SignupSchema = Yup.object().shape({
     .required("Email is required")
     .nullable(),
   name: Yup.string().required("Full name is required").nullable(),
-  affiliation: Yup.string()
-    .min(2, "Affiliation must be at least 2 characters long")
-    .required("Affiliation is required"),
+  affiliation: Yup.string(),
   oldPassword: Yup.string(),
   newPassword: passwordValidation(Yup.string()),
   confirmPassword: Yup.string()
@@ -316,17 +314,12 @@ const ProfilePage = (props) => {
               value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              slotProps={{
-                htmlInput: {
-                  autoComplete: "off",
-                },
-              }}
+              autoComplete="off"
             />
             {formik.touched.name && formik.errors.name ? (
               <FHT error={true}>{formik.errors.name}</FHT>
             ) : null}
             <TextField
-              required={true}
               id="affiliation"
               label="Affiliation"
               size="small"
@@ -334,11 +327,7 @@ const ProfilePage = (props) => {
               value={formik.values.affiliation}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              slotProps={{
-                htmlInput: {
-                  autoComplete: "off",
-                },
-              }}
+              autoComplete="off"
             />
             {formik.touched.affiliation && formik.errors.affiliation ? (
               <FHT error={true}>{formik.errors.affiliation}</FHT>
