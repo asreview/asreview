@@ -1,5 +1,5 @@
 import {
-  DisplaySettingsOutlined,
+  SettingsOutlined,
   Diversity1Outlined,
   Menu,
 } from "@mui/icons-material";
@@ -42,10 +42,10 @@ const BottomNavigationDrawerItems = ({
       {/* Bottom Section */}
       <Box>
         <DrawerItem
-          key={"display"}
-          primary={"Display"}
+          key={"settings"}
+          primary={"Settings"}
           rail={rail}
-          icon={<DisplaySettingsOutlined />}
+          icon={<SettingsOutlined />}
           onClick={() => {
             if (toggleNavDrawer) {
               toggleNavDrawer();
