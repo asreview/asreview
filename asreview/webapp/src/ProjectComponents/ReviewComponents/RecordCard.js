@@ -85,7 +85,6 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
               className={"fontSize" + fontSize}
               variant="body1"
               sx={{
-                color: "text.secondary",
                 fontStyle: "italic",
                 textAlign: "justify",
               }}
@@ -98,7 +97,6 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
             className={"fontSize" + fontSizeOptions[fontSize]}
             variant="body1"
             sx={{
-              color: "text.secondary",
               whiteSpace: "pre-line",
               textAlign: "justify",
               hyphens: "auto",
