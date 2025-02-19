@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@fontsource/kanit": "^5.1.1",
     "@fontsource/roboto": "^5.0.14",
     "@fontsource/roboto-serif": "^5.1.1",
     "@mui/icons-material": "^6.1.0",
