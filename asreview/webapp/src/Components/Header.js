@@ -96,7 +96,11 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
               </Typography>
               <Typography
                 component="span"
-                sx={{ fontFamily: "kanit", fontSize: "120%" }}
+                sx={{
+                  fontFamily: "kanit",
+                  fontSize: "120%",
+                  fontWeight: "bold",
+                }}
                 color="#FFCC00"
               >
                 LAB

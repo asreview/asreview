@@ -93,7 +93,7 @@ const AuthPage = ({
           </Typography>
           <Typography
             component="span"
-            sx={{ fontFamily: "kanit", fontSize: "130%" }}
+            sx={{ fontFamily: "kanit", fontSize: "130%", fontWeight: "bold" }}
             color="#FFCC00"
           >
             LAB
