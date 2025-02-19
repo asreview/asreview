@@ -26,7 +26,7 @@ def test_simulate_basic(demo_data, balancer):
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results.shape[0] < 50
+    assert sim._results.shape[0] < 60
 
 
 @pytest.mark.parametrize("classifier", ["nb", "logistic", "svm"])
@@ -49,7 +49,7 @@ def test_simulate_basic_classifiers(demo_data, classifier):
     sim.review()
 
     assert isinstance(sim._results, pd.DataFrame)
-    assert sim._results.shape[0] < 50
+    assert sim._results.shape[0] < 60
 
 
 def test_simulate_no_prior(demo_data):

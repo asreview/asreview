@@ -56,12 +56,14 @@ class Tfidf(Pipeline):
     name = "tfidf"
     label = "TF-IDF"
 
-    def __init__(self, stop_words="english", **kwargs):
-        self.stop_words = stop_words
+    def __init__(self, **kwargs):
+        if "ngram_range" in kwargs:
+            kwargs["ngram_range"] = tuple(kwargs["ngram_range"])
+
         super().__init__(
             [
                 ("text_merger", TextMerger(columns=["title", "abstract"])),
-                ("tfidf", TfidfVectorizer(stop_words=stop_words, **kwargs)),
+                ("tfidf", TfidfVectorizer(**kwargs)),
             ]
         )
 
@@ -76,29 +78,10 @@ class OneHot(Pipeline):
     name = "onehot"
     label = "OneHot"
 
-    def __init__(
-        self,
-        max_df=0.9,
-        min_df=0.05,
-        ngram_range=(1, 3),
-        **kwargs,
-    ):
-        self.max_df = max_df
-        self.min_df = min_df
-        self.ngram_range = ngram_range
-
+    def __init__(self, **kwargs):
         super().__init__(
             [
                 ("text_merger", TextMerger(columns=["title", "abstract"])),
-                (
-                    "onehot",
-                    CountVectorizer(
-                        binary=True,
-                        max_df=max_df,
-                        min_df=min_df,
-                        ngram_range=ngram_range,
-                        **kwargs,
-                    ),
-                ),
+                ("onehot", CountVectorizer(binary=True, **kwargs)),
             ]
         )
