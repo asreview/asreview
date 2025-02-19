@@ -44,7 +44,7 @@ const AuthPage = ({
           md: "auto",
         }}
       >
-        <Fade in timeout={1000}>
+        <Fade in timeout={300}>
           <Box sx={{ width: { xs: "100%", sm: "400px" } }}>
             <Card>
               {typeof window.loginInfo === "string" &&
@@ -83,31 +83,39 @@ const AuthPage = ({
         alignItems="center"
         padding={4}
       >
-        <Typography variant="h4" align="center" fontFamily={"Roboto Serif"}>
-          Welcome to{" "}
-          <Typography
-            component="span"
-            sx={{ fontFamily: "kanit", fontSize: "130%", mr: 0.5 }}
-          >
-            ASReview
-          </Typography>
-          <Typography
-            component="span"
-            sx={{ fontFamily: "kanit", fontSize: "130%" }}
-            color="#FFCC00"
-          >
-            LAB
-          </Typography>
-        </Typography>
+        <Fade in timeout={1000}>
+          <Box>
+            <Typography variant="h4" align="center" fontFamily={"Roboto Serif"}>
+              Welcome to{" "}
+              <Typography
+                component="span"
+                sx={{ fontFamily: "kanit", fontSize: "130%", mr: 0.5 }}
+              >
+                ASReview
+              </Typography>
+              <Typography
+                component="span"
+                sx={{
+                  fontFamily: "kanit",
+                  fontSize: "130%",
+                  fontWeight: "bold",
+                }}
+                color="#FFCC00"
+              >
+                LAB
+              </Typography>
+            </Typography>
 
-        <Typography
-          variant="h6"
-          align="center"
-          marginTop={2}
-          fontFamily={"Roboto Serif"}
-        >
-          Transparent systematic reviews with AI
-        </Typography>
+            <Typography
+              variant="h6"
+              align="center"
+              marginTop={2}
+              fontFamily={"Roboto Serif"}
+            >
+              Transparent systematic reviews with AI
+            </Typography>
+          </Box>
+        </Fade>
       </Grid>
     </Grid>
   );

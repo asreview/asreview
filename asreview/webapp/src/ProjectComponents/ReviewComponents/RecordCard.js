@@ -4,6 +4,7 @@ import {
   Card,
   CardContent,
   Collapse,
+  Divider,
   Fade,
   Grid2 as Grid,
   Link,
@@ -25,36 +26,32 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
 
   return (
     <CardContent aria-label="record title abstract" sx={{ m: 1 }}>
-      <Stack spacing={1}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="baseline"
+      <Stack spacing={2}>
+        {/* Show the title */}
+        <Typography
+          variant={"h5"}
+          sx={(theme) => ({
+            fontWeight: theme.typography.fontWeightMedium,
+            lineHeight: 1.4,
+          })}
         >
-          {/* Show the title */}
-          <Typography
-            variant={"h5"}
-            sx={(theme) => ({
-              fontWeight: theme.typography.fontWeightRegular,
-            })}
-          >
-            {/* No title, inplace text */}
-            {(record.title === "" || record.title === null) && (
-              <Box
-                className={"fontSize" + fontSizeOptions[fontSize]}
-                fontStyle="italic"
-              >
-                No title available
-              </Box>
-            )}
+          {/* No title, inplace text */}
+          {(record.title === "" || record.title === null) && (
+            <Box
+              className={"fontSize" + fontSizeOptions[fontSize]}
+              fontStyle="italic"
+            >
+              No title available
+            </Box>
+          )}
 
-            {!(record.title === "" || record.title === null) && (
-              <Box className={"fontSize" + fontSizeOptions[fontSize]}>
-                {record.title}
-              </Box>
-            )}
-          </Typography>
-        </Stack>
+          {!(record.title === "" || record.title === null) && (
+            <Box className={"fontSize" + fontSizeOptions[fontSize]}>
+              {record.title}
+            </Box>
+          )}
+        </Typography>
+        <Divider />
         <Stack direction="row" spacing={1}>
           {!(record.doi === undefined || record.doi === null) && (
             <Tooltip title="Open DOI">
@@ -82,51 +79,60 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
             </Tooltip>
           )}
         </Stack>
-
-        {(record.abstract === "" || record.abstract === null) && (
-          <Typography
-            className={"fontSize" + fontSize}
-            variant="body2"
-            sx={{ whiteSpace: "pre-line" }}
-            fontStyle={"italic"}
-          >
-            No abstract available
-          </Typography>
-        )}
-
-        <Typography
-          className={"fontSize" + fontSizeOptions[fontSize]}
-          variant="body2"
-          sx={{ whiteSpace: "pre-line" }}
-        >
-          {!(record.abstract === "" || record.abstract === null) &&
-          collapseAbstract &&
-          !readMoreOpen &&
-          record.abstract.length > 500 ? (
-            <>
-              {record.abstract.substring(0, 500)}...
-              <Link
-                component="button"
-                underline="none"
-                onClick={toggleReadMore}
-              >
-                expand
-              </Link>
-            </>
-          ) : (
-            record.abstract
+        <Box>
+          {(record.abstract === "" || record.abstract === null) && (
+            <Typography
+              className={"fontSize" + fontSize}
+              variant="body1"
+              sx={{
+                fontStyle: "italic",
+                textAlign: "justify",
+              }}
+            >
+              No abstract available
+            </Typography>
           )}
-        </Typography>
 
-        {record.keywords && (
-          <Typography sx={{ fontWeight: "bold" }}>
-            {record.keywords.map((keyword, index) => (
-              <span key={index}>
-                {index > 0 && " • "}
-                {keyword}
-              </span>
-            ))}
+          <Typography
+            className={"fontSize" + fontSizeOptions[fontSize]}
+            variant="body1"
+            sx={{
+              whiteSpace: "pre-line",
+              textAlign: "justify",
+              hyphens: "auto",
+              lineHeight: 1.6,
+            }}
+          >
+            {!(record.abstract === "" || record.abstract === null) &&
+            collapseAbstract &&
+            !readMoreOpen &&
+            record.abstract.length > 500 ? (
+              <>
+                {record.abstract.substring(0, 500)}...
+                <Link
+                  component="button"
+                  underline="none"
+                  onClick={toggleReadMore}
+                >
+                  expand
+                </Link>
+              </>
+            ) : (
+              record.abstract
+            )}
           </Typography>
+        </Box>
+        {record.keywords && (
+          <Box sx={{ pt: 1 }}>
+            <Typography sx={{ color: "text.secondary", fontWeight: "bold" }}>
+              {record.keywords.map((keyword, index) => (
+                <span key={index}>
+                  {index > 0 && " • "}
+                  {keyword}
+                </span>
+              ))}
+            </Typography>
+          </Box>
         )}
       </Stack>
     </CardContent>

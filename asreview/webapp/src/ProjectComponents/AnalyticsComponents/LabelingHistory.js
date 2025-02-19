@@ -252,7 +252,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Labeling History
               </Typography>
-              <Typography variant="body2">
+              <Typography variant="body2" align="justify">
                 This is your entire dataset. Each element represents a record,
                 colored according to whether you marked it as relevant, not
                 relevant, or haven't reviewed it yet. This visualization helps
@@ -308,7 +308,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                   <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
                     Chronological
                   </Typography>
-                  <Typography variant="body2">
+                  <Typography variant="body2" align="justify">
                     Records appear chronologically, showing your labeling
                     journey in the correct order.
                   </Typography>
@@ -317,7 +317,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                   <Typography variant="body2" fontWeight="bold" sx={{ mb: 1 }}>
                     Grouped
                   </Typography>
-                  <Typography variant="body2">
+                  <Typography variant="body2" align="justify">
                     Records are grouped by type, showing the patterns in your
                     decisions.
                   </Typography>
