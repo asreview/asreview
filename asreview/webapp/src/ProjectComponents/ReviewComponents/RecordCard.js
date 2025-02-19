@@ -4,6 +4,7 @@ import {
   Card,
   CardContent,
   Collapse,
+  Divider,
   Fade,
   Grid2 as Grid,
   Link,
@@ -26,32 +27,31 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
   return (
     <CardContent aria-label="record title abstract" sx={{ m: 1 }}>
       <Stack spacing={2}>
-        <Box sx={{ borderBottom: "1px solid", borderColor: "divider", pb: 2 }}>
-          {/* Show the title */}
-          <Typography
-            variant={"h5"}
-            sx={(theme) => ({
-              fontWeight: theme.typography.fontWeightMedium,
-              lineHeight: 1.4,
-            })}
-          >
-            {/* No title, inplace text */}
-            {(record.title === "" || record.title === null) && (
-              <Box
-                className={"fontSize" + fontSizeOptions[fontSize]}
-                fontStyle="italic"
-              >
-                No title available
-              </Box>
-            )}
+        {/* Show the title */}
+        <Typography
+          variant={"h5"}
+          sx={(theme) => ({
+            fontWeight: theme.typography.fontWeightMedium,
+            lineHeight: 1.4,
+          })}
+        >
+          {/* No title, inplace text */}
+          {(record.title === "" || record.title === null) && (
+            <Box
+              className={"fontSize" + fontSizeOptions[fontSize]}
+              fontStyle="italic"
+            >
+              No title available
+            </Box>
+          )}
 
-            {!(record.title === "" || record.title === null) && (
-              <Box className={"fontSize" + fontSizeOptions[fontSize]}>
-                {record.title}
-              </Box>
-            )}
-          </Typography>
-        </Box>
+          {!(record.title === "" || record.title === null) && (
+            <Box className={"fontSize" + fontSizeOptions[fontSize]}>
+              {record.title}
+            </Box>
+          )}
+        </Typography>
+        <Divider />
         <Stack direction="row" spacing={1}>
           {!(record.doi === undefined || record.doi === null) && (
             <Tooltip title="Open DOI">
