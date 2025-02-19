@@ -225,12 +225,8 @@ const AnalyticsPage = () => {
         <Dialog
           open={openStatusDialog}
           onClose={() => setOpenStatusDialog(false)}
-          PaperProps={{
-            sx: { px: 1, py: 2 },
-          }}
         >
-          <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <DoneAll color="primary" />
+          <DialogTitle>
             {statusData?.status === projectStatuses.FINISHED
               ? "Resume Review"
               : "Mark as Finished"}
@@ -399,7 +395,6 @@ const AnalyticsPage = () => {
         onClose={() => setOpenCompletionDialog(false)}
       >
         <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <DoneAll color="primary" />
           Finish Project
         </DialogTitle>
         <DialogContent>
