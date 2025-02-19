@@ -6,7 +6,7 @@ import {
   DashboardOutlined,
   LibraryBooksOutlined,
   PeopleAltOutlined,
-  SettingsOutlined,
+  TuneOutlined,
 } from "@mui/icons-material";
 
 import ReviewScreenOutlined from "icons/ReviewScreenOutlined";
@@ -22,7 +22,7 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
   useHotkeys("r", () => navigate("reviewer"));
   useHotkeys("c", () => navigate("collection"));
   useHotkeys("t", () => window.authentication && navigate("team"));
-  useHotkeys("s", () => navigate("setup"));
+  useHotkeys("p", () => navigate("customize"));
 
   return (
     <Box
@@ -92,12 +92,12 @@ const ProjectDrawerItems = ({ subset, onClick = null, rail = false }) => {
         )}
 
         <DrawerItem
-          key={"project-setup"}
-          to={`setup`}
-          primary={"Setup"}
+          key={"project-customize"}
+          to={`customize`}
+          primary={"Customize"}
           rail={rail}
           onClick={onClick}
-          icon={<SettingsOutlined />}
+          icon={<TuneOutlined />}
           component={NavLink}
         />
       </Box>
