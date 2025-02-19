@@ -1,21 +1,21 @@
 import { Menu } from "@mui/icons-material";
-import {
-  AppBar,
-  Box,
-  ButtonBase,
-  IconButton,
-  Toolbar,
-  Tooltip,
-  Avatar,
-  AvatarGroup,
-  Collapse,
-} from "@mui/material";
-import { Link, useLocation } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  AppBar,
+  Avatar,
+  AvatarGroup,
+  Box,
+  ButtonBase,
+  Collapse,
+  IconButton,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useQuery } from "react-query";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { ProfilePopper } from "Components";
 import { TeamAPI } from "api";
@@ -23,7 +23,6 @@ import { TeamAPI } from "api";
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import { useToggle } from "hooks/useToggle";
 import { ElasIcon } from "icons";
-import { WordMark } from "icons/WordMark";
 import ElasGameDialog from "./ElasGame";
 
 const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
@@ -88,28 +87,37 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
                 <Menu />
               </IconButton>
             )}
-            <ButtonBase
-              disableRipple
-              sx={{ width: "100px" }}
-              component={Link}
-              to="/reviews"
-            >
-              <WordMark />
+            <ButtonBase disableRipple sx={{}} component={Link} to="/reviews">
+              <Typography
+                component="span"
+                sx={{ fontFamily: "kanit", fontSize: "120%", mr: 0.3 }}
+              >
+                ASReview
+              </Typography>
+              <Typography
+                component="span"
+                sx={{ fontFamily: "kanit", fontSize: "120%" }}
+                color="#FFCC00"
+              >
+                LAB
+              </Typography>
             </ButtonBase>
-
-            {isReviewPath && (
-              <Tooltip title={"Go on adventure with Elas"} placement={"right"}>
-                <IconButton onClick={toggleGame}>
-                  <ElasIcon color={"grey.600"} />
-                </IconButton>
-              </Tooltip>
-            )}
           </Box>
 
           {window.authentication === true && (
             <Box sx={{ display: "flex", alignItems: "center" }}>
               {project_id && (
                 <>
+                  {isReviewPath && (
+                    <Tooltip
+                      title={"Go on adventure with Elas"}
+                      placement={"right"}
+                    >
+                      <IconButton onClick={toggleGame}>
+                        <ElasIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                   <IconButton
                     size="small"
                     onClick={setExpandAvatars}
