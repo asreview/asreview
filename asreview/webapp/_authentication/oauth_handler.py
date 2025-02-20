@@ -109,7 +109,7 @@ class OAuthHandler:
         email = self.__generate_mock_email_address(name)
 
         # Now, let's try to obtain an email address.
-        if not orcid_id is None:
+        if orcid_id is not None:
             # we need a another token to obtain the email address.
             response = requests.post(
                 params["token_url"],
@@ -125,7 +125,7 @@ class OAuthHandler:
             # get token from response
             token = response.get("access_token", None)
 
-            if not token is None:
+            if token is not None:
                 # check if we are working in the sandbox or not
                 orcid_env = ".sandbox" if "sandbox" in params["token_url"] else ""
                 # get request to obtain user data
