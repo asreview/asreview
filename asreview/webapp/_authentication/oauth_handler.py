@@ -133,8 +133,8 @@ class OAuthHandler:
                     f"https://pub{orcid_env}.orcid.org/v3.0/{orcid_id}/email",
                     headers={
                         "Accept": "application/json",
-                        "Authorization": f"Bearer {token}"
-                    }
+                        "Authorization": f"Bearer {token}",
+                    },
                 ).json()
                 # get first available email when present
                 if "email" in response.keys() and len(response["email"]) > 0:
@@ -166,7 +166,7 @@ class OAuthHandler:
         id = response["id"]
         name = response["name"] or response["login"] or response["id"] or "Name"
         email = response.get("email", self.__generate_default_email(name))
-        
+
         return (id, email, name)
 
     def __handle_google(self, code, redirect_uri):
