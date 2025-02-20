@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import requests
+import uuid
 
 
 class OAuthHandler:
@@ -79,10 +80,14 @@ class OAuthHandler:
             raise ValueError(f"Could not find provider {provider}")
         return result
 
+    def __generate_default_email(self, name=""):
+        return f"#{name}_{uuid.uuid4()}@asreview.app"
+
     def __handle_orcid(self, code):
         """Handles OAuth roundtrip for Orcid"""
         # request token
         params = self.services["orcid"]
+        # step 1: obtain ORCID-id and name
         response = requests.post(
             params["token_url"],
             data={
@@ -94,23 +99,48 @@ class OAuthHandler:
             },
             headers={"Accept": "application/json"},
         ).json()
-        id = response["orcid"]
-        name = response.get("name", "")
-        # TODO@Casper: I don't understand why I can't
-        # get an email address from the public API. The
-        # next call responds with a 401 Unauthorized which
-        # doesn't make sense (I've set my email address on 'public')
-        # because the call and the scope should OK. Why!?
-        # token = response['access_token']
-        # response = requests.get(
-        #     f'https://api.sandbox.orcid.org/v3.0/{id}/email',
-        #     headers={
-        #         'Authorization': f'Bearer {token}',
-        #         'Accept': 'application/json'
-        #     }
-        # ).json()
-        # print(response.json())
-        return (id, "email-unknown", name)
+        # we can get a name and orcid-id without taking any
+        # further steps:
+        orcid_id = response.get("orcid", None)
+        name = response.get("name", None)
+
+        # set email to an initial default address since the
+        # next step might leave us empty-handed
+        email = self.__generate_default_email(name)
+
+        # Now, let's try to obtain an email address.
+        if not orcid_id is None:
+            # we need a another token to obtain the email address.
+            response = requests.post(
+                params["token_url"],
+                data={
+                    "code": code,
+                    "client_id": params["client_id"],
+                    "client_secret": params["secret"],
+                    "grant_type": "client_credentials",
+                    "scope": "/read-public",
+                },
+                headers={"Accept": "application/json"},
+            ).json()
+            # get token from response
+            token = response.get("access_token", None)
+
+            if not token is None:
+                # check if we are working in the sandbox or not
+                orcid_env = ".sandbox" if "sandbox" in params["token_url"] else ""
+                # get request to obtain user data
+                response = requests.get(
+                    f"https://pub{orcid_env}.orcid.org/v3.0/{orcid_id}/email",
+                    headers={
+                        "Accept": "application/json",
+                        "Authorization": f"Bearer {token}"
+                    }
+                ).json()
+                # get first available email when present
+                if "email" in response.keys() and len(response["email"]) > 0:
+                    email = response["email"][0]["email"]
+
+        return (orcid_id, email, name)
 
     def __handle_github(self, code):
         """Handles OAuth roundtrip for GitHub"""
@@ -134,8 +164,9 @@ class OAuthHandler:
         )
         response = response.json()
         id = response["id"]
-        email = response.get("email", "email-unknown")
-        name = response["name"] or response["login"] or response["id"]
+        name = response["name"] or response["login"] or response["id"] or "Name"
+        email = response.get("email", self.__generate_default_email(name))
+        
         return (id, email, name)
 
     def __handle_google(self, code, redirect_uri):
@@ -161,8 +192,8 @@ class OAuthHandler:
             headers={"Accept": "application/json"},
         ).json()
         id = response["sub"]
-        email = response.get("email", "email-unknown")
         name = (
             response.get("name", False) or response.get("family_name", False) or "Name"
         )
+        email = response.get("email", self.__generate_default_email(name))
         return (id, email, name)

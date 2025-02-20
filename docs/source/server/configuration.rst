@@ -89,7 +89,6 @@ secure way (https).
             TOKEN_URL = "https://sandbox.orcid.org/oauth/token"
             CLIENT_ID = "<Orcid client ID>"
             CLIENT_SECRET = "<Orcid client secret>"
-            SCOPE = "/authenticate"
 
             [OAUTH.Google]
             AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth"
@@ -97,6 +96,10 @@ secure way (https).
             CLIENT_ID = "<Google client ID>"
             CLIENT_SECRET = "<Google client secret>"
             SCOPE = "profile email"
+
+Not that the SCOPE parameter is missing for Orcid: to retrieve user data from
+Orcid, multiple calls have to be made with different scopes. Therefor the
+scopes are hard-coded in our repository.
 
 Store the TOML file on the server and start the ASReview application from the
 CLI with the ``--config-path`` parameter:
