@@ -29,6 +29,7 @@ from asreview.utils import _is_url
         ("scopus.ris", 6, []),
         ("ovid_zotero.ris", 6, []),
         ("proquest.ris", 6, []),
+        ("web_of_science.txt", 10, []),
         pytest.param(
             "https://osf.io/download/fg93a/", 38, [], marks=mark.internet_required
         ),
@@ -138,8 +139,8 @@ def test_nan_values_ris():
     assert records[2].keywords == []
 
     # Check missing notes
-    assert records[0].notes is None
-    assert records[2].notes is None
+    assert records[0].notes == []
+    assert records[2].notes == []
 
     # check missing doi
     assert records[0].doi is None

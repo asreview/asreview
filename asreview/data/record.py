@@ -106,14 +106,14 @@ class Record(Base):
     abstract: Mapped[str] = mapped_column(default="")
     # authors and keywords could also be in their own separate table.
     authors: Mapped[list] = mapped_column(default_factory=list)
-    notes: Mapped[Optional[str]] = mapped_column(default=None)
+    notes: Mapped[list] = mapped_column(default_factory=list)
     keywords: Mapped[list] = mapped_column(default_factory=list)
     year: Mapped[Optional[int]] = mapped_column(default=None)
     doi: Mapped[Optional[str]] = mapped_column(default=None)
     url: Mapped[Optional[str]] = mapped_column(default=None)
     included: Mapped[Optional[int]] = mapped_column(default=None)
 
-    @validates("authors", "keywords")
+    @validates("authors", "keywords", "notes")
     def validate_list_of_string(self, key, value):
         if value is None:
             return []
