@@ -51,7 +51,6 @@ class BaseReader(ABC):
     __cleaning_methods__ = {
         "authors": [convert_to_list],
         "keywords": [convert_to_list],
-        "notes": [convert_to_list],
         "included": [standardize_included_label],
     }
 

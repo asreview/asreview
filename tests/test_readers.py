@@ -138,10 +138,6 @@ def test_nan_values_ris():
     assert records[0].keywords == []
     assert records[2].keywords == []
 
-    # Check missing notes
-    assert records[0].notes == []
-    assert records[2].notes == []
-
     # check missing doi
     assert records[0].doi is None
     assert records[2].doi is None
