@@ -352,7 +352,7 @@ SN  - 1573-661X
 UR  - https://doi.org/10.1023/A:1024814009769
 DO  - 10.1023/A:1024814009769
 ID  - Kassin1997
-ER  - 
+ER  -
 
 TY  - JOUR
 AU  - Kelly, CE
@@ -446,5 +446,3 @@ N1  - Times Cited in Web of Science Core Collection:  35
 Total Times Cited:  41
 Cited Reference Count:  18
 ER  -
-
-
