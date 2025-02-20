@@ -99,7 +99,7 @@ secure way (https).
 
 Not that the SCOPE parameter is missing for Orcid: to retrieve user data from
 Orcid, multiple calls have to be made with different scopes. Therefor the
-scopes are hard-coded in our repository.
+scopes are hard-coded.
 
 Store the TOML file on the server and start the ASReview application from the
 CLI with the ``--config-path`` parameter:
