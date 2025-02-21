@@ -106,7 +106,6 @@ class Record(Base):
     abstract: Mapped[str] = mapped_column(default="")
     # authors and keywords could also be in their own separate table.
     authors: Mapped[list] = mapped_column(default_factory=list)
-    notes: Mapped[Optional[str]] = mapped_column(default=None)
     keywords: Mapped[list] = mapped_column(default_factory=list)
     year: Mapped[Optional[int]] = mapped_column(default=None)
     doi: Mapped[Optional[str]] = mapped_column(default=None)

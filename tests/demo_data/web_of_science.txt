@@ -1,0 +1,448 @@
+TY  - JOUR
+AU  - Alceste, F
+AU  - Luke, TJ
+AU  - Kassin, SM
+TI  - Holding Yourself Captive: Perceptions of Custody During Interviews and Interrogations
+T2  - JOURNAL OF APPLIED RESEARCH IN MEMORY AND COGNITION
+LA  - English
+KW  - Police custody
+KW  - Interview
+KW  - Interrogation
+KW  - Perception of freedom
+KW  - PERSPECTIVE-TAKING
+KW  - INNOCENCE
+KW  - MIRANDA
+KW  - ATTRIBUTION
+KW  - OBSERVERS
+KW  - ACTORS
+KW  - SELF
+AB  - Police custody activates important legal safeguards. To determine custody, courts examine objective conditions and ask whether a "reasonable person" would feel free to leave while being questioned. In Study 1, student participants were either interviewed or interrogated about a staged theft they believed to be real. Interviews and interrogations embodied specific factors considered noncustodial or custodial, respectively. Observers then watched videos of these sessions. Participants in interviews did not feel significantly freer to leave than those in interrogations, though observers did make this distinction. In Study 2, some participants were explicitly pre-advised of their freedom to leave. The advisement induced participants to report they were free to leave as an objective matter but did not significantly affect their subjective feelings of freedom. In both studies, the actor-observer divergence vanished when observers imagined themselves from the actor's perspective. These results challenge legal assumptions about custody and suggest lines of future research.
+AD  - CUNY John Jay Coll Criminal Justice, New York, NY 10019 USA
+AD  - CUNY, Grad Ctr, New York, NY USA
+AD  - Univ Gothenburg, Gothenburg, Sweden
+C3  - City University of New York (CUNY) System
+C3  - John Jay College of Criminal Justice (CUNY)
+C3  - City University of New York (CUNY) System
+C3  - University of Gothenburg
+PU  - ELSEVIER SCIENCE INC
+PI  - NEW YORK
+PA  - 360 PARK AVE SOUTH, NEW YORK, NY 10010-1710 USA
+SN  - 2211-3681
+SN  - 2211-369X
+J9  - J APPL RES MEM COGN
+JI  - J. Appl. Res. Mem. Cogn.
+DA  - SEP
+PY  - 2018
+VL  - 7
+IS  - 3
+SP  - 387
+EP  - 397
+DO  - 10.1016/j.jarmac.2018.03.001
+WE  - Social Science Citation Index (SSCI)
+AN  - WOS:000444108200009
+N1  - Times Cited in Web of Science Core Collection:  5
+Total Times Cited:  7
+Cited Reference Count:  30
+ER  -
+
+TY  - JOUR
+AU  - Appleby, SC
+AU  - Kassin, SM
+TI  - When Self-Report Trumps Science: Effects of Confessions, DNA, and Prosecutorial Theories on Perceptions of Guilt
+T2  - PSYCHOLOGY PUBLIC POLICY AND LAW
+LA  - English
+KW  - confessions
+KW  - DNA evidence
+KW  - false confessions
+KW  - attorney arguments
+KW  - OPENING STATEMENTS
+KW  - JURY
+KW  - ACCURACY
+KW  - EYEWITNESS
+KW  - PARADIGM
+AB  - For many wrongfully convicted individuals, DNA testing presents a new and invaluable means of exoneration. In several recently documented cases, however, innocent confessors were tried and convicted despite DNA evidence that excluded them. In each of these cases, the prosecutor proposed a speculative theory to explain away the mismatched confession and exculpatory DNA. Three studies were conducted that pitted confessions against DNA test results. Study 1 showed that people in general trust DNA evidence far more than self-report, including a defendant's confession. Using student and adult community samples, Studies 2 and 3 showed that in cases in which the defendant had confessed to police but was later exculpated by DNA, prosecutorial theories spun to reconcile the contradiction attenuated the power of exculpatory DNA, significantly increasing perceptions of the defendant's culpability, the rate of conviction, and the self-reported influence of the confession. Implications and suggestions for reform are discussed.
+AD  - CUNY John Jay Coll Criminal Justice, Dept Psychol, New York, NY 10019 USA
+AD  - Mercer Univ, Dept Psychol, 1501 Mercer Univ Dr, Macon, GA 31207 USA
+C3  - City University of New York (CUNY) System
+C3  - John Jay College of Criminal Justice (CUNY)
+C3  - Mercer University
+PU  - AMER PSYCHOLOGICAL ASSOC
+PI  - WASHINGTON
+PA  - 750 FIRST ST NE, WASHINGTON, DC 20002-4242 USA
+SN  - 1076-8971
+SN  - 1939-1528
+J9  - PSYCHOL PUBLIC POL L
+JI  - Psychol. Public Policy Law
+DA  - MAY
+PY  - 2016
+VL  - 22
+IS  - 2
+SP  - 127
+EP  - 140
+DO  - 10.1037/law0000080
+WE  - Social Science Citation Index (SSCI)
+AN  - WOS:000376252000001
+N1  - Times Cited in Web of Science Core Collection:  45
+Total Times Cited:  56
+Cited Reference Count:  74
+ER  -
+
+TY  - JOUR
+AU  - Brimbal, L
+AU  - Dianiska, RE
+AU  - Swanner, JK
+AU  - Meissner, CA
+TI  - Enhancing Cooperation and Disclosure by Manipulating Affiliation and Developing Rapport in Investigative Interviews
+T2  - PSYCHOLOGY PUBLIC POLICY AND LAW
+LA  - English
+KW  - investigative interviewing
+KW  - rapport
+KW  - cooperation
+KW  - affiliation
+KW  - resistance
+KW  - SOCIAL CATEGORIZATION
+KW  - INTERROGATION
+KW  - CONFESSIONS
+KW  - POLICE
+KW  - INFORMATION
+KW  - ACCUSATORIAL
+KW  - PERSPECTIVE
+KW  - OFFENDERS
+KW  - SUSPECTS
+KW  - TACTICS
+AB  - We sought to identify motivations to resist cooperation in intelligence interviews and develop techniques to overcome this resistance. One source of resistance can arise because of concerns for affiliations (e.g., "I do not want to inform on my friends/family/fellow countryman"). We investigated two avenues of rapport building-approach and avoidance-designed to overcome this concern. In a modified cheating paradigm, our participants (N = 116) became affiliated with a confederate who they then witnessed cheating. Participants were interviewed about the event in a 2 (approach: present vs. absent) x 2 (avoid: present vs. absent) design. The interviewer used either an approach technique that aligned them with the interviewer (portrayed as a morally good person) or an avoid technique that moved them away from the culprit (portrayed as nefarious), neither, or both. The approach technique increased rapport between the interviewer and participant. However, the avoid technique decreased the amount information elicited. When submitted to a mediation model, the approach technique had a positive indirect effect on information yield via perceived rapport and cooperation, while this was not the case for the avoid technique. An exploratory moderator analysis revealed that sympathy for the confederate moderated the effect of the avoid technique on information disclosed, where the more sympathy a participant felt for the confederate, the less information he or she provided. Implications for interviewing are discussed.
+AD  - Iowa State Univ, Dept Psychol, W112 Lagomarcino Hall,901 Stange Rd, Ames, IA 50011 USA
+C3  - Iowa State University
+FU  - High-Value Detainee Interrogation Group [DJF-15-1200-V-0010408]
+FX  - This work is funded by the High-Value Detainee Interrogation Group (Contract DJF-15-1200-V-0010408). Any opinions, findings, and conclusions or recommendations expressed in this article are those of the authors and do not reflect the views of the U.S. government. Results from this study were presented at the American Psychology-Law Society annual meeting in March 2017.
+PU  - AMER PSYCHOLOGICAL ASSOC
+PI  - WASHINGTON
+PA  - 750 FIRST ST NE, WASHINGTON, DC 20002-4242 USA
+SN  - 1076-8971
+SN  - 1939-1528
+J9  - PSYCHOL PUBLIC POL L
+JI  - Psychol. Public Policy Law
+DA  - MAY
+PY  - 2019
+VL  - 25
+IS  - 2
+SP  - 107
+EP  - 115
+DO  - 10.1037/law0000193
+WE  - Social Science Citation Index (SSCI)
+AN  - WOS:000465627800004
+N1  - Times Cited in Web of Science Core Collection:  28
+Total Times Cited:  33
+Cited Reference Count:  45
+ER  -
+
+TY  - JOUR
+AU  - Brimbal, L
+AU  - Meissner, CA
+AU  - Kleinman, SM
+AU  - Phillips, EL
+AU  - Atkinson, DJ
+AU  - Dianiska, RE
+AU  - Rothweiler, JN
+AU  - Oleszkiewicz, S
+AU  - Jones, MS
+TI  - Evaluating the Benefits of a Rapport-Based Approach to Investigative Interviews: A Training Study With Law Enforcement Investigators
+T2  - LAW AND HUMAN BEHAVIOR
+LA  - English
+KW  - interrogation
+KW  - investigative interview training
+KW  - investigative interview rapport
+KW  - evidence-based interviewing
+KW  - FALSE CONFESSIONS
+KW  - INFORMATION
+KW  - INTERROGATION
+KW  - SUSPECTS
+KW  - ACCUSATORIAL
+KW  - DISCLOSURE
+KW  - TACTICS
+KW  - PEACE
+KW  - TRUE
+AB  - Objective: The purpose of this study was to test the effectiveness of a rapport-based approach to interviewing that includes productive questioning skills, conversational rapport, and relational rapport-building tactics. Hypotheses: We predicted that training police investigators in a rapport-based approach would significantly increase the use of rapport-based tactics and that such tactics would directly influence the interviewee's perceptions of rapport and indirectly lead to increased cooperation and disclosure of information. Method: We trained federal, state, and local law enforcement investigators (N = 67) in the use of evidence-based interviewing techniques. Both before and after this training, investigators interviewed semi cooperative subjects (N = 125). Interviews were coded for the use of various interview tactics, as well as subjects' disclosure. Participants also completed a questionnaire regarding their perceptions of the interviewer and their decision to cooperate with the interviewer. Results: Evaluations of the training were positive, with high ratings of learning, preparedness to use tactics, and likelihood of use following the training. In posttraining interviews, investigators significantly increased their use of evidence-based tactics, including productive questioning, conversational rapport, and relational rapport-building tactics. Structural equation modeling demonstrated that investigators' use of the evidencebased interview tactics was directly associated with increased perceptions of rapport and trust and indirectly associated with increased cooperation and information disclosure. Conclusions: We demonstrated that rapport-based interview tactics could be successfully trained and that using such tactics can facilitate perceptions of rapport and trust, reduce individuals' resistance to cooperate, and increase information yield.
+AD  - Texas State Univ, Sch Criminal Justice & Criminol, San Marcos, TX 78666 USA
+AD  - Iowa State Univ, Dept Psychol, Ames, IA USA
+AD  - US Air Force, Washington, DC USA
+AD  - Univ Colorado, Dept Psychol, Colorado Springs, CO 80933 USA
+AD  - Univ Idaho, Dept Psychol & Commun Studies, Moscow, ID 83843 USA
+AD  - Vrije Univ Amsterdam, Dept Criminal Law & Criminol, Amsterdam, Netherlands
+AD  - Tempe Police Dept, Tempe, AZ USA
+C3  - Texas State University System
+C3  - Texas State University San Marcos
+C3  - Iowa State University
+C3  - United States Department of Defense
+C3  - United States Air Force
+C3  - University of Colorado System
+C3  - University of Colorado at Colorado Springs
+C3  - University of Idaho
+C3  - Vrije Universiteit Amsterdam
+FU  - High-Value Detainee Interrogation Group [DJF-15-1200-V-0010408]
+FX  - This work was funded by the High-Value Detainee Interrogation Group (Contract DJF-15-1200-V-0010408). Any opinions, findings, and conclusions or recommendations expressed in this article are those of the authors and do not reflect the views of the U.S. government. Results from this study were presented at the American Psychology-Law Society annual meeting in March 2019. Special thanks to Krysta Mroz, Teresa Paton, Darian Healy, and Latevia Williams for their help in coding data. Supplemental materials and data are available on the Open Science Framework (https://osf.io/w9ysg/).
+PU  - EDUCATIONAL PUBLISHING FOUNDATION-AMERICAN PSYCHOLOGICAL ASSOC
+PI  - WASHINGTON
+PA  - 750 FIRST ST, NE, WASHINGTON, DC 20002-4242 USA
+SN  - 0147-7307
+SN  - 1573-661X
+J9  - LAW HUMAN BEHAV
+JI  - Law Hum. Behav.
+DA  - FEB
+PY  - 2021
+VL  - 45
+IS  - 1
+SP  - 55
+EP  - 67
+DO  - 10.1037/lhb0000437
+WE  - Social Science Citation Index (SSCI)
+AN  - WOS:000630231500004
+N1  - Times Cited in Web of Science Core Collection:  19
+Total Times Cited:  25
+Cited Reference Count:  68
+ER  -
+
+TY  - JOUR
+AU  - David, GC
+AU  - Rawls, AW
+AU  - Trainum, J
+TI  - Playing the Interrogation Game: Rapport, Coercion, and Confessions in Police Interrogations
+T2  - SYMBOLIC INTERACTION
+LA  - English
+KW  - interrogation
+KW  - policing
+KW  - conversation analysis
+KW  - trust
+AB  - The United States is having an interrogation moment, where increasing attention is being paid to what happens when suspects are questioned by the police. The manner in which confessions are secured can go directly to a society's sense of justice and fairness, as nowhere are positions of power and vulnerability so pronounced as in the interrogation room. This paper contributes to our understanding of police interrogation through discussing what we refer to as playing the interrogation game. We explore how rapport-building helps to create a sense of collaboration between suspect and police. However, once a suspect agrees to answer questions and waives Miranda rights, the game changes. The new game can be more adversarial, aiming for the suspect to give a confession usable toward prosecution. We discuss how police, by knowing and shaping the rules of the interrogation game, have an advantage in the game which makes it very difficult for the suspect to win. Finally, we propose a number of recommendations that could foster a better balance in playing the game. A video abstract is available at
+AD  - Bentley Univ, Sociol, Waltham, MA USA
+AD  - Criminal Case Review & Consulting, Washington, DC USA
+C3  - Bentley University
+PU  - WILEY
+PI  - HOBOKEN
+PA  - 111 RIVER ST, HOBOKEN 07030-5774, NJ USA
+SN  - 0195-6086
+SN  - 1533-8665
+J9  - SYMB INTERACT
+JI  - Symb. Interact.
+DA  - FEB
+PY  - 2018
+VL  - 41
+IS  - 1
+SP  - 3
+EP  - 24
+DO  - 10.1002/symb.317
+WE  - Social Science Citation Index (SSCI)
+AN  - WOS:000424666100001
+N1  - Times Cited in Web of Science Core Collection:  17
+Total Times Cited:  19
+Cited Reference Count:  49
+ER  -
+
+TY  - JOUR
+AU  - Denault, V
+AU  - Talwar, V
+TI  - From criminal interrogations to investigative interviews: a bibliometric study
+T2  - FRONTIERS IN PSYCHOLOGY
+LA  - English
+KW  - criminal interrogations
+KW  - investigative interviews
+KW  - bibliometrics
+KW  - web of science
+KW  - solving crimes
+KW  - identifying perpetrators
+KW  - POLICE INTERROGATION
+KW  - LIE DETECTION
+KW  - INNOCENT DEFENDANTS
+KW  - LAW-ENFORCEMENT
+KW  - BEHAVIOR
+KW  - SCIENCE
+KW  - CONFESSIONS
+KW  - DECEPTION
+KW  - CHILDREN
+KW  - JUSTICE
+AB  - This paper presents the results of a bibliometric study providing a comprehensive overview of the social science research conducted on criminal interrogations and investigative interviews since the 1900s. The objectives are to help researchers to further understand the research field, to better communicate research findings to practitioners, to help practitioners understand the breadth of scientific knowledge on criminal interrogations and investigative interviews, and to foster dialog between researchers and practitioners. To begin, after a brief description of Web of Science, we describe how we developed our database on criminal interrogations and investigative interviews. Then, we report the yearly evolution of articles, the journals where they were published, the research areas covered by this research field, as well as the authors, the institutions and the countries that published the most on a variety of topics related to criminal interrogations and investigative interviews. Finally, we present the most used keywords and the most cited articles, and examine the research on questionable tactics and techniques in the research field of criminal interrogations and investigative interviews. This paper ends with a critical look at the results, for the benefit of researchers and practitioners interested in criminal interrogations and investigative interviews.
+AD  - McGill Univ, Dept Educ & Counselling Psychol, Montreal, PQ, Canada
+C3  - McGill University
+PU  - FRONTIERS MEDIA SA
+PI  - LAUSANNE
+PA  - AVENUE DU TRIBUNAL FEDERAL 34, LAUSANNE, CH-1015, SWITZERLAND
+SN  - 1664-1078
+J9  - FRONT PSYCHOL
+JI  - Front. Psychol.
+DA  - JUN 19
+PY  - 2023
+VL  - 14
+C7  - 1175856
+DO  - 10.3389/fpsyg.2023.1175856
+WE  - Social Science Citation Index (SSCI)
+AN  - WOS:001020310000001
+N1  - Times Cited in Web of Science Core Collection:  1
+Total Times Cited:  1
+Cited Reference Count:  106
+ER  -
+
+TY  - JOUR
+AU  - Dianiska, RE
+AU  - Swanner, JK
+AU  - Brimbal, L
+AU  - Meissner, CA
+TI  - Using Disclosure, Common Ground, and Verification to Build Rapport and Elicit Information
+T2  - PSYCHOLOGY PUBLIC POLICY AND LAW
+LA  - English
+KW  - self-disclosure
+KW  - self-verification
+KW  - common ground
+KW  - rapport
+KW  - interviewing
+KW  - COUNTER-INTERROGATION TACTICS
+KW  - RECIPROCAL SELF-DISCLOSURE
+KW  - INVESTIGATIVE INTERVIEWS
+KW  - INTERPERSONAL TECHNIQUES
+KW  - FIELD SAMPLE
+KW  - LIKING
+KW  - SIMILARITY
+KW  - IMPRESSIONS
+KW  - RELIABILITY
+KW  - ATTRACTION
+AB  - Rapport-based approaches have become a central tenet of investigative interviewing with suspects and sources. Here we explored the utility of using rapport-building tactics (i.e., self-disclosure and interviewer feedback) to overcome barriers to cooperation in the interviewing domain. Across two experiments using the illegal behaviors paradigm (Dianiska et al.. 2019). participants completed a checklist of illegal behaviors and were then interviewed about their background and interests (the interpersonal interview) as well as about their prior participation in an illegal act (the illegal behavior interview). During the interpersonal interview, we manipulated whether the participant's disclosure was unilateral or reciprocal (Experiment 1; N = 124). and whether the interviewer self-disclosed and/or provided the participant with verifying feedback in response to the participant's disclosures (Experiment 2; N = 210). Participants were then asked to provide a statement about the most serious illegal behavior to which they had admitted. For both experiments, participants provided more information about the prior illegal act when the interviewer provided information about themselves. Furthermore, there was a significant increase in the amount of information elicited from the participant when the interviewer highlighted similarity with the participant. In line with prior work, we found support for an indirect relationship between the use of rapport-building tactics and disclosure that was mediated by the participant's perception of rapport and their decision to cooperate.
+AD  - Univ Calif Irvine, Dept Psychol Sci, 4201 Social & Behav Sci Gateway, Irvine, CA 92697 USA
+AD  - Iowa State Univ, Dept Psychol, Ames, IA USA
+AD  - Texas State Univ, Sch Criminal Justice & Criminol, San Marcos, TX USA
+C3  - University of California System
+C3  - University of California Irvine
+C3  - Iowa State University
+C3  - Texas State University System
+C3  - Texas State University San Marcos
+FU  - High-Value Detainee Interrogation Group Federal Bureau of Investigation [DJF-15-1200-V-0010409]
+FX  - This work was funded by the High-Value Detainee Interrogation Group Federal Bureau of Investigation contract DJF-15-1200-V-0010409 awarded to Iowa State University. Statements of fact, opinion, and analysis in the article are those of the authors and do not reflect the official policy of the High-Value Detainee Interrogation Group or the U.S. Government.
+PU  - AMER PSYCHOLOGICAL ASSOC
+PI  - WASHINGTON
+PA  - 750 FIRST ST NE, WASHINGTON, DC 20002-4242 USA
+SN  - 1076-8971
+SN  - 1939-1528
+J9  - PSYCHOL PUBLIC POL L
+JI  - Psychol. Public Policy Law
+DA  - AUG
+PY  - 2021
+VL  - 27
+IS  - 3
+SP  - 341
+EP  - 353
+DO  - 10.1037/law0000313
+WE  - Social Science Citation Index (SSCI)
+AN  - WOS:000697124100005
+N1  - Times Cited in Web of Science Core Collection:  11
+Total Times Cited:  15
+Cited Reference Count:  72
+ER  -
+
+TY  - JOUR
+AU  - Kassin, Saul M.
+AU  - Sukel, Holly
+PY  - 1997
+DA  - 1997/02/01
+TI  - Coerced Confessions and the Jury: An Experimental Test of the “Harmless Error” Rule
+JO  - Law and Human Behavior
+SP  - 27
+EP  - 46
+VL  - 21
+IS  - 1
+AB  - Prompted by the U.S. Supreme Court's landmark decision in Arizona v. Fulminante (1991), two studies evaluated the proposition that an erroneously admitted coerced confession can be considered “harmless error.” Mock jurors read transcripts of a murder trial containing a confession that was (1) elicited in a high- or low-pressure interrogation, and (2) ruled admissible or inadmissible by the judge (no-confession control groups were also included). As prescribed by law, jurors saw the high-pressure confession as less voluntary, correctly recalled the judge's ruling, and reported that it had less influence on their decisions. On verdicts, however, the confession increased the conviction rate—even when it was seen as coerced, even when it was stricken from the record, and even when jurors said it had no influence. These results suggest that appellate courts should exercise caution in applying the harmless error rule to the admission of coerced confessions.
+SN  - 1573-661X
+UR  - https://doi.org/10.1023/A:1024814009769
+DO  - 10.1023/A:1024814009769
+ID  - Kassin1997
+ER  -
+
+TY  - JOUR
+AU  - Kelly, CE
+AU  - Russano, MB
+AU  - Miller, JC
+AU  - Redlich, AD
+TI  - On the Road (to Admission): Engaging Suspects With Minimization
+T2  - PSYCHOLOGY PUBLIC POLICY AND LAW
+LA  - English
+KW  - interrogation
+KW  - minimization
+KW  - engagement
+KW  - admissions
+KW  - FALSE CONFESSIONS
+KW  - THERAPEUTIC ENGAGEMENT
+KW  - INTERROGATION
+KW  - TACTICS
+KW  - TRUE
+KW  - INFORMATION
+KW  - INTERVIEWS
+AB  - The concept of minimization has been a focal point of research on police interrogations in part because of its widespread use and endorsement in interrogation training. Minimization, however, refers to a wide range of specific techniques, and research into it has tended to focus almost exclusively on suspect admissions at the expense of other suspect behaviors. Our purpose in the present study was to scrutinize and closely examine minimization as a concept and an interrogation method. Using a sample of approximately 45 hr of recordings of American police interrogations of suspects later convicted of serious, violent crime, we operationally defined and measured three minimization techniques-appealing to the suspect's self-interest, appealing to the suspect's conscience, and offering rationalizations-and examined them in relation to three "suspect engagement" measures-crying, making excuses, or seeking information-and how each were related to suspect admissions. Descriptively, the minimization techniques were among the most commonly observed techniques in the sample and in bivariate analyses, appealing to the suspect's conscience was related to the suspect crying and appealing to self-interest was associated with seeking information. None of the techniques was positively associated with suspect admissions, but suspect crying and making excuses were. The final mediated models showed that several minimization techniques indirectly influenced admissions through suspect engagement variables. In short, this study presents a more complete picture of the relationship between common interrogation techniques and suspect admissions. Future research should account for these and other engagement measures to fully understand interrogation as the complex phenomenon it is.
+AD  - St Josephs Univ, Dept Sociol & Criminal Justice, 5600 City Ave,Merion Hall 360, Philadelphia, PA 19131 USA
+AD  - Roger Williams Univ, Sch Justice Studies, Bristol, RI 02809 USA
+AD  - SUNY Albany, Sch Criminal Justice, Albany, NY 12222 USA
+AD  - George Mason Univ, Dept Criminol Law & Soc, Fairfax, VA 22030 USA
+C3  - Saint Joseph's University
+C3  - State University of New York (SUNY) System
+C3  - University at Albany, SUNY
+C3  - George Mason University
+FU  - High-Value Detainee Interrogation Group (HIG) contract; University at Albany, State University of New York, through the University of Texas at El Paso; HIG; Federal Bureau of Investigation
+FX  - This work was funded by the High-Value Detainee Interrogation Group (HIG) contract awarded to subcontractors Christopher E. Kelly, Allison D. Redlich, and the University at Albany, State University of New York, through the University of Texas at El Paso. Statements of fact, opinion, and analysis in the article are those of the authors and do not reflect the official policy or position of the FBI or the U.S. Government. An earlier version of this research was presented at the 2015 American Psychology-Law Society conference in San Diego, CA. We thank the HIG and the Federal Bureau of Investigation for funding this research, as well as the following individuals: Susan Brandon and Christian Meissner, Captain William Hayes and Detectives Greg Stearns and Tim Marcia of the Robbery-Homicide Division of the Los Angeles Police Department for providing the interrogation recordings.
+PU  - AMER PSYCHOLOGICAL ASSOC
+PI  - WASHINGTON
+PA  - 750 FIRST ST NE, WASHINGTON, DC 20002-4242 USA
+SN  - 1076-8971
+SN  - 1939-1528
+J9  - PSYCHOL PUBLIC POL L
+JI  - Psychol. Public Policy Law
+DA  - AUG
+PY  - 2019
+VL  - 25
+IS  - 3
+SP  - 166
+EP  - 180
+DO  - 10.1037/law0000199
+WE  - Social Science Citation Index (SSCI)
+AN  - WOS:000478028100004
+N1  - Times Cited in Web of Science Core Collection:  18
+Total Times Cited:  20
+Cited Reference Count:  51
+ER  -
+
+TY  - JOUR
+AU  - Wetmore, SA
+AU  - Neuschatz, JS
+AU  - Gronlund, SD
+TI  - On the power of secondary confession evidence
+T2  - PSYCHOLOGY CRIME & LAW
+LA  - English
+KW  - secondary confession
+KW  - jury decision-making
+KW  - evidence
+KW  - attribution
+KW  - jailhouse informants
+KW  - FALSE CONFESSIONS
+KW  - JURY
+AB  - Research on primary confessions has demonstrated that it is a powerful form of evidence. The goal of the current research was to investigate whether secondary confessions - the suspect confesses to another individual who in turn then reports the confession to the police - could be as persuasive. In Experiments 1 and 2, participants read a murder trial containing an eyewitness identification, a secondary confession, and character testimony, and made midtrial assessments of the evidence. Results indicated that the secondary confession was evaluated as the most incriminating. In Experiment 3, participants read summaries of four criminal trials, each of which contained a primary confession, a secondary confession, eyewitness identification, or none of the above. The two confession conditions produced significantly higher conviction rates. Our findings suggest that secondary confessions are another powerful and potentially dangerous form of evidence.
+AD  - Univ Oklahoma, Dept Psychol, Norman, OK 73019 USA
+AD  - Univ Alabama, Dept Psychol, Huntsville, AL 35899 USA
+C3  - University of Oklahoma System
+C3  - University of Oklahoma - Norman
+C3  - University of Alabama System
+C3  - University of Alabama Huntsville
+PU  - ROUTLEDGE JOURNALS, TAYLOR & FRANCIS LTD
+PI  - ABINGDON
+PA  - 4 PARK SQUARE, MILTON PARK, ABINGDON OX14 4RN, OXFORDSHIRE, ENGLAND
+SN  - 1068-316X
+SN  - 1477-2744
+J9  - PSYCHOL CRIME LAW
+JI  - Psychol. Crime Law
+DA  - APR 21
+PY  - 2014
+VL  - 20
+IS  - 4
+SP  - 339
+EP  - 357
+DO  - 10.1080/1068316X.2013.777963
+WE  - Social Science Citation Index (SSCI)
+AN  - WOS:000333482900004
+N1  - Times Cited in Web of Science Core Collection:  35
+Total Times Cited:  41
+Cited Reference Count:  18
+ER  -

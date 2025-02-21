@@ -6,12 +6,14 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped
 
+from asreview.data.loader import load_dataset
 from asreview.data.loader import load_records
 from asreview.data.record import Base
 from asreview.data.record import Record
 from asreview.data.store import CURRENT_DATASTORE_VERSION
 from asreview.data.store import DataStore
 from asreview.project.api import PATH_DATA_STORE
+from asreview.utils import _is_url
 
 
 @pytest.fixture
@@ -204,3 +206,38 @@ def test_duplicate_of(store):
         session.add(duplicate_record)
         session.refresh(duplicate_record)
     assert duplicate_record.duplicate_of is None
+
+
+@pytest.mark.parametrize(
+    "file_name,n_lines",
+    [
+        ("_baseline.ris", 100),
+        ("embase.csv", 6),
+        ("embase_newpage.csv", 6),
+        ("embase.ris", 6),
+        ("generic.csv", 2),
+        ("generic_semicolon.csv", 2),
+        ("generic_tab.csv", 2),
+        ("generic_tab.tab", 2),
+        ("generic_tab.tsv", 2),
+        ("generic_labels.csv", 6),
+        ("pubmed_zotero.ris", 6),
+        ("pubmed_endnote.txt", 6),
+        ("scopus.ris", 6),
+        ("ovid_zotero.ris", 6),
+        ("proquest.ris", 6),
+        ("web_of_science.txt", 10),
+        pytest.param(
+            "https://osf.io/download/fg93a/",
+            38,
+            marks=pytest.mark.internet_required,
+        ),
+    ],
+)
+def test_load_dataset(file_name, n_lines):
+    if _is_url(file_name):
+        fp = file_name
+    else:
+        fp = Path("tests", "demo_data", file_name)
+    store = load_dataset(fp, dataset_id=file_name)
+    assert len(store) == n_lines
