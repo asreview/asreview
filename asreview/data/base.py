@@ -134,6 +134,7 @@ class BaseReader(ABC):
             List of records.
         """
         columns_present = set(df.columns).intersection(set(record_cls.get_columns()))
+        columns_present.discard("record_id")
         return [
             record_cls(dataset_row=idx, dataset_id=dataset_id, **row)
             for idx, row in df[list(columns_present)].iterrows()
