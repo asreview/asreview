@@ -69,6 +69,7 @@ def _project_state_converter_v1_v2(review_path):
         // int(1e3)
         / int(1e6)
     )
+    df_results["querier"] = df_results["querier"].replace("prior", None)
     del df_results["labeling_time"]
     sqlstate._replace_results_from_df(df_results)
 
