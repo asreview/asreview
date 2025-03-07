@@ -115,9 +115,11 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
   );
 
   let acceptedFileTypes = "";
-  readers?.result.forEach((reader) => {
-    acceptedFileTypes += reader.extension + ", ";
-  });
+  if (readers?.result) {
+    acceptedFileTypes = readers.result
+      .map((reader) => reader.extension)
+      .join(", ");
+  }
 
   const {
     getRootProps,
