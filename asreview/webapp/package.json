@@ -9,7 +9,7 @@
     "@mui/icons-material": "^6.1.0",
     "@mui/material": "^6.1.0",
     "@mui/x-charts": "^7.23.2",
-    "axios": "^1.7.7",
+    "axios": "^1.8.2",
     "formik": "^2.4.6",
     "html-to-image": "^1.11.11",
     "javascript-time-ago": "^2.5.11",
