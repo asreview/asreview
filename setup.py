@@ -47,7 +47,7 @@ REQUIRES = [
     "numpy",
     "pandas>=2,<3",
     "scikit-learn",
-    "rispy~=0.7.0",
+    "rispy~=0.9.0",
     "setuptools",
     "flask>=2.3.0",
     "flask_cors",
