@@ -24,7 +24,9 @@ def _format_algorithm(values, name, description):
         padding = " " * 22 + x.name
         if hasattr(x, "dist") and x.dist:
             if x.dist.name != "asreview":
-                padding += " " * (16 - len(x.name)) + f"[{x.dist.name} {x.dist.version}]"
+                padding += (
+                    " " * (16 - len(x.name)) + f"[{x.dist.name} {x.dist.version}]"
+                )
         result.append(padding)
 
     s += "\n".join(result)
