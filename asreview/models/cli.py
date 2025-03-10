@@ -21,17 +21,11 @@ def _format_algorithm(values, name, description):
     result = []
 
     for x in values:
-        if not getattr(x, "label", None):
-            if hasattr(x, "dist") and x.dist:
-                if x.dist.name != "asreview":
-                    x.label = f"[{x.dist.name} {x.dist.version}]"
-
-        if hasattr(x, "label"):
-            result.append(
-                " " * 22 + f"{x.name}" + " " * (16 - len(x.name)) + f"{x.label}"
-            )
-        else:
-            result.append(" " * 22 + f"{x.name}")
+        padding = " " * 22 + x.name
+        if hasattr(x, "dist") and x.dist:
+            if x.dist.name != "asreview":
+                padding += " " * (16 - len(x.name)) + f"[{x.dist.name} {x.dist.version}]"
+        result.append(padding)
 
     s += "\n".join(result)
     s += "\n\n"
