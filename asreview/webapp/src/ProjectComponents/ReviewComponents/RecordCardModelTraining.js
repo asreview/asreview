@@ -37,14 +37,14 @@ const ModelFlowChart = ({ record }) => {
 
   const classifierName = data?.models?.classifier.filter(
     (classifier) => classifier.name === record.state.classifier,
-  )[0].label;
+  )[0]?.label;
   const featureExtractionName = data?.models?.feature_extractor.filter(
     (feature_extractor) =>
       feature_extractor.name === record.state.feature_extractor,
-  )[0].label;
+  )[0]?.label;
   const queryStrategyName = data?.models?.querier.filter(
     (querier) => querier.name === record.state.querier,
-  )[0].label;
+  )[0]?.label;
 
   return (
     <Stack direction="row" spacing={2} alignItems={"center"}>
@@ -85,14 +85,27 @@ const RecordCardModelTraining = ({ record, modelLogLevel, sx }) => {
     record?.state?.querier === "top-down" ||
     record?.state?.querier === "random"
   ) {
+    if (record?.state?.label !== null) {
+      return (
+        <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
+          This model was presented without model training
+        </Alert>
+      );
+    } else {
+      return (
+        <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
+          Model training will start when there is enough labeled data
+        </Alert>
+      );
+    }
+  } else if (record?.state?.querier === null) {
     return (
       <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
-        This record is not presented by the model
+        This record was labeled by hand or the label was already available in
+        the dataset
       </Alert>
     );
-  }
-
-  if (modelLogLevel === "info" && record?.state) {
+  } else if (modelLogLevel === "info" && record?.state?.querier) {
     return (
       <Box sx={sx}>
         <ModelFlowChart record={record} />
