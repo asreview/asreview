@@ -60,26 +60,33 @@ def run_model(project):
 
     try:
         cycle = _read_cycle(project)
-        try:
-            fm = project.get_feature_matrix(cycle.feature_extractor.name)
-        except ValueError:
-            fm = cycle.transform(project.data_store.get_df())
-            project.add_feature_matrix(fm, cycle.feature_extractor.name)
 
-        cycle.fit(
-            fm[labeled["record_id"].values],
-            labeled["label"].values,
-        )
+        if cycle.feature_extractor:
+            try:
+                fm = project.get_feature_matrix(cycle.feature_extractor.name)
+            except ValueError:
+                fm = cycle.transform(project.data_store.get_df())
+                project.add_feature_matrix(fm, cycle.feature_extractor.name)
+        else:
+            fm = project.data_store.get_df().values
+
+        if cycle.classifier:
+            cycle.fit(
+                fm[labeled["record_id"].values],
+                labeled["label"].values,
+            )
 
         ranked_record_ids = cycle.rank(fm)
 
         with open_state(project) as state:
             state.add_last_ranking(
                 ranked_record_ids,
-                cycle.classifier.name,
+                cycle.classifier.name if cycle.classifier is not None else None,
                 cycle.querier.name,
                 cycle.balancer.name if cycle.balancer is not None else None,
-                cycle.feature_extractor.name,
+                cycle.feature_extractor.name
+                if cycle.feature_extractor is not None
+                else None,
                 len(labeled),
             )
 
