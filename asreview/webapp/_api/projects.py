@@ -275,7 +275,7 @@ def api_create_project():  # noqa: F401
                 )[0]
 
                 labels = project.data_store["included"][labeled_indices].tolist()
-                labeled_record_ids = project.data_store["record_ids"][
+                labeled_record_ids = project.data_store["record_id"][
                     labeled_indices
                 ].tolist()
 
