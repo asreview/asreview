@@ -81,23 +81,20 @@ const RecordCardModelTraining = ({ record, modelLogLevel, sx }) => {
     );
   }
 
-  if (
-    record?.state?.querier === "top-down" ||
-    record?.state?.querier === "random"
-  ) {
-    if (record?.state?.label !== null) {
-      return (
-        <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
-          This model was presented without model training
-        </Alert>
-      );
-    } else {
-      return (
-        <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
-          Model training will start when there is enough labeled data
-        </Alert>
-      );
-    }
+  if (record?.state?.querier === "top-down") {
+    return (
+      <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
+        Record is selected from top of your dataset. Model training might start
+        after enough labeled data is available.
+      </Alert>
+    );
+  } else if (record?.state?.querier === "random") {
+    return (
+      <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
+        Record is selected randomly. Model training might start after enough
+        labeled data is available.
+      </Alert>
+    );
   } else if (record?.state?.querier === null) {
     return (
       <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
