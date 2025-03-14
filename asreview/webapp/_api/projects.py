@@ -291,7 +291,8 @@ def api_create_project():  # noqa: F401
         except Exception:
             pass
 
-        return jsonify(message=f"Failed to import file. {err}"), 400
+        logging.exception(err)
+        return jsonify(message=f"Failed to create project for this dataset. {err}"), 400
 
     if current_app.config.get("AUTHENTICATION", True):
         # create a database entry for this project
