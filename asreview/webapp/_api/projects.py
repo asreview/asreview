@@ -1411,7 +1411,7 @@ def api_resolve_uri():  # noqa: F401
     if filename and Path(filename).suffix and Path(filename).suffix in reader_keys:
         return jsonify(files=[{"link": uri, "name": filename}]), 201
     elif filename and not Path(filename).suffix:
-        raise ValueError("Can't determine file format.")
+        raise ValueError("Can't determine file format for this URL.")
     else:
         try:
             dh = datahugger.info(uri)
@@ -1422,4 +1422,7 @@ def api_resolve_uri():  # noqa: F401
 
             return jsonify(files=files), 201
         except Exception:
-            raise ValueError("Can't retrieve files.")
+            if uri.startswith("https://doi.org/") or uri.startswith("http://doi.org/"):
+                raise ValueError("Can't retrieve files for this DOI.")
+            else:
+                raise ValueError("Can't retrieve files for this URL.")
