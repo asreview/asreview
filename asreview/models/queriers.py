@@ -144,7 +144,13 @@ class Uncertainty(QueryMixin, BaseEstimator):
         else:
             u = self.u
 
-        return np.argsort(np.abs(p - u))
+        try:
+            return np.argsort(np.abs(p - u))
+        except TypeError:
+            raise TypeError(
+                "Probabilities or decision functions should "
+                "be provided for maximum query."
+            )
 
 
 class Max(QueryMixin, BaseEstimator):
@@ -157,7 +163,13 @@ class Max(QueryMixin, BaseEstimator):
     label = "Maximum"
 
     def query(self, p):
-        return np.argsort(-p)
+        try:
+            return np.argsort(-p)
+        except TypeError:
+            raise TypeError(
+                "Probabilities or decision functions should "
+                "be provided for maximum query."
+            )
 
 
 class HybridMaxUncertainty(QueryMixin, BaseEstimator):
