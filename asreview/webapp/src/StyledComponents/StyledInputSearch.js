@@ -4,6 +4,7 @@ export const StyledInputSearch = ({
   endIcon,
   disabled = false,
   onClick = null,
+  loading = false,
   ...props
 }) => {
   const onKeyEnter = (event) => {
@@ -34,7 +35,7 @@ export const StyledInputSearch = ({
         onKeyDown={onKeyEnter}
         sx={{ ml: 1, flex: 1 }}
       />
-      <IconButton disabled={disabled} onClick={onClick}>
+      <IconButton disabled={disabled} onClick={onClick} loading={loading}>
         {endIcon}
       </IconButton>
     </Paper>

@@ -1,5 +1,6 @@
 import React from "react";
 
+import { ArrowForwardOutlined } from "@mui/icons-material";
 import {
   Button,
   FormControl,
@@ -8,7 +9,6 @@ import {
   Select,
   Stack,
 } from "@mui/material";
-import { ArrowForwardOutlined } from "@mui/icons-material";
 
 import { ProjectAPI } from "api";
 import { InlineErrorHandler } from "Components";
@@ -21,23 +21,23 @@ const DatasetFromURI = ({ mode, setSetupProjectId }) => {
   const [data, setData] = React.useState(null);
   const [selectedFile, setSelectedFile] = React.useState("");
 
-  const { isLoading: isResolving, mutate: mutateResolve } = useMutation(
-    ProjectAPI.resolveURI,
-    {
-      mutationKey: ["resolveURI"],
-      onSuccess: (data) => {
-        if (data["files"] && data["files"].length === 1) {
-          createProject({ mode: mode, url: data["files"][0]["link"] });
-        } else {
-          setData(data["files"]);
-        }
-      },
+  const {
+    isLoading: isResolving,
+    mutate: mutateResolve,
+    error: errorResolve,
+  } = useMutation(ProjectAPI.resolveURI, {
+    mutationKey: ["resolveURI"],
+    onSuccess: (data) => {
+      if (data["files"] && data["files"].length === 1) {
+        createProject({ mode: mode, url: data["files"][0]["link"] });
+      } else {
+        setData(data["files"]);
+      }
     },
-  );
+  });
 
   const {
     error,
-    isError,
     isLoading,
     mutate: createProject,
   } = useMutation(ProjectAPI.createProject, {
@@ -46,14 +46,6 @@ const DatasetFromURI = ({ mode, setSetupProjectId }) => {
       setSetupProjectId(data.id);
     },
   });
-
-  const resolveURI = () => {
-    mutateResolve({ uri: localURI });
-  };
-
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.value);
-  };
 
   const addFile = () => {
     createProject({
@@ -70,52 +62,16 @@ const DatasetFromURI = ({ mode, setSetupProjectId }) => {
           autoFocus
           endIcon={<ArrowForwardOutlined />}
           disabled={isResolving || isLoading}
-          onClick={resolveURI}
           placeholder="Type a URL or DOI of the dataset"
           value={localURI}
+          loading={isResolving || isLoading}
           onChange={(event) => {
             setURI(event.target.value);
           }}
-        />
-
-        {/* <Paper
-          component="form"
-          noValidate
-          autoComplete="off"
-          onSubmit={(e) => e.preventDefault()}
-          variant="outlined"
-          sx={{
-            px: 2,
-            py: 1,
-            display: "flex",
-            bgcolor: "white",
-            borderRadius: 10,
-            // "&.Mui-focused": {
-            //   borderColor: "primary.main",
-            // },
-
+          onClick={() => {
+            mutateResolve({ uri: localURI });
           }}
-        >
-          <InputBase
-            autoFocus
-            // disabled={isResolving || isLoading}
-            // fullWidth
-            id="dataset-url"
-            placeholder="Type a URL or DOI of the dataset"
-            value={localURI}
-            onChange={handleURL}
-            onKeyDown={validateURLOnEnter}
-            sx={{ ml: 1, flex: 1 }}
-          />
-          <StyledLoadingButton
-            disabled={isResolving || isLoading}
-            loading={isResolving || isLoading}
-            onClick={resolveURI}
-            sx={{ minWidth: "32px" }}
-          >
-            <ArrowForwardOutlinedIcon />
-          </StyledLoadingButton>
-        </Paper> */}
+        />
 
         {data && (
           <>
@@ -129,7 +85,9 @@ const DatasetFromURI = ({ mode, setSetupProjectId }) => {
                 id="select-file"
                 value={selectedFile}
                 label="Select dataset"
-                onChange={handleFileChange}
+                onChange={(event) => {
+                  setSelectedFile(event.target.value);
+                }}
               >
                 {data.map((val, i) => {
                   return (
@@ -140,16 +98,20 @@ const DatasetFromURI = ({ mode, setSetupProjectId }) => {
                 })}
               </Select>
             </FormControl>
-            <Stack alignItems={"center"}>
-              <Button disabled={isLoading} onClick={addFile}>
-                Add
-              </Button>
-            </Stack>
+            <Button loading={isLoading} onClick={addFile}>
+              Download
+            </Button>
           </>
         )}
 
-        {isError && (
-          <InlineErrorHandler message={error?.message + " Please try again."} />
+        {errorResolve && <InlineErrorHandler message={errorResolve?.message} />}
+
+        {error && (
+          <InlineErrorHandler
+            message={
+              "Failed to create project for this dataset: " + error?.message
+            }
+          />
         )}
       </Stack>
     </>
