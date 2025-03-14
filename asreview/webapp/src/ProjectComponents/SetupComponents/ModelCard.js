@@ -162,7 +162,10 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                     mutate({
                       project_id: project_id,
                       name: event.target.value,
-                      current_value: {},
+                      current_value:
+                        event.target.value === "custom"
+                          ? { querier: "max" }
+                          : {},
                     });
                   }}
                   label="Select Model"
