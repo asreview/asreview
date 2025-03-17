@@ -332,7 +332,7 @@ const RecordCardLabeler = ({
           {editState && (
             <>
               <Tooltip
-                title="Add to collection of relevant (keyboard shortcut: R)"
+                title="Add to my collection (keyboard shortcut: R)"
                 enterDelay={2000}
                 leaveDelay={200}
                 placement="bottom"

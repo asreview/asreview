@@ -75,8 +75,8 @@ const RecordCardModelTraining = ({ record, modelLogLevel, sx }) => {
   if (record?.error?.type !== undefined) {
     return (
       <Alert severity="error" sx={sx} icon={<ModelTraining />}>
-        Model training error: {record?.error?.message}. Change model in settings
-        page.
+        Model training error: {record?.error?.message}. Change model on the
+        Customize tab.
       </Alert>
     );
   }
