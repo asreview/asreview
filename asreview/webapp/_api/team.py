@@ -91,8 +91,7 @@ def pending_invitations():
                 "mode": asreview_object.config["mode"],
             }
         )
-    response = (jsonify({"invited_for_projects": invitations}), 200)
-    return response
+    return jsonify({"invited_for_projects": invitations}), 200
 
 
 @bp.route("/invitations/projects/<project_id>/users/<user_id>", methods=["POST"])
@@ -121,7 +120,7 @@ def invite(project_id, user_id):
 @login_required
 def accept_invitation(project_id):
     """Invited person accepts an invitation."""
-    response = jsonify(REQUESTER_FRAUD), 404
+
     # get project
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
     # if user is current user, try to add this user to project
@@ -132,20 +131,23 @@ def accept_invitation(project_id):
         project.collaborators.append(current_user)
         try:
             DB.session.commit()
-            response = (
-                jsonify({"message": "User accepted invitation for project."}),
-                200,
-            )
+            return jsonify(
+                {
+                    "id": project.id,
+                    "project_id": project.project_id,
+                    "owner_id": project.owner_id,
+                }
+            ), 200
         except SQLAlchemyError:
-            response = (jsonify({"message": "Error accepting invitation."}), 404)
-    return response
+            return jsonify({"message": "Error accepting invitation."}), 404
+    return jsonify(REQUESTER_FRAUD), 404
 
 
 @bp.route("/invitations/projects/<project_id>/reject", methods=["DELETE"])
 @login_required
 def reject_invitation(project_id):
     """Invited person rejects an invitation."""
-    response = jsonify(REQUESTER_FRAUD), 404
+
     # get project
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
     # if current_user is indeed invited
@@ -154,13 +156,17 @@ def reject_invitation(project_id):
         project.pending_invitations.remove(current_user)
         try:
             DB.session.commit()
-            response = (
-                jsonify({"message": "User rejected invitation for project."}),
-                200,
-            )
+            return jsonify(
+                {
+                    "id": project.id,
+                    "project_id": project.project_id,
+                    "owner_id": project.owner_id,
+                }
+            ), 200
         except SQLAlchemyError:
-            response = (jsonify({"message": "Error rejecting invitation."}), 404)
-    return response
+            return jsonify({"message": "Error rejecting invitation."}), 404
+
+    return jsonify(REQUESTER_FRAUD), 404
 
 
 @bp.route("/invitations/projects/<project_id>/users/<user_id>", methods=["DELETE"])
