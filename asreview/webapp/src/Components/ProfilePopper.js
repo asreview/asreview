@@ -76,8 +76,12 @@ const ProfilePopper = () => {
     },
   });
 
-  const { data: invitations } = useQuery(["getProjectInvitations"], () =>
-    TeamAPI.getProjectInvitations(),
+  const { data: invitations } = useQuery(
+    ["getProjectInvitations"],
+    () => TeamAPI.getProjectInvitations(),
+    {
+      refetchInterval: 30000,
+    },
   );
 
   const handleClick = (event) => {
@@ -107,9 +111,21 @@ const ProfilePopper = () => {
               onClick={handleClick}
               color="inherit"
             >
-              <Avatar sx={{ width: 32, height: 32 }}>
-                {data?.name?.[0]?.toUpperCase()}
-              </Avatar>
+              <Badge
+                badgeContent={invitations?.invited_for_projects.length || 0}
+                sx={{
+                  "& .MuiBadge-badge": {
+                    fontSize: 9,
+                    color: "white",
+                    bgcolor: "red",
+                  },
+                }}
+                invisible={!invitations?.invited_for_projects.length}
+              >
+                <Avatar sx={{ width: 32, height: 32 }}>
+                  {data?.name?.[0]?.toUpperCase()}
+                </Avatar>
+              </Badge>
             </IconButton>
           </Tooltip>
           <Popper
