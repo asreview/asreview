@@ -917,6 +917,7 @@ def api_import_project():
             request.files["file"], asreview_path(), safe_import=True
         )
     except Exception as err:
+        logging.exception(err)
         raise ValueError("Failed to import project.") from err
 
     fp_al_cycle = Path(

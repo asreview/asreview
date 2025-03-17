@@ -1,4 +1,3 @@
-import Edit from "@mui/icons-material/Edit";
 import {
   Box,
   Button,
@@ -28,6 +27,7 @@ import {
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectModes, projectStatuses } from "globals.js";
+import { Save, Edit } from "@mui/icons-material";
 
 const DialogProjectName = ({ project_id, dataset_name }) => {
   const [state, setState] = React.useState({
@@ -35,25 +35,15 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
     edit: false,
   });
 
-  const { isLoading: isMutatingName, mutate: mutateName } = useMutation(
-    ProjectAPI.mutateInfo,
-    {
-      mutationKey: ["mutateInfo"],
-      onSuccess: (data) => {
-        setState({
-          name: data?.name,
-          edit: false,
-        });
-      },
+  const { isLoading, mutate } = useMutation(ProjectAPI.mutateInfo, {
+    mutationKey: ["mutateInfo"],
+    onSuccess: (data) => {
+      setState({
+        name: data?.name,
+        edit: false,
+      });
     },
-  );
-
-  const toggleEditName = () => {
-    setState({
-      ...state,
-      edit: !state.edit,
-    });
-  };
+  });
 
   return (
     <DialogTitle>
@@ -62,7 +52,14 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
         <>
           {state.name}
           <Tooltip title={"Edit project name"}>
-            <IconButton onClick={toggleEditName}>
+            <IconButton
+              onClick={() => {
+                setState({
+                  ...state,
+                  edit: !state.edit,
+                });
+              }}
+            >
               <Edit />
             </IconButton>
           </Tooltip>
@@ -78,19 +75,20 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
                 name: e.target.value,
               });
             }}
-            disabled={isMutatingName}
+            disabled={isLoading}
             sx={{ width: "50%" }}
             autoFocus
           />
-          <Button
-            onClick={() => {
-              mutateName({ project_id: project_id, title: state.name });
-            }}
-            disabled={isMutatingName}
-            variant="contained"
-          >
-            Save
-          </Button>
+          <Tooltip title={"Save project name"}>
+            <IconButton
+              onClick={() => {
+                mutate({ project_id: project_id, title: state.name });
+              }}
+              loading={isLoading}
+            >
+              <Save />
+            </IconButton>
+          </Tooltip>
         </>
       )}
     </DialogTitle>

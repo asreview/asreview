@@ -22,6 +22,9 @@ def _project_config_converter_v1_v2(project_json):
     project_json["version"] = __version__
     del project_json["datetimeCreated"]
 
+    if project_json["mode"] == "explore":
+        project_json["mode"] = "oracle"
+
     for i, _ in enumerate(project_json["reviews"]):
         del project_json["reviews"][i]["start_time"]
         try:
