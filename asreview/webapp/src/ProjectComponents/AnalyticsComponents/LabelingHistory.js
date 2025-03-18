@@ -87,9 +87,11 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
   const containerRef = useRef(null);
   const [viewMode, setViewMode] = useState("chronological");
   const [infoAnchorEl, setInfoAnchorEl] = useState(null);
-  const [itemsToDisplay, setItemsToDisplay] = useState(420);
   const mdScreen = useMediaQuery(theme.breakpoints.down("md"));
   const smScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const [itemsToDisplay, setItemsToDisplay] = useState(
+    smScreen || mdScreen ? 300 : 540,
+  );
 
   let chunkSize = 30;
   if (smScreen) {
@@ -161,7 +163,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                 color="primary"
               />
             </Box>
-            <Box sx={{ position: "absolute", top: 8, right: 8 }}>
+            <Box sx={{ position: "absolute", top: 11, right: 8 }}>
               <IconButton
                 size="small"
                 onClick={(event) => {
@@ -208,7 +210,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
                   direction="row"
                   spacing={3}
                   justifyContent="center"
-                  sx={{ mt: 3 }}
+                  sx={{ mt: 2 }}
                 >
                   <Button
                     onClick={handleShowMore}

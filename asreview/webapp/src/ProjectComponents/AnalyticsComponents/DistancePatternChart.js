@@ -12,6 +12,7 @@ import {
   Stack,
   Typography,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { LineChart, legendClasses } from "@mui/x-charts";
 import GetAppIcon from "@mui/icons-material/GetApp";
@@ -135,6 +136,10 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
         break;
     }
   };
+
+  const mobileScreen = useMediaQuery(theme.breakpoints.down("md"), {
+    noSsr: true,
+  });
 
   return (
     <Card sx={{ position: "relative", backgroundColor: "transparent", mt: 2 }}>
@@ -304,8 +309,10 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
         {isLoading ? (
           <Skeleton variant="rectangular" height={400} />
         ) : data ? (
-          <Box height={400} width={1} ref={chartRef}>
+          <Box height={400} width={1} ref={chartRef} sx={{ mt: -3 }}>
             <LineChart
+              margin={{ left: 60, top: 70 }}
+              height={400}
               series={[
                 {
                   data: distance,
@@ -335,11 +342,16 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
               ]}
               slotProps={{
                 legend: {
-                  position: { vertical: "top", horizontal: "left" },
-                  itemGap: 20,
-                  padding: { top: -10 },
-                  sx: {
-                    color: theme.palette.text.secondary,
+                  position: {
+                    vertical: "top",
+                    horizontal: "left",
+                  },
+                  direction: "column",
+                  itemGap: 10,
+                  padding: { top: 0, bottom: 15 },
+                  labelStyle: {
+                    fill: theme.palette.text.secondary,
+                    fontSize: "0.8rem",
                   },
                 },
               }}
@@ -347,6 +359,14 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                 [`& .${legendClasses.mark}`]: {
                   ry: 10,
                 },
+                "& .MuiChartsAxis-left .MuiChartsAxis-label": {
+                  transform: "translateX(-10px)",
+                },
+                ".MuiChartsLegend-root": {
+                  transform: "translate(24px, 0px)",
+                },
+                height: "100%",
+                width: "100%",
               }}
             />
           </Box>
