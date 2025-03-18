@@ -464,25 +464,20 @@ const StoppingSuggestion = ({ project_id }) => {
           sx: {
             borderRadius: 2,
             maxWidth: 320,
+            boxShadow: (theme) => theme.shadows[3],
           },
         }}
       >
         <Box sx={{ p: 2.5 }}>
-          <Stack spacing={2.5}>
-            <Box>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                Edit Threshold
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Enter a custom value, or choose a dynamic or static threshold
-                from the dropdown menu.
-              </Typography>
-            </Box>
-            <Divider />
+          <Stack spacing={3}>
+            <Typography variant="subtitle1" fontWeight="medium">
+              Stopping Threshold
+            </Typography>
+
             <TextField
               type="number"
-              label="Custom Value"
-              placeholder="Enter custom threshold"
+              label="Custom threshold"
+              placeholder="Enter value"
               value={customThreshold}
               onClick={() => {
                 if (stoppingRuleThreshold !== null) {
@@ -499,81 +494,55 @@ const StoppingSuggestion = ({ project_id }) => {
                 }
               }}
               fullWidth
-              size="small"
-              sx={{ mt: 2 }}
+              size="medium"
+              sx={{ mb: 1 }}
             />
-            <Select
-              value={stoppingRuleThreshold || ""}
-              onChange={(e) => {
-                const selectedValue = e.target.value;
-                setStoppingRuleThreshold(selectedValue);
-                setCustomThreshold("");
-              }}
-              fullWidth
-              displayEmpty
-              sx={{
-                ".MuiSelect-select": {
-                  py: 1.25,
-                  borderRadius: 1,
-                },
-                ".MuiMenuItem-root": {
-                  fontSize: 14,
-                  py: 1,
-                },
-                ".MuiMenuItem-root.Mui-selected": {
-                  backgroundColor: (theme) => theme.palette.action.hover,
-                },
-              }}
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    py: 0.5,
-                  },
-                },
-              }}
-            >
-              <MenuItem value="" disabled>
-                Select a Value
-              </MenuItem>
-              <MenuItem
-                disabled
-                sx={{
-                  pointerEvents: "none",
-                  fontSize: 12,
-                  color: "text.secondary",
-                  opacity: 0.8,
-                }}
-              >
-                Dynamic Values
-              </MenuItem>
-              {[
-                { percent: 5, value: Math.round(projectData?.n_rows * 0.05) },
-                { percent: 10, value: Math.round(projectData?.n_rows * 0.1) },
-                { percent: 15, value: Math.round(projectData?.n_rows * 0.15) },
-              ].map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {`${option.value} (${option.percent}% of records)`}
-                </MenuItem>
-              ))}
-              <MenuItem
-                disabled
-                sx={{
-                  pointerEvents: "none",
-                  fontSize: 12,
-                  color: "text.secondary",
-                  opacity: 0.8,
-                  mt: 1,
-                }}
-              >
-                Static Values
-              </MenuItem>
-              {[100, 150, 200, 250, 300].map((val) => (
-                <MenuItem key={val} value={val}>
-                  {val}
-                </MenuItem>
-              ))}
-            </Select>
-            <Divider />
+
+            <Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Percentage presets
+              </Typography>
+              <Stack direction="row" spacing={1} justifyContent="space-between">
+                {[1, 2, 5, 10].map((percent) => {
+                  const value = Math.round(
+                    projectData?.n_rows * (percent / 100),
+                  );
+                  return (
+                    <Box
+                      key={percent}
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Button
+                        variant={
+                          stoppingRuleThreshold === value
+                            ? "contained"
+                            : "outlined"
+                        }
+                        fullWidth
+                        size="small"
+                        onClick={() => {
+                          setStoppingRuleThreshold(value);
+                          setCustomThreshold("");
+                        }}
+                      >
+                        {`${percent}%`}
+                      </Button>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                      >
+                        {value}
+                      </Typography>
+                    </Box>
+                  );
+                })}
+              </Stack>
+            </Box>
             <Button
               variant="contained"
               onClick={() => {
