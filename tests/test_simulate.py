@@ -164,3 +164,38 @@ def test_simulate_n_query_callable_with_args(demo_data):
         a.extend([len(a)] * min(len(a), 100 - len(a)))
 
     assert sim._results["training_set"].to_list() == a
+
+
+def test_simulate_labels_input(demo_data):
+    cycles = [
+        asr.ActiveLearningCycle(querier=Random(random_state=535), stopper=IsFittable()),
+        asr.ActiveLearningCycle(
+            querier=asr.load_extension("models.queriers", "max_random")(),
+            classifier=asr.load_extension("models.classifiers", "svm")(),
+            balancer=asr.load_extension("models.balancers", "balanced")(),
+            feature_extractor=asr.load_extension(
+                "models.feature_extractors", "tfidf"
+            )(),
+        ),
+    ]
+
+    sim = asr.Simulate(demo_data, demo_data["label_included"].to_list(), cycles)
+    sim.review()
+
+    assert sim._results["label"].to_list()[0:9] == [0, 0, 0, 0, 0, 0, 0, 0, 1]
+
+
+def test_simulate_labels_input_prior(demo_data):
+    cycle = asr.ActiveLearningCycle(
+        querier=asr.load_extension("models.queriers", "max_random")(random_state=535),
+        classifier=asr.load_extension("models.classifiers", "svm")(),
+        balancer=None,
+        feature_extractor=asr.load_extension("models.feature_extractors", "tfidf")(),
+    )
+
+    sim = asr.Simulate(demo_data, demo_data["label_included"].to_list(), cycle)
+    sim.label([0, 9])
+    sim.review()
+
+    assert isinstance(sim._results, pd.DataFrame)
+    assert sim._results.shape[0] < 60
