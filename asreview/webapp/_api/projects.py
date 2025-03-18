@@ -759,9 +759,7 @@ def api_get_wordcounts(project):  # noqa: F401
     df_data_labels = df_data.merge(results, on="record_id", how="inner")
 
     try:
-        count_vectorizer = CountVectorizer(
-            ngram_range=(1, 2), binary=True, stop_words="english"
-        )
+        count_vectorizer = CountVectorizer(ngram_range=(1, 2), stop_words="english")
         fm = count_vectorizer.fit_transform(df_data_labels["abstract"])
 
         nb = MultinomialNB()
