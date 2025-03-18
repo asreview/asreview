@@ -37,14 +37,14 @@ const ModelFlowChart = ({ record }) => {
 
   const classifierName = data?.models?.classifier.filter(
     (classifier) => classifier.name === record.state.classifier,
-  )[0].label;
+  )[0]?.label;
   const featureExtractionName = data?.models?.feature_extractor.filter(
     (feature_extractor) =>
       feature_extractor.name === record.state.feature_extractor,
-  )[0].label;
+  )[0]?.label;
   const queryStrategyName = data?.models?.querier.filter(
     (querier) => querier.name === record.state.querier,
-  )[0].label;
+  )[0]?.label;
 
   return (
     <Stack direction="row" spacing={2} alignItems={"center"}>
@@ -75,24 +75,34 @@ const RecordCardModelTraining = ({ record, modelLogLevel, sx }) => {
   if (record?.error?.type !== undefined) {
     return (
       <Alert severity="error" sx={sx} icon={<ModelTraining />}>
-        Model training error: {record?.error?.message}. Change model in settings
-        page.
+        Model training error: {record?.error?.message}. Change model on the
+        Customize tab.
       </Alert>
     );
   }
 
-  if (
-    record?.state?.querier === "top-down" ||
-    record?.state?.querier === "random"
-  ) {
+  if (record?.state?.querier === "top-down") {
     return (
       <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
-        This record is not presented by the model
+        Record is selected from top of your dataset. Model training might start
+        after enough labeled data is available.
       </Alert>
     );
-  }
-
-  if (modelLogLevel === "info" && record?.state) {
+  } else if (record?.state?.querier === "random") {
+    return (
+      <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
+        Record is selected randomly. Model training might start after enough
+        labeled data is available.
+      </Alert>
+    );
+  } else if (record?.state?.querier === null) {
+    return (
+      <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
+        This record was labeled by hand or the label was already available in
+        the dataset
+      </Alert>
+    );
+  } else if (modelLogLevel === "info" && record?.state?.querier) {
     return (
       <Box sx={sx}>
         <ModelFlowChart record={record} />

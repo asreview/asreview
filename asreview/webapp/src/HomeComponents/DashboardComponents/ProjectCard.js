@@ -1,6 +1,7 @@
 import {
   DeleteForeverOutlined,
   DoneAllOutlined,
+  EditOutlined,
   FileDownloadOutlined,
   GroupAddOutlined,
   MoreHoriz,
@@ -11,7 +12,7 @@ import { ProjectAPI } from "api";
 import { projectModes, projectStatuses } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 import ReviewScreenOutlined from "icons/ReviewScreenOutlined";
-import { ProjectDeleteDialog } from "ProjectComponents";
+import { ProjectDeleteDialog, ProjectRenameDialog } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -54,6 +55,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
 
   const [deleteDialog, toggleDeleteDialog] = useToggle();
   const [openSetup, toggleSetup] = useToggle();
+  const [renameDialog, toggleRenameDialog] = useToggle();
   const [exporting, setExporting] = React.useState(false);
 
   const review = project["reviews"][0];
@@ -216,6 +218,17 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                 horizontal: "right",
               }}
             >
+              <MenuItem
+                onClick={() => {
+                  setAnchorEl(null);
+                  toggleRenameDialog();
+                }}
+              >
+                <ListItemIcon>
+                  <EditOutlined />
+                </ListItemIcon>
+                <ListItemText>Rename project</ListItemText>
+              </MenuItem>
               {mode === projectModes.ORACLE &&
                 review?.status !== projectStatuses.SETUP && (
                   <MenuItem
@@ -284,6 +297,12 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
           onClose={toggleSetup}
         />
       )}
+      <ProjectRenameDialog
+        project_id={project.id}
+        projectTitle={project.name}
+        open={renameDialog}
+        onClose={toggleRenameDialog}
+      />
       <ProjectDeleteDialog
         project_id={project.id}
         projectTitle={project.name}

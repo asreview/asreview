@@ -5,11 +5,11 @@ import { PieChart } from "@mui/x-charts";
 const getChartColor = (theme, part, total) => {
   switch (true) {
     case part / total < 0.75:
-      return [theme.palette.error.main];
+      return theme.palette.error.main;
     case part / total < 0.95:
-      return [theme.palette.warning.main];
+      return theme.palette.warning.main;
     default:
-      return [theme.palette.success.main];
+      return theme.palette.success.main;
   }
 };
 

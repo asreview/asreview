@@ -275,7 +275,7 @@ def api_create_project():  # noqa: F401
                 )[0]
 
                 labels = project.data_store["included"][labeled_indices].tolist()
-                labeled_record_ids = project.data_store["record_ids"][
+                labeled_record_ids = project.data_store["record_id"][
                     labeled_indices
                 ].tolist()
 
@@ -291,7 +291,8 @@ def api_create_project():  # noqa: F401
         except Exception:
             pass
 
-        return jsonify(message=f"Failed to import file. {err}"), 400
+        logging.exception(err)
+        return jsonify(message=f"Failed to create project for this dataset. {err}"), 400
 
     if current_app.config.get("AUTHENTICATION", True):
         # create a database entry for this project
@@ -916,6 +917,7 @@ def api_import_project():
             request.files["file"], asreview_path(), safe_import=True
         )
     except Exception as err:
+        logging.exception(err)
         raise ValueError("Failed to import project.") from err
 
     fp_al_cycle = Path(
@@ -1411,7 +1413,7 @@ def api_resolve_uri():  # noqa: F401
     if filename and Path(filename).suffix and Path(filename).suffix in reader_keys:
         return jsonify(files=[{"link": uri, "name": filename}]), 201
     elif filename and not Path(filename).suffix:
-        raise ValueError("Can't determine file format.")
+        raise ValueError("Can't determine file format for this URL.")
     else:
         try:
             dh = datahugger.info(uri)
@@ -1422,4 +1424,7 @@ def api_resolve_uri():  # noqa: F401
 
             return jsonify(files=files), 201
         except Exception:
-            raise ValueError("Can't retrieve files.")
+            if uri.startswith("https://doi.org/") or uri.startswith("http://doi.org/"):
+                raise ValueError("Can't retrieve files for this DOI.")
+            else:
+                raise ValueError("Can't retrieve files for this URL.")

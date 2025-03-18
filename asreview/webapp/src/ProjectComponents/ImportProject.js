@@ -86,7 +86,7 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const ImportProjectCard = ({ mutate, isLoading }) => {
+const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
       mutate({
@@ -140,7 +140,7 @@ const ImportProjectCard = ({ mutate, isLoading }) => {
             <Typography fontSize={"1rem"}>Accepted files: .asreview</Typography>
           </Stack>
         </ButtonBase>
-
+        {isError && <Alert severity="error">{error?.message}</Alert>}
         {isLoading && <CircularProgress />}
       </Paper>
     </Root>
@@ -156,7 +156,7 @@ const ImportProject = ({ ...buttonProps }) => {
   const [importSnackbar, toggleImportSnackbar] = useToggle();
   const [warningDialog, toggleWarningDialog] = useToggle();
 
-  const { mutate, isLoading, data } = useMutation(
+  const { mutate, isLoading, data, isError, error } = useMutation(
     ProjectAPI.mutateImportProject,
     {
       mutationKey: ["importProject"],
@@ -169,9 +169,6 @@ const ImportProject = ({ ...buttonProps }) => {
           toggleWarningDialog();
         }
       },
-      onError: (error) => {
-        console.error(error);
-      },
     },
   );
 
@@ -183,7 +180,7 @@ const ImportProject = ({ ...buttonProps }) => {
   return (
     <>
       {smallScreen && (
-        <>
+        <Stack direction={"column"} spacing={2}>
           <Button
             component="label"
             role={undefined}
@@ -210,11 +207,17 @@ const ImportProject = ({ ...buttonProps }) => {
               accept=".asreview"
             />
           </Button>
-        </>
+          {isError && <Alert severity="error">{error?.message}</Alert>}
+        </Stack>
       )}
 
       {!smallScreen && (
-        <ImportProjectCard mutate={mutate} isLoading={isLoading} />
+        <ImportProjectCard
+          mutate={mutate}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+        />
       )}
 
       <Snackbar

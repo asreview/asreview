@@ -47,7 +47,7 @@ def test_user2_accept_invitation(setup_auth):
     # accept invitation
     r = au.accept_invitation(client, project)
     assert r.status_code == 200
-    assert r.json["message"] == "User accepted invitation for project."
+    assert r.json["id"] == project.id
 
 
 # Test rejecting invitation
@@ -62,7 +62,7 @@ def test_user2_rejects_invitation(setup_auth):
     # reject invitation
     r = au.reject_invitation(client, project)
     assert r.status_code == 200
-    assert r.json["message"] == "User rejected invitation for project."
+    assert r.json["id"] == project.id
 
 
 # Test owner removes invitation

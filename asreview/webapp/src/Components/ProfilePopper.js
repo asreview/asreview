@@ -7,7 +7,10 @@ import {
   Avatar,
   Badge,
   Box,
+  Button,
   ClickAwayListener,
+  DialogActions,
+  DialogTitle,
   Divider,
   IconButton,
   ListItemIcon,
@@ -19,6 +22,7 @@ import {
   Stack,
   Tooltip,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -28,7 +32,9 @@ import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 import { AuthAPI, TeamAPI } from "api";
 
-import { InvitationsDialog } from "ProjectComponents/TeamComponents";
+import { InvitationsComponent } from "ProjectComponents/TeamComponents";
+import { StyledDialog } from "StyledComponents/StyledDialog";
+
 import { useToggle } from "hooks/useToggle";
 
 const SignOutItem = () => {
@@ -57,8 +63,8 @@ const SignOutItem = () => {
 
 const ProfilePopper = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [projectInvitations, setProjectInvitations] = React.useState([]);
+  const smallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+
   const [onAcceptanceDialog, toggleAcceptanceDialog] = useToggle();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
@@ -69,6 +75,14 @@ const ProfilePopper = () => {
       response.code === 401 && navigate("/signin");
     },
   });
+
+  const { data: invitations } = useQuery(
+    ["getProjectInvitations"],
+    () => TeamAPI.getProjectInvitations(),
+    {
+      refetchInterval: 30000,
+    },
+  );
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -84,53 +98,8 @@ const ProfilePopper = () => {
     navigate("/profile");
   };
 
-  useQuery(["getProjectInvitations"], () => TeamAPI.getProjectInvitations(), {
-    onSuccess: (data) => {
-      setProjectInvitations(data["invited_for_projects"] || []);
-    },
-  });
-
-  const acceptInvitation = useMutation(
-    (project) => TeamAPI.acceptInvitation(project.project_id),
-    {
-      onSuccess: (response, project) => {
-        // refetch all projects
-        queryClient.invalidateQueries({
-          queryKey: ["fetchProjects", project.mode],
-        });
-        // filter out accepted project
-        const newProjectList = projectInvitations.filter(
-          (p) => p.id !== project.id,
-        );
-        // reset invitations
-        setProjectInvitations(newProjectList);
-        // close modal if there are no more invitations
-        if (newProjectList.length === 0) {
-          toggleAcceptanceDialog();
-        }
-      },
-    },
-  );
-  const rejectInvitation = useMutation(
-    (project) => TeamAPI.rejectInvitation(project.project_id),
-    {
-      onSuccess: (response, project) => {
-        // filter out rejected project
-        const newProjectList = projectInvitations.filter(
-          (p) => p.id !== project.id,
-        );
-        // reset invitations
-        setProjectInvitations(newProjectList);
-        // close modal if there are no more invitations
-        if (newProjectList.length === 0) {
-          toggleAcceptanceDialog();
-        }
-      },
-    },
-  );
-
   return (
-    <div>
+    <>
       <ClickAwayListener onClickAway={() => setOpen(false)}>
         <Box>
           <Tooltip title="Profile">
@@ -138,14 +107,25 @@ const ProfilePopper = () => {
               size="large"
               edge="end"
               aria-label="account of current user"
-              // aria-controls={menuId}
               aria-haspopup="true"
               onClick={handleClick}
               color="inherit"
             >
-              <Avatar sx={{ width: 32, height: 32 }}>
-                {data?.name?.[0]?.toUpperCase()}
-              </Avatar>
+              <Badge
+                badgeContent={invitations?.invited_for_projects.length || 0}
+                sx={{
+                  "& .MuiBadge-badge": {
+                    fontSize: 9,
+                    color: "white",
+                    bgcolor: "red",
+                  },
+                }}
+                invisible={!invitations?.invited_for_projects.length}
+              >
+                <Avatar sx={{ width: 32, height: 32 }}>
+                  {data?.name?.[0]?.toUpperCase()}
+                </Avatar>
+              </Badge>
             </IconButton>
           </Tooltip>
           <Popper
@@ -175,11 +155,11 @@ const ProfilePopper = () => {
                     <Typography variant="body2">Profile</Typography>
                   </ListItemText>
                 </MenuItem>
-                {projectInvitations.length > 0 && (
+                {invitations?.invited_for_projects.length > 0 && (
                   <MenuItem onClick={openAcceptanceDialog}>
                     <ListItemIcon>
                       <Badge
-                        badgeContent={projectInvitations.length}
+                        badgeContent={invitations?.invited_for_projects.length}
                         sx={{
                           "& .MuiBadge-badge": {
                             color: "white",
@@ -204,17 +184,26 @@ const ProfilePopper = () => {
           </Popper>
         </Box>
       </ClickAwayListener>
-      {data && (
-        <InvitationsDialog
+      {invitations && (
+        <StyledDialog
+          aria-label="acceptance dialog"
           open={onAcceptanceDialog}
+          fullScreen={smallScreen}
+          fullWidth
+          maxWidth="md"
+          PaperProps={{
+            sx: { height: !smallScreen ? "calc(100% - 96px)" : "100%" },
+          }}
           onClose={toggleAcceptanceDialog}
-          userId={data.id}
-          projectInvitations={projectInvitations}
-          handleAcceptance={acceptInvitation.mutate}
-          handleRejection={rejectInvitation.mutate}
-        />
+        >
+          <DialogTitle>Collaboration invitations</DialogTitle>
+          <InvitationsComponent onEmpty={toggleAcceptanceDialog} />
+          <DialogActions>
+            <Button onClick={toggleAcceptanceDialog}>Close</Button>
+          </DialogActions>
+        </StyledDialog>
       )}
-    </div>
+    </>
   );
 };
 export default ProfilePopper;

@@ -1,7 +1,5 @@
-import * as React from "react";
 import {
   Button,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -9,127 +7,105 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { formatDate } from "globals.js";
+import { TeamAPI } from "api";
+import { formatDate, projectModes } from "globals.js";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
-const PREFIX = "InvitationsComponent";
+const InvitationsComponent = ({ onEmpty = null }) => {
+  const queryClient = useQueryClient();
 
-const classes = {
-  root: `${PREFIX}-root`,
-  error: `${PREFIX}-error`,
-  table: `${PREFIX}-table`,
-  tableCell: `${PREFIX}-tableCell`,
-  converting: `${PREFIX}-converting`,
-  img: `${PREFIX}-img`,
-  title: `${PREFIX}-title`,
-  titleWrapper: `${PREFIX}-title-wrapper`,
-  loadingProjects: `${PREFIX}-loading-projects`,
-};
+  const { data: invitations } = useQuery(["getProjectInvitations"], () =>
+    TeamAPI.getProjectInvitations(),
+  );
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  [`&.${classes.root}`]: {
-    width: "90%",
-    borderRadius: 16,
-    marginBottom: 64,
-    marginTop: 16,
-    marginLeft: "auto",
-    marginRight: "auto",
-    paddingLeft: 10,
-    paddingRight: 10,
-  },
-  [`& .${classes.error}`]: {
-    display: "flex",
-    justifyContent: "center",
-    paddingTop: 64,
-    paddingBottom: 132,
-  },
-  [`& .${classes.table}`]: {
-    width: "100%",
-  },
-  [`& .${classes.tableCell}`]: {
-    letterSpacing: "0.25px",
-  },
-  [`& .${classes.converting}`]: {
-    display: "flex",
-    alignItems: "center",
-  },
-  [`& .${classes.img}`]: {
-    maxWidth: 140,
-    marginTop: 8,
-    marginBottom: 64,
-    marginLeft: 100,
-  },
-  [`& .${classes.title}`]: {
-    cursor: "pointer",
-    display: "-webkit-box",
-    letterSpacing: "0.25px",
-    WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 1,
-    whiteSpace: "pre-line",
-    overflow: "hidden",
-  },
-  [`& .${classes.titleWrapper}`]: {
-    display: "flex",
-    alignItems: "center",
-    width: "100%",
-  },
-  [`& .${classes.loadingProjects}`]: {
-    display: "flex",
-    justifyContent: "center",
-    paddingTop: 64,
-    paddingBottom: 248,
-  },
-}));
+  const { mutate: handleAcceptance } = useMutation(TeamAPI.acceptInvitation, {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries("fetchProjects");
 
-const columns = [
-  { id: "name", label: "Project", width: "45%" },
-  { id: "created_at_unix", label: "Date", width: "15%" },
-  { id: "mode", label: "Mode", width: "15%" },
-  { id: "action", label: "Action", width: "25%" },
-];
+      // update the data of getProjectInvitations
+      queryClient.setQueryData("getProjectInvitations", (oldData) => {
+        return {
+          ...oldData,
+          invited_for_projects: oldData.invited_for_projects.filter(
+            (project) => project.project_id !== data.project_id,
+          ),
+        };
+      });
 
-const InvitationsComponent = (props) => {
+      const updatedInvitations = queryClient.getQueryData(
+        "getProjectInvitations",
+      );
+      if (onEmpty && updatedInvitations?.invited_for_projects.length === 0) {
+        onEmpty();
+      }
+    },
+  });
+
+  const { mutate: handleRejection } = useMutation(TeamAPI.rejectInvitation, {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries("getProjectInvitations");
+
+      // update the data of getProjectInvitations
+      queryClient.setQueryData("getProjectInvitations", (oldData) => {
+        return {
+          ...oldData,
+          invited_for_projects: oldData.invited_for_projects.filter(
+            (project) => project.project_id !== data.project_id,
+          ),
+        };
+      });
+
+      const updatedInvitations = queryClient.getQueryData(
+        "getProjectInvitations",
+      );
+      if (onEmpty && updatedInvitations?.invited_for_projects.length === 0) {
+        onEmpty();
+      }
+    },
+  });
+
   return (
-    <StyledPaper elevation={2} className={classes.root}>
-      <TableContainer>
-        <Table className={classes.table} stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <TableCell key={column.id} style={{ width: column.width }}>
-                  {column.label}
+    <TableContainer sx={{ my: 2 }}>
+      <Table stickyHeader aria-label="sticky table">
+        <TableHead>
+          <TableRow>
+            <TableCell style={{ width: "45%" }}>Project</TableCell>
+            <TableCell style={{ width: "15%" }}>Date</TableCell>
+            <TableCell style={{ width: "15%" }}>Project type</TableCell>
+            <TableCell style={{ width: "25%" }}>Action</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {invitations?.invited_for_projects.map((project) => {
+            return (
+              <TableRow key={project.id}>
+                <TableCell>{project.name}</TableCell>
+                <TableCell>{formatDate(project.created_at_unix)}</TableCell>
+                <TableCell>
+                  {project.mode === projectModes.ORACLE && "Review"}
+                  {project.mode === projectModes.SIMULATION && "Simulation"}
                 </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {props.projectInvitations.map((project) => {
-              return (
-                <TableRow key={project.id}>
-                  <TableCell>{project.name}</TableCell>
-                  <TableCell>{formatDate(project.created_at_unix)}</TableCell>
-                  <TableCell>{project.mode}</TableCell>
-                  <TableCell>
-                    <Button
-                      onClick={() => props.handleAcceptance(project)}
-                      sx={{ textTransform: "none" }}
-                    >
-                      Accept
-                    </Button>
-                    <Button
-                      onClick={() => props.handleRejection(project)}
-                      sx={{ textTransform: "none" }}
-                    >
-                      Reject
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </StyledPaper>
+                <TableCell>
+                  <Button
+                    onClick={() => handleAcceptance(project.project_id)}
+                    variant="outlined"
+                    sx={{ mr: 1 }}
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    onClick={() => handleRejection(project.project_id)}
+                    variant="outlined"
+                  >
+                    Reject
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
 
