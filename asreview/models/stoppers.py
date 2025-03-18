@@ -23,6 +23,8 @@ This can be based on the properties of the results table or the input dataset.
 
 """
 
+import pandas as pd
+
 from sklearn.base import BaseEstimator
 
 __all__ = [
@@ -51,7 +53,12 @@ def raise_if_not_simulate(stop_method):
     """Decorator to only use the stopping mechanism in simulation."""
 
     def wrapper(self, results, data):
-        if data.isna().any():
+        if isinstance(data, (pd.DataFrame, pd.Series)):
+            data_check = data
+        else:
+            data_check = pd.Series(data)
+
+        if data_check.isna().any():
             raise ValueError("Stopper mechanism requires all data to be labeled.")
 
         return stop_method(self, results, data)
