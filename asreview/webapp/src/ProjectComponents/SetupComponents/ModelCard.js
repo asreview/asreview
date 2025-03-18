@@ -171,7 +171,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                   label="Select Model"
                   sx={{ mb: 3 }}
                 >
-                  <ListSubheader>
+                  <ListSubheader sx={{ bgcolor: "transparent" }}>
                     Ultra - Fast, lightweight learner for performant reviewing
                   </ListSubheader>
 
@@ -189,7 +189,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
 
                   <Divider />
 
-                  <ListSubheader>
+                  <ListSubheader sx={{ bgcolor: "transparent" }}>
                     Language Agnostic - Optimized for handling multiple
                     languages at once
                   </ListSubheader>
@@ -208,14 +208,51 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                           sx={{
                             width: 1,
                             justifyContent: "space-between",
-                            alignItems: "flex-start",
+                            alignItems: "center",
                           }}
                         >
                           <Typography>{learner.label}</Typography>
                           {!learner.is_available && (
-                            <Typography color="error">
-                              Requires the free ASReview-NEMO extension
-                            </Typography>
+                            <Box
+                              sx={{ display: "flex", flexDirection: "column" }}
+                            >
+                              <Typography
+                                color={(theme) =>
+                                  theme.palette.mode === "dark"
+                                    ? "tertiary.main"
+                                    : "error.main"
+                                }
+                                variant="caption"
+                                fontWeight="medium"
+                              >
+                                Requires ASReview-NEMO
+                              </Typography>
+                              <Box
+                                component="span"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(
+                                    "https://asreview.nl/nemo",
+                                    "_blank",
+                                    "noopener,noreferrer",
+                                  );
+                                }}
+                                sx={{
+                                  color: "primary.main",
+                                  textDecoration: "none",
+                                  "&:hover": {
+                                    textDecoration: "underline",
+                                    cursor: "pointer",
+                                  },
+                                  fontSize: "0.75rem",
+                                  mt: 0.5,
+                                  display: "inline-block",
+                                  pointerEvents: "auto",
+                                }}
+                              >
+                                Learn more →
+                              </Box>
+                            </Box>
                           )}
                         </Stack>
                       </MenuItem>
@@ -223,7 +260,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
 
                   <Divider />
 
-                  <ListSubheader>
+                  <ListSubheader sx={{ bgcolor: "transparent" }}>
                     Heavy - Modern, heavyweight learner for heavy work
                   </ListSubheader>
 
@@ -241,21 +278,58 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                           sx={{
                             width: 1,
                             justifyContent: "space-between",
-                            alignItems: "flex-start",
+                            alignItems: "center",
                           }}
                         >
                           <Typography>{learner.label}</Typography>
                           {!learner.is_available && (
-                            <Typography color="error">
-                              Requires the free ASReview-NEMO extension
-                            </Typography>
+                            <Box
+                              sx={{ display: "flex", flexDirection: "column" }}
+                            >
+                              <Typography
+                                color={(theme) =>
+                                  theme.palette.mode === "dark"
+                                    ? "tertiary.main"
+                                    : "error.main"
+                                }
+                                variant="caption"
+                                fontWeight="medium"
+                              >
+                                Requires ASReview-NEMO
+                              </Typography>
+                              <Box
+                                component="span"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(
+                                    "https://asreview.nl/nemo",
+                                    "_blank",
+                                    "noopener,noreferrer",
+                                  );
+                                }}
+                                sx={{
+                                  color: "primary.main",
+                                  textDecoration: "none",
+                                  "&:hover": {
+                                    textDecoration: "underline",
+                                    cursor: "pointer",
+                                  },
+                                  fontSize: "0.75rem",
+                                  mt: 0.5,
+                                  display: "inline-block",
+                                  pointerEvents: "auto",
+                                }}
+                              >
+                                Learn more →
+                              </Box>
+                            </Box>
                           )}
                         </Stack>
                       </MenuItem>
                     ))}
                   <Divider />
 
-                  <ListSubheader>
+                  <ListSubheader sx={{ bgcolor: "transparent" }}>
                     Custom - Built your own learner from available components
                   </ListSubheader>
                   <MenuItem value="custom">Custom </MenuItem>
