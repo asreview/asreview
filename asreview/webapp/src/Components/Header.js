@@ -154,7 +154,18 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
                           >
                             <Avatar>
                               {user?.name
-                                ? user.name.charAt(0).toUpperCase()
+                                ? (() => {
+                                    const nameParts = user.name.split(" ");
+                                    if (nameParts.length > 1) {
+                                      // First letter of first name + first letter of surname
+                                      return `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase();
+                                    } else {
+                                      // If only one name, return the first letter
+                                      return nameParts[0]
+                                        .charAt(0)
+                                        .toUpperCase();
+                                    }
+                                  })()
                                 : "?"}
                             </Avatar>
                           </Tooltip>
