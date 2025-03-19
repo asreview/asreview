@@ -85,24 +85,21 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
                 mt: 3,
               }}
             >
-              You've reached the stopping threshold
+              You've reached your stopping threshold for this project.
             </Typography>
             <Typography
               variant="h6"
               component="div"
               sx={{
                 color: "text.secondary",
-                mb: 5,
+                mb: 2,
                 textAlign: "center",
                 fontWeight: 400,
               }}
             >
               How do you want to proceed?
             </Typography>
-            <Typography variant="body2">
-              You've reached your stopping threshold for this project. This
-              indicates that all relevant records have likely been found.
-            </Typography>
+
             <Typography
               variant="body2"
               sx={{

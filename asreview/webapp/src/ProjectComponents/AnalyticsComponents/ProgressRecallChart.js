@@ -13,7 +13,6 @@ import {
   Skeleton,
   Divider,
   Button,
-  useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { toPng, toJpeg, toSvg } from "html-to-image";
@@ -44,9 +43,6 @@ const calculateProgressRecall = (data) => {
 
 export default function ProgressRecallChart(props) {
   const theme = useTheme();
-  const mobileScreen = useMediaQuery(theme.breakpoints.down("md"), {
-    noSsr: true,
-  });
   const chartRef = useRef(null);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [anchorPosition, setAnchorPosition] = useState({ top: 0, left: 0 });
@@ -150,125 +146,144 @@ export default function ProgressRecallChart(props) {
 
   const goodScenarioSVG = (
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
-      <path
-        d="M5,55 Q10,10 15,8 T95,5"
+      <polyline
+        points="5,55 10,25 15,15 20,8 25,8 30,8 35,8 40,8 45,8 50,8 55,8 60,8 65,8 70,8 75,8 80,8 85,8 90,8 95,8"
         stroke={theme.palette.tertiary.dark}
-        strokeWidth="2"
+        strokeWidth="1"
         fill="none"
       />
-      <path
-        d="M5,55 C25,45 50,35 75,25 95,20 95,20 95,20"
+      <polyline
+        points="5,55 10,53 15,51 20,49 25,47 30,45 35,43 40,41 45,39 50,37 55,35 60,33 65,31 70,29 75,27 80,25 85,23 90,21 95,19"
         stroke={theme.palette.grey[600]}
-        strokeWidth="2"
+        strokeWidth="1"
         fill="none"
+        strokeDasharray="2"
       />
     </svg>
   );
 
   const badScenarioSVG = (
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
-      <path
-        d="M5,55 C25,50 50,40 75,35 90,30 95,28 95,27"
+      <polyline
+        points="5,55 10,52 15,50 20,47 25,45 30,42 35,40 40,38 45,36 50,34 55,32 60,30 65,28 70,26 75,24 80,22 85,20 90,18 95,16"
         stroke={theme.palette.tertiary.dark}
-        strokeWidth="2"
+        strokeWidth="1"
         fill="none"
       />
-      <path
-        d="M5,55 C25,52 50,45 75,40 90,35 95,33 95,32"
+      <polyline
+        points="5,55 10,53 15,51 20,49 25,47 30,45 35,43 40,41 45,39 50,37 55,35 60,33 65,31 70,29 75,27 80,25 85,23 90,21 95,19"
         stroke={theme.palette.grey[600]}
-        strokeWidth="2"
+        strokeWidth="1"
         fill="none"
+        strokeDasharray="2"
       />
     </svg>
   );
 
   return (
-    <Card sx={{ bgcolor: "transparent" }}>
+    <Card sx={{ bgcolor: "transparent", position: "relative", mt: 2 }}>
       <CardErrorHandler
         queryKey={"fetchGenericData"}
         error={props.progressRecallQuery?.error}
         isError={!!props.progressRecallQuery?.isError}
       />
-      <CardContent>
-        <Stack>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <IconButton onClick={handleDownloadClick}>
-              <GetAppIcon fontSize="small" />
-            </IconButton>
-            <Menu
-              anchorEl={anchorElMenu}
-              open={Boolean(anchorElMenu)}
-              onClose={handleMenuClose}
-            >
-              <MenuItem onClick={() => handleDownload("png")}>
-                Download as PNG
-              </MenuItem>
-              <MenuItem onClick={() => handleDownload("jpeg")}>
-                Download as JPEG
-              </MenuItem>
-              <MenuItem onClick={() => handleDownload("svg")}>
-                Download as SVG
-              </MenuItem>
-            </Menu>
-            <IconButton
-              size="small"
-              onClick={handlePopoverOpen}
-              aria-owns={popoverOpen ? "mouse-over-popover" : undefined}
-              aria-haspopup="true"
-            >
-              <StyledLightBulb fontSize="small" />
-            </IconButton>
-          </Box>
+      <CardContent sx={{ mt: 1 }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            zIndex: 1,
+            display: "flex",
+          }}
+        >
+          <IconButton onClick={handleDownloadClick}>
+            <GetAppIcon fontSize="small" />
+          </IconButton>
+          <Menu
+            anchorEl={anchorElMenu}
+            open={Boolean(anchorElMenu)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={() => handleDownload("png")}>
+              Download as PNG
+            </MenuItem>
+            <MenuItem onClick={() => handleDownload("jpeg")}>
+              Download as JPEG
+            </MenuItem>
+            <MenuItem onClick={() => handleDownload("svg")}>
+              Download as SVG
+            </MenuItem>
+          </Menu>
+          <IconButton
+            size="small"
+            onClick={handlePopoverOpen}
+            aria-owns={popoverOpen ? "mouse-over-popover" : undefined}
+            aria-haspopup="true"
+          >
+            <StyledLightBulb fontSize="small" />
+          </IconButton>
+        </Box>
 
-          <Box ref={chartRef}>
-            {props.genericDataQuery.isLoading ? (
-              <Skeleton variant="rectangular" height={400} width="100%" />
-            ) : chartData ? (
-              <LineChart
-                height={400}
-                series={chartData.series}
-                xAxis={[
-                  {
-                    data: chartData.xAxis,
-                    label: "Records Reviewed",
-                    tickMinStep: 1,
+        <Box height={400} width={1} ref={chartRef} sx={{ mt: -3 }}>
+          {props.genericDataQuery.isLoading ? (
+            <Skeleton variant="rectangular" height={400} width="100%" />
+          ) : chartData ? (
+            <LineChart
+              margin={{ left: 60, top: 70 }}
+              height={400}
+              series={chartData.series}
+              xAxis={[
+                {
+                  data: chartData.xAxis,
+                  label: "Records Reviewed",
+                  tickMinStep: 1,
+                },
+              ]}
+              yAxis={[
+                {
+                  label: "Relevant Records",
+                  tickMinStep: 1,
+                },
+              ]}
+              slotProps={{
+                legend: {
+                  direction: "column",
+                  position: {
+                    vertical: "top",
+                    horizontal: "left",
                   },
-                ]}
-                yAxis={[
-                  {
-                    label: "Relevant Records",
-                    tickMinStep: 1,
+                  itemGap: 10,
+                  padding: { top: 0, bottom: 15 },
+                  labelStyle: {
+                    fill: theme.palette.text.secondary,
+                    fontSize: "0.8rem",
                   },
-                ]}
-                slotProps={{
-                  legend: {
-                    direction: mobileScreen ? "column" : "row",
-                    position: { vertical: "top", horizontal: "left" },
-                    padding: { top: -10 },
-                    labelStyle: {
-                      fill: theme.palette.text.secondary,
-                    },
-                  },
-                }}
-                sx={{
-                  ".MuiLineElement-root": {
-                    strokeWidth: 2,
-                  },
-                  ".MuiChartsLegend-root": {
-                    transform: "translate(24px, 8px)",
-                  },
-                  [`& .${legendClasses.mark}`]: {
-                    ry: 10,
-                  },
-                }}
-              />
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                No data available
-              </Typography>
-            )}
-          </Box>
-        </Stack>
+                },
+              }}
+              sx={{
+                ".MuiLineElement-root": {
+                  strokeWidth: 2,
+                },
+                ".MuiChartsLegend-root": {
+                  transform: "translate(24px, 0px)",
+                },
+                [`& .${legendClasses.mark}`]: {
+                  ry: 10,
+                },
+                "& .MuiChartsAxis-left .MuiChartsAxis-label": {
+                  transform: "translateX(-10px)",
+                },
+                height: "100%",
+                width: "100%",
+              }}
+            />
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              No data available
+            </Typography>
+          )}
+        </Box>
       </CardContent>
 
       <Popover

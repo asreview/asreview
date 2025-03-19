@@ -1,12 +1,11 @@
-import * as React from "react";
+import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
-import ListItem from "@mui/material/ListItem";
-import PersonIcon from "@mui/icons-material/Person";
-import Avatar from "@mui/material/Avatar";
 
-import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
+import IconButton from "@mui/material/IconButton";
+
+import { InitialsAvatar } from "StyledComponents/InitialsAvatar";
 
 const UserListEntry = ({ user, onDelete, disabled = false }) => {
   return (
@@ -22,9 +21,7 @@ const UserListEntry = ({ user, onDelete, disabled = false }) => {
       }
     >
       <ListItemAvatar>
-        <Avatar>
-          <PersonIcon />
-        </Avatar>
+        <InitialsAvatar name={user.name} />
       </ListItemAvatar>
       <ListItemText primary={user.name} secondary={user.email} />
     </ListItem>

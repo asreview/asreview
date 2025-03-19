@@ -1,5 +1,6 @@
 import { DoneAll, Share } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   Button,
   Chip,
@@ -228,15 +229,18 @@ const AnalyticsPage = () => {
         >
           <DialogTitle>
             {statusData?.status === projectStatuses.FINISHED
-              ? "Resume Review"
-              : "Mark as Finished"}
+              ? "Resume review?"
+              : "Mark project as finished?"}
           </DialogTitle>
-          <DialogContent sx={{ pt: 1 }}>
+          <DialogContent>
             <Typography>
               {statusData?.status === projectStatuses.FINISHED
-                ? "Are you sure you want to resume reviewing? This will change the project status back to 'In Review'."
-                : "Are you sure you want to mark this project as finished? This indicates that you have completed your review."}
+                ? "This will change the project status back to 'In Review'."
+                : "This indicates that you have completed your review."}
             </Typography>
+            <Alert severity="info" sx={{ mt: 2 }}>
+              You can always revert this decision by clicking this button again.
+            </Alert>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpenStatusDialog(false)}>Cancel</Button>

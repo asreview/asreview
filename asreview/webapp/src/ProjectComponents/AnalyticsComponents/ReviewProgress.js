@@ -286,7 +286,7 @@ export default function ReviewProgress({ project_id }) {
                   height={180}
                   width={180}
                   tooltip={{
-                    trigger: false,
+                    trigger: "none",
                   }}
                   sx={{
                     "& .MuiPieArc-root": {
@@ -363,7 +363,7 @@ export default function ReviewProgress({ project_id }) {
                   height={180}
                   width={180}
                   tooltip={{
-                    trigger: false,
+                    trigger: "none",
                   }}
                   sx={{
                     "& .MuiPieArc-root": {

@@ -53,8 +53,8 @@ export const theme = {
         error: { main: "#ba1a1a" },
 
         grey: {
-          400: "#DEDBD2",
-          600: "#7d766a",
+          400: "#eeedeb",
+          600: "#c9c6bb",
         },
       },
     },
@@ -88,8 +88,8 @@ export const theme = {
         },
 
         grey: {
-          400: "#4d4d4d",
-          600: "#333333",
+          400: "#1c1c1c",
+          600: "#585858",
         },
       },
     },

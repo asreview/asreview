@@ -136,129 +136,221 @@ export default function ProgressDensityChart(props) {
 
   const goodScenarioSVG = (
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
-      <path
-        d="M5,50
-           Q15,20 25,10
-           Q35,0 45,40
-           Q55,20 65,30
-           Q75,50 85,50
-           L95,50"
+      <polyline
+        points="5,55
+                7,30 13,30
+                15,15 18,15
+                20,5 23,5
+                25,25 28,25
+                30,10 33,10
+                35,25 38,25
+                40,35 43,35
+                45,30 48,30
+                50,40 53,40
+                55,35 58,35
+                60,45 63,45
+                65,55 95,55"
         stroke={theme.palette.tertiary.dark}
-        strokeWidth="2"
+        strokeWidth="1"
         fill="none"
+      />
+      <path
+        d="M5,55
+          7,30 13,30
+          15,15 18,15
+          20,5 23,5
+          25,25 28,25
+          30,10 33,10
+          35,25 38,25
+          40,35 43,35
+          45,30 48,30
+          50,40 53,40
+          55,35 58,35
+          60,45 63,45
+          65,55 95,55 Z"
+        fill={theme.palette.tertiary.dark}
+        fillOpacity="0.1"
+        stroke="none"
+      />
+      <line
+        x1="5"
+        y1="55"
+        x2="95"
+        y2="55"
+        stroke={theme.palette.grey[400]}
+        strokeWidth="0.5"
+        strokeDasharray="2"
+      />
+      <line
+        x1="5"
+        y1="5"
+        x2="95"
+        y2="5"
+        stroke={theme.palette.grey[400]}
+        strokeWidth="0.5"
+        strokeDasharray="2"
       />
     </svg>
   );
 
   const badScenarioSVG = (
     <svg width="100" height="60" viewBox="0 0 100 60" fill="none">
-      <path
-        d="M5,50 C20,45 40,40 60,42 80,43 90,45 95,50"
+      <polyline
+        points="5,55
+                8,45 12,45
+                15,48 18,48
+                20,50 22,50
+                25,45 28,45
+                30,50 33,50
+                35,52 38,52
+                40,55 95,55"
         stroke={theme.palette.tertiary.dark}
-        strokeWidth="2"
+        strokeWidth="1"
         fill="none"
+      />
+      <path
+        d="M5,55
+          8,45 12,45
+          15,48 18,48
+          20,50 22,50
+          25,45 28,45
+          30,50 33,50
+          35,52 38,52
+          40,55 95,55 Z"
+        fill={theme.palette.tertiary.dark}
+        fillOpacity="0.1"
+        stroke="none"
+      />
+      <line
+        x1="5"
+        y1="55"
+        x2="95"
+        y2="55"
+        stroke={theme.palette.grey[400]}
+        strokeWidth="0.5"
+        strokeDasharray="2"
+      />
+      <line
+        x1="5"
+        y1="5"
+        x2="95"
+        y2="5"
+        stroke={theme.palette.grey[400]}
+        strokeWidth="0.5"
+        strokeDasharray="2"
       />
     </svg>
   );
 
   return (
-    <Card sx={{ backgroundColor: "transparent" }}>
+    <Card sx={{ backgroundColor: "transparent", position: "relative", mt: 2 }}>
       <CardErrorHandler
         queryKey={"fetchGenericData"}
         error={props.genericDataQuery?.error}
         isError={!!props.genericDataQuery?.isError}
       />
-      <CardContent>
-        <Stack>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <IconButton onClick={handleDownloadClick}>
-              <GetAppIcon fontSize="small" />
-            </IconButton>
-            <Menu
-              anchorEl={anchorElMenu}
-              open={Boolean(anchorElMenu)}
-              onClose={handleMenuClose}
-            >
-              <MenuItem onClick={() => handleDownload("png")}>
-                Download as PNG
-              </MenuItem>
-              <MenuItem onClick={() => handleDownload("jpeg")}>
-                Download as JPEG
-              </MenuItem>
-              <MenuItem onClick={() => handleDownload("svg")}>
-                Download as SVG
-              </MenuItem>
-            </Menu>
-            <IconButton
-              size="small"
-              onClick={handlePopoverOpen}
-              aria-owns={popoverOpen ? "info-popover" : undefined}
-              aria-haspopup="true"
-            >
-              <StyledLightBulb fontSize="small" />
-            </IconButton>
-          </Box>
+      <CardContent sx={{ mt: 1 }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            zIndex: 1,
+            display: "flex",
+          }}
+        >
+          <IconButton onClick={handleDownloadClick}>
+            <GetAppIcon fontSize="small" />
+          </IconButton>
+          <Menu
+            anchorEl={anchorElMenu}
+            open={Boolean(anchorElMenu)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={() => handleDownload("png")}>
+              Download as PNG
+            </MenuItem>
+            <MenuItem onClick={() => handleDownload("jpeg")}>
+              Download as JPEG
+            </MenuItem>
+            <MenuItem onClick={() => handleDownload("svg")}>
+              Download as SVG
+            </MenuItem>
+          </Menu>
+          <IconButton
+            size="small"
+            onClick={handlePopoverOpen}
+            aria-owns={popoverOpen ? "info-popover" : undefined}
+            aria-haspopup="true"
+          >
+            <StyledLightBulb fontSize="small" />
+          </IconButton>
+        </Box>
 
-          <Box ref={chartRef}>
-            {props.genericDataQuery.isLoading ? (
-              <Skeleton variant="rectangular" height={400} width="100%" />
-            ) : chartData ? (
-              <LineChart
-                height={400}
-                series={[
-                  {
-                    ...chartData.series[0],
-                    area: true,
-                    type: "line",
+        <Box height={400} width={1} ref={chartRef} sx={{ mt: -3 }}>
+          {props.genericDataQuery.isLoading ? (
+            <Skeleton variant="rectangular" height={400} width="100%" />
+          ) : chartData ? (
+            <LineChart
+              margin={{ left: 60 }}
+              height={400}
+              series={[
+                {
+                  ...chartData.series[0],
+                  area: true,
+                  type: "line",
+                },
+              ]}
+              xAxis={[
+                {
+                  data: chartData.xAxis,
+                  label: "Records Reviewed",
+                  tickMinStep: 1,
+                },
+              ]}
+              yAxis={[
+                {
+                  label: "Relevant Records per 10 Records",
+                  min: 0,
+                  max: 10,
+                  tickAmount: 5,
+                },
+              ]}
+              slotProps={{
+                legend: {
+                  position: { vertical: "top", horizontal: "left" },
+                  itemGap: 20,
+                  padding: { top: 5 },
+                  labelStyle: {
+                    fill: theme.palette.text.secondary,
+                    fontSize: "0.8rem",
                   },
-                ]}
-                xAxis={[
-                  {
-                    data: chartData.xAxis,
-                    label: "Records Reviewed",
-                    tickMinStep: 1,
-                  },
-                ]}
-                yAxis={[
-                  {
-                    label: "Relevant Records per 10 Records",
-                    min: 0,
-                    max: 10,
-                    tickAmount: 5,
-                  },
-                ]}
-                slotProps={{
-                  legend: {
-                    direction: "row",
-                    position: { vertical: "top", horizontal: "left" },
-                    padding: { top: -10 },
-                    labelStyle: {
-                      fill: theme.palette.text.secondary,
-                    },
-                  },
-                }}
-                sx={{
-                  ".MuiAreaElement-root": {
-                    fillOpacity: 0.2,
-                  },
-                  ".MuiChartsLegend-root": {
-                    transform: "translate(24px, 8px)",
-                  },
-                  ".MuiLineElement-root": {
-                    strokeWidth: 2,
-                  },
-                  [`& .${legendClasses.mark}`]: {
-                    ry: 10,
-                  },
-                }}
-              />
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                No data available
-              </Typography>
-            )}
-          </Box>
-        </Stack>
+                },
+              }}
+              sx={{
+                ".MuiAreaElement-root": {
+                  fillOpacity: 0.2,
+                },
+                ".MuiChartsLegend-root": {
+                  transform: "translate(24px, 0px)",
+                },
+                ".MuiLineElement-root": {
+                  strokeWidth: 2,
+                },
+                [`& .${legendClasses.mark}`]: {
+                  ry: 10,
+                },
+                "& .MuiChartsAxis-left .MuiChartsAxis-label": {
+                  transform: "translateX(-10px)",
+                },
+              }}
+            />
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              No data available
+            </Typography>
+          )}
+        </Box>
       </CardContent>
 
       <Popover

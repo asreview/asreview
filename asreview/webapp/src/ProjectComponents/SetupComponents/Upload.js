@@ -51,77 +51,170 @@ const Upload = ({ mode }) => {
   return (
     <>
       <Box sx={{ mb: 8 }}>
-        <Tabs
-          value={uploadSource}
-          // onChange={(event, newValue) => {
-          //   setUploadSource(newValue);
-          // }}
-          centered={!mobileScreen}
-          textColor="secondary"
-          indicatorColor="secondary"
-          scrollButtons="auto"
-          variant={mobileScreen ? "scrollable" : "standard"}
-          aria-label="Upload source"
-          sx={{ mb: 3 }}
-        >
-          <Tab
-            value="file"
-            label={
-              <Box>
-                <FileUploadOutlined sx={{ fontSize: 32 }} />
-                <Typography>File</Typography>
-              </Box>
-            }
-            onClick={() => clickTab("file")}
-            sx={{ mx: 1 }}
-          />
-          <Tab
-            value="url"
-            label={
-              <Box>
-                <LinkOutlined sx={{ fontSize: 32 }} />
-                <Typography>URL</Typography>
-              </Box>
-            }
-            sx={{ mx: 1 }}
-            onClick={() => clickTab("url")}
-          />
-          {mode === projectModes.ORACLE && (
+        {mobileScreen ? (
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 1,
+              mb: 3,
+            }}
+          >
             <Tab
-              value="search"
+              value="file"
               label={
                 <Box>
-                  <SearchOutlined sx={{ fontSize: 32 }} />
-                  <Typography>Search</Typography>
+                  <FileUploadOutlined sx={{ fontSize: 32 }} />
+                  <Typography>File</Typography>
                 </Box>
               }
-              onClick={() => clickTab("search")}
+              onClick={() => clickTab("file")}
+              sx={{ width: "100%" }}
+            />
+            <Tab
+              value="url"
+              label={
+                <Box>
+                  <LinkOutlined sx={{ fontSize: 32 }} />
+                  <Typography>URL</Typography>
+                </Box>
+              }
+              sx={{ width: "100%" }}
+              onClick={() => clickTab("url")}
+            />
+            {mode === projectModes.ORACLE ? (
+              <Tab
+                value="search"
+                label={
+                  <Box>
+                    <SearchOutlined sx={{ fontSize: 32 }} />
+                    <Typography>Search</Typography>
+                  </Box>
+                }
+                onClick={() => clickTab("search")}
+                sx={{ width: "100%" }}
+              />
+            ) : (
+              <Tab
+                value="discover"
+                label={
+                  <Box>
+                    <CategoryOutlined sx={{ fontSize: 32 }} />
+                    <Typography>Discover</Typography>
+                  </Box>
+                }
+                onClick={() => clickTab("discover")}
+                sx={{ width: "100%" }}
+              />
+            )}
+
+            <Box
+              sx={{
+                gridColumn: "1/4",
+                display: "flex",
+                justifyContent: "center",
+                mt: 1,
+              }}
+            >
+              {mode === projectModes.ORACLE && (
+                <Tab
+                  value="discover"
+                  label={
+                    <Box>
+                      <CategoryOutlined sx={{ fontSize: 32 }} />
+                      <Typography>Discover</Typography>
+                    </Box>
+                  }
+                  onClick={() => clickTab("discover")}
+                  sx={{ width: "auto", mx: 2 }}
+                />
+              )}
+              <Tab
+                value="import"
+                label={
+                  <Box>
+                    <DriveFolderUploadOutlined sx={{ fontSize: 32 }} />
+                    <Typography>Import</Typography>
+                  </Box>
+                }
+                onClick={() => clickTab("import")}
+                sx={{ width: "auto", mx: 2 }}
+              />
+            </Box>
+          </Box>
+        ) : (
+          <Tabs
+            value={uploadSource}
+            // onChange={(event, newValue) => {
+            //   setUploadSource(newValue);
+            // }}
+            centered={!mobileScreen}
+            textColor="secondary"
+            indicatorColor="secondary"
+            scrollButtons="auto"
+            variant={mobileScreen ? "scrollable" : "standard"}
+            aria-label="Upload source"
+            sx={{ mb: 3 }}
+          >
+            <Tab
+              value="file"
+              label={
+                <Box>
+                  <FileUploadOutlined sx={{ fontSize: 32 }} />
+                  <Typography>File</Typography>
+                </Box>
+              }
+              onClick={() => clickTab("file")}
               sx={{ mx: 1 }}
             />
-          )}
-          <Tab
-            value="discover"
-            label={
-              <Box>
-                <CategoryOutlined sx={{ fontSize: 32 }} />
-                <Typography>Discover</Typography>
-              </Box>
-            }
-            onClick={() => clickTab("discover")}
-            sx={{ mx: 1 }}
-          />
-          <Tab
-            value="import"
-            label={
-              <Box>
-                <DriveFolderUploadOutlined sx={{ fontSize: 32 }} />
-                <Typography>Import</Typography>
-              </Box>
-            }
-            onClick={() => clickTab("import")}
-            sx={{ mx: 1 }}
-          />
-        </Tabs>
+            <Tab
+              value="url"
+              label={
+                <Box>
+                  <LinkOutlined sx={{ fontSize: 32 }} />
+                  <Typography>URL</Typography>
+                </Box>
+              }
+              sx={{ mx: 1 }}
+              onClick={() => clickTab("url")}
+            />
+            {mode === projectModes.ORACLE && (
+              <Tab
+                value="search"
+                label={
+                  <Box>
+                    <SearchOutlined sx={{ fontSize: 32 }} />
+                    <Typography>Search</Typography>
+                  </Box>
+                }
+                onClick={() => clickTab("search")}
+                sx={{ mx: 1 }}
+              />
+            )}
+            <Tab
+              value="discover"
+              label={
+                <Box>
+                  <CategoryOutlined sx={{ fontSize: 32 }} />
+                  <Typography>Discover</Typography>
+                </Box>
+              }
+              onClick={() => clickTab("discover")}
+              sx={{ mx: 1 }}
+            />
+            <Tab
+              value="import"
+              label={
+                <Box>
+                  <DriveFolderUploadOutlined sx={{ fontSize: 32 }} />
+                  <Typography>Import</Typography>
+                </Box>
+              }
+              onClick={() => clickTab("import")}
+              sx={{ mx: 1 }}
+            />
+          </Tabs>
+        )}
 
         {uploadSource === "file" && (
           <DatasetFromFile mode={mode} setSetupProjectId={setSetupProjectId} />

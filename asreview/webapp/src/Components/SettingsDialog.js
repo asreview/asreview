@@ -66,7 +66,7 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
       maxWidth="sm"
       aria-labelledby="scroll-dialog-title"
       aria-describedby="scroll-dialog-description"
-      title="Customize your ASReview LAB"
+      title="Manage your ASReview LAB settings"
     >
       <DialogContent dividers>
         <List>
