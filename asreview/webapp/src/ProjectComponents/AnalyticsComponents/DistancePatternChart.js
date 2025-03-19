@@ -1,3 +1,4 @@
+import GetAppIcon from "@mui/icons-material/GetApp";
 import {
   Box,
   Button,
@@ -5,20 +6,18 @@ import {
   CardContent,
   Divider,
   IconButton,
-  MenuItem,
   Menu,
+  MenuItem,
   Popover,
   Skeleton,
   Stack,
   Typography,
   useTheme,
-  useMediaQuery,
 } from "@mui/material";
 import { LineChart, legendClasses } from "@mui/x-charts";
-import GetAppIcon from "@mui/icons-material/GetApp";
-import { toPng, toJpeg, toSvg } from "html-to-image";
 import { ProjectAPI } from "api";
 import { CardErrorHandler } from "Components";
+import { toJpeg, toPng, toSvg } from "html-to-image";
 import React from "react";
 import { useQuery } from "react-query";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
@@ -136,10 +135,6 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
         break;
     }
   };
-
-  const mobileScreen = useMediaQuery(theme.breakpoints.down("md"), {
-    noSsr: true,
-  });
 
   return (
     <Card sx={{ position: "relative", backgroundColor: "transparent", mt: 2 }}>

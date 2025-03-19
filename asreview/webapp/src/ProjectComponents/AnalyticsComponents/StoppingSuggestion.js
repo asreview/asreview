@@ -1,28 +1,26 @@
-import React from "react";
-import EditIcon from "@mui/icons-material/Edit";
 import { DoneAll } from "@mui/icons-material";
-import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   Box,
   Button,
   Card,
   CardContent,
+  Divider,
   Grid2 as Grid,
   IconButton,
+  LinearProgress,
   Paper,
   Popover,
   Skeleton,
   Stack,
   TextField,
   Typography,
-  LinearProgress,
-  Divider,
-  MenuItem,
-  Select,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
+import React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import StoppingReachedDialog from "../ReviewComponents/StoppingReachedDialog";
 
 const StoppingSuggestion = ({ project_id }) => {
