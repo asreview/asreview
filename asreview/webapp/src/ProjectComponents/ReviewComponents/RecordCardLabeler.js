@@ -58,6 +58,7 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
 
   const { isError, isLoading, mutate } = useMutation(ProjectAPI.mutateNote, {
     onSuccess: () => {
+      queryClient.invalidateQueries(["fetchLabeledRecord", { project_id }]);
       queryClient.setQueryData(["fetchRecord", { project_id }], (data) => {
         return {
           ...data,
@@ -116,6 +117,7 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
             });
           }}
           color="primary"
+          disabled={isLoading || noteState === note}
         >
           Save
         </Button>
