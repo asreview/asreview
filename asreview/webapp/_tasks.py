@@ -23,7 +23,7 @@ from asreview.state.contextmanager import open_state
 from asreview.webapp.utils import get_project_path
 
 
-def _read_cycle(project):
+def _read_cycle_data(project):
     fp_cycle_metadata = Path(
         project.project_path,
         "reviews",
@@ -32,8 +32,7 @@ def _read_cycle(project):
     )
 
     with open(fp_cycle_metadata, "r") as f:
-        cycle_data = asr.ActiveLearningCycleData(**json.load(f)["current_value"])
-        return asr.ActiveLearningCycle.from_meta(cycle_data)
+        return asr.ActiveLearningCycleData(**json.load(f)["current_value"])
 
 
 def run_task(project_id, simulation=False):
@@ -59,15 +58,20 @@ def run_model(project):
         labeled = s.get_results_table(columns=["record_id", "label"])
 
     try:
-        cycle = _read_cycle(project)
+        cycle_data = _read_cycle_data(project)
 
-        if cycle.feature_extractor:
+        if cycle_data.feature_extractor:
             try:
-                fm = project.get_feature_matrix(cycle.feature_extractor.name)
+                fm = project.get_feature_matrix(cycle_data.feature_extractor)
+                cycle = asr.ActiveLearningCycle.from_meta(
+                    cycle_data, skip_feature_extraction=True
+                )
             except ValueError:
+                cycle = asr.ActiveLearningCycle.from_meta(cycle_data)
                 fm = cycle.transform(project.data_store.get_df())
                 project.add_feature_matrix(fm, cycle.feature_extractor.name)
         else:
+            cycle = asr.ActiveLearningCycle.from_meta(cycle_data)
             fm = project.data_store.get_df().values
 
         if cycle.classifier:
@@ -106,7 +110,7 @@ def run_simulation(project):
             querier=TopDown(),
             stopper=IsFittable(),
         ),
-        _read_cycle(project),
+        asr.ActiveLearningCycle.from_meta(_read_cycle_data(project)),
     ]
 
     sim = Simulate(project.data_store.get_df(), project.data_store["included"], cycles)
