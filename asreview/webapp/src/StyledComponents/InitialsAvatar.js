@@ -12,22 +12,25 @@ const getInitials = (name) => {
   }
 };
 
-const InitialsAvatar = styled((props) => {
-  const { name, sx, ...other } = props;
-  return (
-    <Avatar
-      sx={{
-        width: "32px",
-        height: "32px",
-        bgcolor: "tertiary.main",
-        // color: "tertiary.contrastText",
-        ...sx,
-      }}
-      {...other}
-    >
-      {getInitials(name)}
-    </Avatar>
-  );
-})({});
+const InitialsAvatar = styled(
+  React.forwardRef((props, ref) => {
+    const { name, sx, ...other } = props;
+    return (
+      <Avatar
+        ref={ref}
+        sx={{
+          width: "32px",
+          height: "32px",
+          bgcolor: "tertiary.main",
+          // color: "tertiary.contrastText",
+          ...sx,
+        }}
+        {...other}
+      >
+        {getInitials(name)}
+      </Avatar>
+    );
+  }),
+)({});
 
 export { InitialsAvatar };
