@@ -1,5 +1,6 @@
 import { DoneAll, Share } from "@mui/icons-material";
 import {
+  Alert,
   Box,
   Button,
   Chip,
@@ -237,38 +238,22 @@ const AnalyticsPage = () => {
           <DialogTitle sx={{ pb: 1 }}>
             <Typography variant="subtitle1" fontWeight="bold">
               {statusData?.status === projectStatuses.FINISHED
-                ? "Resume Review"
-                : "Mark as Finished"}
+                ? "Resume review?"
+                : "Mark project as finished?"}
             </Typography>
           </DialogTitle>
           <DialogContent sx={{ pt: 1 }}>
             <Typography variant="body2" sx={{ textAlign: "justify" }}>
               {statusData?.status === projectStatuses.FINISHED
-                ? "Are you sure you want to resume reviewing? This will change the project status back to 'In Review'."
-                : "Are you sure you want to mark this project as finished? This indicates that you have completed your review."}
+                ? "This will change the project status back to 'In Review'."
+                : "This indicates that you have completed your review."}
             </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                mt: 2,
-                p: 1.5,
-                bgcolor: "action.hover",
-                borderRadius: 1,
-                borderLeft: (theme) =>
-                  `4px solid ${theme.palette.primary.main}`,
-              }}
-            >
+            <Alert severity="info" sx={{ mt: 2 }}>
               You can always revert this decision by clicking this button again.
-            </Typography>
+            </Alert>
           </DialogContent>
           <DialogActions sx={{ px: 3, pb: 2.5 }}>
-            <Button
-              onClick={() => setOpenStatusDialog(false)}
-              variant="outlined"
-              size="medium"
-            >
-              Cancel
-            </Button>
+            <Button onClick={() => setOpenStatusDialog(false)}>Cancel</Button>
             <Button
               onClick={() => {
                 updateStatus(
@@ -277,13 +262,6 @@ const AnalyticsPage = () => {
                     : projectStatuses.FINISHED,
                 );
               }}
-              variant="contained"
-              size="medium"
-              startIcon={
-                statusData?.status !== projectStatuses.FINISHED ? (
-                  <DoneAll />
-                ) : null
-              }
             >
               {statusData?.status === projectStatuses.FINISHED
                 ? "Resume Review"
