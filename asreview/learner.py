@@ -221,7 +221,7 @@ class ActiveLearningCycle:
         return self.stopper.stop(results, data)
 
     @classmethod
-    def from_meta(cls, cycle_meta_data):
+    def from_meta(cls, cycle_meta_data, skip_feature_extraction=False):
         """Load the active learner from a metadata object.
 
         Parameters
@@ -251,7 +251,7 @@ class ActiveLearningCycle:
         else:
             balance_model = None
 
-        if cycle_meta_data.feature_extractor is not None:
+        if skip_feature_extraction and cycle_meta_data.feature_extractor is not None:
             feature_class = load_extension(
                 "models.feature_extractors", cycle_meta_data.feature_extractor
             )
