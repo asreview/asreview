@@ -4,7 +4,6 @@ import {
   PersonOutlined,
 } from "@mui/icons-material";
 import {
-  Avatar,
   Badge,
   Box,
   Button,
@@ -33,6 +32,7 @@ import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 import { AuthAPI, TeamAPI } from "api";
 
 import { InvitationsComponent } from "ProjectComponents/TeamComponents";
+import { InitialsAvatar } from "StyledComponents/InitialsAvatar";
 import { StyledDialog } from "StyledComponents/StyledDialog";
 
 import { useToggle } from "hooks/useToggle";
@@ -109,7 +109,8 @@ const ProfilePopper = () => {
               aria-label="account of current user"
               aria-haspopup="true"
               onClick={handleClick}
-              color="inherit"
+              // color="inherit"
+              color="secondary"
             >
               <Badge
                 badgeContent={invitations?.invited_for_projects.length || 0}
@@ -122,20 +123,7 @@ const ProfilePopper = () => {
                 }}
                 invisible={!invitations?.invited_for_projects.length}
               >
-                <Avatar sx={{ width: 32, height: 32 }}>
-                  {data?.name
-                    ? (() => {
-                        const nameParts = data.name.split(" ");
-                        if (nameParts.length > 1) {
-                          // First letter of first name + first letter of surname
-                          return `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase();
-                        } else {
-                          // If only one name, return the first letter
-                          return nameParts[0].charAt(0).toUpperCase();
-                        }
-                      })()
-                    : "?"}
-                </Avatar>
+                <InitialsAvatar name={data?.name} />
               </Badge>
             </IconButton>
           </Tooltip>

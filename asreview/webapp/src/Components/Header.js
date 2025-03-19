@@ -4,7 +4,6 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import {
   AppBar,
-  Avatar,
   AvatarGroup,
   Box,
   ButtonBase,
@@ -24,6 +23,7 @@ import useScrollTrigger from "@mui/material/useScrollTrigger";
 import { useToggle } from "hooks/useToggle";
 import { ElasIcon } from "icons";
 import ElasGameDialog from "./ElasGame";
+import { InitialsAvatar } from "StyledComponents/InitialsAvatar";
 
 const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
   const [openGame, toggleGame] = useToggle();
@@ -134,17 +134,7 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
 
                   <Collapse in={expandAvatars} orientation="horizontal">
                     <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <AvatarGroup
-                        max={20}
-                        sx={{
-                          "& .MuiAvatar-root": {
-                            width: 32,
-                            height: 32,
-                            border: 1,
-                            borderColor: "background.paper",
-                          },
-                        }}
-                      >
+                      <AvatarGroup max={5}>
                         {users.map((user, index) => (
                           <Tooltip
                             key={user.id || index}
@@ -152,22 +142,7 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
                             placement="bottom"
                             arrow
                           >
-                            <Avatar>
-                              {user?.name
-                                ? (() => {
-                                    const nameParts = user.name.split(" ");
-                                    if (nameParts.length > 1) {
-                                      // First letter of first name + first letter of surname
-                                      return `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase();
-                                    } else {
-                                      // If only one name, return the first letter
-                                      return nameParts[0]
-                                        .charAt(0)
-                                        .toUpperCase();
-                                    }
-                                  })()
-                                : "?"}
-                            </Avatar>
+                            <InitialsAvatar name={user.name} />
                           </Tooltip>
                         ))}
                       </AvatarGroup>
