@@ -251,7 +251,10 @@ class ActiveLearningCycle:
         else:
             balance_model = None
 
-        if skip_feature_extraction and cycle_meta_data.feature_extractor is not None:
+        if (
+            not skip_feature_extraction
+            and cycle_meta_data.feature_extractor is not None
+        ):
             feature_class = load_extension(
                 "models.feature_extractors", cycle_meta_data.feature_extractor
             )
