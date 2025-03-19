@@ -226,24 +226,14 @@ const AnalyticsPage = () => {
         <Dialog
           open={openStatusDialog}
           onClose={() => setOpenStatusDialog(false)}
-          slotProps={{
-            paper: {
-              sx: {
-                borderRadius: 2,
-                maxWidth: 400,
-              },
-            },
-          }}
         >
-          <DialogTitle sx={{ pb: 1 }}>
-            <Typography variant="subtitle1" fontWeight="bold">
-              {statusData?.status === projectStatuses.FINISHED
-                ? "Resume review?"
-                : "Mark project as finished?"}
-            </Typography>
+          <DialogTitle>
+            {statusData?.status === projectStatuses.FINISHED
+              ? "Resume review?"
+              : "Mark project as finished?"}
           </DialogTitle>
-          <DialogContent sx={{ pt: 1 }}>
-            <Typography variant="body2" sx={{ textAlign: "justify" }}>
+          <DialogContent>
+            <Typography>
               {statusData?.status === projectStatuses.FINISHED
                 ? "This will change the project status back to 'In Review'."
                 : "This indicates that you have completed your review."}
@@ -252,7 +242,7 @@ const AnalyticsPage = () => {
               You can always revert this decision by clicking this button again.
             </Alert>
           </DialogContent>
-          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <DialogActions>
             <Button onClick={() => setOpenStatusDialog(false)}>Cancel</Button>
             <Button
               onClick={() => {
