@@ -80,9 +80,6 @@ class OAuthHandler:
             raise ValueError(f"Could not find provider {provider}")
         return result
 
-    def __generate_mock_email_address(self, name=""):
-        return f"#{name}_{uuid.uuid4()}@asreview.app"
-
     def __handle_orcid(self, code):
         """Handles OAuth roundtrip for Orcid"""
         # request token
@@ -104,9 +101,8 @@ class OAuthHandler:
         orcid_id = response.get("orcid", None)
         name = response.get("name", None)
 
-        # set email to an initial default address since the
-        # next step might leave us empty-handed
-        email = self.__generate_mock_email_address(name)
+        # set email to None
+        email = None
 
         # Now, let's try to obtain an email address.
         if orcid_id is not None:
@@ -165,7 +161,7 @@ class OAuthHandler:
         response = response.json()
         id = response["id"]
         name = response["name"] or response["login"] or response["id"] or "Name"
-        email = response.get("email", self.__generate_mock_email_address(name))
+        email = response.get("email", None)
 
         return (id, email, name)
 
@@ -195,5 +191,5 @@ class OAuthHandler:
         name = (
             response.get("name", False) or response.get("family_name", False) or "Name"
         )
-        email = response.get("email", self.__generate_mock_email_address(name))
+        email = response.get("email", None)
         return (id, email, name)

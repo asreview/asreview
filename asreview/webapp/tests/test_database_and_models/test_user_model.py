@@ -62,42 +62,119 @@ def test_user_must_have_name(setup_teardown):
         user.name = "ab"
 
 
-# test if email is not blank if origin is "asreview"
+# test if email can not be blank if origin is "asreview"
 def test_email_validation_1(setup_teardown):
-    user = crud.create_user(DB)
-    user.origin = "asreview"
     with pytest.raises(ValueError, match="Email is required when origin is 'asreview'"):
-        user.email = None
+        user = User(
+            identifier="identifier_1",
+            email=None,
+            name="Test User",
+            origin="asreview",
+            password="ABCd1234!"
+        )
 
+
+# test if email can not be empty if origin is "asreview"
+def test_email_validation_2(setup_teardown):
     with pytest.raises(ValueError, match="Email is required when origin is 'asreview'"):
-        user.email = ""
+        user = User(
+            identifier="identifier_1",
+            email="",
+            name="Test User",
+            origin="asreview",
+            password="ABCd1234!"
+        )
 
 
 # test if all fails when email is invalid
-def test_email_validation_2(setup_teardown):
-    user_data = crud.create_user(DB)
+def test_email_validation_3(setup_teardown):
     invalid_email = "invalid"
 
     with pytest.raises(
         ValueError, match=f"Email address '{invalid_email}' is not valid"
     ):
         User(
-            invalid_email,
+            identifier="identifier_1",
             email=invalid_email,
-            name=user_data.name,
+            name="Test User",
             origin="asreview",
             password="ABCd1234!",
         )
 
 
-# test uniqueness of email
+# test uniqueness of email when origin is asreview
 def test_uniqueness_of_email(setup_teardown):
     user1 = crud.create_user(DB)
+    assert user1.origin == "asreview"
     assert crud.count_users() == 1
     # create second user with identical email
     user2 = cp.get_user(2)
+    assert user2.origin == "asreview"
     # set to an existing identifier
     user2.email = user1.email
+    with pytest.raises(IntegrityError):
+        crud.create_user(DB, user2)
+
+
+# test that a single externally created account can miss an
+# email address
+def test_ext_single_account_creation_no_email(setup_teardown):
+    assert crud.count_users() == 0
+    user1 = User(
+        identifier="identifier_1",
+        email=None,
+        name="Test User",
+        origin="orcid",
+        password=None
+    )
+    crud.create_user(DB, user1)
+    assert crud.count_users() == 1
+
+
+# verify we can have multiple accounts having no email,
+# but with unique identifiers
+def test_ext_multiple_account_creation_no_email(setup_teardown):
+    assert crud.count_users() == 0
+    user1 = User(
+        identifier="identifier_1",
+        email=None,
+        name="Test User",
+        origin="orcid",
+        password=None
+    )
+    crud.create_user(DB, user1)
+    assert crud.count_users() == 1
+    user2 = User(
+        identifier="identifier_2",
+        email=None,
+        name="Test User",
+        origin="orcid",
+        password=None
+    )
+    crud.create_user(DB, user2)
+    assert crud.count_users() == 2
+
+
+# verify that identifiers must be unique for externally
+# created accounts
+def test_ext_multiple_account_creation_no_email(setup_teardown):
+    assert crud.count_users() == 0
+    user1 = User(
+        identifier="identifier_1",
+        email=None,
+        name="Test User",
+        origin="orcid",
+        password=None
+    )
+    crud.create_user(DB, user1)
+    assert crud.count_users() == 1
+    user2 = User(
+        identifier="identifier_1",
+        email=None,
+        name="Test User",
+        origin="orcid",
+        password=None
+    )
     with pytest.raises(IntegrityError):
         crud.create_user(DB, user2)
 

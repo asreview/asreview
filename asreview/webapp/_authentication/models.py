@@ -44,7 +44,7 @@ class User(UserMixin, DB.Model):
     id = Column(Integer, primary_key=True)
     identifier = Column(String(100), nullable=False, unique=True)
     origin = Column(String(100), nullable=False)
-    email = Column(String(100), unique=True)
+    email = Column(String(100), nullable=True, unique=True)
     name = Column(String(100))
     affiliation = Column(String(100))
     hashed_password = Column(String(500))
