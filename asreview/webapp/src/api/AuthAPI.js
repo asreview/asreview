@@ -123,11 +123,12 @@ class AuthAPI {
 
   static updateProfile(variables) {
     let body = new FormData();
-    body.set("old_password", variables.oldPassword ?? "");
-    body.set("new_password", variables.newPassword ?? "");
-    body.set("name", variables.name);
-    body.set("affiliation", variables.affiliation);
-    body.set("email", variables.email);
+
+    if (variables.oldPassword) body.set("old_password", variables.oldPassword);
+    if (variables.newPassword) body.set("new_password", variables.newPassword);
+    if (variables.name) body.set("name", variables.name);
+    if (variables.affiliation) body.set("affiliation", variables.affiliation);
+    if (variables.email) body.set("email", variables.email);
     body.set("public", variables.publicAccount === true ? 1 : 0);
 
     const url = auth_url + `update_profile`;

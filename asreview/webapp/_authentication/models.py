@@ -44,7 +44,7 @@ class User(UserMixin, DB.Model):
     id = Column(Integer, primary_key=True)
     identifier = Column(String(100), nullable=False, unique=True)
     origin = Column(String(100), nullable=False)
-    email = Column(String(100), unique=True)
+    email = Column(String(100), nullable=True, unique=True)
     name = Column(String(100))
     affiliation = Column(String(100))
     hashed_password = Column(String(500))
@@ -126,18 +126,20 @@ class User(UserMixin, DB.Model):
     ):
         # if there is a request to update the password, and the origin
         # is correct
-        if bool(old_password) and bool(new_password) and self.origin == "asreview":
-            # verify the old password
-            if not self.verify_password(old_password):
-                raise ValueError("Provided old password is incorrect.")
-            else:
-                # old password is verified. The following line will raise
-                # a ValueError if the new password is wrong
-                self.hashed_password = User.create_password_hash(new_password)
+        if self.origin == "asreview":
+            if bool(old_password) and bool(new_password):
+                # verify the old password
+                if not self.verify_password(old_password):
+                    raise ValueError("Provided old password is incorrect.")
+                else:
+                    # old password is verified. The following line will raise
+                    # a ValueError if the new password is wrong
+                    self.hashed_password = User.create_password_hash(new_password)
 
-        if self.email != email:
-            self.set_token()
-            self.confirmed = False
+            # email has been changed
+            if self.email != email:
+                self.set_token()
+                self.confirmed = False
 
         self.email = email
         self.name = name
