@@ -70,7 +70,7 @@ def test_email_validation_1(setup_teardown):
             email=None,
             name="Test User",
             origin="asreview",
-            password="ABCd1234!"
+            password="ABCd1234!",
         )
 
 
@@ -82,7 +82,7 @@ def test_email_validation_2(setup_teardown):
             email="",
             name="Test User",
             origin="asreview",
-            password="ABCd1234!"
+            password="ABCd1234!",
         )
 
 
@@ -125,7 +125,7 @@ def test_ext_single_account_creation_no_email(setup_teardown):
         email=None,
         name="Test User",
         origin="orcid",
-        password=None
+        password=None,
     )
     crud.create_user(DB, user1)
     assert crud.count_users() == 1
@@ -140,7 +140,7 @@ def test_ext_multiple_account_creation_no_email(setup_teardown):
         email=None,
         name="Test User",
         origin="orcid",
-        password=None
+        password=None,
     )
     crud.create_user(DB, user1)
     assert crud.count_users() == 1
@@ -149,10 +149,34 @@ def test_ext_multiple_account_creation_no_email(setup_teardown):
         email=None,
         name="Test User",
         origin="orcid",
-        password=None
+        password=None,
     )
     crud.create_user(DB, user2)
     assert crud.count_users() == 2
+
+
+# verify that identifiers must be unique for externally
+# created accounts
+def test_ext_multiple_account_creation_no_email(setup_teardown):
+    assert crud.count_users() == 0
+    user1 = User(
+        identifier="identifier_1",
+        email=None,
+        name="Test User",
+        origin="orcid",
+        password=None,
+    )
+    crud.create_user(DB, user1)
+    assert crud.count_users() == 1
+    user2 = User(
+        identifier="identifier_1",
+        email=None,
+        name="Test User",
+        origin="orcid",
+        password=None,
+    )
+    with pytest.raises(IntegrityError):
+        crud.create_user(DB, user2)
 
 
 # test if all fails when password doesn't meet requirements
