@@ -127,7 +127,6 @@ class User(UserMixin, DB.Model):
         # if there is a request to update the password, and the origin
         # is correct
         if self.origin == "asreview":
-
             if bool(old_password) and bool(new_password):
                 # verify the old password
                 if not self.verify_password(old_password):
