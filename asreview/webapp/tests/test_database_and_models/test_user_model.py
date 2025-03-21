@@ -157,7 +157,7 @@ def test_ext_multiple_account_creation_no_email(setup_teardown):
 
 # verify that identifiers must be unique for externally
 # created accounts
-def test_ext_multiple_account_creation_no_email(setup_teardown):
+def test_ext_multiple_account_no_email_same_identifiers(setup_teardown):
     assert crud.count_users() == 0
     user1 = User(
         identifier="identifier_1",
