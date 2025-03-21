@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import requests
-import uuid
 
 
 class OAuthHandler:
