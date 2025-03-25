@@ -30,8 +30,12 @@ import * as Yup from "yup";
 const SignupSchema = Yup.object().shape({
   email: Yup.string()
     .email("Invalid email")
-    .required("Email is required")
-    .nullable(),
+    .nullable()
+    .when("$window.allowAccountCreation", {
+      is: true,
+      then: (schema) => schema.required("Email is required"),
+      otherwise: (schema) => schema.optional(),
+    }),
   name: Yup.string().required("Full name is required").nullable(),
   affiliation: Yup.string(),
   oldPassword: Yup.string(),

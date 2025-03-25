@@ -340,9 +340,9 @@ def update_profile():
     old_email = user.email
 
     if user:
-        email = request.form.get("email", "").strip()
-        name = request.form.get("name", "").strip()
-        affiliation = request.form.get("affiliation", "").strip()
+        email = request.form.get("email", None)
+        name = request.form.get("name", None)
+        affiliation = request.form.get("affiliation", None)
         old_password = request.form.get("old_password", None)
         new_password = request.form.get("new_password", None)
         public = bool(int(request.form.get("public", "1")))
