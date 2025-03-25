@@ -203,20 +203,29 @@ def lab_entry_point(argv):
     )
     process.start()
 
-    # wait for the process to spin up
-    start_time = time.time()
-    while not start_event.is_set():
-        time.sleep(0.1)
-        if time.time() - start_time > 5:
-            console.print(
-                "\n\n[red]Error: unable to startup the model server.[/red]\n\n"
-            )
-            return
-
     try:
+        # wait for the process to spin up
+        start_time = time.time()
+        while not start_event.is_set():
+            time.sleep(0.1)
+            if time.time() - start_time > 5:
+                console.print(
+                    "\n\n[red]Error: unable to startup the model server.[/red]\n\n"
+                )
+                process.terminate()
+                process.join()
+                return
+
         waitress.serve(app, host=args.host, port=port, threads=6)
+
     except KeyboardInterrupt:
         console.print("\n\nShutting down server.\n\n")
+
+    finally:
+        if process.is_alive():
+            console.print("\n\nTerminating background task manager...\n\n")
+            process.terminate()
+            process.join()
 
 
 def _lab_parser():
