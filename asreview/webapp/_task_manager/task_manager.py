@@ -249,16 +249,16 @@ class TaskManager:
         conn.close()
 
     def start_manager(self, mp_event=None):
-        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.bind((self.host, self.port))
-        server_socket.listen()
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind((self.host, self.port))
+        self.server_socket.listen()
 
         # Acknowledge MultipProcessing we could connect
         if mp_event is not None:
             mp_event.set()
 
         # Set a timeout
-        server_socket.settimeout(1.0)
+        self.server_socket.settimeout(1.0)
 
         logging.info(f"...starting server on {self.host}:{self.port}")
 
@@ -266,7 +266,7 @@ class TaskManager:
             while True:
                 try:
                     # Accept incoming connections with a timeout
-                    conn, _addr = server_socket.accept()
+                    conn, _addr = self.server_socket.accept()
                     # Start a new thread to handle the client connection
                     client_thread = threading.Thread(
                         target=self._handle_incoming_messages, args=(conn,)
@@ -282,9 +282,6 @@ class TaskManager:
                     continue
 
                 except OSError as e:
-                    # Handle case where socket is closed
-                    if self.running:
-                        logging.error(f"Socket error: {e}")
                     break  # Exit the loop if the socket is closed
 
         except KeyboardInterrupt:
@@ -295,7 +292,6 @@ class TaskManager:
 
     def stop_manager(self):
         """Gracefully stop the manager and close the socket."""
-        self.running = False  # Stop the loop
         if self.server_socket:
             try:
                 self.server_socket.close()
