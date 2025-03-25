@@ -286,7 +286,7 @@ class TaskManager:
 
         except KeyboardInterrupt:
             logging.info("...Shutting down task manager")
-        
+
         finally:
             self.stop_manager()  # Ensure cleanup after loop exits
 
