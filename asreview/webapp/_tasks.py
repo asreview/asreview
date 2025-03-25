@@ -85,11 +85,11 @@ def run_model(project):
         with open_state(project) as state:
             state.add_last_ranking(
                 ranked_record_ids,
-                cycle.classifier.name if cycle.classifier is not None else None,
-                cycle.querier.name,
-                cycle.balancer.name if cycle.balancer is not None else None,
-                cycle.feature_extractor.name
-                if cycle.feature_extractor is not None
+                cycle_data.classifier if cycle_data.classifier is not None else None,
+                cycle_data.querier,
+                cycle_data.balancer if cycle_data.balancer is not None else None,
+                cycle_data.feature_extractor
+                if cycle_data.feature_extractor is not None
                 else None,
                 len(labeled),
             )
