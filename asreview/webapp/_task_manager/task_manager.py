@@ -281,7 +281,7 @@ class TaskManager:
                     # continue to check for shutdown conditions
                     continue
 
-                except OSError as e:
+                except OSError:
                     break  # Exit the loop if the socket is closed
 
         except KeyboardInterrupt:
