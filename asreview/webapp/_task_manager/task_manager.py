@@ -249,34 +249,56 @@ class TaskManager:
         conn.close()
 
     def start_manager(self, mp_event=None):
-        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.bind((self.host, self.port))
-        server_socket.listen()
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind((self.host, self.port))
+        self.server_socket.listen()
 
         # Acknowledge MultipProcessing we could connect
         if mp_event is not None:
             mp_event.set()
 
         # Set a timeout
-        server_socket.settimeout(0.1)
+        self.server_socket.settimeout(1.0)
 
         logging.info(f"...starting server on {self.host}:{self.port}")
 
-        while True:
-            try:
-                # Accept incoming connections with a timeout
-                conn, _addr = server_socket.accept()
-                # Start a new thread to handle the client connection
-                client_thread = threading.Thread(
-                    target=self._handle_incoming_messages, args=(conn,)
-                )
-                client_thread.start()
+        try:
+            while True:
+                try:
+                    # Accept incoming connections with a timeout
+                    conn, _addr = self.server_socket.accept()
+                    # Start a new thread to handle the client connection
+                    client_thread = threading.Thread(
+                        target=self._handle_incoming_messages, args=(conn,)
+                    )
+                    client_thread.start()
 
-            except socket.timeout:
-                # No incoming connections => perform handling queue
-                self._process_buffer()
-                # Pop tasks from database into 'pending'
-                self.pop_waiting_queue()
+                except socket.timeout:
+                    # No incoming connections => perform handling queue
+                    self._process_buffer()
+                    # Pop tasks from database into 'pending'
+                    self.pop_waiting_queue()
+                    # continue to check for shutdown conditions
+                    continue
+
+                except OSError:
+                    break  # Exit the loop if the socket is closed
+
+        except KeyboardInterrupt:
+            logging.info("...Shutting down task manager")
+
+        finally:
+            self.stop_manager()  # Ensure cleanup after loop exits
+
+    def stop_manager(self):
+        """Gracefully stop the manager and close the socket."""
+        if self.server_socket:
+            try:
+                self.server_socket.close()
+            except OSError:
+                pass  # Ignore errors if socket is already closed
+            self.server_socket = None
+        logging.info("TaskManager has been stopped.")
 
 
 def setup_logging(verbose=False):
