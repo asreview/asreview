@@ -222,7 +222,6 @@ class RISWriter:
             value `ASReview_relevant`, `ASReview_irrelevant` or `ASReview_not_seen`
             corresponding to the value `1`, `0` or `None` in that column.
         """
-        print("WRITING", df.columns)
         # Turn pandas DataFrame into records (list of dictionaries) for rispy
         records = copy.deepcopy(df.to_dict("records"))
 
@@ -245,9 +244,9 @@ class RISWriter:
                     rec_copy["notes"].insert(
                         0, LABEL_RIS_NOTE_MAPPING[rec["asreview_label"]]
                     )
-                if _isnull(val):
+                elif _isnull(val):
                     continue
-                if key.startswith("asreview_"):
+                elif key.startswith("asreview_"):
                     rec_copy["notes"].append(f"{key}: {json.dumps(val)}")
                 else:
                     rec_copy[key] = val
