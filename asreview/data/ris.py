@@ -226,7 +226,6 @@ class RISWriter:
 
         # Iterate over all available records
         for rec in records:
-            print("ORG RECORD", rec)
             def _isnull(v):
                 if isinstance(v, list):
                     return v == []
@@ -249,8 +248,13 @@ class RISWriter:
             if rec_copy["notes"] == []:
                 rec_copy.pop("notes")
 
+            # Throw away columns that can not be exported to RIS.
+            rec_copy = {
+                key: val
+                for key, val in rec_copy.items()
+                if not key == "included" and not key.startswith("asreview_")
+            }
             # Append the deepcopied and updated record to a new array
-            print("NEW RECORD", rec_copy)
             records_new.append(rec_copy)
 
         # From buffered dataframe
