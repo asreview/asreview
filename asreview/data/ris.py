@@ -123,13 +123,13 @@ class RISReader(BaseReader):
         ----------
         fp: str, pathlib.Path
             File path to the RIS file.
-        note_list: list
-            A list of notes, coming from the Dataframe's "notes" column.
 
         Returns
         -------
         pd.DataFrame:
-            Dataframe with entries.
+            Dataframe with entries. If the notes field contains a note with the text
+            `ASReview_relevant`, `ASReview_irrelevant` or `ASReview_not_seen`, the
+            data frame will have a column `included` with the value `1`, `0` or `None`.
 
         Raises
         ------
@@ -215,7 +215,12 @@ class RISWriter:
         Returns
         -------
         RIS file
-            Dataframe of all available record data.
+            Dataframe of all available record data. Any column from the data frame that
+            starts with `asreview_` is added to the RIS file as note in the notes field
+            of the form: `asreview_{column_name}: json.dumps({column_value})`. If the
+            dataframe contains a column `asreview_label`, also a note is added with the
+            value `ASReview_relevant`, `ASReview_irrelevant` or `ASReview_not_seen`
+            corresponding to the value `1`, `0` or `None` in that column.
         """
 
         # Turn pandas DataFrame into records (list of dictionaries) for rispy
