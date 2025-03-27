@@ -16,6 +16,7 @@ __all__ = ["RISReader", "RISWriter"]
 
 import copy
 import io
+import json
 import re
 from urllib.request import urlopen
 
@@ -26,54 +27,21 @@ from asreview.data.base import BaseReader
 from asreview.data.utils import convert_to_list
 from asreview.utils import _is_url
 
-ASREVIEW_PARSE_RE = r"\bASReview_\w+\b"
-ASREVIEW_PARSE_DICT = {
-    "ASReview_relevant": {"included": 1},
-    "ASReview_irrelevant": {"included": 0},
-    "ASReview_not_seen": {"included": None},
-    "ASReview_prior": {"asreview_prior": 1},
-    "ASReview_validate_relevant": {"asreview_label_to_validate": 1},
-    "ASReview_validate_irrelevant": {"asreview_label_to_validate": 0},
-    "ASReview_validate_not_seen": {"asreview_label_to_validate": None},
+RIS_NOTE_LABEL_MAPPING = {
+    "ASReview_relevant": 1,
+    "ASReview_irrelevant": 0,
+    "ASReview_not_seen": None,
 }
+LABEL_RIS_NOTE_MAPPING = {val: key for key, val in RIS_NOTE_LABEL_MAPPING.items()}
 
 
-def _parse_asreview_data_from_notes(note_list):
-    # Return {} and an empty list
+def _parse_label_from_notes(note_list):
     if not isinstance(note_list, list):
-        return {}
-
-    # match all words that start with ASReview and end with a word boundary
-    matches = re.findall(ASREVIEW_PARSE_RE, " ".join(note_list))
-
-    if (
-        ("ASReview_relevant" in matches and "ASReview_irrelevant" in matches)
-        or ("ASReview_relevant" in matches and "ASReview_not_seen" in matches)
-        or ("ASReview_irrelevant" in matches and "ASReview_not_seen" in matches)
-    ):
-        raise ValueError("Cannot have multiple labels for the same record.")
-
-    if (
-        (
-            "ASReview_validate_relevant" in matches
-            and "ASReview_validate_irrelevant" in matches
-        )
-        or (
-            "ASReview_validate_relevant" in matches
-            and "ASReview_validate_not_seen" in matches
-        )
-        or (
-            "ASReview_validate_irrelevant" in matches
-            and "ASReview_validate_not_seen" in matches
-        )
-    ):
-        raise ValueError("Cannot have multiple labels to validate for the same record.")
-
-    # get the dictionary for each match
-    parsed_values = [ASREVIEW_PARSE_DICT.get(m, {}) for m in matches]
-    parsed_values = {k: v for d in parsed_values for k, v in d.items()}
-
-    return parsed_values
+        return
+    for note in note_list:
+        for key, val in RIS_NOTE_LABEL_MAPPING.items():
+            if key in note:
+                return val
 
 
 def _remove_asreview_data_from_notes(note_list):
@@ -93,11 +61,11 @@ def _remove_asreview_data_from_notes(note_list):
     # Return {} and an empty list
     if not isinstance(note_list, list):
         return []
-
-    asreview_new_notes = [re.sub(ASREVIEW_PARSE_RE, "", note) for note in note_list]
-    asreview_new_notes[:] = [item for item in asreview_new_notes if item != ""]
-
-    return asreview_new_notes
+    return [
+        note
+        for note in note_list
+        if note not in RIS_NOTE_LABEL_MAPPING and not note.startswith("asreview_")
+    ]
 
 
 class RISReader(BaseReader):
@@ -155,13 +123,13 @@ class RISReader(BaseReader):
         ----------
         fp: str, pathlib.Path
             File path to the RIS file.
-        note_list: list
-            A list of notes, coming from the Dataframe's "notes" column.
 
         Returns
         -------
         pd.DataFrame:
-            Dataframe with entries.
+            Dataframe with entries. If the notes field contains a note with the text
+            `ASReview_relevant`, `ASReview_irrelevant` or `ASReview_not_seen`, the
+            data frame will have a column `included` with the value `1`, `0` or `None`.
 
         Raises
         ------
@@ -193,17 +161,10 @@ class RISReader(BaseReader):
         if "notes" in df:
             # Strip Zotero XHTML <p> tags on "notes"
             df["notes"] = df["notes"].apply(cls._strip_zotero_p_tags)
-
-            # strip ASReview data from notes
-            df = pd.concat(
-                [
-                    df,
-                    pd.DataFrame(
-                        df["notes"].apply(_parse_asreview_data_from_notes).tolist(),
-                    ),
-                ],
-                axis=1,
-            )
+            # Parse the labels from the notes if present.
+            labels = df["notes"].apply(_parse_label_from_notes)
+            if not labels.isna().all():
+                df["included"] = labels
             df["notes"] = df["notes"].apply(_remove_asreview_data_from_notes)
 
         if "included" in df:
@@ -254,9 +215,13 @@ class RISWriter:
         Returns
         -------
         RIS file
-            Dataframe of all available record data.
+            Dataframe of all available record data. Any column from the data frame that
+            starts with `asreview_` is added to the RIS file as note in the notes field
+            of the form: `asreview_{column_name}: json.dumps({column_value})`. If the
+            dataframe contains a column `asreview_label`, also a note is added with the
+            value `ASReview_relevant`, `ASReview_irrelevant` or `ASReview_not_seen`
+            corresponding to the value `1`, `0` or `None` in that column.
         """
-
         # Turn pandas DataFrame into records (list of dictionaries) for rispy
         records = copy.deepcopy(df.to_dict("records"))
 
@@ -266,27 +231,34 @@ class RISWriter:
         # Iterate over all available records
         for rec in records:
 
-            def _notnull(v):
+            def _isnull(v):
                 if isinstance(v, list):
-                    return v != []
+                    return v == []
 
-                return pd.notnull(v)
+                return pd.isnull(v)
 
-            # Remove all nan values
-            rec_copy = {k: v for k, v in rec.items() if _notnull(v)}
+            rec_copy = {}
+            rec_copy["notes"] = rec.pop("notes", [])
+            for key, val in rec.items():
+                if key == "asreview_label":
+                    rec_copy["notes"].insert(
+                        0, LABEL_RIS_NOTE_MAPPING[rec["asreview_label"]]
+                    )
+                elif _isnull(val):
+                    continue
+                elif key.startswith("asreview_"):
+                    rec_copy["notes"].append(f"{key}: {json.dumps(val)}")
+                else:
+                    rec_copy[key] = val
+            if rec_copy["notes"] == []:
+                rec_copy.pop("notes")
 
-            if "included" not in rec_copy:
-                rec_copy["included"] = None
-
-            # write the notes with ASReview data
-            for k, v in ASREVIEW_PARSE_DICT.items():
-                for k_df, v_df in v.items():
-                    if k_df in rec_copy and rec_copy[k_df] == v_df:
-                        if "notes" in rec_copy:
-                            rec_copy["notes"].insert(0, k)
-                        else:
-                            rec_copy["notes"] = [k]
-
+            # Throw away columns that can not be exported to RIS.
+            rec_copy = {
+                key: val
+                for key, val in rec_copy.items()
+                if not key == "included" and not key.startswith("asreview_")
+            }
             # Append the deepcopied and updated record to a new array
             records_new.append(rec_copy)
 

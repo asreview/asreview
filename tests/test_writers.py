@@ -32,6 +32,8 @@ from asreview.data.loader import _get_writer
 def test_asreview_ris(test_file, columns, tmpdir):
     fp_in = Path("tests", "demo_data", test_file)
     data = _get_reader(fp_in).read_data(fp_in)
+    if "included" in data:
+        data["asreview_label"] = data["included"]
 
     tmp_ris_fp_out = Path(tmpdir, "tmp.ris")
     _get_writer(tmp_ris_fp_out).write_data(data, tmp_ris_fp_out)
