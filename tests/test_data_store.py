@@ -241,3 +241,10 @@ def test_load_dataset(file_name, n_lines):
         fp = Path("tests", "demo_data", file_name)
     store = load_dataset(fp, dataset_id=file_name)
     assert len(store) == n_lines
+
+
+def test_dataset_with_record_ids():
+    fp = Path("tests", "demo_data", "record_id.csv")
+    store = load_dataset(fp)
+    record_ids = store["record_id"]
+    assert record_ids.to_list() == list(range(len(store)))
