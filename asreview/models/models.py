@@ -83,7 +83,7 @@ AI_MODEL_CONFIGURATIONS = [
             classifier_param={"loss": "squared_hinge", "C": 0.16},
             balancer="balanced",
             balancer_param={"ratio": 5},
-            feature_extractor="xlm-roberta",
+            feature_extractor="sbert",
         ),
     },
 ]
