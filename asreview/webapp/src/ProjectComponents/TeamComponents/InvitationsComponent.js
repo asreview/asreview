@@ -64,12 +64,27 @@ const InvitationsComponent = ({ onEmpty = null }) => {
     },
   });
 
+  const projectOwnerInfo = (name, affiliation) => {
+    const trimmedAffiliation = affiliation?.trim();
+
+    if (!trimmedAffiliation) {
+      return name;
+    }
+    return (
+      <>
+        {name}
+        <br />({trimmedAffiliation})
+      </>
+    );
+  };
+
   return (
     <TableContainer sx={{ my: 2 }}>
       <Table stickyHeader aria-label="sticky table">
         <TableHead>
           <TableRow>
-            <TableCell style={{ width: "45%" }}>Project</TableCell>
+            <TableCell style={{ width: "25%" }}>Project</TableCell>
+            <TableCell style={{ width: "20%" }}>Invited by</TableCell>
             <TableCell style={{ width: "15%" }}>Date</TableCell>
             <TableCell style={{ width: "15%" }}>Project type</TableCell>
             <TableCell style={{ width: "25%" }}>Action</TableCell>
@@ -79,13 +94,23 @@ const InvitationsComponent = ({ onEmpty = null }) => {
           {invitations?.invited_for_projects.map((project) => {
             return (
               <TableRow key={project.id}>
-                <TableCell>{project.name}</TableCell>
-                <TableCell>{formatDate(project.created_at_unix)}</TableCell>
-                <TableCell>
+                <TableCell sx={{ verticalAlign: "top" }}>
+                  {project.name}
+                </TableCell>
+                <TableCell sx={{ verticalAlign: "top" }}>
+                  {projectOwnerInfo(
+                    project.owner_name,
+                    project.owner_affiliation,
+                  )}
+                </TableCell>
+                <TableCell sx={{ verticalAlign: "top" }}>
+                  {formatDate(project.created_at_unix)}
+                </TableCell>
+                <TableCell sx={{ verticalAlign: "top" }}>
                   {project.mode === projectModes.ORACLE && "Review"}
                   {project.mode === projectModes.SIMULATION && "Simulation"}
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ verticalAlign: "top" }}>
                   <Button
                     onClick={() => handleAcceptance(project.project_id)}
                     variant="outlined"
