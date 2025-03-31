@@ -9,7 +9,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Divider,
   IconButton,
@@ -80,14 +79,7 @@ function nameToId(name) {
     .replaceAll(/[^a-z0-9_]/g, "");
 }
 
-const AddTagDialog = ({
-  open,
-  handleClose,
-  handleAdd,
-  title,
-  contentText,
-  tags,
-}) => {
+const AddTagDialog = ({ open, handleClose, handleAdd, title, tags }) => {
   const [name, setName] = React.useState("");
   const [id, setId] = React.useState("");
   const [idEdited, setIdEdited] = React.useState(false);
@@ -121,7 +113,6 @@ const AddTagDialog = ({
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <DialogContentText>{contentText}</DialogContentText>
         <Stack spacing={3}>
           <TypographySubtitle1Medium>Name</TypographySubtitle1Medium>
           <Stack direction="row" spacing={3}>
@@ -172,7 +163,6 @@ const AddGroupDialog = ({
   handleClose,
   handleSave,
   title,
-  contentText,
   initialName,
   initialId,
   initialTags,
@@ -215,15 +205,15 @@ const AddGroupDialog = ({
     setTags(
       tags.map((t, i) => {
         if (i === index) {
+          if (t.name !== newName) {
+            t.name = newName;
+            if (!t.idEdited && (!isEditMode || index >= initialTags.length)) {
+              t.id = nameToId(newName);
+            }
+          }
           if (t.id !== newId) {
             t.id = newId;
             t.idEdited = true;
-          }
-          if (t.name !== newName) {
-            t.name = newName;
-            if (!t.idEdited) {
-              t.id = nameToId(newName);
-            }
           }
         }
         return t;
@@ -245,7 +235,6 @@ const AddGroupDialog = ({
     <Dialog open={open} onClose={handleClose} fullScreen={smallScreen}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <DialogContentText>{contentText}</DialogContentText>
         <Stack spacing={3}>
           <TypographySubtitle1Medium>Group</TypographySubtitle1Medium>
           <Stack direction="row" spacing={3}>
@@ -331,7 +320,190 @@ const AddGroupDialog = ({
   );
 };
 
-const Group = ({ group, editTagGroup, mobileScreen, groups }) => {
+const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
+  return (
+    <Popover
+      open={Boolean(anchorEl)}
+      anchorEl={anchorEl}
+      onClose={handlePopoverClose}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "right",
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          maxWidth: 320,
+        },
+      }}
+    >
+      <Box
+        sx={(theme) => ({
+          p: 3,
+          maxHeight: "80vh",
+          overflow: "auto",
+          "&::-webkit-scrollbar": {
+            width: "8px",
+            background: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: theme.palette.grey[300],
+            borderRadius: "4px",
+            "&:hover": {
+              background: theme.palette.grey[400],
+            },
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "transparent",
+            borderRadius: "4px",
+          },
+          scrollbarWidth: "thin",
+          scrollbarColor: `${theme.palette.grey[300]} transparent`,
+        })}
+      >
+        <Stack spacing={3}>
+          <Box>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              Organizing with Tags
+            </Typography>
+            <Typography variant="body2" align="justify">
+              Tags help you categorize and analyze your records systematically.
+              Create meaningful groups and labels to track important aspects of
+              your review.
+            </Typography>
+          </Box>
+
+          <Divider />
+
+          <Box>
+            <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
+              Tag Structure
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid xs={6}>
+                <Box
+                  sx={(theme) => ({
+                    p: 2,
+                    border: 1,
+                    borderColor: "divider",
+                    borderRadius: 2,
+                    height: "100%",
+                    bgcolor:
+                      theme.palette.mode === "light"
+                        ? "background.paper"
+                        : "transparent",
+                  })}
+                >
+                  <Stack spacing={1}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <FolderOpenIcon sx={{ color: "text.secondary" }} />
+                      <Typography variant="subtitle2">Tag Groups</Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Create categories like "Study Design" or "Population Type"
+                    </Typography>
+                  </Stack>
+                </Box>
+              </Grid>
+              <Grid xs={6}>
+                <Box
+                  sx={(theme) => ({
+                    p: 2,
+                    border: 1,
+                    borderColor: "divider",
+                    borderRadius: 2,
+                    height: "100%",
+                    bgcolor:
+                      theme.palette.mode === "light"
+                        ? "background.paper"
+                        : "transparent",
+                  })}
+                >
+                  <Stack spacing={1}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <BookmarksIcon sx={{ color: "text.secondary" }} />
+                      <Typography variant="subtitle2">Tags</Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Add specific labels like "RCT" or "Adult Population"
+                    </Typography>
+                  </Stack>
+                </Box>
+              </Grid>
+              <Grid xs={6}>
+                <Box
+                  sx={(theme) => ({
+                    p: 2,
+                    border: 1,
+                    borderColor: "divider",
+                    borderRadius: 2,
+                    height: "100%",
+                    bgcolor:
+                      theme.palette.mode === "light"
+                        ? "background.paper"
+                        : "transparent",
+                  })}
+                >
+                  <Stack spacing={1}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <StyleIcon sx={{ color: "text.secondary" }} />
+                      <Typography variant="subtitle2">Organization</Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Group related concepts together for better overview
+                    </Typography>
+                  </Stack>
+                </Box>
+              </Grid>
+              <Grid xs={6}>
+                <Box
+                  sx={(theme) => ({
+                    p: 2,
+                    border: 1,
+                    borderColor: "divider",
+                    borderRadius: 2,
+                    height: "100%",
+                    bgcolor:
+                      theme.palette.mode === "light"
+                        ? "background.paper"
+                        : "transparent",
+                  })}
+                >
+                  <Stack spacing={1}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <AnalyticsIcon sx={{ color: "text.secondary" }} />
+                      <Typography variant="subtitle2">Analysis</Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Use consistent naming for easier data analysis later
+                    </Typography>
+                  </Stack>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+
+          <Button
+            href="https://asreview.readthedocs.io/en/latest/guides/tagging.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="text"
+            size="small"
+            sx={{ textTransform: "none", p: 0 }}
+          >
+            Learn more →
+          </Button>
+        </Stack>
+      </Box>
+    </Popover>
+  );
+};
+
+const Group = ({ group, editTagGroup, groups }) => {
   const [editDialogOpen, setEditDialogOpen] = React.useState(false);
 
   const handleEditSave = (id, name, values) => {
@@ -363,8 +535,7 @@ const Group = ({ group, editTagGroup, mobileScreen, groups }) => {
       </CardContent>
       <AddGroupDialog
         key={group.id}
-        title="Edit Group"
-        contentText="Edit the group details and tags."
+        title="Edit Group and Tags"
         open={editDialogOpen}
         handleClose={() => setEditDialogOpen(false)}
         handleSave={handleEditSave}
@@ -378,15 +549,12 @@ const Group = ({ group, editTagGroup, mobileScreen, groups }) => {
   );
 };
 
-const TagCard = (props) => {
+const TagCard = () => {
   const [groupDialogOpen, setGroupDialogOpen] = React.useState(false);
   const [tags, setTags] = React.useState([]);
   const project_id = useContext(ProjectContext);
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  /**
-   * Fetch project info
-   */
   const { isLoading } = useQuery(
     ["fetchInfo", { project_id: project_id }],
     ProjectAPI.fetchInfo,
@@ -402,16 +570,10 @@ const TagCard = (props) => {
     },
   );
 
-  /**
-   * Mutate project info
-   */
   const { isLoading: isMutatingInfo, mutate } = useMutation(
     ProjectAPI.mutateInfo,
     {
       mutationKey: ["mutateInfo"],
-      onError: () => {
-        // handle the error
-      },
       onSuccess: (data) => {
         setTags(
           data["tags"] === undefined || data["tags"] === null
@@ -437,7 +599,6 @@ const TagCard = (props) => {
   };
   const addTagGroup = (id, name, values) => {
     mutate({
-      // add new group to tags
       tags: [...tags, { name: name, values: values, id: id }],
       project_id: project_id,
     });
@@ -465,195 +626,10 @@ const TagCard = (props) => {
         </IconButton>
       </Box>
 
-      <Popover
-        open={Boolean(anchorEl)}
+      <InfoPopover
         anchorEl={anchorEl}
-        onClose={handlePopoverClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            maxWidth: 320,
-          },
-        }}
-      >
-        <Box
-          sx={(theme) => ({
-            p: 3,
-            maxHeight: "80vh",
-            overflow: "auto",
-            "&::-webkit-scrollbar": {
-              width: "8px",
-              background: "transparent",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              background: (theme) => theme.palette.grey[300],
-              borderRadius: "4px",
-              "&:hover": {
-                background: (theme) => theme.palette.grey[400],
-              },
-            },
-            "&::-webkit-scrollbar-track": {
-              background: "transparent",
-              borderRadius: "4px",
-            },
-            scrollbarWidth: "thin",
-            scrollbarColor: (theme) => `${theme.palette.grey[300]} transparent`,
-          })}
-        >
-          <Stack spacing={3}>
-            <Box>
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                Organizing with Tags
-              </Typography>
-              <Typography variant="body2" align="justify">
-                Tags help you categorize and analyze your records
-                systematically. Create meaningful groups and labels to track
-                important aspects of your review.
-              </Typography>
-            </Box>
-
-            <Divider />
-
-            <Box>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
-                Tag Structure
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid xs={6}>
-                  <Box
-                    sx={(theme) => ({
-                      p: 2,
-                      border: 1,
-                      borderColor: "divider",
-                      borderRadius: 2,
-                      height: "100%",
-                      bgcolor:
-                        theme.palette.mode === "light"
-                          ? "background.paper"
-                          : "transparent",
-                    })}
-                  >
-                    <Stack spacing={1}>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <FolderOpenIcon sx={{ color: "text.secondary" }} />
-                        <Typography variant="subtitle2">Tag Groups</Typography>
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Create categories like "Study Design" or "Population
-                        Type"
-                      </Typography>
-                    </Stack>
-                  </Box>
-                </Grid>
-                <Grid xs={6}>
-                  <Box
-                    sx={(theme) => ({
-                      p: 2,
-                      border: 1,
-                      borderColor: "divider",
-                      borderRadius: 2,
-                      height: "100%",
-                      bgcolor:
-                        theme.palette.mode === "light"
-                          ? "background.paper"
-                          : "transparent",
-                    })}
-                  >
-                    <Stack spacing={1}>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <BookmarksIcon sx={{ color: "text.secondary" }} />
-                        <Typography variant="subtitle2">Tags</Typography>
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Add specific labels like "RCT" or "Adult Population"
-                      </Typography>
-                    </Stack>
-                  </Box>
-                </Grid>
-                <Grid xs={6}>
-                  <Box
-                    sx={(theme) => ({
-                      p: 2,
-                      border: 1,
-                      borderColor: "divider",
-                      borderRadius: 2,
-                      height: "100%",
-                      bgcolor:
-                        theme.palette.mode === "light"
-                          ? "background.paper"
-                          : "transparent",
-                    })}
-                  >
-                    <Stack spacing={1}>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <StyleIcon sx={{ color: "text.secondary" }} />
-                        <Typography variant="subtitle2">
-                          Organization
-                        </Typography>
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Group related concepts together for better overview
-                      </Typography>
-                    </Stack>
-                  </Box>
-                </Grid>
-                <Grid xs={6}>
-                  <Box
-                    sx={(theme) => ({
-                      p: 2,
-                      border: 1,
-                      borderColor: "divider",
-                      borderRadius: 2,
-                      height: "100%",
-                      bgcolor:
-                        theme.palette.mode === "light"
-                          ? "background.paper"
-                          : "transparent",
-                    })}
-                  >
-                    <Stack spacing={1}>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <AnalyticsIcon sx={{ color: "text.secondary" }} />
-                        <Typography variant="subtitle2">Analysis</Typography>
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Use consistent naming for easier data analysis later
-                      </Typography>
-                    </Stack>
-                  </Box>
-                </Grid>
-              </Grid>
-            </Box>
-
-            <Button
-              href="https://asreview.readthedocs.io/en/latest/guides/tagging.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="text"
-              size="small"
-              sx={{ textTransform: "none", p: 0 }}
-            >
-              Learn more →
-            </Button>
-          </Stack>
-        </Box>
-      </Popover>
+        handlePopoverClose={handlePopoverClose}
+      />
 
       <CardContent>
         {isLoading ? (
@@ -666,7 +642,6 @@ const TagCard = (props) => {
                   group={c}
                   key={c.id}
                   editTagGroup={editTagGroup}
-                  mobileScreen={props.mobileScreen}
                   groups={tags}
                 />
               ))}
