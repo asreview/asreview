@@ -22,6 +22,8 @@ import {
   Popover,
   Box,
   Divider,
+  Icon,
+  Tooltip,
 } from "@mui/material";
 import { ProjectContext } from "context/ProjectContext";
 import { useContext } from "react";
@@ -37,6 +39,10 @@ import StyleIcon from "@mui/icons-material/Style";
 import Grid from "@mui/material/Grid2";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
+import { Add } from "@mui/icons-material";
+
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const Tag = (props) => {
   return (
@@ -162,6 +168,8 @@ function idsUnique(items) {
 }
 
 const AddGroupDialog = (props) => {
+  const theme = useTheme();
+  const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const emptyTag = { id: "", name: "", idEdited: false };
 
   const [name, setName] = React.useState("");
@@ -224,7 +232,7 @@ const AddGroupDialog = (props) => {
   const tagsValid = tags.filter((t) => t.id !== "" && t.name !== "").length > 0;
 
   return (
-    <Dialog open={props.open} onClose={handleClose}>
+    <Dialog open={props.open} onClose={handleClose} fullScreen={smallScreen}>
       <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
         <DialogContentText>{props.contentText}</DialogContentText>
@@ -284,9 +292,11 @@ const AddGroupDialog = (props) => {
           alignItems="baseline"
           spacing={2}
         >
-          <Button aria-label="add tag" onClick={addTag}>
-            Add Tag
-          </Button>
+          <Tooltip title="Add tag">
+            <IconButton aria-label="add tag" onClick={addTag}>
+              <Add />
+            </IconButton>
+          </Tooltip>
         </Stack>
 
         <Typography variant="body2" sx={{ color: "text.secondary", pt: 2 }}>
