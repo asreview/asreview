@@ -26,7 +26,7 @@ import { useContext } from "react";
 import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
 
 import { ProjectAPI } from "api";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { Add } from "@mui/icons-material";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
@@ -158,16 +158,17 @@ function idsUnique(items) {
   return idSet.size === idList.length;
 }
 
-const AddGroupDialog = ({
+const MutateGroupDialog = ({
   open,
   handleClose,
-  handleSave,
   title,
   initialName,
   initialId,
   initialTags,
   groups,
   isEditMode,
+  queryClient,
+  project_id,
 }) => {
   const theme = useTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -177,6 +178,10 @@ const AddGroupDialog = ({
   const [id, setId] = React.useState(initialId || "");
   const [idEdited, setIdEdited] = React.useState(false);
   const [tags, setTags] = React.useState(initialTags || [emptyTag]);
+
+  const { mutate } = useMutation(ProjectAPI.mutateInfo, {
+    mutationKey: ["mutateInfo"],
+  });
 
   React.useEffect(() => {
     if (initialName) setName(initialName);
@@ -196,7 +201,25 @@ const AddGroupDialog = ({
     values = values.map((t) => {
       return { id: t.id, name: t.name };
     });
-    handleSave(id, name, values);
+
+    queryClient.setQueryData(["fetchInfo", { project_id }], (oldData) => {
+      const updatedTags = isEditMode
+        ? oldData.tags.map((group) =>
+            group.id === initialId ? { id, name, values } : group,
+          )
+        : [...oldData.tags, { id, name, values }];
+      return { ...oldData, tags: updatedTags };
+    });
+
+    mutate({
+      tags: isEditMode
+        ? groups.map((group) =>
+            group.id === initialId ? { id, name, values } : group,
+          )
+        : [...groups, { id, name, values }],
+      project_id: project_id,
+    });
+
     handleClose();
     reset();
   };
@@ -503,14 +526,17 @@ const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
   );
 };
 
-const Group = ({ group, editTagGroup, groups }) => {
+const Group = ({ group, groups }) => {
   const [editDialogOpen, setEditDialogOpen] = React.useState(false);
+  const queryClient = useQueryClient();
+  const project_id = useContext(ProjectContext);
 
   const handleEditSave = (id, name, values) => {
-    editTagGroup(group.id, {
-      id,
-      name,
-      values,
+    queryClient.setQueryData(["fetchInfo", { project_id }], (oldData) => {
+      const updatedTags = oldData.tags.map((g) =>
+        g.id === group.id ? { id, name, values } : g,
+      );
+      return { ...oldData, tags: updatedTags };
     });
   };
 
@@ -533,7 +559,7 @@ const Group = ({ group, editTagGroup, groups }) => {
           ))}
         </Stack>
       </CardContent>
-      <AddGroupDialog
+      <MutateGroupDialog
         key={group.id}
         title="Edit Group and Tags"
         open={editDialogOpen}
@@ -544,73 +570,29 @@ const Group = ({ group, editTagGroup, groups }) => {
         initialTags={group.values}
         groups={groups}
         isEditMode={true}
+        queryClient={queryClient}
+        project_id={project_id}
       />
     </Card>
   );
 };
 
 const TagCard = () => {
-  const [groupDialogOpen, setGroupDialogOpen] = React.useState(false);
-  const [tags, setTags] = React.useState([]);
   const project_id = useContext(ProjectContext);
+  const queryClient = useQueryClient();
+
+  const [groupDialogOpen, setGroupDialogOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const { isLoading } = useQuery(
+  const { data, isLoading } = useQuery(
     ["fetchInfo", { project_id: project_id }],
     ProjectAPI.fetchInfo,
     {
-      onSuccess: (data) => {
-        setTags(
-          data["tags"] === undefined || data["tags"] === null
-            ? []
-            : data["tags"],
-        );
-      },
       refetchOnWindowFocus: false,
     },
   );
 
-  const { isLoading: isMutatingInfo, mutate } = useMutation(
-    ProjectAPI.mutateInfo,
-    {
-      mutationKey: ["mutateInfo"],
-      onSuccess: (data) => {
-        setTags(
-          data["tags"] === undefined || data["tags"] === null
-            ? []
-            : data["tags"],
-        );
-      },
-    },
-  );
-
-  const editTagGroup = (id, updatedGroup) => {
-    const updatedGroupIndex = tags.findIndex((el) => el.id === id);
-    if (updatedGroupIndex >= 0) {
-      mutate({
-        tags: [
-          ...tags.slice(0, updatedGroupIndex),
-          updatedGroup,
-          ...tags.slice(updatedGroupIndex + 1),
-        ],
-        project_id: project_id,
-      });
-    }
-  };
-  const addTagGroup = (id, name, values) => {
-    mutate({
-      tags: [...tags, { name: name, values: values, id: id }],
-      project_id: project_id,
-    });
-  };
-
-  const handlePopoverOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handlePopoverClose = () => {
-    setAnchorEl(null);
-  };
+  const tags = data?.tags || [];
 
   return (
     <Card sx={{ position: "relative" }}>
@@ -618,41 +600,29 @@ const TagCard = () => {
         title="Labeling tags"
         subheader="Tags and tag groups are used to label records with additional information."
         isLoading={isLoading}
+        action={
+          <IconButton
+            onClick={(event) => {
+              setAnchorEl(event.currentTarget);
+            }}
+          >
+            <StyledLightBulb />
+          </IconButton>
+        }
       />
-
-      <Box sx={{ position: "absolute", top: 16, right: 16 }}>
-        <IconButton size="small" onClick={handlePopoverOpen}>
-          <StyledLightBulb fontSize="small" />
-        </IconButton>
-      </Box>
 
       <InfoPopover
         anchorEl={anchorEl}
-        handlePopoverClose={handlePopoverClose}
+        handlePopoverClose={() => {
+          setAnchorEl(null);
+        }}
       />
 
       <CardContent>
         {isLoading ? (
           <Skeleton variant="rectangular" height={56} />
         ) : (
-          <>
-            {tags.length !== 0 &&
-              tags.map((c) => (
-                <Group
-                  group={c}
-                  key={c.id}
-                  editTagGroup={editTagGroup}
-                  groups={tags}
-                />
-              ))}
-            <AddGroupDialog
-              title="Add group of tags"
-              open={groupDialogOpen}
-              handleClose={() => setGroupDialogOpen(false)}
-              handleSave={addTagGroup}
-              groups={tags}
-            />
-          </>
+          tags.map((c) => <Group group={c} key={c.id} groups={tags} />)
         )}
       </CardContent>
 
@@ -660,13 +630,22 @@ const TagCard = () => {
         {isLoading ? (
           <Skeleton variant="rectangular" width={100} height={36} />
         ) : (
-          <Button
-            onClick={() => setGroupDialogOpen(true)}
-            disabled={isMutatingInfo}
-            variant="contained"
-          >
-            Add tags
-          </Button>
+          <>
+            <MutateGroupDialog
+              title="Add group of tags"
+              open={groupDialogOpen}
+              handleClose={() => setGroupDialogOpen(false)}
+              groups={tags}
+              queryClient={queryClient}
+              project_id={project_id}
+            />
+            <Button
+              onClick={() => setGroupDialogOpen(true)}
+              variant="contained"
+            >
+              Add tags
+            </Button>
+          </>
         )}
       </CardContent>
     </Card>
