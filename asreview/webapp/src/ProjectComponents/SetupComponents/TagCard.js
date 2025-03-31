@@ -19,6 +19,8 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Chip,
+  CardHeader,
 } from "@mui/material";
 import { ProjectContext } from "context/ProjectContext";
 import { useContext } from "react";
@@ -38,30 +40,31 @@ import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import EditIcon from "@mui/icons-material/Edit";
 
-const Tag = (props) => {
+const Tag = ({ tag, editTag }) => {
   return (
     <Stack direction="row" spacing={3}>
       <TextField
         fullWidth
-        id={`project-tag-name-${props.tag.id}`}
+        id={`project-tag-name-${tag.id}`}
         label="Tag Name"
         name="tag-name"
         onChange={(event) =>
-          props.editTag(props.tag.id, {
-            ...props.tag,
+          editTag(tag.id, {
+            ...tag,
             name: event.target.value,
           })
         }
-        value={props.tag.name}
+        value={tag.name}
       />
       <TextField
         fullWidth
-        id={`project-tag-id-${props.tag.id}`}
+        id={`project-tag-id-${tag.id}`}
         label="Tag Id"
         name="tag-id"
         disabled={true}
-        value={props.tag.id}
+        value={tag.id}
       />
     </Stack>
   );
@@ -77,7 +80,14 @@ function nameToId(name) {
     .replaceAll(/[^a-z0-9_]/g, "");
 }
 
-const AddTagDialog = (props) => {
+const AddTagDialog = ({
+  open,
+  handleClose,
+  handleAdd,
+  title,
+  contentText,
+  tags,
+}) => {
   const [name, setName] = React.useState("");
   const [id, setId] = React.useState("");
   const [idEdited, setIdEdited] = React.useState(false);
@@ -89,13 +99,8 @@ const AddTagDialog = (props) => {
   };
 
   const addClicked = () => {
-    props.handleAdd(id, name);
-    props.handleClose();
-    reset();
-  };
-
-  const handleClose = () => {
-    props.handleClose();
+    handleAdd(id, name);
+    handleClose();
     reset();
   };
 
@@ -111,12 +116,12 @@ const AddTagDialog = (props) => {
     setIdEdited(true);
   };
 
-  const duplicatedId = props.tags.some((t) => t.id === id);
+  const duplicatedId = tags.some((t) => t.id === id);
   return (
-    <Dialog open={props.open} onClose={handleClose}>
-      <DialogTitle>{props.title}</DialogTitle>
+    <Dialog open={open} onClose={handleClose}>
+      <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <DialogContentText>{props.contentText}</DialogContentText>
+        <DialogContentText>{contentText}</DialogContentText>
         <Stack spacing={3}>
           <TypographySubtitle1Medium>Name</TypographySubtitle1Medium>
           <Stack direction="row" spacing={3}>
@@ -162,15 +167,32 @@ function idsUnique(items) {
   return idSet.size === idList.length;
 }
 
-const AddGroupDialog = (props) => {
+const AddGroupDialog = ({
+  open,
+  handleClose,
+  handleSave,
+  title,
+  contentText,
+  initialName,
+  initialId,
+  initialTags,
+  groups,
+  isEditMode,
+}) => {
   const theme = useTheme();
   const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const emptyTag = { id: "", name: "", idEdited: false };
 
-  const [name, setName] = React.useState("");
-  const [id, setId] = React.useState("");
+  const [name, setName] = React.useState(initialName || "");
+  const [id, setId] = React.useState(initialId || "");
   const [idEdited, setIdEdited] = React.useState(false);
-  const [tags, setTags] = React.useState([emptyTag]);
+  const [tags, setTags] = React.useState(initialTags || [emptyTag]);
+
+  React.useEffect(() => {
+    if (initialName) setName(initialName);
+    if (initialId) setId(initialId);
+    if (initialTags) setTags(initialTags);
+  }, [initialName, initialId, initialTags]);
 
   const reset = () => {
     setName("");
@@ -179,18 +201,13 @@ const AddGroupDialog = (props) => {
     setTags([emptyTag]);
   };
 
-  const addClicked = () => {
+  const saveClicked = () => {
     let values = tags.filter((t) => t.id !== "" && t.name !== "");
     values = values.map((t) => {
       return { id: t.id, name: t.name };
     });
-    props.handleAdd(id, name, values);
-    props.handleClose();
-    reset();
-  };
-
-  const handleClose = () => {
-    props.handleClose();
+    handleSave(id, name, values);
+    handleClose();
     reset();
   };
 
@@ -198,9 +215,7 @@ const AddGroupDialog = (props) => {
     setTags(
       tags.map((t, i) => {
         if (i === index) {
-          // Editing if
           if (t.id !== newId) {
-            //
             t.id = newId;
             t.idEdited = true;
           }
@@ -220,17 +235,17 @@ const AddGroupDialog = (props) => {
     setTags([...tags, { id: "", name: "", idEdited: false }]);
   };
 
-  const duplicatedGroupId = props.groups.some((c) => c.id === id);
+  const duplicatedGroupId = groups.some((c) => c.id === id) && id !== initialId;
 
   const tagsUnique = idsUnique(tags);
 
   const tagsValid = tags.filter((t) => t.id !== "" && t.name !== "").length > 0;
 
   return (
-    <Dialog open={props.open} onClose={handleClose} fullScreen={smallScreen}>
-      <DialogTitle>{props.title}</DialogTitle>
+    <Dialog open={open} onClose={handleClose} fullScreen={smallScreen}>
+      <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <DialogContentText>{props.contentText}</DialogContentText>
+        <DialogContentText>{contentText}</DialogContentText>
         <Stack spacing={3}>
           <TypographySubtitle1Medium>Group</TypographySubtitle1Medium>
           <Stack direction="row" spacing={3}>
@@ -259,6 +274,7 @@ const AddGroupDialog = (props) => {
               helperText={
                 duplicatedGroupId ? "Group export labels must be unique" : " "
               }
+              disabled={isEditMode}
             />
           </Stack>
         </Stack>
@@ -279,6 +295,7 @@ const AddGroupDialog = (props) => {
                 label="Export label"
                 value={t.id}
                 onChange={(event) => editTag(t.name, event.target.value, index)}
+                disabled={isEditMode && index < initialTags.length}
               />
             </Stack>
           ))}
@@ -304,91 +321,59 @@ const AddGroupDialog = (props) => {
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
         <Button
-          onClick={addClicked}
+          onClick={saveClicked}
           disabled={name === "" || id === "" || !tagsValid || !tagsUnique}
         >
-          Create Group
+          {isEditMode ? "Save" : "Create Group"}
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-const Group = (props) => {
-  const [newTagDialogOpen, setNewTagDialogOpen] = React.useState(false);
+const Group = ({ group, editTagGroup, mobileScreen, groups }) => {
+  const [editDialogOpen, setEditDialogOpen] = React.useState(false);
 
-  const addTag = (id, name) => {
-    props.editTagGroup(props.group.id, {
-      ...props.group,
-      values: [...props.group.values, { id: id, name: name }],
-    });
-  };
-
-  const editTag = (id, updatedTag) => {
-    const updatedTagIndex = props.group.values.findIndex((el) => el.id === id);
-    props.editTagGroup(props.group.id, {
-      ...props.group,
-      values: [
-        ...props.group.values.slice(0, updatedTagIndex),
-        updatedTag,
-        ...props.group.values.slice(updatedTagIndex + 1),
-      ],
+  const handleEditSave = (id, name, values) => {
+    editTagGroup(group.id, {
+      id,
+      name,
+      values,
     });
   };
 
   return (
-    <Card elevation={1} sx={{ mb: 2 }}>
+    <Card sx={{ mb: 2, bgcolor: "background.default" }}>
+      <CardHeader
+        title={group.name}
+        action={
+          <Tooltip title="Edit Group">
+            <IconButton onClick={() => setEditDialogOpen(true)}>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+        }
+      />
       <CardContent>
-        <Stack
-          direction={!props.mobileScreen ? "row" : "column"}
-          sx={{ width: "100%" }}
-        >
-          <Typography
-            sx={{ width: !props.mobileScreen ? "33%" : "100%", flexShrink: 0 }}
-          >
-            {props.group.name}
-          </Typography>
-          <Typography sx={{ color: "text.secondary" }}>
-            {props.group.values.map((t) => t.name).join(", ")}
-          </Typography>
-        </Stack>
-      </CardContent>
-      <CardContent>
-        <AddTagDialog
-          title="Create Tag"
-          text="Create a tag. The id can't be changed after creation."
-          open={newTagDialogOpen}
-          handleClose={() => setNewTagDialogOpen(false)}
-          handleAdd={addTag}
-          tags={props.group.values}
-        />
-
-        <Stack spacing={3}>
-          <TypographySubtitle1Medium>Tag group</TypographySubtitle1Medium>
-          <Stack direction="row" spacing={3}>
-            <Typography variant="body1" sx={{ flex: 1 }}>
-              Group: {props.group.name}
-            </Typography>
-            <Typography variant="body1" sx={{ flex: 1 }}>
-              Group Id: {props.group.id}
-            </Typography>
-          </Stack>
-          <TypographySubtitle1Medium>Tags</TypographySubtitle1Medium>
-          {props.group.values.map((t) => (
-            <Stack direction="row" spacing={3} key={t.id}>
-              <Typography variant="body1" sx={{ flex: 1 }}>
-                Name: {t.name}
-              </Typography>
-              <Typography variant="body1" sx={{ flex: 1 }}>
-                Export label: {t.id}
-              </Typography>
-            </Stack>
+        <Stack direction="row" spacing={1} flexWrap="wrap">
+          {group.values.map((t) => (
+            <Chip key={t.id} label={`${t.name} (${t.id})`} />
           ))}
         </Stack>
       </CardContent>
-      <CardActions>
-        <Button onClick={() => console.log("Edit clicked")}>Edit</Button>
-      </CardActions>
+      <AddGroupDialog
+        key={group.id}
+        title="Edit Group"
+        contentText="Edit the group details and tags."
+        open={editDialogOpen}
+        handleClose={() => setEditDialogOpen(false)}
+        handleSave={handleEditSave}
+        initialName={group.name}
+        initialId={group.id}
+        initialTags={group.values}
+        groups={groups}
+        isEditMode={true}
+      />
     </Card>
   );
 };
@@ -682,14 +667,14 @@ const TagCard = (props) => {
                   key={c.id}
                   editTagGroup={editTagGroup}
                   mobileScreen={props.mobileScreen}
+                  groups={tags}
                 />
               ))}
             <AddGroupDialog
               title="Add group of tags"
               open={groupDialogOpen}
               handleClose={() => setGroupDialogOpen(false)}
-              handleAdd={addTagGroup}
-              handleAddTags={editTagGroup}
+              handleSave={addTagGroup}
               groups={tags}
             />
           </>
