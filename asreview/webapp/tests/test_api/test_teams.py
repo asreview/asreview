@@ -8,13 +8,27 @@ import asreview.webapp.tests.utils.api_utils as au
 # other users who accept and reject
 
 
+def verify_user_summary(response_json, user):
+    return all(
+        k in response_json and response_json[k] == v 
+        for k, v in user.summarize().items()
+    )
+
+
 # Test sending an invitation
 def test_user1_sends_invitation(setup_auth):
     client, _, user2, _, project = setup_auth
     # invite
     r = au.invite(client, project, user2)
     assert r.status_code == 200
-    assert r.json["message"] == 'User "user2@asreview.nl" invited.'
+    assert isinstance(r.json, dict)
+    assert verify_user_summary(r.json, user2)
+    assert r.json["pending"]
+    assert r.json["deletable"]
+    assert not r.json["me"]
+    assert not r.json["member"]
+    assert not r.json["selectable"]
+    assert not r.json["owner"]
 
 
 # Testing listing invitations
@@ -73,19 +87,25 @@ def test_owner_deletes_invitation(setup_auth):
     # remove invitation
     r = au.delete_invitation(client, project, user2)
     assert r.status_code == 200
-    assert r.json["message"] == "Owner deleted invitation."
+    assert verify_user_summary(r.json, user2)
+    assert not r.json["pending"]
+    assert not r.json["deletable"]
+    assert not r.json["me"]
+    assert not r.json["member"]
+    assert r.json["selectable"]
+    assert not r.json["owner"]
 
 
 # Test owner views collaboration team
 def test_view_collaboration_team_with_pending_invitation(setup_auth):
-    client, _, user2, _, project = setup_auth
+    client, user1, user2, _, project = setup_auth
     # invite
     au.invite(client, project, user2)
     # checks team
     r = au.list_collaborators(client, project)
     assert r.status_code == 200
-    assert r.json["collaborators"] == []
-    assert r.json["invitations"] == [user2.id]
+    assert [item["id"] for item in r.json if item["member"]] == [user1.id]
+    assert [item["id"] for item in r.json if item["pending"]] == [user2.id]
 
 
 # Test owner views collaboration team
@@ -105,8 +125,10 @@ def test_view_collaboration_team_with_accepted_invitation(setup_auth):
     # checks team
     r = au.list_collaborators(client, project)
     assert r.status_code == 200
-    assert r.json["collaborators"] == [user2.id]
-    assert r.json["invitations"] == []
+    assert {
+        item["id"] for item in r.json if item["member"]
+    } == {user1.id, user2.id}
+    assert [item["id"] for item in r.json if item["pending"]] == []
 
 
 # Test owner removes collaboration
@@ -126,7 +148,13 @@ def test_owner_deletes_collaboration(setup_auth):
     # remove from team
     r = au.delete_collaboration(client, project, user2)
     assert r.status_code == 200
-    assert r.json["message"] == "Collaborator removed from project."
+    assert verify_user_summary(r.json, user2)
+    assert not r.json["pending"]
+    assert not r.json["deletable"]
+    assert not r.json["me"]
+    assert not r.json["member"]
+    assert r.json["selectable"]
+    assert not r.json["owner"]
 
 
 # Test collaborator withdraws from collaboration
@@ -143,7 +171,13 @@ def test_collaborator_withdrawal(setup_auth):
     # withdrawal
     r = au.delete_collaboration(client, project, user2)
     assert r.status_code == 200
-    assert r.json["message"] == "Collaborator removed from project."
+    assert verify_user_summary(r.json, user2)
+    assert not r.json["pending"]
+    assert not r.json["deletable"]
+    assert r.json["me"]
+    assert not r.json["member"]
+    assert r.json["selectable"]
+    assert not r.json["owner"]
 
 
 # ###################
