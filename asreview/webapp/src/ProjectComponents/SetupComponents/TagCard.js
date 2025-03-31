@@ -256,7 +256,9 @@ const AddGroupDialog = (props) => {
                 setId(event.target.value);
                 setIdEdited(true);
               }}
-              helperText={duplicatedGroupId ? "Group Ids must be unique" : " "}
+              helperText={
+                duplicatedGroupId ? "Group export labels must be unique" : " "
+              }
             />
           </Stack>
         </Stack>
@@ -364,40 +366,27 @@ const Group = (props) => {
         <Stack spacing={3}>
           <TypographySubtitle1Medium>Tag group</TypographySubtitle1Medium>
           <Stack direction="row" spacing={3}>
-            <TextField
-              fullWidth
-              id="tag-group-name"
-              label="Group"
-              onChange={(event) =>
-                props.editTagGroup(props.group.id, {
-                  ...props.group,
-                  name: event.target.value,
-                })
-              }
-              value={props.group.name}
-            />
-            <TextField
-              fullWidth
-              id="tag-group-id"
-              label="Group Id"
-              disabled={true}
-              onChange={(event) =>
-                props.editTagGroup(props.group.id, {
-                  ...props.group,
-                  id: event.target.value,
-                })
-              }
-              value={props.group.id}
-            />
+            <Typography variant="body1" sx={{ flex: 1 }}>
+              Group: {props.group.name}
+            </Typography>
+            <Typography variant="body1" sx={{ flex: 1 }}>
+              Group Id: {props.group.id}
+            </Typography>
           </Stack>
           <TypographySubtitle1Medium>Tags</TypographySubtitle1Medium>
           {props.group.values.map((t) => (
-            <Tag tag={t} key={t.id} editTag={editTag} />
+            <Stack direction="row" spacing={3} key={t.id}>
+              <Typography variant="body1" sx={{ flex: 1 }}>
+                Name: {t.name}
+              </Typography>
+              <Typography variant="body1" sx={{ flex: 1 }}>
+                Export label: {t.id}
+              </Typography>
+            </Stack>
           ))}
         </Stack>
       </CardContent>
       <CardActions>
-        <Button onClick={() => setNewTagDialogOpen(true)}>Add Tag</Button>
         <Button onClick={() => console.log("Edit clicked")}>Edit</Button>
       </CardActions>
     </Card>
