@@ -179,7 +179,12 @@ class User(UserMixin, DB.Model):
 
     def summarize(self):
         """Summarize user account in frontend data packet"""
-        return {"id": self.id, "name": self.get_name(), "email": self.email}
+        return {
+            "id": self.id,
+            "name": self.get_name(),
+            "affiliation": self.affiliation,
+            "email": self.email
+        }
 
     def confirm_user(self):
         """This function confirms a user by setting the confirmed
