@@ -1,29 +1,24 @@
 import React from "react";
 
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
-  Accordion,
-  AccordionActions,
-  AccordionDetails,
-  AccordionSummary,
+  Box,
   Button,
   Card,
+  CardActions,
   CardContent,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Divider,
+  IconButton,
+  Popover,
   Skeleton,
   Stack,
   TextField,
-  Typography,
-  IconButton,
-  Popover,
-  Box,
-  Divider,
-  Icon,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { ProjectContext } from "context/ProjectContext";
 import { useContext } from "react";
@@ -32,14 +27,14 @@ import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
 import { ProjectAPI } from "api";
 import { useMutation, useQuery } from "react-query";
 
-import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
-import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
+import { Add } from "@mui/icons-material";
+import AnalyticsIcon from "@mui/icons-material/Analytics";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import StyleIcon from "@mui/icons-material/Style";
 import Grid from "@mui/material/Grid2";
-import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import AnalyticsIcon from "@mui/icons-material/Analytics";
-import { Add } from "@mui/icons-material";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
+import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -340,8 +335,8 @@ const Group = (props) => {
   };
 
   return (
-    <Accordion elevation={0} sx={{ bgcolor: `primary.background` }}>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+    <Card elevation={1} sx={{ mb: 2 }}>
+      <CardContent>
         <Stack
           direction={!props.mobileScreen ? "row" : "column"}
           sx={{ width: "100%" }}
@@ -355,8 +350,8 @@ const Group = (props) => {
             {props.group.values.map((t) => t.name).join(", ")}
           </Typography>
         </Stack>
-      </AccordionSummary>
-      <AccordionDetails>
+      </CardContent>
+      <CardContent>
         <AddTagDialog
           title="Create Tag"
           text="Create a tag. The id can't be changed after creation."
@@ -400,11 +395,12 @@ const Group = (props) => {
             <Tag tag={t} key={t.id} editTag={editTag} />
           ))}
         </Stack>
-      </AccordionDetails>
-      <AccordionActions>
+      </CardContent>
+      <CardActions>
         <Button onClick={() => setNewTagDialogOpen(true)}>Add Tag</Button>
-      </AccordionActions>
-    </Accordion>
+        <Button onClick={() => console.log("Edit clicked")}>Edit</Button>
+      </CardActions>
+    </Card>
   );
 };
 
