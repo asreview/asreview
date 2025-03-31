@@ -25,11 +25,7 @@ def get_user_project_properties(user, project, current_user):
     me = user.id == current_user.id
 
     selectable = not (pending or member or owner)
-    deletable = (
-        current_user.id == project.owner_id
-        and (member or pending)
-        and not me
-    )
+    deletable = current_user.id == project.owner_id and (member or pending) and not me
 
     return dict(
         result,
@@ -48,16 +44,16 @@ def users(project_id):
     """Returns all users involved in a project."""
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
 
-    if project not in current_user.projects and \
-        project not in current_user.involved_in:
+    if project not in current_user.projects and project not in current_user.involved_in:
         return jsonify(REQUESTER_FRAUD), 404
 
-    users = sorted([
-        get_user_project_properties(user, project, current_user)
-        for user in User.query.filter(User.public)
-        .order_by("name")
-        .all()
-    ], key=lambda u: (-u["owner"], u["name"].lower()))
+    users = sorted(
+        [
+            get_user_project_properties(user, project, current_user)
+            for user in User.query.filter(User.public).order_by("name").all()
+        ],
+        key=lambda u: (-u["owner"], u["name"].lower()),
+    )
 
     return (
         jsonify(users),
@@ -86,7 +82,7 @@ def end_collaboration(project_id, user_id):
             DB.session.commit()
             response = (
                 jsonify(get_user_project_properties(user, project, current_user)),
-                200
+                200,
             )
 
         except SQLAlchemyError:
@@ -133,7 +129,7 @@ def invite(project_id, user_id):
             DB.session.commit()
             response = (
                 jsonify(get_user_project_properties(user, project, current_user)),
-                200
+                200,
             )
         except SQLAlchemyError:
             response = (
@@ -213,7 +209,7 @@ def delete_invitation(project_id, user_id):
             DB.session.commit()
             response = (
                 jsonify(get_user_project_properties(user, project, current_user)),
-                200
+                200,
             )
         except SQLAlchemyError:
             response = jsonify({"message": "Error deleting invitation."}), 404

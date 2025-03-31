@@ -183,7 +183,7 @@ class User(UserMixin, DB.Model):
             "id": self.id,
             "name": self.get_name(),
             "affiliation": self.affiliation,
-            "email": self.email
+            "email": self.email,
         }
 
     def confirm_user(self):
