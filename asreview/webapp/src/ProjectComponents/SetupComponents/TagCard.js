@@ -41,307 +41,7 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import EditIcon from "@mui/icons-material/Edit";
 
-const Tag = ({ tag, editTag }) => {
-  return (
-    <Stack direction="row" spacing={3}>
-      <TextField
-        fullWidth
-        id={`project-tag-name-${tag.id}`}
-        label="Tag Name"
-        name="tag-name"
-        onChange={(event) =>
-          editTag(tag.id, {
-            ...tag,
-            name: event.target.value,
-          })
-        }
-        value={tag.name}
-      />
-      <TextField
-        fullWidth
-        id={`project-tag-id-${tag.id}`}
-        label="Tag Id"
-        name="tag-id"
-        disabled={true}
-        value={tag.id}
-      />
-    </Stack>
-  );
-};
-
-function nameToId(name) {
-  // Generate a suggested ID based on name
-  // since Ids may be used later in data analysis code we suggest simple ascii
-  // with no spaces but this is not required
-  return name
-    .toLowerCase()
-    .replaceAll(/\s+/g, "_")
-    .replaceAll(/[^a-z0-9_]/g, "");
-}
-
-const AddTagDialog = ({ open, handleClose, handleAdd, title, tags }) => {
-  const [name, setName] = React.useState("");
-  const [id, setId] = React.useState("");
-  const [idEdited, setIdEdited] = React.useState(false);
-
-  const reset = () => {
-    setName("");
-    setId("");
-    setIdEdited(false);
-  };
-
-  const addClicked = () => {
-    handleAdd(id, name);
-    handleClose();
-    reset();
-  };
-
-  const editName = (newName) => {
-    setName(newName);
-    if (!idEdited) {
-      setId(nameToId(newName));
-    }
-  };
-
-  const editId = (newId) => {
-    setId(newId);
-    setIdEdited(true);
-  };
-
-  const duplicatedId = tags.some((t) => t.id === id);
-  return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <Stack spacing={3}>
-          <TypographySubtitle1Medium>Name</TypographySubtitle1Medium>
-          <Stack direction="row" spacing={3}>
-            <TextField
-              fullWidth
-              id="tag-name"
-              label="Name"
-              value={name}
-              helperText=" "
-              onChange={(event) => editName(event.target.value)}
-            />
-            <TextField
-              fullWidth
-              id="tag-id"
-              label="Export label"
-              helperText={
-                duplicatedId
-                  ? "Export labels must be unique within the group"
-                  : " "
-              }
-              value={id}
-              onChange={(event) => editId(event.target.value)}
-            />
-          </Stack>
-        </Stack>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button
-          onClick={addClicked}
-          disabled={name === "" || id === "" || duplicatedId}
-        >
-          Add
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
-
-function idsUnique(items) {
-  const idList = items.map((t) => t.id);
-  const idSet = new Set(idList);
-  return idSet.size === idList.length;
-}
-
-const MutateGroupDialog = ({
-  open,
-  handleClose,
-  title,
-  initialName,
-  initialId,
-  initialTags,
-  groups,
-  isEditMode,
-  queryClient,
-  project_id,
-}) => {
-  const theme = useTheme();
-  const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const emptyTag = { id: "", name: "", idEdited: false };
-
-  const [name, setName] = React.useState(initialName || "");
-  const [id, setId] = React.useState(initialId || "");
-  const [idEdited, setIdEdited] = React.useState(false);
-  const [tags, setTags] = React.useState(initialTags || [emptyTag]);
-
-  const { mutate } = useMutation(ProjectAPI.mutateInfo, {
-    mutationKey: ["mutateInfo"],
-  });
-
-  React.useEffect(() => {
-    if (initialName) setName(initialName);
-    if (initialId) setId(initialId);
-    if (initialTags) setTags(initialTags);
-  }, [initialName, initialId, initialTags]);
-
-  const reset = () => {
-    setName("");
-    setId("");
-    setIdEdited(false);
-    setTags([emptyTag]);
-  };
-
-  const saveClicked = () => {
-    let values = tags.filter((t) => t.id !== "" && t.name !== "");
-    values = values.map((t) => {
-      return { id: t.id, name: t.name };
-    });
-
-    queryClient.setQueryData(["fetchInfo", { project_id }], (oldData) => {
-      const updatedTags = isEditMode
-        ? oldData.tags.map((group) =>
-            group.id === initialId ? { id, name, values } : group,
-          )
-        : [...oldData.tags, { id, name, values }];
-      return { ...oldData, tags: updatedTags };
-    });
-
-    mutate({
-      tags: isEditMode
-        ? groups.map((group) =>
-            group.id === initialId ? { id, name, values } : group,
-          )
-        : [...groups, { id, name, values }],
-      project_id: project_id,
-    });
-
-    handleClose();
-    reset();
-  };
-
-  const editTag = (newName, newId, index) => {
-    setTags(
-      tags.map((t, i) => {
-        if (i === index) {
-          if (t.name !== newName) {
-            t.name = newName;
-            if (!t.idEdited && (!isEditMode || index >= initialTags.length)) {
-              t.id = nameToId(newName);
-            }
-          }
-          if (t.id !== newId) {
-            t.id = newId;
-            t.idEdited = true;
-          }
-        }
-        return t;
-      }),
-    );
-  };
-
-  const addTag = () => {
-    setTags([...tags, { id: "", name: "", idEdited: false }]);
-  };
-
-  const duplicatedGroupId = groups.some((c) => c.id === id) && id !== initialId;
-
-  const tagsUnique = idsUnique(tags);
-
-  const tagsValid = tags.filter((t) => t.id !== "" && t.name !== "").length > 0;
-
-  return (
-    <Dialog open={open} onClose={handleClose} fullScreen={smallScreen}>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <Stack spacing={3}>
-          <TypographySubtitle1Medium>Group</TypographySubtitle1Medium>
-          <Stack direction="row" spacing={3}>
-            <TextField
-              fullWidth
-              id="group-name"
-              label="Name"
-              value={name}
-              onChange={(event) => {
-                setName(event.target.value);
-                if (!idEdited) {
-                  setId(nameToId(event.target.value));
-                }
-              }}
-              helperText=" "
-            />
-            <TextField
-              fullWidth
-              id="group-id"
-              label="Export label"
-              value={id}
-              onChange={(event) => {
-                setId(event.target.value);
-                setIdEdited(true);
-              }}
-              helperText={
-                duplicatedGroupId ? "Group export labels must be unique" : " "
-              }
-              disabled={isEditMode}
-            />
-          </Stack>
-        </Stack>
-        <Stack spacing={3}>
-          <TypographySubtitle1Medium>Tags</TypographySubtitle1Medium>
-          {tags.map((t, index) => (
-            <Stack direction="row" spacing={3} key={index}>
-              <TextField
-                fullWidth
-                id="tag-name"
-                label="Name"
-                value={t.name}
-                onChange={(event) => editTag(event.target.value, t.id, index)}
-              />
-              <TextField
-                fullWidth
-                id="tag-id"
-                label="Export label"
-                value={t.id}
-                onChange={(event) => editTag(t.name, event.target.value, index)}
-                disabled={isEditMode && index < initialTags.length}
-              />
-            </Stack>
-          ))}
-        </Stack>
-        <Stack
-          direction="row"
-          justifyContent="flex-end"
-          alignItems="baseline"
-          spacing={2}
-        >
-          <Tooltip title="Add tag">
-            <IconButton aria-label="add tag" onClick={addTag}>
-              <Add />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-
-        <Typography variant="body2" sx={{ color: "text.secondary", pt: 2 }}>
-          Export labels are available when exporting your results. They must be
-          unique and can't be changed after creating the group.
-        </Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button
-          onClick={saveClicked}
-          disabled={name === "" || id === "" || !tagsValid || !tagsUnique}
-        >
-          {isEditMode ? "Save" : "Create Group"}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
+import { useToggle } from "hooks/useToggle";
 
 const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
   return (
@@ -526,19 +226,195 @@ const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
   );
 };
 
-const Group = ({ group, groups }) => {
-  const [editDialogOpen, setEditDialogOpen] = React.useState(false);
-  const queryClient = useQueryClient();
-  const project_id = useContext(ProjectContext);
+function nameToId(name) {
+  // Generate a suggested ID based on name
+  // since Ids may be used later in data analysis code we suggest simple ascii
+  // with no spaces but this is not required
+  return name
+    .toLowerCase()
+    .replaceAll(/\s+/g, "_")
+    .replaceAll(/[^a-z0-9_]/g, "");
+}
 
-  const handleEditSave = (id, name, values) => {
-    queryClient.setQueryData(["fetchInfo", { project_id }], (oldData) => {
-      const updatedTags = oldData.tags.map((g) =>
-        g.id === group.id ? { id, name, values } : g,
-      );
-      return { ...oldData, tags: updatedTags };
+function idsUnique(items) {
+  const idList = items.map((t) => t.id);
+  const idSet = new Set(idList);
+  return idSet.size === idList.length;
+}
+
+const MutateGroupDialog = ({
+  open,
+  onClose,
+  title,
+  groupId,
+  isEditMode,
+  project_id,
+}) => {
+  const theme = useTheme();
+  const queryClient = useQueryClient();
+  const smallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const currentGroups = queryClient.getQueryData(["fetchTags", { project_id }]);
+  const groupData = currentGroups.find((group) => group.id === groupId);
+
+  const [formState, setFormState] = React.useState({
+    name: groupData.name || "",
+    id: groupData.id || "",
+    idEdited: false,
+    tags: groupData.values || [{ id: "", name: "", idEdited: false }],
+  });
+
+  const { mutate } = useMutation(ProjectAPI.mutateTags, {
+    mutationKey: ["mutateTags"],
+    onSuccess: () => {
+      queryClient.invalidateQueries(["fetchTags", { project_id }]);
+      onClose();
+    },
+    onError: (error) => {
+      console
+        .error(error)
+        .message("An error occurred while saving the tag group.");
+    },
+  });
+
+  const handleChange = (field, value) => {
+    setFormState((prev) => ({
+      ...prev,
+      [field]: value,
+      ...(field === "name" && !prev.idEdited ? { id: nameToId(value) } : {}),
+    }));
+  };
+
+  const handleTagChange = (index, field, value) => {
+    setFormState((prev) => ({
+      ...prev,
+      tags: prev.tags.map((tag, i) =>
+        i === index
+          ? {
+              ...tag,
+              [field]: value,
+              ...(field === "name" && !tag.idEdited
+                ? { id: nameToId(value) }
+                : {}),
+              ...(field === "id" ? { idEdited: true } : {}),
+            }
+          : tag,
+      ),
+    }));
+  };
+
+  const addTag = () => {
+    setFormState((prev) => ({
+      ...prev,
+      tags: [...prev.tags, { id: "", name: "", idEdited: false }],
+    }));
+  };
+
+  const onSave = () => {
+    const { name, id, tags } = formState;
+    const values = tags.filter((t) => t.id && t.name);
+
+    mutate({
+      tags: isEditMode
+        ? currentGroups.map((group) =>
+            group.id === groupId ? { id, name, values } : group,
+          )
+        : [...currentGroups, { id, name, values }],
+      project_id: project_id,
     });
   };
+
+  const duplicatedGroupId =
+    currentGroups.some((c) => c.id === formState.id) &&
+    formState.id !== groupId;
+  const tagsUnique = idsUnique(formState);
+  const tagsValid = formState.filter((t) => t.id && t.name).length > 0;
+
+  return (
+    <Dialog open={open} onClose={onClose} fullScreen={smallScreen}>
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>
+        <Stack spacing={3}>
+          <TypographySubtitle1Medium>Group</TypographySubtitle1Medium>
+          <Stack direction="row" spacing={3}>
+            <TextField
+              fullWidth
+              id="group-name"
+              label="Name"
+              value={formState.name}
+              onChange={(e) => handleChange("name", e.target.value)}
+              helperText=" "
+            />
+            <TextField
+              fullWidth
+              id="group-id"
+              label="Export label"
+              value={formState.id}
+              onChange={(e) => handleChange("id", e.target.value)}
+              helperText={
+                duplicatedGroupId ? "Group export labels must be unique" : " "
+              }
+              disabled={isEditMode}
+            />
+          </Stack>
+        </Stack>
+        <Stack spacing={3}>
+          <TypographySubtitle1Medium>Tags</TypographySubtitle1Medium>
+          {formState.map((tag, index) => (
+            <Stack direction="row" spacing={3} key={index}>
+              <TextField
+                fullWidth
+                id={`tag-name-${index}`}
+                label="Name"
+                value={tag.name}
+                onChange={(e) => handleTagChange(index, "name", e.target.value)}
+              />
+              <TextField
+                fullWidth
+                id={`tag-id-${index}`}
+                label="Export label"
+                value={tag.id}
+                onChange={(e) => handleTagChange(index, "id", e.target.value)}
+                disabled={isEditMode && index < groupData.values.length}
+              />
+            </Stack>
+          ))}
+        </Stack>
+        <Stack
+          direction="row"
+          justifyContent="flex-end"
+          alignItems="baseline"
+          spacing={2}
+        >
+          <Tooltip title="Add tag">
+            <IconButton aria-label="add tag" onClick={addTag}>
+              <Add />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+
+        <Typography variant="body2" sx={{ color: "text.secondary", pt: 2 }}>
+          Export labels are available when exporting your results. They must be
+          unique and can't be changed after creating the group.
+        </Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          onClick={onSave}
+          disabled={
+            !formState.name || !formState.id || !tagsValid || !tagsUnique
+          }
+        >
+          {isEditMode ? "Save" : "Create Group"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+const Group = ({ project_id, group }) => {
+  const [dialogOpen, toggleDialogOpen] = useToggle();
 
   return (
     <Card sx={{ mb: 2, bgcolor: "background.default" }}>
@@ -546,7 +422,7 @@ const Group = ({ group, groups }) => {
         title={group.name}
         action={
           <Tooltip title="Edit Group">
-            <IconButton onClick={() => setEditDialogOpen(true)}>
+            <IconButton onClick={toggleDialogOpen}>
               <EditIcon />
             </IconButton>
           </Tooltip>
@@ -561,17 +437,12 @@ const Group = ({ group, groups }) => {
       </CardContent>
       <MutateGroupDialog
         key={group.id}
-        title="Edit Group and Tags"
-        open={editDialogOpen}
-        handleClose={() => setEditDialogOpen(false)}
-        handleSave={handleEditSave}
-        initialName={group.name}
-        initialId={group.id}
-        initialTags={group.values}
-        groups={groups}
-        isEditMode={true}
-        queryClient={queryClient}
         project_id={project_id}
+        title="Edit Group and Tags"
+        open={dialogOpen}
+        onClose={toggleDialogOpen}
+        isEditMode={true}
+        groupId={group.id}
       />
     </Card>
   );
@@ -579,23 +450,21 @@ const Group = ({ group, groups }) => {
 
 const TagCard = () => {
   const project_id = useContext(ProjectContext);
-  const queryClient = useQueryClient();
-
-  const [groupDialogOpen, setGroupDialogOpen] = React.useState(false);
+  const [dialogOpen, toggleDialogOpen] = useToggle();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const { data, isLoading } = useQuery(
-    ["fetchInfo", { project_id: project_id }],
-    ProjectAPI.fetchInfo,
+    ["fetchTags", { project_id: project_id }],
+    ProjectAPI.fetchTags,
     {
       refetchOnWindowFocus: false,
     },
   );
 
-  const tags = data?.tags || [];
+  console.log(data);
 
   return (
-    <Card sx={{ position: "relative" }}>
+    <Card>
       <LoadingCardHeader
         title="Labeling tags"
         subheader="Tags and tag groups are used to label records with additional information."
@@ -622,7 +491,9 @@ const TagCard = () => {
         {isLoading ? (
           <Skeleton variant="rectangular" height={56} />
         ) : (
-          tags.map((c) => <Group group={c} key={c.id} groups={tags} />)
+          data.map((c) => (
+            <Group key={c.id} group={c} project_id={project_id} />
+          ))
         )}
       </CardContent>
 
@@ -632,17 +503,13 @@ const TagCard = () => {
         ) : (
           <>
             <MutateGroupDialog
-              title="Add group of tags"
-              open={groupDialogOpen}
-              handleClose={() => setGroupDialogOpen(false)}
-              groups={tags}
-              queryClient={queryClient}
               project_id={project_id}
+              title="Add group of tags"
+              open={dialogOpen}
+              onClose={toggleDialogOpen}
+              isEditMode={false}
             />
-            <Button
-              onClick={() => setGroupDialogOpen(true)}
-              variant="contained"
-            >
+            <Button onClick={toggleDialogOpen} variant="contained">
               Add tags
             </Button>
           </>

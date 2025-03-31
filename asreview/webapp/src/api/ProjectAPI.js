@@ -582,6 +582,45 @@ class ProjectAPI {
     });
   }
 
+  static fetchTags({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `projects/${project_id}/tags`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          console.log(result["data"]);
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static mutateTags(variables) {
+    let body = new FormData();
+    body.set("tags", JSON.stringify(variables.tags));
+
+    console.log(JSON.stringify(variables.tags));
+
+    const url = api_url + `projects/${variables.project_id}/tags`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: body,
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static fetchGenericData({ queryKey }) {
     const { project_id, includePrior } = queryKey[1];
     const url = api_url + `projects/${project_id}/progress_data`;

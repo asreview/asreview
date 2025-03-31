@@ -356,9 +356,6 @@ def api_update_project_info(project):  # noqa: F401
 
     update_dict = request.form.to_dict()
 
-    if "tags" in update_dict:
-        update_dict["tags"] = json.loads(update_dict["tags"])
-
     if "name" in update_dict:
         if len(update_dict["name"]) == 0:
             raise ValueError("Project title should be at least 1 character")
@@ -952,6 +949,46 @@ def api_import_project():
 
     project.config["roles"] = {"owner": True}
     return jsonify({"data": project.config, "warnings": warnings})
+
+
+@bp.route("/projects/<project_id>/tags", methods=["GET"])
+@login_required
+@project_authorization
+def get_tags(project):
+    tags_path = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "tags.json",
+    )
+
+    try:
+        with open(tags_path, "r") as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify([])
+    except Exception as err:
+        logging.exception(err)
+        return jsonify([]), 500
+
+
+@bp.route("/projects/<project_id>/tags", methods=["POST"])
+@login_required
+@project_authorization
+def set_tags(project):
+    tags_path = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "tags.json",
+    )
+
+    tags = json.loads(request.form.get("tags", "[]"))
+
+    with open(tags_path, "w") as f:
+        json.dump(tags, f)
+
+    return jsonify(tags)
 
 
 def _flatten_tags(results, tags_config):
