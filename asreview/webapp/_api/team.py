@@ -1,7 +1,6 @@
 from flask import Blueprint
 from flask import jsonify
 from flask_login import current_user
-from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
 
 import asreview as asr
