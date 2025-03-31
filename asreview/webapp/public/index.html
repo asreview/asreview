@@ -4,7 +4,16 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta
+      name="theme-color"
+      content="#7a6958"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#a69c8b"
+      media="(prefers-color-scheme: dark)"
+    />
     <meta name="description" content="Smart software for systematic reviews." />
     <script type="text/javascript">
       window.api_url = "%REACT_APP_API_URL%";
@@ -15,7 +24,7 @@
       window.emailVerification = %REACT_APP_EMAIL_VERIFICATION%;
       window.oAuthData = %REACT_APP_OAUTH%;
     </script>
-    <!-- <link rel="manifest" href="%PUBLIC_URL%/manifest.json" /> -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>ASReview LAB - A tool for AI-assisted systematic reviews</title>
   </head>
   <body>

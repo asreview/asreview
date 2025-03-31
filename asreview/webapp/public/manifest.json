@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "ASReview LAB",
+  "name": "ASReview LAB",
+  "description": "ASReview LAB accelerates systematic reviews by using machine learning to prioritize records for screening.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,6 +11,21 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#7a6958",
+  "background_color": "#fffcf7",
+  "theme_color_dark": "#a69c8b",
+  "background_color_dark": "#16130b",
+  "lang": "en",
+  "categories": ["productivity", "education", "science"],
+  "shortcuts": [
+    {
+      "name": "Start New Review",
+      "short_name": "New Review",
+      "description": "Start a new systematic review",
+      "url": "/reviews",
+      "icons": [
+        { "src": "shortcut-icon.png", "sizes": "192x192", "type": "image/png" }
+      ]
+    }
+  ]
 }
