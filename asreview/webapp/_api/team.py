@@ -86,6 +86,8 @@ def pending_invitations():
                 "id": p.id,
                 "project_id": p.project_id,
                 "owner_id": p.owner_id,
+                "owner_name": p.owner.get_name(),
+                "owner_affiliation": p.owner.affiliation,
                 "name": asreview_object.config["name"],
                 "created_at_unix": asreview_object.config["created_at_unix"],
                 "mode": asreview_object.config["mode"],
