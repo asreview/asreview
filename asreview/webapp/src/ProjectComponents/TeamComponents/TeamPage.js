@@ -38,7 +38,7 @@ const TeamPage = () => {
   };
 
   useQuery(["fetchUsers", project_id], TeamAPI.fetchUsers, {
-    refetchOnWindowFocus: false,
+    refetchInterval: 10000,
     onSuccess: (data) => {
       const selectables = [];
       const members = [];
