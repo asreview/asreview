@@ -227,18 +227,18 @@ const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
   );
 };
 
-function nameToId(name) {
-  // Generate a suggested ID based on name
+function labelToExport(label) {
+  // Generate a suggested ID based on label
   // since Ids may be used later in data analysis code we suggest simple ascii
   // with no spaces but this is not required
-  return name
+  return label
     .toLowerCase()
     .replaceAll(/\s+/g, "_")
     .replaceAll(/[^a-z0-9_]/g, "");
 }
 
 function idsUnique(items) {
-  const idList = items.filter((x) => x.name && x.id).map((t) => t.id);
+  const idList = items.filter((x) => x.label && x.id).map((t) => t.id);
   const idSet = new Set(idList);
   return idSet.size === idList.length;
 }
@@ -250,19 +250,19 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
 
   const [state, setState] = React.useState(
     group || {
-      name: "",
+      label: "",
       id: "",
       tags: [
         {
-          name: "",
+          label: "",
           id: "",
         },
         {
-          name: "",
+          label: "",
           id: "",
         },
         {
-          name: "",
+          label: "",
           id: "",
         },
       ],
@@ -297,11 +297,11 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
     },
   );
 
-  const handleGroupNameChange = (e) => {
+  const handleGroupLabelChange = (e) => {
     setState((prev) => ({
       ...prev,
-      name: e.target.value,
-      id: nameToId(e.target.value),
+      label: e.target.value,
+      id: labelToExport(e.target.value),
     }));
   };
 
@@ -312,12 +312,12 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
     }));
   };
 
-  const handleTagNameChange = (index, e) => {
+  const handleTagLabelChange = (index, e) => {
     setState((prev) => ({
       ...prev,
       tags: prev.tags.map((tag, i) =>
         i === index
-          ? { ...tag, name: e.target.value, id: nameToId(e.target.value) }
+          ? { ...tag, label: e.target.value, id: labelToExport(e.target.value) }
           : tag,
       ),
     }));
@@ -338,7 +338,7 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
       tags: [
         ...prev.tags,
         {
-          name: "",
+          label: "",
           id: "",
         },
       ],
@@ -346,14 +346,12 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
   };
 
   const onSave = () => {
-    console.log(group?.id, "group?.id");
     if (group?.id) {
-      console.log("mutateTagGroup");
       mutateTagGroup({
         project_id,
         group: {
           ...state,
-          tags: state.tags.filter((tag) => tag.name && tag.id),
+          tags: state.tags.filter((tag) => tag.label && tag.id),
         },
       });
     } else {
@@ -361,7 +359,7 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
         project_id,
         group: {
           ...state,
-          tags: state.tags.filter((tag) => tag.name && tag.id),
+          tags: state.tags.filter((tag) => tag.label && tag.id),
         },
       });
     }
@@ -378,16 +376,16 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
           <Stack direction="row" spacing={3}>
             <TextField
               fullWidth
-              id="group-name"
-              label="Name"
-              value={state.name}
-              onChange={handleGroupNameChange}
+              id="group-label"
+              label="Label"
+              value={state.label}
+              onChange={handleGroupLabelChange}
               helperText=" "
             />
             <TextField
               fullWidth
               id="group-id"
-              label="Export label"
+              label="Export name"
               value={state.id}
               onChange={handleGroupIdChange}
             />
@@ -399,15 +397,15 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
             <Stack direction="row" spacing={3} key={index}>
               <TextField
                 fullWidth
-                id={`tag-name-${index}`}
-                label="Name"
-                value={tag.name}
-                onChange={(e) => handleTagNameChange(index, e)}
+                id={`tag-label-${index}`}
+                label="Label"
+                value={tag.label}
+                onChange={(e) => handleTagLabelChange(index, e)}
               />
               <TextField
                 fullWidth
                 id={`tag-id-${index}`}
-                label="Export label"
+                label="Export name"
                 value={tag.id}
                 onChange={(e) => handleTagIdChange(index, e)}
               />
@@ -447,7 +445,7 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
         <Button onClick={onClose}>Cancel</Button>
         <Button
           onClick={onSave}
-          disabled={!state.name || !state.id || !idsUnique(state.tags)}
+          disabled={!state.label || !state.id || !idsUnique(state.tags)}
         >
           {group?.id ? "Save" : "Create Group"}
         </Button>
@@ -462,7 +460,7 @@ const Group = ({ project_id, group }) => {
   return (
     <Card sx={{ mb: 2, bgcolor: "background.default" }}>
       <CardHeader
-        title={group.name}
+        title={group.label}
         action={
           <Tooltip title="Edit Group">
             <IconButton onClick={toggleDialogOpen}>
@@ -474,7 +472,7 @@ const Group = ({ project_id, group }) => {
       <CardContent>
         <Stack direction="row" spacing={1} flexWrap="wrap">
           {group.tags.map((t) => (
-            <Chip key={t.id} label={`${t.name} (${t.id})`} />
+            <Chip key={t.id} label={`${t.label} (${t.id})`} />
           ))}
         </Stack>
       </CardContent>
@@ -501,8 +499,6 @@ const TagCard = () => {
       refetchOnWindowFocus: false,
     },
   );
-
-  console.log("Data refresh", data);
 
   return (
     <Card>

@@ -1029,8 +1029,8 @@ def update_tag_group(project, group_id):
     if "id" not in updated_tag_group:
         return jsonify(message="No tag group ID found."), 400
 
-    if "name" not in updated_tag_group:
-        return jsonify(message="No tag group name found."), 400
+    if "label" not in updated_tag_group:
+        return jsonify(message="No tag group label found."), 400
 
     try:
         with open(tags_path, "r") as f:
