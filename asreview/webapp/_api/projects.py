@@ -988,11 +988,22 @@ def create_tag_group(project):
     if not new_tag_group:
         return jsonify(message="No tag group found."), 400
 
+    def add_id_to_tags(group, group_id=0):
+        group["id"] = group_id
+        for i, tag in enumerate(group["tags"]):
+            group["tags"][i]["id"] = i
+
+        return group
+
     try:
         with open(tags_path, "r") as f:
             tags = json.load(f)
 
-        tags.append(new_tag_group)
+        tags.append(
+            add_id_to_tags(
+                new_tag_group, group_id=max([g["id"] for g in tags], default=0) + 1
+            )
+        )
 
         with open(tags_path, "w") as f:
             json.dump(tags, f)
@@ -1000,6 +1011,8 @@ def create_tag_group(project):
         return jsonify(tags)
 
     except FileNotFoundError:
+        new_tag_group = add_id_to_tags(new_tag_group)
+
         with open(tags_path, "w") as f:
             json.dump([new_tag_group], f)
 
@@ -1009,7 +1022,7 @@ def create_tag_group(project):
         return jsonify(message="Failed to create tag group."), 500
 
 
-@bp.route("/projects/<project_id>/tags/<group_id>", methods=["PUT"])
+@bp.route("/projects/<project_id>/tags/<int:group_id>", methods=["PUT"])
 @login_required
 @project_authorization
 def update_tag_group(project, group_id):
@@ -1026,25 +1039,27 @@ def update_tag_group(project, group_id):
     if not updated_tag_group:
         return jsonify(message="No tag group found."), 400
 
-    if "id" not in updated_tag_group:
-        return jsonify(message="No tag group ID found."), 400
-
     if "label" not in updated_tag_group:
         return jsonify(message="No tag group label found."), 400
 
+    if "export" not in updated_tag_group:
+        return jsonify(message="No tag group export found."), 400
+
     try:
         with open(tags_path, "r") as f:
-            tags = json.load(f)
+            groups = json.load(f)
 
-        group_index = next((i for i, g in enumerate(tags) if g["id"] == group_id), None)
+        group_index = next(
+            (i for i, g in enumerate(groups) if g["id"] == group_id), None
+        )
 
         if group_index is None:
             return jsonify(message=f"Tag group '{group_id}' not found."), 404
 
-        tags[group_index] = updated_tag_group
+        groups[group_index] = updated_tag_group
 
         with open(tags_path, "w") as f:
-            json.dump(tags, f)
+            json.dump(groups, f)
 
         return jsonify(updated_tag_group)
     except FileNotFoundError:

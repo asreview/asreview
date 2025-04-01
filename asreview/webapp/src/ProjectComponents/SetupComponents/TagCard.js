@@ -251,19 +251,19 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
   const [state, setState] = React.useState(
     group || {
       label: "",
-      id: "",
+      export: "",
       tags: [
         {
           label: "",
-          id: "",
+          export: "",
         },
         {
           label: "",
-          id: "",
+          export: "",
         },
         {
           label: "",
-          id: "",
+          export: "",
         },
       ],
     },
@@ -275,7 +275,7 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
       mutationKey: ["createTagGroup"],
       onSuccess: () => {
         queryClient.invalidateQueries(["fetchTagGroups", { project_id }]);
-        onClose();
+        closeDialog();
       },
       onError: (error) => {
         console.error("An error occurred while saving the tag group:", error);
@@ -289,7 +289,7 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
       mutationKey: ["mutateTagGroup"],
       onSuccess: () => {
         queryClient.invalidateQueries(["fetchTagGroups", { project_id }]);
-        onClose();
+        closeDialog();
       },
       onError: (error) => {
         console.error("An error occurred while saving the tag group:", error);
@@ -301,14 +301,14 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
     setState((prev) => ({
       ...prev,
       label: e.target.value,
-      id: labelToExport(e.target.value),
+      export: labelToExport(e.target.value),
     }));
   };
 
-  const handleGroupIdChange = (e) => {
+  const handleGroupExportChange = (e) => {
     setState((prev) => ({
       ...prev,
-      id: e.target.value,
+      export: e.target.value,
     }));
   };
 
@@ -317,17 +317,21 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
       ...prev,
       tags: prev.tags.map((tag, i) =>
         i === index
-          ? { ...tag, label: e.target.value, id: labelToExport(e.target.value) }
+          ? {
+              ...tag,
+              label: e.target.value,
+              export: labelToExport(e.target.value),
+            }
           : tag,
       ),
     }));
   };
 
-  const handleTagIdChange = (index, e) => {
+  const handleTagExportChange = (index, e) => {
     setState((prev) => ({
       ...prev,
       tags: prev.tags.map((tag, i) =>
-        i === index ? { ...tag, id: e.target.value } : tag,
+        i === index ? { ...tag, export: e.target.value } : tag,
       ),
     }));
   };
@@ -339,19 +343,43 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
         ...prev.tags,
         {
           label: "",
-          id: "",
+          export: "",
         },
       ],
     }));
   };
 
+  const closeDialog = () => {
+    if (group == null) {
+      setState({
+        label: "",
+        export: "",
+        tags: [
+          {
+            label: "",
+            export: "",
+          },
+          {
+            label: "",
+            export: "",
+          },
+          {
+            label: "",
+            export: "",
+          },
+        ],
+      });
+    }
+    onClose();
+  };
+
   const onSave = () => {
-    if (group?.id) {
+    if (group !== null) {
       mutateTagGroup({
         project_id,
         group: {
           ...state,
-          tags: state.tags.filter((tag) => tag.label && tag.id),
+          tags: state.tags.filter((tag) => tag.label && tag.export),
         },
       });
     } else {
@@ -359,16 +387,16 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
         project_id,
         group: {
           ...state,
-          tags: state.tags.filter((tag) => tag.label && tag.id),
+          tags: state.tags.filter((tag) => tag.label && tag.export),
         },
       });
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullScreen={smallScreen}>
+    <Dialog open={open} onClose={closeDialog} fullScreen={smallScreen}>
       <DialogTitle>
-        {group?.id ? "Edit group of tags" : "Add group of tags"}
+        {group !== null ? "Edit group of tags" : "Add group of tags"}
       </DialogTitle>
       <DialogContent>
         <Stack spacing={3}>
@@ -386,8 +414,8 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
               fullWidth
               id="group-id"
               label="Export name"
-              value={state.id}
-              onChange={handleGroupIdChange}
+              value={state.export}
+              onChange={handleGroupExportChange}
             />
           </Stack>
         </Stack>
@@ -406,8 +434,8 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
                 fullWidth
                 id={`tag-id-${index}`}
                 label="Export name"
-                value={tag.id}
-                onChange={(e) => handleTagIdChange(index, e)}
+                value={tag.export}
+                onChange={(e) => handleTagExportChange(index, e)}
               />
             </Stack>
           ))}
@@ -425,11 +453,6 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
           </Tooltip>
         </Stack>
 
-        <Typography variant="body2" sx={{ color: "text.secondary", pt: 2 }}>
-          Export labels are available when exporting your results. They must be
-          unique and can't be changed after creating the group.
-        </Typography>
-
         {mutateError && (
           <Alert severity="error" sx={{ mt: 2 }}>
             {mutateError?.message}
@@ -442,12 +465,9 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button
-          onClick={onSave}
-          disabled={!state.label || !state.id || !idsUnique(state.tags)}
-        >
-          {group?.id ? "Save" : "Create Group"}
+        <Button onClick={closeDialog}>Cancel</Button>
+        <Button onClick={onSave} disabled={!state.label || !state.export}>
+          {group !== null ? "Save" : "Create Group"}
         </Button>
       </DialogActions>
     </Dialog>
@@ -471,8 +491,8 @@ const Group = ({ project_id, group }) => {
       />
       <CardContent>
         <Stack direction="row" spacing={1} flexWrap="wrap">
-          {group.tags.map((t) => (
-            <Chip key={t.id} label={`${t.label} (${t.id})`} />
+          {group.tags.map((t, index) => (
+            <Chip key={index} label={`${t.label} (${t.export})`} />
           ))}
         </Stack>
       </CardContent>
@@ -528,8 +548,8 @@ const TagCard = () => {
         {isLoading ? (
           <Skeleton variant="rectangular" height={56} />
         ) : (
-          data.map((c) => (
-            <Group key={c.id} group={c} project_id={project_id} />
+          data.map((c, index) => (
+            <Group key={index} group={c} project_id={project_id} />
           ))
         )}
       </CardContent>

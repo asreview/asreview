@@ -212,7 +212,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                           }}
                         >
                           <Typography>{learner.label}</Typography>
-                          {!learner.is_available && (
+                          {/* {!learner.is_available && (
                             <Box
                               sx={{ display: "flex", flexDirection: "column" }}
                             >
@@ -253,7 +253,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                                 Learn more →
                               </Box>
                             </Box>
-                          )}
+                          )} */}
                         </Stack>
                       </MenuItem>
                     ))}

@@ -154,10 +154,6 @@ class ProjectAPI {
       body.set("description", variables.description);
     }
 
-    if (variables.tags !== undefined) {
-      body.set("tags", JSON.stringify(variables.tags));
-    }
-
     const url = api_url + `projects/${variables.project_id}/info`;
     return new Promise((resolve, reject) => {
       axios({
@@ -599,8 +595,6 @@ class ProjectAPI {
   }
 
   static createTagGroup(variables) {
-    console.log("------createTagGroup-----", variables.group);
-
     let body = new FormData();
     body.set("group", JSON.stringify(variables.group));
 
@@ -622,8 +616,6 @@ class ProjectAPI {
   }
 
   static mutateTagGroup(variables) {
-    console.log("----mutateTagGroup-------", variables.group);
-
     let body = new FormData();
     body.set("group", JSON.stringify(variables.group));
 
