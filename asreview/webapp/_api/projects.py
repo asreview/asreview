@@ -954,7 +954,7 @@ def api_import_project():
 @bp.route("/projects/<project_id>/tags", methods=["GET"])
 @login_required
 @project_authorization
-def get_tags(project):
+def get_tag_groups(project):
     tags_path = Path(
         project.project_path,
         "reviews",
@@ -975,7 +975,7 @@ def get_tags(project):
 @bp.route("/projects/<project_id>/tags", methods=["POST"])
 @login_required
 @project_authorization
-def set_tags(project):
+def create_tag_group(project):
     tags_path = Path(
         project.project_path,
         "reviews",
@@ -983,12 +983,75 @@ def set_tags(project):
         "tags.json",
     )
 
-    tags = json.loads(request.form.get("tags", "[]"))
+    new_tag_group = json.loads(request.form.get("group", "[]"))
 
-    with open(tags_path, "w") as f:
-        json.dump(tags, f)
+    if not new_tag_group:
+        return jsonify(message="No tag group found."), 400
 
-    return jsonify(tags)
+    try:
+        with open(tags_path, "r") as f:
+            tags = json.load(f)
+
+        tags.append(new_tag_group)
+
+        with open(tags_path, "w") as f:
+            json.dump(tags, f)
+
+        return jsonify(tags)
+
+    except FileNotFoundError:
+        with open(tags_path, "w") as f:
+            json.dump([new_tag_group], f)
+
+        return jsonify([new_tag_group])
+    except Exception as err:
+        logging.exception(err)
+        return jsonify(message="Failed to create tag group."), 500
+
+
+@bp.route("/projects/<project_id>/tags/<group_id>", methods=["PUT"])
+@login_required
+@project_authorization
+def update_tag_group(project, group_id):
+    """Update a single tag group by its ID."""
+    tags_path = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "tags.json",
+    )
+
+    updated_tag_group = json.loads(request.form.get("group", "[]"))
+
+    if not updated_tag_group:
+        return jsonify(message="No tag group found."), 400
+
+    if "id" not in updated_tag_group:
+        return jsonify(message="No tag group ID found."), 400
+
+    if "name" not in updated_tag_group:
+        return jsonify(message="No tag group name found."), 400
+
+    try:
+        with open(tags_path, "r") as f:
+            tags = json.load(f)
+
+        group_index = next((i for i, g in enumerate(tags) if g["id"] == group_id), None)
+
+        if group_index is None:
+            return jsonify(message=f"Tag group '{group_id}' not found."), 404
+
+        tags[group_index] = updated_tag_group
+
+        with open(tags_path, "w") as f:
+            json.dump(tags, f)
+
+        return jsonify(updated_tag_group)
+    except FileNotFoundError:
+        return jsonify(message=f"Tag group '{group_id}' not found."), 404
+    except Exception as err:
+        logging.exception(err)
+        return jsonify(message="Failed to update tag group."), 500
 
 
 def _flatten_tags(results, tags_config):
@@ -1463,64 +1526,3 @@ def api_resolve_uri():  # noqa: F401
                 raise ValueError("Can't retrieve files for this DOI.")
             else:
                 raise ValueError("Can't retrieve files for this URL.")
-
-
-@bp.route("/projects/<project_id>/tags/<group_id>", methods=["GET"])
-@login_required
-@project_authorization
-def get_single_tag_group(project, group_id):
-    """Retrieve a single tag group by its ID."""
-    tags_path = Path(
-        project.project_path,
-        "reviews",
-        project.reviews[0]["id"],
-        "tags.json",
-    )
-
-    try:
-        with open(tags_path, "r") as f:
-            tags = json.load(f)
-            group = next((g for g in tags if g["id"] == group_id), None)
-            if group is None:
-                return jsonify(message="Tag group not found."), 404
-            return jsonify(group)
-    except FileNotFoundError:
-        return jsonify(message="Tags file not found."), 404
-    except Exception as err:
-        logging.exception(err)
-        return jsonify(message="Failed to retrieve tag group."), 500
-
-
-@bp.route("/projects/<project_id>/tags/<group_id>", methods=["POST"])
-@login_required
-@project_authorization
-def update_single_tag_group(project, group_id):
-    """Update a single tag group by its ID."""
-    tags_path = Path(
-        project.project_path,
-        "reviews",
-        project.reviews[0]["id"],
-        "tags.json",
-    )
-
-    try:
-        with open(tags_path, "r") as f:
-            tags = json.load(f)
-
-        updated_group = request.json
-        group_index = next((i for i, g in enumerate(tags) if g["id"] == group_id), None)
-
-        if group_index is None:
-            return jsonify(message="Tag group not found."), 404
-
-        tags[group_index] = updated_group
-
-        with open(tags_path, "w") as f:
-            json.dump(tags, f)
-
-        return jsonify(updated_group)
-    except FileNotFoundError:
-        return jsonify(message="Tags file not found."), 404
-    except Exception as err:
-        logging.exception(err)
-        return jsonify(message="Failed to update tag group."), 500

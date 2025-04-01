@@ -2,6 +2,7 @@ import { axiosErrorHandler } from "./axiosErrorHandler";
 import { api_url } from "globals.js";
 import axios from "axios";
 import qs from "qs";
+import { ContinuousColorLegend } from "@mui/x-charts";
 
 class ProjectAPI {
   static fetchProjects({ queryKey }) {
@@ -582,14 +583,13 @@ class ProjectAPI {
     });
   }
 
-  static fetchTags({ queryKey }) {
+  static fetchTagGroups({ queryKey }) {
     const { project_id } = queryKey[1];
     const url = api_url + `projects/${project_id}/tags`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, { withCredentials: true })
         .then((result) => {
-          console.log(result["data"]);
           resolve(result["data"]);
         })
         .catch((error) => {
@@ -598,9 +598,11 @@ class ProjectAPI {
     });
   }
 
-  static mutateTags(variables) {
+  static createTagGroup(variables) {
+    console.log("------createTagGroup-----", variables.group);
+
     let body = new FormData();
-    body.set("tags", JSON.stringify(variables.tags));
+    body.set("group", JSON.stringify(variables.group));
 
     const url = api_url + `projects/${variables.project_id}/tags`;
     return new Promise((resolve, reject) => {
@@ -619,29 +621,19 @@ class ProjectAPI {
     });
   }
 
-  static fetchTagGroup({ queryKey }) {
-    const { project_id, group_id } = queryKey[1];
-    const url = api_url + `projects/${project_id}/tags/${group_id}`;
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url, { withCredentials: true })
-        .then((result) => {
-          resolve(result["data"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static mutateTagGroup(variables) {
+    console.log("----mutateTagGroup-------", variables.group);
+
+    let body = new FormData();
+    body.set("group", JSON.stringify(variables.group));
+
     const url =
-      api_url + `projects/${variables.project_id}/tags/${variables.group_id}`;
+      api_url + `projects/${variables.project_id}/tags/${variables.group.id}`;
     return new Promise((resolve, reject) => {
       axios({
-        method: "post",
+        method: "put",
         url: url,
-        data: JSON.stringify(variables.group),
+        data: body,
         withCredentials: true,
       })
         .then((result) => {
