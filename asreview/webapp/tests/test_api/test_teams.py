@@ -10,7 +10,7 @@ import asreview.webapp.tests.utils.api_utils as au
 
 def verify_user_summary(response_json, user):
     return all(
-        k in response_json and response_json[k] == v 
+        k in response_json and response_json[k] == v
         for k, v in user.summarize().items()
     )
 
@@ -125,9 +125,7 @@ def test_view_collaboration_team_with_accepted_invitation(setup_auth):
     # checks team
     r = au.list_collaborators(client, project)
     assert r.status_code == 200
-    assert {
-        item["id"] for item in r.json if item["member"]
-    } == {user1.id, user2.id}
+    assert {item["id"] for item in r.json if item["member"]} == {user1.id, user2.id}
     assert [item["id"] for item in r.json if item["pending"]] == []
 
 
