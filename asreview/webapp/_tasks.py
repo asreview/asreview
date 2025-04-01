@@ -74,7 +74,7 @@ def run_model(project):
             cycle = asr.ActiveLearningCycle.from_meta(cycle_data)
             fm = project.data_store.get_df().values
 
-        if cycle.classifier:
+        if cycle.classifier is not None:
             cycle.fit(
                 fm[labeled["record_id"].values],
                 labeled["label"].values,
