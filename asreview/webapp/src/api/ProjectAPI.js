@@ -602,14 +602,46 @@ class ProjectAPI {
     let body = new FormData();
     body.set("tags", JSON.stringify(variables.tags));
 
-    console.log(JSON.stringify(variables.tags));
-
     const url = api_url + `projects/${variables.project_id}/tags`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
         url: url,
         data: body,
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static fetchTagGroup({ queryKey }) {
+    const { project_id, group_id } = queryKey[1];
+    const url = api_url + `projects/${project_id}/tags/${group_id}`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static mutateTagGroup(variables) {
+    const url =
+      api_url + `projects/${variables.project_id}/tags/${variables.group_id}`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: JSON.stringify(variables.group),
         withCredentials: true,
       })
         .then((result) => {

@@ -1463,3 +1463,64 @@ def api_resolve_uri():  # noqa: F401
                 raise ValueError("Can't retrieve files for this DOI.")
             else:
                 raise ValueError("Can't retrieve files for this URL.")
+
+
+@bp.route("/projects/<project_id>/tags/<group_id>", methods=["GET"])
+@login_required
+@project_authorization
+def get_single_tag_group(project, group_id):
+    """Retrieve a single tag group by its ID."""
+    tags_path = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "tags.json",
+    )
+
+    try:
+        with open(tags_path, "r") as f:
+            tags = json.load(f)
+            group = next((g for g in tags if g["id"] == group_id), None)
+            if group is None:
+                return jsonify(message="Tag group not found."), 404
+            return jsonify(group)
+    except FileNotFoundError:
+        return jsonify(message="Tags file not found."), 404
+    except Exception as err:
+        logging.exception(err)
+        return jsonify(message="Failed to retrieve tag group."), 500
+
+
+@bp.route("/projects/<project_id>/tags/<group_id>", methods=["POST"])
+@login_required
+@project_authorization
+def update_single_tag_group(project, group_id):
+    """Update a single tag group by its ID."""
+    tags_path = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "tags.json",
+    )
+
+    try:
+        with open(tags_path, "r") as f:
+            tags = json.load(f)
+
+        updated_group = request.json
+        group_index = next((i for i, g in enumerate(tags) if g["id"] == group_id), None)
+
+        if group_index is None:
+            return jsonify(message="Tag group not found."), 404
+
+        tags[group_index] = updated_group
+
+        with open(tags_path, "w") as f:
+            json.dump(tags, f)
+
+        return jsonify(updated_group)
+    except FileNotFoundError:
+        return jsonify(message="Tags file not found."), 404
+    except Exception as err:
+        logging.exception(err)
+        return jsonify(message="Failed to update tag group."), 500
