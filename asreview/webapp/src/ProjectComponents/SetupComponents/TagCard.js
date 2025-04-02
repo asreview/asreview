@@ -394,7 +394,13 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
   };
 
   return (
-    <Dialog open={open} onClose={closeDialog} fullScreen={smallScreen}>
+    <Dialog
+      open={open}
+      onClose={closeDialog}
+      fullScreen={smallScreen}
+      fullWidth
+      maxWidth="md"
+    >
       <DialogTitle>
         {group !== null ? "Edit group of tags" : "Add group of tags"}
       </DialogTitle>
@@ -466,7 +472,14 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={closeDialog}>Cancel</Button>
-        <Button onClick={onSave} disabled={!state.label || !state.export}>
+        <Button
+          onClick={onSave}
+          disabled={
+            !state.label ||
+            !state.export ||
+            state.values.filter((tag) => tag.label && tag.export).length === 0
+          }
+        >
           {group !== null ? "Save" : "Create Group"}
         </Button>
       </DialogActions>
