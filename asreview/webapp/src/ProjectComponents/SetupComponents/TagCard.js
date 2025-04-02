@@ -252,7 +252,7 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
     group || {
       label: "",
       export: "",
-      tags: [
+      values: [
         {
           label: "",
           export: "",
@@ -315,7 +315,7 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
   const handleTagLabelChange = (index, e) => {
     setState((prev) => ({
       ...prev,
-      tags: prev.tags.map((tag, i) =>
+      values: prev.values.map((tag, i) =>
         i === index
           ? {
               ...tag,
@@ -330,7 +330,7 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
   const handleTagExportChange = (index, e) => {
     setState((prev) => ({
       ...prev,
-      tags: prev.tags.map((tag, i) =>
+      values: prev.values.map((tag, i) =>
         i === index ? { ...tag, export: e.target.value } : tag,
       ),
     }));
@@ -339,8 +339,8 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
   const addTag = () => {
     setState((prev) => ({
       ...prev,
-      tags: [
-        ...prev.tags,
+      values: [
+        ...prev.values,
         {
           label: "",
           export: "",
@@ -354,7 +354,7 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
       setState({
         label: "",
         export: "",
-        tags: [
+        values: [
           {
             label: "",
             export: "",
@@ -379,7 +379,7 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
         project_id,
         group: {
           ...state,
-          tags: state.tags.filter((tag) => tag.label && tag.export),
+          values: state.values.filter((tag) => tag.label && tag.export),
         },
       });
     } else {
@@ -387,7 +387,7 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
         project_id,
         group: {
           ...state,
-          tags: state.tags.filter((tag) => tag.label && tag.export),
+          values: state.values.filter((tag) => tag.label && tag.export),
         },
       });
     }
@@ -421,7 +421,7 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
         </Stack>
         <Stack spacing={3}>
           <TypographySubtitle1Medium>Tags</TypographySubtitle1Medium>
-          {state.tags.map((tag, index) => (
+          {state.values.map((tag, index) => (
             <Stack direction="row" spacing={3} key={index}>
               <TextField
                 fullWidth
@@ -491,7 +491,7 @@ const Group = ({ project_id, group }) => {
       />
       <CardContent>
         <Stack direction="row" spacing={1} flexWrap="wrap">
-          {group.tags.map((t, index) => (
+          {group.values.map((t, index) => (
             <Chip key={index} label={`${t.label} (${t.export})`} />
           ))}
         </Stack>

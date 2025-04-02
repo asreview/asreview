@@ -68,6 +68,7 @@ from asreview.webapp._tasks import run_model
 from asreview.webapp._tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
+from asreview.webapp._api.utils import read_tags_data
 
 try:
     import importlib.metadata
@@ -503,7 +504,7 @@ def api_search_data(project):  # noqa: F401
         record = project.data_store.get_records(result_id)
         record_d = asdict(record)
         record_d["state"] = None
-        record_d["tags_form"] = project.config.get("tags", None)
+        record_d["tags_form"] = read_tags_data(project)
         result.append(record_d)
 
     return jsonify({"result": result})
@@ -587,7 +588,7 @@ def api_get_labeled(project):  # noqa: F401
     for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
         record_d["state"] = state.to_dict()
-        record_d["tags_form"] = project.config.get("tags", None)
+        record_d["tags_form"] = read_tags_data(project)
 
         if current_app.config.get("AUTHENTICATION", True):
             record_d["state"]["user"] = users.get(record_d["state"]["user_id"], None)
@@ -990,8 +991,8 @@ def create_tag_group(project):
 
     def add_id_to_tags(group, group_id=0):
         group["id"] = group_id
-        for i, tag in enumerate(group["tags"]):
-            group["tags"][i]["id"] = i
+        for i, tag in enumerate(group["values"]):
+            group["values"][i]["id"] = i
 
         return group
 
@@ -1079,7 +1080,9 @@ def _flatten_tags(results, tags_config):
         tags = {}
         for group in row:
             for tag in group["values"]:
-                tags[f"tag_{group['id']}_{tag['id']}"] = int(tag.get("checked", False))
+                tags[f"tag_{group['export']}_{tag['export']}"] = int(
+                    tag.get("checked", False)
+                )
 
         df_tags.append(tags)
 
@@ -1124,7 +1127,7 @@ def api_export_dataset(project):
 
     df_results = _flatten_tags(
         df_results,
-        project.config.get("tags", None),
+        read_tags_data(project),
     )
 
     # remove model results, can be implemented later with advanced export
@@ -1414,7 +1417,7 @@ def api_label_record(project, record_id):  # noqa: F401
 
         item = asdict(project.data_store.get_records(record_id))
         item["state"] = record.iloc[0].to_dict()
-        item["tags_form"] = project.config.get("tags", None)
+        item["tags_form"] = read_tags_data(project)
         item["state"]["user"] = None
         del item["state"]["user_id"]
 
@@ -1464,7 +1467,7 @@ def api_get_record(project):  # noqa: F401
 
     item = asdict(project.data_store.get_records(pending["record_id"].iloc[0]))
     item["state"] = pending.iloc[0].to_dict()
-    item["tags_form"] = project.config.get("tags", None)
+    item["tags_form"] = read_tags_data(project)
     item["state"]["user"] = None
     del item["state"]["user_id"]
 

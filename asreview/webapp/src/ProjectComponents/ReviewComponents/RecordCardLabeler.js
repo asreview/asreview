@@ -213,7 +213,7 @@ const RecordCardLabeler = ({
                 tagsForm.map((group, i) => (
                   <Grid size={landscape ? 2 : { xs: 2, sm: 1 }} key={group.id}>
                     <Stack direction="column" spacing={1}>
-                      <Typography variant="h6">{group.name}</Typography>
+                      <Typography variant="h6">{group.label}</Typography>
                       <FormGroup row={false}>
                         {group.values.map((tag, j) => (
                           <FormControlLabel
@@ -238,7 +238,7 @@ const RecordCardLabeler = ({
                                 }
                               />
                             }
-                            label={tag.name}
+                            label={tag.label}
                           />
                         ))}
                       </FormGroup>
