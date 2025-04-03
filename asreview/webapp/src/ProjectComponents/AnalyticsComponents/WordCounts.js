@@ -125,7 +125,7 @@ const WordCounts = () => {
                   data?.relevant
                     .slice(0, 12)
                     .map((word) => (
-                      <WordTag key={word} word={word} color="tertiary.dark" />
+                      <WordTag key={word} word={word} color="tertiary.main" />
                     ))
                 ) : (
                   <Typography variant="body2" color="text.secondary">

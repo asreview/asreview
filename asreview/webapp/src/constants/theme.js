@@ -35,11 +35,11 @@ export const theme = {
         },
         // custom color for relevant elements
         tertiary: {
-          main: "#ffe08b", // yellow, alternative: e3c46d
-          light: alpha("#ffe08b", 0.5),
-          dark: "#e3c46d",
+          main: "#eec657", // yellow, alternative: e3c46d
+          light: alpha("#efc95d", 0.5),
+          dark: "#ebbb33",
           contrastText:
-            getContrastRatio("#ffe08b", "#000") >= 3 ? "#000" : "#fff",
+            getContrastRatio("#efc95d", "#000") >= 3 ? "#000" : "#fff",
         },
         background: {
           default: "#fffcf7", // #fffdfa
@@ -53,8 +53,8 @@ export const theme = {
         error: { main: "#ba1a1a" },
 
         grey: {
-          400: "#eeedeb",
-          600: "#c9c6bb",
+          400: "#e7e3d9",
+          600: "#bcb8a9",
         },
       },
     },
@@ -88,8 +88,8 @@ export const theme = {
         },
 
         grey: {
-          400: "#1c1c1c",
-          600: "#585858",
+          400: "#47433b",
+          600: "#a89e8d",
         },
       },
     },
