@@ -161,6 +161,7 @@ def create_app(**config_vars):
     @app.route("/signin", methods=["GET"])
     @app.route("/oauth_callback", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
+    @login_remote_user
     def index(**kwargs):
         if isinstance(app.config.get("OAUTH", False), OAuthHandler):
             oauth_params = json.dumps(app.config.get("OAUTH").front_end_params())
