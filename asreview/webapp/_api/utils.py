@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+
 def read_tags_data(project):
     """Read tags data from the tags.json file."""
     tags_path = Path(
@@ -16,3 +17,10 @@ def read_tags_data(project):
         return None
     except Exception as err:
         raise RuntimeError(f"Failed to read tags data: {err}")
+
+
+def add_id_to_tags(group):
+    for i, _ in enumerate(group["values"]):
+        group["values"][i]["id"] = i
+
+    return group

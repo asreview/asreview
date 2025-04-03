@@ -68,7 +68,7 @@ from asreview.webapp._tasks import run_model
 from asreview.webapp._tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
-from asreview.webapp._api.utils import read_tags_data
+from asreview.webapp._api.utils import read_tags_data, add_id_to_tags
 
 try:
     import importlib.metadata
@@ -989,19 +989,16 @@ def create_tag_group(project):
     if not new_tag_group:
         return jsonify(message="No tag group found."), 400
 
-    def add_id_to_tags(group, group_id=0):
+    def add_id_to_tag_group(group, group_id=0):
         group["id"] = group_id
-        for i, tag in enumerate(group["values"]):
-            group["values"][i]["id"] = i
-
-        return group
+        return add_id_to_tags(group)
 
     try:
         with open(tags_path, "r") as f:
             tags = json.load(f)
 
         tags.append(
-            add_id_to_tags(
+            add_id_to_tag_group(
                 new_tag_group, group_id=max([g["id"] for g in tags], default=0) + 1
             )
         )
@@ -1012,7 +1009,7 @@ def create_tag_group(project):
         return jsonify(tags)
 
     except FileNotFoundError:
-        new_tag_group = add_id_to_tags(new_tag_group)
+        new_tag_group = add_id_to_tag_group(new_tag_group)
 
         with open(tags_path, "w") as f:
             json.dump([new_tag_group], f)
@@ -1045,6 +1042,11 @@ def update_tag_group(project, group_id):
 
     if "export" not in updated_tag_group:
         return jsonify(message="No tag group export found."), 400
+
+    if "values" not in updated_tag_group:
+        return jsonify(message="No tag group values found."), 400
+
+    updated_tag_group = add_id_to_tags(updated_tag_group)
 
     try:
         with open(tags_path, "r") as f:
