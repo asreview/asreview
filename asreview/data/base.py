@@ -34,6 +34,7 @@ class BaseReader(ABC):
         "abstract": ["abstract", "notes_abstract", "abstract note"],
         "authors": ["authors", "first_authors", "author names"],
         "included": [
+            "asreview_label",
             "included",
             "label",
             "final_included",
