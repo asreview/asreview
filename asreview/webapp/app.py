@@ -108,13 +108,20 @@ def create_app(**config_vars):
 
         # authentication methods that use non-local users.
         # these methods are mutually exclusive.
-        external_auth_methods = {"OAUTH": OAuthHandler, "REMOTE_USER": RemoteUserHandler}
+        external_auth_methods = {
+            "OAUTH": OAuthHandler,
+            "REMOTE_USER": RemoteUserHandler,
+        }
 
-        configured_external_auth_methods = [  k for k in app.config.keys() if k in external_auth_methods.keys() ]
+        configured_external_auth_methods = [
+            k for k in app.config.keys() if k in external_auth_methods.keys()
+        ]
         if len(configured_external_auth_methods) > 1:
             raise ValueError(
                 "You configured multiple non-local authentication methods: {}. "
-                "This is not supported. Please configure only one.".format(configured_external_auth_methods)
+                "This is not supported. Please configure only one.".format(
+                    configured_external_auth_methods
+                )
             )
         elif configured_external_auth_methods:
             auth_method = configured_external_auth_methods[0]
@@ -188,7 +195,7 @@ def create_app(**config_vars):
             ).lower(),
             email_verification=str(app.config.get("EMAIL_VERIFICATION", False)).lower(),
             oauth=oauth_params,
-            post_logout_url=str(app.config.get("POST_LOGOUT_URL", '/signin')).lower(),
+            post_logout_url=str(app.config.get("POST_LOGOUT_URL", "/signin")).lower(),
         )
 
     @app.route("/", methods=["GET"])
