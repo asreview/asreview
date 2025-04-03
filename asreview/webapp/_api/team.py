@@ -1,7 +1,6 @@
 from flask import Blueprint
 from flask import jsonify
 from flask_login import current_user
-from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
 
 import asreview as asr
@@ -15,31 +14,48 @@ bp = Blueprint("team", __name__, url_prefix="/api")
 REQUESTER_FRAUD = {"message": "Request can not made by current user."}
 
 
+def get_user_project_properties(user, project, current_user):
+    """Retrieve user properties in relation to a project and current user."""
+    result = user.summarize()
+
+    pending = user in project.pending_invitations
+    owner = user.id == project.owner_id
+    member = user in project.collaborators or owner
+    me = user.id == current_user.id
+
+    selectable = not (pending or member or owner)
+    deletable = current_user.id == project.owner_id and (member or pending) and not me
+
+    return dict(
+        result,
+        me=me,
+        pending=pending,
+        owner=owner,
+        member=member,
+        selectable=selectable,
+        deletable=deletable,
+    )
+
+
 @bp.route("/projects/<project_id>/users", methods=["GET"])
 @login_required
 def users(project_id):
     """Returns all users involved in a project."""
-
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
 
-    if project not in current_user.projects:
+    if project not in current_user.projects and project not in current_user.involved_in:
         return jsonify(REQUESTER_FRAUD), 404
 
-    all_users = [
-        u.summarize()
-        for u in User.query.filter(and_(User.public, User.id != current_user.id))
-        .order_by("name")
-        .all()
-    ]
+    users = sorted(
+        [
+            get_user_project_properties(user, project, current_user)
+            for user in User.query.filter(User.public).order_by("name").all()
+        ],
+        key=lambda u: (-u["owner"], u["name"].lower()),
+    )
 
     return (
-        jsonify(
-            {
-                "all_users": all_users,
-                "collaborators": [user.id for user in project.collaborators],
-                "invitations": [user.id for user in project.pending_invitations],
-            }
-        ),
+        jsonify(users),
         200,
     )
 
@@ -63,7 +79,10 @@ def end_collaboration(project_id, user_id):
         try:
             project.collaborators.remove(user)
             DB.session.commit()
-            response = (jsonify({"message": "Collaborator removed from project."}), 200)
+            response = (
+                jsonify(get_user_project_properties(user, project, current_user)),
+                200,
+            )
 
         except SQLAlchemyError:
             response = (jsonify({"message": "Error removing collaborator."}), 404)
@@ -109,7 +128,10 @@ def invite(project_id, user_id):
         project.pending_invitations.append(user)
         try:
             DB.session.commit()
-            response = (jsonify({"message": f'User "{user.identifier}" invited.'}), 200)
+            response = (
+                jsonify(get_user_project_properties(user, project, current_user)),
+                200,
+            )
         except SQLAlchemyError:
             response = (
                 jsonify({"message": f'User "{user.identifier}" not invited.'}),
@@ -186,7 +208,10 @@ def delete_invitation(project_id, user_id):
         project.pending_invitations.remove(user)
         try:
             DB.session.commit()
-            response = jsonify({"message": "Owner deleted invitation."}), 200
+            response = (
+                jsonify(get_user_project_properties(user, project, current_user)),
+                200,
+            )
         except SQLAlchemyError:
             response = jsonify({"message": "Error deleting invitation."}), 404
     return response

@@ -7,23 +7,29 @@ import IconButton from "@mui/material/IconButton";
 
 import { InitialsAvatar } from "StyledComponents/InitialsAvatar";
 
-const UserListEntry = ({ user, onDelete, disabled = false }) => {
+const UserListEntry = ({ user, onRemove }) => {
+  let postfix = "";
+  if (user.pending) postfix = "(pending)";
+  // owner can't have pending status
+  if (user.owner) postfix = "(project owner)";
+
   return (
     <ListItem
       secondaryAction={
-        <IconButton
-          edge="end"
-          onClick={() => onDelete(user.id)}
-          disabled={disabled}
-        >
-          <DeleteIcon />
-        </IconButton>
+        user.deletable && (
+          <IconButton edge="end" onClick={() => onRemove(user)}>
+            <DeleteIcon />
+          </IconButton>
+        )
       }
     >
       <ListItemAvatar>
         <InitialsAvatar name={user.name} />
       </ListItemAvatar>
-      <ListItemText primary={user.name} secondary={user.email} />
+      <ListItemText
+        primary={`${user.name} ${postfix}`}
+        secondary={user.email}
+      />
     </ListItem>
   );
 };
