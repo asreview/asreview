@@ -106,22 +106,31 @@ def create_app(**config_vars):
             # create tables in case they don't exist
             DB.create_all()
 
-        # store oauth config in oauth handler
-        if bool(app.config.get("OAUTH", False)):
-            # set configuration
-            app.config["OAUTH"] = OAuthHandler(app.config["OAUTH"])
-            # check if user set ALLOW_ACCOUNT_CREATION to True, then
-            # raise error
+        # authentication methods that use non-local users.
+        # these methods are mutually exclusive.
+        external_auth_methods = {"OAUTH": OAuthHandler, "REMOTE_USER": RemoteUserHandler}
+
+        configured_external_auth_methods = [  k for k in app.config.keys() if k in external_auth_methods.keys() ]
+        if len(configured_external_auth_methods) > 1:
+            raise ValueError(
+                "You configured multiple non-local authentication methods: {}. "
+                "This is not supported. Please configure only one.".format(configured_external_auth_methods)
+            )
+        elif configured_external_auth_methods:
+            auth_method = configured_external_auth_methods[0]
+            handler = external_auth_methods[auth_method]
+
+            # set configuration for the auth method to a newly initialized handler
+            app.config[auth_method] = handler(app.config[auth_method])
+
             if app.config.get("ALLOW_ACCOUNT_CREATION"):
                 raise ValueError(
-                    "When oAuth is used for authentication, the app "
-                    "will not allow account creation"
+                    "When {} is used for authentication, the app "
+                    "will not allow account creation".format(auth_method)
                 )
-            # explicitly set account creation to False when oAuth is
+            # explicitly set account creation to False
             # used to avoid account conflicts.
             app.config["ALLOW_ACCOUNT_CREATION"] = False
-        if bool(app.config.get("REMOTE_USER", False)):
-            app.config["REMOTE_USER"] = RemoteUserHandler(app.config["REMOTE_USER"])
 
         with app.app_context():
             app.register_blueprint(auth.bp)
