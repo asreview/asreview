@@ -80,6 +80,7 @@ class VectorizerPipeline(Pipeline):
 
     def get_params(self, deep=True, instances=False):
         """Get parameters for this pipeline.
+        
         Parameters
         ----------
         deep: bool, default=True
