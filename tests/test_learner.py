@@ -52,7 +52,7 @@ def test_alc_to_and_from_meta(classifier, feature_extractor):
     alc2_meta = asr.ActiveLearningCycleData(
         classifier=classifier.name,
         classifier_param=classifier_parameters.get(classifier.name),
-        feature_extractor=classifier.name,
+        feature_extractor=feature_extractor.name,
         feature_extractor_param=feature_extractor_parameters.get(
             feature_extractor.name
         ),
@@ -124,7 +124,7 @@ def test_alc_to_and_from_file(tmpdir, classifier, feature_extractor):
     alc2_meta = asr.ActiveLearningCycleData(
         classifier=classifier.name,
         classifier_param=classifier_parameters.get(classifier.name),
-        feature_extractor=classifier.name,
+        feature_extractor=feature_extractor.name,
         feature_extractor_param=feature_extractor_parameters.get(
             feature_extractor.name
         ),
