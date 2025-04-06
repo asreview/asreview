@@ -1,7 +1,6 @@
 import {
   Button,
   Checkbox,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -15,12 +14,17 @@ import {
   Select,
   Stack,
   Switch,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { ProjectAPI } from "api";
 import * as React from "react";
 import { useQuery } from "react-query";
+import { StyledDialog } from "StyledComponents/StyledDialog";
 
 const ExportDialog = ({ project_id, open, onClose }) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [format, setFormat] = React.useState("csv");
   const [subset, setSubset] = React.useState(["relevant"]);
   const [exportName, setExportName] = React.useState(true);
@@ -41,14 +45,20 @@ const ExportDialog = ({ project_id, open, onClose }) => {
       format,
       exportName,
       exportEmail,
-    }).then((response) => {
+    }).then(() => {
       onClose();
     });
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Export records</DialogTitle>
+    <StyledDialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      fullScreen={fullScreen}
+      title="Export records"
+    >
       <DialogContent>
         <FormControl
           component="fieldset"
@@ -60,7 +70,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
             }
           }}
         >
-          <FormLabel component="legend">Select subset(s) to export</FormLabel>
+          <FormLabel component="legend">Select records to export</FormLabel>
           <FormGroup>
             <FormControlLabel
               control={<Checkbox />}
@@ -141,7 +151,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
         <Button onClick={onClose}>Cancel</Button>
         <Button onClick={exportDataset}>Export</Button>
       </DialogActions>
-    </Dialog>
+    </StyledDialog>
   );
 };
 

@@ -3,7 +3,7 @@ import { Dialog, DialogTitle, IconButton, Stack } from "@mui/material";
 
 export function StyledDialog(props) {
   return (
-    <Dialog {...props} PaperProps={{ sx: { overflowY: "clip" } }}>
+    <Dialog {...props} slotProps={{ paper: { sx: { overflowY: "clip" } } }}>
       {!props.fullScreen && (
         <IconButton
           edge="end"
