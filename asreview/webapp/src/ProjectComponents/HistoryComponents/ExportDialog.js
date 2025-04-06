@@ -3,7 +3,6 @@ import {
   Checkbox,
   DialogActions,
   DialogContent,
-  DialogTitle,
   Divider,
   FormControl,
   FormControlLabel,

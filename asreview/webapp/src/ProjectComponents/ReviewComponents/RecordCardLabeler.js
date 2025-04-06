@@ -4,7 +4,6 @@ import {
   CardActions,
   CardContent,
   Checkbox,
-  Chip,
   Dialog,
   DialogActions,
   DialogContent,
