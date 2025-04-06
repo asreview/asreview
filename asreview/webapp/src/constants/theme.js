@@ -115,5 +115,10 @@ export const theme = {
         },
       },
     },
+    MuiAlert: {
+      defaultProps: {
+        variant: "outlined",
+      },
+    },
   },
 };
