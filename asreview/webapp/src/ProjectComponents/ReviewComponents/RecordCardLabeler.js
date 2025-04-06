@@ -468,9 +468,7 @@ const RecordCardLabeler = ({
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        label === 1
-                          ? "Change to irrelevant"
-                          : "Add to collection"
+                        label === 1 ? "Change to irrelevant" : "Add to relevant"
                       }
                     />
                   </MenuItem>
