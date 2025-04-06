@@ -40,13 +40,7 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
   });
 
   const users =
-    project_id && data?.all_users
-      ? data.all_users.filter(
-          (user) =>
-            (data.collaborators || []).includes(user.id) ||
-            (data.invitations || []).includes(user.id),
-        )
-      : [];
+    project_id && data ? data.filter((user) => user.member && !user.me) : [];
 
   const headerActive = useScrollTrigger({
     threshold: 0,
