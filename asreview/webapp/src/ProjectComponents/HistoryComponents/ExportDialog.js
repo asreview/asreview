@@ -13,6 +13,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Stack,
   Switch,
 } from "@mui/material";
 import { ProjectAPI } from "api";
@@ -22,7 +23,8 @@ import { useQuery } from "react-query";
 const ExportDialog = ({ project_id, open, onClose }) => {
   const [format, setFormat] = React.useState("csv");
   const [collections, setCollections] = React.useState(["relevant"]);
-  const [exportUserInfo, setExportUserInfo] = React.useState(true);
+  const [exportName, setExportName] = React.useState(true);
+  const [exportEmail, setExportEmail] = React.useState(true);
 
   const { data } = useQuery(
     ["fetchDatasetWriter", { project_id }],
@@ -37,11 +39,13 @@ const ExportDialog = ({ project_id, open, onClose }) => {
       project_id,
       collections,
       format,
-      user: exportUserInfo,
+      exportName,
+      exportEmail,
     }).then((response) => {
       onClose();
     });
   };
+
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Export records</DialogTitle>
@@ -113,15 +117,26 @@ const ExportDialog = ({ project_id, open, onClose }) => {
         <Divider sx={{ my: "1.5rem" }} />
 
         {window.authentication && (
-          <FormControlLabel
-            control={
-              <Switch
-                checked={exportUserInfo}
-                onChange={(event) => setExportUserInfo(event.target.checked)}
-              />
-            }
-            label="Export name and email of reviewer"
-          />
+          <Stack orientation="vertical" spacing={2}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={exportName}
+                  onChange={(event) => setExportName(event.target.checked)}
+                />
+              }
+              label="Include name of reviewer"
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={exportEmail}
+                  onChange={(event) => setExportEmail(event.target.checked)}
+                />
+              }
+              label="Include email of reviewer"
+            />
+          </Stack>
         )}
       </DialogContent>
       <DialogActions>
