@@ -989,7 +989,7 @@ def create_tag_group(project):
     if not new_tag_group:
         return jsonify(message="No tag group found."), 400
 
-    def add_id_to_tag_group(group, group_id=0):
+    def add_ids_to_group(group, group_id=0):
         group["id"] = group_id
         return add_id_to_tags(group)
 
@@ -998,7 +998,7 @@ def create_tag_group(project):
             tags = json.load(f)
 
         tags.append(
-            add_id_to_tag_group(
+            add_ids_to_group(
                 new_tag_group, group_id=max([g["id"] for g in tags], default=0) + 1
             )
         )
@@ -1009,7 +1009,7 @@ def create_tag_group(project):
         return jsonify(tags)
 
     except FileNotFoundError:
-        new_tag_group = add_id_to_tag_group(new_tag_group)
+        new_tag_group = add_ids_to_group(new_tag_group)
 
         with open(tags_path, "w") as f:
             json.dump([new_tag_group], f)

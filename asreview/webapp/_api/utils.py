@@ -20,10 +20,8 @@ def read_tags_data(project):
 
 
 def add_id_to_tags(group):
-    if "group" not in group:
+    if "values" not in group:
         return group
-
-    # if "values" not in group:
 
     for i, _ in enumerate(group["values"]):
         if "id" in group["values"][i]:
