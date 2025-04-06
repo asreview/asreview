@@ -39,8 +39,8 @@ const LabelHistory = ({
             <Chip
               label={
                 !n_prior_inclusions
-                  ? "My collection"
-                  : `My collection (${n_prior_inclusions})`
+                  ? "Relevant"
+                  : `Relevant (${n_prior_inclusions})`
               }
               color="primary"
               variant={label !== "relevant" ? "outlined" : "filled"}

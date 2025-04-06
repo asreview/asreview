@@ -334,7 +334,7 @@ const RecordCardLabeler = ({
           {editState && (
             <>
               <Tooltip
-                title="Add to my collection (keyboard shortcut: R)"
+                title="Label as relevant (keyboard shortcut: R)"
                 enterDelay={2000}
                 leaveDelay={200}
                 placement="bottom"
@@ -356,7 +356,7 @@ const RecordCardLabeler = ({
                 </Button>
               </Tooltip>
               <Tooltip
-                title="Mark as not relevant (keyboard shortcut: I)"
+                title="Label as irrelevant (keyboard shortcut: I)"
                 enterDelay={2000}
                 leaveDelay={200}
                 placement="bottom"
@@ -418,7 +418,7 @@ const RecordCardLabeler = ({
               )}
               {label === 1 && (
                 <Chip
-                  label="My collection"
+                  label="Relevant"
                   color="primary"
                   sx={(theme) => ({
                     color: theme.palette.getContrastText(

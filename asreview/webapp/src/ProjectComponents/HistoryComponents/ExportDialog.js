@@ -66,7 +66,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
           <FormGroup>
             <FormControlLabel
               control={<Checkbox />}
-              label="My collection"
+              label="Relevant"
               name="relevant"
               checked={collections.includes("relevant")}
             />
