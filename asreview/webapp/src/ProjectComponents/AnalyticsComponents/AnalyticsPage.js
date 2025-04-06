@@ -235,11 +235,11 @@ const AnalyticsPage = () => {
           <DialogContent>
             <Typography>
               {statusData?.status === projectStatuses.FINISHED
-                ? "This will change the project status back to 'In Review'."
-                : "This indicates that you have completed your review."}
+                ? "This will change the project status back to 'In Review'"
+                : "This indicates that you have completed your review"}
             </Typography>
             <Alert severity="info" sx={{ mt: 2 }}>
-              You can always revert this decision by clicking this button again.
+              You can always revert this decision by clicking this button again
             </Alert>
           </DialogContent>
           <DialogActions>
