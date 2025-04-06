@@ -136,8 +136,8 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
         title="AI"
         subheader={
           projectModes.SIMULATION === mode
-            ? "Select or compose an AI to simulate the performance of your review process."
-            : "Select or compose an AI to accelerate your review process."
+            ? "Select or compose an AI to simulate the performance of your review process"
+            : "Select or compose an AI to accelerate your review process"
         }
       />
 

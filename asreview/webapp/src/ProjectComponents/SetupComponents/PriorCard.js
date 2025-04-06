@@ -63,7 +63,7 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
     <Card sx={{ position: "relative" }}>
       <LoadingCardHeader
         title="Prior knowledge"
-        subheader="Prior knowledge helps to warm up and accelerate the AI."
+        subheader="Prior knowledge helps to warm up and accelerate the AI"
         isLoading={isLoading}
       />
 

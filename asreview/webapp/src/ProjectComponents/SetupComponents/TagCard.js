@@ -475,7 +475,7 @@ const TagCard = (props) => {
     <Card sx={{ position: "relative" }}>
       <LoadingCardHeader
         title="Labeling tags"
-        subheader="Tags and tag groups are used to label records with additional information."
+        subheader="Tags and tag groups are used to label records with additional information"
         isLoading={isLoading}
       />
 
