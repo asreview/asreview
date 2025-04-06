@@ -178,7 +178,6 @@ def update_project(
     mode: str = "oracle",
     authors: str = "authors",
     description: str = "description",
-    tags: str = "[]",
 ):
     response = client.put(
         f"/api/projects/{get_project_id(project)}/info",
@@ -187,7 +186,6 @@ def update_project(
             "name": name,
             "authors": authors,
             "description": description,
-            "tags": tags,
         },
     )
     return response

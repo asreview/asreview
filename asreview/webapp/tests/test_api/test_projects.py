@@ -56,6 +56,7 @@ def test_create_projects(client, user):
 
 
 # Test create a project with incorrect tags
+@pytest.mark.skip(reason="tags are not used in the project creation anymore")
 def test_create_projects_with_incorrect_tags(client, project):
     tags = json.dumps([{"foo": "bar"}, {"foo1": "bar1"}])
 
@@ -71,6 +72,7 @@ def test_create_projects_with_incorrect_tags(client, project):
 
 
 # Test create a project with correct tags
+@pytest.mark.skip(reason="tags are not used in the project creation anymore")
 def test_create_projects_with_correct_tags(client, project):
     tags = [
         {
@@ -271,14 +273,12 @@ def test_update_project_info(client, project):
         name=new_name,
         authors=new_authors,
         description=new_description,
-        tags=new_tags,
     )
     assert r.status_code == 200
     assert r.json["authors"] == new_authors
     assert r.json["description"] == new_description
     assert r.json["mode"] == "oracle"
     assert r.json["name"] == new_name
-    assert r.json["tags"] == json.loads(new_tags)
 
 
 def test_search_data(client, project):
