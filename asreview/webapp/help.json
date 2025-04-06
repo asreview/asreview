@@ -5,6 +5,10 @@
       "title": "Frequently asked questions",
       "items": [
         {
+          "title": "How is Utrecht University linked to ASReview?",
+          "url": "https://www.uu.nl/en/organisation/methodology-and-statistics/projects"
+        },
+        {
           "title": "How does active learning help with systematic reviews?",
           "url": "https://asreview.nl/blog/asreview-class-101/"
         },
@@ -15,10 +19,6 @@
         {
           "title": "How to prepare your data?",
           "url": "https://asreview.readthedocs.io/en/latest/intro/datasets.html"
-        },
-        {
-          "title": "How to deal with records that do not have abstracts?",
-          "url": "https://asreview.nl/blog/the-importance-of-abstracts/"
         },
         {
           "title": "How to contribute to the open source ASReview project?",
