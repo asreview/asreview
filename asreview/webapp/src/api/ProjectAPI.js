@@ -1,7 +1,7 @@
-import { axiosErrorHandler } from "./axiosErrorHandler";
-import { api_url } from "globals.js";
 import axios from "axios";
+import { api_url } from "globals.js";
 import qs from "qs";
+import { axiosErrorHandler } from "./axiosErrorHandler";
 
 class ProjectAPI {
   static fetchProjects({ queryKey }) {
@@ -437,8 +437,15 @@ class ProjectAPI {
     });
   }
 
-  static fetchExportDataset({ project_id, collections, format, user }) {
+  static fetchExportDataset({
+    project_id,
+    collections,
+    format,
+    exportName,
+    exportEmail,
+  }) {
     const url = api_url + `projects/${project_id}/export_dataset`;
+
     return new Promise((resolve, reject) => {
       axios({
         url: url,
@@ -446,7 +453,8 @@ class ProjectAPI {
         params: {
           collections: collections,
           format: format,
-          user: user ? 1 : 0,
+          export_name: exportName ? 1 : 0,
+          export_email: exportEmail ? 1 : 0,
         },
         paramsSerializer: (params) => {
           return qs.stringify(params, { arrayFormat: "repeat" });

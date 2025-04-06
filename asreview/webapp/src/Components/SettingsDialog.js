@@ -148,7 +148,11 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
               REVIEW
             </Typography>
           </ListItem>
-          <ListItem onClick={toggleFontSizeSetting}>
+          <ListItem
+            onClick={toggleFontSizeSetting}
+            button
+            sx={{ cursor: "pointer" }}
+          >
             <ListItemText
               id="change-text-size"
               primary="Font size"
@@ -217,20 +221,19 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
         <DialogContent>
           <Box sx={{ pb: "20px" }}>
             <Typography>
-              Make the text on the review screen smaller or larger.
+              Make the text on the review screen smaller or larger
             </Typography>
           </Box>
-          <>
+          <Box sx={{ height: "36px", overflow: "hidden" }}>
             <Typography
               align="center"
               gutterBottom
               className={"fontSize" + fontSizeOptions[fontSize]}
-              sx={{ height: "36px", overflow: "hidden" }}
             >
               {fontSizeOptions[fontSize].charAt(0).toUpperCase() +
                 fontSizeOptions[fontSize].slice(1)}
             </Typography>
-          </>
+          </Box>
           <>
             <Stack direction={"row"} spacing={3}>
               <Typography variant="h6">A</Typography>

@@ -371,14 +371,15 @@ const TimeSavedCard = ({ project_id }) => {
                 interests, or finally tackling those pending tasks.
               </Typography>
             </Box>
-            <Button
-              href="https://asreview.readthedocs.io/en/latest/guides/active_learning.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ textTransform: "none", p: 0 }}
-            >
-              Learn more about ASReview →
-            </Button>
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/guides/active_learning.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Learn more
+              </Button>
+            </Box>
           </Stack>
         </Box>
       </Popover>

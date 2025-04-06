@@ -39,14 +39,15 @@ const LabelHistory = ({
             <Chip
               label={
                 !n_prior_inclusions
-                  ? "My collection"
-                  : `My collection (${n_prior_inclusions})`
+                  ? "Relevant"
+                  : `Relevant (${n_prior_inclusions})`
               }
-              color="primary"
+              color="tertiary"
               variant={label !== "relevant" ? "outlined" : "filled"}
               onClick={() => {
                 setLabel("relevant");
               }}
+              sx={{ color: "text.primary" }}
             />
             <Chip
               label={
@@ -54,14 +55,14 @@ const LabelHistory = ({
                   ? "Not relevant"
                   : `Not relevant (${n_prior_exclusions})`
               }
-              color="primary"
+              color="grey.600"
               variant={label !== "irrelevant" ? "outlined" : "filled"}
               onClick={() => {
                 setLabel("irrelevant");
               }}
             />
             <Chip
-              label={"All labeled"}
+              label={"Full history"}
               color="primary"
               variant={label !== "all" ? "outlined" : "filled"}
               onClick={() => {

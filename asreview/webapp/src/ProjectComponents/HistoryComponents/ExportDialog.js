@@ -1,10 +1,8 @@
 import {
   Button,
   Checkbox,
-  Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
   Divider,
   FormControl,
   FormControlLabel,
@@ -13,16 +11,23 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Stack,
   Switch,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { ProjectAPI } from "api";
 import * as React from "react";
 import { useQuery } from "react-query";
+import { StyledDialog } from "StyledComponents/StyledDialog";
 
 const ExportDialog = ({ project_id, open, onClose }) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [format, setFormat] = React.useState("csv");
   const [collections, setCollections] = React.useState(["relevant"]);
-  const [exportUserInfo, setExportUserInfo] = React.useState(true);
+  const [exportName, setExportName] = React.useState(true);
+  const [exportEmail, setExportEmail] = React.useState(true);
 
   const { data } = useQuery(
     ["fetchDatasetWriter", { project_id }],
@@ -37,14 +42,22 @@ const ExportDialog = ({ project_id, open, onClose }) => {
       project_id,
       collections,
       format,
-      user: exportUserInfo,
-    }).then((response) => {
+      exportName,
+      exportEmail,
+    }).then(() => {
       onClose();
     });
   };
+
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Export records</DialogTitle>
+    <StyledDialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      fullScreen={fullScreen}
+      title="Export records"
+    >
       <DialogContent>
         <FormControl
           component="fieldset"
@@ -58,11 +71,11 @@ const ExportDialog = ({ project_id, open, onClose }) => {
             }
           }}
         >
-          <FormLabel component="legend">Select subset(s) to export</FormLabel>
+          <FormLabel component="legend">Select records to export</FormLabel>
           <FormGroup>
             <FormControlLabel
               control={<Checkbox />}
-              label="My collection"
+              label="Relevant"
               name="relevant"
               checked={collections.includes("relevant")}
             />
@@ -113,22 +126,33 @@ const ExportDialog = ({ project_id, open, onClose }) => {
         <Divider sx={{ my: "1.5rem" }} />
 
         {window.authentication && (
-          <FormControlLabel
-            control={
-              <Switch
-                checked={exportUserInfo}
-                onChange={(event) => setExportUserInfo(event.target.checked)}
-              />
-            }
-            label="Export name and email of reviewer"
-          />
+          <Stack orientation="vertical" spacing={2}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={exportName}
+                  onChange={(event) => setExportName(event.target.checked)}
+                />
+              }
+              label="Include name of reviewer"
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={exportEmail}
+                  onChange={(event) => setExportEmail(event.target.checked)}
+                />
+              }
+              label="Include email of reviewer"
+            />
+          </Stack>
         )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <Button onClick={exportDataset}>Export</Button>
       </DialogActions>
-    </Dialog>
+    </StyledDialog>
   );
 };
 
