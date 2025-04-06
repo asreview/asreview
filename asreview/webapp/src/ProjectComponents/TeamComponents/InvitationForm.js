@@ -73,6 +73,8 @@ const InvitationForm = ({ selectableUsers, onInvite }) => {
             <Button
               onClick={() => {
                 onInvite(selectedUser);
+                setInputValue((state) => "");
+                setSelectedUser((state) => null);
               }}
               startIcon={<Add />}
               disabled={selectedUser == null}

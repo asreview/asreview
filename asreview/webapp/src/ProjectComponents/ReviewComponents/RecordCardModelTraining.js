@@ -80,29 +80,32 @@ const RecordCardModelTraining = ({ record, modelLogLevel, sx }) => {
       </Alert>
     );
   }
+  const getAlertMessage = () => {
+    if (record?.state?.querier === "top-down") {
+      return record?.state?.label === 1 || record?.state?.label === 0
+        ? "This record was presented in a top-down manner"
+        : "This record is presented in a top-down manner";
+    } else if (record?.state?.querier === "random") {
+      return record?.state?.label === 1 || record?.state?.label === 0
+        ? "This record was presented in a random manner"
+        : "This record is presented in a random manner";
+    } else if (record?.state?.querier === null) {
+      return "This record was labeled either through manual search or the label was already available in the dataset";
+    }
+    return null;
+  };
 
-  if (record?.state?.querier === "top-down") {
+  const alertMessage = getAlertMessage();
+
+  if (alertMessage) {
     return (
       <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
-        Record is selected from top of your dataset. Model training might start
-        after enough labeled data is available.
+        {alertMessage}
       </Alert>
     );
-  } else if (record?.state?.querier === "random") {
-    return (
-      <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
-        Record is selected randomly. Model training might start after enough
-        labeled data is available.
-      </Alert>
-    );
-  } else if (record?.state?.querier === null) {
-    return (
-      <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
-        This record was labeled by hand or the label was already available in
-        the dataset
-      </Alert>
-    );
-  } else if (modelLogLevel === "info" && record?.state?.querier) {
+  }
+
+  if (modelLogLevel === "info" && record?.state?.querier) {
     return (
       <Box sx={sx}>
         <ModelFlowChart record={record} />

@@ -63,7 +63,7 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
     <Card sx={{ position: "relative" }}>
       <LoadingCardHeader
         title="Prior knowledge"
-        subheader="Prior knowledge helps to warm up and accelerate the AI."
+        subheader="Prior knowledge helps to warm up and accelerate the AI"
         isLoading={isLoading}
       />
 
@@ -297,7 +297,7 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
                           sx={{ color: "text.secondary" }}
                         />
                         <Typography variant="subtitle2">
-                          Add to Collection
+                          Label relevant
                         </Typography>
                       </Box>
                       <Typography variant="body2" color="text.secondary">
@@ -372,16 +372,15 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
               </Grid>
             </Box>
 
-            <Button
-              href="https://asreview.readthedocs.io/en/latest/guides/priorknowledge.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="text"
-              size="small"
-              sx={{ textTransform: "none", p: 0 }}
-            >
-              Learn more →
-            </Button>
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/guides/priorknowledge.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Learn more
+              </Button>
+            </Box>
           </Stack>
         </Box>
       </Popover>

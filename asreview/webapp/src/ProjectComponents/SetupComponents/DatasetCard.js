@@ -67,7 +67,7 @@ const DatasetCard = ({
                   href={`https://asreview.nl/blog/active-learning-explained/`}
                   target="_blank"
                 >
-                  learn more
+                  Learn more
                 </Link>
               </>
             )}

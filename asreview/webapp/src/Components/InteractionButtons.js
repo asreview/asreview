@@ -43,7 +43,7 @@ const InteractionButtons = () => {
       <Box sx={{ p: 6 }}>
         <Typography
           variant="h6"
-          sx={{ textAlign: "center", fontFamily: "Roboto Serif" }}
+          sx={{ textAlign: "center", fontFamily: "Roboto Serif", mb: 2 }}
         >
           Love using ASReview LAB?
         </Typography>
@@ -71,9 +71,12 @@ const InteractionButtons = () => {
                 aria-expanded={open ? "true" : undefined}
                 color="inherit"
               >
-                <Stack justifyContent="center" sx={{ alignItems: "center" }}>
-                  <SchoolOutlined fontSize="large" sx={{ m: "0.5rem" }} />
-                  <Typography>Cite</Typography>
+                <Stack
+                  justifyContent="center"
+                  sx={{ alignItems: "center", gap: "0.25rem" }}
+                >
+                  <SchoolOutlined fontSize="medium" />
+                  <Typography variant="body2">Cite</Typography>
                 </Stack>
               </Button>
 
@@ -119,9 +122,12 @@ const InteractionButtons = () => {
                 href="https://github.com/asreview/asreview"
                 color="inherit"
               >
-                <Stack justifyContent="center" sx={{ alignItems: "center" }}>
-                  <StarBorder fontSize="large" sx={{ m: "0.5rem" }} />
-                  <Typography>Star</Typography>
+                <Stack
+                  justifyContent="center"
+                  sx={{ alignItems: "center", gap: "0.25rem" }}
+                >
+                  <StarBorder fontSize="medium" />
+                  <Typography variant="body2">Star</Typography>
                 </Stack>
               </Button>
             </Grid>
@@ -138,9 +144,12 @@ const InteractionButtons = () => {
                 href="https://asreview.nl/donate"
                 color="inherit"
               >
-                <Stack justifyContent="center" sx={{ alignItems: "center" }}>
-                  <PaymentOutlined fontSize="large" sx={{ m: "0.5rem" }} />
-                  <Typography>Donate</Typography>
+                <Stack
+                  justifyContent="center"
+                  sx={{ alignItems: "center", gap: "0.25rem" }}
+                >
+                  <PaymentOutlined fontSize="medium" />
+                  <Typography variant="body2">Donate</Typography>
                 </Stack>
               </Button>
             </Grid>
@@ -157,9 +166,12 @@ const InteractionButtons = () => {
                 href="https://asreview.ai/newsletter/subscribe"
                 color="inherit"
               >
-                <Stack justifyContent="center" sx={{ alignItems: "center" }}>
-                  <EmailOutlined fontSize="large" sx={{ m: "0.5rem" }} />
-                  <Typography>Subscribe</Typography>
+                <Stack
+                  justifyContent="center"
+                  sx={{ alignItems: "center", gap: "0.25rem" }}
+                >
+                  <EmailOutlined fontSize="medium" />
+                  <Typography variant="body2">Subscribe</Typography>
                 </Stack>
               </Button>
             </Grid>
@@ -176,9 +188,12 @@ const InteractionButtons = () => {
                 href="https://asreview.nl/community"
                 color="inherit"
               >
-                <Stack justifyContent="center" sx={{ alignItems: "center" }}>
-                  <Diversity3Outlined fontSize="large" sx={{ m: "0.5rem" }} />
-                  <Typography>Contribute</Typography>
+                <Stack
+                  justifyContent="center"
+                  sx={{ alignItems: "center", gap: "0.25rem" }}
+                >
+                  <Diversity3Outlined fontSize="medium" />
+                  <Typography variant="body2">Contribute</Typography>
                 </Stack>
               </Button>
             </Grid>

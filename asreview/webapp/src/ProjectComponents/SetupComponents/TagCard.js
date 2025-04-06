@@ -210,16 +210,15 @@ const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
             </Grid>
           </Box>
 
-          <Button
-            href="https://asreview.readthedocs.io/en/latest/guides/tagging.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="text"
-            size="small"
-            sx={{ textTransform: "none", p: 0 }}
-          >
-            Learn more →
-          </Button>
+          <Box>
+            <Button
+              href="https://asreview.readthedocs.io/en/latest/guides/tagging.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Learn more
+            </Button>
+          </Box>
         </Stack>
       </Box>
     </Popover>
@@ -530,7 +529,7 @@ const TagCard = () => {
     <Card>
       <LoadingCardHeader
         title="Labeling tags"
-        subheader="Tags and tag groups are used to label records with additional information."
+        subheader="Tags and tag groups are used to label records with additional information"
         isLoading={isLoading}
         action={
           <IconButton

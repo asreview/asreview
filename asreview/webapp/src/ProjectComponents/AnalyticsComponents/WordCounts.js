@@ -125,7 +125,7 @@ const WordCounts = () => {
                   data?.relevant
                     .slice(0, 12)
                     .map((word) => (
-                      <WordTag key={word} word={word} color="tertiary.dark" />
+                      <WordTag key={word} word={word} color="tertiary.main" />
                     ))
                 ) : (
                   <Typography variant="body2" color="text.secondary">
@@ -227,16 +227,15 @@ const WordCounts = () => {
                 </Typography>
                 <WordExample />
               </Box>
-              <Button
-                href="https://asreview.readthedocs.io"
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="text"
-                size="small"
-                sx={{ textTransform: "none", p: 0 }}
-              >
-                Learn more →
-              </Button>
+              <Box>
+                <Button
+                  href="https://asreview.readthedocs.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Learn more
+                </Button>
+              </Box>
             </Stack>
           </Box>
         </Popover>

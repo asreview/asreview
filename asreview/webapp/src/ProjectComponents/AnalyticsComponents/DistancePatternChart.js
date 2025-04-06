@@ -282,14 +282,15 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                     />
                   </Box>
                 </Box>
-                <Button
-                  href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{ textTransform: "none", p: 0 }}
-                >
-                  Learn more →
-                </Button>
+                <Box>
+                  <Button
+                    href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Learn more
+                  </Button>
+                </Box>
               </Stack>
             </Box>
           </Popover>

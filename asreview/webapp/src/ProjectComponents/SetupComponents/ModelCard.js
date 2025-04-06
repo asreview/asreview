@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Card,
   CardContent,
@@ -136,8 +137,8 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
         title="AI"
         subheader={
           projectModes.SIMULATION === mode
-            ? "Select or compose an AI to simulate the performance of your review process."
-            : "Select or compose an AI to accelerate your review process."
+            ? "Select or compose an AI to simulate the performance of your review process"
+            : "Select or compose an AI to accelerate your review process"
         }
       />
 
@@ -153,263 +154,297 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
         ) : (
           <>
             {!error ? (
-              <FormControl fullWidth>
-                <InputLabel id="model-select-label">Select learner</InputLabel>
-                <Select
-                  labelId="model-select-label"
-                  value={modelConfig.name}
-                  onChange={(event) => {
-                    mutate({
-                      project_id: project_id,
-                      name: event.target.value,
-                      current_value:
-                        event.target.value === "custom"
-                          ? { querier: "max" }
-                          : {},
-                    });
-                  }}
-                  label="Select Model"
-                  sx={{ mb: 3 }}
-                >
-                  <ListSubheader sx={{ bgcolor: "transparent" }}>
-                    Ultra - Fast, lightweight learner for performant reviewing
-                  </ListSubheader>
-
-                  {learnerOptions.learners
-                    .filter((learner) => learner.type === "ultra")
-                    .map((learner) => (
-                      <MenuItem
-                        key={learner.name}
-                        value={learner.name}
-                        disabled={!learner.is_available}
-                      >
-                        <Typography>{learner.label}</Typography>
-                      </MenuItem>
-                    ))}
-
-                  <Divider />
-
-                  <ListSubheader sx={{ bgcolor: "transparent" }}>
-                    Language Agnostic - Optimized for handling multiple
-                    languages at once
-                  </ListSubheader>
-
-                  {learnerOptions.learners
-                    .filter((learner) => learner.type === "lang")
-                    .map((learner) => (
-                      <MenuItem
-                        key={learner.name}
-                        value={learner.name}
-                        disabled={!learner.is_available}
-                      >
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          sx={{
-                            width: 1,
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Typography>{learner.label}</Typography>
-                          {/* {!learner.is_available && (
-                            <Box
-                              sx={{ display: "flex", flexDirection: "column" }}
-                            >
-                              <Typography
-                                color={(theme) =>
-                                  theme.palette.mode === "dark"
-                                    ? "tertiary.main"
-                                    : "error.main"
-                                }
-                                variant="caption"
-                                fontWeight="medium"
-                              >
-                                Requires ASReview-NEMO
-                              </Typography>
-                              <Box
-                                component="span"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(
-                                    "https://asreview.nl/nemo",
-                                    "_blank",
-                                    "noopener,noreferrer",
-                                  );
-                                }}
-                                sx={{
-                                  color: "primary.main",
-                                  textDecoration: "none",
-                                  "&:hover": {
-                                    textDecoration: "underline",
-                                    cursor: "pointer",
-                                  },
-                                  fontSize: "0.75rem",
-                                  mt: 0.5,
-                                  display: "inline-block",
-                                  pointerEvents: "auto",
-                                }}
-                              >
-                                Learn more →
-                              </Box>
-                            </Box>
-                          )} */}
-                        </Stack>
-                      </MenuItem>
-                    ))}
-
-                  <Divider />
-
-                  <ListSubheader sx={{ bgcolor: "transparent" }}>
-                    Heavy - Modern, heavyweight learner for heavy work
-                  </ListSubheader>
-
-                  {learnerOptions.learners
-                    .filter((learner) => learner.type === "heavy")
-                    .map((learner) => (
-                      <MenuItem
-                        key={learner.name}
-                        value={learner.name}
-                        disabled={!learner.is_available}
-                      >
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          sx={{
-                            width: 1,
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Typography>{learner.label}</Typography>
-                          {!learner.is_available && (
-                            <Box
-                              sx={{ display: "flex", flexDirection: "column" }}
-                            >
-                              <Typography
-                                color={(theme) =>
-                                  theme.palette.mode === "dark"
-                                    ? "tertiary.main"
-                                    : "error.main"
-                                }
-                                variant="caption"
-                                fontWeight="medium"
-                              >
-                                Requires ASReview-NEMO
-                              </Typography>
-                              <Box
-                                component="span"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(
-                                    "https://asreview.nl/nemo",
-                                    "_blank",
-                                    "noopener,noreferrer",
-                                  );
-                                }}
-                                sx={{
-                                  color: "primary.main",
-                                  textDecoration: "none",
-                                  "&:hover": {
-                                    textDecoration: "underline",
-                                    cursor: "pointer",
-                                  },
-                                  fontSize: "0.75rem",
-                                  mt: 0.5,
-                                  display: "inline-block",
-                                  pointerEvents: "auto",
-                                }}
-                              >
-                                Learn more →
-                              </Box>
-                            </Box>
-                          )}
-                        </Stack>
-                      </MenuItem>
-                    ))}
-                  <Divider />
-
-                  <ListSubheader sx={{ bgcolor: "transparent" }}>
-                    Custom - Built your own learner from available components
-                  </ListSubheader>
-                  <MenuItem value="custom">Custom </MenuItem>
-                </Select>
-
-                {modelConfig.name === "custom" && learnerOptions && (
-                  <>
-                    <Divider sx={{ mb: 3 }} />
-                    <Box>
-                      <Stack direction="column" spacing={3}>
-                        <ModelComponentSelect
-                          name="querier"
-                          label="Querier"
-                          items={learnerOptions?.models?.querier}
-                          value={modelConfig.current_value?.querier}
-                          required={true}
-                          onChange={(event) => {
-                            mutate({
-                              project_id: project_id,
-                              ...modelConfig,
-                              current_value: {
-                                ...modelConfig.current_value,
-                                querier: event.target.value,
-                              },
-                            });
-                          }}
-                        />
-                        <ModelComponentSelect
-                          name="feature_extractor"
-                          label="Feature extractor"
-                          items={learnerOptions?.models?.feature_extractor}
-                          value={modelConfig?.current_value?.feature_extractor}
-                          onChange={(event) => {
-                            mutate({
-                              project_id: project_id,
-                              ...modelConfig,
-                              current_value: {
-                                ...modelConfig.current_value,
-                                feature_extractor: event.target.value,
-                              },
-                            });
-                          }}
-                        />
-                        <ModelComponentSelect
-                          name="classifier"
-                          label="Classifier"
-                          items={learnerOptions?.models?.classifier}
-                          value={modelConfig.current_value?.classifier}
-                          onChange={(event) => {
-                            mutate({
-                              project_id: project_id,
-                              ...modelConfig,
-                              current_value: {
-                                ...modelConfig.current_value,
-                                classifier: event.target.value,
-                              },
-                            });
-                          }}
-                        />
-                        <ModelComponentSelect
-                          name="balancer"
-                          label="Balancer"
-                          items={learnerOptions?.models?.balancer}
-                          value={modelConfig.current_value?.balancer}
-                          onChange={(event) => {
-                            mutate({
-                              project_id: project_id,
-                              ...modelConfig,
-                              current_value: {
-                                ...modelConfig.current_value,
-                                balancer: event.target.value,
-                              },
-                            });
-                          }}
-                        />
-                      </Stack>
-                    </Box>
-                  </>
+              <>
+                {modelConfig.name && !modelConfig.name.startsWith("elas_u") && (
+                  <Alert
+                    severity="info"
+                    sx={{
+                      mb: 3,
+                    }}
+                  >
+                    The selected model might need longer to train than ultra
+                    models. You can continue screening and once the model is
+                    trained, it will be used for the next records.
+                  </Alert>
                 )}
-              </FormControl>
+                <FormControl fullWidth>
+                  <InputLabel id="model-select-label">
+                    Select learner
+                  </InputLabel>
+                  <Select
+                    labelId="model-select-label"
+                    value={modelConfig.name}
+                    onChange={(event) => {
+                      mutate({
+                        project_id: project_id,
+                        name: event.target.value,
+                        current_value:
+                          event.target.value === "custom"
+                            ? { querier: "max" }
+                            : {},
+                      });
+                    }}
+                    label="Select Model"
+                    sx={{ mb: 3 }}
+                  >
+                    <ListSubheader sx={{ bgcolor: "transparent" }}>
+                      Ultra - Fast, lightweight learner for performant reviewing
+                    </ListSubheader>
+
+                    {learnerOptions.learners
+                      .filter((learner) => learner.type === "ultra")
+                      .map((learner) => (
+                        <MenuItem
+                          key={learner.name}
+                          value={learner.name}
+                          disabled={!learner.is_available}
+                        >
+                          <Typography>{learner.label}</Typography>
+                        </MenuItem>
+                      ))}
+
+                    <Divider />
+
+                    <ListSubheader sx={{ bgcolor: "transparent" }}>
+                      Language Agnostic - Optimized for handling multiple
+                      languages at once
+                    </ListSubheader>
+
+                    {learnerOptions.learners
+                      .filter((learner) => learner.type === "lang")
+                      .map((learner) => (
+                        <MenuItem
+                          key={learner.name}
+                          value={learner.name}
+                          disabled={!learner.is_available}
+                        >
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            sx={{
+                              width: 1,
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Typography>{learner.label}</Typography>
+                            {!learner.is_available && (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                }}
+                              >
+                                <Typography
+                                  color={(theme) =>
+                                    theme.palette.mode === "dark"
+                                      ? "tertiary.main"
+                                      : "error.main"
+                                  }
+                                  variant="caption"
+                                  fontWeight="medium"
+                                >
+                                  Requires ASReview-NEMO
+                                </Typography>
+                                <Box
+                                  component="span"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(
+                                      "https://asreview.nl/nemo",
+                                      "_blank",
+                                      "noopener,noreferrer",
+                                    );
+                                  }}
+                                  sx={{
+                                    color: "primary.main",
+                                    textDecoration: "none",
+                                    "&:hover": {
+                                      textDecoration: "underline",
+                                      cursor: "pointer",
+                                    },
+                                    fontSize: "0.75rem",
+                                    mt: 0.5,
+                                    display: "inline-block",
+                                    pointerEvents: "auto",
+                                  }}
+                                >
+                                  Learn more
+                                </Box>
+                              </Box>
+                            )}
+                          </Stack>
+                        </MenuItem>
+                      ))}
+
+                    <Divider />
+
+                    <ListSubheader sx={{ bgcolor: "transparent" }}>
+                      Heavy - Modern, heavyweight learner for heavy work
+                    </ListSubheader>
+
+                    {learnerOptions.learners
+                      .filter((learner) => learner.type === "heavy")
+                      .map((learner) => (
+                        <MenuItem
+                          key={learner.name}
+                          value={learner.name}
+                          disabled={!learner.is_available}
+                        >
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            sx={{
+                              width: 1,
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Typography>{learner.label}</Typography>
+                            {!learner.is_available && (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                }}
+                              >
+                                <Typography
+                                  color={(theme) =>
+                                    theme.palette.mode === "dark"
+                                      ? "tertiary.main"
+                                      : "error.main"
+                                  }
+                                  variant="caption"
+                                  fontWeight="medium"
+                                >
+                                  Requires ASReview-NEMO
+                                </Typography>
+                                <Box
+                                  component="span"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(
+                                      "https://asreview.nl/nemo",
+                                      "_blank",
+                                      "noopener,noreferrer",
+                                    );
+                                  }}
+                                  sx={{
+                                    color: "primary.main",
+                                    textDecoration: "none",
+                                    "&:hover": {
+                                      textDecoration: "underline",
+                                      cursor: "pointer",
+                                    },
+                                    fontSize: "0.75rem",
+                                    mt: 0.5,
+                                    display: "inline-block",
+                                    pointerEvents: "auto",
+                                  }}
+                                >
+                                  Learn more
+                                </Box>
+                              </Box>
+                            )}
+                          </Stack>
+                        </MenuItem>
+                      ))}
+                    <Divider />
+
+                    <ListSubheader sx={{ bgcolor: "transparent" }}>
+                      Custom - Built your own learner from available components
+                    </ListSubheader>
+                    <MenuItem value="custom">Custom </MenuItem>
+                  </Select>
+
+                  {modelConfig.name === "custom" && learnerOptions && (
+                    <>
+                      <Divider sx={{ mb: 3 }} />
+                      <Alert
+                        severity="warning"
+                        sx={{
+                          mb: 3,
+                        }}
+                      >
+                        You can compose your own model by selecting different
+                        components. This is an advanced feature and not
+                        recommended for most users.
+                      </Alert>
+                      <Box>
+                        <Stack direction="column" spacing={3}>
+                          <ModelComponentSelect
+                            name="querier"
+                            label="Querier"
+                            items={learnerOptions?.models?.querier}
+                            value={modelConfig.current_value?.querier}
+                            required={true}
+                            onChange={(event) => {
+                              mutate({
+                                project_id: project_id,
+                                ...modelConfig,
+                                current_value: {
+                                  ...modelConfig.current_value,
+                                  querier: event.target.value,
+                                },
+                              });
+                            }}
+                          />
+                          <ModelComponentSelect
+                            name="feature_extractor"
+                            label="Feature extractor"
+                            items={learnerOptions?.models?.feature_extractor}
+                            value={
+                              modelConfig?.current_value?.feature_extractor
+                            }
+                            onChange={(event) => {
+                              mutate({
+                                project_id: project_id,
+                                ...modelConfig,
+                                current_value: {
+                                  ...modelConfig.current_value,
+                                  feature_extractor: event.target.value,
+                                },
+                              });
+                            }}
+                          />
+                          <ModelComponentSelect
+                            name="classifier"
+                            label="Classifier"
+                            items={learnerOptions?.models?.classifier}
+                            value={modelConfig.current_value?.classifier}
+                            onChange={(event) => {
+                              mutate({
+                                project_id: project_id,
+                                ...modelConfig,
+                                current_value: {
+                                  ...modelConfig.current_value,
+                                  classifier: event.target.value,
+                                },
+                              });
+                            }}
+                          />
+                          <ModelComponentSelect
+                            name="balancer"
+                            label="Balancer"
+                            items={learnerOptions?.models?.balancer}
+                            value={modelConfig.current_value?.balancer}
+                            onChange={(event) => {
+                              mutate({
+                                project_id: project_id,
+                                ...modelConfig,
+                                current_value: {
+                                  ...modelConfig.current_value,
+                                  balancer: event.target.value,
+                                },
+                              });
+                            }}
+                          />
+                        </Stack>
+                      </Box>
+                    </>
+                  )}
+                </FormControl>
+              </>
             ) : (
               <Typography variant="body1" color="error">
                 Failed to load AI.
@@ -751,16 +786,15 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
               </Stack>
             </Box>
 
-            <Button
-              href="https://asreview.readthedocs.io/en/latest/guides/activelearning.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="text"
-              size="small"
-              sx={{ textTransform: "none", p: 0 }}
-            >
-              Learn more →
-            </Button>
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/guides/activelearning.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Learn more
+              </Button>
+            </Box>
           </Stack>
         </Box>
       </Popover>

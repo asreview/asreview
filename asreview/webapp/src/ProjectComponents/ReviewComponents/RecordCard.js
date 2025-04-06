@@ -1,13 +1,15 @@
 import { Link as LinkIcon } from "@mui/icons-material";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Box,
+  Button,
   Card,
   CardContent,
   Collapse,
   Divider,
   Fade,
   Grid2 as Grid,
-  Link,
   Stack,
   Tooltip,
   Typography,
@@ -105,17 +107,33 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
           >
             {!(record.abstract === "" || record.abstract === null) &&
             collapseAbstract &&
-            !readMoreOpen &&
             record.abstract.length > 500 ? (
               <>
-                {record.abstract.substring(0, 500)}...
-                <Link
-                  component="button"
-                  underline="none"
-                  onClick={toggleReadMore}
-                >
-                  expand
-                </Link>
+                {!readMoreOpen ? (
+                  <>
+                    {record.abstract.substring(0, 500)}...
+                    <Button
+                      onClick={toggleReadMore}
+                      startIcon={<ExpandMoreIcon />}
+                      color="primary"
+                      sx={{ textTransform: "none" }}
+                    >
+                      show more
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    {record.abstract}
+                    <Button
+                      onClick={toggleReadMore}
+                      startIcon={<ExpandLessIcon />}
+                      color="primary"
+                      sx={{ textTransform: "none" }}
+                    >
+                      show less
+                    </Button>
+                  </>
+                )}
               </>
             ) : (
               record.abstract

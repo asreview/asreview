@@ -19,6 +19,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Link, useNavigate } from "react-router-dom";
 
 import {
+  Box,
   Button,
   ButtonBase,
   Card,
@@ -116,7 +117,6 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
       sx={(theme) => ({
         width: "100%",
         p: 3,
-        // bgcolor: theme.palette.background.default,
       })}
       elevation={0}
     >
@@ -128,12 +128,23 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
               width: "100%",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "center",
               alignItems: "flex-start",
             }}
           >
-            <Stack direction={"row"} spacing={1}>
-              <Typography fontSize={"1.4rem"}>{project["name"]}</Typography>
+            <Stack direction={"row"} spacing={1} sx={{ width: "100%" }}>
+              <Box sx={{ width: "100%" }}>
+                <Typography
+                  fontSize={"1.4rem"}
+                  sx={{
+                    textAlign: "left",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {project?.name}
+                </Typography>
+              </Box>
               {review?.status === projectStatuses.SETUP && (
                 <Chip
                   label="Draft"

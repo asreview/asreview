@@ -1104,7 +1104,8 @@ def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
 
     file_format = request.args.get("format", default="csv", type=str)
-    export_user_details = request.args.get("user", default=1, type=int)
+    export_name = request.args.get("export_name", default=1, type=int)
+    export_email = request.args.get("export_email", default=1, type=int)
     collections = request.args.getlist("collections", type=str)
 
     df_user_input_data = project.read_input_data()
@@ -1145,7 +1146,7 @@ def api_export_dataset(project):
     )
 
     # add user information
-    if current_app.config.get("AUTHENTICATION", True) and export_user_details:
+    if current_app.config.get("AUTHENTICATION", True):
         project_entry = Project.query.filter(
             Project.project_id == project.project_id
         ).one_or_none()
@@ -1153,12 +1154,14 @@ def api_export_dataset(project):
             **{u.id: {**u.summarize()} for u in project_entry.collaborators},
             project_entry.owner.id: {**project_entry.owner.summarize()},
         }
-        df_results["user_name"] = df_results["user_id"].map(
-            lambda x: users.get(x, {}).get("name", None)
-        )
-        df_results["user_email"] = df_results["user_id"].map(
-            lambda x: users.get(x, {}).get("email", None)
-        )
+        if export_name:
+            df_results["user_name"] = df_results["user_id"].map(
+                lambda x: users.get(x, {}).get("name", None)
+            )
+        if export_email:
+            df_results["user_email"] = df_results["user_id"].map(
+                lambda x: users.get(x, {}).get("email", None)
+            )
 
     del df_results["user_id"]
 
