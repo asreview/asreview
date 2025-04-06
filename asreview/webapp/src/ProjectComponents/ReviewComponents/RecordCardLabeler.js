@@ -215,7 +215,16 @@ const RecordCardLabeler = ({
             <Grid container spacing={2} columns={2}>
               {tagsForm &&
                 tagsForm.map((group, i) => (
-                  <Grid size={landscape ? 2 : { xs: 2, sm: 1 }} key={group.id}>
+                  <Grid
+                    size={
+                      tagsForm.length === 1
+                        ? 2
+                        : landscape
+                          ? 2
+                          : { xs: 2, sm: 1 }
+                    }
+                    key={group.id}
+                  >
                     <Stack direction="column" spacing={1}>
                       <Typography variant="h6">{group.label}</Typography>
                       <FormGroup row={false}>
