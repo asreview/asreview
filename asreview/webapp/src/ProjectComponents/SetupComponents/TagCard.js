@@ -495,11 +495,9 @@ const Group = ({ project_id, group }) => {
         }
       />
       <CardContent>
-        <Stack direction="row" spacing={1} flexWrap="wrap">
-          {group.values.map((t, index) => (
-            <Chip key={index} label={`${t.label} (${t.export})`} />
-          ))}
-        </Stack>
+        {group.values.map((t, index) => (
+          <Chip key={index} label={`${t.label} (${t.export})`} sx={{ m: 1 }} />
+        ))}
       </CardContent>
       <MutateGroupDialog
         key={group.id}
