@@ -250,7 +250,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                                   pointerEvents: "auto",
                                 }}
                               >
-                                Learn more →
+                                Learn more
                               </Box>
                             </Box>
                           )}
@@ -320,7 +320,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                                   pointerEvents: "auto",
                                 }}
                               >
-                                Learn more →
+                                Learn more
                               </Box>
                             </Box>
                           )}
@@ -751,16 +751,15 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
               </Stack>
             </Box>
 
-            <Button
-              href="https://asreview.readthedocs.io/en/latest/guides/activelearning.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="text"
-              size="small"
-              sx={{ textTransform: "none", p: 0 }}
-            >
-              Learn more →
-            </Button>
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/guides/activelearning.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Learn more
+              </Button>
+            </Box>
           </Stack>
         </Box>
       </Popover>

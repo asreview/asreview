@@ -373,16 +373,17 @@ export default function ReviewProgress({ project_id }) {
                 />
               </Box>
             </Box>
-            <Button
-              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="text"
-              size="small"
-              sx={{ textTransform: "none", p: 0 }}
-            >
-              Learn more →
-            </Button>
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="text"
+                size="small"
+              >
+                Learn more
+              </Button>
+            </Box>
           </Stack>
         </Box>
       </Popover>

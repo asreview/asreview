@@ -436,16 +436,15 @@ const StoppingSuggestion = ({ project_id }) => {
                 </Box>
               </Stack>
             </Box>
-            <Button
-              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="text"
-              size="small"
-              sx={{ textTransform: "none", p: 0 }}
-            >
-              Learn more →
-            </Button>
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Learn more
+              </Button>
+            </Box>
           </Stack>
         </Box>
       </Popover>
@@ -556,16 +555,15 @@ const StoppingSuggestion = ({ project_id }) => {
             >
               Save
             </Button>
-            <Button
-              href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="text"
-              size="small"
-              sx={{ textTransform: "none", p: 0 }}
-            >
-              Learn more →
-            </Button>
+            <Box>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Learn more
+              </Button>
+            </Box>
           </Stack>
         </Box>
       </Popover>
