@@ -21,6 +21,7 @@
 // - The background color is a light beige color which is used
 // for the background of the app.
 
+import { Alert } from "@mui/material";
 import { alpha, getContrastRatio } from "@mui/material/styles";
 
 export const theme = {
