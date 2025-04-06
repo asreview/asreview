@@ -197,7 +197,12 @@ const RecordCardLabeler = ({
     <Stack
       sx={(theme) => ({
         bgcolor: alpha(
-          theme.palette.secondary.main,
+          label === 1
+            ? alpha(theme.palette.tertiary.main, 1)
+            : label === 0
+              ? alpha(theme.palette.grey[600], 1)
+              : alpha(theme.palette.secondary.dark, 1),
+
           theme.palette.action.selectedOpacity * 1.5,
         ),
         justifyContent: "space-between",
@@ -325,10 +330,12 @@ const RecordCardLabeler = ({
         )}
         <CardActions
           sx={(theme) => ({
-            bgcolor: alpha(theme.palette.secondary.dark, 1),
-
-            display: "block",
-            color: theme.palette.getContrastText(theme.palette.secondary.main),
+            bgcolor:
+              label === 1
+                ? alpha(theme.palette.tertiary.main, 1)
+                : label === 0
+                  ? alpha(theme.palette.grey[600], 1)
+                  : alpha(theme.palette.secondary.dark, 1),
           })}
         >
           {editState && (
@@ -366,17 +373,31 @@ const RecordCardLabeler = ({
                   onClick={() => makeDecision(0)}
                   startIcon={<NotInterestedOutlinedIcon />}
                   disabled={isLoading || isSuccess}
-                  sx={(theme) => ({
-                    color: theme.palette.getContrastText(
-                      theme.palette.secondary.dark,
-                    ),
-                  })}
+                  // sx={(theme) => ({
+                  //   color: theme.palette.getContrastText(
+                  //     theme.palette.secondary.dark,
+                  //   ),
+                  // })}
+                  variant="contained"
+                  color="grey.600"
                 >
                   Not relevant
                 </Button>
               </Tooltip>
             </>
           )}
+          {(label === 1 || label === 0) && (
+            <>
+              {!landscape && (
+                <Typography variant="secondary" sx={{ pl: 1 }}>
+                  Labeled {label === 1 ? "relevant" : "not relevant"}{" "}
+                  {user && formatUser(user)}{" "}
+                  {timeAgo.format(new Date(labelTime * 1000))}
+                </Typography>
+              )}
+            </>
+          )}
+          <Box sx={{ flexGrow: 1 }} />
 
           {editState && showNotes && (
             <>
@@ -391,48 +412,14 @@ const RecordCardLabeler = ({
                   aria-label="add note"
                   disabled={isLoading || isSuccess}
                   sx={(theme) => ({
-                    float: "right",
-                    color: theme.palette.getContrastText(
-                      theme.palette.secondary.dark,
-                    ),
+                    // color: theme.palette.getContrastText(
+                    //   theme.palette.secondary.dark,
+                    // ),
                   })}
                 >
                   <NoteAltOutlinedIcon />
                 </IconButton>
               </Tooltip>
-            </>
-          )}
-          <NoteDialog
-            project_id={project_id}
-            record_id={record_id}
-            open={showNotesDialog}
-            onClose={toggleShowNotesDialog}
-            note={note}
-          />
-          {(label === 1 || label === 0) && (
-            <>
-              {!landscape && (
-                <Typography variant="secondary" sx={{ pl: 1 }}>
-                  Added to
-                </Typography>
-              )}
-              {label === 1 && (
-                <Chip
-                  label="Relevant"
-                  color="primary"
-                  sx={(theme) => ({
-                    color: theme.palette.getContrastText(
-                      theme.palette.tertiary.main,
-                    ),
-                    bgcolor: theme.palette.tertiary.main,
-                  })}
-                />
-              )}
-              {label === 0 && <Chip label="Not relevant" color="primary" />}
-              <Typography variant="secondary">
-                {timeAgo.format(new Date(labelTime * 1000))}{" "}
-                {user && formatUser(user)}
-              </Typography>
             </>
           )}
 
@@ -446,10 +433,9 @@ const RecordCardLabeler = ({
                   aria-expanded={openMenu ? "true" : undefined}
                   onClick={(event) => setAnchorEl(event.currentTarget)}
                   sx={(theme) => ({
-                    float: "right",
-                    color: theme.palette.getContrastText(
-                      theme.palette.secondary.dark,
-                    ),
+                    // color: theme.palette.getContrastText(
+                    //   theme.palette.secondary.dark,
+                    // ),
                   })}
                 >
                   <MoreVert />
@@ -513,6 +499,13 @@ const RecordCardLabeler = ({
               </Menu>
             </>
           )}
+          <NoteDialog
+            project_id={project_id}
+            record_id={record_id}
+            open={showNotesDialog}
+            onClose={toggleShowNotesDialog}
+            note={note}
+          />
         </CardActions>
       </Box>
     </Stack>
