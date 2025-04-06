@@ -334,7 +334,7 @@ const RecordCardLabeler = ({
                 ? alpha(theme.palette.tertiary.main, 1)
                 : label === 0
                   ? alpha(theme.palette.grey[600], 1)
-                  : alpha(theme.palette.secondary.dark, 1),
+                  : null,
           })}
         >
           {editState && (
@@ -358,7 +358,7 @@ const RecordCardLabeler = ({
                     bgcolor: theme.palette.tertiary.main,
                   })}
                 >
-                  Add
+                  Relevant
                 </Button>
               </Tooltip>
               <Tooltip
@@ -372,11 +372,6 @@ const RecordCardLabeler = ({
                   onClick={() => makeDecision(0)}
                   startIcon={<NotInterestedOutlinedIcon />}
                   disabled={isLoading || isSuccess}
-                  // sx={(theme) => ({
-                  //   color: theme.palette.getContrastText(
-                  //     theme.palette.secondary.dark,
-                  //   ),
-                  // })}
                   variant="contained"
                   color="grey.600"
                 >
@@ -468,7 +463,7 @@ const RecordCardLabeler = ({
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        label === 1 ? "Change to irrelevant" : "Add to relevant"
+                        label === 1 ? "Change to irrelevant" : "Label relevant"
                       }
                     />
                   </MenuItem>

@@ -120,5 +120,28 @@ export const theme = {
         variant: "outlined",
       },
     },
+    MuiButton: {
+      defaultProps: {
+        disableElevation: true,
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: 24,
+          textTransform: "none",
+        },
+        contained: {
+          boxShadow: "none",
+          "&:hover": {
+            boxShadow: "none",
+          },
+        },
+        outlined: {
+          borderWidth: "2px",
+          "&:hover": {
+            borderWidth: "2px",
+          },
+        },
+      },
+    },
   },
 };
