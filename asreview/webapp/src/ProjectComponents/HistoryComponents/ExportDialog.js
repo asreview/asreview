@@ -25,7 +25,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [format, setFormat] = React.useState("csv");
-  const [subset, setSubset] = React.useState(["relevant"]);
+  const [collections, setCollections] = React.useState(["relevant"]);
   const [exportName, setExportName] = React.useState(true);
   const [exportEmail, setExportEmail] = React.useState(true);
 
@@ -40,7 +40,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
   const exportDataset = () => {
     ProjectAPI.fetchExportDataset({
       project_id,
-      collections: subset,
+      collections,
       format,
       exportName,
       exportEmail,
@@ -63,9 +63,11 @@ const ExportDialog = ({ project_id, open, onClose }) => {
           component="fieldset"
           onChange={(event) => {
             if (event.target.checked) {
-              setSubset([...subset, event.target.name]);
+              setCollections([...collections, event.target.name]);
             } else {
-              setSubset(subset.filter((value) => value !== event.target.name));
+              setCollections(
+                collections.filter((value) => value !== event.target.name),
+              );
             }
           }}
         >
@@ -75,19 +77,19 @@ const ExportDialog = ({ project_id, open, onClose }) => {
               control={<Checkbox />}
               label="Relevant"
               name="relevant"
-              checked={subset.includes("relevant")}
+              checked={collections.includes("relevant")}
             />
             <FormControlLabel
               control={<Checkbox />}
               label="Not relevant"
               name="irrelevant"
-              checked={subset.includes("irrelevant")}
+              checked={collections.includes("irrelevant")}
             />
             <FormControlLabel
               control={<Checkbox />}
               label="Not seen (yet)"
               name="not_seen"
-              checked={subset.includes("not_seen")}
+              checked={collections.includes("not_seen")}
             />
           </FormGroup>
         </FormControl>

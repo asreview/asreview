@@ -297,7 +297,7 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
                           sx={{ color: "text.secondary" }}
                         />
                         <Typography variant="subtitle2">
-                          Add to Relevant
+                          Add to Collection
                         </Typography>
                       </Box>
                       <Typography variant="body2" color="text.secondary">

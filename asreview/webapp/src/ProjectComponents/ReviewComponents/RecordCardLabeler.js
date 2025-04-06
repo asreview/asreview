@@ -125,23 +125,6 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
   );
 };
 
-const ConfirmationDialog = ({ open, onClose, onConfirm, message, title }) => (
-  <Dialog open={open} onClose={onClose} fullWidth>
-    <DialogTitle>{title}</DialogTitle>
-    <DialogContent>
-      <Typography>{message}</Typography>
-    </DialogContent>
-    <DialogActions>
-      <Button onClick={onClose} color="primary">
-        Cancel
-      </Button>
-      <Button onClick={onConfirm} color="primary">
-        Change
-      </Button>
-    </DialogActions>
-  </Dialog>
-);
-
 const RecordCardLabeler = ({
   project_id,
   record_id,
@@ -201,29 +184,8 @@ const RecordCardLabeler = ({
   const [anchorEl, setAnchorEl] = React.useState(null);
   const openMenu = Boolean(anchorEl);
 
-  const [showConfirmationDialog, setShowConfirmationDialog] =
-    React.useState(false);
-  const [pendingLabel, setPendingLabel] = React.useState(null);
-
-  const handleDecision = (label) => {
-    setPendingLabel(label);
-    setShowConfirmationDialog(true);
-  };
-
-  const confirmDecision = () => {
-    setShowConfirmationDialog(false);
-    makeDecision(pendingLabel);
-    setPendingLabel(null);
-  };
-
-  useHotkeys(
-    "r",
-    () => hotkeys && !isLoading && !isSuccess && handleDecision(1),
-  );
-  useHotkeys(
-    "i",
-    () => hotkeys && !isLoading && !isSuccess && handleDecision(0),
-  );
+  useHotkeys("r", () => hotkeys && !isLoading && !isSuccess && makeDecision(1));
+  useHotkeys("i", () => hotkeys && !isLoading && !isSuccess && makeDecision(0));
   useHotkeys(
     "n",
     () => hotkeys && !isLoading && !isSuccess && toggleShowNotesDialog(),
@@ -385,7 +347,7 @@ const RecordCardLabeler = ({
               >
                 <Button
                   id="relevant"
-                  onClick={() => handleDecision(1)}
+                  onClick={() => makeDecision(1)}
                   variant="contained"
                   startIcon={<LibraryAddOutlinedIcon />}
                   disabled={isLoading || isSuccess}
@@ -407,9 +369,14 @@ const RecordCardLabeler = ({
               >
                 <Button
                   id="irrelevant"
-                  onClick={() => handleDecision(0)}
+                  onClick={() => makeDecision(0)}
                   startIcon={<NotInterestedOutlinedIcon />}
                   disabled={isLoading || isSuccess}
+                  // sx={(theme) => ({
+                  //   color: theme.palette.getContrastText(
+                  //     theme.palette.secondary.dark,
+                  //   ),
+                  // })}
                   variant="contained"
                   color="grey.600"
                 >
@@ -491,7 +458,7 @@ const RecordCardLabeler = ({
               >
                 {/* toggle label */}
                 {(label === 1 || label === 0) && (
-                  <MenuItem onClick={() => handleDecision(label === 1 ? 0 : 1)}>
+                  <MenuItem onClick={() => makeDecision(label === 1 ? 0 : 1)}>
                     <ListItemIcon>
                       {label === 1 ? (
                         <NotInterestedOutlinedIcon />
@@ -503,7 +470,7 @@ const RecordCardLabeler = ({
                       primary={
                         label === 1
                           ? "Change to irrelevant"
-                          : "Change to relevant"
+                          : "Add to collection"
                       }
                     />
                   </MenuItem>
@@ -537,13 +504,6 @@ const RecordCardLabeler = ({
             open={showNotesDialog}
             onClose={toggleShowNotesDialog}
             note={note}
-          />
-          <ConfirmationDialog
-            open={showConfirmationDialog}
-            onClose={() => setShowConfirmationDialog(false)}
-            onConfirm={confirmDecision}
-            title="Change label?"
-            message="This will change the label given by the reviewer. The new label will be used for the next training iteration."
           />
         </CardActions>
       </Box>
