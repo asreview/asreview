@@ -1,11 +1,13 @@
 import React from "react";
 
 import {
+  Alert,
   Box,
   Button,
   Card,
-  CardActions,
   CardContent,
+  CardHeader,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -18,9 +20,6 @@ import {
   TextField,
   Tooltip,
   Typography,
-  Chip,
-  CardHeader,
-  Alert,
 } from "@mui/material";
 import { ProjectContext } from "context/ProjectContext";
 import { useContext } from "react";
@@ -38,9 +37,9 @@ import Grid from "@mui/material/Grid2";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
+import EditIcon from "@mui/icons-material/Edit";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import EditIcon from "@mui/icons-material/Edit";
 
 import { useToggle } from "hooks/useToggle";
 
@@ -235,12 +234,6 @@ function labelToExport(label) {
     .toLowerCase()
     .replaceAll(/\s+/g, "_")
     .replaceAll(/[^a-z0-9_]/g, "");
-}
-
-function idsUnique(items) {
-  const idList = items.filter((x) => x.label && x.id).map((t) => t.id);
-  const idSet = new Set(idList);
-  return idSet.size === idList.length;
 }
 
 const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {

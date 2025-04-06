@@ -2,7 +2,6 @@ import { axiosErrorHandler } from "./axiosErrorHandler";
 import { api_url } from "globals.js";
 import axios from "axios";
 import qs from "qs";
-import { ContinuousColorLegend } from "@mui/x-charts";
 
 class ProjectAPI {
   static fetchProjects({ queryKey }) {
