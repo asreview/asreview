@@ -153,10 +153,6 @@ class ProjectAPI {
       body.set("description", variables.description);
     }
 
-    if (variables.tags !== undefined) {
-      body.set("tags", JSON.stringify(variables.tags));
-    }
-
     const url = api_url + `projects/${variables.project_id}/info`;
     return new Promise((resolve, reject) => {
       axios({
@@ -583,6 +579,64 @@ class ProjectAPI {
       })
         .then((result) => {
           resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static fetchTagGroups({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `projects/${project_id}/tags`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static createTagGroup(variables) {
+    let body = new FormData();
+    body.set("group", JSON.stringify(variables.group));
+
+    const url = api_url + `projects/${variables.project_id}/tags`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: body,
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static mutateTagGroup(variables) {
+    let body = new FormData();
+    body.set("group", JSON.stringify(variables.group));
+
+    const url =
+      api_url + `projects/${variables.project_id}/tags/${variables.group.id}`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "put",
+        url: url,
+        data: body,
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));

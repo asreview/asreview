@@ -68,6 +68,7 @@ from asreview.webapp._tasks import run_model
 from asreview.webapp._tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
+from asreview.webapp._api.utils import read_tags_data, add_id_to_tags
 
 try:
     import importlib.metadata
@@ -356,9 +357,6 @@ def api_update_project_info(project):  # noqa: F401
 
     update_dict = request.form.to_dict()
 
-    if "tags" in update_dict:
-        update_dict["tags"] = json.loads(update_dict["tags"])
-
     if "name" in update_dict:
         if len(update_dict["name"]) == 0:
             raise ValueError("Project title should be at least 1 character")
@@ -506,7 +504,7 @@ def api_search_data(project):  # noqa: F401
         record = project.data_store.get_records(result_id)
         record_d = asdict(record)
         record_d["state"] = None
-        record_d["tags_form"] = project.config.get("tags", None)
+        record_d["tags_form"] = read_tags_data(project)
         result.append(record_d)
 
     return jsonify({"result": result})
@@ -590,7 +588,7 @@ def api_get_labeled(project):  # noqa: F401
     for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
         record_d["state"] = state.to_dict()
-        record_d["tags_form"] = project.config.get("tags", None)
+        record_d["tags_form"] = read_tags_data(project)
 
         if current_app.config.get("AUTHENTICATION", True):
             record_d["state"]["user"] = users.get(record_d["state"]["user_id"], None)
@@ -954,6 +952,126 @@ def api_import_project():
     return jsonify({"data": project.config, "warnings": warnings})
 
 
+@bp.route("/projects/<project_id>/tags", methods=["GET"])
+@login_required
+@project_authorization
+def get_tag_groups(project):
+    tags_path = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "tags.json",
+    )
+
+    try:
+        with open(tags_path, "r") as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify([])
+    except Exception as err:
+        logging.exception(err)
+        return jsonify([]), 500
+
+
+@bp.route("/projects/<project_id>/tags", methods=["POST"])
+@login_required
+@project_authorization
+def create_tag_group(project):
+    tags_path = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "tags.json",
+    )
+
+    new_tag_group = json.loads(request.form.get("group", "[]"))
+
+    if not new_tag_group:
+        return jsonify(message="No tag group found."), 400
+
+    def add_ids_to_group(group, group_id=0):
+        group["id"] = group_id
+        return add_id_to_tags(group)
+
+    try:
+        with open(tags_path, "r") as f:
+            tags = json.load(f)
+
+        tags.append(
+            add_ids_to_group(
+                new_tag_group, group_id=max([g["id"] for g in tags], default=0) + 1
+            )
+        )
+
+        with open(tags_path, "w") as f:
+            json.dump(tags, f)
+
+        return jsonify(tags)
+
+    except FileNotFoundError:
+        new_tag_group = add_ids_to_group(new_tag_group)
+
+        with open(tags_path, "w") as f:
+            json.dump([new_tag_group], f)
+
+        return jsonify([new_tag_group])
+    except Exception as err:
+        logging.exception(err)
+        return jsonify(message="Failed to create tag group."), 500
+
+
+@bp.route("/projects/<project_id>/tags/<int:group_id>", methods=["PUT"])
+@login_required
+@project_authorization
+def update_tag_group(project, group_id):
+    """Update a single tag group by its ID."""
+    tags_path = Path(
+        project.project_path,
+        "reviews",
+        project.reviews[0]["id"],
+        "tags.json",
+    )
+
+    updated_tag_group = json.loads(request.form.get("group", "[]"))
+
+    if not updated_tag_group:
+        return jsonify(message="No tag group found."), 400
+
+    if "label" not in updated_tag_group:
+        return jsonify(message="No tag group label found."), 400
+
+    if "export" not in updated_tag_group:
+        return jsonify(message="No tag group export found."), 400
+
+    if "values" not in updated_tag_group:
+        return jsonify(message="No tag group values found."), 400
+
+    updated_tag_group = add_id_to_tags(updated_tag_group)
+
+    try:
+        with open(tags_path, "r") as f:
+            groups = json.load(f)
+
+        group_index = next(
+            (i for i, g in enumerate(groups) if g["id"] == group_id), None
+        )
+
+        if group_index is None:
+            return jsonify(message=f"Tag group '{group_id}' not found."), 404
+
+        groups[group_index] = updated_tag_group
+
+        with open(tags_path, "w") as f:
+            json.dump(groups, f)
+
+        return jsonify(updated_tag_group)
+    except FileNotFoundError:
+        return jsonify(message=f"Tag group '{group_id}' not found."), 404
+    except Exception as err:
+        logging.exception(err)
+        return jsonify(message="Failed to update tag group."), 500
+
+
 def _flatten_tags(results, tags_config):
     if tags_config is None:
         del results["tags"]
@@ -964,7 +1082,9 @@ def _flatten_tags(results, tags_config):
         tags = {}
         for group in row:
             for tag in group["values"]:
-                tags[f"tag_{group['id']}_{tag['id']}"] = int(tag.get("checked", False))
+                tags[f"tag_{group['export']}_{tag['export']}"] = int(
+                    tag.get("checked", False)
+                )
 
         df_tags.append(tags)
 
@@ -1010,7 +1130,7 @@ def api_export_dataset(project):
 
     df_results = _flatten_tags(
         df_results,
-        project.config.get("tags", None),
+        read_tags_data(project),
     )
 
     # remove model results, can be implemented later with advanced export
@@ -1302,7 +1422,7 @@ def api_label_record(project, record_id):  # noqa: F401
 
         item = asdict(project.data_store.get_records(record_id))
         item["state"] = record.iloc[0].to_dict()
-        item["tags_form"] = project.config.get("tags", None)
+        item["tags_form"] = read_tags_data(project)
         item["state"]["user"] = None
         del item["state"]["user_id"]
 
@@ -1352,7 +1472,7 @@ def api_get_record(project):  # noqa: F401
 
     item = asdict(project.data_store.get_records(pending["record_id"].iloc[0]))
     item["state"] = pending.iloc[0].to_dict()
-    item["tags_form"] = project.config.get("tags", None)
+    item["tags_form"] = read_tags_data(project)
     item["state"]["user"] = None
     del item["state"]["user_id"]
 

@@ -236,11 +236,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                                 }}
                               >
                                 <Typography
-                                  color={(theme) =>
-                                    theme.palette.mode === "dark"
-                                      ? "tertiary.main"
-                                      : "error.main"
-                                  }
+                                  color="error.main"
                                   variant="caption"
                                   fontWeight="medium"
                                 >
@@ -309,11 +305,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                                 }}
                               >
                                 <Typography
-                                  color={(theme) =>
-                                    theme.palette.mode === "dark"
-                                      ? "tertiary.main"
-                                      : "error.main"
-                                  }
+                                  color="error.main"
                                   variant="caption"
                                   fontWeight="medium"
                                 >

@@ -84,7 +84,7 @@ export const theme = {
           secondary: "#B0B0B0",
         },
         error: {
-          main: "#93000a",
+          main: "#f75964",
         },
 
         grey: {
