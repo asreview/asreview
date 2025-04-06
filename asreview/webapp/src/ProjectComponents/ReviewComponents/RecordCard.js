@@ -11,8 +11,11 @@ import {
   Stack,
   Tooltip,
   Typography,
+  Button,
 } from "@mui/material";
 import React from "react";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 import { StyledIconButton } from "StyledComponents/StyledButton";
 import { useToggle } from "hooks/useToggle";
@@ -105,17 +108,33 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
           >
             {!(record.abstract === "" || record.abstract === null) &&
             collapseAbstract &&
-            !readMoreOpen &&
             record.abstract.length > 500 ? (
               <>
-                {record.abstract.substring(0, 500)}...
-                <Link
-                  component="button"
-                  underline="none"
-                  onClick={toggleReadMore}
-                >
-                  expand
-                </Link>
+                {!readMoreOpen ? (
+                  <>
+                    {record.abstract.substring(0, 500)}...
+                    <Button
+                      onClick={toggleReadMore}
+                      startIcon={<ExpandMoreIcon />}
+                      color="primary"
+                      sx={{ textTransform: "none" }}
+                    >
+                      show more
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    {record.abstract}
+                    <Button
+                      onClick={toggleReadMore}
+                      startIcon={<ExpandLessIcon />}
+                      color="primary"
+                      sx={{ textTransform: "none" }}
+                    >
+                      show less
+                    </Button>
+                  </>
+                )}
               </>
             ) : (
               record.abstract
