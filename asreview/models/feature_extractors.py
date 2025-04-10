@@ -58,7 +58,7 @@ class Tfidf(Pipeline):
 
     def __init__(self, **kwargs):
         if "ngram_range" in kwargs:
-            kwargs["ngram_range"] = tuple(kwargs["ngram_range"])
+            kwargs["vectorizer__ngram_range"] = tuple(kwargs["ngram_range"])
 
         super().__init__(
             [
