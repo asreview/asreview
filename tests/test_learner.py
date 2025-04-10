@@ -7,6 +7,7 @@ import asreview as asr
 from asreview.extensions import extensions
 from asreview.models.balancers import Balanced
 from asreview.models.queriers import Max
+from asreview.learner import _clean_params
 
 classifier_parameters = {
     "nb": {"alpha": 3.822},
@@ -84,9 +85,9 @@ def test_alc_to_and_from_meta(classifier, feature_extractor):
         == alc2_from_meta.feature_extractor.name
     ), "Feature extractor names do not match"
     assert (
-        alc1.feature_extractor.get_params()
-        == alc1_from_meta.feature_extractor.get_params()
-        == alc2_from_meta.feature_extractor.get_params()
+        _clean_params(alc1.feature_extractor.get_params(), False)
+        == _clean_params(alc1_from_meta.feature_extractor.get_params(), False)
+        == _clean_params(alc2_from_meta.feature_extractor.get_params(), False)
     ), "Feature extractor parameters do not match"
 
     assert (
@@ -155,10 +156,11 @@ def test_alc_to_and_from_file(tmpdir, classifier, feature_extractor):
         == alc1_from_file.feature_extractor.name
         == alc2_from_meta.feature_extractor.name
     ), "Feature extractor names do not match"
+    
     assert (
-        alc1.feature_extractor.get_params()
-        == alc1_from_file.feature_extractor.get_params()
-        == alc2_from_meta.feature_extractor.get_params()
+        _clean_params(alc1.feature_extractor.get_params(), False)
+        == _clean_params(alc1_from_file.feature_extractor.get_params(), False)
+        == _clean_params(alc2_from_meta.feature_extractor.get_params(), False)
     ), "Feature extractor parameters do not match"
 
     assert (
