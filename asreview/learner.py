@@ -96,7 +96,7 @@ def _clean_params(params: ActiveLearningCycleData, load):
             else:
                 fe_params.pop("text_merger", None)
                 fe_params.pop("vectorizer", None)
-                
+
                 fe_params[k] = str(v)
 
     params.feature_extractor_param = fe_params
