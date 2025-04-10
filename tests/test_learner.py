@@ -156,7 +156,7 @@ def test_alc_to_and_from_file(tmpdir, classifier, feature_extractor):
         == alc1_from_file.feature_extractor.name
         == alc2_from_meta.feature_extractor.name
     ), "Feature extractor names do not match"
-    
+
     assert (
         _clean_params(alc1.feature_extractor.get_params(), False)
         == _clean_params(alc1_from_file.feature_extractor.get_params(), False)
