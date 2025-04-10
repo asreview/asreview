@@ -14,12 +14,13 @@
 
 
 import json
-import numpy as np
 from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 from typing import Optional
+
+import numpy as np
 
 from asreview.extensions import load_extension
 from asreview.utils import _read_config_file
@@ -66,41 +67,31 @@ class ActiveLearningCycleData:
     n_query: int = 1
 
 
-def _clean_params(params: ActiveLearningCycleData, load):
-    """Clean the parameters of the active learner when loading or saving.
-
-    Parameters
-    ----------
-    params: dict
-        The parameters to clean.
-
-    Returns
-    -------
-    ActiveLearningCycleData:
-        The cleaned parameters.
-    load: bool
-        If True, deserializes dtype strings to NumPy types. If False, stringifies them.
-    """
-
+def _clean_params_load(params: ActiveLearningCycleData):
     fe_params = params.feature_extractor_param
+    for k, v in fe_params.items():
+        if "dtype" in k:
+            if v.startswith("np."):
+                type_name = v.split("np.")[1]
+                return getattr(np, type_name)
+        if "ngram_range" in k:
+            fe_params[k] = tuple(v)
+
+    params.feature_extractor_param = fe_params
+    return params
+
+
+def _clean_params_save(params: ActiveLearningCycleData):
+    fe_params = params.feature_extractor_param
+
+    fe_params.pop("text_merger", None)
+    fe_params.pop("vectorizer", None)
 
     for k, v in fe_params.items():
         if "dtype" in k:
-            if load:
-                if "float16" in v:
-                    fe_params[k] = np.float16
-                elif "float32" in v:
-                    fe_params[k] = np.float32
-                else:
-                    fe_params[k] = np.float64
-            else:
-                fe_params.pop("text_merger", None)
-                fe_params.pop("vectorizer", None)
-
-                fe_params[k] = str(v)
+            fe_params[k] = str(v)
 
     params.feature_extractor_param = fe_params
-
     return params
 
 
@@ -332,11 +323,11 @@ class ActiveLearningCycle:
         if load is not None:
             with open(fp, "r") as f:
                 return cls.from_meta(
-                    _clean_params(ActiveLearningCycleData(**load(f)), True)
+                    _clean_params_load(ActiveLearningCycleData(**load(f)))
                 )
 
         return cls.from_meta(
-            _clean_params(ActiveLearningCycleData(**_read_config_file(fp)), True)
+            _clean_params_load(ActiveLearningCycleData(**_read_config_file(fp)))
         )
 
     def to_meta(self):
@@ -364,4 +355,4 @@ class ActiveLearningCycle:
 
     def to_file(self, fp):
         with open(fp, "w") as f:
-            json.dump(asdict(_clean_params(self.to_meta(), False)), f)
+            json.dump(asdict(_clean_params_save(self.to_meta())), f)
