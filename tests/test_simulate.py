@@ -5,6 +5,8 @@ import asreview as asr
 from asreview.models.queriers import Random
 from asreview.models.queriers import TopDown
 from asreview.models.stoppers import IsFittable
+from asreview.simulation.cli import _cli_simulate
+from asreview.state.contextmanager import open_state
 
 
 @pytest.mark.parametrize("balancer", ["balanced", None])
@@ -199,3 +201,43 @@ def test_simulate_labels_input_prior(demo_data):
 
     assert isinstance(sim._results, pd.DataFrame)
     assert sim._results.shape[0] < 60
+
+
+def test_simulate_cli_vs_api(demo_data, demo_data_path, tmp_project):
+    querier, classifier, balancer, feature_extractor = (
+        "max",
+        "svm",
+        "balanced",
+        "tfidf",
+    )
+    cycle = asr.ActiveLearningCycle(
+        querier=asr.load_extension("models.queriers", querier)(),
+        classifier=asr.load_extension("models.classifiers", classifier)(),
+        balancer=asr.load_extension("models.balancers", balancer)(),
+        feature_extractor=asr.load_extension(
+            "models.feature_extractors", feature_extractor
+        )(),
+    )
+    sim = asr.Simulate(demo_data, demo_data["label_included"], cycle)
+    sim.label([0, 9])
+    sim.review()
+    used_columns = [
+        "record_id",
+        "label",
+        "classifier",
+        "querier",
+        "balancer",
+        "feature_extractor",
+    ]
+    api_dataframe = sim._results[used_columns]
+
+    argv = (
+        f"{demo_data_path} -o {tmp_project} -c {classifier} -q {querier} -b {balancer}"
+        f" -e {feature_extractor} --prior-idx 0 9 --seed 535"
+    ).split()
+    _cli_simulate(argv)
+    with open_state(tmp_project) as state:
+        cli_dataframe = state.get_results_table(columns=used_columns)
+
+    for col in ["record_id", "label"]:
+        assert (api_dataframe[col] == cli_dataframe[col]).all()
