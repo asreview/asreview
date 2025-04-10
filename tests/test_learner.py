@@ -17,12 +17,12 @@ classifier_parameters = {
 
 feature_extractor_parameters = {
     "tfidf": {
-        "ngram_range": (1, 2),
-        "sublinear_tf": True,
-        "min_df": 1,
-        "max_df": 0.9,
+        "vectorizer__ngram_range": (1, 2),
+        "vectorizer__sublinear_tf": True,
+        "vectorizer__min_df": 1,
+        "vecterizer__max_df": 0.9,
     },
-    "onehot": {"ngram_range": (1, 2)},
+    "onehot": {"vectorizer__ngram_range": (1, 2)},
 }
 
 # Get all classifiers and feature extractors from ASReview, filtering contrib models
