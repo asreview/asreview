@@ -70,6 +70,7 @@ AI_MODEL_CONFIGURATIONS = [
             balancer="balanced",
             balancer_param={"ratio": 9.9},
             feature_extractor="multilingual-e5-large",
+            feature_extractor_param={"normalize": True},
         ),
     },
     {
@@ -84,6 +85,7 @@ AI_MODEL_CONFIGURATIONS = [
             balancer="balanced",
             balancer_param={"ratio": 9.7},
             feature_extractor="mxbai",
+            feature_extractor_param={"normalize": True},
         ),
     },
 ]
