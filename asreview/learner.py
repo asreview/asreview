@@ -67,31 +67,35 @@ class ActiveLearningCycleData:
     n_query: int = 1
 
 
-def _clean_params_load(params: ActiveLearningCycleData):
-    fe_params = params.feature_extractor_param
-    for k, v in fe_params.items():
-        if "dtype" in k:
+def _clean_params_load(params: dict):
+    for k, v in params.items():
+        if "dtype" in k and isinstance(v, str):
             if v.startswith("np."):
                 type_name = v.split("np.")[1]
-                return getattr(np, type_name)
-        if "ngram_range" in k:
-            fe_params[k] = tuple(v)
+                params[k] = getattr(
+                    np, type_name, np.float64
+                )  # If dtype does not exist, default to largest precision float
+        if "ngram_range" in k and isinstance(v, list):
+            params[k] = tuple(v)
 
-    params.feature_extractor_param = fe_params
     return params
 
 
-def _clean_params_save(params: ActiveLearningCycleData):
-    fe_params = params.feature_extractor_param
+def _is_json_serializable(value):
+    try:
+        json.dumps(value)
+        return True
+    except (TypeError, OverflowError):
+        return False
 
-    fe_params.pop("text_merger", None)
-    fe_params.pop("vectorizer", None)
 
-    for k, v in fe_params.items():
+def _clean_params_save(params: dict):
+    for k, v in params.items():
         if "dtype" in k:
-            fe_params[k] = str(v)
+            params[k] = str(v)
 
-    params.feature_extractor_param = fe_params
+    params = {k: v for k, v in params.items() if _is_json_serializable(v)}
+
     return params
 
 
@@ -288,7 +292,9 @@ class ActiveLearningCycle:
             feature_class = load_extension(
                 "models.feature_extractors", cycle_meta_data.feature_extractor
             )
-            feature_model = feature_class(**cycle_meta_data.feature_extractor_param)
+            feature_model = feature_class(
+                **_clean_params_load(cycle_meta_data.feature_extractor_param)
+            )
         else:
             feature_model = None
 
@@ -322,13 +328,9 @@ class ActiveLearningCycle:
 
         if load is not None:
             with open(fp, "r") as f:
-                return cls.from_meta(
-                    _clean_params_load(ActiveLearningCycleData(**load(f)))
-                )
+                return cls.from_meta(ActiveLearningCycleData(**load(f)))
 
-        return cls.from_meta(
-            _clean_params_load(ActiveLearningCycleData(**_read_config_file(fp)))
-        )
+        return cls.from_meta(ActiveLearningCycleData(**_read_config_file(fp)))
 
     def to_meta(self):
         return ActiveLearningCycleData(
@@ -343,7 +345,9 @@ class ActiveLearningCycle:
             if self.balancer is not None
             else None,
             feature_extractor=_get_name_from_estimator(self.feature_extractor),
-            feature_extractor_param=self.feature_extractor.get_params()
+            feature_extractor_param=_clean_params_save(
+                self.feature_extractor.get_params()
+            )
             if self.feature_extractor is not None
             else None,
             stopper=_get_name_from_estimator(self.stopper),
@@ -355,4 +359,4 @@ class ActiveLearningCycle:
 
     def to_file(self, fp):
         with open(fp, "w") as f:
-            json.dump(asdict(_clean_params_save(self.to_meta())), f)
+            json.dump(asdict(self.to_meta()), f)
