@@ -17,8 +17,34 @@ from sklearn.base import TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
+from collections import defaultdict
 
 __all__ = ["Tfidf", "OneHot"]
+
+
+def _generate_param_to_step_map(pipeline: Pipeline):
+    param_map = defaultdict(set)
+    for full_key in pipeline.get_params(deep=True).keys():
+        if "__" in full_key:
+            step, param = full_key.split("__", 1)
+            param_map[param].add(step)
+    return {
+        param: list(steps)[0] if len(steps) == 1 else list(steps)
+        for param, steps in param_map.items()
+    }
+
+
+def _normalize_kwargs(kwargs: dict, param_map: dict):
+    normalized_kwargs = {}
+    for k, v in kwargs.items():
+        if "__" in k:
+            normalized_kwargs[k] = v
+        elif k in param_map:
+            step = param_map[k]
+            normalized_kwargs[f"{step}__{k}"] = v
+        else:
+            normalized_kwargs[k] = v
+    return normalized_kwargs
 
 
 class TextMerger(TransformerMixin, BaseEstimator):
@@ -57,16 +83,14 @@ class Tfidf(Pipeline):
     label = "TF-IDF"
 
     def __init__(self, **kwargs):
-        if "ngram_range" in kwargs:
-            kwargs["vectorizer__ngram_range"] = tuple(kwargs["ngram_range"])
-
         super().__init__(
             [
                 ("text_merger", TextMerger(columns=["title", "abstract"])),
-                ("vectorizer", TfidfVectorizer()),
+                ("tfidf", TfidfVectorizer()),
             ]
         )
-        self.set_params(**kwargs)
+        param_map = _generate_param_to_step_map(self)
+        self.set_params(**_normalize_kwargs(kwargs, param_map))
 
 
 class OneHot(Pipeline):
@@ -86,4 +110,5 @@ class OneHot(Pipeline):
                 ("vectorizer", CountVectorizer(binary=True)),
             ]
         )
-        self.set_params(**kwargs)
+        param_map = _generate_param_to_step_map(self)
+        self.set_params(**_normalize_kwargs(kwargs, param_map))

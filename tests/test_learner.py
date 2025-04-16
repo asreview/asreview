@@ -5,19 +5,9 @@ import pytest
 
 import asreview as asr
 from asreview.extensions import extensions
-from asreview.learner import _clean_params_load
+from asreview.learner import _clean_params_load, _clean_params_save
 from asreview.models.balancers import Balanced
 from asreview.models.queriers import Max
-
-
-def _clean_params_save(fe_params):
-    fe_params.pop("text_merger", None)
-    fe_params.pop("vectorizer", None)
-
-    for k, v in fe_params.items():
-        fe_params[k] = str(v)
-
-    return fe_params
 
 
 classifier_parameters = {
@@ -29,12 +19,12 @@ classifier_parameters = {
 
 feature_extractor_parameters = {
     "tfidf": {
-        "vectorizer__ngram_range": (1, 2),
-        "vectorizer__sublinear_tf": True,
-        "vectorizer__min_df": 1,
-        "vectorizer__max_df": 0.9,
+        "ngram_range": (1, 2),
+        "sublinear_tf": True,
+        "min_df": 1,
+        "max_df": 0.9,
     },
-    "onehot": {"vectorizer__ngram_range": (1, 2)},
+    "onehot": {"ngram_range": (1, 2)},
 }
 
 # Get all classifiers and feature extractors from ASReview, filtering contrib models
@@ -61,18 +51,16 @@ def test_alc_to_and_from_meta(classifier, feature_extractor):
         querier=Max(),
     )
 
-    alc2_meta = _clean_params_load(
-        asr.ActiveLearningCycleData(
-            classifier=classifier.name,
-            classifier_param=classifier_parameters.get(classifier.name),
-            feature_extractor=feature_extractor.name,
-            feature_extractor_param=feature_extractor_parameters.get(
-                feature_extractor.name
-            ),
-            balancer="balanced",
-            balancer_param={"ratio": 5},
-            querier="max",
-        )
+    alc2_meta = asr.ActiveLearningCycleData(
+        classifier=classifier.name,
+        classifier_param=classifier_parameters.get(classifier.name),
+        feature_extractor=feature_extractor.name,
+        feature_extractor_param=_clean_params_load(
+            feature_extractor_parameters.get(feature_extractor.name)
+        ),
+        balancer="balanced",
+        balancer_param={"ratio": 5},
+        querier="max",
     )
 
     alc1_meta = alc1.to_meta()
@@ -135,18 +123,16 @@ def test_alc_to_and_from_file(tmpdir, classifier, feature_extractor):
         querier=Max(),
     )
 
-    alc2_meta = _clean_params_load(
-        asr.ActiveLearningCycleData(
-            classifier=classifier.name,
-            classifier_param=classifier_parameters.get(classifier.name),
-            feature_extractor=feature_extractor.name,
-            feature_extractor_param=feature_extractor_parameters.get(
-                feature_extractor.name
-            ),
-            balancer="balanced",
-            balancer_param={"ratio": 5},
-            querier="max",
-        )
+    alc2_meta = asr.ActiveLearningCycleData(
+        classifier=classifier.name,
+        classifier_param=classifier_parameters.get(classifier.name),
+        feature_extractor=feature_extractor.name,
+        feature_extractor_param=_clean_params_load(
+            feature_extractor_parameters.get(feature_extractor.name)
+        ),
+        balancer="balanced",
+        balancer_param={"ratio": 5},
+        querier="max",
     )
 
     meta_file_path = Path(tmpdir, "alc1.json")
