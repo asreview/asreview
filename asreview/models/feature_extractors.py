@@ -107,7 +107,7 @@ class OneHot(Pipeline):
         super().__init__(
             [
                 ("text_merger", TextMerger(columns=["title", "abstract"])),
-                ("vectorizer", CountVectorizer(binary=True)),
+                ("onehot", CountVectorizer(binary=True)),
             ]
         )
         param_map = _generate_param_to_step_map(self)
