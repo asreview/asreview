@@ -256,17 +256,7 @@ class Project:
 
     def remove_dataset(self):
         """Remove dataset from project."""
-        self.update_config(datasets=None)
-
-        # remove datasets from project
-        shutil.rmtree(self.data_dir)
-        self.clean_tmp_files()
-
-        # remove state file if present
-        if Path(self.project_path, "reviews").is_dir() and any(
-            Path(self.project_path, "reviews").iterdir()
-        ):
-            self.delete_review()
+        raise NotImplementedError("Removing datasets is not implemented yet")
 
     def read_input_data(self, reader=None, *args, **kwargs):
         file_name = self.config["datasets"][0]["name"]
