@@ -31,8 +31,6 @@ from asreview._deprecated import mark_deprecated_help_strings
 from asreview.webapp._task_manager.task_manager import run_task_manager
 from asreview.webapp.app import create_app
 from asreview.webapp.utils import asreview_path
-from asreview.webapp.utils import get_project_path
-from asreview.webapp.utils import get_projects
 
 # Host name
 HOST_NAME = os.getenv("ASREVIEW_LAB_HOST", "localhost")
