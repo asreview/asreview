@@ -24,7 +24,7 @@ export const StyledInputSearch = ({
         px: 2,
         py: 1,
         display: "flex",
-        bgcolor: "white",
+        bgcolor: "paper.background",
         borderRadius: 10,
       }}
     >
