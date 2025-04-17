@@ -308,7 +308,7 @@ class ActiveLearningCycle:
             if self.balancer is not None
             else None,
             feature_extractor=_get_name_from_estimator(self.feature_extractor),
-            feature_extractor_param=self.feature_extractor.get_params()
+            feature_extractor_param=self.feature_extractor.get_params(deep=False)
             if self.feature_extractor is not None
             else None,
             stopper=_get_name_from_estimator(self.stopper),
