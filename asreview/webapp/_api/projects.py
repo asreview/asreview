@@ -288,7 +288,7 @@ def api_create_project():  # noqa: F401
 
     except Exception as err:
         try:
-            project.remove_dataset()
+            shutil.rmtree(get_project_path(project_id))
         except Exception:
             pass
 

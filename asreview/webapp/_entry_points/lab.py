@@ -31,8 +31,6 @@ from asreview._deprecated import mark_deprecated_help_strings
 from asreview.webapp._task_manager.task_manager import run_task_manager
 from asreview.webapp.app import create_app
 from asreview.webapp.utils import asreview_path
-from asreview.webapp.utils import get_project_path
-from asreview.webapp.utils import get_projects
 
 # Host name
 HOST_NAME = os.getenv("ASREVIEW_LAB_HOST", "localhost")
@@ -117,26 +115,6 @@ def lab_entry_point(argv):
 
     # NO MORE APP CONFIGURATION BELOW THIS LINE
     # =========================================
-
-    # clean all projects
-    # TODO@{Casper}: this needs a little bit
-    # of work, we need to access all sub-folders
-    if args.clean_all_projects:
-        print("Cleaning all project files.")
-        for project in get_projects():
-            project.clean_tmp_files()
-        print("Done")
-        return
-
-    # clean project by project_id
-    # TODO@{Casper}: cleaning without a user context
-    # is meaningless -> I think we should remove this
-    # option
-    if args.clean_project is not None:
-        print(f"Cleaning project file '{args.clean_project}'.")
-        asr.Project(get_project_path(args.clean_project)).clean_tmp_files()
-        print("Done")
-        return
 
     # if port is already taken find another one
     port = args.port
@@ -234,20 +212,6 @@ def _lab_parser():
         prog="lab",
         description="ASReview LAB - Active learning for Systematic Reviews.",
         formatter_class=argparse.RawTextHelpFormatter,
-    )
-
-    parser.add_argument(
-        "--clean-project",
-        dest="clean_project",
-        type=str,
-        help="Safe cleanup of temporary files in project.",
-    )
-
-    parser.add_argument(
-        "--clean-all-projects",
-        dest="clean_all_projects",
-        action="store_true",
-        help="Safe cleanup of temporary files in all projects.",
     )
 
     parser.add_argument(
