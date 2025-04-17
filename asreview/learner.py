@@ -190,7 +190,7 @@ class ActiveLearningCycle:
             try:
                 scores = self.classifier.decision_function(X)
 
-                if "proba" in self.querier.get_params():
+                if "proba" in self.querier.get_params(deep=False):
                     self.querier.set_params(proba=False)
 
                 return self.querier.query(scores)
@@ -298,13 +298,13 @@ class ActiveLearningCycle:
     def to_meta(self):
         return ActiveLearningCycleData(
             querier=_get_name_from_estimator(self.querier),
-            querier_param=self.querier.get_params(),
+            querier_param=self.querier.get_params(deep=False),
             classifier=_get_name_from_estimator(self.classifier),
-            classifier_param=self.classifier.get_params()
+            classifier_param=self.classifier.get_params(deep=False)
             if self.classifier is not None
             else None,
             balancer=_get_name_from_estimator(self.balancer),
-            balancer_param=self.balancer.get_params()
+            balancer_param=self.balancer.get_params(deep=False)
             if self.balancer is not None
             else None,
             feature_extractor=_get_name_from_estimator(self.feature_extractor),
@@ -312,7 +312,7 @@ class ActiveLearningCycle:
             if self.feature_extractor is not None
             else None,
             stopper=_get_name_from_estimator(self.stopper),
-            stopper_param=self.stopper.get_params()
+            stopper_param=self.stopper.get_params(deep=False)
             if self.stopper is not None
             else None,
             n_query=self.n_query,

@@ -51,6 +51,41 @@ class Tfidf(Pipeline):
 
     Based on the sklearn implementation of the TF-IDF feature extraction
     sklearn.feature_extraction.text.TfidfVectorizer.
+    
+    Parameters
+    ----------
+    columns: list, default=["title", "abstract"]
+        See TextMerger
+    sep: str, default=" "
+        See TextMerger
+    lowercase: bool, default=True
+        See ScikitLearn CountVectorizer
+    stop_words: {'english'} or list or None, default=None
+        See ScikitLearn CountVectorizer
+    token_pattern: str or None, default=r”(?u)\b\w\w+\b”
+        See ScikitLearn CountVectorizer
+    ngram_range: tuple (min_n, max_n), default=(1,1)
+        See ScikitLearn CountVectorizer
+    max_df: float in range [0.0, 1.0] or int, default=1.0
+        See ScikitLearn CountVectorizer
+    min_df: float in range [0.0, 1.0] or int, default=1
+        See ScikitLearn CountVectorizer
+    max_features: int, default=None
+        See ScikitLearn CountVectorizer
+    vocabulary: Mapping or iterable, default=None
+        See ScikitLearn CountVectorizer
+    binary: bool, default=False
+        See ScikitLearn CountVectorizer
+    norm: {"l1", "l2"} or None, default="l2"
+        See ScikitLearn CountVectorizer
+    use_idf: bool, default=True
+        See ScikitLearn CountVectorizer
+    smooth_idf: bool, default=True
+        See ScikitLearn CountVectorizer
+    sublinear_tf: bool, default=False
+        See ScikitLearn CountVectorizer
+    **kwargs: dict
+        See ScikitLearn CountVectorizer for additional parameters
     """
 
     name = "tfidf"
@@ -60,11 +95,7 @@ class Tfidf(Pipeline):
         self,
         columns=["title", "abstract"],
         sep=" ",
-        strip_accents=None,
         lowercase=True,
-        preprocessor=None,
-        tokenizer=None,
-        analyzer="word",
         stop_words=None,
         token_pattern=r"(?u)\b\w\w+\b",
         ngram_range=(1, 1),
@@ -81,11 +112,7 @@ class Tfidf(Pipeline):
     ):
         self.columns = columns
         self.sep = sep
-        self.strip_accents = strip_accents
         self.lowercase = lowercase
-        self.preprocessor = preprocessor
-        self.tokenizer = tokenizer
-        self.analyzer = analyzer
         self.stop_words = stop_words
         self.token_pattern = token_pattern
         self.ngram_range = tuple(ngram_range)
@@ -104,11 +131,7 @@ class Tfidf(Pipeline):
                 (
                     "tfidf",
                     TfidfVectorizer(
-                        strip_accents=self.strip_accents,
                         lowercase=self.lowercase,
-                        preprocessor=self.preprocessor,
-                        tokenizer=self.tokenizer,
-                        analyzer=self.analyzer,
                         stop_words=self.stop_words,
                         token_pattern=self.token_pattern,
                         ngram_range=self.ngram_range,
@@ -133,6 +156,31 @@ class OneHot(Pipeline):
 
     Based on the sklearn implementation of the one-hot feature extraction
     sklearn.feature_extraction.text.CountVectorizer with binary=True.
+    
+    Parameters
+    ----------
+    columns: list, default=["title", "abstract"]
+        See TextMerger
+    sep: str, default=" "
+        See TextMerger
+    lowercase: bool, default=True
+        See ScikitLearn CountVectorizer
+    stop_words: {'english'} or list or None, default=None
+        See ScikitLearn CountVectorizer
+    token_pattern: str or None, default=r”(?u)\b\w\w+\b”
+        See ScikitLearn CountVectorizer
+    ngram_range: tuple (min_n, max_n), default=(1,1)
+        See ScikitLearn CountVectorizer
+    max_df: float in range [0.0, 1.0] or int, default=1.0
+        See ScikitLearn CountVectorizer
+    min_df: float in range [0.0, 1.0] or int, default=1
+        See ScikitLearn CountVectorizer
+    max_features: int, default=None
+        See ScikitLearn CountVectorizer
+    vocabulary: Mapping or iterable, default=None
+        See ScikitLearn CountVectorizer
+    **kwargs: dict
+        See ScikitLearn CountVectorizer for additional parameters
     """
 
     name = "onehot"
@@ -142,28 +190,18 @@ class OneHot(Pipeline):
         self,
         columns=["title", "abstract"],
         sep=" ",
-        strip_accents=None,
         lowercase=True,
-        preprocessor=None,
-        tokenizer=None,
         stop_words=None,
         token_pattern=r"(?u)\b\w\w+\b",
         ngram_range=(1, 1),
-        analyzer="word",
         max_df=1.0,
         min_df=1,
         max_features=None,
         vocabulary=None,
-        binary=True,
         **kwargs,
     ):
         self.columns = columns
         self.sep = sep
-
-        self.strip_accents = strip_accents
-        self.preprocessor = preprocessor
-        self.tokenizer = tokenizer
-        self.analyzer = analyzer
         self.lowercase = lowercase
         self.token_pattern = token_pattern
         self.stop_words = stop_words
@@ -172,17 +210,12 @@ class OneHot(Pipeline):
         self.max_features = max_features
         self.ngram_range = tuple(ngram_range)
         self.vocabulary = vocabulary
-        self.binary = binary
         super().__init__(
             [
                 ("text_merger", TextMerger(columns=self.columns, sep=self.sep)),
                 (
                     "onehot",
                     CountVectorizer(
-                        strip_accents=self.strip_accents,
-                        preprocessor=self.preprocessor,
-                        tokenizer=self.tokenizer,
-                        analyzer=self.analyzer,
                         lowercase=self.lowercase,
                         token_pattern=self.token_pattern,
                         stop_words=self.stop_words,
@@ -191,7 +224,7 @@ class OneHot(Pipeline):
                         max_features=self.max_features,
                         ngram_range=self.ngram_range,
                         vocabulary=self.vocabulary,
-                        binary=self.binary,
+                        binary=True,
                         **kwargs,
                     ),
                 ),
