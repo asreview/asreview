@@ -54,7 +54,9 @@ def test_alc_to_and_from_meta(classifier, feature_extractor):
         classifier=classifier.name,
         classifier_param=classifier_parameters.get(classifier.name),
         feature_extractor=feature_extractor.name,
-        feature_extractor_param=feature_extractor_parameters.get(feature_extractor.name),
+        feature_extractor_param=feature_extractor_parameters.get(
+            feature_extractor.name
+        ),
         balancer="balanced",
         balancer_param={"ratio": 5},
         querier="max",
@@ -124,7 +126,9 @@ def test_alc_to_and_from_file(tmpdir, classifier, feature_extractor):
         classifier=classifier.name,
         classifier_param=classifier_parameters.get(classifier.name),
         feature_extractor=feature_extractor.name,
-        feature_extractor_param=feature_extractor_parameters.get(feature_extractor.name),
+        feature_extractor_param=feature_extractor_parameters.get(
+            feature_extractor.name
+        ),
         balancer="balanced",
         balancer_param={"ratio": 5},
         querier="max",
