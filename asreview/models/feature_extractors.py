@@ -60,9 +60,6 @@ class Tfidf(Pipeline):
         self,
         columns=["title", "abstract"],
         sep=" ",
-        input="content",
-        encoding="utf-8",
-        decode_error="strict",
         strip_accents=None,
         lowercase=True,
         preprocessor=None,
@@ -84,9 +81,6 @@ class Tfidf(Pipeline):
     ):
         self.columns = columns
         self.sep = sep
-        self.input = input
-        self.encoding = encoding
-        self.decode_error = decode_error
         self.strip_accents = strip_accents
         self.lowercase = lowercase
         self.preprocessor = preprocessor
@@ -110,9 +104,6 @@ class Tfidf(Pipeline):
                 (
                     "tfidf",
                     TfidfVectorizer(
-                        input=self.input,
-                        encoding=self.encoding,
-                        decode_error=self.decode_error,
                         strip_accents=self.strip_accents,
                         lowercase=self.lowercase,
                         preprocessor=self.preprocessor,
@@ -151,9 +142,6 @@ class OneHot(Pipeline):
         self,
         columns=["title", "abstract"],
         sep=" ",
-        input="content",
-        encoding="utf-8",
-        decode_error="strict",
         strip_accents=None,
         lowercase=True,
         preprocessor=None,
@@ -172,9 +160,6 @@ class OneHot(Pipeline):
         self.columns = columns
         self.sep = sep
 
-        self.input = input
-        self.encoding = encoding
-        self.decode_error = decode_error
         self.strip_accents = strip_accents
         self.preprocessor = preprocessor
         self.tokenizer = tokenizer
@@ -194,9 +179,6 @@ class OneHot(Pipeline):
                 (
                     "onehot",
                     CountVectorizer(
-                        input=self.input,
-                        encoding=self.encoding,
-                        decode_error=self.decode_error,
                         strip_accents=self.strip_accents,
                         preprocessor=self.preprocessor,
                         tokenizer=self.tokenizer,
