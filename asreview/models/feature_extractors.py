@@ -51,7 +51,7 @@ class Tfidf(Pipeline):
 
     Based on the sklearn implementation of the TF-IDF feature extraction
     sklearn.feature_extraction.text.TfidfVectorizer.
-    
+
     Parameters
     ----------
     columns: list, default=["title", "abstract"]
@@ -156,7 +156,7 @@ class OneHot(Pipeline):
 
     Based on the sklearn implementation of the one-hot feature extraction
     sklearn.feature_extraction.text.CountVectorizer with binary=True.
-    
+
     Parameters
     ----------
     columns: list, default=["title", "abstract"]
