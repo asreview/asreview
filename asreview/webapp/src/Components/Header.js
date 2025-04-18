@@ -20,35 +20,86 @@ import { ProfilePopper } from "Components";
 import { TeamAPI } from "api";
 
 import useScrollTrigger from "@mui/material/useScrollTrigger";
+import { InitialsAvatar } from "StyledComponents/InitialsAvatar";
 import { useToggle } from "hooks/useToggle";
 import { ElasIcon } from "icons";
 import ElasGameDialog from "./ElasGame";
-import { InitialsAvatar } from "StyledComponents/InitialsAvatar";
+
+const HeaderTeam = ({ project_id }) => {
+  const navigate = useNavigate();
+
+  const [expandAvatars, setExpandAvatars] = useToggle(true);
+
+  const { data } = useQuery(["fetchUsers", project_id], TeamAPI.fetchUsers, {
+    enabled: !!project_id,
+  });
+
+  const users = data?.filter((user) => user.member && !user.me);
+
+  const handleAddUser = () => {
+    navigate(`/reviews/${project_id}/team`);
+  };
+
+  return (
+    <>
+      {users?.length > 0 && (
+        <IconButton
+          size="small"
+          onClick={setExpandAvatars}
+          sx={{
+            mr: 1,
+          }}
+        >
+          {expandAvatars ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+        </IconButton>
+      )}
+
+      <Collapse in={expandAvatars} orientation="horizontal">
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <AvatarGroup max={5}>
+            {users?.map((user, index) => (
+              <Tooltip
+                key={user.id || index}
+                title={user.name || ""}
+                placement="bottom"
+                arrow
+              >
+                <InitialsAvatar name={user.name} />
+              </Tooltip>
+            ))}
+          </AvatarGroup>
+
+          <Tooltip title="Add team member" arrow>
+            <IconButton
+              onClick={handleAddUser}
+              size="small"
+              sx={{
+                ml: 0.5,
+                "& .MuiSvgIcon-root": {
+                  fontSize: "1.2rem",
+                  fontWeight: "bold",
+                },
+              }}
+            >
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Collapse>
+    </>
+  );
+};
 
 const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
   const [openGame, toggleGame] = useToggle();
-  const [expandAvatars, setExpandAvatars] = useToggle(true);
-  const navigate = useNavigate();
   const { project_id } = useParams();
 
   const { pathname } = useLocation();
   const isReviewPath = pathname.endsWith("/reviewer");
 
-  const { data } = useQuery(["fetchUsers", project_id], TeamAPI.fetchUsers, {
-    refetchOnWindowFocus: false,
-    enabled: !!project_id,
-  });
-
-  const users =
-    project_id && data ? data.filter((user) => user.member && !user.me) : [];
-
   const headerActive = useScrollTrigger({
     threshold: 0,
   });
-
-  const handleAddUser = () => {
-    navigate(`/reviews/${project_id}/team`);
-  };
 
   return (
     <>
@@ -102,67 +153,20 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
             </ButtonBase>
           </Box>
 
-          {window.authentication === true && (
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              {project_id && (
-                <>
-                  {isReviewPath && (
-                    <Tooltip
-                      title={"Go on adventure with Elas"}
-                      placement={"right"}
-                    >
-                      <IconButton onClick={toggleGame}>
-                        <ElasIcon />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  <IconButton
-                    size="small"
-                    onClick={setExpandAvatars}
-                    sx={{
-                      mr: 1,
-                    }}
-                  >
-                    {expandAvatars ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-                  </IconButton>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {project_id && isReviewPath && (
+              <Tooltip title={"Go on adventure with Elas"} placement={"right"}>
+                <IconButton onClick={toggleGame}>
+                  <ElasIcon />
+                </IconButton>
+              </Tooltip>
+            )}
 
-                  <Collapse in={expandAvatars} orientation="horizontal">
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <AvatarGroup max={5}>
-                        {users.map((user, index) => (
-                          <Tooltip
-                            key={user.id || index}
-                            title={user.name || ""}
-                            placement="bottom"
-                            arrow
-                          >
-                            <InitialsAvatar name={user.name} />
-                          </Tooltip>
-                        ))}
-                      </AvatarGroup>
-
-                      <Tooltip title="Add team member" arrow>
-                        <IconButton
-                          onClick={handleAddUser}
-                          size="small"
-                          sx={{
-                            ml: 0.5,
-                            "& .MuiSvgIcon-root": {
-                              fontSize: "1.2rem",
-                              fontWeight: "bold",
-                            },
-                          }}
-                        >
-                          <AddIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </Collapse>
-                </>
-              )}
-              <ProfilePopper />
-            </Box>
-          )}
+            {window.authentication && project_id && (
+              <HeaderTeam project_id={project_id} />
+            )}
+            {window.authentication && <ProfilePopper />}
+          </Box>
         </Toolbar>
       </AppBar>
       <Toolbar aria-label="placeholder toolbar" />
