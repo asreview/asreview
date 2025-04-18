@@ -27,7 +27,8 @@ The best development workflow for the ASReview frontend and backend makes use
 of 3 simultanously running servers:
 
 1. A Python server with the the Flask app.
-2. A Python server for a task manager that manages running models after records are labeled.
+2. A Python server for a task manager that manages running models after records
+   are labeled.
 3. A Node server for the frontend.
 
 Open a command line interface (e.g. Terminal or CMD.exe) and navigate to
@@ -44,7 +45,8 @@ Next, open a second command line interface and run:
 asreview task-manager
 ```
 
-This starts the task manager (by default on `localhost`, port 5101). Use the `--verbose` flag to view logging messages.
+This starts the task manager (by default on `localhost`, port 5101). Use the
+`--verbose` flag to view logging messages.
 
 Next, open a third command line interface and navigate to `asreview/webapp`.
 Start the local front end application running on a Node server.
@@ -60,25 +62,34 @@ refresh in the browser.
 
 #### Visual Studio Code task
 
-Users of Visual Studio Code can set up servers easily by configuring a task.
-The [GitHub gist](https://gist.github.com/J535D165/9dd94fec840115c844059658904f7607)
-contains a task `startASReviewDevServer` that starts up the development servers.
+Users of Visual Studio Code can set up servers easily by configuring a task
+([ASReview Development `tasks.json` on GitHub
+gist](https://gist.github.com/J535D165/9dd94fec840115c844059658904f7607)).
 
-### Authentication
+Use the task `startASReviewDevServer` to start the development servers. This
+task enables authentication by default. Use `startASReviewDevServer_NoAuth` for
+the non-authenticated version.
 
-When using or developing the authenticated version of ASReview, extra steps
-are needed to configure the application.
+#### Authentication
 
-Create an authentication config file as instructed in [Authentication]
-(#Authentication). Set the environment variable `ASREVIEW_LAB_CONFIG_PATH` to the
-local config file. Start the application again (If Flask app it still running, terminate first)
+ASReview LAB can be configured with authentication without. As developer, you
+can change the configuration as follows:
+
+- Use the Visual Studio Code Task (Recommended)
+- Create a file `.env.development.local` with environment variable
+  `REACT_APP_AUTHENTICATION=true`. Start the Node server (`npm start`) as usual.
+  Start the Flask server with an extra environment vairable
+  `ASREVIEW_LAB_AUTHENTICATION=true flask run --debug`
+
+#### Advanced config
+
+Create an TOML config file and set the environment variable
+`ASREVIEW_LAB_CONFIG_PATH` to the local config file. Start the application again
 
 ```sh
 cd asreview/webapp
 ASREVIEW_LAB_CONFIG_PATH=my_config.toml flask run --debug
 ```
-
-The server will read the file and start the authenticated version.
 
 ### Advanced
 

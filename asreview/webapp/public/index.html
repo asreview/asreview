@@ -18,14 +18,14 @@
     <script type="text/javascript">
       window.api_url = "%REACT_APP_API_URL%";
       window.asreviewVersion = "%REACT_APP_ASREVIEW_VERSION%";
-      window.authentication = %REACT_APP_AUTHENTICATION%;
+      window.authentication = "%REACT_APP_AUTHENTICATION%" !== "false";
       window.loginInfo = "%REACT_APP_LOGIN_INFO%";
       window.allowAccountCreation = %REACT_APP_ALLOW_ACCOUNT_CREATION%;
       window.emailVerification = %REACT_APP_EMAIL_VERIFICATION%;
       window.oAuthData = %REACT_APP_OAUTH%;
     </script>
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>ASReview LAB - A tool for AI-assisted systematic reviews</title>
+    <title>ASReview LAB - AI-assisted systematic reviews</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
