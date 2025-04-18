@@ -25,15 +25,15 @@ AI_MODEL_CONFIGURATIONS = [
         "value": ActiveLearningCycleData(
             querier="max",
             classifier="svm",
-            classifier_param={"loss": "squared_hinge", "C": 0.15},
+            classifier_param={"loss": "squared_hinge", "C": 0.11},
             balancer="balanced",
-            balancer_param={"ratio": 5},
+            balancer_param={"ratio": 9.8},
             feature_extractor="tfidf",
             feature_extractor_param={
                 "ngram_range": (1, 2),
                 "sublinear_tf": True,
                 "min_df": 1,
-                "max_df": 0.9,
+                "max_df": 0.95,
             },
         ),
     },
@@ -66,10 +66,11 @@ AI_MODEL_CONFIGURATIONS = [
         "value": ActiveLearningCycleData(
             querier="max",
             classifier="svm",
-            classifier_param={"loss": "squared_hinge", "C": 0.4},
+            classifier_param={"loss": "squared_hinge", "C": 0.19},
             balancer="balanced",
-            balancer_param={"ratio": 5},
+            balancer_param={"ratio": 9.9},
             feature_extractor="multilingual-e5-large",
+            feature_extractor_param={"normalize": True},
         ),
     },
     {
@@ -80,10 +81,11 @@ AI_MODEL_CONFIGURATIONS = [
         "value": ActiveLearningCycleData(
             querier="max",
             classifier="svm",
-            classifier_param={"loss": "squared_hinge", "C": 0.16},
+            classifier_param={"loss": "squared_hinge", "C": 0.13},
             balancer="balanced",
-            balancer_param={"ratio": 5},
-            feature_extractor="sbert",
+            balancer_param={"ratio": 9.7},
+            feature_extractor="mxbai",
+            feature_extractor_param={"normalize": True},
         ),
     },
 ]
