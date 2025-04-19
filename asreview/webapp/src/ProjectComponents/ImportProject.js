@@ -14,7 +14,6 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useMutation, useQueryClient } from "react-query";
@@ -25,42 +24,6 @@ import { ProjectAPI } from "api";
 
 import { useToggle } from "hooks/useToggle";
 import { useNavigate } from "react-router-dom";
-
-const VisuallyHiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
-});
-
-const PREFIX = "DatasetFromFile";
-
-const classes = {
-  root: `${PREFIX}-root`,
-  singleLine: `${PREFIX}-single-line`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  height: "100%",
-  width: "100%",
-  [`& .${classes.root}`]: {
-    display: "flex",
-    alignItems: "center",
-    height: "100%",
-  },
-  [`& .${classes.singleLine}`]: {
-    display: "-webkit-box",
-    WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 1,
-    whiteSpace: "pre-line",
-    overflow: "hidden",
-  },
-}));
 
 const baseStyle = {
   alignItems: "center",
@@ -122,32 +85,65 @@ const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   return (
-    <Root>
-      <Paper {...getRootProps({ style })} elevation={0}>
+    <Stack
+      sx={{
+        height: "100%",
+        width: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Paper
+        {...getRootProps()}
+        elevation={0}
+        sx={{
+          ...style,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
         <input {...getInputProps()} />
 
         <ButtonBase
           disabled={isLoading}
           disableRipple
           onClick={open}
-          sx={{ height: "100%", width: "100%", py: 10 }}
+          sx={{
+            height: "100%",
+            width: "100%",
+            py: 10,
+          }}
         >
-          <Stack className={classes.root} spacing={2} justifyContent={"center"}>
-            <Avatar>
-              <FileUpload fontSize="large" />
-            </Avatar>
-            <Typography fontSize={"1.4rem"}>
+          <Stack
+            spacing={2}
+            justifyContent="center"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              textAlign: "center",
+            }}
+          >
+            {isLoading ? (
+              <CircularProgress />
+            ) : (
+              <Avatar>
+                <FileUpload fontSize="large" />
+              </Avatar>
+            )}
+            <Typography fontSize="1.4rem">
               {mobileScreen
                 ? "Upload ASReview file"
                 : "Click or drop an ASReview file here"}
             </Typography>
-            <Typography fontSize={"1rem"}>Accepted files: .asreview</Typography>
+            <Typography fontSize="1rem">Accepted files: .asreview</Typography>
           </Stack>
         </ButtonBase>
         {isError && <Alert severity="error">{error?.message}</Alert>}
-        {isLoading && <CircularProgress />}
       </Paper>
-    </Root>
+    </Stack>
   );
 };
 
