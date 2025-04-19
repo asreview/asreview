@@ -52,7 +52,6 @@ const LabelHistory = ({
               onClick={() => {
                 setLabel("relevant");
               }}
-              sx={{ color: "text.primary" }}
             />
             <Chip
               label={
