@@ -1133,6 +1133,10 @@ def api_export_dataset(project):
         read_tags_data(project),
     )
 
+    df_results["time"] = pd.to_datetime(df_results["time"], unit="s").dt.strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+
     # remove model results, can be implemented later with advanced export
     df_results.drop(
         columns=[
