@@ -1,4 +1,4 @@
-import { FileUpload, FileUploadOutlined } from "@mui/icons-material";
+import { FileUpload } from "@mui/icons-material";
 import {
   Alert,
   Avatar,
@@ -119,6 +119,8 @@ const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
     ...(isDragReject ? rejectStyle : {}),
   };
 
+  const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+
   return (
     <Root>
       <Paper {...getRootProps({ style })} elevation={0}>
@@ -135,7 +137,9 @@ const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
               <FileUpload fontSize="large" />
             </Avatar>
             <Typography fontSize={"1.4rem"}>
-              Click or drop an ASReview file here
+              {mobileScreen
+                ? "Upload ASReview file"
+                : "Click or drop an ASReview file here"}
             </Typography>
             <Typography fontSize={"1rem"}>Accepted files: .asreview</Typography>
           </Stack>
@@ -150,8 +154,6 @@ const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
 const ImportProject = ({ ...buttonProps }) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-
-  const smallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   const [importSnackbar, toggleImportSnackbar] = useToggle();
   const [warningDialog, toggleWarningDialog] = useToggle();
@@ -179,46 +181,12 @@ const ImportProject = ({ ...buttonProps }) => {
 
   return (
     <>
-      {smallScreen && (
-        <Stack direction={"column"} spacing={2}>
-          <Button
-            component="label"
-            role={undefined}
-            tabIndex={-1}
-            startIcon={<FileUploadOutlined />}
-            {...buttonProps}
-          >
-            <VisuallyHiddenInput
-              type="file"
-              onChange={(e) => {
-                // console.log(e.target.files);
-
-                if (e.target.files.length === 0) {
-                  return;
-                }
-
-                mutate({
-                  file: e.target.files[0],
-                });
-              }}
-              onClick={(e) => {
-                e.target.value = null;
-              }}
-              accept=".asreview"
-            />
-          </Button>
-          {isError && <Alert severity="error">{error?.message}</Alert>}
-        </Stack>
-      )}
-
-      {!smallScreen && (
-        <ImportProjectCard
-          mutate={mutate}
-          isLoading={isLoading}
-          isError={isError}
-          error={error}
-        />
-      )}
+      <ImportProjectCard
+        mutate={mutate}
+        isLoading={isLoading}
+        isError={isError}
+        error={error}
+      />
 
       <Snackbar
         open={importSnackbar}
