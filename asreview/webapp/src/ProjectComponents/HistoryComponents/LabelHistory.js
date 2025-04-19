@@ -34,7 +34,12 @@ const LabelHistory = ({
   return (
     <>
       <Container maxWidth="md">
-        <Toolbar sx={{ justifyContent: "space-between" }}>
+        <Toolbar
+          sx={{
+            justifyContent: "space-between",
+            px: 0,
+          }}
+        >
           <Stack direction="row" spacing={2}>
             <Chip
               label={

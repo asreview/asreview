@@ -7,20 +7,24 @@ import { useMediaQuery } from "@mui/material";
 import { ProjectAPI } from "api";
 import { useQuery } from "react-query";
 
-const FlowChartStep = ({ value, label }) => (
-  <Paper
-    elevation={0}
-    sx={{
-      p: 1,
-      textAlign: "center",
-      borderRadius: 8,
-      width: "180px",
-    }}
-  >
-    <Typography sx={{ fontWeight: "bold" }}>{value}</Typography>
-    <Typography sx={{ fontSize: "0.9rem" }}>{label}</Typography>
-  </Paper>
-);
+const FlowChartStep = ({ value, label }) => {
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        p: 1,
+        textAlign: "center",
+        borderRadius: {
+          md: 8,
+        },
+        width: "180px",
+      }}
+    >
+      <Typography sx={{ fontWeight: "bold" }}>{value}</Typography>
+      <Typography sx={{ fontSize: "0.9rem" }}>{label}</Typography>
+    </Paper>
+  );
+};
 
 const FlowChartArrow = () => <KeyboardArrowRightOutlinedIcon />;
 
@@ -47,7 +51,12 @@ const ModelFlowChart = ({ record }) => {
   )[0]?.label;
 
   return (
-    <Stack direction="row" spacing={2} alignItems={"center"}>
+    <Stack
+      direction="row"
+      spacing={2}
+      alignItems={"center"}
+      sx={{ overflow: "auto" }}
+    >
       <FlowChartStep
         value={isLoading ? <Skeleton /> : record.state.training_set}
         label={mobile ? "labels" : "labeled records"}
