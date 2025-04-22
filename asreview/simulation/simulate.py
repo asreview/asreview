@@ -212,7 +212,7 @@ class Simulate:
             pbar_rel.close()
             pbar_total.close()
 
-            padded_results = list(self._results["label"]) + [0] * (
+            padded_results = list(self._results.dropna(axis=0, subset="training_set")["label"]) + [0] * (
                 len(self.labels) - len(self._results["label"])
             )
 
