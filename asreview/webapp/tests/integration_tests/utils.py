@@ -1,14 +1,21 @@
 import time
+import os
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.keys import Keys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from asreview.webapp._authentication.models import Project
 from asreview.webapp._authentication.models import User
 
+SELENIUM_SCREENSHOT_DIR = os.getenv('SELENIUM_SCREENSHOT_DIR', '/tmp')
+
+def save_screenshot(driver, name="screenshot", dirpath=SELENIUM_SCREENSHOT_DIR):
+    os.makedirs(dirpath, exist_ok=True)
+    driver.save_screenshot(f'{dirpath}/{name}.png')
 
 def setup_database_session(uri):
     Session = sessionmaker()
@@ -28,13 +35,12 @@ def browse_to_page(driver, page):
     assert driver.current_url == page
 
 
-def click_element(driver, selector, wait_secs=60):
+def click_element(driver, selector, wait_secs=60, selector_type=By.CSS_SELECTOR):
     """Waits until a clickable element is clickable and clicks
     on it. When <selector> is a String, a CSS selector is
     assumed."""
     if isinstance(selector, str):
-        # assume a CSS selector if selector is a string
-        selector = (By.CSS_SELECTOR, selector)
+        selector = (selector_type, selector)
     # wait until clickable
     WebDriverWait(driver, wait_secs).until(EC.element_to_be_clickable(selector))
     # find the element
@@ -52,20 +58,29 @@ def select_from_dropdown(driver, parent, data_value):
 
 
 # TODO APPLY THIS FUNCTION
-def fill_text_field_by_id(driver, field_id, value):
-    WebDriverWait(driver, 60).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, f"input#{field_id}"))
+def fill_text_field_by_id(driver, field_id, value, wait_time=60):
+    selector = (By.CSS_SELECTOR, f"input#{field_id}")
+    WebDriverWait(driver, wait_time).until(
+        EC.presence_of_element_located(selector)
     )
 
-    input_field = driver.find_element(By.CSS_SELECTOR, f"input#{field_id}")
-    input_field.clear()
+    input_field = driver.find_element(*selector)
+
+   # input_field.clear() does not work for all fields when using chromedriver:
+   # fields that have autofill enabled are re-filled after being cleared.
+   # instead, just clear the fields manually:
+    while not input_field.get_attribute('value') == "":
+        input_field.send_keys(Keys.BACK_SPACE)
+
     input_field.send_keys(value)
 
 
 def create_account(driver, base_url, account_data):
     # browse to signup page
-    page = base_url + "/signup"
+    page = base_url + "/signin"
     browse_to_page(driver, page)
+
+    click_element(driver, "button#create-profile")
 
     # link account data to form fields
     form_field_values = [
@@ -87,7 +102,7 @@ def create_account(driver, base_url, account_data):
     for field_id, value in form_field_values:
         driver.find_element(By.CSS_SELECTOR, f"input#{field_id}").send_keys(value)
 
-    # wait until create button is clickable and create profile
+    # wait until create button is clickable and enabled
     click_element(driver, "button#create-profile")
 
 
@@ -118,16 +133,21 @@ def sign_in(driver, base_url, account_data):
 
 
 def sign_out(driver):
-    click_element(driver, "button#profile-popper")
-    click_element(driver, "li#signout")
+    click_element(driver, "[aria-label='account of current user'")
+    click_element(driver, "//p[contains(text(), 'Sign out')]", selector_type=By.XPATH)
 
 
-def page_contains_text(driver, text, css_selector=None):
-    if css_selector is None:
-        css_selector = "body"
-    # find the selector
-    all_text = driver.find_element(By.CSS_SELECTOR, css_selector).text
-    return text in all_text
+def page_contains_text(driver, text, selector="body", selector_type=By.CSS_SELECTOR, wait_time=60):
+    # wait until the text is visible
+    WebDriverWait(driver, wait_time).until(
+        EC.text_to_be_present_in_element(
+            (selector_type, selector), text
+        )
+    )
+    return True
+
+def wait_for_redirect(driver, redirect_url, wait_time=10):
+    WebDriverWait(driver, wait_time).until(lambda driver: driver.current_url == redirect_url)
 
 
 def label_abstract(driver, label, reading_time=0):
@@ -187,7 +207,7 @@ def _label_searched_prior_knowledge(driver, project_data, reading_time):
 
 def create_project(driver, base_url, project_data, reading_time=0):
     # browse to signin page
-    page = base_url + "/projects"
+    page = base_url + "/reviews"
     browse_to_page(driver, page)
 
     # click on the create button when it's available

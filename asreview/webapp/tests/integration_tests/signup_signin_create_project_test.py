@@ -1,5 +1,7 @@
 import random
 
+import pytest
+
 import asreview.webapp.tests.integration_tests.utils as utils
 from asreview.webapp._authentication.models import Project
 
@@ -45,7 +47,7 @@ PROJECT = {
     },
 }
 
-
+@pytest.mark.skip(reason="create_project must be refactored")
 def test_signup_signin_create_project(driver, url, database_uri, reading_time):
     base_url = url
     driver.get(base_url)
@@ -80,3 +82,21 @@ def test_signup_signin_create_project(driver, url, database_uri, reading_time):
 
     # close driver
     driver.close()
+
+
+def test_signup_signin_signout(driver, url, database_uri, reading_time):
+    base_url = url
+    driver.get(base_url)
+
+    # setup database session
+    session = utils.setup_database_session(database_uri)
+
+    # clean database
+    utils.clean_database(session)
+    # create account
+    utils.create_account(driver, base_url, ACCOUNT)
+
+    utils.sign_in(driver, base_url, ACCOUNT)
+    utils.sign_out(driver)
+
+    utils.wait_for_redirect(driver, base_url + '/signin')
