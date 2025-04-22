@@ -346,17 +346,17 @@ def update_profile():
         old_password = request.form.get("old_password", None)
         new_password = request.form.get("new_password", None)
         public = bool(int(request.form.get("public", "1")))
+        reconfirm = ( email != old_email
+            and user.origin == "asreview"
+            and current_app.config.get("EMAIL_VERIFICATION", False)
+        )
 
         try:
             user = user.update_profile(
-                email, name, affiliation, old_password, new_password, public
+                email, name, affiliation, old_password, new_password, public, reconfirm
             )
             DB.session.commit()
-            if (
-                email != old_email
-                and user.origin == "asreview"
-                and current_app.config.get("EMAIL_VERIFICATION", False)
-            ):
+            if reconfirm:
                 # send email
                 send_confirm_account_email(user, current_app, "change_email")
                 # email has been changed and we verify email

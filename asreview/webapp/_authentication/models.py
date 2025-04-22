@@ -123,6 +123,7 @@ class User(UserMixin, DB.Model):
         old_password=None,
         new_password=None,
         public=True,
+        reconfirm=True,
     ):
         # if there is a request to update the password, and the origin
         # is correct
@@ -137,7 +138,7 @@ class User(UserMixin, DB.Model):
                     self.hashed_password = User.create_password_hash(new_password)
 
             # email has been changed
-            if self.email != email:
+            if self.email != email and reconfirm:
                 self.set_token()
                 self.confirmed = False
 
