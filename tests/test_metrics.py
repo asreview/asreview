@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from numpy.testing import assert_almost_equal
+import warnings
 
 from asreview.metrics import loss
 from asreview.metrics import ndcg
@@ -62,9 +63,10 @@ def test_loss_value_function(labels, expected_value):
     "labels",
     [[0, 0, 0], [0], [1]],
 )
-def test_loss_value_error_cases(labels):
-    with pytest.raises(ValueError):
-        loss(labels)
+def test_loss_warning_message(labels):
+    with pytest.warns(UserWarning, match="Labels do not contain two distinct classes. Returning NaN."):
+        result = loss(labels)
+        assert np.isnan(result)
 
 
 def test_random_loss_values():
@@ -137,9 +139,10 @@ def test_ndcg_value_function(labels, expected_value):
     "labels",
     [[0, 0, 0], [0], [1]],
 )
-def test_lndcg_value_error_cases(labels):
-    with pytest.raises(ValueError):
-        ndcg(labels)
+def test_lndcg_warning_message(labels):
+    with pytest.warns(UserWarning, match="Labels do not contain two distinct classes. Returning NaN."):
+        result = ndcg(labels)
+        assert np.isnan(result)
 
 
 def test_random_ndcg_values():
