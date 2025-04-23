@@ -60,3 +60,9 @@ systematic reviews.
     simulation_cli
     simulation_results
     simulation_api_example
+
+.. toctree::
+    :caption: Official Extensions
+    :maxdepth: 2
+
+    asreview_nemo
