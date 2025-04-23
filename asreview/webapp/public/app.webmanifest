@@ -5,8 +5,18 @@
   "icons": [
     {
       "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "sizes": "48x48",
       "type": "image/x-icon"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ],
   "start_url": ".",
@@ -17,15 +27,12 @@
   "background_color_dark": "#16130b",
   "lang": "en",
   "categories": ["productivity", "education", "science"],
-  "shortcuts": [
+  "screenshots": [
     {
-      "name": "Start New Review",
-      "short_name": "New Review",
-      "description": "Start a new systematic review",
-      "url": "/reviews",
-      "icons": [
-        { "src": "shortcut-icon.png", "sizes": "192x192", "type": "image/png" }
-      ]
+      "src": "social-preview.png",
+      "sizes": "1280x640",
+      "type": "image/png",
+      "form_factor": "wide"
     }
   ]
 }

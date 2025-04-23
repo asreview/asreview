@@ -2,7 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ASReview LAB - AI-assisted systematic reviews</title>
+
+    <!-- Icons -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="%PUBLIC_URL%/apple-touch-icon.png"
+    />
     <link
       rel="icon"
       type="image/png"
@@ -12,20 +20,20 @@
     <link
       rel="icon"
       type="image/png"
-      sizes="192x192"
-      href="%PUBLIC_URL%/favicon-192x192.png"
+      sizes="16x16"
+      href="%PUBLIC_URL%/favicon-16x16.png"
     />
-    <meta property="og:title" content="ASReview" />
+
+    <!-- Open Graph Metadata -->
+    <meta property="og:title" content="ASReview LAB" />
     <meta
       property="og:description"
-      content="Smart software for systematic reviews."
+      content="Smart software for systematic reviews"
     />
-    <meta
-      property="og:image"
-      content="%PUBLIC_URL%/asreview_social_preview.png"
-    />
+    <meta property="og:image" content="%PUBLIC_URL%/social-preview.png" />
     <meta property="og:url" content="%PUBLIC_URL%" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Theme Colors -->
     <meta
       name="theme-color"
       content="#7a6958"
@@ -36,7 +44,11 @@
       content="#a69c8b"
       media="(prefers-color-scheme: dark)"
     />
-    <meta name="description" content="Smart software for systematic reviews." />
+
+    <!-- Manifest -->
+    <link rel="manifest" href="%PUBLIC_URL%/app.webmanifest" />
+
+    <!-- JavaScript Configuration -->
     <script type="text/javascript">
       window.api_url = "%REACT_APP_API_URL%";
       window.asreviewVersion = "%REACT_APP_ASREVIEW_VERSION%";
@@ -46,8 +58,6 @@
       window.emailVerification = %REACT_APP_EMAIL_VERIFICATION%;
       window.oAuthData = %REACT_APP_OAUTH%;
     </script>
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>ASReview LAB - AI-assisted systematic reviews</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
