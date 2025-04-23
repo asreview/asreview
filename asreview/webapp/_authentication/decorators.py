@@ -53,14 +53,40 @@ def login_required(func):
 
 
 def project_authorization(f):
-    """Decorator function that checks if current user can access
-    a project in an authenticated situation"""
+    """
+    Decorator to enforce project-level authorization for a given route.
+
+    This decorator checks whether the current user has the necessary permissions
+    to access a specific project. It handles both authenticated and unauthenticated
+    scenarios, raising appropriate errors or returning a 403 response if access
+    is denied.
+
+    In an unauthenticated situation:
+    - Verifies if the project exists on the filesystem.
+    - Raises a `ProjectNotFoundError` if the project does not exist.
+
+    In an authenticated situation:
+    - Checks if the project exists in the database.
+    - Raises a `ProjectNotFoundError` if the project does not exist.
+    - Verifies if the current user is the owner or a collaborator of the project.
+    - Returns a 403 response if the user lacks the necessary permissions.
+
+    Args:
+        f (Callable): The route handler function to wrap.
+
+    Returns:
+        Callable: The wrapped function with project-level authorization enforced.
+
+    Raises:
+        ProjectNotFoundError: If the project does not exist in either the filesystem
+                              or the database.
+    """
 
     @wraps(f)
     def decorated_function(project_id, *args, **kwargs):
         if not current_app.config.get("AUTHENTICATION", True):
             project_path = get_project_path(project_id)
-            if not is_project(project_path):
+            if not is_project(project_path, raise_on_old_version=True):
                 raise ProjectNotFoundError(f"Project '{project_id}' not found")
             project = asr.Project(project_path, project_id=project_id)
             return f(project, *args, **kwargs)
@@ -78,7 +104,7 @@ def project_authorization(f):
             return jsonify({"message": "no permission"}), 403
 
         project_path = get_project_path(project_id)
-        if not is_project(project_path):
+        if not is_project(project_path, raise_on_old_version=True):
             raise ProjectNotFoundError(f"Project '{project_id}' not found")
         project = asr.Project(project_path, project_id=project_id)
 
