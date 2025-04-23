@@ -17,6 +17,7 @@ __all__ = [
     "ProjectNotFoundError",
 ]
 
+import functools
 import json
 import os
 import shutil
@@ -40,7 +41,7 @@ from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
-from asreview.migrate import migrate_v1_v2
+from asreview.project.migrate import migrate_project_v1_v2
 from asreview.models import get_ai_config
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
@@ -63,14 +64,46 @@ PATH_FEATURE_MATRICES = "feature_matrices"
 PATH_DATA_STORE = "data_store.db"
 
 
-def is_project(project_obj, raise_on_old_version=True):
-    if isinstance(project_obj, Project):
-        project_obj = project_obj.project_path
+def is_project(project, raise_on_old_version=True):
+    """
+    Check if the given path is a valid ASReview project.
 
-    if raise_on_old_version and not Path(project_obj, "reviews").exists():
-        raise ProjectError("Project is of an older version.")
+    Parameters
+    ----------
+    project : str or Project
+        The path to the project directory or a Project instance.
+    raise_on_old_version : bool, optional
+        If True, raise an error for projects with old versions. Default is True.
 
-    return Path(project_obj, PATH_PROJECT_CONFIG).exists()
+    Returns
+    -------
+    bool
+        True if the path is a valid ASReview project, False otherwise.
+
+    Raises
+    ------
+    ProjectNotFoundError
+        If the project directory does not exist or is not found.
+    ProjectError
+        If the path is not a directory or the project is of an older version.
+    """
+    project_instance = project if isinstance(project, Project) else Project(project)
+    project_dir = Path(project_instance.project_path).resolve()
+
+    if not project_dir.exists():
+        raise ProjectNotFoundError("Project not found")
+    if not project_dir.is_dir():
+        raise ProjectError(f"'{project_instance.project_path}' is not a directory")
+
+    if raise_on_old_version and (
+        not (project_dir / "reviews").exists()
+        or project_instance.config.get("version", "").startswith(("1", "0"))
+    ):
+        raise ProjectNotFoundError(
+            "Project is not compatible with ASReview LAB 2. Please upgrade the project."
+        )
+
+    return (project_dir / PATH_PROJECT_CONFIG).exists()
 
 
 class Project:
@@ -78,9 +111,15 @@ class Project:
 
     def __init__(self, project_path, project_id=None):
         self.project_path = Path(project_path)
-        self.data_dir = self.project_path / "data"
         self.project_id = project_id
-        self.data_store = DataStore(Path(project_path, PATH_DATA_STORE))
+
+    @functools.cached_property
+    def data_store(self):
+        return DataStore(Path(self.project_path, PATH_DATA_STORE))
+
+    @property
+    def data_dir(self):
+        return self.project_path / "data"
 
     @classmethod
     def create(
@@ -547,7 +586,7 @@ class Project:
 
                     # extract all files to folder
                     for f in zip_filenames:
-                        if not f.endswith(".pickle"):
+                        if not (f.endswith(".pickle") or f.endswith(".lock")):
                             zip_obj.extract(f, path=tmpdir)
 
             except zipfile.BadZipFile:
@@ -557,8 +596,8 @@ class Project:
                 project_config = json.load(f)
 
             # if migration is needed, do it here
-            if project_config["version"].startswith("1."):
-                migrate_v1_v2(tmpdir)
+            if project_config.get("version", "").startswith("1."):
+                migrate_project_v1_v2(tmpdir)
 
             with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
                 project_config = json.load(f)
