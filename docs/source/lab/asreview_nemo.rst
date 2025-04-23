@@ -8,7 +8,7 @@ ASReview NEMO
 
 Introduction
 ************
-ASReview New Exciting MOdels (NEMO) is a Python package that, when installed, offers ASReview users 
+ASReview New Exciting MOdels (NEMO) is a Python package that, when installed, offers ASReview users
 access to newer, larger, and more advanced models. Having these models in a separate Python package
 allows you to experiment with newer and more complex models, whilst at the same time keeping the
 ASReview package lightweight and fast!
@@ -23,14 +23,14 @@ Installing ASReview NEMO works like any other Python package. Simply install NEM
 
 Usage
 ******
-After installation, the ASReview NEMO models are available in two presets: l2, for multilingual datasets, and 
-h4, for learning on semantics from your dataset. Moreover, under Custom you can mix and match even more 
+After installation, the ASReview NEMO models are available in two presets: l2, for multilingual datasets, and
+h4, for learning on semantics from your dataset. Moreover, under Custom you can mix and match even more
 feature extractors and classifiers.
 
 .. tip::
-  Since these models are generally more computationally intense, 
-  it can take a while for the feature extractorand classifier to 
-  process your data. You can keep track of the progress in the 
+  Since these models are generally more computationally intense,
+  it can take a while for the feature extractorand classifier to
+  process your data. You can keep track of the progress in the
   command line that you used to start ASReview LAB.
 
 Currently Available NEMO models
