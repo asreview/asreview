@@ -191,9 +191,8 @@ def update_project(
     return response
 
 
-def upgrade_project(client: FlaskClient, project: Union[Project, asr.Project]):
-    response = client.get(f"/api/projects/{get_project_id(project)}/upgrade_if_old")
-    return response
+def upgrade_projects(client: FlaskClient, project: Union[Project, asr.Project]):
+    return client.get("/api/upgrade/projects")
 
 
 def import_project(client: FlaskClient, asreview_file):
