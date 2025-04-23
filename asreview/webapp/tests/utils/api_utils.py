@@ -192,7 +192,7 @@ def update_project(
 
 
 def upgrade_projects(client: FlaskClient, project: Union[Project, asr.Project]):
-    return client.get("/api/upgrade/projects")
+    return client.put("/api/upgrade/projects")
 
 
 def import_project(client: FlaskClient, asreview_file):
