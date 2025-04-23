@@ -52,7 +52,6 @@ from asreview.models import AI_MODEL_CONFIGURATIONS
 from asreview.models import get_ai_config
 from asreview.models.stoppers import NConsecutiveIrrelevant
 from asreview.project.api import PROJECT_MODE_SIMULATE
-from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.state.contextmanager import open_state
@@ -1237,8 +1236,6 @@ def api_get_progress_info(project):  # noqa: F401
     include_priors = request.args.get("priors", True, type=bool)
 
     try:
-        is_project(project)
-
         with open_state(project.project_path) as s:
             labels = s.get_results_table(priors=include_priors)["label"]
             labels_without_priors = s.get_results_table(priors=False)["label"]
