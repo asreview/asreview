@@ -31,6 +31,7 @@ def demo_data(render_data=False):
         df_is_oa.iloc[::-10] = df_inclusions
 
         df_is_oa.to_json(Path("tests", "demo_data.json"), orient="records", lines=True)
+        # df_is_oa.to_csv(Path("tests", "demo_data.csv"), index=False)
         return df_is_oa
 
     return pd.read_json(Path("tests", "demo_data.json"), orient="records", lines=True)

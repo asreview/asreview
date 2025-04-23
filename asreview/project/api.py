@@ -614,7 +614,7 @@ class Project:
                 )
 
                 try:
-                    ActiveLearningCycle.from_file(cycle_fp["current_value"])
+                    ActiveLearningCycle.from_meta(cycle_fp["current_value"])
                 except ValueError as err:
                     warnings.warn(err)
 
