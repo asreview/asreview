@@ -89,8 +89,6 @@ class Project:
         project_id=None,
         project_mode="oracle",
         project_name=None,
-        project_description=None,
-        project_authors=None,
         project_tags=None,
     ):
         """Initialize the necessary files specific to the web app."""
@@ -122,8 +120,6 @@ class Project:
                 "id": project_id,
                 "mode": project_mode,
                 "name": project_name,
-                "description": project_description,
-                "authors": project_authors,
                 "created_at_unix": int(time.time()),
                 "reviews": [],
                 "feature_matrices": [],

@@ -146,8 +146,6 @@ def _cli_simulate(argv):
             project_id=Path(args.output).stem,
             project_mode="simulate",
             project_name=Path(args.output).stem,
-            project_description="Simulation created via ASReview via "
-            "command line interface",
         )
         project.add_dataset(args.dataset, dataset_id=filename)
         data_store = project.data_store
