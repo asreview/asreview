@@ -54,9 +54,12 @@ from asreview.models.stoppers import NConsecutiveIrrelevant
 from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
+from asreview.project.migrate import migrate_project_v1_v2
 from asreview.state.contextmanager import open_state
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
+from asreview.webapp._api.utils import add_id_to_tags
+from asreview.webapp._api.utils import read_tags_data
 from asreview.webapp._authentication.decorators import current_user_projects
 from asreview.webapp._authentication.decorators import login_required
 from asreview.webapp._authentication.decorators import project_authorization
@@ -67,7 +70,6 @@ from asreview.webapp._tasks import run_model
 from asreview.webapp._tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
-from asreview.webapp._api.utils import read_tags_data, add_id_to_tags
 
 try:
     import importlib.metadata
@@ -182,16 +184,17 @@ def api_get_projects(projects):  # noqa: F401
     mode = request.args.get("subset", None)
 
     project_info = []
+    project_upgrade_count = 0
 
-    # for project, owner_id in zip(projects, owner_ids):
     for project, db_project in projects:
         try:
             project_config = project.config
 
-            if not project_config["version"].startswith("2."):
+            if project_config.get("version", "").startswith("1."):
+                project_upgrade_count += 1
                 continue
 
-            if mode is not None and project_config["mode"] != mode:
+            if mode and project_config.get("mode") != mode:
                 continue
 
             if current_app.config.get("AUTHENTICATION", True):
@@ -214,7 +217,7 @@ def api_get_projects(projects):  # noqa: F401
         reverse=True,
     )
 
-    return jsonify({"result": project_info})
+    return jsonify({"result": project_info, "upgrade_count": project_upgrade_count})
 
 
 @bp.route("/projects/create", methods=["POST"])
@@ -312,16 +315,45 @@ def api_list_data_readers():
     return jsonify(payload)
 
 
-@bp.route("/projects/<project_id>/upgrade_if_old", methods=["GET"])
+@bp.route("/upgrade/projects", methods=["PUT"])
 @login_required
-@project_authorization
-def api_upgrade_project_if_old(project):
-    """Get upgrade project if it is v0.x"""
+@current_user_projects
+def api_upgrade_projects(projects):
+    """Get upgrade project"""
 
-    if project.config["version"].startswith("0"):
-        return jsonify(
-            message="Not possible to upgrade Version 0 projects, see LINK."
-        ), 400
+    for project, _ in projects:
+        if project.config.get("version", "").startswith("1."):
+            try:
+                # copy the project to a temporary folder
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    shutil.copytree(
+                        project.project_path,
+                        Path(tmpdir) / project.config.get("id"),
+                        ignore=shutil.ignore_patterns("*.lock"),
+                    )
+
+                    shutil.copytree(
+                        project.project_path,
+                        Path(tmpdir) / project.config.get("id") / "legacy_v1",
+                        ignore=shutil.ignore_patterns("*.lock"),
+                    )
+
+                    logging.info(
+                        f"Upgrading project {project.config.get("id")} from v1 to v2."
+                    )
+                    migrate_project_v1_v2(Path(tmpdir) / project.config.get("id"))
+
+                    shutil.rmtree(project.project_path)
+                    shutil.copytree(
+                        Path(tmpdir) / project.config.get("id"), project.project_path
+                    )
+
+            except Exception as err:
+                logging.exception(err)
+                return jsonify(
+                    message=f"Failed to upgrade project {project.config.get("id")}. Contact "
+                    "the ASReview team for help (asreview@uu.nl)."
+                ), 500
 
     return jsonify({"success": True})
 

@@ -20,7 +20,9 @@ def _project_config_converter_v1_v2(project_json):
     # This is a helper function for the main migration function.
 
     project_json["version"] = __version__
-    del project_json["datetimeCreated"]
+    project_json.pop("datetimeCreated", None)
+    project_json.pop("description", None)
+    project_json.pop("authors", None)
 
     if project_json["mode"] == "explore":
         project_json["mode"] = "oracle"
@@ -127,7 +129,7 @@ def _project_model_settings_converter_v1_v2(fp_cycle_metadata):
         )
 
 
-def migrate_v1_v2(folder):
+def migrate_project_v1_v2(folder):
     """Migrate a project from version 1 to version 2.
 
     Parameters
@@ -147,6 +149,16 @@ def migrate_v1_v2(folder):
         project_config = json.load(f)
 
     project_config = _project_config_converter_v1_v2(project_config)
+
+    # remove the project.json.lock file
+    try:
+        os.unlink(Path(folder, "project.json.lock"))
+    except FileNotFoundError:
+        pass
+
+    # remove all pickle files
+    for file in Path(folder).glob("*.pickle"):
+        file.unlink()
 
     # update the data file
     _project_data_converter_v1_v2(project_config, folder)

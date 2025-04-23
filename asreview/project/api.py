@@ -41,7 +41,7 @@ from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
-from asreview.migrate import migrate_v1_v2
+from asreview.project.migrate import migrate_project_v1_v2
 from asreview.models import get_ai_config
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
@@ -590,7 +590,7 @@ class Project:
 
                     # extract all files to folder
                     for f in zip_filenames:
-                        if not f.endswith(".pickle"):
+                        if not f.endswith(".pickle") or not f.endswith(".lock"):
                             zip_obj.extract(f, path=tmpdir)
 
             except zipfile.BadZipFile:
@@ -600,8 +600,8 @@ class Project:
                 project_config = json.load(f)
 
             # if migration is needed, do it here
-            if project_config["version"].startswith("1."):
-                migrate_v1_v2(tmpdir)
+            if project_config.get("version", "").startswith("1."):
+                migrate_project_v1_v2(tmpdir)
 
             with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
                 project_config = json.load(f)
