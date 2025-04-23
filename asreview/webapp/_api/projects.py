@@ -339,7 +339,7 @@ def api_upgrade_projects(projects):
                     )
 
                     logging.info(
-                        f"Upgrading project {project.config.get("id")} from v1 to v2."
+                        f"Upgrading project {project.config.get('id')} from v1 to v2."
                     )
                     migrate_project_v1_v2(Path(tmpdir) / project.config.get("id"))
 
@@ -351,7 +351,7 @@ def api_upgrade_projects(projects):
             except Exception as err:
                 logging.exception(err)
                 return jsonify(
-                    message=f"Failed to upgrade project {project.config.get("id")}. Contact "
+                    message=f"Failed to upgrade project {project.config.get('id')}. Contact "
                     "the ASReview team for help (asreview@uu.nl)."
                 ), 500
 
