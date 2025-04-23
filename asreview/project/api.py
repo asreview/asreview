@@ -590,7 +590,7 @@ class Project:
 
                     # extract all files to folder
                     for f in zip_filenames:
-                        if not f.endswith(".pickle") or not f.endswith(".lock"):
+                        if not (f.endswith(".pickle") or f.endswith(".lock")):
                             zip_obj.extract(f, path=tmpdir)
 
             except zipfile.BadZipFile:
