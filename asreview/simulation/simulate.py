@@ -217,9 +217,14 @@ class Simulate:
             ) + [0] * (len(self.labels) - len(self._results["label"]))
 
             if self.print_progress:
-                print(
-                    f"\nLoss: {loss(padded_results):.3f}\nNDCG: {ndcg(padded_results):.3f}"
-                )
+                try:
+                    print(
+                        f"\nLoss: {loss(padded_results):.3f}\nNDCG: {ndcg(padded_results):.3f}"
+                    )
+                except ValueError:
+                    print(
+                        "Can't compute loss and gain for labels with only relevant or irrelevant records"
+                    )
 
     def label(self, record_ids, cycle=None):
         """Label the records with the given record_ids.
