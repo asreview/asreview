@@ -1214,7 +1214,10 @@ def api_export_dataset(project):
         tmp_path_dataset,
         as_attachment=True,
         max_age=0,
-        download_name=f"asreview_{'+'.join(collections)}_{project.config['name']}.{file_format}",
+        download_name=(
+            f"asreview_{'+'.join(collections)}_"
+            f"{project.config['name'].replace(' ', '_')}.{file_format}"
+        ),
     )
 
 
