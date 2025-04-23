@@ -11,7 +11,6 @@ import {
   IconButton,
   Toolbar,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import { useQuery } from "react-query";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -19,6 +18,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { ProfilePopper } from "Components";
 import { TeamAPI } from "api";
 
+import { WordMark } from "icons/WordMark";
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import { InitialsAvatar } from "StyledComponents/InitialsAvatar";
 import { useToggle } from "hooks/useToggle";
@@ -132,24 +132,13 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
                 <Menu />
               </IconButton>
             )}
-            <ButtonBase disableRipple sx={{}} component={Link} to="/reviews">
-              <Typography
-                component="span"
-                sx={{ fontFamily: "kanit", fontSize: "120%", mr: 0.3 }}
-              >
-                ASReview
-              </Typography>
-              <Typography
-                component="span"
-                sx={{
-                  fontFamily: "kanit",
-                  fontSize: "120%",
-                  fontWeight: "bold",
-                }}
-                color="#FFCC00"
-              >
-                LAB
-              </Typography>
+            <ButtonBase
+              disableRipple
+              component={Link}
+              to="/reviews"
+              sx={{ height: "40px" }}
+            >
+              <WordMark />
             </ButtonBase>
           </Box>
 

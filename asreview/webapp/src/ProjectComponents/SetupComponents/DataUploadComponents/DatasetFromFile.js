@@ -26,7 +26,6 @@ const baseStyle = {
   borderStyle: "dashed",
   outline: "none",
   transition: "border .24s ease-in-out",
-  bgcolor: "#fffbf5",
 };
 
 const activeStyle = {
