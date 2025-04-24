@@ -5,12 +5,12 @@ The AI model is the engine that powers your systematic review. It learns from yo
 to identify relevant records and accelerate your review process. ASReview offers two types of
 models, both provide models and the option to create a custom model:
 
-- Base Models: These models are fast and efficient for most reviews. They are included by
+- ELAS Models: These models are fast and efficient for most reviews. They are included by
 default when you install ASReview.
 - Heavy Models: These are more specialised and computationally demanding. To use these models
 you require the official `asreview-nemo <https://github.com/asreview/asreview-nemo>`__ extension.
 
-Base Models
+ELAS Models
 ***********
 The base models are included in the ASReview package and are all you need for most users. We offer
 one model which was trained on the SYNERGY dataset and works well for most use cases. However, if
@@ -27,7 +27,7 @@ The best performing model in ASReview yet! ELAS u4 is a combination of the TF-ID
 and the Support Vector Machine (SVM) classifier. This, combined with the Maximum querier and the
 Balanced balancer and optimized hyperparameters on the SYNERGY dataset, provides you with a great model.
 
-Custom Base Models
+Custom ELAS Models
 ==================
 Since an AI model is a combination of four model components that work together to rank your remaining
 documents, you can create a custom model as well. The four model components that you can choose are are:
