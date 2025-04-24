@@ -145,12 +145,6 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
                   {project?.name}
                 </Typography>
               </Box>
-              {review?.status === projectStatuses.SETUP && (
-                <Chip
-                  label="Draft"
-                  sx={{ color: "#424242", bgcolor: "#bdbdbd", ml: 2 }}
-                />
-              )}
             </Stack>
             <Typography variant="body2" color="textSecondary" component="p">
               {timeAgo.format(project.created_at_unix * 1000)}
@@ -174,6 +168,18 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
           )}
 
         <Grid size={"auto"}>
+          {review?.status === projectStatuses.SETUP && (
+            <ButtonBase
+              onClick={(e) => openProject()}
+              sx={{ borderRadius: "16px", mr: 1 }}
+            >
+              <Chip
+                label="Draft"
+                sx={{ color: "#424242", bgcolor: "#bdbdbd" }}
+                clickable={false}
+              />
+            </ButtonBase>
+          )}
           {window.authentication &&
             review?.status !== projectStatuses.SETUP &&
             project?.roles.owner && (
