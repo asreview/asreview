@@ -22,6 +22,7 @@ systematic reviews.
     products
     research
     contribute
+    asreview_models
 
 
 .. toctree::
@@ -50,6 +51,7 @@ systematic reviews.
     screening
     progress
     manage
+
 
 .. toctree::
     :caption: Simulation
