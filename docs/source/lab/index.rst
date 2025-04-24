@@ -22,6 +22,7 @@ systematic reviews.
     products
     research
     contribute
+    asreview_models
 
 
 .. toctree::
@@ -51,6 +52,7 @@ systematic reviews.
     progress
     manage
 
+
 .. toctree::
     :caption: Simulation
     :maxdepth: 2
@@ -61,8 +63,3 @@ systematic reviews.
     simulation_results
     simulation_api_example
 
-.. toctree::
-    :caption: Official Extensions
-    :maxdepth: 2
-
-    asreview_nemo
