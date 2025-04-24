@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -80,6 +81,10 @@ const WordCounts = () => {
     },
   );
 
+  // Check if there are any words to display
+  const hasRelevantWords = data?.relevant && data.relevant.length > 0;
+  const hasIrrelevantWords = data?.irrelevant && data.irrelevant.length > 0;
+
   return (
     <Card sx={{ bgcolor: "transparent" }}>
       <CardContent sx={{ mt: 4, position: "relative" }}>
@@ -121,16 +126,16 @@ const WordCounts = () => {
                 In Relevant Records
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                {data?.relevant ? (
-                  data?.relevant
+                {hasRelevantWords ? (
+                  data.relevant
                     .slice(0, 12)
                     .map((word) => (
                       <WordTag key={word} word={word} color="tertiary.main" />
                     ))
                 ) : (
-                  <Typography variant="body2" color="text.secondary">
-                    No words available yet
-                  </Typography>
+                  <Alert severity="info" sx={{ width: "100%" }}>
+                    Keep screening records to see the words
+                  </Alert>
                 )}
               </Stack>
             </Box>
@@ -144,16 +149,16 @@ const WordCounts = () => {
                 In Not Relevant Records
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                {data?.irrelevant ? (
-                  data?.irrelevant
+                {hasIrrelevantWords ? (
+                  data.irrelevant
                     .slice(0, 8)
                     .map((word) => (
                       <WordTag key={word} word={word} color="grey.600" />
                     ))
                 ) : (
-                  <Typography variant="body2" color="text.secondary">
-                    No words available yet
-                  </Typography>
+                  <Alert severity="info" sx={{ width: "100%" }}>
+                    Keep screening records to see the words
+                  </Alert>
                 )}
               </Stack>
             </Box>
@@ -188,26 +193,16 @@ const WordCounts = () => {
                 </Typography>
                 <Typography variant="body2" align="justify">
                   The are the frequently occurring words in your relevant and
-                  not relevant records.
+                  not relevant records. Use these patterns to validate if the
+                  model is learning from your decisions.
                 </Typography>
               </Box>
-              <Divider />
               <Box>
-                <Typography
-                  variant="subtitle1"
-                  fontWeight="bold"
-                  sx={{ mb: 1 }}
-                >
-                  Interpretation Guide
-                </Typography>
-                <Typography variant="body2" align="justify">
-                  Use these patterns to validate if the model is learning from
-                  your decisions. {""}
-                  <strong>However,</strong> {""} while they can indicate
-                  relevant topics, remember that words may appear in both
-                  categories and their meaning depends on the specific context
-                  of your review.
-                </Typography>
+                <Alert severity="info" sx={{ mt: 1.5 }}>
+                  Words can appear in both relevant and irrelevant categories.
+                  Their significance depends on the specific context of your
+                  review.
+                </Alert>
               </Box>
               <Divider />
               <Box>

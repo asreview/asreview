@@ -155,18 +155,25 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
           <>
             {!error ? (
               <>
-                {modelConfig.name && !modelConfig.name.startsWith("elas_u") && (
-                  <Alert
-                    severity="info"
-                    sx={{
-                      mb: 3,
-                    }}
-                  >
-                    The selected model might need longer to train than ultra
-                    models. You can continue screening and once the model is
-                    trained, it will be used for the next records.
-                  </Alert>
-                )}
+                {modelConfig.name &&
+                  (modelConfig.name === "custom" ||
+                    !modelConfig.name.startsWith("elas_u")) && (
+                    <Alert severity="warning" sx={{ mb: 3 }}>
+                      {modelConfig.name === "custom" &&
+                        "Composing a custom AI model is an advanced feature recommended only for experienced users. "}
+                      {
+                        <>
+                          This AI model will begin training in the background
+                          and might take longer than the faster{" "}
+                          <strong>Ultra</strong> models. While the model is
+                          training, your screening process will continue
+                          uninterrupted using the currently active model. The
+                          system will automatically switch to the newly trained
+                          model once it's ready.
+                        </>
+                      }
+                    </Alert>
+                  )}
                 <FormControl fullWidth>
                   <InputLabel id="model-select-label">
                     Select learner
@@ -352,16 +359,6 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                   {modelConfig.name === "custom" && learnerOptions && (
                     <>
                       <Divider sx={{ mb: 3 }} />
-                      <Alert
-                        severity="warning"
-                        sx={{
-                          mb: 3,
-                        }}
-                      >
-                        You can compose your own model by selecting different
-                        components. This is an advanced feature and not
-                        recommended for most users.
-                      </Alert>
                       <Box>
                         <Stack direction="column" spacing={3}>
                           <ModelComponentSelect
