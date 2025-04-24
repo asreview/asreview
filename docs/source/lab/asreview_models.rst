@@ -98,7 +98,7 @@ The following feature extractors and classifiers are currently included in the N
 ASReview NEMO Feature Extractors: `doc2vec`, `gtr-t5-large`, `labse`, `multilingual-e5-large`,
 `mxbai-embed-large-v1`, `sbert`
 
-ASReview NEMO Classifiers: `AdaBoost`, `Neural Network - 2-Layer`, `Neural Network - Dynamic`, 
+ASReview NEMO Classifiers: `AdaBoost`, `Neural Network - 2-Layer`, `Neural Network - Dynamic`,
 `Neural Network - Warm Start`, `XGBoost`
 
 .. tip::
