@@ -1,4 +1,3 @@
-import shutil
 from pathlib import Path
 import json
 
@@ -54,15 +53,6 @@ TEST_NOTES = [
 TEST_N_PRIORS = 0
 
 TEST_POOL_START = [157, 301, 536, 567, 416, 171, 659, 335, 329, 428]
-
-
-@pytest.fixture
-def asreview_test_project(tmpdir):
-    """Fixture to set up a test project for ASReview."""
-    test_state_fp = Path("tests", "asreview_files", "asreview-demo-project.asreview")
-    tmp_project_path = Path(tmpdir, "asreview-demo-project.asreview")
-    shutil.copy(test_state_fp, tmp_project_path)
-    return tmp_project_path
 
 
 def test_init_project_folder(tmpdir):

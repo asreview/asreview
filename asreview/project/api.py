@@ -613,12 +613,15 @@ class Project:
                     "settings_metadata.json",
                 )
 
+                with open(cycle_fp) as f:
+                    cycle = json.load(f)["current_value"]
+
                 try:
-                    ActiveLearningCycle.from_meta(cycle_fp["current_value"])
+                    ActiveLearningCycle.from_meta(ActiveLearningCycleData(**cycle))
                 except ValueError as err:
                     warnings.warn(err)
 
-                    with open(cycle_fp) as f:
+                    with open(cycle_fp, "w") as f:
                         model = get_ai_config()
                         json.dump(
                             {
