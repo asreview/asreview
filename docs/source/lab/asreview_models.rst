@@ -99,7 +99,7 @@ ASReview NEMO Feature Extractors: `doc2vec`, `gtr-t5-large`, `labse`, `multiling
 `mxbai-embed-large-v1`, `sbert`
 
 ASReview NEMO Classifiers: `AdaBoost`, `Neural Network - 2-Layer`, `Neural Network - Dynamic`, 
-`Neural Network - Warm Start`, `Scaled Naive Bayes`, `XGBoost`
+`Neural Network - Warm Start`, `XGBoost`
 
 .. tip::
   Combining ASReview and NEMO models in a custom model requires some knowledge of how these models work.
