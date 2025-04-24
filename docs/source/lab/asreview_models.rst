@@ -5,10 +5,8 @@ The AI model is the engine that powers your systematic review. It learns from yo
 to identify relevant records and accelerate your review process. ASReview offers two types of
 models, both provide models and the option to create a custom model:
 
-- ELAS Models: These models are fast and efficient for most reviews. They are included by
-default when you install ASReview.
-- Heavy Models: These are more specialised and computationally demanding. To use these models
-you require the official `asreview-nemo <https://github.com/asreview/asreview-nemo>`__ extension.
+- ELAS Models: These models are fast and efficient for most reviews. They are included by default when you install ASReview.
+- Heavy Models: These are more specialised and computationally demanding. To use these models you require the official `asreview-nemo <https://github.com/asreview/asreview-nemo>`__ extension.
 
 ELAS Models
 ***********
@@ -32,11 +30,9 @@ Custom ELAS Models
 Since an AI model is a combination of four model components that work together to rank your remaining
 documents, you can create a custom model as well. The four model components that you can choose are are:
 
-- Querier: Selects which records to show you next. For example, prioritizing potentially relevant records
-or mixing in random records.
+- Querier: Selects which records to show you next. For example, prioritizing potentially relevant records or mixing in random records.
 - Feature Extractor: Converts text into numerical features that the classifier can understand.
-- Classifier: Makes predictions about relevance based on your decisions using the numerical features created
-by the feature extractor.
+- Classifier: Makes predictions about relevance based on your decisions using the numerical features created by the feature extractor.
 - Balancer: Handles imbalanced data to improve learning accuracy.
 
 The following options work out of the box, but if you are up for a challenge you can implement any
@@ -44,8 +40,7 @@ classifier or feature extractor yourself.
 
 - Feature Extractors: `OneHot`, `TF-IDF`
 - Classifiers: `Naive Bayes`, `Support Vector Machine`, `Random Forest`, `Logistic Regression`
-- Queriers: `Maximum`, `Mixed (95% Maximum and 5% Random)`, `Mixed (95% Maximum and 5% Uncertainty)`, `Random`,
-`Top-down`, `Uncertainty`
+- Queriers: `Maximum`, `Mixed (95% Maximum and 5% Random)`, `Mixed (95% Maximum and 5% Uncertainty)`, `Random`, `Top-down`, `Uncertainty`
 - Balancers: `Balanced`
 
 Heavy Models
