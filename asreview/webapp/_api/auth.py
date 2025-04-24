@@ -346,7 +346,8 @@ def update_profile():
         old_password = request.form.get("old_password", None)
         new_password = request.form.get("new_password", None)
         public = bool(int(request.form.get("public", "1")))
-        reconfirm = ( email != old_email
+        reconfirm = (
+            email != old_email
             and user.origin == "asreview"
             and current_app.config.get("EMAIL_VERIFICATION", False)
         )

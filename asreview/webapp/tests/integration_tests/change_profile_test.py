@@ -63,7 +63,7 @@ def test_change_profile(driver, url, database_uri):
     utils.click_element(driver, "button#save")
 
     # verify we're on the project dashboard again
-    utils.wait_for_redirect(driver, base_url + '/reviews')
+    utils.wait_for_redirect(driver, base_url + "/reviews")
 
     # assert we have an updated user
     assert len(session.query(User).all()) == 1
@@ -74,13 +74,13 @@ def test_change_profile(driver, url, database_uri):
 
     # log out
     utils.sign_out(driver)
-    utils.wait_for_redirect(driver, base_url + '/signin')
+    utils.wait_for_redirect(driver, base_url + "/signin")
 
     # log back in with new data
     utils.sign_in(driver, base_url, new_user_data)
     utils.save_screenshot(driver, name="post_signin")
     # check if we are on the project dashboard
-    utils.wait_for_redirect(driver, base_url + '/reviews')
+    utils.wait_for_redirect(driver, base_url + "/reviews")
 
     # close driver
     driver.close()
