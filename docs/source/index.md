@@ -39,7 +39,7 @@ Join the movement towards fast, open, and transparent systematic reviews.
 :align: center
 ```
 
-## ASReview LAB user guide
+## User guide
 
 
 ```{toctree}
@@ -48,7 +48,7 @@ Join the movement towards fast, open, and transparent systematic reviews.
 lab/index
 ```
 
-## ASReview LAB Server
+## Server guide
 
 All documentation for the ASReview LAB Server
 

@@ -1,11 +1,17 @@
-ASReview LAB user guide
-=======================
+ASReview LAB guide
+==================
 
-ASReview LAB is a web-based application for the ASReview systematic review
-software. It is designed to make the process of systematic reviewing more
-efficient and transparent. The application is built on top of the ASReview
-Python package, which is a state-of-the-art tool for active learning based
-systematic reviews.
+ASReview LAB is a user-friendly, web-based application designed to make
+the systematic review process more efficient. Built on the powerful ASReview Python package,
+it leverages state-of-the-art active learning algorithms to make systematic
+reviews faster, more efficient, and transparent. Whether you are conducting
+a systematic review for academic research, policy-making, or other purposes,
+ASReview LAB provides an intuitive interface and robust tools to support your work.
+
+The application is highly versatile, enabling users to screen large datasets,
+simulate review processes, and manage projects with ease. By integrating
+machine learning, ASReview LAB reduces the workload of reviewers while
+maintaining high accuracy and reproducibility.
 
 .. seealso::
 
@@ -22,7 +28,6 @@ systematic reviews.
     products
     research
     contribute
-    asreview_models
 
 
 .. toctree::
@@ -42,6 +47,12 @@ systematic reviews.
     data_format
     data_labeled
 
+.. toctree::
+    :caption: AI Models
+    :maxdepth: 2
+
+    models
+    nemo
 
 .. toctree::
     :caption: Screening and projects
@@ -58,7 +69,5 @@ systematic reviews.
     :maxdepth: 2
 
     simulation_overview
-    simulation_webapp
     simulation_cli
-    simulation_results
     simulation_api_example

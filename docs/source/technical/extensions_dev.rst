@@ -33,10 +33,10 @@ An extension of a :class:`asreview.models.base.BaseModel` type class.
 Model extensions extent the ASReview software with new classifiers, query
 strategies, balance strategies, or feature extraction techniques. These
 extensions extend one of the model base classes
-(:class:`asreview.models.balance.base`,
-:class:`asreview.models.classifiers.base`,
-:class:`asreview.models.feature_extraction.base`,
-:class:`asreview.models.query.base`).
+(:class:`asreview.models.balancers`,
+:class:`asreview.models.classifiers`,
+:class:`asreview.models.feature_extractors`,
+:class:`asreview.models.queriers`).
 
 The easiest way to extend ASReview with a model is by using the |template_link|.
 Create a copy of the template and add the new algorithm to a new model file. It
@@ -47,19 +47,10 @@ is advised to use the following structure of the package:
     ├── README.md
     ├── asreviewcontrib
     │   └── models
-    │       ├── classifiers
-    │       │   ├── __init__.py
-    │       │   └── example_model.py
-    │       ├── feature_extraction
-    │       │   ├── __init__.py
-    │       │   └── example_feature_extraction.py
-    │       ├── balance
-    │       │   ├── __init__.py
-    │       │   └── example_balance_strategies.py
-    │       └── query
-    │           ├── __init__.py
-    │           └── example_query_strategies.py
-    ├── setup.py
+    │       ├── classifiers.py
+    │       ├── feature_extractors.py
+    │       ├── balancers.py
+    │       └── queriers.py
     └── tests
 
 The next step is to add metadata to the `setup.py
@@ -73,13 +64,13 @@ models.
         'asreview.models.classifiers': [
             'example = asreviewcontrib.models.classifiers.example_model:ExampleClassifier',
         ],
-        'asreview.models.feature_extraction': [
+        'asreview.models.feature_extractors': [
             # define feature_extraction algorithms
         ],
-        'asreview.models.balance': [
+        'asreview.models.balancers': [
             # define balance_strategy algorithms
         ],
-        'asreview.models.query': [
+        'asreview.models.queriers': [
             # define query_strategy algorithms
         ]
     },

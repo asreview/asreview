@@ -1,73 +1,72 @@
 Installation
 ============
 
-Install ASReview
-----------------
+Install ASReview LAB
+---------------------
 
-ASReview software requires an installation of Python 3.10 or later. Detailed
-step-by-step instructions to install Python (and ASReview) are available for
-`Windows <https://asreview.ai/download>`__ and
-`macOS/Linux <https://asreview.ai/download/>`__ users.
+ASReview LAB requires Python 3.10 or later. Detailed step-by-step instructions for
+installing Python and ASReview LAB are available for `Windows
+<https://asreview.ai/download>`__ and `macOS/Linux
+<https://asreview.ai/download/>`__ users.
 
-Install the ASReview software with Pip by running the following command in the
-`CMD.exe` (Windows) or `Terminal` (MacOS/Linux):
+To install ASReview LAB using Pip, run the following command in `CMD.exe` (Windows)
+or `Terminal` (macOS/Linux):
 
 .. code:: bash
 
     pip install asreview
 
-Start the application with the following command (in CMD.exe or Terminal):
+To start the application, use this command in `CMD.exe` or `Terminal`:
 
 .. code:: bash
 
     asreview lab
 
-The ASReview LAB software starts in the browser. For more options on starting
-ASReview LAB, see :doc:`start`.
+The ASReview LAB application will open in your browser. For more options to
+start ASReview LAB, see :doc:`start`.
 
 .. note::
 
-    See :doc:`troubleshooting` for common problems during installation.
+    Refer to :doc:`troubleshooting` for solutions to common installation issues.
 
 .. tip::
 
-    For users with Apple M1 computers, if you experience problems, follow the
-    `instructions
-    <https://github.com/asreview/asreview/issues/738>`__.
+    If you are using an Apple M1 computer and encounter issues, follow the
+    `instructions <https://github.com/asreview/asreview/issues/738>`__.
 
 
-Upgrade ASReview
-----------------
+Upgrade ASReview LAB
+---------------------
 
-Upgrade ASReview software with
+To upgrade ASReview LAB, run:
 
 .. code:: bash
 
     pip install --upgrade asreview
 
 
+Uninstall ASReview LAB
+-----------------------
 
-Uninstall ASReview
-------------------
-
-Remove ASReview with
+To uninstall ASReview LAB, run:
 
 .. code:: bash
 
     pip uninstall asreview
 
-Enter ``y`` to confirm.
+When prompted, enter ``y`` to confirm.
 
 .. warning::
 
-    Note that your project files will **not** delete with this action. You find them in the `.asreview` folder in your home folder.
+    Uninstalling ASReview LAB does not delete your project files. These files are
+    stored in the `.asreview` folder in your home directory.
+
 
 Server Installation
 -------------------
 
-It is possible to run the ASReview software on a server or custom domain. Use
-the flags `ip` and `port` for configuration. ASReview should only be used in
-closed networks.
+You can run ASReview LAB on a server or custom domain. Use the `ip` and `port` flags
+for configuration. ASReview LAB should only be used in closed networks.
 
 .. code:: bash
 
@@ -75,74 +74,77 @@ closed networks.
 
 .. warning::
 
-    Don't use the development server in production. Read the Flask documentation
-    about `deploying a Flask app to production <https://flask.palletsprojects.com/en/1.1.x/tutorial/deploy/>`__.
+    Do not use the development server in production. Refer to the Flask
+    documentation on `deploying a Flask app to production
+    <https://flask.palletsprojects.com/en/1.1.x/tutorial/deploy/>`__.
 
 
 Install with Docker
 -------------------
 
-ASReview is also available as a Docker container. Make sure you have
-Docker installed on your machine.
+ASReview LAB is also available as a Docker container. Ensure Docker is installed on
+your machine.
 
-To install and start ASReview LAB at http://localhost:5000, run the following:
-
-.. code:: bash
-
-   docker run -p 5000:5000 ghcr.io/asreview/asreview:latest lab
-
-
-More advanced command line options can be given
-afterward, like this:
+To install and start ASReview LAB at http://localhost:5000, run:
 
 .. code:: bash
 
-   docker run -p 9000:9000 ghcr.io/asreview/asreview lab --port 9000
+    docker run -p 5000:5000 ghcr.io/asreview/asreview:latest lab
+
+You can pass advanced command-line options as follows:
+
+.. code:: bash
+
+    docker run -p 9000:9000 ghcr.io/asreview/asreview lab --port 9000
 
 .. tip::
 
-    ASReview LAB is now installed. Open the URL in your host web browser:
-    ``http://localhost:5000`` and get started.
+    ASReview LAB is now installed. Open ``http://localhost:5000`` in your web
+    browser to get started.
 
 
-Mount local volume
+Mount Local Volume
 ~~~~~~~~~~~~~~~~~~
 
-To mount the container to your local project folder (or any other local
-folder), the `-v` flag can be used. To do so, adjust path-to-your-folder to
-your local folder. When a project folder is specified, ASReview LAB will store
-and load all its projects from this folder. Note that multiple containers can
-access the same folder.
+To mount the container to your local project folder (or any other folder), use
+the `-v` flag. Replace `path-to-your-folder` with the path to your local folder.
+When a project folder is specified, ASReview LAB will store and load all
+projects from this folder. Multiple containers can access the same folder.
 
 .. code:: bash
 
-    docker run -p 5000:5000 -v path-to-your-folder:/project_folder ghcr.io/asreview/asreview lab
+    docker run -p 5000:5000 -v path-to-your-folder:/project_folder
+    ghcr.io/asreview/asreview lab
 
-Named container
+
+Named Container
 ~~~~~~~~~~~~~~~
 
-To make the usage easier, you can create a named container like the following:
+To simplify usage, create a named container:
 
 .. code:: bash
 
-    docker create --name asreview-lab -p 5000:5000 -v path-to-your-folder:/project_folder ghcr.io/asreview/asreview lab
+    docker create --name asreview-lab -p 5000:5000 -v
+    path-to-your-folder:/project_folder ghcr.io/asreview/asreview lab
 
-To start asreview, enter:
+To start ASReview LAB, run:
 
 .. code:: bash
 
     docker start asreview
 
-To stop it, just use `stop` instead of `start`.
-You can also check which images are running with `docker ps`.
+To stop it, replace `start` with `stop`. You can check running containers with
+`docker ps`.
 
-Customize the image
+
+Customize the Image
 ~~~~~~~~~~~~~~~~~~~
 
-If you want to add more extensions, or build the Docker image yourself, check the file `Dockerfile <https://github.com/asreview/asreview/blob/main/Dockerfile>`__.
-Modify it as you see fit, and then build and run the image with:
+To add extensions or build the Docker image yourself, modify the `Dockerfile
+<https://github.com/asreview/asreview/blob/main/Dockerfile>`__. After making
+changes, build and run the image with:
 
 .. code:: bash
 
-    docker build -t asreview/asreview:custom .
-    docker run -p 5000:5000 ghcr.io/asreview/asreview:custom lab
+    docker build -t asreview/asreview:custom . docker run -p 5000:5000
+    ghcr.io/asreview/asreview:custom lab

@@ -4,38 +4,33 @@ Get Started
 What is ASReview LAB?
 ---------------------
 
-ASReview LAB is a free (Libre) open-source machine learning tool for screening
-and systematically labeling a large collection of textual data. It's sometimes
-referred to as a tool for title and abstract screening in systematic reviews
-or meta-analyses,  but it can handle any type of textual data that must be
-screened systematically, see the paper published in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_.
+ASReview LAB is an open-source machine learning tool designed to streamline the
+systematic screening and labeling of large textual datasets. It is widely used
+for tasks such as title and abstract screening in systematic reviews or
+meta-analyses, but its applications extend to any scenario requiring systematic
+text screening.
 
-ASReview LAB implements three different options:
+With ASReview LAB, you can:
 
 +----------------+------------------------------------------------------------------------------------------------------------------+
-| Mode           | Description                                                                                                      |
+|                | Description                                                                                                      |
 +================+==================================================================================================================+
-| **Oracle**     | Screen textual data in interaction with the active learning model. The reviewer is the 'oracle', making the      |
-|                | labeling decisions.                                                                                              |
+| **Review**     | Interactively screen textual data with an active learning model, where the user acts as the 'oracle' to make     |
+|                | labeling decisions. You can also validate labels provided by other screeners or AI models.                       |
 +----------------+------------------------------------------------------------------------------------------------------------------+
-| **Simulation** | Evaluate the performance of active learning models on fully labeled data.                                        |
-+----------------+------------------------------------------------------------------------------------------------------------------+
-| **Validation** | Validate labels provided by another screener or derived from an LLM or AI, and explore benchmark datasets        |
-|                | without being an oracle.                                                                                         |
+| **Simulate**   | Assess the performance of active learning models using fully labeled datasets.                                   |
 +----------------+------------------------------------------------------------------------------------------------------------------+
 
-
-ASReview LAB is one of the products of the `ASReview research project
-<https://asreview.ai/about/>`_  initiated at Utrecht University, which has
-grown into a vivid community of researchers,  users, and developers from
-around the world.
+ASReview LAB is a flagship product of Utrecht University's AI Lab "AI-aided
+Knowledge Discovery." It has fostered a vibrant global community of researchers,
+users, and developers.
 
 .. youtube:: k-a2SCq-LtA
 
 What is active learning?
 ------------------------
 
-Artificial Intelligence (AI) and machine learning has allowed the development
+Artificial Intelligence (AI) and machine learning have allowed the development
 of AI-aided pipelines that assist in finding relevant texts for search tasks.
 A well-established approach to increasing the efficiency
 of screening large amounts of textual data is screening prioritization through
@@ -44,7 +39,7 @@ interaction between a human who labels records and a machine learning model
 which selects the most likely relevant record based on a minimum training
 dataset. The active learning cycle is repeated until the annotator is sufficiently
 confident they have seen all relevant records. Thus, the machine learning model is
-responsible for ranking the records and the human provides the labels, this is called
+responsible for ranking the records, and the human provides the labels. This is called
 `Researcher-In-The-Loop (RITL) <https://asreview.ai/blog/active-learning-explained/>`_.
 
 It allows the screening of large amounts of text in an intelligent
@@ -54,63 +49,24 @@ Intelligence, has shown the benefits of active learning, `reducing up to 95%
 screening time.
 
 
-Labeling workflow with ASReview
--------------------------------
+General workflow with ASReview
+------------------------------
 
 Start and finish a systematic labeling process with ASReview LAB by following
 these steps:
 
-1. Create a dataset with potentially relevant records you want to screen systematically. Improve the `quality of the data <https://asreview.ai/blog/the-importance-of-abstracts>`__ and specify clear reviewing (inclusion/exclusion) criteria
-2. Specify a `stopping criterion <https://github.com/asreview/asreview/discussions/557>`__
-3. :doc:`start`
-4. :doc:`project_create`
-5. :ref:`Import your dataset <lab/project_create:Add dataset>`
-6. :ref:`Select Prior Knowledge <lab/project_create:Prior Knowledge>`
-7. Select the four components of the :ref:`Active learning model <lab/project_create:Model>` (feature extractor, classifier, balancing method, query strategy)
-8. Wait until the warm up of the AI is ready (the software is extracting the features and trains the classifier on the prior knowledge)
-9. Start :doc:`screening` until you reach your `stopping criterion <https://github.com/asreview/asreview/discussions/557>`__
-10. At any time, you can export the :term:`dataset` the labeling decisions or the entire :term:`project`.
-
-
-Quick start
------------
-
-1. Check if Python 3.8 or later is installed (if not, `install Python <https://www.python.org/downloads>`__)
-
-.. code:: bash
-
-  python --version
-
-2. Install ASReview LAB
-
-.. code:: bash
-
-  pip install asreview
-
-3. Open ASReview LAB
-
-.. code:: bash
-
-  asreview lab
-
-4. Click *Create* to create a project
-
-5. Select a mode (Oracle, Validation, Simulation)
-
-6. Name the project, and if you want, add an author name(s) and type a description
-
-7. Import a dataset you want to review, or select a benchmark dataset (only available for the Validation and Simulation mode)
-
-8. Add prior knowledge. Select at least 1 relevant and 1 irrelevant record to warm up the AI. You can search for a specific record or request random records
-
-9. Select the four components of the active learning model, or rely on the default settings that have shown fast and excellent performance in many simulation studies
-
-10. ASReview LAB starts extracting the features and runs the classifier with the prior knowledge
-
-You’re ready to start labeling your data! All your labeling actions are
-automatically saved, so there is no need to click the save button (we don’t
-even have one).
-
+1. Create or get a (large) dataset with (sparse) relevant records you want to
+   find in a systematic way.
+2. :doc:`start`
+3. :doc:`project_create`
+4. :ref:`Select Prior Knowledge <lab/project_create:Prior Knowledge>` if
+   available.
+5. Start :doc:`screening`
+6. Specify a `stopping criterion
+   <https://github.com/asreview/asreview/discussions/557>`__. The dashboard can
+   be used for this.
+7. At any time, you can export the resulting :term:`dataset` with the labeling
+   decisions or the entire :term:`project`.
 
 
 ASReview LAB terminology
@@ -118,7 +74,7 @@ ASReview LAB terminology
 
 When you do text screening for a systematic review in ASReview LAB, it can be
 useful to know some basic concepts about systematic reviewing and machine
-learning to understand. The following overview describes some terms you might
+learning. The following overview describes some terms you might
 encounter as you use ASReview LAB.
 
 .. glossary::
@@ -128,13 +84,13 @@ encounter as you use ASReview LAB.
     extraction technique, a classifier, a balance, and a query strategy.
 
   ASReview
-    ASReview stands for *Active learning for Systematic Reviews* or
-    *AI-assisted Systematic Reviews*, depending on context. Avoid this
-    explanation, only use as tagline.
+    ASReview stands for *Active learning for Systematic Reviews* or *AI-assisted
+    Systematic Reviews*, depending on context. Avoid this explanation, only use
+    as a tagline.
 
-  ASReview CLI
-    ASReview CLI is the command line interface that is developed for advanced
-    options or for running simulation studies.
+  CLI
+    The CLI is the command line interface that is developed for advanced options
+    or for running simulation studies.
 
   Data
     Data includes :term:`dataset`, prior knowledge, labels, and
@@ -154,13 +110,9 @@ encounter as you use ASReview LAB.
     from ASReview LAB.
 
   Extension
-    An extension is the additional element to the ASReview LAB, such as
-    the `ASReview Datatools <https://github.com/asreview/asreview-datatools>`__
+    An extension is an additional element to the ASReview LAB, such as the
+    `ASReview Datatools <https://github.com/asreview/asreview-datatools>`__
     extension.
-
-  Import
-    Import is the action of importing a :term:`dataset` or a :term:`project`
-    into ASReview LAB.
 
   Model configuration
     Model configuration is the action of the :term:`user` to configure the
@@ -182,51 +134,32 @@ encounter as you use ASReview LAB.
     :term:`model configuration`. The file is :term:`exported<export>` from
     ASReview LAB and can be :term:`imported<import>` back.
 
-  Project mode
-    The project mode includes oracle, simulation, and validation in
-    ASReview LAB:
-
-    **Oracle** mode is used when a :term:`user` reviews a :term:`dataset`
-    systematically with interactive artificial intelligence (AI).
-
-    **Validation** mode is used when a user validates existing labels or
-    engages in a review process without being an oracle
-
-    **Simulation** mode is used when a user simulates a review on a completely
-    labeled dataset to see the performance of ASReview LAB.
-
   Status
-    The project status is the stage that a :term:`project` is at in
-    ASReview LAB.
+    The project status is the stage that a :term:`project` is at in ASReview
+    LAB.
 
-    **Setup** refers to the fact that the :term:`user` adds project information,
-    :term:`imports<import>` the :term:`dataset`, selects the prior knowledge,
-    :term:`configures the model<Model configuration>` and initiates the first
-    iteration of :term:`model<Active learning model>` training.
+    **In Review** refers to the fact that in oracle, the user adds labels to
+    :term:`records<record>`, or in simulation mode, the simulation is running.
 
-    **In Review** refers to the fact that in oracle or validation mode,
-    the user adds labels to :term:`records<record>`, or in simulation mode, the
-    simulation is running.
+    **Finished** refers to the fact that in oracle, the user decides to complete
+    the :term:`reviewing` process or has labeled all the records, or in
+    simulation mode, the simulation has been completed.
 
-    **Finished** refers to the fact that in oracle or validation mode, the user
-    decides to complete the :term:`reviewing` process or has labeled all the
-    records, or in simulation mode, the simulation has been completed.
-
-    **Published** refers to the fact that the user publishes the dataset and
-    :term:`project file` in a repository, preferably with a Digital Object
-    Identifier (DOI).
+  Simulation
+    Simulation is the process of running a simulation study in ASReview LAB. The
+    simulation study is used to assess the performance of an active learning
+    model on a fully labeled dataset.
 
   Record
     A record is the data point that needs to be labeled. A record can contain
-    both information that is used for training the
-    :term:`active learning model`, and information that is not used for this
-    purpose.
+    both information that is used for training the :term:`active learning
+    model`, and information that is not used for this purpose.
 
     In the case of systematic reviewing, a record is meta-data for a scientific
-    publication. Here, the information that is used for training purposes is
-    the text in the title and abstract of the publication. The information that
-    is not used for training typically consists of other metadata, for example,
-    the authors, journal, or DOI of the publication.
+    publication. Here, the information that is used for training purposes is the
+    text in the title and abstract of the publication. The information that is
+    not used for training typically consists of other metadata, for example, the
+    authors, journal, or DOI of the publication.
 
   Reviewing
     Reviewing is the decision-making process on the relevance of
@@ -240,22 +173,23 @@ encounter as you use ASReview LAB.
     Replacement term when the context is PRISMA-based reviewing.
 
 
-
 Key principles
 --------------
 
-The use of ASReview LAB comes with `five fundamental principles
-<https://asreview.ai/blog/the-zen-of-elas/>`_:
+ASReview LAB is built on a foundation of core principles that ensure its
+effectiveness, transparency, and usability. These principles guide the design
+and functionality of the tool, empowering users to conduct systematic reviews
+with confidence and efficiency. The five fundamental principles are:
 
 1. Humans are the oracle;
-2. Code is open & results are transparent;
+2. Code is open and results are transparent;
 3. Decisions are unbiased;
-4. The interface shows an AI is at work;
-5. Users are responsible for importing high quality data.
+4. The interface clearly communicates the presence of AI;
+5. Users are responsible for importing high-quality data.
 
 
 Privacy
 -------
 
-The ASReview LAB software doesn't collect any information about the usage or
+The ASReview LAB software doesn't collect any information about its usage or
 its user. Great, isn't it!
