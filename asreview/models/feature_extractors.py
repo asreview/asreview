@@ -62,7 +62,7 @@ class Tfidf(Pipeline):
         See ScikitLearn CountVectorizer
     stop_words: {'english'} or list or None, default=None
         See ScikitLearn CountVectorizer
-    token_pattern: str or None, default=r”(?u)\b\w\w+\b”
+    token_pattern: str or None, default=r"(?u)\\b\\w\\w+\\b"
         See ScikitLearn CountVectorizer
     ngram_range: tuple (min_n, max_n), default=(1,1)
         See ScikitLearn CountVectorizer
@@ -167,7 +167,7 @@ class OneHot(Pipeline):
         See ScikitLearn CountVectorizer
     stop_words: {'english'} or list or None, default=None
         See ScikitLearn CountVectorizer
-    token_pattern: str or None, default=r”(?u)\b\w\w+\b”
+    token_pattern: str or None, default=r"(?u)\\b\\w\\w+\\b"
         See ScikitLearn CountVectorizer
     ngram_range: tuple (min_n, max_n), default=(1,1)
         See ScikitLearn CountVectorizer
