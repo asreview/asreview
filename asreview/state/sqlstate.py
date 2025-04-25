@@ -542,23 +542,6 @@ class SQLiteState:
                 dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
             )
 
-    def get_ranking_with_labels(self):
-        """Get the ranking with the labels of the records."""
-
-        return pd.read_sql_query(
-            """SELECT
-                    record_id, results.label
-                FROM
-                    last_ranking
-                LEFT JOIN
-                    results
-                USING
-                    (record_id)
-                """,
-            self._conn,
-            dtype={"label": "Int64"},
-        )
-
     def update(self, record_id, label=None, tags=None):
         """Change the label or tag of an already labeled record.
 

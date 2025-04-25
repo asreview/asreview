@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 
 import pandas as pd
 import pytest
@@ -31,6 +32,7 @@ def demo_data(render_data=False):
         df_is_oa.iloc[::-10] = df_inclusions
 
         df_is_oa.to_json(Path("tests", "demo_data.json"), orient="records", lines=True)
+        # df_is_oa.to_csv(Path("tests", "demo_data.csv"), index=False)
         return df_is_oa
 
     return pd.read_json(Path("tests", "demo_data.json"), orient="records", lines=True)
@@ -61,3 +63,12 @@ def tmp_project(tmpdir):
     """
 
     return Path(tmpdir, "test.asreview")
+
+
+@pytest.fixture
+def asreview_test_project(tmpdir):
+    """Fixture to set up a test project for ASReview."""
+    test_state_fp = Path("tests", "asreview_files", "asreview-demo-project.asreview")
+    tmp_project_path = Path(tmpdir, "asreview-demo-project.asreview")
+    shutil.copy(test_state_fp, tmp_project_path)
+    return tmp_project_path
