@@ -331,9 +331,9 @@ export default function ReviewProgress({ project_id }) {
                 Prior Knowledge
               </Typography>
               <Typography variant="body2" sx={{ mb: 1, textAlign: "justify" }}>
-                You can include the prior knowledge in your dataset to this
-                visualization. This option is enabled from{" "}
-                <strong>Customize</strong>.
+                If you have included prior knowledge in your dataset, you will
+                also see the number of relevant and not relevant records that
+                were included in the prior knowledge.
               </Typography>
             </Box>
             <Divider />

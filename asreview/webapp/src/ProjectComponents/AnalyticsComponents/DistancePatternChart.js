@@ -1,5 +1,6 @@
 import GetAppIcon from "@mui/icons-material/GetApp";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -21,8 +22,9 @@ import { toJpeg, toPng, toSvg } from "html-to-image";
 import React from "react";
 import { useQuery } from "react-query";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
+import { projectModes } from "globals.js";
 
-const DistancePatternChart = ({ project_id, showLast = false }) => {
+const DistancePatternChart = ({ project_id, showLast = false, mode }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [anchorElMenu, setAnchorElMenu] = React.useState(null);
   const chartRef = React.useRef(null);
@@ -210,7 +212,7 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                         fontWeight="bold"
                         sx={{ mb: 1, textAlign: "justify" }}
                       >
-                        Small "Waves"
+                        Small Waves
                       </Typography>
                       <Typography variant="body2" align="justify">
                         Finding relevant records close together suggests you're
@@ -223,7 +225,7 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                         fontWeight="bold"
                         sx={{ mb: 1, textAlign: "justify" }}
                       >
-                        Big "Waves"
+                        Big Waves
                       </Typography>
                       <Typography variant="body2" align="justify">
                         When distances between relevant findings get close to
@@ -251,12 +253,12 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                     <LineChart
                       series={[
                         {
-                          data: [0, 3, 0, 0, 4, 0, 0, 7, 0, 19],
+                          data: [0, 30, 0, 0, 40, 0, 0, 70, 0, 190],
                           color: theme.palette.grey[600],
                         },
                         {
                           data: [
-                            15,
+                            150,
                             null,
                             null,
                             null,
@@ -265,7 +267,7 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                             null,
                             null,
                             null,
-                            15,
+                            150,
                           ],
                           color: theme.palette.error.main,
                           connectNulls: true,
@@ -273,12 +275,12 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                       ]}
                       xAxis={[
                         {
-                          data: [1, 3, 4, 5, 9, 10, 11, 18, 19, 30],
-                          min: 1,
-                          tickMinStep: 1,
+                          data: [10, 30, 40, 50, 90, 100, 110, 180, 190, 300],
+                          min: 10,
+                          tickMinStep: 10,
                         },
                       ]}
-                      yAxis={[{}]}
+                      yAxis={[{ max: 200 }]}
                     />
                   </Box>
                 </Box>
@@ -304,7 +306,7 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
 
         {isLoading ? (
           <Skeleton variant="rectangular" height={400} />
-        ) : data ? (
+        ) : relevantPositions.length > 1 ? (
           <Box height={400} width={1} ref={chartRef} sx={{ mt: -3 }}>
             <LineChart
               margin={{ left: 60, top: 70 }}
@@ -315,12 +317,16 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                   label: "Distance Between Records",
                   color: theme.palette.grey[600],
                 },
-                {
-                  data: stopLine,
-                  connectNulls: true,
-                  label: "Stopping Threshold",
-                  color: theme.palette.error.main,
-                },
+                ...(mode !== projectModes.SIMULATION
+                  ? [
+                      {
+                        data: stopLine,
+                        connectNulls: true,
+                        label: "Stopping Threshold",
+                        color: theme.palette.error.main,
+                      },
+                    ]
+                  : []),
               ]}
               xAxis={[
                 {
@@ -342,8 +348,8 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                     vertical: "top",
                     horizontal: "left",
                   },
-                  direction: "column",
-                  itemGap: 10,
+                  direction: "row",
+                  itemGap: 30,
                   padding: { top: 0, bottom: 15 },
                   labelStyle: {
                     fill: theme.palette.text.secondary,
@@ -358,18 +364,23 @@ const DistancePatternChart = ({ project_id, showLast = false }) => {
                 "& .MuiChartsAxis-left .MuiChartsAxis-label": {
                   transform: "translateX(-10px)",
                 },
-                ".MuiChartsLegend-root": {
-                  transform: "translate(24px, 0px)",
-                },
                 height: "100%",
                 width: "100%",
               }}
             />
           </Box>
         ) : (
-          <Typography variant="body2" color="text.secondary">
-            Start screening to see distance patterns
-          </Typography>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            height={400}
+            sx={{ mt: -3 }}
+          >
+            <Alert severity="info">
+              Keep screening records to display the chart
+            </Alert>
+          </Box>
         )}
       </CardContent>
     </Card>

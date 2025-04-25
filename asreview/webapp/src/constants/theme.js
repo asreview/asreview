@@ -119,6 +119,17 @@ export const theme = {
       defaultProps: {
         variant: "outlined",
       },
+      styleOverrides: {
+        root: ({ ownerState, theme }) => ({
+          ...(ownerState.severity === "info" && {
+            borderColor: theme.palette.secondary.main,
+            color: theme.palette.secondary.main,
+            "& .MuiAlert-icon": {
+              color: theme.palette.secondary.main,
+            },
+          }),
+        }),
+      },
     },
     MuiButton: {
       defaultProps: {

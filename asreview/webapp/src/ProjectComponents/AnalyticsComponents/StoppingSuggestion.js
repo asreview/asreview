@@ -14,6 +14,8 @@ import {
   Popover,
   Skeleton,
   Stack,
+  Tab,
+  Tabs,
   TextField,
   Typography,
 } from "@mui/material";
@@ -35,6 +37,7 @@ const StoppingSuggestion = ({ project_id }) => {
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
   const [progress, setProgress] = React.useState(0);
   const [showStoppingDialog, setShowStoppingDialog] = React.useState(false);
+  const [tabValue, setTabValue] = React.useState(0);
 
   const { data: projectData } = useQuery(
     ["fetchData", { project_id }],
@@ -168,6 +171,10 @@ const StoppingSuggestion = ({ project_id }) => {
 
   const handleCloseDialog = () => {
     setShowStoppingDialog(false);
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
   };
 
   return (
@@ -502,44 +509,101 @@ const StoppingSuggestion = ({ project_id }) => {
         PaperProps={{
           sx: {
             borderRadius: 2,
-            maxWidth: 320,
+            minWidth: 320,
             boxShadow: (theme) => theme.shadows[3],
           },
         }}
       >
-        <Box sx={{ p: 2.5 }}>
-          <Stack spacing={3}>
-            <Typography variant="subtitle1" fontWeight="medium">
-              Stopping Threshold
-            </Typography>
-
-            <TextField
-              type="number"
-              label="Custom threshold"
-              placeholder="Enter value"
-              value={customThreshold}
-              onClick={() => {
-                if (stoppingRuleThreshold !== null) {
-                  setStoppingRuleThreshold(null);
-                }
-              }}
-              onChange={(e) => {
-                const value = parseInt(e.target.value, 10);
-                if (!isNaN(value) && value >= 0) {
-                  setCustomThreshold(value);
-                  setStoppingRuleThreshold(null);
-                } else if (e.target.value === "") {
-                  setCustomThreshold("");
-                }
-              }}
-              fullWidth
-              size="medium"
-              sx={{ mb: 1 }}
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            aria-label="Threshold options tabs"
+            variant="fullWidth"
+          >
+            <Tab
+              label="Custom"
+              id="tab-custom"
+              aria-controls="tabpanel-custom"
             />
+            <Tab
+              label="Percantage"
+              id="tab-percentage"
+              aria-controls="tabpanel-percentage"
+            />
+          </Tabs>
+        </Box>
 
-            <Box>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Percentage presets
+        <Box
+          role="tabpanel"
+          hidden={tabValue !== 0}
+          id="tabpanel-custom"
+          aria-labelledby="tab-custom"
+          sx={{ p: 2.5 }}
+        >
+          {tabValue === 0 && (
+            <Stack spacing={3}>
+              <Typography variant="subtitle1" fontWeight="medium">
+                Set Custom Threshold
+              </Typography>
+              <TextField
+                type="number"
+                label="Custom threshold"
+                placeholder="Enter value"
+                value={customThreshold}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value, 10);
+                  if (!isNaN(value) && value >= 0) {
+                    setCustomThreshold(value);
+                    setStoppingRuleThreshold(null);
+                  } else if (e.target.value === "") {
+                    setCustomThreshold("");
+                  }
+                }}
+                fullWidth
+                size="medium"
+                autoFocus
+              />
+              <Button
+                variant="contained"
+                onClick={() => {
+                  if (customThreshold !== null && customThreshold !== "") {
+                    updateStoppingRule({
+                      project_id: project_id,
+                      n: customThreshold,
+                    });
+                  }
+                }}
+                fullWidth
+                disabled={customThreshold === "" || customThreshold === null}
+              >
+                Save
+              </Button>
+              <Box sx={{ mt: "auto" }}>
+                <Button
+                  href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  size="small"
+                >
+                  Learn more
+                </Button>
+              </Box>
+            </Stack>
+          )}
+        </Box>
+
+        <Box
+          role="tabpanel"
+          hidden={tabValue !== 1}
+          id="tabpanel-percentage"
+          aria-labelledby="tab-percentage"
+          sx={{ p: 2.5 }}
+        >
+          {tabValue === 1 && (
+            <Stack spacing={3}>
+              <Typography variant="subtitle1" fontWeight="medium">
+                Select a Percentage of your Dataset
               </Typography>
               <Stack direction="row" spacing={1} justifyContent="space-between">
                 {[1, 2, 5, 10].map((percent) => {
@@ -553,6 +617,7 @@ const StoppingSuggestion = ({ project_id }) => {
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
+                        flexGrow: 1,
                       }}
                     >
                       <Button
@@ -581,32 +646,36 @@ const StoppingSuggestion = ({ project_id }) => {
                   );
                 })}
               </Stack>
-            </Box>
-            <Button
-              variant="contained"
-              onClick={() => {
-                const finalThreshold = customThreshold || stoppingRuleThreshold;
-                if (finalThreshold !== null && finalThreshold !== "") {
-                  updateStoppingRule({
-                    project_id: project_id,
-                    n: finalThreshold,
-                  });
-                }
-              }}
-              fullWidth
-            >
-              Save
-            </Button>
-            <Box>
               <Button
-                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                target="_blank"
-                rel="noopener noreferrer"
+                variant="contained"
+                onClick={() => {
+                  if (
+                    stoppingRuleThreshold !== null &&
+                    stoppingRuleThreshold !== ""
+                  ) {
+                    updateStoppingRule({
+                      project_id: project_id,
+                      n: stoppingRuleThreshold,
+                    });
+                  }
+                }}
+                fullWidth
+                disabled={stoppingRuleThreshold === null}
               >
-                Learn more
+                Save
               </Button>
-            </Box>
-          </Stack>
+              <Box sx={{ mt: "auto" }}>
+                <Button
+                  href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  size="small"
+                >
+                  Learn more
+                </Button>
+              </Box>
+            </Stack>
+          )}
         </Box>
       </Popover>
       <StoppingReachedDialog

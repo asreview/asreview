@@ -22,6 +22,7 @@ const InitialsAvatar = styled(
           width: "32px",
           height: "32px",
           bgcolor: "tertiary.main",
+          fontSize: "0.8rem",
           // color: "tertiary.contrastText",
           ...sx,
         }}

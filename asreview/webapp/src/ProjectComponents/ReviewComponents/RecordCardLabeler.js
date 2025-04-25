@@ -22,6 +22,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Alert,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import React from "react";
@@ -323,17 +324,9 @@ const RecordCardLabeler = ({
 
         {isError && (
           <CardContent>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2,
-                bgcolor: (theme) => theme.palette.error.light,
-              }}
-            >
-              <Typography color="error">
-                Failed to label record. {error?.message}
-              </Typography>
-            </Paper>
+            <Alert severity="error">
+              Failed to label record. {error?.message}
+            </Alert>
           </CardContent>
         )}
         <CardActions

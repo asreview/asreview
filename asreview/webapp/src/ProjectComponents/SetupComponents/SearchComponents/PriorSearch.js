@@ -53,7 +53,7 @@ const PriorSearch = () => {
         {!isError && isFetched && isSuccess && (
           <>
             <Alert severity="success" sx={{ mt: 2 }}>
-              Tip: Label only the record you are looking for!
+              Tip: Only label the record(s) that match your search
             </Alert>
             {data?.result.map((record, index) => (
               <RecordCard
