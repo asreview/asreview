@@ -1,5 +1,13 @@
 import React from "react";
-import { Box, Button, Dialog, Divider, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  Divider,
+  Stack,
+  Typography,
+  Alert,
+} from "@mui/material";
 import {
   DoneAll,
   Settings as SettingsIcon,
@@ -100,20 +108,10 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
               How do you want to proceed?
             </Typography>
 
-            <Typography
-              variant="body2"
-              sx={{
-                mt: 2,
-                p: 1.5,
-                bgcolor: "action.hover",
-                borderRadius: 1,
-                borderLeft: (theme) =>
-                  `4px solid ${theme.palette.primary.main}`,
-              }}
-            >
+            <Alert severity="info" sx={{ mt: 2 }}>
               You can always return to this menu by clicking the stopping
               suggestion circle.
-            </Typography>
+            </Alert>
           </Box>
 
           <Divider />
