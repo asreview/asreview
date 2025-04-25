@@ -125,7 +125,7 @@ def test_try_upgrade_a_modern_project(client, project):
     data = misc.read_project_file(project)
     assert not data["version"].startswith("0")
 
-    r = au.upgrade_project(client, project)
+    r = au.upgrade_projects(client, project)
     assert r.status_code == 200
 
 
@@ -150,7 +150,7 @@ def test_upgrade_an_old_project(client, user):
         new_project = Project(project_id=project.config.get("id"))
         project = crud.create_project(DB, user, new_project)
     # try to convert
-    r = au.upgrade_project(client, project)
+    r = au.upgrade_projects(client)
     assert r.status_code == 400
     assert r.json["message"].startswith("Not possible to upgrade")
 
@@ -492,7 +492,7 @@ def test_delete_project(client, project):
         (au.get_project_algorithms, True, {}),
         (au.create_project, True, {}),
         (au.update_project, True, {}),
-        (au.upgrade_project, True, {}),
+        (au.upgrade_projects, True, {}),
         (au.get_project_data, True, {}),
         (au.get_project_dataset_writer, True, {}),
         (au.search_project_data, True, {"query": "Software"}),

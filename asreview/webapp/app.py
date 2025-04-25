@@ -133,6 +133,16 @@ def create_app(**config_vars):
     except OSError:
         pass
 
+    @app.route("/favicon.ico")
+    @app.route("/favicon-<path:path>")
+    @app.route("/android-chrome-<path:path>")
+    @app.route("/apple-touch-icon.png")
+    @app.route("/social-preview.png")
+    @app.route("/robots.txt")
+    @app.route("/app.webmanifest")
+    def static_from_root(path=None):
+        return send_from_directory("build", request.path[1:])
+
     @app.errorhandler(InternalServerError)
     def error_500(e):
         """Return JSON instead of HTML for HTTP errors."""
@@ -178,12 +188,6 @@ def create_app(**config_vars):
             return redirect("/signin")
 
         return index(**kwargs)
-
-    @app.route("/favicon.ico")
-    @app.route("/favicon.png")
-    @app.route("/robots.txt")
-    def static_from_root():
-        return send_from_directory("build", request.path[1:])
 
     # The task manager needs to be configured if not in testing
     if not (app.testing):

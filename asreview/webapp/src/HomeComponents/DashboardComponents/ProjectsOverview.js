@@ -1,4 +1,6 @@
 import {
+  Alert,
+  Button,
   Container,
   Divider,
   Grid2 as Grid,
@@ -13,9 +15,11 @@ import { ProjectCard } from "HomeComponents/DashboardComponents";
 import { Upload } from "ProjectComponents/SetupComponents";
 import { DashboardPageHeader } from ".";
 
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 const ProjectsOverview = ({ mode }) => {
+  const queryClient = useQueryClient();
+
   const simulationOngoing = (data) => {
     if (
       mode === projectModes.SIMULATION &&
@@ -46,6 +50,19 @@ const ProjectsOverview = ({ mode }) => {
     (project) => project.reviews[0]?.status === projectStatuses.FINISHED,
   );
 
+  const {
+    mutate: upgradeProjects,
+    isLoading: isUpgradingProjects,
+    error: upgradeError,
+  } = useMutation(ProjectAPI.mutateUpgradeProjects, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("fetchProjects");
+    },
+    onError: (error) => {
+      queryClient.invalidateQueries("fetchProjects");
+    },
+  });
+
   return (
     <>
       <DashboardPageHeader mode={mode} />
@@ -59,6 +76,26 @@ const ProjectsOverview = ({ mode }) => {
             button
             refetch={refetch}
           />
+        )}
+        {data?.upgrade_count > 0 && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {`You have ${data?.upgrade_count} project(s) that need(s) to be upgraded. Please upgrade your projects to the latest version of ASReview.`}
+            <Button
+              variant="contained"
+              onClick={upgradeProjects}
+              sx={{ mt: 2 }}
+              color="inherit"
+              loading={isUpgradingProjects}
+            >
+              Upgrade projects
+            </Button>
+          </Alert>
+        )}
+        {upgradeError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            There was an error while upgrading your projects. Please contact the
+            ASReview team via asreview@uu.nl.
+          </Alert>
         )}
         <Stack spacing={6}>
           <>

@@ -32,11 +32,8 @@ export default function ReviewProgress({ project_id }) {
     setAnchorEl(null);
   };
 
-  // We can implement this fully when we decide on the prior knowledge button
-  const [includePrior] = useState(false); //Switch between true/false to test
-
   const progressQuery = useQuery(
-    ["fetchProgress", { project_id, includePrior }],
+    ["fetchProgress", { project_id }],
     ({ queryKey }) =>
       ProjectAPI.fetchProgress({
         queryKey,
@@ -45,7 +42,7 @@ export default function ReviewProgress({ project_id }) {
   );
 
   const genericDataQuery = useQuery(
-    ["fetchGenericData", { project_id, includePrior }],
+    ["fetchGenericData", { project_id }],
     ({ queryKey }) =>
       ProjectAPI.fetchGenericData({
         queryKey,
@@ -55,6 +52,12 @@ export default function ReviewProgress({ project_id }) {
 
   const data = progressQuery.data;
   const isLoading = progressQuery.isLoading || genericDataQuery.isLoading;
+
+  // Determine if priors actually exist based on the fetched data
+  const includePrior = data
+    ? data.n_included !== data.n_included_no_priors ||
+      data.n_excluded !== data.n_excluded_no_priors
+    : false;
 
   const pieData = !data
     ? []
@@ -106,10 +109,10 @@ export default function ReviewProgress({ project_id }) {
           label: "Unlabeled",
           value: (
             data.n_records -
-            data.n_included_no_priors -
-            data.n_excluded_no_priors
+            data.n_included -
+            data.n_excluded
           ).toLocaleString(),
-          priorValue: includePrior ? null : null,
+          priorValue: null,
           color: theme.palette.grey[400],
         },
       ];
@@ -328,9 +331,9 @@ export default function ReviewProgress({ project_id }) {
                 Prior Knowledge
               </Typography>
               <Typography variant="body2" sx={{ mb: 1, textAlign: "justify" }}>
-                You can include the prior knowledge in your dataset to this
-                visualization. This option is enabled from{" "}
-                <strong>Settings</strong>.
+                If you have included prior knowledge in your dataset, you will
+                also see the number of relevant and not relevant records that
+                were included in the prior knowledge.
               </Typography>
             </Box>
             <Divider />

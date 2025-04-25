@@ -79,12 +79,14 @@ class ProjectAPI {
     });
   }
 
-  static fetchUpgradeProjectIfOld({ queryKey }) {
-    const { project_id } = queryKey[1];
-    const url = api_url + `projects/${project_id}/upgrade_if_old`;
+  static mutateUpgradeProjects() {
+    const url = api_url + `upgrade/projects`;
     return new Promise((resolve, reject) => {
-      axios
-        .get(url, { withCredentials: true })
+      axios({
+        method: "put",
+        url: url,
+        withCredentials: true,
+      })
         .then((result) => {
           resolve(result["data"]);
         })

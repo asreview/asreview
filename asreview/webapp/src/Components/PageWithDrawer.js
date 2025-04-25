@@ -118,9 +118,13 @@ const PageWithDrawer = ({ navComponent, navComponentProps }) => {
             </IconButton>
             <ButtonBase
               disableRipple
-              sx={{ width: "100px" }}
               component={Link}
               to="/reviews"
+              sx={{
+                height: "32px",
+                display: "flex",
+                alignItems: "center",
+              }}
             >
               <WordMark />
             </ButtonBase>

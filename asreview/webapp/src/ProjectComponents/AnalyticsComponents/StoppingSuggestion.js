@@ -1,6 +1,7 @@
 import { DoneAll } from "@mui/icons-material";
 import EditIcon from "@mui/icons-material/Edit";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -13,6 +14,8 @@ import {
   Popover,
   Skeleton,
   Stack,
+  Tab,
+  Tabs,
   TextField,
   Typography,
 } from "@mui/material";
@@ -34,6 +37,7 @@ const StoppingSuggestion = ({ project_id }) => {
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
   const [progress, setProgress] = React.useState(0);
   const [showStoppingDialog, setShowStoppingDialog] = React.useState(false);
+  const [tabValue, setTabValue] = React.useState(0);
 
   const { data: projectData } = useQuery(
     ["fetchData", { project_id }],
@@ -167,6 +171,10 @@ const StoppingSuggestion = ({ project_id }) => {
 
   const handleCloseDialog = () => {
     setShowStoppingDialog(false);
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
   };
 
   return (
@@ -366,7 +374,7 @@ const StoppingSuggestion = ({ project_id }) => {
         PaperProps={{
           sx: {
             borderRadius: 2,
-            maxWidth: 320,
+            maxWidth: 375,
           },
         }}
       >
@@ -382,61 +390,102 @@ const StoppingSuggestion = ({ project_id }) => {
                 consecutive not relevant records you need to label before
                 stopping.
               </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  p: 1.5,
-                  bgcolor: "action.hover",
-                  borderRadius: 1,
-                  borderLeft: (theme) =>
-                    `4px solid ${theme.palette.primary.main}`,
-                }}
-              >
-                The circle resets when you find a relevant record. The more not
-                relevant records you label without finding relevant ones, the
-                higher the chance that remaining records are also not relevant.
-              </Typography>
+              <Divider sx={{ mb: 2.5, mt: 1 }} />
+              <Stack spacing={2.5} sx={{ mt: 1.5, mb: 2.5 }}>
+                {[
+                  {
+                    title: "Setting the threshold",
+                    desc: "Choose how many consecutive 'Not Relevant' records you need to label before stopping",
+                  },
+                  {
+                    title: "Progress & Reset",
+                    desc: "The stopping circle fills as you keep finding 'Not Relevant' records in a row. Finding relevant records resets the circle to zero",
+                  },
+                  {
+                    title: "Stopping",
+                    desc: "When you reach your threshold, a dialog will appear with multiple options: finish project, review more records, or continue with a different model",
+                  },
+                ].map((item, index) => (
+                  <Box
+                    key={index}
+                    sx={{ display: "flex", alignItems: "flex-start" }}
+                  >
+                    <Box
+                      sx={{
+                        minWidth: "28px",
+                        height: "28px",
+                        borderRadius: "50%",
+                        bgcolor: "#87766c",
+                        color: "#fff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mr: 1.5,
+                        fontWeight: "bold",
+                        fontSize: "0.9rem",
+                        flexShrink: 0,
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                      }}
+                    >
+                      {index + 1}
+                    </Box>
+                    <Box>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: "bold", mb: 0.5 }}
+                      >
+                        {item.title}
+                      </Typography>
+                      <Typography variant="body2" sx={{ textAlign: "justify" }}>
+                        {item.desc}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Stack>
             </Box>
             <Divider />
             <Box>
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Threshold Editing
               </Typography>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <EditIcon fontSize="small" />
-                <Typography variant="body2" align="justify">
-                  You can manually edit and optimize the threshold for your
-                  project to determine when this suggestion appears.
-                </Typography>
-              </Stack>
+              <Alert severity="info">
+                You can edit and optimize the stopping threshold at any time
+                during the screening process.
+              </Alert>
             </Box>
             <Divider />
             <Box>
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Example Visualization
               </Typography>
-              <Typography
-                variant="subtitle1"
-                fontWeight="bold"
-                sx={{ mb: 1 }}
-              ></Typography>
-
-              <Stack spacing={1} direction="row" alignItems="center">
-                <Box display="flex" flexDirection="column" alignItems="center">
-                  <StaticProgressBar value={0} />
-                </Box>
-                <Box display="flex" flexDirection="column" alignItems="center">
-                  <StaticProgressBar value={30} />
-                </Box>
-                <Box display="flex" flexDirection="column" alignItems="center">
-                  <StaticProgressBar value={70} />
-                </Box>
-                <Box display="flex" flexDirection="column" alignItems="center">
-                  <StaticProgressBar value={100} />
-                </Box>
+              <Stack
+                spacing={1}
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                sx={{ mt: 2 }}
+              >
+                {[0, 30, 70, 100].map((value) => (
+                  <Box
+                    key={value}
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                  >
+                    <StaticProgressBar value={value} />
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mt: 0.5, textAlign: "center" }}
+                    >
+                      {value}%
+                    </Typography>
+                  </Box>
+                ))}
               </Stack>
             </Box>
-            <Box>
+            <Box sx={{ mt: 1 }}>
               <Button
                 href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
                 target="_blank"
@@ -460,44 +509,101 @@ const StoppingSuggestion = ({ project_id }) => {
         PaperProps={{
           sx: {
             borderRadius: 2,
-            maxWidth: 320,
+            minWidth: 320,
             boxShadow: (theme) => theme.shadows[3],
           },
         }}
       >
-        <Box sx={{ p: 2.5 }}>
-          <Stack spacing={3}>
-            <Typography variant="subtitle1" fontWeight="medium">
-              Stopping Threshold
-            </Typography>
-
-            <TextField
-              type="number"
-              label="Custom threshold"
-              placeholder="Enter value"
-              value={customThreshold}
-              onClick={() => {
-                if (stoppingRuleThreshold !== null) {
-                  setStoppingRuleThreshold(null);
-                }
-              }}
-              onChange={(e) => {
-                const value = parseInt(e.target.value, 10);
-                if (!isNaN(value) && value >= 0) {
-                  setCustomThreshold(value);
-                  setStoppingRuleThreshold(null);
-                } else if (e.target.value === "") {
-                  setCustomThreshold("");
-                }
-              }}
-              fullWidth
-              size="medium"
-              sx={{ mb: 1 }}
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            aria-label="Threshold options tabs"
+            variant="fullWidth"
+          >
+            <Tab
+              label="Custom"
+              id="tab-custom"
+              aria-controls="tabpanel-custom"
             />
+            <Tab
+              label="Percantage"
+              id="tab-percentage"
+              aria-controls="tabpanel-percentage"
+            />
+          </Tabs>
+        </Box>
 
-            <Box>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Percentage presets
+        <Box
+          role="tabpanel"
+          hidden={tabValue !== 0}
+          id="tabpanel-custom"
+          aria-labelledby="tab-custom"
+          sx={{ p: 2.5 }}
+        >
+          {tabValue === 0 && (
+            <Stack spacing={3}>
+              <Typography variant="subtitle1" fontWeight="medium">
+                Set Custom Threshold
+              </Typography>
+              <TextField
+                type="number"
+                label="Custom threshold"
+                placeholder="Enter value"
+                value={customThreshold}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value, 10);
+                  if (!isNaN(value) && value >= 0) {
+                    setCustomThreshold(value);
+                    setStoppingRuleThreshold(null);
+                  } else if (e.target.value === "") {
+                    setCustomThreshold("");
+                  }
+                }}
+                fullWidth
+                size="medium"
+                autoFocus
+              />
+              <Button
+                variant="contained"
+                onClick={() => {
+                  if (customThreshold !== null && customThreshold !== "") {
+                    updateStoppingRule({
+                      project_id: project_id,
+                      n: customThreshold,
+                    });
+                  }
+                }}
+                fullWidth
+                disabled={customThreshold === "" || customThreshold === null}
+              >
+                Save
+              </Button>
+              <Box sx={{ mt: "auto" }}>
+                <Button
+                  href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  size="small"
+                >
+                  Learn more
+                </Button>
+              </Box>
+            </Stack>
+          )}
+        </Box>
+
+        <Box
+          role="tabpanel"
+          hidden={tabValue !== 1}
+          id="tabpanel-percentage"
+          aria-labelledby="tab-percentage"
+          sx={{ p: 2.5 }}
+        >
+          {tabValue === 1 && (
+            <Stack spacing={3}>
+              <Typography variant="subtitle1" fontWeight="medium">
+                Select a Percentage of your Dataset
               </Typography>
               <Stack direction="row" spacing={1} justifyContent="space-between">
                 {[1, 2, 5, 10].map((percent) => {
@@ -511,6 +617,7 @@ const StoppingSuggestion = ({ project_id }) => {
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
+                        flexGrow: 1,
                       }}
                     >
                       <Button
@@ -539,32 +646,36 @@ const StoppingSuggestion = ({ project_id }) => {
                   );
                 })}
               </Stack>
-            </Box>
-            <Button
-              variant="contained"
-              onClick={() => {
-                const finalThreshold = customThreshold || stoppingRuleThreshold;
-                if (finalThreshold !== null && finalThreshold !== "") {
-                  updateStoppingRule({
-                    project_id: project_id,
-                    n: finalThreshold,
-                  });
-                }
-              }}
-              fullWidth
-            >
-              Save
-            </Button>
-            <Box>
               <Button
-                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
-                target="_blank"
-                rel="noopener noreferrer"
+                variant="contained"
+                onClick={() => {
+                  if (
+                    stoppingRuleThreshold !== null &&
+                    stoppingRuleThreshold !== ""
+                  ) {
+                    updateStoppingRule({
+                      project_id: project_id,
+                      n: stoppingRuleThreshold,
+                    });
+                  }
+                }}
+                fullWidth
+                disabled={stoppingRuleThreshold === null}
               >
-                Learn more
+                Save
               </Button>
-            </Box>
-          </Stack>
+              <Box sx={{ mt: "auto" }}>
+                <Button
+                  href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  size="small"
+                >
+                  Learn more
+                </Button>
+              </Box>
+            </Stack>
+          )}
         </Box>
       </Popover>
       <StoppingReachedDialog

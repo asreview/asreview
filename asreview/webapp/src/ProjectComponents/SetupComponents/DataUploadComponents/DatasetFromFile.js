@@ -13,34 +13,9 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 
 import { ProjectAPI } from "api";
 import { projectModes } from "globals.js";
-
-const PREFIX = "DatasetFromFile";
-
-const classes = {
-  root: `${PREFIX}-root`,
-  singleLine: `${PREFIX}-single-line`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  height: "100%",
-  width: "100%",
-  [`& .${classes.root}`]: {
-    display: "flex",
-    alignItems: "center",
-    height: "100%",
-  },
-  [`& .${classes.singleLine}`]: {
-    display: "-webkit-box",
-    WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 1,
-    whiteSpace: "pre-line",
-    overflow: "hidden",
-  },
-}));
 
 const baseStyle = {
   alignItems: "center",
@@ -51,7 +26,6 @@ const baseStyle = {
   borderStyle: "dashed",
   outline: "none",
   transition: "border .24s ease-in-out",
-  bgcolor: "#fffbf5",
 };
 
 const activeStyle = {
@@ -101,12 +75,7 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     [addDataset, mode, isCreatingProjectError, resetAddDataset],
   );
 
-  const {
-    data: readers,
-    // error: fetchReadersError,
-    // isError: isFetchReadersError,
-    // isFetching: isFetchingReaders,
-  } = useQuery(
+  const { data: readers } = useQuery(
     ["fetchDatasetReaders", { project_id: project_id }],
     ProjectAPI.fetchDatasetReaders,
     {
@@ -143,37 +112,71 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
   };
 
   return (
-    <Root>
-      <Paper {...getRootProps({ style })} elevation={0}>
+    <Stack
+      sx={{
+        height: "100%",
+        width: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Paper
+        {...getRootProps()}
+        elevation={0}
+        sx={{
+          ...style,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
+          width: "100%",
+        }}
+      >
         <input {...getInputProps()} />
 
         <ButtonBase
           disabled={isCreatingProject}
           disableRipple
           onClick={open}
-          sx={{ height: "100%", width: "100%", py: 10 }}
+          sx={{
+            height: "100%",
+            width: "100%",
+            py: 10,
+          }}
         >
-          <Stack className={classes.root} spacing={2} justifyContent={"center"}>
-            <Avatar>
-              <FileUpload fontSize="large" />
-            </Avatar>
-            <Typography fontSize={"1.4rem"}>
+          <Stack
+            spacing={2}
+            justifyContent="center"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              textAlign: "center",
+            }}
+          >
+            {isCreatingProject ? (
+              <CircularProgress />
+            ) : (
+              <Avatar>
+                <FileUpload fontSize="large" />
+              </Avatar>
+            )}
+            <Typography fontSize="1.4rem">
               {mobileScreen
                 ? "Upload dataset"
-                : `Click or drop a ${mode === projectModes.SIMULATION ? "fully labeled " : ""}dataset here`}
+                : `Click or drop a ${
+                    mode === projectModes.SIMULATION ? "fully labeled " : ""
+                  }dataset here`}
             </Typography>
-            <Typography fontSize={"1rem"}>
+            <Typography fontSize="1rem">
               Accepted files: {acceptedFileTypes}
             </Typography>
           </Stack>
         </ButtonBase>
-
-        {isCreatingProject && <CircularProgress />}
         {isCreatingProjectError && (
-          <Alert severity="error">{createProjectError?.message + "."}</Alert>
+          <Alert severity="error">{createProjectError?.message}</Alert>
         )}
       </Paper>
-    </Root>
+    </Stack>
   );
 };
 
