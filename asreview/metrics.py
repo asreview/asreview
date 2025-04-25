@@ -17,7 +17,6 @@
 __all__ = ["loss", "ndcg"]
 
 import numpy as np
-import warnings
 
 
 def loss(labels: list[int]):
