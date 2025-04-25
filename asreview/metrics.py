@@ -36,8 +36,7 @@ def loss(labels: list[int]):
     Ny = sum(labels)
     Nx = len(labels)
     if Ny == 0 or Nx == Ny:
-        warnings.warn("Labels do not contain two distinct classes. Returning NaN.")
-        return np.nan
+raise ValueError("Labels must contain two distinct classes.")
     return float(
         (Ny * (Nx - (Ny - 1) / 2) - np.cumsum(labels).sum()) / (Ny * (Nx - Ny))
     )
@@ -61,8 +60,7 @@ def ndcg(labels: list[int]):
     Ny = sum(labels)
     Nx = len(labels)
     if Ny == 0 or Nx == Ny:
-        warnings.warn("Labels do not contain two distinct classes. Returning NaN.")
-        return np.nan
+raise ValueError("Labels must contain two distinct classes.")
 
     dcg = np.sum(labels / np.log2(np.arange(2, Nx + 2)))
     idcg = np.sum(1 / np.log2(np.arange(2, Ny + 2)))
