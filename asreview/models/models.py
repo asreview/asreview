@@ -66,9 +66,9 @@ AI_MODEL_CONFIGURATIONS = [
         "value": ActiveLearningCycleData(
             querier="max",
             classifier="svm",
-            classifier_param={"loss": "squared_hinge", "C": 0.19, "max_iter": 5000},
+            classifier_param={"loss": "squared_hinge", "C": 0.106, "max_iter": 5000},
             balancer="balanced",
-            balancer_param={"ratio": 9.9},
+            balancer_param={"ratio": 9.707},
             feature_extractor="multilingual-e5-large",
             feature_extractor_param={"normalize": True},
         ),
@@ -81,9 +81,9 @@ AI_MODEL_CONFIGURATIONS = [
         "value": ActiveLearningCycleData(
             querier="max",
             classifier="svm",
-            classifier_param={"loss": "squared_hinge", "C": 0.13, "max_iter": 5000},
+            classifier_param={"loss": "squared_hinge", "C": 0.067, "max_iter": 5000},
             balancer="balanced",
-            balancer_param={"ratio": 9.7},
+            balancer_param={"ratio": 9.724},
             feature_extractor="mxbai",
             feature_extractor_param={"normalize": True},
         ),
