@@ -17,6 +17,7 @@ import {
   Popover,
   Button,
   Grid,
+  Fade,
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import React from "react";
@@ -27,6 +28,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import ExtractIcon from "@mui/icons-material/ContentCopy";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import BalanceIcon from "@mui/icons-material/Balance";
+import CircularProgress from "@mui/material/CircularProgress";
+import CheckIcon from "@mui/icons-material/Check";
 
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
@@ -89,8 +92,27 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
   const project_id = useContext(ProjectContext);
   const queryClient = useQueryClient();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [showSuccess, setShowSuccess] = React.useState(false);
+  const [showMinSpinner, setShowMinSpinner] = React.useState(false);
+  let successTimer = React.useRef();
+  let minSpinnerTimer = React.useRef();
 
-  const { mutate } = useMutation(ProjectAPI.mutateLearner, {
+  const {
+    mutate,
+    isLoading: isMutating,
+    isSuccess: isMutated,
+    reset,
+  } = useMutation(ProjectAPI.mutateLearner, {
+    onMutate: () => {
+      setShowSuccess(false);
+      setShowMinSpinner(true);
+      clearTimeout(successTimer.current);
+      clearTimeout(minSpinnerTimer.current);
+
+      minSpinnerTimer.current = setTimeout(() => {
+        setShowMinSpinner(false);
+      }, 1000);
+    },
     onSuccess: (data) => {
       queryClient.setQueryData(
         ["fetchLearner", { project_id: project_id }],
@@ -98,6 +120,24 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
       );
     },
   });
+
+  React.useEffect(() => {
+    if (!isMutating && !showMinSpinner && isMutated) {
+      setShowSuccess(true);
+      clearTimeout(successTimer.current);
+      successTimer.current = setTimeout(() => {
+        setShowSuccess(false);
+        reset();
+      }, 5000);
+    }
+  }, [isMutating, showMinSpinner, isMutated, reset]);
+
+  React.useEffect(() => {
+    return () => {
+      clearTimeout(successTimer.current);
+      clearTimeout(minSpinnerTimer.current);
+    };
+  }, []);
 
   const {
     data: learnerOptions,
@@ -130,6 +170,8 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
     setAnchorEl(null);
   };
 
+  const displaySpinner = isMutating || showMinSpinner;
+
   return (
     <Card sx={{ position: "relative" }}>
       <LoadingCardHeader
@@ -142,8 +184,44 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
         }
       />
 
-      <Box sx={{ position: "absolute", top: 16, right: 16 }}>
-        <IconButton size="small" onClick={handlePopoverOpen}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            minWidth: 24,
+            height: 24,
+            gap: 0.5,
+            justifyContent: "center",
+          }}
+        >
+          {displaySpinner && <CircularProgress size={18} />}
+          {!displaySpinner && (
+            <Fade in={showSuccess} timeout={500}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <CheckIcon />
+                <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                  Changes saved
+                </Typography>
+              </Box>
+            </Fade>
+          )}
+        </Box>
+
+        <IconButton
+          size="small"
+          onClick={handlePopoverOpen}
+          disabled={displaySpinner}
+        >
           <StyledLightBulb fontSize="small" />
         </IconButton>
       </Box>
@@ -494,17 +572,20 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                 AI Models Explained
               </Typography>
               <Typography variant="body2" align="justify">
-                The AI model is the engine that powers your systematic review.
-                It learns from your decisions to identify relevant records and
-                accelerate your review process.
+                AI models learn from your decisions and help you identify
+                relevant records and accelerate your review process.
               </Typography>
             </Box>
 
+            <Alert severity="info">
+              Using multiple models is recommended for finding all the relevant
+              relevant records
+            </Alert>
             <Divider />
 
             <Box>
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
-                Choose Your Model
+                Model Types
               </Typography>
               <Stack spacing={2}>
                 <Box
@@ -540,7 +621,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                         color="text.secondary"
                         sx={{ mt: 0.5 }}
                       >
-                        Quick • Lightweight
+                        Quick • Accurate
                       </Typography>
                     </Box>
                   </Stack>
@@ -763,10 +844,6 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                 <Typography variant="body2">
                   • Start with <strong>Ultra</strong> model for most reviews -
                   it's fast and effective
-                </Typography>
-                <Typography variant="body2">
-                  • Use <strong>Language Agnostic</strong> for multilingual
-                  datasets
                 </Typography>
                 <Typography variant="body2">
                   • Try <strong>Heavy</strong> models for large, complex
