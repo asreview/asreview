@@ -57,7 +57,7 @@ const getColor = (topic) => {
 const CardIcon = ({ iconName }) => {
   const iconProps = {
     fontSize: "medium",
-    sx: { m: 1 },
+    sx: { m: 1, color: "black" },
   };
 
   let iconType;
