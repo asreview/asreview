@@ -15,11 +15,17 @@ import {
   Switch,
   useMediaQuery,
   useTheme,
+  Box,
+  IconButton,
+  Popover,
+  Typography,
+  Alert,
 } from "@mui/material";
 import { ProjectAPI } from "api";
 import * as React from "react";
 import { useQuery } from "react-query";
 import { StyledDialog } from "StyledComponents/StyledDialog";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 const ExportDialog = ({ project_id, open, onClose }) => {
   const theme = useTheme();
@@ -28,6 +34,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
   const [collections, setCollections] = React.useState(["relevant"]);
   const [exportName, setExportName] = React.useState(true);
   const [exportEmail, setExportEmail] = React.useState(true);
+  const [anchorElInfo, setAnchorElInfo] = React.useState(null);
 
   const { data } = useQuery(
     ["fetchDatasetWriter", { project_id }],
@@ -36,6 +43,14 @@ const ExportDialog = ({ project_id, open, onClose }) => {
       refetchOnWindowFocus: false,
     },
   );
+
+  const handleHelpPopoverOpen = (event) => {
+    setAnchorElInfo(event.currentTarget);
+  };
+
+  const handleHelpPopoverClose = () => {
+    setAnchorElInfo(null);
+  };
 
   const exportDataset = () => {
     ProjectAPI.fetchExportDataset({
@@ -58,6 +73,70 @@ const ExportDialog = ({ project_id, open, onClose }) => {
       fullScreen={fullScreen}
       title="Export records"
     >
+      <Box sx={{ position: "absolute", top: 12, right: 12 }}>
+        <IconButton size="small" onClick={handleHelpPopoverOpen}>
+          <StyledLightBulb fontSize="small" />
+        </IconButton>
+      </Box>
+      <Popover
+        open={Boolean(anchorElInfo)}
+        anchorEl={anchorElInfo}
+        onClose={handleHelpPopoverClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            maxWidth: 375,
+          },
+        }}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+      >
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2}>
+            <Typography variant="subtitle1" fontWeight="bold">
+              Exporting Records
+            </Typography>
+            <Typography variant="body2" sx={{ textAlign: "justify" }}>
+              Select which records (relevant, not relevant, not seen) and the
+              file format (CSV, Excel, RIS, TSV) for your export.
+            </Typography>
+            <Divider />
+            {window.authentication && (
+              <>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Privacy Considerations (GDPR)
+                </Typography>
+                <Typography variant="body2" sx={{ textAlign: "justify" }}>
+                  Including reviewer names and emails in the export file
+                  contains personal data. Ensure you have a legitimate basis for
+                  processing and storing this information according to GDPR or
+                  other applicable privacy regulations.
+                </Typography>
+                <Alert severity="warning">
+                  Be mindful of data privacy when sharing or storing files
+                  containing personal information
+                </Alert>
+              </>
+            )}
+            <Box sx={{ mt: 1 }}>
+              <Button
+                href="https://asreview.readthedocs.io/en/latest/project_export.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                size="small"
+              >
+                Learn more
+              </Button>
+            </Box>
+          </Stack>
+        </Box>
+      </Popover>
       <DialogContent>
         <FormControl
           component="fieldset"
@@ -134,7 +213,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
                   onChange={(event) => setExportName(event.target.checked)}
                 />
               }
-              label="Include name of reviewer"
+              label="Include name(s) of reviewer(s)"
             />
             <FormControlLabel
               control={
@@ -143,7 +222,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
                   onChange={(event) => setExportEmail(event.target.checked)}
                 />
               }
-              label="Include email of reviewer"
+              label="Include email(s) of reviewer(s)"
             />
           </Stack>
         )}
