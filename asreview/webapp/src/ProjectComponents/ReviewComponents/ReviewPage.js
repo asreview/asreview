@@ -173,7 +173,7 @@ const ReviewPage = () => {
       )}
 
       {isError && (
-        <Alert severity="warning" sx={{ mt: 3 }}>
+        <Alert severity="error" sx={{ mt: 3 }}>
           <Typography variant="h6" gutterBottom>
             ASReview LAB failed to load a new record
           </Typography>
