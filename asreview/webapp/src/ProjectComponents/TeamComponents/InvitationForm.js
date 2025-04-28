@@ -19,7 +19,7 @@ const InvitationForm = ({ selectableUsers, onInvite }) => {
       <CardHeader
         title={"Invite people to collaborate"}
         subheader={
-          "Invite people to collaborate on this project. They will receive a message with an invitation to join."
+          "Invite people to collaborate on this project. They will receive a message with an invitation to join"
         }
       />
       <CardContent>

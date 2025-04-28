@@ -135,7 +135,7 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
               <Typography variant="body2" sx={{ textAlign: "justify" }}>
                 Benchmark datasets like SYNERGY help evaluate and compare
                 ASReview's screening performance. Use them to test different
-                models or settings before starting your own review.
+                models or settings before starting your own review
               </Typography>
               <Alert severity="info">
                 You can find and import more dataset collections or create your

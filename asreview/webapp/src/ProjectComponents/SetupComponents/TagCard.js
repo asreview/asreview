@@ -132,7 +132,7 @@ const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
                     </Box>
                     <Typography variant="body2" color="text.secondary">
                       Create categories like "Reasons for Exclusion" or "Study
-                      Design".
+                      Design"
                     </Typography>
                   </Stack>
                 </Box>
@@ -158,7 +158,7 @@ const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
                     </Box>
                     <Typography variant="body2" color="text.secondary">
                       Add specific labels like "Wrong Population" or "Randomized
-                      Controlled Trial".
+                      Controlled Trial"
                     </Typography>
                   </Stack>
                 </Box>

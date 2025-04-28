@@ -275,7 +275,7 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
                       </Box>
                       <Typography variant="body2" color="text.secondary">
                         Search for known relevant papers and label them to train
-                        the AI.
+                        the AI
                       </Typography>
                     </Stack>
                   </Box>
@@ -307,7 +307,7 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
                       </Box>
                       <Typography variant="body2" color="text.secondary">
                         Mark papers as relevant that match your research
-                        criteria.
+                        criteria
                       </Typography>
                     </Stack>
                   </Box>
@@ -339,7 +339,7 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
                       </Box>
                       <Typography variant="body2" color="text.secondary">
                         Optionally mark papers as not relevant to refine the
-                        AI's understanding.
+                        AI's understanding
                       </Typography>
                     </Stack>
                   </Box>
