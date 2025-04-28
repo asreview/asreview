@@ -11,6 +11,8 @@ import {
   IconButton,
   Toolbar,
   Tooltip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useQuery } from "react-query";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -27,6 +29,8 @@ import ElasGameDialog from "./ElasGame";
 
 const HeaderTeam = ({ project_id }) => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [expandAvatars, setExpandAvatars] = useToggle(true);
 
@@ -56,7 +60,16 @@ const HeaderTeam = ({ project_id }) => {
 
       <Collapse in={expandAvatars} orientation="horizontal">
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <AvatarGroup max={5}>
+          <AvatarGroup
+            max={isMobile ? 2 : 5}
+            sx={{
+              "& .MuiAvatar-root": {
+                fontSize: "0.8rem",
+                width: "32px",
+                height: "32px",
+              },
+            }}
+          >
             {users?.map((user, index) => (
               <Tooltip
                 key={user.id || index}
