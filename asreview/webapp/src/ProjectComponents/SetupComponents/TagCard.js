@@ -532,9 +532,21 @@ const TagCard = () => {
         {isLoading ? (
           <Skeleton variant="rectangular" height={56} />
         ) : (
-          data.map((c, index) => (
-            <Group key={index} group={c} project_id={project_id} />
-          ))
+          <>
+            {data.length === 0 && (
+              <Card sx={{ mb: 2, bgcolor: "background.default" }}>
+                <CardContent sx={{ pb: "16px !important" }}>
+                  {" "}
+                  <Typography sx={{ color: "text.secondary", ml: 1 }}>
+                    Your tags will appear here
+                  </Typography>
+                </CardContent>
+              </Card>
+            )}
+            {data.map((c, index) => (
+              <Group key={index} group={c} project_id={project_id} />
+            ))}
+          </>
         )}
       </CardContent>
 
