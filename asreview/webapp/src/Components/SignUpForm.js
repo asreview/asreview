@@ -92,14 +92,13 @@ const SignUpForm = () => {
     <>
       <CardHeader title="Create your profile" />
       <CardContent>
-        <Stack spacing={3}>
-          <Stack spacing={3} component="form" noValidate>
+        <Stack spacing={2.5}>
+          <Stack spacing={2.5} component="form" noValidate>
             <TextField
               required={true}
               id="email"
               name="email"
               label="Email"
-              size="small"
               type="email"
               autoComplete="off"
               fullWidth
@@ -174,7 +173,7 @@ const SignUpForm = () => {
               />
             </FormControl>
 
-            <Typography variant="body2" sx={{ marginTop: "7px !important" }}>
+            <Typography variant="body2" sx={{ marginTop: "14px !important" }}>
               {passwordRequirements}
             </Typography>
 
@@ -213,7 +212,6 @@ const SignUpForm = () => {
               id="name"
               name="name"
               label="Full name"
-              size="small"
               autoComplete="name"
               fullWidth
               value={formik.values.name}
@@ -226,7 +224,6 @@ const SignUpForm = () => {
             <TextField
               id="affiliation"
               label="Affiliation"
-              size="small"
               name="affiliation"
               autoComplete="organization"
               fullWidth
@@ -240,7 +237,7 @@ const SignUpForm = () => {
           </Stack>
         </Stack>
       </CardContent>
-      <CardActions>
+      <CardActions sx={{ p: 2 }}>
         <Button
           id="create-profile"
           variant="contained"
