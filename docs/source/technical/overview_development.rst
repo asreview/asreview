@@ -1,5 +1,5 @@
-Overview
-========
+Get started
+===========
 
 The development section is meant for users that need advanced functions of
 ASReview LAB and for developers. It contains technical information on the
@@ -13,45 +13,59 @@ machinery. This provides researchers an interface to study the behavior of
 algorithms and develop custom workflows. The following overview shows the
 available interfaces for interacting with the ASReview software:
 
-..
-  Source file of image can be found at
-  https://github.com/asreview/asreview-artwork/tree/master/LayerOverview
-
-.. figure:: ../../figures/asreview_layers_light_no_BG.png
+.. figure:: ../../figures/architecture.png
    :alt: ASReview API
 
 
-* Layer 5: ASReview CLOUD
+Core Interfaces
+---------------
 
-    - ASReview is currently in development. For information on ASReview CLOUD,
-      be sure visit our communication channels.
+* **API**
 
-* Layer 4: :doc:`ASReview LAB <../lab/project_create>`
+  - ASReview LAB ships with a documented Application Programming Interface
+    (API) that provides models, data, and project management functionality.
+    The rich set of functions, classes, and modules allow researchers and
+    developers to develop custom workflows, integrate new algorithms, or embed
+    ASReview functionality in larger projects. It is also the foundation for
+    the higher-level interfaces of ASReview LAB. For detailed documentation,
+    refer to the :doc:`API reference <reference>`.
 
-    - ASReview LAB is the user friendly webapp and all underlying
-      interfaces. Documentation on LAB
-      can be found in the :doc:`ASReview LAB section <../lab/project_create>`.
+* **REST API**
 
-* Layer 3: REST API
+    - A stateless REST API written in Flask provides an interface for web
+      applications built on ASReview. While integral to ASReview LAB, this REST
+      API is still under active development and is not yet fully documented.
 
-    - The REST API uses a Flask REST API to provide a method to let the React
-      webapp communicate with the backend and algorithms. The REST API is not
-      documented and should be considered 'internal use only'.
+* **CLI**
 
-* Layer 2: :doc:`cli`
+    - The Command Line Interface (CLI) of ASReview provides an interface for
+      users of computer terminals to start ASReview LAB, run simulations, list
+      algorithms, and more. After installing ASReview via PIP
+      (https://pypi.org/project/asreview/), the command `asreview lab` will
+      start the user-friendly web app interface written in React that is
+      available in all major browsers.
 
-    - The Command Line is an interface used to open ASReview LAB, run
-      simulations, and run :doc:`Subcommand extensions <extensions_dev>` for ASReview. This development section documents all available
-      command line options for both :doc:`ASReview LAB <../lab/start>` and :doc:`simulation mode <../lab/simulation_cli>`.
+    - Furthermore, `--help` lists available subcommands, their origin package,
+      and their version. It can also be extended with subcommands provided by
+      both official and community-built extensions. The general command
+      structure is `asreview [-h] [-V] [subcommand]`.
 
-* Layer 1: :doc:`reference/asreview`
+Servers
+-------
 
-    - The ASReview API is a low level Python interface for ASReview. This
-      interface requires detailed knowledge about the workings of the software.
-      This reference contains extensive documentation on all functions, classes,
-      and modules found in ASReview.
+* **Task Server**
 
-    - An outline for usage can be found in :doc:`../lab/simulation_api_example` and :doc:`example_api_asreview_file`.
+    - ASReview LAB v2 introduces a new task server for handling asynchronous
+      tasks like training agents and running simulations. The task server comes
+      with a network socket interface and makes use of Transmission Control
+      Protocol (TCP) for communication. New tasks are sent to the task server,
+      and the progress is logged. In its config file, you can set the port, the
+      host, and the number of workers.
+
+* **LAB Server**
+
+    - The LAB server runs on Flask and serves the RESTful API.
+
 
 Extensions
 ----------

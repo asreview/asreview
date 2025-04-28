@@ -78,7 +78,7 @@ const ProjectsOverview = ({ mode }) => {
           />
         )}
         {data?.upgrade_count > 0 && (
-          <Alert severity="info" sx={{ mb: 2 }}>
+          <Alert severity="warning" sx={{ mb: 2 }}>
             {`You have ${data?.upgrade_count} project(s) that need(s) to be upgraded. Please upgrade your projects to the latest version of ASReview.`}
             <Button
               variant="contained"

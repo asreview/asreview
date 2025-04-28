@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import GetAppIcon from "@mui/icons-material/GetApp";
 import {
+  Alert,
   Box,
   Card,
   CardContent,
@@ -289,8 +290,8 @@ export default function ProgressDensityChart(props) {
 
         <Box height={400} width={1} ref={chartRef} sx={{ mt: -3 }}>
           {props.genericDataQuery.isLoading ? (
-            <Skeleton variant="rectangular" height={400} width="100%" />
-          ) : chartData ? (
+            <Skeleton variant="rectangular" height="100%" width="100%" />
+          ) : chartData && chartData.xAxis.length > 1 ? (
             <LineChart
               margin={{ left: 60 }}
               height={400}
@@ -319,6 +320,7 @@ export default function ProgressDensityChart(props) {
               slotProps={{
                 legend: {
                   position: { vertical: "top", horizontal: "left" },
+                  direction: "row",
                   itemGap: 20,
                   padding: { top: 5 },
                   labelStyle: {
@@ -331,9 +333,6 @@ export default function ProgressDensityChart(props) {
                 ".MuiAreaElement-root": {
                   fillOpacity: 0.2,
                 },
-                ".MuiChartsLegend-root": {
-                  transform: "translate(24px, 0px)",
-                },
                 ".MuiLineElement-root": {
                   strokeWidth: 2,
                 },
@@ -343,12 +342,21 @@ export default function ProgressDensityChart(props) {
                 "& .MuiChartsAxis-left .MuiChartsAxis-label": {
                   transform: "translateX(-10px)",
                 },
+                height: "100%",
+                width: "100%",
               }}
             />
           ) : (
-            <Typography variant="body2" color="text.secondary">
-              No data available
-            </Typography>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              height="100%"
+            >
+              <Alert severity="info">
+                Keep screening records to display the chart
+              </Alert>
+            </Box>
           )}
         </Box>
       </CardContent>

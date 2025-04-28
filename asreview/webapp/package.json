@@ -21,7 +21,7 @@
     "react-loading": "^2.0.3",
     "react-oauth-popup": "^1.0.5",
     "react-query": "^3.39.3",
-    "react-router-dom": "^6.26.1",
+    "react-router-dom": "^7.5.2",
     "react-scripts": "^5.0.1",
     "react-share": "^5.1.1",
     "yup": "^1.4.0"

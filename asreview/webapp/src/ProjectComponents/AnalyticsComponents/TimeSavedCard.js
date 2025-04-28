@@ -10,6 +10,7 @@ import {
   Popover,
   Button,
   Grid2 as Grid,
+  Alert,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useQuery } from "react-query";
@@ -181,6 +182,7 @@ const TimeSavedCard = ({ project_id }) => {
 
   const unlabeledRecords = progressData.n_pool;
   const hoursSaved = Math.round((unlabeledRecords * AVG_TIME_PER_RECORD) / 60);
+  const minutesSaved = Math.round(unlabeledRecords * AVG_TIME_PER_RECORD);
 
   return (
     <Card
@@ -265,7 +267,7 @@ const TimeSavedCard = ({ project_id }) => {
                   textAlign: "center",
                 }}
               >
-                Instead, you could...
+                Instead, you can...
               </Typography>
 
               <Box
@@ -345,39 +347,63 @@ const TimeSavedCard = ({ project_id }) => {
           horizontal: "right",
         }}
         PaperProps={{
-          sx: { borderRadius: 2, maxWidth: 320 },
+          sx: { borderRadius: 2, maxWidth: 375 },
         }}
       >
         <Box sx={{ p: 2.5 }}>
           <Stack spacing={2.5}>
+            <Typography
+              variant="h6"
+              sx={{ fontFamily: "Roboto Serif", textAlign: "center" }}
+            >
+              Congratulations!
+            </Typography>
+            <Divider />
             <Box>
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Time Saved
               </Typography>
-              <Typography variant="body2">
-                Based on research data, reviewers spend an average of 1.2
-                minutes per record in traditional systematic reviews. ASReview
-                helps you avoid reviewing irrelevant records.
+              <Typography
+                variant="body2"
+                sx={{ mb: 1.5, textAlign: "justify" }}
+              >
+                This card estimates the time you've saved by using ASReview
+                compared to traditional manual screening. By prioritizing
+                relevant records, you avoid spending time on those likely to be
+                irrelevant.
               </Typography>
+              <Alert
+                severity="info"
+                icon={<AccessTimeIcon fontSize="inherit" />}
+              >
+                We estimate that manual screening takes an average of{" "}
+                <strong>{AVG_TIME_PER_RECORD * 60} seconds</strong> per record.
+                You've potentially skipped reviewing{" "}
+                <strong>{unlabeledRecords.toLocaleString()}</strong> records,
+                saving approximately{" "}
+                <strong>{minutesSaved.toLocaleString()} minutes</strong> (
+                {hoursSaved.toLocaleString()} hours).
+              </Alert>
             </Box>
             <Divider />
             <Box>
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                What This Means
+                Maximize Your Efficiency
               </Typography>
-              <Typography variant="body2">
-                Every hour saved is time you can spend on what matters most -
-                whether that's advancing your research, pursuing personal
-                interests, or finally tackling those pending tasks.
+              <Typography variant="body2" sx={{ textAlign: "justify" }}>
+                Every hour saved is valuable time reclaimed. This efficiency
+                allows you to focus on analyzing relevant findings, pursue new
+                research questions, or dedicate time to other important tasks.
               </Typography>
             </Box>
-            <Box>
+            <Box sx={{ textAlign: "center", pt: 1 }}>
               <Button
                 href="https://asreview.readthedocs.io/en/latest/guides/active_learning.html"
                 target="_blank"
                 rel="noopener noreferrer"
+                size="small"
               >
-                Learn more
+                Learn more about Active Learning
               </Button>
             </Box>
           </Stack>

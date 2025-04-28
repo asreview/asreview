@@ -26,7 +26,6 @@ import waitress
 from rich.console import Console
 
 import asreview as asr
-from asreview._deprecated import DeprecateAction
 from asreview._deprecated import mark_deprecated_help_strings
 from asreview.webapp._task_manager.task_manager import run_task_manager
 from asreview.webapp.app import create_app
@@ -212,14 +211,6 @@ def _lab_parser():
         prog="lab",
         description="ASReview LAB - Active learning for Systematic Reviews.",
         formatter_class=argparse.RawTextHelpFormatter,
-    )
-
-    parser.add_argument(
-        "--ip",
-        default=HOST_NAME,
-        type=str,
-        action=DeprecateAction,
-        help="The IP address the server will listen on. Use the --host argument.",
     )
 
     parser.add_argument(

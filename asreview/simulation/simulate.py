@@ -212,14 +212,19 @@ class Simulate:
             pbar_rel.close()
             pbar_total.close()
 
-            padded_results = list(self._results["label"]) + [0] * (
-                len(self.labels) - len(self._results["label"])
-            )
+            padded_results = list(
+                self._results.dropna(axis=0, subset="training_set")["label"]
+            ) + [0] * (len(self.labels) - len(self._results["label"]))
 
             if self.print_progress:
-                print(
-                    f"\nLoss: {loss(padded_results):.3f}\nNDCG: {ndcg(padded_results):.3f}"
-                )
+                try:
+                    print(
+                        f"\nLoss: {loss(padded_results):.3f}\nNDCG: {ndcg(padded_results):.3f}"
+                    )
+                except ValueError:
+                    print(
+                        "Can't compute loss and gain for labels with only relevant or irrelevant records"
+                    )
 
     def label(self, record_ids, cycle=None):
         """Label the records with the given record_ids.
@@ -247,7 +252,7 @@ class Simulate:
         new_labels = pd.DataFrame(
             {
                 "record_id": record_ids,
-                "label": pd.Series(self.labels)[record_ids],
+                "label": pd.Series(self.labels).iloc[record_ids],
                 "classifier": classifier,
                 "querier": querier,
                 "balancer": balancer,

@@ -7,4 +7,6 @@ Server guide
 
     overview
 
+    installation
+
     configuration
