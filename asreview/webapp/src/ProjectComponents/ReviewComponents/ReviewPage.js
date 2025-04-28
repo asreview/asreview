@@ -1,4 +1,4 @@
-import { Box, Button, Stack, Typography, useMediaQuery } from "@mui/material";
+import { Button, Stack, Typography, useMediaQuery } from "@mui/material";
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
