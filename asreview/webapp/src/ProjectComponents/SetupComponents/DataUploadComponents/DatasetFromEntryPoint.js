@@ -108,7 +108,7 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
           mb: 3,
         }}
       >
-        <Typography variant="h5" fontFamily="Roboto Serif">
+        <Typography variant="h6" fontFamily="Roboto Serif">
           Systematic Review Datasets
         </Typography>
         <IconButton size="small" onClick={handleHelpPopoverOpen}>
@@ -202,12 +202,13 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
             key="add-dataset-button-tab"
             component="div"
             icon={
-              <IconButton onClick={handleAddDatasetClick} size="small">
+              <IconButton size="small">
                 <Add fontSize="small" />
               </IconButton>
             }
             sx={{ p: 1, minWidth: "auto" }}
             value={datasetGroups.length}
+            onClick={handleAddDatasetClick}
           />
         </Tabs>
       </Box>
