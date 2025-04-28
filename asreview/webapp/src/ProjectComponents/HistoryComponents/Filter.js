@@ -1,5 +1,5 @@
 import { FilterList } from "@mui/icons-material";
-import { Autocomplete, IconButton, InputBase } from "@mui/material";
+import { Autocomplete, Checkbox, IconButton, InputBase } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import * as React from "react";
 
@@ -16,7 +16,8 @@ const classes = {
 
 const Root = styled("div")(({ theme }) => ({
   display: "flex",
-  padding: "4px 16px",
+  alignItems: "center",
+  padding: 0,
   [`& .${classes.icon}`]: {
     color: theme.palette.text.secondary,
     [`:hover`]: {
@@ -39,24 +40,29 @@ export default function Filter(props) {
       </IconButton>
       <Autocomplete
         id="filter labeled record"
-        sx={{ ml: 1, flex: 1, display: "flex" }}
+        sx={{ ml: 1, display: "flex", flexGrow: 1 }}
         blurOnSelect
         disableClearable
-        freeSolo
         filterSelectedOptions
         multiple
         openOnFocus
         options={historyFilterOptions}
         getOptionLabel={(option) => option.label}
+        renderOption={(props, option, { selected }) => (
+          <li {...props} key={option.value}>
+            <Checkbox style={{ marginRight: 8 }} checked={selected} />
+            {option.label}
+          </li>
+        )}
         renderInput={(params) => {
           const { InputLabelProps, InputProps, ...rest } = params;
           return (
             <InputBase
               {...params.InputProps}
               {...rest}
+              sx={{ width: "100%" }}
               inputRef={filterInput}
               placeholder={!props.filterQuery.length ? "Filter" : ""}
-              readOnly
             />
           );
         }}
