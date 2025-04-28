@@ -79,7 +79,20 @@ const CardIcon = ({ iconName }) => {
       iconType = null;
   }
 
-  return <Box sx={{ bgcolor: getColor(iconName), p: 1 }}>{iconType}</Box>;
+  return (
+    <Box
+      sx={{
+        bgcolor: getColor(iconName),
+        p: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+      }}
+    >
+      {iconType}
+    </Box>
+  );
 };
 
 const EntryPointDataset = ({
@@ -98,11 +111,11 @@ const EntryPointDataset = ({
 
   return (
     <>
-      <Card onClick={toggleOpen} elevation={0}>
-        <CardActionArea>
-          <Stack direction="row" spacing={1}>
+      <Card onClick={toggleOpen} elevation={0} sx={{ height: "100%" }}>
+        <CardActionArea sx={{ height: "100%" }}>
+          <Stack direction="row" spacing={1} sx={{ height: "100%" }}>
             <CardIcon iconName={dataset.topic} />
-            <CardContent>
+            <CardContent sx={{ display: "flex", alignItems: "center" }}>
               <Typography>
                 {formatCitation(dataset.authors, dataset.year)}
               </Typography>

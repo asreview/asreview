@@ -413,7 +413,7 @@ class SynergyDataGroup(BaseDataGroup):
     """Datasets available in the SYNERGY dataset."""
 
     group_id = "synergy"
-    description = "SYNERGY datasets"
+    description = "SYNERGY"
     url = "https://asreview.ai/synergy"
 
     def __init__(self):
