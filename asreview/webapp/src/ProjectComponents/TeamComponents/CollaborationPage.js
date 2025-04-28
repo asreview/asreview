@@ -1,4 +1,4 @@
-import { Button, Stack, Typography } from "@mui/material";
+import { Button, Stack, Alert } from "@mui/material";
 import { InlineErrorHandler } from "Components";
 import { ConfirmationDialog } from "ProjectComponents/TeamComponents";
 import { AuthAPI, TeamAPI } from "api";
@@ -37,18 +37,20 @@ const CollaborationPage = () => {
   return (
     <>
       {data?.id && (
-        <Stack>
-          <Typography variant="h5">
-            You are collaborating in this project
-          </Typography>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={toggleDialogOpen}
-            sx={{ width: 300 }}
-          >
-            Remove me from this project
-          </Button>
+        <Stack spacing={2}>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Alert severity="info" sx={{ flexGrow: 1 }}>
+              You are collaborating in this project
+            </Alert>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={toggleDialogOpen}
+            >
+              Remove me from the project
+            </Button>
+          </Stack>
+
           {errorMessage !== undefined && (
             <Stack sx={{ padding: 5 }}>
               <InlineErrorHandler message={errorMessage} />
