@@ -252,7 +252,7 @@ class Simulate:
         new_labels = pd.DataFrame(
             {
                 "record_id": record_ids,
-                "label": pd.Series(self.labels)[record_ids],
+                "label": pd.Series(self.labels).iloc[record_ids],
                 "classifier": classifier,
                 "querier": querier,
                 "balancer": balancer,
