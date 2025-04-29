@@ -51,17 +51,17 @@ likely to be relevant.
    * - ELAS Multilingual
      - l-series
      - Designed for multilingual datasets.
-     - ASReview NEMO
+     - ASReview Dory
    * - ELAS Heavy
      - h-series
      - Focuses on semantic understanding of text.
-     - ASReview NEMO
+     - ASReview Dory
 
 For most users, the pre-configured ELAS models are sufficient. However, if you
 want more control, you can create custom models by mixing and matching
 components. This flexibility allows you to tailor the AI model to your specific
 dataset and research goals. Custom models can combine components from both
-ASReview and the :doc:`nemo` package, offering advanced options for those with
+ASReview and the :doc:`dory` package, offering advanced options for those with
 more technical expertise.
 
 ELAS Ultra
@@ -149,12 +149,12 @@ its various versions:
 
 .. note::
 
-  ELAS Multilingual models require the :doc:`nemo` package to be installed. You
+  ELAS Multilingual models require the :doc:`dory` package to be installed. You
   can install it using the following command:
 
   .. code:: bash
 
-    pip install asreview-nemo
+    pip install asreview-dory
 
 For more information about the `multilingual-e5-large` feature extractor,
 including its support for over 100 languages, visit the official documentation
@@ -196,15 +196,15 @@ various versions:
 
 .. note::
 
-  ELAS Heavy models require the :ref:`asreview-nemo` package to be installed.
+  ELAS Heavy models require the :ref:`asreview-dory` package to be installed.
   You can install it using the following command:
 
   .. code:: bash
 
-    pip install asreview-nemo
+    pip install asreview-dory
 
 For more information about the `mxbai-embed-large-v1` feature extractor and its
-capabilities, refer to the official documentation provided in the ASReview NEMO
+capabilities, refer to the official documentation provided in the ASReview Dory
 package.
 
 Custom ELAS Models
@@ -234,20 +234,20 @@ models:
   Maximum and 5% Uncertainty)`, `Random`, `Top-down`, `Uncertainty`
 - **Balancers**: `Balanced`
 
-For advanced users, you can also integrate components from the :doc:`nemo`
+For advanced users, you can also integrate components from the :doc:`dory`
 package, which provides access to more powerful feature extractors and
 classifiers:
 
-- **ASReview NEMO Feature Extractors**: `doc2vec`, `gtr-t5-large`, `labse`,
+- **ASReview Dory Feature Extractors**: `doc2vec`, `gtr-t5-large`, `labse`,
   `multilingual-e5-large`, `mxbai-embed-large-v1`, `sbert`
-- **ASReview NEMO Classifiers**: `AdaBoost`, `Neural Network - 2-Layer`, `Neural
+- **ASReview Dory Classifiers**: `AdaBoost`, `Neural Network - 2-Layer`, `Neural
   Network - Dynamic`, `Neural Network - Warm Start`, `XGBoost`
 
 Tips for customization:
 
-- Combining components from ASReview and NEMO allows for highly flexible and
+- Combining components from ASReview and Dory allows for highly flexible and
   powerful models. However, some feature extractors may not work with certain
-  classifiers. For example, some NEMO feature extractors cannot be combined with
+  classifiers. For example, some Dory feature extractors cannot be combined with
   the ASReview Naive Bayes classifier.
 - Experiment with different combinations to find the best fit for your dataset
   and research goals. You can use the simulation mode in ASReview LAB to
@@ -288,5 +288,5 @@ screening records as usual.
 
 .. note::
 
-  Switching to a more complex model, such as those requiring the ASReview NEMO
+  Switching to a more complex model, such as those requiring the ASReview Dory
   package, may take longer to train.

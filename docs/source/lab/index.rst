@@ -51,7 +51,7 @@ maintaining high accuracy and reproducibility.
     :maxdepth: 2
 
     models
-    nemo
+    dory
 
 .. toctree::
     :caption: Screening and projects
