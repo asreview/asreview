@@ -54,12 +54,13 @@ maintaining high accuracy and reproducibility.
     dory
 
 .. toctree::
-    :caption: Screening and projects
+    :caption: Reviews and projects
     :maxdepth: 2
 
     project_create
     screening
     progress
+    validation_review
     manage
 
 

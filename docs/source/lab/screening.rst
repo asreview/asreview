@@ -56,37 +56,6 @@ when to stop.
   consult others, and read the full text (in case of reviewing abstracts of
   scientific papers)
 
-Screening in Validation mode
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The Validation mode (formerly known as Exploration mode) is tailored for
-scenarios where it's necessary to validate existing labels or engage in a
-review process without being an oracle. This mode is especially beneficial
-for validating labels made by a first screener, reviewing labels predicted by
-Large Language Models(LLMs) such as ChatGPT, or for educational and training
-purposes.
-
-In this mode, records are presented along with an indication of their previous
-labeling status: relevant, irrelevant, or not seen. This status is displayed
-via a color-coded bar above each record. If a record was labeled by another
-screener or an AI model, you have the opportunity to validate, or challenge
-these labels, helping to refine the dataset by correcting any potential
-misclassifications, useful for the quality evaluation of the `SAFE procedure <https://www.researchsquare.com/article/rs-2856011/>`_.
-
-Additionally, the Validation mode is useful for educational use. Instructors
-and learners can utilize this mode to simulate the screening process without
-being the expert decision-maker. This setup is particularly advantageous in
-workshop settings, where participants can engage with the screening process
-using the labeled `SYNERGY datasets <https://github.com/asreview/synergy-dataset>`_.
-This hands-on experience
-offers valuable insights into the software's functionality and the systematic
-review process without the need to be a content expert. For comprehensive
-online teaching materials and tutorials on using ASReview LAB
-effectively, please visit the `ASReview Academy <https://asreview.github.io/asreview-academy/ASReviewLAB.html>`_.
-
-.. figure:: ../../images/project_screening_validation.png
-   :alt: ASReview Screening in Validation Mode
-
 Autosave
 --------
 
@@ -97,41 +66,23 @@ ASReview LAB (in fact, there is not even a *save* button).
 Change decisions
 ----------------
 
-In some cases, you might want to change your previous decision. The screening
-interface of ASReview LAB offers two options to change your decision.
-
-Undo last decision
-~~~~~~~~~~~~~~~~~~
-
-You can return to your previous decision during screening.
-
-1. :doc:`start`.
-2. Open or :doc:`project_create`.
-3. Label the record displayed in the screen as relevant or irrelevant.
-4. Click on *Undo* (At the bottom right)
-5. Click on *Keep (ir)relevant* or *Convert to (ir)relevant*.
-6. Continue screening.
-
-You can disable
-this option in the Settings menu.
-
-Screening history
-~~~~~~~~~~~~~~~~~
-
-An overview of your decisions made during screening can be found on the
-**History** page. You can change decisions on this page.
+In some cases, you might want to change your previous decision. An overview of
+your decisions made during screening can be found on the **Collection** page. You
+can change decisions on this page.
 
 
 1. :doc:`start`.
 2. Open or :doc:`project_create`.
-3. Click on History in the menu on the left.
+3. Click on Collection in the menu on the left.
 
 .. figure:: ../../images/project_history.png
    :alt: Show project history
 
 Changing decisions on the history page
 
-4. To change a label of a record, click the heart icon. The next iteration of the model will take the new label into account.
+4. To change a label of a record, click on the three dots on the right of the
+   record.
+5. Click on *Change label to*.
 
 
 Full Text
@@ -198,16 +149,8 @@ You can make the text on the review screen smaller or larger.
 3. Go to *Display* and click on *Font size*.
 4. Slide the slider to the desired font size.
 
-ELAS Memory Game
-----------------
+ELAS Game
+---------
 
-If you want a break from screening, you can search for the hidden ELAS memory
-game.
-
-.. figure:: ../../images/game.png
-   :alt: ELAS Memory Game
-
-If you really need a long break, try the expert mode.
-
-.. figure:: ../../images/game_expert.png
-   :alt: ELAS Memory Game - expert mode
+If you want a break from screening, click on the ELAS mascotte on the top right
+in the reviewer screen `;)`. Let us know about your high score!
