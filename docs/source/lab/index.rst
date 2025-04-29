@@ -26,8 +26,7 @@ maintaining high accuracy and reproducibility.
 
     about
     products
-    research
-    contribute
+    openscience
 
 
 .. toctree::
