@@ -67,7 +67,7 @@ AI_MODEL_CONFIGURATIONS = [
         "name": "elas_l2",
         "label": "ELAS l2",
         "type": "lang",
-        "extensions": ["asreview-nemo"],
+        "extensions": ["asreview-dory"],
         "value": ActiveLearningCycleData(
             querier="max",
             classifier="svm",
@@ -86,7 +86,7 @@ AI_MODEL_CONFIGURATIONS = [
         "name": "elas_h3",
         "label": "ELAS h3",
         "type": "heavy",
-        "extensions": ["asreview-nemo"],
+        "extensions": ["asreview-dory"],
         "value": ActiveLearningCycleData(
             querier="max",
             classifier="svm",

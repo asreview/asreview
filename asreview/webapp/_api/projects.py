@@ -74,10 +74,10 @@ from asreview.webapp.utils import get_project_path
 try:
     import importlib.metadata
 
-    importlib.metadata.distribution("asreview-nemo")
-    NEMO_INSTALLED = True
+    importlib.metadata.distribution("asreview-dory")
+    DORY_INSTALLED = True
 except importlib.metadata.PackageNotFoundError:
-    NEMO_INSTALLED = False
+    DORY_INSTALLED = False
 
 
 bp = Blueprint("api", __name__, url_prefix="/api")
@@ -699,7 +699,7 @@ def api_list_learners():
                 "label": learner["label"],
                 "type": learner["type"],
                 "is_available": learner.get("extensions", None) is None
-                or NEMO_INSTALLED,
+                or DORY_INSTALLED,
             }
             for learner in AI_MODEL_CONFIGURATIONS
         ],
