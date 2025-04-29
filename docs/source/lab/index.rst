@@ -21,18 +21,11 @@ maintaining high accuracy and reproducibility.
     <https://github.com/asreview/asreview/issues/new/choose>`__.
 
 .. toctree::
-    :caption: Introduction
+    :caption: Getting started
     :maxdepth: 2
 
     about
-    products
     openscience
-
-
-.. toctree::
-    :caption: Install and start
-    :maxdepth: 2
-
     installation
     start
     troubleshooting
@@ -54,12 +47,13 @@ maintaining high accuracy and reproducibility.
     dory
 
 .. toctree::
-    :caption: Screening and projects
+    :caption: Reviews and projects
     :maxdepth: 2
 
     project_create
     screening
     progress
+    validation_review
     manage
 
 
