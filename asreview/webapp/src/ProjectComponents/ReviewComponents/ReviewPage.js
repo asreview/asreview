@@ -1,4 +1,4 @@
-import { Box, Button, Stack, Typography, useMediaQuery } from "@mui/material";
+import { Button, Stack, Typography, useMediaQuery } from "@mui/material";
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
@@ -14,6 +14,7 @@ import FinishSetup from "./ReviewPageTraining";
 import { useReviewSettings } from "context/ReviewSettingsContext";
 import StoppingReachedDialog from "./StoppingReachedDialog";
 import { projectStatuses } from "globals.js";
+import { Alert } from "@mui/material";
 
 const ReviewPage = () => {
   let { project_id } = useParams();
@@ -172,19 +173,19 @@ const ReviewPage = () => {
       )}
 
       {isError && (
-        <Box sx={{ textAlign: "center", mt: 4 }}>
-          <Typography variant="h6" color="error" gutterBottom>
+        <Alert severity="error" sx={{ mt: 3 }}>
+          <Typography variant="h6" gutterBottom>
             ASReview LAB failed to load a new record
           </Typography>
           {error?.message && (
-            <Typography variant="body1" color="error" gutterBottom>
+            <Typography variant="body1" gutterBottom>
               {error.message}
             </Typography>
           )}
           <Button variant="contained" onClick={() => refetch()} sx={{ mt: 2 }}>
             Try to load again
           </Button>
-        </Box>
+        </Alert>
       )}
     </Container>
   );
