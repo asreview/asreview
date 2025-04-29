@@ -29,7 +29,6 @@ import { ProjectAPI } from "api";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { Add } from "@mui/icons-material";
-import AnalyticsIcon from "@mui/icons-material/Analytics";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import StyleIcon from "@mui/icons-material/Style";

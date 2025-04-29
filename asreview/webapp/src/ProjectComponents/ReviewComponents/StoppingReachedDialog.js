@@ -7,12 +7,16 @@ import {
   Stack,
   Typography,
   Alert,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import {
   DoneAll,
   Settings as SettingsIcon,
   Article as ArticleIcon,
-  Forum as ForumIcon,
+  FileDownloadOutlined as FileDownloadOutlinedIcon,
 } from "@mui/icons-material";
 import { useMutation, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
@@ -77,6 +81,23 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
       });
   };
 
+  const handleFinishAndExport = () => {
+    mutate(
+      {
+        project_id: project_id,
+        status: projectStatuses.FINISHED,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries(["fetchProjectStatus", { project_id }]);
+          queryClient.invalidateQueries(["fetchProjectInfo", { project_id }]);
+          navigate(`/reviews/${project_id}/collection`);
+          onClose();
+        },
+      },
+    );
+  };
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <Box sx={{ p: 2.5 }}>
@@ -110,7 +131,7 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
 
             <Alert severity="info" sx={{ mt: 2 }}>
               You can always return to this menu by clicking the stopping
-              suggestion circle.
+              suggestion circle
             </Alert>
           </Box>
 
@@ -120,90 +141,37 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
             <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
               Available Actions
             </Typography>
-            <Stack spacing={2}>
-              <Button
-                onClick={handleReviewMore}
-                sx={{
-                  justifyContent: "flex-start",
-                  textAlign: "left",
-                  p: 1,
-                  textTransform: "none",
-                }}
-              >
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  alignItems="flex-start"
-                  width="100%"
-                >
-                  <ArticleIcon fontSize="small" color="primary" />
-                  <Box>
-                    <Typography variant="body2" fontWeight="medium">
-                      Review 20 More Records
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Continue screening with an increased threshold
-                    </Typography>
-                  </Box>
-                </Stack>
-              </Button>
+            <List sx={{ width: "100%" }}>
+              <ListItemButton onClick={handleReviewMore}>
+                <ListItemIcon>
+                  <ArticleIcon color="primary" />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Review 20 More Records"
+                  secondary="Continue screening with an increased stopping threshold"
+                />
+              </ListItemButton>
 
-              <Button
-                onClick={handleSelectDifferentModel}
-                sx={{
-                  justifyContent: "flex-start",
-                  textAlign: "left",
-                  p: 1,
-                  textTransform: "none",
-                }}
-              >
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  alignItems="flex-start"
-                  width="100%"
-                >
-                  <SettingsIcon fontSize="small" color="primary" />
-                  <Box>
-                    <Typography variant="body2" fontWeight="medium">
-                      Continue with Different Model
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Switch to an alternative model for further screening
-                    </Typography>
-                  </Box>
-                </Stack>
-              </Button>
+              <ListItemButton onClick={handleSelectDifferentModel}>
+                <ListItemIcon>
+                  <SettingsIcon color="primary" />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Continue with Different Model"
+                  secondary="Switch to a different AI model for further screening"
+                />
+              </ListItemButton>
 
-              <Button
-                href="https://github.com/asreview/asreview/discussions/557"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  justifyContent: "flex-start",
-                  textAlign: "left",
-                  p: 1,
-                  textTransform: "none",
-                }}
-              >
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  alignItems="flex-start"
-                  width="100%"
-                >
-                  <ForumIcon fontSize="small" color="primary" />
-                  <Box>
-                    <Typography variant="body2" fontWeight="medium">
-                      Learn More About Stopping
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Read about when to stop screening
-                    </Typography>
-                  </Box>
-                </Stack>
-              </Button>
-            </Stack>
+              <ListItemButton onClick={handleFinishAndExport}>
+                <ListItemIcon>
+                  <FileDownloadOutlinedIcon color="primary" />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Finish Project & Export Results"
+                  secondary="Export your results from the collections page"
+                />
+              </ListItemButton>
+            </List>
           </Box>
 
           <Divider />
@@ -211,20 +179,31 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
           <Stack
             direction="row"
             spacing={2}
-            justifyContent="flex-end"
+            justifyContent="space-between"
             alignItems="center"
           >
-            <Button onClick={onClose} sx={{ textTransform: "none" }}>
-              Dismiss
-            </Button>
             <Button
-              onClick={handleFinishProject}
-              variant="contained"
-              startIcon={<DoneAll />}
+              href="https://github.com/asreview/asreview/discussions/557"
+              target="_blank"
+              rel="noopener noreferrer"
+              size="small"
               sx={{ textTransform: "none" }}
             >
-              Finish Project
+              Learn more
             </Button>
+            <Box>
+              <Button onClick={onClose} sx={{ textTransform: "none", mr: 1 }}>
+                Dismiss
+              </Button>
+              <Button
+                onClick={handleFinishProject}
+                variant="contained"
+                startIcon={<DoneAll />}
+                sx={{ textTransform: "none" }}
+              >
+                Finish Project
+              </Button>
+            </Box>
           </Stack>
         </Stack>
       </Box>

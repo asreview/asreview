@@ -25,7 +25,6 @@ import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
 import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
 import SearchIcon from "@mui/icons-material/Search";
-import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import Grid from "@mui/material/Grid2";
 
 const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
