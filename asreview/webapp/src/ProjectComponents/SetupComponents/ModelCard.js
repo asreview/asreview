@@ -577,10 +577,6 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
               </Typography>
             </Box>
 
-            <Alert severity="info">
-              Using multiple models is recommended for finding all the relevant
-              relevant records
-            </Alert>
             <Divider />
 
             <Box>
