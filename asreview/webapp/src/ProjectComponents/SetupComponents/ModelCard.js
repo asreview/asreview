@@ -247,14 +247,14 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                                   variant="caption"
                                   fontWeight="medium"
                                 >
-                                  Requires ASReview-NEMO
+                                  Requires ASReview-Dory
                                 </Typography>
                                 <Box
                                   component="span"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     window.open(
-                                      "https://asreview.nl/nemo",
+                                      "https://asreview.nl/dory",
                                       "_blank",
                                       "noopener,noreferrer",
                                     );
@@ -316,14 +316,14 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                                   variant="caption"
                                   fontWeight="medium"
                                 >
-                                  Requires ASReview-NEMO
+                                  Requires ASReview-Dory
                                 </Typography>
                                 <Box
                                   component="span"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     window.open(
-                                      "https://asreview.nl/nemo",
+                                      "https://asreview.nl/dory",
                                       "_blank",
                                       "noopener,noreferrer",
                                     );
