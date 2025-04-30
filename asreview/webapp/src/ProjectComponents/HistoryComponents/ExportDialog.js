@@ -118,10 +118,6 @@ const ExportDialog = ({ project_id, open, onClose }) => {
                   processing and storing this information according to
                   applicable privacy regulations (e.g., GDPR).
                 </Typography>
-                <Alert severity="warning">
-                  Be mindful of data privacy when sharing or storing files
-                  containing personal information
-                </Alert>
               </>
             )}
             <Box sx={{ mt: 1 }}>
