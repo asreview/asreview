@@ -110,7 +110,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
             {window.authentication && (
               <>
                 <Typography variant="subtitle1" fontWeight="bold">
-                  Privacy Considerations (GDPR)
+                  Privacy
                 </Typography>
                 <Typography variant="body2" sx={{ textAlign: "justify" }}>
                   Including reviewer names and emails in the export file
