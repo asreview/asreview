@@ -115,8 +115,8 @@ const ExportDialog = ({ project_id, open, onClose }) => {
                 <Typography variant="body2" sx={{ textAlign: "justify" }}>
                   Including reviewer names and emails in the export file
                   contains personal data. Ensure you have a legitimate basis for
-                  processing and storing this information according to GDPR or
-                  other applicable privacy regulations.
+                  processing and storing this information according to 
+                  applicable privacy regulations (e.g., GDPR).
                 </Typography>
                 <Alert severity="warning">
                   Be mindful of data privacy when sharing or storing files
