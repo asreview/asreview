@@ -90,7 +90,7 @@ const RecordCardModelTraining = ({ record, modelLogLevel, sx }) => {
     );
   }
   const getAlertMessage = () => {
-    if (record?.state?.querier === "top-down") {
+    if (record?.state?.querier === "top_down") {
       return record?.state?.label === 1 || record?.state?.label === 0
         ? "This record was presented in a top-down manner"
         : "This record is presented in a top-down manner";
