@@ -6,7 +6,7 @@ to identify relevant records and accelerate your review process. ASReview offers
 models, both provide models and the option to create a custom model:
 
 - ELAS Models: These models are fast and efficient for most reviews. They are included by default when you install ASReview.
-- Heavy Models: These are more specialised and computationally demanding. To use these models you require the official `asreview-nemo <https://github.com/asreview/asreview-nemo>`__ extension.
+- Heavy Models: These are more specialised and computationally demanding. To use these models you require the official `asreview-dory <https://github.com/asreview/asreview-dory>`__ extension.
 
 ELAS Models
 ***********
@@ -47,24 +47,24 @@ Heavy Models
 ************
 .. note::
 
-  This is an official extension for ASReview. See `asreview-nemo <https://github.com/asreview/asreview-nemo>`__
+  This is an official extension for ASReview. See `asreview-dory <https://github.com/asreview/asreview-dory>`__
   for the repository.
 
-ASReview New Exciting MOdels (NEMO) is a Python package that, when installed, offers ASReview users
+ASReview Dory is a Python package that, when installed, offers ASReview users
 access to newer, larger, and more advanced models. Having these models in a separate Python package
 allows you to experiment with newer and more complex models, whilst at the same time keeping the
 ASReview package lightweight and fast!
 
 Installation
 ============
-Installing ASReview NEMO works like any other Python package. Simply install NEMO using the following command:
+Installing ASReview Dory works like any other Python package. Simply install Dory using the following command:
 
 .. code:: bash
 
-	pip install asreview-nemo
+	pip install asreview-dory
 
-After installation, the ASReview NEMO models are available in two models: l2, for multilingual datasets, and
-h4, for learning on semantics from your dataset. Moreover, under Custom you can mix and match even more
+After installation, the ASReview Dory models are available in two models: l2, for multilingual datasets, and
+h3, for learning on semantics from your dataset. Moreover, under Custom you can mix and match even more
 feature extractors and classifiers.
 
 .. tip::
@@ -87,16 +87,16 @@ the SVM classifier.
 
 Custom Heavy Models
 ===================
-You can also create any model you want by combining ASReview and NEMO model components in a custom model.
-The following feature extractors and classifiers are currently included in the NEMO package.
+You can also create any model you want by combining ASReview and Dory model components in a custom model.
+The following feature extractors and classifiers are currently included in the Dory package.
 
-ASReview NEMO Feature Extractors: `doc2vec`, `gtr-t5-large`, `labse`, `multilingual-e5-large`,
-`mxbai-embed-large-v1`, `sbert`
+ASReview Dory Feature Extractors: `GTR T5`, `LaBSE`, `MPNet`, `Multilingual E5`,
+`MXBAI`
 
-ASReview NEMO Classifiers: `AdaBoost`, `Neural Network - 2-Layer`, `Neural Network - Dynamic`,
+ASReview Dory Classifiers: `AdaBoost`, `Neural Network - 2-Layer`, `Neural Network - Dynamic`,
 `Neural Network - Warm Start`, `XGBoost`
 
 .. tip::
-  Combining ASReview and NEMO models in a custom model requires some knowledge of how these models work.
+  Combining ASReview and Dory models in a custom model requires some knowledge of how these models work.
   Some feature extractors produce features that do not work with some classifiers. An example of this is
-  any NEMO feature extractor cannot be combined with the ASReview Naive Bayes classifier.
+  any Dory feature extractor cannot be combined with the ASReview Naive Bayes classifier.
