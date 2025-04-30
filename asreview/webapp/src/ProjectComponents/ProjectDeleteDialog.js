@@ -71,7 +71,7 @@ const ProjectDeleteDialog = ({
           <Stack spacing={2}>
             <Alert severity="error">
               This action cannot be undone. This will permanently delete the{" "}
-              <b>{projectTitle}</b> project , including the dataset, review
+              <b>{projectTitle}</b> project, including the dataset, review
               labels, notes, and model configuration
             </Alert>
             <Typography>
