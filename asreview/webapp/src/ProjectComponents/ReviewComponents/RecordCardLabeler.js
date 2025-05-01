@@ -385,7 +385,22 @@ const RecordCardLabeler = ({
           {(label === 1 || label === 0) && (
             <>
               {!landscape && (
-                <Typography variant="secondary" sx={{ pl: 1 }}>
+                <Typography
+                  variant="secondary"
+                  sx={(theme) => ({
+                    pl: 1,
+                    color:
+                      label === 1
+                        ? theme.palette.getContrastText(
+                            theme.palette.tertiary.main,
+                          )
+                        : label === 0
+                          ? theme.palette.getContrastText(
+                              theme.palette.grey[600],
+                            )
+                          : theme.palette.text.primary,
+                  })}
+                >
                   Labeled {label === 1 ? "relevant" : "not relevant"}{" "}
                   {user && formatUser(user)}{" "}
                   {timeAgo.format(new Date(labelTime * 1000))}
@@ -429,9 +444,16 @@ const RecordCardLabeler = ({
                   aria-expanded={openMenu ? "true" : undefined}
                   onClick={(event) => setAnchorEl(event.currentTarget)}
                   sx={(theme) => ({
-                    // color: theme.palette.getContrastText(
-                    //   theme.palette.secondary.dark,
-                    // ),
+                    color:
+                      label === 1
+                        ? theme.palette.getContrastText(
+                            theme.palette.tertiary.main,
+                          )
+                        : label === 0
+                          ? theme.palette.getContrastText(
+                              theme.palette.grey[600],
+                            )
+                          : theme.palette.action.primary,
                   })}
                 >
                   <MoreVert />
