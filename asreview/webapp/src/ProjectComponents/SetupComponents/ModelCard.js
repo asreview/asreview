@@ -17,10 +17,10 @@ import {
   Popover,
   Button,
   Grid,
-  Fade,
+  Snackbar,
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import React from "react";
+import React, { useState, useContext } from "react";
 import BoltIcon from "@mui/icons-material/Bolt";
 import LanguageIcon from "@mui/icons-material/Language";
 import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
@@ -29,12 +29,10 @@ import ExtractIcon from "@mui/icons-material/ContentCopy";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import BalanceIcon from "@mui/icons-material/Balance";
 import CircularProgress from "@mui/material/CircularProgress";
-import CheckIcon from "@mui/icons-material/Check";
 
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectModes } from "globals.js";
-import { useContext } from "react";
 import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
@@ -91,53 +89,11 @@ const ModelComponentSelect = ({
 const ModelCard = ({ mode = null, trainNewModel = false }) => {
   const project_id = useContext(ProjectContext);
   const queryClient = useQueryClient();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [showSuccess, setShowSuccess] = React.useState(false);
-  const [showMinSpinner, setShowMinSpinner] = React.useState(false);
-  let successTimer = React.useRef();
-  let minSpinnerTimer = React.useRef();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const {
-    mutate,
-    isLoading: isMutating,
-    isSuccess: isMutated,
-    reset,
-  } = useMutation(ProjectAPI.mutateLearner, {
-    onMutate: () => {
-      setShowSuccess(false);
-      setShowMinSpinner(true);
-      clearTimeout(successTimer.current);
-      clearTimeout(minSpinnerTimer.current);
-
-      minSpinnerTimer.current = setTimeout(() => {
-        setShowMinSpinner(false);
-      }, 1000);
-    },
-    onSuccess: (data) => {
-      queryClient.setQueryData(
-        ["fetchLearner", { project_id: project_id }],
-        data,
-      );
-    },
-  });
-
-  React.useEffect(() => {
-    if (!isMutating && !showMinSpinner && isMutated) {
-      setShowSuccess(true);
-      clearTimeout(successTimer.current);
-      successTimer.current = setTimeout(() => {
-        setShowSuccess(false);
-        reset();
-      }, 5000);
-    }
-  }, [isMutating, showMinSpinner, isMutated, reset]);
-
-  React.useEffect(() => {
-    return () => {
-      clearTimeout(successTimer.current);
-      clearTimeout(minSpinnerTimer.current);
-    };
-  }, []);
+  const SNACKBAR_DURATION = 5000;
 
   const {
     data: learnerOptions,
@@ -146,6 +102,50 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
   } = useQuery("fetchLearners", ProjectAPI.fetchLearners, {
     refetchOnWindowFocus: false,
   });
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
+  const { mutate, isLoading: isMutating } = useMutation(
+    ProjectAPI.mutateLearner,
+    {
+      onSuccess: (data, variables) => {
+        queryClient.setQueryData(
+          ["fetchLearner", { project_id: project_id }],
+          data,
+        );
+
+        const newModelName = data.name;
+        let snackbarMsg = "";
+
+        if (newModelName === "custom") {
+          if (variables.isSwitchingToCustom) {
+            snackbarMsg = "AI model updated to Custom";
+          } else {
+            snackbarMsg = "Custom AI model setting updated";
+          }
+        } else {
+          let modelLabel = newModelName;
+          if (learnerOptions?.learners) {
+            const learner = learnerOptions.learners.find(
+              (l) => l.name === newModelName,
+            );
+            if (learner) {
+              modelLabel = learner.label;
+            }
+          }
+          snackbarMsg = `AI model updated to ${modelLabel}`;
+        }
+
+        setSnackbarMessage(snackbarMsg);
+        setSnackbarOpen(true);
+      },
+    },
+  );
 
   const {
     data: modelConfig,
@@ -170,7 +170,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
     setAnchorEl(null);
   };
 
-  const displaySpinner = isMutating || showMinSpinner;
+  const displaySpinner = isMutating;
 
   return (
     <Card sx={{ position: "relative" }}>
@@ -200,21 +200,10 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
             alignItems: "center",
             minWidth: 24,
             height: 24,
-            gap: 0.5,
             justifyContent: "center",
           }}
         >
           {displaySpinner && <CircularProgress size={18} />}
-          {!displaySpinner && (
-            <Fade in={showSuccess} timeout={500}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <CheckIcon />
-                <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                  Changes saved
-                </Typography>
-              </Box>
-            </Fade>
-          )}
         </Box>
 
         <IconButton
@@ -267,6 +256,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                           event.target.value === "custom"
                             ? { querier: "max" }
                             : {},
+                        isSwitchingToCustom: event.target.value === "custom",
                       });
                     }}
                     label="Select Model"
@@ -512,11 +502,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                   )}
                 </FormControl>
               </>
-            ) : (
-              <Typography variant="body1" color="error">
-                Failed to load AI.
-              </Typography>
-            )}
+            ) : null}
           </>
         )}
       </CardContent>
@@ -543,9 +529,8 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
         <Box
           sx={(theme) => ({
             p: 3,
-            maxHeight: "80vh", // Limit height to 80% of viewport
-            overflow: "auto", // Enable scrolling
-            // Custom scrollbar styling
+            maxHeight: "80vh",
+            overflow: "auto",
             "&::-webkit-scrollbar": {
               width: "8px",
               background: "transparent",
@@ -561,7 +546,6 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
               background: "transparent",
               borderRadius: "4px",
             },
-            // Firefox scrollbar styling
             scrollbarWidth: "thin",
             scrollbarColor: (theme) => `${theme.palette.grey[300]} transparent`,
           })}
@@ -860,6 +844,13 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
           </Stack>
         </Box>
       </Popover>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={SNACKBAR_DURATION}
+        onClose={handleSnackbarClose}
+        message={snackbarMessage}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      />
     </Card>
   );
 };
