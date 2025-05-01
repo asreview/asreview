@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import datetime as dt
+import json
 import random
 import re
 from pathlib import Path
@@ -24,6 +25,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import Text
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
@@ -35,6 +37,7 @@ from asreview.webapp.utils import asreview_path
 
 PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"  # noqa
 EMAIL_REGEX = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
+VALID_ROLES = {"member", "admin"}
 
 
 class User(UserMixin, DB.Model):
@@ -52,6 +55,7 @@ class User(UserMixin, DB.Model):
     public = Column(Boolean)
     token = Column(String(150))
     token_created_at = Column(DateTime)
+    _roles = Column("roles", Text, default='["member"]')
 
     projects = relationship("Project", back_populates="owner", cascade="all, delete")
 
@@ -203,6 +207,35 @@ class User(UserMixin, DB.Model):
             return self.token == provided_token and diff <= max_minutes * 60
         else:
             return False
+
+    @property
+    def roles(self):
+        return json.loads(self._roles or "[]")
+
+    def add_role(self, value):
+        if value not in VALID_ROLES:
+            raise ValueError(f"Invalid role: {value}")
+        current = json.loads(self._roles or "[]")
+        if value not in current:
+            current.append(value)
+        self._roles = json.dumps(current)
+
+    @roles.setter
+    def roles(self, value):
+        if not isinstance(value, list):
+            raise ValueError("Roles must be a list.")
+        invalid = [r for r in value if r not in VALID_ROLES]
+        if invalid:
+            raise ValueError(f"Invalid role(s): {invalid}")
+        self._roles = json.dumps(value)
+
+    @property
+    def is_admin(self):
+        return "admin" in self.roles
+
+    @property
+    def is_member(self):
+        return "member" in self.roles
 
     @classmethod
     def valid_password(cls, password):
