@@ -178,6 +178,7 @@ const RecordCard = ({
   const styledRepoCard = (
     <Box>
       <RecordCardModelTraining
+        key={"record-card-model-" + project_id + "-" + record?.record_id}
         record={record}
         modelLogLevel={modelLogLevel}
         sx={{ mb: 3 }}
