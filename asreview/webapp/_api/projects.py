@@ -95,13 +95,13 @@ def _fill_last_ranking(project, ranking):
         "top-down".
     """
 
-    if ranking not in ["random", "top-down"]:
+    if ranking not in ["random", "top_down"]:
         raise ValueError(f"Unknown ranking type: {ranking}")
 
     record_ids = project.data_store["record_id"]
     if ranking == "random":
         ranked_record_ids = record_ids.sample(frac=1)
-    elif ranking == "top-down":
+    elif ranking == "top_down":
         ranked_record_ids = record_ids
     with open_state(project.project_path) as state:
         state.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
