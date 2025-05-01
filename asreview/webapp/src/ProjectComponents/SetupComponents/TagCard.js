@@ -533,14 +533,9 @@ const TagCard = () => {
         ) : (
           <>
             {data.length === 0 && (
-              <Card sx={{ mb: 2, bgcolor: "background.default" }}>
-                <CardContent sx={{ pb: "16px !important" }}>
-                  {" "}
-                  <Typography sx={{ color: "text.secondary", ml: 1 }}>
-                    Your tags will appear here
-                  </Typography>
-                </CardContent>
-              </Card>
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Your tags will appear here
+              </Alert>
             )}
             {data.map((c, index) => (
               <Group key={index} group={c} project_id={project_id} />
