@@ -19,7 +19,6 @@ import {
   IconButton,
   Popover,
   Typography,
-  Alert,
 } from "@mui/material";
 import { ProjectAPI } from "api";
 import * as React from "react";
