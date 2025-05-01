@@ -12,6 +12,7 @@ import {
   Alert,
   Tabs,
   Tab,
+  Link,
 } from "@mui/material";
 import Add from "@mui/icons-material/Add";
 import {
@@ -89,14 +90,6 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
   };
 
   const datasetGroups = data?.result || [];
-
-  const handleAddDatasetClick = () => {
-    window.open(
-      "https://asreview.readthedocs.io/en/latest/reference.html#module-asreview.data",
-      "_blank",
-      "noopener,noreferrer",
-    );
-  };
 
   return (
     <Box>
@@ -200,7 +193,10 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
           ))}
           <Tab
             key="add-dataset-button-tab"
-            component="div"
+            component={Link}
+            href="https://asreview.readthedocs.io/en/latest/reference.html#module-asreview.data"
+            target="_blank"
+            rel="noopener noreferrer"
             icon={
               <IconButton size="small">
                 <Add fontSize="small" />
@@ -208,7 +204,6 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
             }
             sx={{ p: 1, minWidth: "auto" }}
             value={datasetGroups.length}
-            onClick={handleAddDatasetClick}
           />
         </Tabs>
       </Box>
