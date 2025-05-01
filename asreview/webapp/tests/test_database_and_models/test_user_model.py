@@ -435,7 +435,7 @@ def test_is_member(setup_teardown):
 
 
 # test is_admin
-def test_is_member(setup_teardown):
+def test_is_admin(setup_teardown):
     user = crud.create_user(DB)
     user.add_role("admin")
     assert user.is_admin
