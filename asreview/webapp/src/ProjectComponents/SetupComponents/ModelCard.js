@@ -28,7 +28,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import ExtractIcon from "@mui/icons-material/ContentCopy";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import BalanceIcon from "@mui/icons-material/Balance";
-import CircularProgress from "@mui/material/CircularProgress";
 
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
@@ -110,42 +109,39 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
     setSnackbarOpen(false);
   };
 
-  const { mutate, isLoading: isMutating } = useMutation(
-    ProjectAPI.mutateLearner,
-    {
-      onSuccess: (data, variables) => {
-        queryClient.setQueryData(
-          ["fetchLearner", { project_id: project_id }],
-          data,
-        );
+  const { mutate } = useMutation(ProjectAPI.mutateLearner, {
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData(
+        ["fetchLearner", { project_id: project_id }],
+        data,
+      );
 
-        const newModelName = data.name;
-        let snackbarMsg = "";
+      const newModelName = data.name;
+      let snackbarMsg = "";
 
-        if (newModelName === "custom") {
-          if (variables.isSwitchingToCustom) {
-            snackbarMsg = "AI model updated to Custom";
-          } else {
-            snackbarMsg = "Custom AI model setting updated";
-          }
+      if (newModelName === "custom") {
+        if (variables.isSwitchingToCustom) {
+          snackbarMsg = "AI model updated to Custom";
         } else {
-          let modelLabel = newModelName;
-          if (learnerOptions?.learners) {
-            const learner = learnerOptions.learners.find(
-              (l) => l.name === newModelName,
-            );
-            if (learner) {
-              modelLabel = learner.label;
-            }
-          }
-          snackbarMsg = `AI model updated to ${modelLabel}`;
+          snackbarMsg = "Custom AI model setting updated";
         }
+      } else {
+        let modelLabel = newModelName;
+        if (learnerOptions?.learners) {
+          const learner = learnerOptions.learners.find(
+            (l) => l.name === newModelName,
+          );
+          if (learner) {
+            modelLabel = learner.label;
+          }
+        }
+        snackbarMsg = `AI model updated to ${modelLabel}`;
+      }
 
-        setSnackbarMessage(snackbarMsg);
-        setSnackbarOpen(true);
-      },
+      setSnackbarMessage(snackbarMsg);
+      setSnackbarOpen(true);
     },
-  );
+  });
 
   const {
     data: modelConfig,
@@ -169,8 +165,6 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
   const handlePopoverClose = () => {
     setAnchorEl(null);
   };
-
-  const displaySpinner = isMutating;
 
   return (
     <Card sx={{ position: "relative" }}>
@@ -202,15 +196,9 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
             height: 24,
             justifyContent: "center",
           }}
-        >
-          {displaySpinner && <CircularProgress size={18} />}
-        </Box>
+        ></Box>
 
-        <IconButton
-          size="small"
-          onClick={handlePopoverOpen}
-          disabled={displaySpinner}
-        >
+        <IconButton size="small" onClick={handlePopoverOpen}>
           <StyledLightBulb fontSize="small" />
         </IconButton>
       </Box>
