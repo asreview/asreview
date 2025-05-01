@@ -1,31 +1,30 @@
 import React, { useContext } from "react";
 import { useQuery, useQueryClient } from "react-query";
 
+import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
+import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
+import SearchIcon from "@mui/icons-material/Search";
 import {
+  Box,
   Button,
   Card,
   CardContent,
   Divider,
-  Skeleton,
-  Typography,
-  Box,
   IconButton,
   Popover,
+  Skeleton,
   Stack,
+  Typography,
 } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import { LabelHistoryPrior } from "ProjectComponents/HistoryComponents";
 import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectModes } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 import { AddPriorKnowledge } from "./SearchComponents";
-import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
-import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
-import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
-import SearchIcon from "@mui/icons-material/Search";
-import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
-import Grid from "@mui/material/Grid2";
 
 const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
   const project_id = useContext(ProjectContext);
@@ -199,7 +198,7 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
         PaperProps={{
           sx: {
             borderRadius: 3,
-            maxWidth: 320,
+            maxWidth: 350,
           },
         }}
       >
@@ -329,42 +328,12 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
                           sx={{ color: "text.secondary" }}
                         />
                         <Typography variant="subtitle2">
-                          Exclude Papers
+                          Label irrelevant
                         </Typography>
                       </Box>
                       <Typography variant="body2" color="text.secondary">
                         Optionally mark papers as not relevant to refine the
                         AI's understanding
-                      </Typography>
-                    </Stack>
-                  </Box>
-                </Grid>
-                <Grid xs={6}>
-                  <Box
-                    sx={(theme) => ({
-                      p: 2,
-                      border: 1,
-                      borderColor: "divider",
-                      borderRadius: 2,
-                      height: "100%",
-                      bgcolor:
-                        theme.palette.mode === "light"
-                          ? "background.paper"
-                          : "transparent",
-                    })}
-                  >
-                    <Stack spacing={1}>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <TipsAndUpdatesIcon sx={{ color: "text.secondary" }} />
-                        <Typography variant="subtitle2">
-                          Best Practices
-                        </Typography>
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Start with 1-2 relevant papers from different aspects of
-                        your research
                       </Typography>
                     </Stack>
                   </Box>

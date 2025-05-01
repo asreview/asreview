@@ -29,7 +29,6 @@ import { ProjectAPI } from "api";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { Add } from "@mui/icons-material";
-import AnalyticsIcon from "@mui/icons-material/Analytics";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import StyleIcon from "@mui/icons-material/Style";
@@ -60,7 +59,7 @@ const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
       PaperProps={{
         sx: {
           borderRadius: 3,
-          maxWidth: 320,
+          maxWidth: 350,
         },
       }}
     >
@@ -94,10 +93,14 @@ const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
               Organizing with Tags
             </Typography>
             <Typography variant="body2" align="justify">
-              Tags help you categorize and analyze your records systematically.
-              Create meaningful groups and labels to track important aspects of
-              your review.
+              Tags allow you to categorize records based on specific criteria,
+              such as reasons for inclusion/exclusion, study characteristics, or
+              quality assessment.
             </Typography>
+            <Alert severity="info" sx={{ mt: 2 }}>
+              Using tags consistently throughout your screening will make your
+              data analysis easier after you export your project
+            </Alert>
           </Box>
 
           <Divider />
@@ -127,7 +130,8 @@ const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
                       <Typography variant="subtitle2">Tag Groups</Typography>
                     </Box>
                     <Typography variant="body2" color="text.secondary">
-                      Create categories like "Study Design" or "Population Type"
+                      Create categories like "Reasons for Exclusion" or "Study
+                      Design"
                     </Typography>
                   </Stack>
                 </Box>
@@ -152,7 +156,8 @@ const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
                       <Typography variant="subtitle2">Tags</Typography>
                     </Box>
                     <Typography variant="body2" color="text.secondary">
-                      Add specific labels like "RCT" or "Adult Population"
+                      Add specific labels like "Wrong Population" or "Randomized
+                      Controlled Trial"
                     </Typography>
                   </Stack>
                 </Box>
@@ -178,31 +183,6 @@ const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
                     </Box>
                     <Typography variant="body2" color="text.secondary">
                       Group related concepts together for better overview
-                    </Typography>
-                  </Stack>
-                </Box>
-              </Grid>
-              <Grid xs={6}>
-                <Box
-                  sx={(theme) => ({
-                    p: 2,
-                    border: 1,
-                    borderColor: "divider",
-                    borderRadius: 2,
-                    height: "100%",
-                    bgcolor:
-                      theme.palette.mode === "light"
-                        ? "background.paper"
-                        : "transparent",
-                  })}
-                >
-                  <Stack spacing={1}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <AnalyticsIcon sx={{ color: "text.secondary" }} />
-                      <Typography variant="subtitle2">Analysis</Typography>
-                    </Box>
-                    <Typography variant="body2" color="text.secondary">
-                      Use consistent naming for easier data analysis later
                     </Typography>
                   </Stack>
                 </Box>
@@ -551,9 +531,16 @@ const TagCard = () => {
         {isLoading ? (
           <Skeleton variant="rectangular" height={56} />
         ) : (
-          data.map((c, index) => (
-            <Group key={index} group={c} project_id={project_id} />
-          ))
+          <>
+            {data.length === 0 && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Your tags will appear here
+              </Alert>
+            )}
+            {data.map((c, index) => (
+              <Group key={index} group={c} project_id={project_id} />
+            ))}
+          </>
         )}
       </CardContent>
 

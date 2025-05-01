@@ -36,7 +36,7 @@ class TeamAPI {
 
   static inviteUser(params) {
     const projectId = params.projectId;
-    const userId = params.user.id;
+    const userId = params.userId;
     if (projectId !== null && userId !== null) {
       const url = api_url + `invitations/projects/${projectId}/users/${userId}`;
       return new Promise((resolve, reject) => {

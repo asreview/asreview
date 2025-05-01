@@ -390,6 +390,10 @@ const StoppingSuggestion = ({ project_id }) => {
                 consecutive not relevant records you need to label before
                 stopping.
               </Typography>
+              <Alert severity="info">
+                You can edit and optimize the stopping threshold at any time
+                during the screening process
+              </Alert>
               <Divider sx={{ mb: 2.5, mt: 1 }} />
               <Stack spacing={2.5} sx={{ mt: 1.5, mb: 2.5 }}>
                 {[
@@ -443,16 +447,6 @@ const StoppingSuggestion = ({ project_id }) => {
                   </Box>
                 ))}
               </Stack>
-            </Box>
-            <Divider />
-            <Box>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                Threshold Editing
-              </Typography>
-              <Alert severity="info">
-                You can edit and optimize the stopping threshold at any time
-                during the screening process.
-              </Alert>
             </Box>
             <Divider />
             <Box>

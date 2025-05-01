@@ -69,13 +69,13 @@ const ProjectDeleteDialog = ({
         <Stack spacing={3}>
           {isError && <Alert severity="error">{error["message"]}</Alert>}
           <Stack spacing={2}>
+            <Alert severity="error">
+              This action cannot be undone. This will permanently delete the{" "}
+              <b>{projectTitle}</b> project, including the dataset, review
+              labels, notes, and model configuration
+            </Alert>
             <Typography>
-              This action <b>cannot</b> be undone. This will permanently delete
-              the <b>{projectTitle}</b> project , including the dataset, review
-              labels, notes, and model configuration.
-            </Typography>
-            <Typography>
-              Please type <b>{projectTitle}</b> to confirm.
+              Please type <b>{projectTitle}</b> to confirm
             </Typography>
           </Stack>
           <TextField
