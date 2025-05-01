@@ -1,31 +1,30 @@
 import React, { useContext } from "react";
 import { useQuery, useQueryClient } from "react-query";
 
+import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
+import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
+import SearchIcon from "@mui/icons-material/Search";
 import {
+  Box,
   Button,
   Card,
   CardContent,
   Divider,
-  Skeleton,
-  Typography,
-  Box,
   IconButton,
   Popover,
+  Skeleton,
   Stack,
-  Alert,
+  Typography,
 } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import { LabelHistoryPrior } from "ProjectComponents/HistoryComponents";
 import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
 import { projectModes } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 import { AddPriorKnowledge } from "./SearchComponents";
-import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
-import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
-import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
-import SearchIcon from "@mui/icons-material/Search";
-import Grid from "@mui/material/Grid2";
 
 const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
   const project_id = useContext(ProjectContext);
@@ -236,10 +235,6 @@ const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
                 Prior knowledge helps the AI understand your research criteria
                 from the start, making the learning process more efficient.
               </Typography>
-              <Alert severity="info" sx={{ mt: 2 }}>
-                Including records that cover different aspects of your research
-                will help the models better understand your research criteria
-              </Alert>
             </Box>
 
             <Divider />
