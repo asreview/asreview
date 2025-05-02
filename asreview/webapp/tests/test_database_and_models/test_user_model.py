@@ -208,7 +208,7 @@ def test_add_user_record(setup_teardown):
 # Test default role
 def test_default_role(setup_teardown):
     user = crud.create_user(DB)
-    assert user.roles == ["member"]
+    assert user.role == "member"
 
 
 # #############
@@ -395,28 +395,11 @@ def test_collaboration(setup_teardown):
     assert project in user2.involved_in
 
 
-# test adding admin role
-def test_add_admin_role(setup_teardown):
-    user = crud.create_user(DB)
-    user.add_role("admin")
-    assert "member" in user.roles
-    assert "admin" in user.roles
-
-
-# test adding unknown role
-def test_add_unknown_role(setup_teardown):
-    role = "unknown"
-    assert role not in VALID_ROLES
-    user = crud.create_user(DB)
-    with pytest.raises(ValueError):
-        user.add_role(role)
-
-
 # test setting admin role
 def test_set_admin_role(setup_teardown):
     user = crud.create_user(DB)
-    user.roles = ["admin"]
-    assert user.roles == ["admin"]
+    user.role = "admin"
+    assert user.role == "admin"
 
 
 # test setting unknown role
@@ -425,7 +408,7 @@ def test_set_unknown_role(setup_teardown):
     assert role not in VALID_ROLES
     user = crud.create_user(DB)
     with pytest.raises(ValueError):
-        user.roles = [role]
+        user.role = role
 
 
 # test is_member
@@ -437,5 +420,5 @@ def test_is_member(setup_teardown):
 # test is_admin
 def test_is_admin(setup_teardown):
     user = crud.create_user(DB)
-    user.add_role("admin")
+    user.role = "admin"
     assert user.is_admin

@@ -55,7 +55,7 @@ class User(UserMixin, DB.Model):
     public = Column(Boolean)
     token = Column(String(150))
     token_created_at = Column(DateTime)
-    _roles = Column("roles", Text, default='["member"]')
+    role = Column(String(10), default='member')
 
     projects = relationship("Project", back_populates="owner", cascade="all, delete")
 
@@ -97,6 +97,12 @@ class User(UserMixin, DB.Model):
             elif not User.valid_email(email):
                 raise ValueError(f"Email address '{email}' is not valid")
         return email
+    
+    @validates("role")
+    def validate_role(self, _key, role):
+        if role not in VALID_ROLES:
+            raise ValueError(f"Invalid role: {role}")
+        return role
 
     def __init__(
         self,
@@ -209,33 +215,12 @@ class User(UserMixin, DB.Model):
             return False
 
     @property
-    def roles(self):
-        return json.loads(self._roles or "[]")
-
-    def add_role(self, value):
-        if value not in VALID_ROLES:
-            raise ValueError(f"Invalid role: {value}")
-        current = json.loads(self._roles or "[]")
-        if value not in current:
-            current.append(value)
-        self._roles = json.dumps(current)
-
-    @roles.setter
-    def roles(self, value):
-        if not isinstance(value, list):
-            raise ValueError("Roles must be a list.")
-        invalid = [r for r in value if r not in VALID_ROLES]
-        if invalid:
-            raise ValueError(f"Invalid role(s): {invalid}")
-        self._roles = json.dumps(value)
-
-    @property
     def is_admin(self):
-        return "admin" in self.roles
+        return self.role == "admin"
 
     @property
     def is_member(self):
-        return "member" in self.roles
+        return self.role == "member"
 
     @classmethod
     def valid_password(cls, password):
