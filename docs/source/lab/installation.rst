@@ -29,11 +29,6 @@ start ASReview LAB, see :doc:`start`.
 
     Refer to :doc:`troubleshooting` for solutions to common installation issues.
 
-.. tip::
-
-    If you are using an Apple M1 computer and encounter issues, follow the
-    `instructions <https://github.com/asreview/asreview/issues/738>`__.
-
 
 Upgrade ASReview LAB
 ---------------------
@@ -74,9 +69,8 @@ for configuration. ASReview LAB should only be used in closed networks.
 
 .. warning::
 
-    Do not use the development server in production. Refer to the Flask
-    documentation on `deploying a Flask app to production
-    <https://flask.palletsprojects.com/en/1.1.x/tutorial/deploy/>`__.
+    For use in production, we recommend to follow the
+    :doc:`../server/installation` instructions of ASReview LAB Server.
 
 
 Install with Docker

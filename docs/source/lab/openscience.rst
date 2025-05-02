@@ -2,7 +2,7 @@ Open Science
 ============
 
 The open source ASReview LAB software is one of the products of `Utrecht
-University's AI Lab "AI-aided Knowledge Discovery
+University's AI Lab "AI-aided Knowledge Discovery"
 <https://www.uu.nl/en/research/ai-labs/disc-ai-lab>`_. The lab focuses on
 developing efficient, open, and trustworthy human-AI interaction for processing
 large amounts of text data. Emphasizing open-source and community-driven
