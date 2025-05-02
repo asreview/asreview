@@ -18,11 +18,12 @@ DB_URI_HELP = (
     "is 'asreview.production.sqlite' in the ASReview folder."
 )
 
+
 def auth_parser():
     parser = argparse.ArgumentParser(
         prog="migration-tool",
         description="""
-Tool that ensures your database or projects are compatible with the 
+Tool that ensures your database or projects are compatible with the
 latest stable version of ASReview
         """,
         formatter_class=argparse.RawTextHelpFormatter,
@@ -50,6 +51,7 @@ latest stable version of ASReview
 
     return parser
 
+
 class MigrationTool:
     def execute(self, argv):
         parser = auth_parser()
@@ -76,16 +78,15 @@ class MigrationTool:
             inspector = inspect(engine)
 
             # Get current columns in "users" table
-            user_columns = [
-                col["name"]
-                for col in inspector.get_columns("users")
-            ]
+            user_columns = [col["name"] for col in inspector.get_columns("users")]
 
             if "role" not in user_columns:
                 print("Adding column 'role' in the Users table...")
                 with engine.connect() as conn:
                     conn.execute(
-                        text("ALTER TABLE users ADD COLUMN role VARCHAR(10) DEFAULT 'member';")
+                        text(
+                            "ALTER TABLE users ADD COLUMN role VARCHAR(10) DEFAULT 'member';"
+                        )
                     )
 
         if self.args.project:

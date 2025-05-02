@@ -53,7 +53,7 @@ class User(UserMixin, DB.Model):
     public = Column(Boolean)
     token = Column(String(150))
     token_created_at = Column(DateTime)
-    role = Column(String(10), default='member')
+    role = Column(String(10), default="member")
 
     projects = relationship("Project", back_populates="owner", cascade="all, delete")
 
@@ -95,7 +95,7 @@ class User(UserMixin, DB.Model):
             elif not User.valid_email(email):
                 raise ValueError(f"Email address '{email}' is not valid")
         return email
-    
+
     @validates("role")
     def validate_role(self, _key, role):
         if role not in VALID_ROLES:
