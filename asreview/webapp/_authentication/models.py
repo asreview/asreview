@@ -35,6 +35,7 @@ from asreview.webapp.utils import asreview_path
 
 PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"  # noqa
 EMAIL_REGEX = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
+VALID_ROLES = {"member", "admin"}
 
 
 class User(UserMixin, DB.Model):
@@ -52,6 +53,7 @@ class User(UserMixin, DB.Model):
     public = Column(Boolean)
     token = Column(String(150))
     token_created_at = Column(DateTime)
+    role = Column(String(10), default="member")
 
     projects = relationship("Project", back_populates="owner", cascade="all, delete")
 
@@ -93,6 +95,12 @@ class User(UserMixin, DB.Model):
             elif not User.valid_email(email):
                 raise ValueError(f"Email address '{email}' is not valid")
         return email
+
+    @validates("role")
+    def validate_role(self, _key, role):
+        if role not in VALID_ROLES:
+            raise ValueError(f"Invalid role: {role}")
+        return role
 
     def __init__(
         self,
@@ -203,6 +211,14 @@ class User(UserMixin, DB.Model):
             return self.token == provided_token and diff <= max_minutes * 60
         else:
             return False
+
+    @property
+    def is_admin(self):
+        return self.role == "admin"
+
+    @property
+    def is_member(self):
+        return self.role == "member"
 
     @classmethod
     def valid_password(cls, password):
