@@ -224,7 +224,6 @@ export default function ReviewProgress({ project_id }) {
                           sx={{
                             flexGrow: 1,
                             fontSize: "0.75rem",
-                            fontWeight: "bold",
                           }}
                         >
                           (Including priors)
