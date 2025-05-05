@@ -9,6 +9,8 @@ from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 
 from asreview.webapp.utils import asreview_path
+from asreview.webapp.utils import get_projects
+from asreview.project.migrate import migrate_project_v1_v2
 
 DEFAULT_DATABASE_URI = f"sqlite:///{str(asreview_path())}/asreview.production.sqlite"
 
@@ -37,9 +39,9 @@ latest stable version of ASReview
     )
 
     parser.add_argument(
-        "--project",
+        "--projects",
         action="store_true",
-        help="Migrate project format to the latest compatible version.",
+        help="Migrate projects format to the latest compatible version.",
     )
 
     parser.add_argument(
@@ -89,6 +91,34 @@ class MigrationTool:
                         )
                     )
 
-        if self.args.project:
-            # TODO: Add project/resource migration logic here
-            print("Coming soon...")
+        if self.args.projects:
+            print("Make a backup of your projects before running this command.")
+            print(
+                "This command will not delete any projects, "
+                "but it will change the format.\n\n"
+            )
+            confirm = (
+                input("Are you sure you want to migrate the projects? (y/n): ")
+                .strip()
+                .lower()
+            )
+            if confirm != "y":
+                print("Migration cancelled.")
+                return
+            print("Migrating projects...")
+
+            for project in get_projects():
+                if project.config.get("version", "").startswith("1."):
+                    print(
+                        f"Project {project.project_path} is in the old format. "
+                        "Migrating..."
+                    )
+                    migrate_project_v1_v2(project.project_path)
+                elif project.config.get("version", "").startswith("2."):
+                    print(
+                        f"Project {project.project_path} is already in the new format."
+                    )
+                else:
+                    print(
+                        f"Project {project.project_path} is in an unknown format or very old version."
+                    )
