@@ -6,7 +6,6 @@ import {
   Divider,
   Stack,
   Typography,
-  Alert,
   List,
   ListItemButton,
   ListItemIcon,
@@ -114,7 +113,7 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
                 mt: 3,
               }}
             >
-              You've reached your stopping threshold for this project.
+              You've reached your stopping threshold
             </Typography>
             <Typography
               variant="h6"
@@ -128,11 +127,6 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
             >
               How do you want to proceed?
             </Typography>
-
-            <Alert severity="info" sx={{ mt: 2 }}>
-              You can always return to this menu by clicking the stopping
-              suggestion circle
-            </Alert>
           </Box>
 
           <Divider />
