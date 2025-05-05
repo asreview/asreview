@@ -71,7 +71,10 @@ def _wait_for_server(host, port, timeout=60):
 
 
 def _open_browser_when_ready(host, port, start_url, console, timeout=60):
-    """Run the server readiness check in the background and open the browser when ready."""
+    """Run the server readiness check in the background.
+
+    Open the browser when ready.
+    """
     if _wait_for_server(host, port, timeout):
         webbrowser.open_new(start_url)
         console.print(f"\nIf your browser doesn't open, navigate to {start_url}.\n\n\n")
@@ -183,6 +186,9 @@ def lab_entry_point(argv):
         Thread(
             target=_open_browser_when_ready,
             args=(args.host, port, start_url, console),
+            # we can safely use daemon threads here
+            # because it does not open any files or sockets
+            # that need to be closed
             daemon=True,
         ).start()
 
@@ -209,7 +215,7 @@ def lab_entry_point(argv):
             time.sleep(0.1)
             if time.time() - start_time > 5:
                 console.print(
-                    "\n\n[red]Error: unable to startup the model server.[/red]\n\n"
+                    "\n\n[red]Error: unable to startup the task server.[/red]\n\n"
                 )
                 process.terminate()
                 process.join()
