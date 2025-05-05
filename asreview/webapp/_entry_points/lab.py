@@ -19,7 +19,7 @@ import socket
 import time
 import webbrowser
 from pathlib import Path
-from threading import Timer
+from threading import Thread
 
 import requests
 import waitress
@@ -43,10 +43,6 @@ def _check_port_in_use(host, port):
         return s.connect_ex((host, port)) == 0
 
 
-def _open_browser(start_url):
-    Timer(1, lambda: webbrowser.open_new(start_url)).start()
-
-
 def _check_for_update():
     """Check if there is an update available."""
 
@@ -60,6 +56,32 @@ def _check_for_update():
         return False, latest_version
     except Exception:
         pass
+
+
+def _wait_for_server(host, port, timeout=60):
+    """Wait for the server to start listening on the specified host and port."""
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            with socket.create_connection((host, port), timeout=1):
+                return True
+        except (socket.error, ConnectionRefusedError):
+            time.sleep(0.1)
+    return False
+
+
+def _open_browser_when_ready(host, port, start_url, console, timeout=60):
+    """Run the server readiness check in the background.
+
+    Open the browser when ready.
+    """
+    if _wait_for_server(host, port, timeout):
+        webbrowser.open_new(start_url)
+        console.print(f"\nIf your browser doesn't open, navigate to {start_url}.\n\n\n")
+    else:
+        console.print(
+            f"\n[red]Error: Unable to connect to the server at {start_url} within the timeout period.[/red]\n"
+        )
 
 
 def lab_entry_point(argv):
@@ -161,8 +183,14 @@ def lab_entry_point(argv):
         "\n\nMake regular backups of the ASReview projects folder to prevent data loss."
     )
     if not args.no_browser:
-        _open_browser(start_url)
-        console.print(f"\nIf your browser doesn't open, navigate to {start_url}.\n\n\n")
+        Thread(
+            target=_open_browser_when_ready,
+            args=(args.host, port, start_url, console),
+            # we can safely use daemon threads here
+            # because it does not open any files or sockets
+            # that need to be closed
+            daemon=True,
+        ).start()
 
     console.print("Press [bold]Ctrl+C[/bold] to exit.\n\n")
 
@@ -187,7 +215,7 @@ def lab_entry_point(argv):
             time.sleep(0.1)
             if time.time() - start_time > 5:
                 console.print(
-                    "\n\n[red]Error: unable to startup the model server.[/red]\n\n"
+                    "\n\n[red]Error: unable to startup the task server.[/red]\n\n"
                 )
                 process.terminate()
                 process.join()
