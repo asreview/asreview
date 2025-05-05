@@ -26,7 +26,7 @@ def duplicated(df, pid="doi"):
     pandas.Series
         Boolean series for each duplicated rows.
     """
-    if pid in df.columns:
+    if pid is not None and pid in df.columns:
         # in case of strings, strip whitespaces and replace empty strings with None
         if pd.api.types.is_string_dtype(df[pid]) or pd.api.types.is_object_dtype(
             df[pid]

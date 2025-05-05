@@ -7,6 +7,7 @@ from pytest import mark
 import asreview as asr
 from asreview import load_dataset
 from asreview.data.search import fuzzy_find
+from asreview.data.utils import duplicated
 from asreview.datasets import DatasetManager
 
 
@@ -54,7 +55,6 @@ def test_duplicate_count():
     assert int(data.df.duplicated("doi").sum()) == 2
 
 
-@mark.xfail(reason="Deduplication will be reimplemented.")
 def test_deduplication():
     d_dups = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
@@ -77,100 +77,55 @@ def test_deduplication():
         ]
     )
 
-    # test whether .duplicated() provides correct boolean series for duplicates
-    pd.testing.assert_series_equal(d_dups.duplicated(), s_dups_bool, check_index=False)
-
-    d_nodups = asr.Dataset(
-        pd.DataFrame(
-            {
-                "title": [
-                    "a",
-                    "b",
-                    "d",
-                    "e",
-                    "f",
-                    "g",
-                    "h",
-                    "i",
-                    None,
-                    None,
-                    "   ",
-                    "   ",
-                ],
-                "abstract": [
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    None,
-                    None,
-                    "   ",
-                    "   ",
-                ],
-                "doi": [
-                    "10.1",
-                    "10.3",
-                    None,
-                    None,
-                    "   ",
-                    "   ",
-                    None,
-                    None,
-                    "10.4",
-                    "10.5",
-                    "10.6",
-                    "10.7",
-                ],
-                "some_column": [
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                    "lorem",
-                ],
-            }
-        )
-    )
-
-    # test whether .drop_duplicates() drops the duplicated records correctly
-    pd.testing.assert_frame_equal(d_dups.drop_duplicates().df, d_nodups.df)
+    pd.testing.assert_series_equal(duplicated(d_dups), s_dups_bool, check_index=False)
 
 
-@mark.xfail(reason="Deduplication will be reimplemented.")
 def test_duplicated():
-    # Create an instance of Dataset
-    instance = asr.Dataset(
-        pd.DataFrame(
-            {
-                "doi": [
-                    "https://www.doi.org/10.1000/xyz",
-                    "https://www.doi.org/10.1000/abc",
-                    "https://www.doi.org/10.1000/xyz",
-                    "https://www.doi.org/10.1000/XYZ",
-                    "10.1000/xyz",
-                    "10.1000/xyz",
-                    "http://www.doi.org/10.1000/xyz",
-                    "https://doi.org/10.1000/xyz",
-                ],
-                "title": ["T1", "T2", "T3", "T3", "T4", "T1", "T2", "T3"],
-                "abstract": ["A1", "A2", "A3", "A3", "A4", "A1", "A2", "A3"],
-            }
-        )
+    data = pd.DataFrame(
+        {
+            "doi": [
+                "https://www.doi.org/10.1000/xyz",
+                "https://www.doi.org/10.1000/abc",
+                "https://www.doi.org/10.1000/xyz",
+                "https://www.doi.org/10.1000/XYZ",
+                "10.1000/xyz",
+                "10.1000/xyz",
+                "http://www.doi.org/10.1000/xyz",
+                "https://doi.org/10.1000/xyz",
+            ],
+            "title": ["T1", "T2", "T3", "T3", "T4", "T1", "T2", "T3"],
+            "abstract": ["A1", "A2", "A3", "A3", "A4", "A1", "A2", "A3"],
+        }
     )
 
     # Call the function and get the result
-    result = instance.duplicated()
+    result = duplicated(data)
 
     # Check the result
     assert result.equals(pd.Series([False, False, True, True, True, True, True, True]))
+
+
+def test_duplicated_empty_pid():
+    data = pd.DataFrame(
+        {
+            "title": ["T1", "T2", "T3", "T4", "T5", "T6"],
+            "abstract": ["A1", "A2", "A3", "A4", "A5", "A6"],
+            "doi": [None, None, None, None, None, None],
+        }
+    )
+
+    result = duplicated(data, pid=None)
+    assert result.equals(pd.Series([False, False, False, False, False, False]))
+
+
+def test_duplicated_all_empty():
+    data = pd.DataFrame(
+        {
+            "title": ["", "", "", "", "", ""],
+            "abstract": ["", "", "", "", "", ""],
+            "doi": [None, None, None, None, None, None],
+        }
+    )
+
+    result = duplicated(data)
+    assert result.equals(pd.Series([False, False, False, False, False, False]))
