@@ -8,6 +8,7 @@ import asreview.webapp.tests.utils.config_parser as cp
 import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
 from asreview.webapp._authentication.models import User
+from asreview.webapp._authentication.models import VALID_ROLES
 
 # #############
 # CREATE
@@ -204,6 +205,12 @@ def test_add_user_record(setup_teardown):
     assert crud.last_user() == user
 
 
+# Test default role
+def test_default_role(setup_teardown):
+    user = crud.create_user(DB)
+    assert user.role == "member"
+
+
 # #############
 # UPDATE
 # #############
@@ -386,3 +393,32 @@ def test_collaboration(setup_teardown):
     # fresh object
     user2 = crud.get_user_by_id(user2.id)
     assert project in user2.involved_in
+
+
+# test setting admin role
+def test_set_admin_role(setup_teardown):
+    user = crud.create_user(DB)
+    user.role = "admin"
+    assert user.role == "admin"
+
+
+# test setting unknown role
+def test_set_unknown_role(setup_teardown):
+    role = "unknown"
+    assert role not in VALID_ROLES
+    user = crud.create_user(DB)
+    with pytest.raises(ValueError):
+        user.role = role
+
+
+# test is_member
+def test_is_member(setup_teardown):
+    user = crud.create_user(DB)
+    assert user.is_member
+
+
+# test is_admin
+def test_is_admin(setup_teardown):
+    user = crud.create_user(DB)
+    user.role = "admin"
+    assert user.is_admin

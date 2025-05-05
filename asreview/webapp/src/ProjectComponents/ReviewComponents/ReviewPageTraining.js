@@ -70,8 +70,8 @@ const FinishSetup = ({ project_id, refetch }) => {
   const skipTraining = (method) => {
     if (method === "random") {
       startTraining({ project_id: project_id, ranking: "random" });
-    } else if (method === "top-down") {
-      startTraining({ project_id: project_id, ranking: "top-down" });
+    } else if (method === "top_down") {
+      startTraining({ project_id: project_id, ranking: "top_down" });
     }
   };
 
@@ -121,7 +121,7 @@ const FinishSetup = ({ project_id, refetch }) => {
             Random
           </Button>
           <Button
-            onClick={() => skipTraining("top-down")}
+            onClick={() => skipTraining("top_down")}
             disabled={isTraining}
           >
             Top down

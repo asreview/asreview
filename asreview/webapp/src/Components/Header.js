@@ -149,7 +149,7 @@ const Header = ({ toggleNavDrawer, menuOpenButton = true }) => {
               disableRipple
               component={Link}
               to="/reviews"
-              sx={{ height: "40px" }}
+              sx={{ height: "35px" }}
             >
               <WordMark />
             </ButtonBase>

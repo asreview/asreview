@@ -207,17 +207,14 @@ const AnalyticsPage = () => {
               }
               sx={{
                 "&.MuiChip-filled": {
-                  backgroundColor: "primary.light",
-                },
-                "&.MuiChip-outlined": {
-                  borderColor: "primary.main",
-                  color: "primary.main",
-                },
-                "&:hover": {
-                  backgroundColor:
-                    statusData?.status === projectStatuses.FINISHED
-                      ? "primary.light"
-                      : "transparent",
+                  backgroundColor: "primary.main",
+                  color: "primary.contrastText",
+                  "& .MuiChip-icon": {
+                    color: "primary.contrastText",
+                  },
+                  "&:hover": {
+                    backgroundColor: "primary.dark",
+                  },
                 },
               }}
             />

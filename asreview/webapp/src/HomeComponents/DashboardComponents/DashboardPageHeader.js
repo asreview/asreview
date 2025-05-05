@@ -11,7 +11,7 @@ export default function DashboardPageHeader({ mode }) {
       sx={{ p: 2, pt: 4, m: 1 }}
     >
       <Typography
-        variant="h3"
+        variant="h4"
         sx={{
           fontFamily: "Roboto Serif",
           mb: 2,
@@ -22,7 +22,7 @@ export default function DashboardPageHeader({ mode }) {
       </Typography>
 
       <Typography
-        variant="h3"
+        variant="h4"
         sx={{
           textAlign: "center",
           fontFamily: "Roboto Serif",

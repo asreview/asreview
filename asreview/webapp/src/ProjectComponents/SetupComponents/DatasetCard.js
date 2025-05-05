@@ -1,26 +1,33 @@
 import { useQuery } from "react-query";
+import React from "react";
 
 import {
   Alert,
   Box,
+  Button,
   Card,
   CardContent,
   CardHeader,
   CardMedia,
   Grid2 as Grid,
-  Link,
+  IconButton,
+  Popover,
   Skeleton,
+  Stack,
+  Typography,
 } from "@mui/material";
 
 import { ProjectAPI } from "api";
 import DatasetChart from "ProjectComponents/AnalyticsComponents/DatasetChart";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 const DatasetCard = ({
   project_id,
-  dataset_path,
   // onResetDataset,
   hideLabeledInfo = false,
 }) => {
+  const [anchorElInfo, setAnchorElInfo] = React.useState(null);
+
   const { data, isFetching: isFetchingData } = useQuery(
     ["fetchData", { project_id: project_id }],
     ProjectAPI.fetchData,
@@ -29,17 +36,18 @@ const DatasetCard = ({
     },
   );
 
-  // const { mutate: deleteProject } = useMutation(
-  //   ProjectAPI.mutateDeleteProject,
-  //   {
-  //     mutationKey: ["mutateDeleteProject"],
-  //     onSuccess: onResetDataset,
-  //   },
-  // );
+  const handlePopoverOpen = (event) => {
+    setAnchorElInfo(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorElInfo(null);
+  };
 
   return (
-    <Card>
+    <Card sx={{ position: "relative" }}>
       <CardHeader
+        sx={{ mb: 4 }}
         title={isFetchingData ? <Skeleton width="30%" /> : "Dataset"}
         subheader={
           <>
@@ -51,29 +59,32 @@ const DatasetCard = ({
               </>
             ) : (
               <>
-                Dataset{" "}
+                This dataset contains{" "}
                 <Box sx={{ fontWeight: "bold", display: "inline" }}>
-                  {dataset_path}
+                  {data?.n_rows}
                 </Box>{" "}
-                contains{" "}
-                <Box sx={{ fontWeight: "bold", display: "inline" }}>
-                  {data?.n_rows - data?.n_duplicates}
-                </Box>{" "}
-                unique records from a total of {data?.n_rows} records. The
-                follow charts help to understand the dataset. Keep in mind that
-                a clean and complete dataset improves the quality of ASReview.{" "}
-                <Link
-                  underline="none"
-                  href={`https://asreview.nl/blog/active-learning-explained/`}
-                  target="_blank"
-                >
-                  Learn more
-                </Link>
+                records,{" "}
+                {data?.n_duplicated === 0 ? (
+                  "which contain all unique records"
+                ) : (
+                  <>
+                    of which{" "}
+                    <Box sx={{ fontWeight: "bold", display: "inline" }}>
+                      {data?.n_rows - data?.n_duplicated}
+                    </Box>{" "}
+                    are most likely unique records
+                  </>
+                )}
               </>
             )}
           </>
         }
       />
+      <Box sx={{ position: "absolute", top: 8, right: 8 }}>
+        <IconButton size="small" onClick={handlePopoverOpen}>
+          <StyledLightBulb fontSize="small" />
+        </IconButton>
+      </Box>
       {isFetchingData ? (
         <Skeleton sx={{ height: 140 }} variant="rectangular" />
       ) : (
@@ -125,18 +136,18 @@ const DatasetCard = ({
             >
               <DatasetChart
                 label={"URL or DOI available"}
-                part={data?.n_rows - data?.n_missing_urn}
+                part={data?.n_urn}
                 total={data?.n_rows}
               />
             </Grid>
           </Grid>
         </CardMedia>
       )}
-      <CardContent>
+      <CardContent sx={{ mt: 4 }}>
         {!hideLabeledInfo && data?.n_unlabeled === 0 && (
           <Alert severity="info" sx={{ mb: 2 }}>
             The dataset contains labels for each record. You can see the label
-            during screening while labeling the records yourself.
+            during screening while labeling the records yourself
           </Alert>
         )}
         {!hideLabeledInfo &&
@@ -163,6 +174,47 @@ const DatasetCard = ({
           </Button>
         )} */}
       </CardContent>
+      <Popover
+        open={Boolean(anchorElInfo)}
+        anchorEl={anchorElInfo}
+        onClose={handlePopoverClose}
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 2,
+              maxWidth: 375,
+            },
+          },
+        }}
+      >
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Dataset Information
+              </Typography>
+              <Typography variant="body2" sx={{ textAlign: "justify", mb: 2 }}>
+                The following charts provide insights into the composition of
+                your dataset.
+              </Typography>
+              <Alert severity="info">
+                A clean and complete dataset improves the quality of your
+                screening process with ASReview
+              </Alert>
+            </Box>
+            <Box sx={{ mt: 1 }}>
+              <Button
+                href="https://asreview.nl/blog/active-learning-explained/"
+                target="_blank"
+                rel="noopener noreferrer"
+                size="small"
+              >
+                Learn more
+              </Button>
+            </Box>
+          </Stack>
+        </Box>
+      </Popover>
     </Card>
   );
 };

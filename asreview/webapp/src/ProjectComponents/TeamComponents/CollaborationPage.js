@@ -1,69 +1,84 @@
-import { Button, Stack, Typography } from "@mui/material";
-import { InlineErrorHandler } from "Components";
-import { ConfirmationDialog } from "ProjectComponents/TeamComponents";
+import {
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Stack,
+} from "@mui/material";
 import { AuthAPI, TeamAPI } from "api";
+import { InlineErrorHandler } from "Components";
 import { useToggle } from "hooks/useToggle";
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const CollaborationPage = () => {
-  const { project_id } = useParams();
+const CollaborationPage = ({ project_id }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [dialogOpen, toggleDialogOpen] = useToggle();
-  const [errorMessage, setErrorMessage] = React.useState(undefined);
 
   const { data } = useQuery("user", AuthAPI.user);
-
-  const handleEndCollaboration = useMutation(
-    () =>
-      TeamAPI.deleteCollaboration({
-        projectId: project_id,
-        userId: data.id,
-      }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["fetchProjects"] });
-        navigate("/reviews");
-      },
-      onError: (error) => {
-        setErrorMessage(`Could not end the collaboration: (${error})`);
-      },
+  const { mutate, isError } = useMutation(TeamAPI.deleteCollaboration, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["fetchProjects"]);
+      navigate("/reviews");
     },
-  );
+  });
 
   return (
-    <>
+    <Box sx={{ padding: 2 }}>
       {data?.id && (
-        <Stack>
-          <Typography variant="h5">
-            You are collaborating in this project
-          </Typography>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={toggleDialogOpen}
-            sx={{ width: 300 }}
-          >
+        <>
+          <Button variant="contained" color="error" onClick={toggleDialogOpen}>
             Remove me from this project
           </Button>
-          {errorMessage !== undefined && (
+
+          {isError && (
             <Stack sx={{ padding: 5 }}>
-              <InlineErrorHandler message={errorMessage} />
+              <InlineErrorHandler message="Could not end the collaboration" />
             </Stack>
           )}
-          <ConfirmationDialog
+
+          <Dialog
             open={dialogOpen}
-            title="Are you sure?"
-            contentText={`You will remove yourself from this project. Your labels are still available for the project owner.`}
-            handleCancel={toggleDialogOpen}
-            handleConfirm={() => handleEndCollaboration.mutate()}
-          />
-        </Stack>
+            onClose={toggleDialogOpen}
+            aria-labelledby="confirm-end-collab-dialog-title"
+            aria-describedby="confirm-end-collab-dialog-description"
+          >
+            <DialogTitle id="confirm-end-collab-dialog-title">
+              Remove yourself from the project?
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="confirm-end-collab-dialog-description">
+                <React.Fragment>
+                  This will remove you from this project
+                  <Alert severity="info" sx={{ mt: 2 }}>
+                    Your labels will still be available for the project owner
+                  </Alert>
+                </React.Fragment>
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={toggleDialogOpen}>Cancel</Button>
+              <Button
+                onClick={() =>
+                  mutate({ projectId: project_id, userId: data.id })
+                }
+                autoFocus
+              >
+                Remove
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </>
       )}
-    </>
+    </Box>
   );
 };
+
 export default CollaborationPage;

@@ -154,7 +154,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
         {mode === projectModes.ORACLE &&
           review?.status === projectStatuses.REVIEW &&
           largeScreen && (
-            <Grid size={3}>
+            <Grid size={"auto"}>
               <Button
                 onClick={() => openProject("reviewer")}
                 variant="outlined"

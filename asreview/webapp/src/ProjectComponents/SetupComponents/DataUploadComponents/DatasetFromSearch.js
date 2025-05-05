@@ -1,4 +1,4 @@
-import { Stack, Typography } from "@mui/material";
+import { Stack, Alert } from "@mui/material";
 import { useMutation } from "react-query";
 
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
@@ -30,14 +30,7 @@ const DatasetFromSearch = ({ mode, setDataset }) => {
           onChange={(e) => e.preventDefault()}
         />
 
-        <Typography
-          color="error"
-          textAlign={"center"}
-          variant={"h6"}
-          fontFamily={"Roboto Serif"}
-        >
-          Coming soon!
-        </Typography>
+        <Alert severity="info"> Coming soon!</Alert>
 
         {isError && (
           <InlineErrorHandler message={error?.message + " Please try again."} />

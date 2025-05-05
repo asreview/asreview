@@ -159,7 +159,6 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
                 <Box sx={{ mt: 3 }}>
                   <DatasetCard
                     project_id={data?.id}
-                    dataset_path={data?.dataset_path}
                     onResetDataset={onClose}
                     hideLabeledInfo={mode === projectModes.SIMULATION}
                   />

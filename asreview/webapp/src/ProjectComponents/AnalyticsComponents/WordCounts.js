@@ -201,7 +201,7 @@ const WordCounts = () => {
                 <Alert severity="info" sx={{ mt: 1.5 }}>
                   Words can appear in both relevant and irrelevant categories.
                   Their significance depends on the specific context of your
-                  review.
+                  review
                 </Alert>
               </Box>
               <Divider />

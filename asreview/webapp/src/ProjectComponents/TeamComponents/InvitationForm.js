@@ -1,4 +1,3 @@
-import { Add } from "@mui/icons-material";
 import {
   Button,
   Card,
@@ -7,20 +6,51 @@ import {
   Grid2 as Grid,
 } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
+import Snackbar from "@mui/material/Snackbar";
 import TextField from "@mui/material/TextField";
+import { TeamAPI } from "api";
 import * as React from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
-const InvitationForm = ({ selectableUsers, onInvite }) => {
-  const [selectedUser, setSelectedUser] = React.useState(null);
-  const [inputValue, setInputValue] = React.useState("");
+const InvitationForm = ({ project_id }) => {
+  const queryClient = useQueryClient();
+
+  const [formState, setFormState] = React.useState({
+    selectedUser: null,
+    inputValue: "",
+  });
+
+  const [snackbarState, setSnackbarState] = React.useState({
+    open: false,
+    message: "",
+  });
+
+  const { data, isLoading } = useQuery(
+    ["fetchUsers", project_id],
+    TeamAPI.fetchUsers,
+  );
+
+  const { mutate, isLoading: isLoadingInvitation } = useMutation(
+    TeamAPI.inviteUser,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["fetchUsers", project_id]);
+        setSnackbarState({ open: true, message: "Invitation sent" });
+      },
+      onError: () => {
+        setSnackbarState({
+          open: true,
+          message: "Unable to invite the selected user",
+        });
+      },
+    },
+  );
 
   return (
     <Card>
       <CardHeader
-        title={"Invite people to collaborate"}
-        subheader={
-          "Invite people to collaborate on this project. They will receive a message with an invitation to join."
-        }
+        title={"Invite people to screen together"}
+        subheader={"Invite people to screen together in this project"}
       />
       <CardContent>
         <Grid
@@ -37,18 +67,22 @@ const InvitationForm = ({ selectableUsers, onInvite }) => {
           >
             <Autocomplete
               id="select-potential-collaborators"
-              value={selectedUser}
+              value={formState.selectedUser}
               isOptionEqualToValue={(option, value) => option.id === value.id}
               onChange={(event, newValue = null) => {
-                if (newValue !== null) {
-                  setSelectedUser(newValue);
-                }
+                setFormState((prevState) => ({
+                  ...prevState,
+                  selectedUser: newValue,
+                }));
               }}
-              inputValue={inputValue}
+              inputValue={formState.inputValue}
               onInputChange={(event, newInputValue) => {
-                setInputValue(newInputValue);
+                setFormState((prevState) => ({
+                  ...prevState,
+                  inputValue: newInputValue,
+                }));
               }}
-              options={selectableUsers}
+              options={data?.filter((user) => user.selectable)}
               getOptionLabel={(option) => `${option.name}`}
               sx={{ width: "100%" }}
               renderOption={(props, option) => {
@@ -61,6 +95,8 @@ const InvitationForm = ({ selectableUsers, onInvite }) => {
               renderInput={(params) => (
                 <TextField {...params} label="Select a user" />
               )}
+              loading={isLoading}
+              noOptionsText="No users found"
             />
           </Grid>
 
@@ -72,18 +108,31 @@ const InvitationForm = ({ selectableUsers, onInvite }) => {
           >
             <Button
               onClick={() => {
-                onInvite(selectedUser);
-                setInputValue((state) => "");
-                setSelectedUser((state) => null);
+                mutate({
+                  projectId: project_id,
+                  userId: formState.selectedUser.id,
+                });
+                setFormState({ selectedUser: null, inputValue: "" });
               }}
-              startIcon={<Add />}
-              disabled={selectedUser == null}
+              disabled={
+                isLoading || isLoadingInvitation || !formState.selectedUser
+              }
+              loading={isLoadingInvitation}
             >
               Invite
             </Button>
           </Grid>
         </Grid>
       </CardContent>
+      <Snackbar
+        open={snackbarState.open}
+        autoHideDuration={6000}
+        onClose={() => {
+          setSnackbarState({ open: false, message: "" });
+        }}
+        message={snackbarState.message}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      />
     </Card>
   );
 };

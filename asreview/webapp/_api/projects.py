@@ -70,6 +70,7 @@ from asreview.webapp._tasks import run_model
 from asreview.webapp._tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
+from asreview.data.utils import duplicated
 
 try:
     import importlib.metadata
@@ -95,13 +96,13 @@ def _fill_last_ranking(project, ranking):
         "top-down".
     """
 
-    if ranking not in ["random", "top-down"]:
+    if ranking not in ["random", "top_down"]:
         raise ValueError(f"Unknown ranking type: {ranking}")
 
     record_ids = project.data_store["record_id"]
     if ranking == "random":
         ranked_record_ids = record_ids.sample(frac=1)
-    elif ranking == "top-down":
+    elif ranking == "top_down":
         ranked_record_ids = record_ids
     with open_state(project.project_path) as state:
         state.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
@@ -323,37 +324,13 @@ def api_upgrade_projects(projects):
 
     for project, _ in projects:
         if project.config.get("version", "").startswith("1."):
-            try:
-                # copy the project to a temporary folder
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    shutil.copytree(
-                        project.project_path,
-                        Path(tmpdir) / project.config.get("id"),
-                        ignore=shutil.ignore_patterns("*.lock"),
-                    )
-
-                    shutil.copytree(
-                        project.project_path,
-                        Path(tmpdir) / project.config.get("id") / "legacy_v1",
-                        ignore=shutil.ignore_patterns("*.lock"),
-                    )
-
-                    logging.info(
-                        f"Upgrading project {project.config.get('id')} from v1 to v2."
-                    )
-                    migrate_project_v1_v2(Path(tmpdir) / project.config.get("id"))
-
-                    shutil.rmtree(project.project_path)
-                    shutil.copytree(
-                        Path(tmpdir) / project.config.get("id"), project.project_path
-                    )
-
-            except Exception as err:
-                logging.exception(err)
-                return jsonify(
-                    message=f"Failed to upgrade project {project.config.get('id')}. Contact "
-                    "the ASReview team for help (asreview@uu.nl)."
-                ), 500
+            migrate_project_v1_v2(project.project_path)
+        elif project.config.get("version", "").startswith("2."):
+            pass
+        else:
+            raise ValueError(
+                f"Project version {project.config.get('version', '')} not supported."
+            )
 
     return jsonify({"success": True})
 
@@ -437,9 +414,9 @@ def api_demo_data_project():  # noqa: F401
 def api_get_project_data(project):  # noqa: F401
     """"""
 
-    data = project.data_store[["included", "title", "abstract", "doi", "url"]]
-    data = data.replace("", None)
-    data.url = data.url.fillna(data.doi)
+    data = project.data_store[["included", "title", "abstract", "doi", "url"]].replace(
+        "", None
+    )
 
     return jsonify(
         {
@@ -449,10 +426,10 @@ def api_get_project_data(project):  # noqa: F401
             - len(np.where(data.included == 0)[0]),
             "n_relevant": len(np.where(data.included == 1)[0]),
             "n_irrelevant": len(np.where(data.included == 0)[0]),
-            "n_duplicates": int(data.doi.duplicated().sum()),
+            "n_duplicated": int(duplicated(data).sum()),
             "n_missing_title": int(data.title.isnull().sum()),
             "n_missing_abstract": int(data.abstract.isnull().sum()),
-            "n_missing_urn": int(data.url.isnull().sum()),
+            "n_urn": int(data.url.fillna(data.doi).notnull().sum()),
             "n_english": None,
             "filename": Path(project.config["datasets"][0]["name"]).stem,
         }

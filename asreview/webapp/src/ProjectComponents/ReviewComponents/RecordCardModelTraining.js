@@ -1,6 +1,19 @@
-import { Alert, Box, Paper, Skeleton, Stack, Typography } from "@mui/material";
+import React from "react";
+import {
+  Alert,
+  Box,
+  Paper,
+  Skeleton,
+  Stack,
+  Typography,
+  IconButton,
+  Popover,
+  Divider,
+  Button,
+} from "@mui/material";
 
 import { ModelTraining } from "@mui/icons-material";
+import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
 import { useMediaQuery } from "@mui/material";
@@ -81,6 +94,18 @@ const ModelFlowChart = ({ record }) => {
 };
 
 const RecordCardModelTraining = ({ record, modelLogLevel, sx }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handlePopoverOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
+  const openPopover = Boolean(anchorEl);
+
   if (record?.error?.type !== undefined) {
     return (
       <Alert severity="error" sx={sx} icon={<ModelTraining />}>
@@ -90,7 +115,7 @@ const RecordCardModelTraining = ({ record, modelLogLevel, sx }) => {
     );
   }
   const getAlertMessage = () => {
-    if (record?.state?.querier === "top-down") {
+    if (record?.state?.querier === "top_down") {
       return record?.state?.label === 1 || record?.state?.label === 0
         ? "This record was presented in a top-down manner"
         : "This record is presented in a top-down manner";
@@ -108,9 +133,101 @@ const RecordCardModelTraining = ({ record, modelLogLevel, sx }) => {
 
   if (alertMessage) {
     return (
-      <Alert severity="warning" icon={<ModelTraining />} sx={sx}>
-        {alertMessage}
-      </Alert>
+      <>
+        <Alert
+          severity="warning"
+          icon={<ModelTraining />}
+          sx={sx}
+          action={
+            <IconButton size="small" onClick={handlePopoverOpen}>
+              <StyledLightBulb fontSize="small" />
+            </IconButton>
+          }
+        >
+          {alertMessage}
+        </Alert>
+        <Popover
+          open={openPopover}
+          anchorEl={anchorEl}
+          onClose={handlePopoverClose}
+          slotProps={{
+            paper: {
+              sx: {
+                borderRadius: 2,
+                maxWidth: 375,
+                boxShadow: (theme) => theme.shadows[3],
+              },
+            },
+          }}
+        >
+          <Box sx={{ p: 2.5 }}>
+            <Stack spacing={2.5}>
+              <Typography variant="subtitle1" fontWeight="bold">
+                Model Training Indicators
+              </Typography>
+              <Divider />
+              <Box>
+                <Alert
+                  severity="warning"
+                  icon={<ModelTraining />}
+                  sx={{ mb: 2 }}
+                >
+                  Record presented in a random manner
+                </Alert>
+                <Typography
+                  variant="body2"
+                  sx={{ textAlign: "justify", mb: 2 }}
+                >
+                  This occurs regularly during the initial model training phase
+                  as the model learns, or when this query strategy has been
+                  explicitly chosen in <b>Customize</b>
+                </Typography>
+              </Box>
+              <Box>
+                <Alert
+                  severity="warning"
+                  icon={<ModelTraining />}
+                  sx={{ mb: 2 }}
+                >
+                  Record presented in a top-down manner
+                </Alert>
+                <Typography
+                  variant="body2"
+                  sx={{ textAlign: "justify", mb: 2 }}
+                >
+                  This occurs only when this query strategy has been explicitly
+                  chosen in <b>Customize</b>
+                </Typography>
+              </Box>
+              <Box>
+                <Alert
+                  severity="warning"
+                  icon={<ModelTraining />}
+                  sx={{ mb: 2 }}
+                >
+                  Record was labeled either through manual search or the label
+                  was already available in the dataset
+                </Alert>
+                <Typography variant="body2" sx={{ textAlign: "justify" }}>
+                  This occurs if you labeled the record yourself using the
+                  <b> Prior Knowledge</b> feature, or if its label was already
+                  present in the dataset when it was imported
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+                <Button
+                  href="https://asreview.readthedocs.io/en/latest/guides/activelearning.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  size="small"
+                >
+                  Learn more
+                </Button>
+              </Box>
+            </Stack>
+          </Box>
+        </Popover>
+      </>
     );
   }
 
