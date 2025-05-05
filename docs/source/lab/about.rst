@@ -77,7 +77,7 @@ ASReview offers the following tools and resources:
 
    For community-maintained extensions, see the `List of extensions
    <https://github.com/asreview/asreview/discussions/1140>`__. To develop your
-   own extension, refer to the :doc:`../technical/extensions_dev`.
+   own extension, refer to :doc:`../technical/extensions_dev`.
 
 
 General workflow with ASReview
