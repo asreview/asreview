@@ -19,7 +19,7 @@ import socket
 import time
 import webbrowser
 from pathlib import Path
-from threading import Timer, Thread
+from threading import Thread
 
 import requests
 import waitress
