@@ -23,7 +23,6 @@ import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 const DatasetCard = ({
   project_id,
-  dataset_path,
   // onResetDataset,
   hideLabeledInfo = false,
 }) => {
@@ -45,14 +44,6 @@ const DatasetCard = ({
     setAnchorElInfo(null);
   };
 
-  // const { mutate: deleteProject } = useMutation(
-  //   ProjectAPI.mutateDeleteProject,
-  //   {
-  //     mutationKey: ["mutateDeleteProject"],
-  //     onSuccess: onResetDataset,
-  //   },
-  // );
-
   return (
     <Card sx={{ position: "relative" }}>
       <CardHeader
@@ -68,15 +59,22 @@ const DatasetCard = ({
               </>
             ) : (
               <>
-                This dataset{" "}
+                This dataset contains{" "}
                 <Box sx={{ fontWeight: "bold", display: "inline" }}>
-                  {dataset_path}
+                  {data?.n_rows}
                 </Box>{" "}
-                contains{" "}
-                <Box sx={{ fontWeight: "bold", display: "inline" }}>
-                  {data?.n_rows - data?.n_duplicates}
-                </Box>{" "}
-                unique records from a total of {data?.n_rows} records.
+                records,{" "}
+                {data?.n_duplicated === 0 ? (
+                  "which contain all unique records"
+                ) : (
+                  <>
+                    of which{" "}
+                    <Box sx={{ fontWeight: "bold", display: "inline" }}>
+                      {data?.n_rows - data?.n_duplicated}
+                    </Box>{" "}
+                    are most likely unique records
+                  </>
+                )}
               </>
             )}
           </>
@@ -138,7 +136,7 @@ const DatasetCard = ({
             >
               <DatasetChart
                 label={"URL or DOI available"}
-                part={data?.n_rows - data?.n_missing_urn}
+                part={data?.n_urn}
                 total={data?.n_rows}
               />
             </Grid>

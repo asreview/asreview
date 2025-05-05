@@ -70,6 +70,7 @@ from asreview.webapp._tasks import run_model
 from asreview.webapp._tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
+from asreview.data.utils import duplicated
 
 try:
     import importlib.metadata
@@ -437,9 +438,9 @@ def api_demo_data_project():  # noqa: F401
 def api_get_project_data(project):  # noqa: F401
     """"""
 
-    data = project.data_store[["included", "title", "abstract", "doi", "url"]]
-    data = data.replace("", None)
-    data.url = data.url.fillna(data.doi)
+    data = project.data_store[["included", "title", "abstract", "doi", "url"]].replace(
+        "", None
+    )
 
     return jsonify(
         {
@@ -449,10 +450,10 @@ def api_get_project_data(project):  # noqa: F401
             - len(np.where(data.included == 0)[0]),
             "n_relevant": len(np.where(data.included == 1)[0]),
             "n_irrelevant": len(np.where(data.included == 0)[0]),
-            "n_duplicates": int(data.doi.duplicated().sum()),
+            "n_duplicated": int(duplicated(data).sum()),
             "n_missing_title": int(data.title.isnull().sum()),
             "n_missing_abstract": int(data.abstract.isnull().sum()),
-            "n_missing_urn": int(data.url.isnull().sum()),
+            "n_urn": int(data.url.fillna(data.doi).notnull().sum()),
             "n_english": None,
             "filename": Path(project.config["datasets"][0]["name"]).stem,
         }
