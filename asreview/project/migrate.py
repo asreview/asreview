@@ -4,6 +4,9 @@ import sqlite3
 from dataclasses import asdict
 from pathlib import Path
 from uuid import uuid4
+import tempfile
+import shutil
+import logging
 
 import pandas
 
@@ -129,7 +132,7 @@ def _project_model_settings_converter_v1_v2(fp_cycle_metadata):
         )
 
 
-def migrate_project_v1_v2(folder):
+def _migrate_project_v1_v2(folder):
     """Migrate a project from version 1 to version 2.
 
     Parameters
@@ -173,4 +176,58 @@ def migrate_project_v1_v2(folder):
         # Update the model settings file
         _project_model_settings_converter_v1_v2(
             Path(folder, "reviews", review["id"], "settings_metadata.json"),
+        )
+
+
+def migrate_project_v1_v2(folder):
+    """Migrate a project from version 1 to version 2.
+
+    Parameters
+    ----------
+    folder: str
+        The folder of the project to migrate
+
+    Returns
+    -------
+    None
+    """
+
+    if not Path(folder).exists():
+        raise FileNotFoundError(f"Project folder {folder} does not exist.")
+
+    if not Path(folder, "project.json").exists():
+        raise FileNotFoundError(
+            f"Project file {Path(folder, 'project.json')} does not exist."
+        )
+
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            shutil.copytree(
+                folder,
+                Path(tmpdir) / "tmp_project",
+                ignore=shutil.ignore_patterns("*.lock"),
+            )
+
+            shutil.copytree(
+                folder,
+                Path(tmpdir) / "tmp_project" / "legacy_v1",
+                ignore=shutil.ignore_patterns("*.lock"),
+            )
+
+            logging.info(f"Upgrading project {folder} from v1 to v2.")
+            _migrate_project_v1_v2(Path(tmpdir) / "tmp_project")
+
+            shutil.rmtree(folder)
+            shutil.copytree(Path(tmpdir) / "tmp_project", folder)
+    except Exception as e:
+        logging.exception(f"Failed to migrate project {folder} from v1 to v2: {e}")
+
+        # try to get the project id from the project.json file
+        with open(Path(folder, "project.json")) as f:
+            project_config = json.load(f)
+            project_id = project_config.get("id", "unknown")
+
+        raise Exception(
+            f"Failed to upgrade project {project_id}. Contact "
+            "the ASReview team for help (asreview@uu.nl)."
         )

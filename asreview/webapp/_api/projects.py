@@ -323,37 +323,13 @@ def api_upgrade_projects(projects):
 
     for project, _ in projects:
         if project.config.get("version", "").startswith("1."):
-            try:
-                # copy the project to a temporary folder
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    shutil.copytree(
-                        project.project_path,
-                        Path(tmpdir) / project.config.get("id"),
-                        ignore=shutil.ignore_patterns("*.lock"),
-                    )
-
-                    shutil.copytree(
-                        project.project_path,
-                        Path(tmpdir) / project.config.get("id") / "legacy_v1",
-                        ignore=shutil.ignore_patterns("*.lock"),
-                    )
-
-                    logging.info(
-                        f"Upgrading project {project.config.get('id')} from v1 to v2."
-                    )
-                    migrate_project_v1_v2(Path(tmpdir) / project.config.get("id"))
-
-                    shutil.rmtree(project.project_path)
-                    shutil.copytree(
-                        Path(tmpdir) / project.config.get("id"), project.project_path
-                    )
-
-            except Exception as err:
-                logging.exception(err)
-                return jsonify(
-                    message=f"Failed to upgrade project {project.config.get('id')}. Contact "
-                    "the ASReview team for help (asreview@uu.nl)."
-                ), 500
+            migrate_project_v1_v2(project.project_path)
+        elif project.config.get("version", "").startswith("2."):
+            pass
+        else:
+            raise ValueError(
+                f"Project version {project.config.get('version', '')} not supported."
+            )
 
     return jsonify({"success": True})
 
