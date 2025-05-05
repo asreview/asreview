@@ -521,7 +521,7 @@ const StoppingSuggestion = ({ project_id }) => {
               aria-controls="tabpanel-custom"
             />
             <Tab
-              label="Percantage"
+              label="Percentage"
               id="tab-percentage"
               aria-controls="tabpanel-percentage"
             />
