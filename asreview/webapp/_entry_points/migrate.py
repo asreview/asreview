@@ -69,6 +69,8 @@ class MigrationTool:
             or os.environ.get("ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI")
             or DEFAULT_DATABASE_URI
         )
+        print("Start database migration...")
+        print(f"Found database URI: {self.uri}")
 
         if self.args.db:
             Session = sessionmaker()
@@ -80,16 +82,32 @@ class MigrationTool:
             inspector = inspect(engine)
 
             # Get current columns in "users" table
-            user_columns = [col["name"] for col in inspector.get_columns("users")]
+            user_columns = [
+                col["name"]
+                for col in inspector.get_columns("users")
+            ]
 
             if "role" not in user_columns:
-                print("Adding column 'role' in the Users table...")
-                with engine.connect() as conn:
-                    conn.execute(
-                        text(
-                            "ALTER TABLE users ADD COLUMN role VARCHAR(10) DEFAULT 'member';"
-                        )
-                    )
+                df_role = "member"
+
+                # Add role column
+                try:
+                    print("Adding column 'role' in the Users table...")
+                    qry = f"ALTER TABLE users ADD COLUMN role VARCHAR(10) DEFAULT '{df_role}';"
+                    with engine.begin() as conn:
+                        conn.execute(text(qry))
+                except Exception as e:
+                    print(f"Unable to add column 'role': {e}")
+                
+                # Add default values in existing rows
+                try:
+                    print("Populating default roles...")
+                    qry = f"UPDATE users SET role = '{df_role}' WHERE role IS NULL;"
+                    with engine.begin() as conn:
+                        result = conn.execute(text(qry))
+                except Exception as e:
+                    print(f"Failed to populate roles: {e}")
+
 
         if self.args.projects:
             print("Make a backup of your projects before running this command.")
