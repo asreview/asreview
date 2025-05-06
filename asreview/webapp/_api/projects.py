@@ -43,6 +43,7 @@ from werkzeug.utils import secure_filename
 
 import asreview as asr
 from asreview.data.search import fuzzy_find
+from asreview.data.utils import duplicated
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
@@ -59,6 +60,7 @@ from asreview.state.contextmanager import open_state
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp._api.utils import add_id_to_tags
+from asreview.webapp._api.utils import get_all_model_components
 from asreview.webapp._api.utils import read_tags_data
 from asreview.webapp._authentication.decorators import current_user_projects
 from asreview.webapp._authentication.decorators import login_required
@@ -70,7 +72,6 @@ from asreview.webapp._tasks import run_model
 from asreview.webapp._tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
-from asreview.data.utils import duplicated
 
 try:
     import importlib.metadata
@@ -662,46 +663,21 @@ def api_get_labeled_stats(project):  # noqa: F401
 def api_list_learners():
     """List the names and labels of available algorithms"""
 
-    entry_points_per_submodel = [
-        extensions("models.balancers"),
-        extensions("models.classifiers"),
-        extensions("models.feature_extractors"),
-        extensions("models.queriers"),
-    ]
-
-    payload = {
-        "learners": [
-            {
-                "name": learner["name"],
-                "label": learner["label"],
-                "type": learner["type"],
-                "is_available": learner.get("extensions", None) is None
-                or DORY_INSTALLED,
-            }
-            for learner in AI_MODEL_CONFIGURATIONS
-        ],
-        "models": {
-            "balancer": [],
-            "classifier": [],
-            "feature_extractor": [],
-            "querier": [],
-        },
-    }
-
-    for entry_points, key in zip(entry_points_per_submodel, payload["models"].keys()):
-        for e in entry_points:
-            model_class = e.load()
-
-            if hasattr(model_class, "label"):
-                payload["models"][key].append(
-                    {"name": model_class.name, "label": model_class.label}
-                )
-            else:
-                payload["models"][key].append(
-                    {"name": model_class.name, "label": model_class.name}
-                )
-
-    return jsonify(payload)
+    return jsonify(
+        {
+            "learners": [
+                {
+                    "name": learner["name"],
+                    "label": learner["label"],
+                    "type": learner["type"],
+                    "is_available": learner.get("extensions", None) is None
+                    or DORY_INSTALLED,
+                }
+                for learner in AI_MODEL_CONFIGURATIONS
+            ],
+            "models": get_all_model_components(),
+        }
+    )
 
 
 @bp.route("/projects/<project_id>/learner", methods=["GET"])
