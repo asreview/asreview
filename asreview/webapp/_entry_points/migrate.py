@@ -107,6 +107,8 @@ class MigrationTool:
                         result = conn.execute(text(qry))
                 except Exception as e:
                     print(f"Failed to populate roles: {e}")
+            
+            print("Migration done...")
 
 
         if self.args.projects:
