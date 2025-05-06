@@ -131,7 +131,6 @@ const InvitationForm = ({ project_id }) => {
           setSnackbarState({ open: false, message: "" });
         }}
         message={snackbarState.message}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       />
     </Card>
   );

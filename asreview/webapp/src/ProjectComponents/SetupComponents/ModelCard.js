@@ -837,7 +837,6 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
         autoHideDuration={SNACKBAR_DURATION}
         onClose={handleSnackbarClose}
         message={snackbarMessage}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       />
     </Card>
   );
