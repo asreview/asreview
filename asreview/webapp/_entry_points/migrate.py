@@ -104,7 +104,7 @@ class MigrationTool:
                     print("Populating default roles...")
                     qry = f"UPDATE users SET role = '{df_role}' WHERE role IS NULL;"
                     with engine.begin() as conn:
-                        result = conn.execute(text(qry))
+                        conn.execute(text(qry))
                 except Exception as e:
                     print(f"Failed to populate roles: {e}")
             
