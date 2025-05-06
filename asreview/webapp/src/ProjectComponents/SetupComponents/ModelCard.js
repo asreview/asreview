@@ -16,7 +16,7 @@ import {
   IconButton,
   Popover,
   Button,
-  Grid,
+  Grid2 as Grid,
   Snackbar,
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -685,8 +685,8 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
                 Custom Model Components
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
+              <Grid container spacing={2} columns={2}>
+                <Grid size={1}>
                   <Box
                     sx={(theme) => ({
                       p: 2,
@@ -714,7 +714,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                     </Stack>
                   </Box>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={1}>
                   <Box
                     sx={(theme) => ({
                       p: 2,
@@ -744,7 +744,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                     </Stack>
                   </Box>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={1}>
                   <Box
                     sx={(theme) => ({
                       p: 2,
@@ -772,7 +772,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                     </Stack>
                   </Box>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={1}>
                   <Box
                     sx={(theme) => ({
                       p: 2,
