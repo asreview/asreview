@@ -82,10 +82,7 @@ class MigrationTool:
             inspector = inspect(engine)
 
             # Get current columns in "users" table
-            user_columns = [
-                col["name"]
-                for col in inspector.get_columns("users")
-            ]
+            user_columns = [col["name"] for col in inspector.get_columns("users")]
 
             if "role" not in user_columns:
                 df_role = "member"
@@ -98,7 +95,7 @@ class MigrationTool:
                         conn.execute(text(qry))
                 except Exception as e:
                     print(f"Unable to add column 'role': {e}")
-                
+
                 # Add default values in existing rows
                 try:
                     print("Populating default roles...")
@@ -107,9 +104,8 @@ class MigrationTool:
                         conn.execute(text(qry))
                 except Exception as e:
                     print(f"Failed to populate roles: {e}")
-            
-            print("Migration done...")
 
+            print("Migration done...")
 
         if self.args.projects:
             print("Make a backup of your projects before running this command.")
