@@ -113,7 +113,7 @@ class TaskManager:
     def remove_pending(self, project_id):
         if project_id in self.pending:
             self.pending.remove(project_id)
-            logging.info(f"Removed project {project_id} from pending area")
+            logging.info(f"Project {project_id} removed from pending area")
         else:
             logging.error(f"Failed to find project {project_id} in pending area")
 
@@ -127,7 +127,7 @@ class TaskManager:
                 self.session.execute(text("BEGIN TRANSACTION"))
                 self.session.delete(record)
                 self.session.commit()
-                logging.info(f"Save to move project {project_id} to pending area")
+                logging.info(f"Project {project_id} moved to pending area")
             except Exception:
                 self.session.rollback()
                 # remove from pending
@@ -148,7 +148,7 @@ class TaskManager:
                 port=self.port,
             )
             p.start()
-            logging.info(f"Run process for project: {project_id}")
+            logging.info(f"Project {project_id} started training")
             return True
         except Exception as _:
             message = f"Failed to spin up training process for project: {project_id}"
@@ -223,17 +223,17 @@ class TaskManager:
         while True:
             try:
                 data = conn.recv(self.receive_bytes)
-                logging.info(f"{data}")
+                logging.debug(f"{data}")
                 if not data:
                     # if client_buffer is full convert to json and
                     # put in buffer
                     if client_buffer != "":
-                        logging.info(f"{client_buffer}")
+                        logging.debug(f"{client_buffer}")
                         # we may be dealing with multiple messages,
                         # update buffer to produce a correct json string
                         client_buffer = "[" + client_buffer.replace("}{", "},{") + "]"
                         messages = json.loads(client_buffer)
-                        logging.info(f"Received messages:\n{messages}\n")
+                        logging.info(f"Received messages:{messages}")
                         self.message_buffer.extend(deque(messages))
                     # client disconnected
                     break
