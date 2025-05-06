@@ -331,7 +331,10 @@ const AnalyticsPage = () => {
             <ProgressDensityChart genericDataQuery={genericDataQuery} />
           )}
           {activeHistoryTab === 2 && (
-            <ProgressRecallChart genericDataQuery={genericDataQuery} />
+            <ProgressRecallChart
+              genericDataQuery={genericDataQuery}
+              progressQuery={progressQuery}
+            />
           )}
           {activeHistoryTab === 3 && (
             <DistancePatternChart

@@ -171,9 +171,7 @@ const ProfilePopper = () => {
                       </Badge>
                     </ListItemIcon>
                     <ListItemText disableTypography>
-                      <Typography variant="body2">
-                        Collaboration Invites
-                      </Typography>
+                      <Typography variant="body2">Team invites</Typography>
                     </ListItemText>
                   </MenuItem>
                 )}
@@ -195,7 +193,7 @@ const ProfilePopper = () => {
           }}
           onClose={toggleAcceptanceDialog}
         >
-          <DialogTitle>Collaboration invitations</DialogTitle>
+          <DialogTitle>Team invitations</DialogTitle>
           <InvitationsComponent onEmpty={toggleAcceptanceDialog} />
           <DialogActions>
             <Button onClick={toggleAcceptanceDialog}>Close</Button>

@@ -63,16 +63,15 @@ const DatasetCard = ({
                 <Box sx={{ fontWeight: "bold", display: "inline" }}>
                   {data?.n_rows}
                 </Box>{" "}
-                records,{" "}
+                records;{" "}
                 {data?.n_duplicated === 0 ? (
-                  "which contain all unique records"
+                  "all of which are unique"
                 ) : (
                   <>
-                    of which{" "}
                     <Box sx={{ fontWeight: "bold", display: "inline" }}>
                       {data?.n_rows - data?.n_duplicated}
                     </Box>{" "}
-                    are most likely unique records
+                    are likely unique
                   </>
                 )}
               </>

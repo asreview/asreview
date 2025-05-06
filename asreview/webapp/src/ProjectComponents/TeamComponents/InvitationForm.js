@@ -49,8 +49,8 @@ const InvitationForm = ({ project_id }) => {
   return (
     <Card>
       <CardHeader
-        title={"Invite people to screen together"}
-        subheader={"Invite people to screen together in this project"}
+        title={"Invite team members"}
+        subheader={"Create a crowd of experts to screen this project together"}
       />
       <CardContent>
         <Grid
@@ -131,7 +131,6 @@ const InvitationForm = ({ project_id }) => {
           setSnackbarState({ open: false, message: "" });
         }}
         message={snackbarState.message}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       />
     </Card>
   );

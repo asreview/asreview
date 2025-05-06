@@ -1251,7 +1251,9 @@ def api_get_progress_info(project):  # noqa: F401
         with open_state(project.project_path) as s:
             labels = s.get_results_table(priors=include_priors)["label"]
             labels_without_priors = s.get_results_table(priors=False)["label"]
+
         n_records = len(project.data_store)
+        n_priors = len(labels) - len(labels_without_priors)
 
     except (FileNotFoundError, ValueError, ProjectError):
         labels = np.array([])
@@ -1270,6 +1272,7 @@ def api_get_progress_info(project):  # noqa: F401
                 "n_excluded_no_priors": int(sum(labels_without_priors == 0))
                 + (n_records - len(labels)),
                 "n_records": n_records,
+                "n_records_no_priors": n_records - n_priors,
                 "n_pool": 0,
             }
         )
@@ -1281,6 +1284,7 @@ def api_get_progress_info(project):  # noqa: F401
             "n_included_no_priors": int(sum(labels_without_priors == 1)),
             "n_excluded_no_priors": int(sum(labels_without_priors == 0)),
             "n_records": n_records,
+            "n_records_no_priors": n_records - n_priors,
             "n_pool": n_records - len(labels),
         }
     )
