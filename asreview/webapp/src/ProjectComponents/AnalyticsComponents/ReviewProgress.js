@@ -66,8 +66,8 @@ export default function ReviewProgress({ project_id }) {
           label: "Not Relevant",
           value:
             data.n_excluded_no_priors > 0 &&
-            data.n_excluded_no_priors / data.n_records < 0.005
-              ? data.n_records * 0.005
+            data.n_excluded_no_priors / data.n_records_no_priors < 0.005
+              ? data.n_records_no_priors * 0.005
               : data.n_excluded_no_priors,
           color: theme.palette.grey[600],
         },
@@ -75,15 +75,15 @@ export default function ReviewProgress({ project_id }) {
           label: "Relevant",
           value:
             data.n_included_no_priors > 0 &&
-            data.n_included_no_priors / data.n_records < 0.005
-              ? data.n_records * 0.005
+            data.n_included_no_priors / data.n_records_no_priors < 0.005
+              ? data.n_records_no_priors * 0.005
               : data.n_included_no_priors,
           color: theme.palette.tertiary.dark,
         },
         {
           label: "Unlabeled",
           value:
-            data.n_records -
+            data.n_records_no_priors -
             data.n_included_no_priors -
             data.n_excluded_no_priors,
           color: theme.palette.grey[400],

@@ -104,7 +104,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
     return <LoadingSkeleton chunkSize={chunkSize} />;
   }
 
-  const totalPapers = progressQuery?.data?.n_records || 0;
+  const totalPapers = progressQuery?.data?.n_records_no_priors || 0;
   const labelingChronology = genericDataQuery?.data || [];
   const maxItemsToDisplay = 300;
 
