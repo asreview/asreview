@@ -21,9 +21,8 @@ import { CardErrorHandler } from "Components";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import { LineChart, legendClasses } from "@mui/x-charts";
 
-const calculateProgressRecall = (data) => {
+const calculateProgressRecall = (data, progress) => {
   const totalInclusions = data.reduce((acc, curr) => acc + curr.label, 0);
-  const totalRecords = data.length;
 
   return data.map((entry, index, arr) => {
     const cumulativeLabel = arr
@@ -31,7 +30,7 @@ const calculateProgressRecall = (data) => {
       .reduce((acc, curr) => acc + curr.label, 0);
 
     const expectedRandom = Math.round(
-      (index + 1) * (totalInclusions / totalRecords),
+      (index + 1) * (totalInclusions / progress?.n_records_no_priors),
     );
 
     return {
@@ -42,7 +41,11 @@ const calculateProgressRecall = (data) => {
   });
 };
 
-export default function ProgressRecallChart(props) {
+export default function ProgressRecallChart({
+  genericDataQuery,
+  progressRecallQuery,
+  progressQuery,
+}) {
   const theme = useTheme();
   const chartRef = useRef(null);
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -118,9 +121,12 @@ export default function ProgressRecallChart(props) {
   };
 
   const processChartData = () => {
-    if (!props.genericDataQuery.data) return null;
+    if (!genericDataQuery.data) return null;
 
-    const calculatedData = calculateProgressRecall(props.genericDataQuery.data);
+    const calculatedData = calculateProgressRecall(
+      genericDataQuery.data,
+      progressQuery.data,
+    );
 
     return {
       xAxis: calculatedData.map((item) => item.x),
@@ -185,8 +191,8 @@ export default function ProgressRecallChart(props) {
     <Card sx={{ bgcolor: "transparent", position: "relative", mt: 2 }}>
       <CardErrorHandler
         queryKey={"fetchGenericData"}
-        error={props.progressRecallQuery?.error}
-        isError={!!props.progressRecallQuery?.isError}
+        error={progressRecallQuery?.error}
+        isError={!!progressRecallQuery?.isError}
       />
       <CardContent sx={{ mt: 1 }}>
         <Box
@@ -227,7 +233,7 @@ export default function ProgressRecallChart(props) {
         </Box>
 
         <Box height={400} width={1} ref={chartRef} sx={{ mt: -3 }}>
-          {props.genericDataQuery.isLoading ? (
+          {genericDataQuery.isLoading ? (
             <Skeleton variant="rectangular" height="100%" width="100%" />
           ) : chartData && chartData.xAxis.length > 1 ? (
             <LineChart
