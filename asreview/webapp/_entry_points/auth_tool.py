@@ -153,6 +153,7 @@ def insert_user(session, entry):
         name=entry["name"],
         affiliation=entry["affiliation"],
         password=entry["password"],
+        origin=entry.get("origin", "asreview").lower(),
         confirmed=True,
     )
     try:
