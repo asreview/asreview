@@ -1,4 +1,3 @@
-import inspect
 import json
 import logging
 import multiprocessing as mp
@@ -348,11 +347,14 @@ def run_task_manager(
     mp_start_event=None,
     mp_shutdown_event=None,
 ):
-    # I need all parameters that are not None to pass to the TaskManager object.
-    signature = inspect.signature(run_task_manager)
-    bound_arguments = signature.bind(max_workers, host, port)
-    args = {k: v for k, v in bound_arguments.arguments.items() if v is not None}
+    kwargs = {}
+    if max_workers is not None:
+        kwargs["max_workers"] = max_workers
+    if host is not None:
+        kwargs["host"] = host
+    if port is not None:
+        kwargs["port"] = port
 
     _setup_logging(verbose)
-    manager = TaskManager(**args)
+    manager = TaskManager(**kwargs)
     manager.start_manager(mp_start_event, mp_shutdown_event)
