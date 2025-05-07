@@ -106,6 +106,9 @@ task-manager = "asreview.webapp._entry_points.task_manager:main"
 [project.entry-points."asreview.datasets"]
 synergy = "asreview.datasets:SynergyDataGroup"
 
+[project.entry-points."asreview.models"]
+_metadata = "asreview.models._metadata:MODEL_METADATA"
+
 [project.entry-points."asreview.models.classifiers"]
 svm = "asreview.models.classifiers:SVM"
 nb = "asreview.models.classifiers:NaiveBayes"
