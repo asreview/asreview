@@ -50,7 +50,13 @@ def get_dist_extensions_metadata():
                 raise TypeError(
                     f"Metadata for {e.name} is not a dictionary: {type(metadata)}"
                 )
-            all_metadata.update(metadata)
+
+            for key, value in metadata.items():
+                if key in all_metadata and isinstance(all_metadata[key], dict):
+                    all_metadata[key].update(value)
+                else:
+                    all_metadata[key] = value
+
         except Exception:
             continue
 
