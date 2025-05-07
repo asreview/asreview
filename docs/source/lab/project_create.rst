@@ -74,7 +74,7 @@ tag group, and you can add multiple tags to a dataset. In the current version,
 you can't delete tags, so be careful with the tags you add.
 
 Tags are presented to you in the *Reviewer* interface. Tags are presented as
-checkboxes and you can select multiple tags for a record. You can find the
+checkboxes, and you can select multiple tags for a record. You can find the
 selected tags in the collection and during the export of the dataset.
 
 Change AI Model
@@ -131,5 +131,5 @@ Screen
 ------
 
 Once you have selected a dataset and optionally added tags, changed the model,
-or searched prior knowledge you can click on *Screen* to start the review. For
+or searched for prior knowledge, you can click on *Screen* to start the review. For
 more tips on how to screen records, see :doc:`screening`.
