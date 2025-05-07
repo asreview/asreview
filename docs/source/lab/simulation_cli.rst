@@ -17,27 +17,26 @@ The simulation command line tool can be accessed directly like:
 
 This performs a simulation with the default active learning model, where
 ``MY_DATASET.csv`` is the path to the :ref:`lab/data_labeled:Fully labeled data`
-you want to simulate. The result of the simulation is stored, after a
-successful simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION``
-is the filename you prefer and the extension is ``.asreview``
-(ASReview project file extension).
+you want to simulate. The result of the simulation is stored, after a successful
+simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION`` is the
+filename you prefer and the extension is ``.asreview`` (ASReview project file
+extension).
 
 Simulation progress
 -------------------
 
 The progress of the simulation is given with two progress bars. The top one is
-used to count the number of relevant records found. The bottom one monitors
-the number of records labeled. By default (with ``--n-stop min``), the
-simulation stops once the the top progress bar reaches 100%.
+used to count the number of relevant records found. The bottom one monitors the
+number of records labeled. By default (see ``--n-stop``), the simulation stops
+once the the top progress bar reaches 100%.
 
 .. code-block:: bash
 
-  Simulation started
+    Relevant records found: 100%|█████████████████████████████████████████████████████████| 38/38 [00:04<00:00,  7.83it/s]
+    Records labeled       :   7%|███▊                                                  | 322/4544 [00:04<01:03, 66.37it/s]
 
-  Relevant records found: 100%|███████████████████████████████████████████████| 43/43 [00:03<00:00, 13.42it/s]
-  Records labeled       :   7%|██▉                                        | 420/6189 [00:03<00:43, 133.58it/s]
-
-  Simulation finished
+    Loss: 0.021
+    NDCG: 0.530
 
 Command line arguments for simulating
 -------------------------------------
@@ -45,7 +44,6 @@ Command line arguments for simulating
 The command ``asreview simulate --help`` provides an overview of available
 arguments for the simulation. Each of the sections below describe the available
 arguments. The example below shows how you can set the command line arguments.
-This can be helpful if you are new to the using the command line interface.
 
 .. code-block:: bash
 
@@ -183,17 +181,16 @@ Algorithms
 The command line interface provides an easy way to get an overview of all
 available active learning model elements (classifiers, query strategies, balance
 strategies, and feature extraction algorithms) and their names for command line
-usage in ASReview LAB. It also includes models added via
-:doc:`../technical/extensions_dev`. The following command lists the available
+usage in ASReview LAB. The following command lists the available
 models:
 
 .. code:: bash
 
     asreview algorithms
 
-See :doc:`../technical/extensions_dev` for more information on developing new
-models and install them via extensions.
+The command includes models added via :doc:`../technical/extensions_dev`. See
+:doc:`../technical/extensions_dev` for more information on developing new models
+and install them via extensions.
 
-Some models require additional dependencies to be installed. Use :code:`pip
-install asreview[all]` to install all additional dependencies at once or check
-the installation instruction in the :doc:`../technical/reference/asreview`.
+Use :code:`pip install asreview-dory` to get access to all Dory models. The Dory
+extension contains a collection of New and Exciting MOdels.

@@ -10,7 +10,7 @@ combination of model components.
 
 ASReview LAB offers three versatile methods to run simulations:
 
-- :ref:`Simulate with ASReview LAB <lab/simulation_webapp:simulate via the webapp>`
+- :ref:`Simulate with ASReview LAB <simulation_webapp:Simulate with ASReview LAB>`
 - :doc:`Command line interface <simulation_cli>`
 - :doc:`Python API <simulation_api_example>`
 
@@ -49,7 +49,7 @@ setup are identical or straightforward. Make sure you import a :ref:`fully
 labeled dataset <lab/data_labeled:fully labeled data>` or use one of the
 benchmark datasets.
 
-Selecting prior knowledge is relatively easy. In case you know relevant records
+Selecting prior knowledge is straightforward. In case you know relevant records
 to start with, use the search function. In case you don't, the simulation will
 start with random screening.
 
