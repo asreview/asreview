@@ -192,7 +192,7 @@ def lab_entry_point(argv):
             daemon=True,
         ).start()
 
-    console.print("Press [bold]Ctrl+C[/bold] to exit.\n\n")
+    console.print("\n\nPress [bold]Ctrl+C[/bold] to exit.\n\n")
 
     # define events for task manager to signal when to start and shutdown
     start_event = mp.Event()
@@ -205,9 +205,9 @@ def lab_entry_point(argv):
             app.config.get("TASK_MANAGER_WORKERS", None),
             app.config.get("TASK_MANAGER_HOST", None),
             app.config.get("TASK_MANAGER_PORT", None),
-            app.config.get("TASK_MANAGER_VERBOSE", False),
             start_event,
             shutdown_event,
+            app.config.get("TASK_MANAGER_VERBOSE", False),
         ),
     )
     process.start()

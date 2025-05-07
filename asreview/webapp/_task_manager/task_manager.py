@@ -343,9 +343,9 @@ def run_task_manager(
     max_workers=None,
     host=None,
     port=None,
-    verbose=False,
     mp_start_event=None,
     mp_shutdown_event=None,
+    verbose=False,
 ):
     kwargs = {}
     if max_workers is not None:
