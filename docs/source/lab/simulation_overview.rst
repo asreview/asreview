@@ -10,7 +10,7 @@ combination of model components.
 
 ASReview LAB offers three versatile methods to run simulations:
 
-- :ref:`Simulate with ASReview LAB <simulation_webapp:Simulate with ASReview LAB>`
+- :ref:`Simulate with ASReview LAB <lab/simulation_overview:Simulate with ASReview LAB>`
 - :doc:`Command line interface <simulation_cli>`
 - :doc:`Python API <simulation_api_example>`
 
