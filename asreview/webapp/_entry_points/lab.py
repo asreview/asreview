@@ -192,18 +192,22 @@ def lab_entry_point(argv):
             daemon=True,
         ).start()
 
-    console.print("Press [bold]Ctrl+C[/bold] to exit.\n\n")
+    console.print("\n\nPress [bold]Ctrl+C[/bold] to exit.\n\n")
 
-    # spin up task manager
+    # define events for task manager to signal when to start and shutdown
     start_event = mp.Event()
+    shutdown_event = mp.Event()
+
+    # set the task manager to run in a separate process
     process = mp.Process(
         target=run_task_manager,
         args=(
             app.config.get("TASK_MANAGER_WORKERS", None),
             app.config.get("TASK_MANAGER_HOST", None),
             app.config.get("TASK_MANAGER_PORT", None),
-            app.config.get("TASK_MANAGER_VERBOSE", False),
             start_event,
+            shutdown_event,
+            app.config.get("TASK_MANAGER_VERBOSE", False),
         ),
     )
     process.start()
@@ -224,11 +228,25 @@ def lab_entry_point(argv):
         waitress.serve(app, host=args.host, port=port, threads=6)
 
     except KeyboardInterrupt:
+        # waitress is now shutting down, shut down the task manager gracefully
+        shutdown_event.set()
+
         console.print("\n\nShutting down server.\n\n")
 
     finally:
         if process.is_alive():
-            console.print("\n\nTerminating background task manager...\n\n")
+            console.print(
+                "Waiting for background task manager to shut down gracefully..."
+            )
+            process.join(timeout=10)
+            console.print("Background task manager shut down gracefully.\n\n")
+
+        if process.is_alive():
+            # If it didn't shut down gracefully, terminate it forcefully
+            console.print(
+                "[red]Background task manager did not shut down gracefully. "
+                "Terminating forcefully.[/red]\n\n"
+            )
             process.terminate()
             process.join()
 
