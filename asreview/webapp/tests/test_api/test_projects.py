@@ -294,10 +294,10 @@ def test_list_learners(client, user):
     r = au.get_project_algorithms_options(client)
     assert r.status_code == 200
     expected_keys = [
-        "balancer",
-        "classifier",
-        "feature_extractor",
-        "querier",
+        "balancers",
+        "classifiers",
+        "feature_extractors",
+        "queriers",
     ]
     for key in expected_keys:
         assert key in r.json["models"].keys()

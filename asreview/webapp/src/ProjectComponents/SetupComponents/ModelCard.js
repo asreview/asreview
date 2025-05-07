@@ -420,7 +420,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                           <ModelComponentSelect
                             name="querier"
                             label="Querier"
-                            items={learnerOptions?.models?.querier}
+                            items={learnerOptions?.models?.queriers}
                             value={modelConfig.current_value?.querier}
                             required={true}
                             onChange={(event) => {
@@ -437,7 +437,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                           <ModelComponentSelect
                             name="feature_extractor"
                             label="Feature extractor"
-                            items={learnerOptions?.models?.feature_extractor}
+                            items={learnerOptions?.models?.feature_extractors}
                             value={
                               modelConfig?.current_value?.feature_extractor
                             }
@@ -455,7 +455,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                           <ModelComponentSelect
                             name="classifier"
                             label="Classifier"
-                            items={learnerOptions?.models?.classifier}
+                            items={learnerOptions?.models?.classifiers}
                             value={modelConfig.current_value?.classifier}
                             onChange={(event) => {
                               mutate({
@@ -471,7 +471,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                           <ModelComponentSelect
                             name="balancer"
                             label="Balancer"
-                            items={learnerOptions?.models?.balancer}
+                            items={learnerOptions?.models?.balancers}
                             value={modelConfig.current_value?.balancer}
                             onChange={(event) => {
                               mutate({

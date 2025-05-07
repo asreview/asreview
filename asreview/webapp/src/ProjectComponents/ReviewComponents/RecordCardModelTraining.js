@@ -52,14 +52,14 @@ const ModelFlowChart = ({ record }) => {
     },
   );
 
-  const classifierName = data?.models?.classifier.filter(
+  const classifierName = data?.models?.classifiers.filter(
     (classifier) => classifier.name === record.state.classifier,
   )[0]?.label;
-  const featureExtractionName = data?.models?.feature_extractor.filter(
+  const featureExtractionName = data?.models?.feature_extractors.filter(
     (feature_extractor) =>
       feature_extractor.name === record.state.feature_extractor,
   )[0]?.label;
-  const queryStrategyName = data?.models?.querier.filter(
+  const queryStrategyName = data?.models?.queriers.filter(
     (querier) => querier.name === record.state.querier,
   )[0]?.label;
 

@@ -1,4 +1,3 @@
-import inspect
 import json
 import logging
 import multiprocessing as mp
@@ -21,6 +20,11 @@ DEFAULT_TASK_MANAGER_PORT = 5101
 DEFAULT_TASK_MANAGER_WORKERS = 2
 
 
+def _setup_logging(verbose=False):
+    level = logging.INFO if verbose else logging.ERROR
+    logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
+
+
 class RunModelProcess(mp.Process):
     def __init__(
         self,
@@ -33,7 +37,7 @@ class RunModelProcess(mp.Process):
         self.func = func
         self.args = args
         self.host = host
-        self.port = int(port)
+        self.port = port
 
     def run(self):
         payload = {"action": "remove", "project_id": self.args[0]}
@@ -42,11 +46,17 @@ class RunModelProcess(mp.Process):
         except Exception:
             payload["action"] = "failure"
         finally:
-            family = socket.AF_INET
-            socket_type = socket.SOCK_STREAM
-            with socket.socket(family, socket_type) as client_socket:
+            if self.host and self.port:
+                self._send_payload(payload)
+
+    def _send_payload(self, payload):
+        """Send a payload to the task manager via socket."""
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            try:
                 client_socket.connect((self.host, self.port))
                 client_socket.sendall(json.dumps(payload).encode("utf-8"))
+            except Exception as e:
+                logging.error(f"Failed to send payload: {e}")
 
 
 class TaskManager:
@@ -248,14 +258,24 @@ class TaskManager:
 
         conn.close()
 
-    def start_manager(self, mp_event=None):
+    def start_manager(self, mp_start_event=None, mp_shutdown_event=None):
+        """Start the task manager.
+
+        Parameters
+        ----------
+        mp_start_event : multiprocessing.Event
+            Event to signal that the manager has started.
+        mp_shutdown_event : multiprocessing.Event
+            Event to signal that the manager should shut down.
+
+        """
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.host, self.port))
         self.server_socket.listen()
 
         # Acknowledge MultipProcessing we could connect
-        if mp_event is not None:
-            mp_event.set()
+        if mp_start_event is not None:
+            mp_start_event.set()
 
         # Set a timeout
         self.server_socket.settimeout(1.0)
@@ -263,10 +283,10 @@ class TaskManager:
         logging.info(f"...starting server on {self.host}:{self.port}")
 
         try:
-            while True:
+            while mp_shutdown_event is None or not mp_shutdown_event.is_set():
                 try:
                     # Accept incoming connections with a timeout
-                    conn, _addr = self.server_socket.accept()
+                    conn, _ = self.server_socket.accept()
                     # Start a new thread to handle the client connection
                     client_thread = threading.Thread(
                         target=self._handle_incoming_messages, args=(conn,)
@@ -285,13 +305,23 @@ class TaskManager:
                     break  # Exit the loop if the socket is closed
 
         except KeyboardInterrupt:
+            # Handle graceful shutdown on keyboard interrupt
+            # Most useful when task manager is run in foreground
             logging.info("...Shutting down task manager")
 
         finally:
-            self.stop_manager()  # Ensure cleanup after loop exits
+            self.stop_manager()
 
-    def stop_manager(self):
+    def stop_manager(self, mp_shutdown_event=None):
         """Gracefully stop the manager and close the socket."""
+
+        # Signal to the main process that the manager is shutting down
+        # and set the shutdown event if provided
+        if mp_shutdown_event is not None and not mp_shutdown_event.is_set():
+            logging.info("Shutting down task manager...")
+            mp_shutdown_event.set()
+
+        # Close the server socket
         if self.server_socket:
             try:
                 self.server_socket.close()
@@ -300,21 +330,31 @@ class TaskManager:
             self.server_socket = None
         logging.info("TaskManager has been stopped.")
 
-
-def setup_logging(verbose=False):
-    level = logging.INFO if verbose else logging.ERROR
-    logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
+        # Close the database session
+        if self.session:
+            try:
+                self.session.close()
+            except Exception as e:
+                logging.error(f"Failed to close database session: {e}")
+            self.session = None
 
 
 def run_task_manager(
-    max_workers=None, host=None, port=None, verbose=False, mp_event=None
+    max_workers=None,
+    host=None,
+    port=None,
+    mp_start_event=None,
+    mp_shutdown_event=None,
+    verbose=False,
 ):
-    # I need all parameters that are not None to pass to the TaskManager object.
-    signature = inspect.signature(run_task_manager)
-    bound_arguments = signature.bind(max_workers, host, port)
+    kwargs = {}
+    if max_workers is not None:
+        kwargs["max_workers"] = max_workers
+    if host is not None:
+        kwargs["host"] = host
+    if port is not None:
+        kwargs["port"] = port
 
-    args = {k: v for k, v in bound_arguments.arguments.items() if v is not None}
-
-    setup_logging(verbose)
-    manager = TaskManager(**args)
-    manager.start_manager(mp_event)
+    _setup_logging(verbose)
+    manager = TaskManager(**kwargs)
+    manager.start_manager(mp_start_event, mp_shutdown_event)

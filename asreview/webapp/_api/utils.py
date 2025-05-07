@@ -1,5 +1,9 @@
 import json
 from pathlib import Path
+from importlib.metadata import entry_points
+
+
+from asreview import extensions
 
 
 def read_tags_data(project):
@@ -30,3 +34,66 @@ def add_id_to_tags(group):
         group["values"][i]["id"] = i
 
     return group
+
+
+def get_dist_extensions_metadata():
+    """Get all distributions with models."""
+    entries = entry_points(group="asreview.models", name="_metadata")
+
+    all_metadata = {}
+
+    for e in entries:
+        try:
+            metadata = e.load()
+
+            if not isinstance(metadata, dict):
+                raise TypeError(
+                    f"Metadata for {e.name} is not a dictionary: {type(metadata)}"
+                )
+
+            for key, value in metadata.items():
+                if key in all_metadata and isinstance(all_metadata[key], dict):
+                    all_metadata[key].update(value)
+                else:
+                    all_metadata[key] = value
+
+        except Exception:
+            continue
+
+    return all_metadata
+
+
+def get_all_model_components():
+    model_components = {
+        "balancers": [],
+        "classifiers": [],
+        "feature_extractors": [],
+        "queriers": [],
+    }
+
+    entry_points_per_submodel = [
+        extensions("models.balancers"),
+        extensions("models.classifiers"),
+        extensions("models.feature_extractors"),
+        extensions("models.queriers"),
+    ]
+
+    metadata = get_dist_extensions_metadata()
+
+    for entries, key in zip(entry_points_per_submodel, model_components.keys()):
+        for e in entries:
+            try:
+                label = metadata[key][e.name]["label"]
+            except KeyError:
+                label = e.name
+            except Exception as err:
+                raise Exception(f"Failed to read metadata: {err}")
+
+            model_components[key].append(
+                {
+                    "name": e.name,
+                    "label": label,
+                }
+            )
+
+    return model_components
