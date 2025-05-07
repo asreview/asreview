@@ -148,6 +148,7 @@ def insert_user(session, entry):
     into the database."""
     # create a user object
     user = User(
+        entry.get("origin", "asreview").lower(),
         entry["email"].lower(),
         email=entry["email"].lower(),
         name=entry["name"],
