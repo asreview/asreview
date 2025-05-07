@@ -1,7 +1,7 @@
-import ast
-import inspect
 import json
 from pathlib import Path
+from importlib.metadata import entry_points
+
 
 from asreview import extensions
 
@@ -36,12 +36,33 @@ def add_id_to_tags(group):
     return group
 
 
+def get_dist_extensions_metadata():
+    """Get all distributions with models."""
+    entries = entry_points(group="asreview.models", name="_metadata")
+
+    all_metadata = {}
+
+    for e in entries:
+        try:
+            metadata = e.load()
+
+            if not isinstance(metadata, dict):
+                raise TypeError(
+                    f"Metadata for {e.name} is not a dictionary: {type(metadata)}"
+                )
+            all_metadata.update(metadata)
+        except Exception:
+            continue
+
+    return all_metadata
+
+
 def get_all_model_components():
     model_components = {
-        "balancer": [],
-        "classifier": [],
-        "feature_extractor": [],
-        "querier": [],
+        "balancers": [],
+        "classifiers": [],
+        "feature_extractors": [],
+        "queriers": [],
     }
 
     entry_points_per_submodel = [
@@ -51,36 +72,22 @@ def get_all_model_components():
         extensions("models.queriers"),
     ]
 
-    for entry_points, key in zip(entry_points_per_submodel, model_components.keys()):
-        for e in entry_points:
-            module = __import__(e.module, fromlist=[""])
-            source_file = inspect.getfile(module)
-            with open(source_file, "r") as f:
-                source_code = f.read()
-            tree = ast.parse(source_code)
-            name = None
-            label = None
+    metadata = get_dist_extensions_metadata()
 
-            for node in ast.walk(tree):
-                if isinstance(node, ast.ClassDef):
-                    for class_node in node.body:
-                        if isinstance(class_node, ast.Assign):
-                            for target in class_node.targets:
-                                if (
-                                    isinstance(target, ast.Name)
-                                    and target.id == "name"
-                                    and isinstance(class_node.value, ast.Constant)
-                                ):
-                                    name = class_node.value.value
-                                if (
-                                    isinstance(target, ast.Name)
-                                    and target.id == "label"
-                                    and isinstance(class_node.value, ast.Constant)
-                                ):
-                                    label = class_node.value.value
-                    if name == e.name:
-                        break
+    for entries, key in zip(entry_points_per_submodel, model_components.keys()):
+        for e in entries:
+            try:
+                label = metadata[key][e.name]["label"]
+            except KeyError:
+                label = e.name
+            except Exception as err:
+                raise Exception(f"Failed to read metadata: {err}")
 
-            model_components[key].append({"name": e.name, "label": label or e.name})
+            model_components[key].append(
+                {
+                    "name": e.name,
+                    "label": label,
+                }
+            )
 
     return model_components
