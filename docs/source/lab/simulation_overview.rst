@@ -1,72 +1,85 @@
-Overview
-========
+Simulate a review
+=================
 
-ASReview LAB offers three different solutions to run simulations with the:
+Simulations in ASReview LAB provide a controlled environment to test hypotheses,
+refine strategies, and gain insights into model performance. By leveraging fully
+labeled datasets, the software mimics how a human would label records in
+interaction with the Active Learning model. If you're unsure which model to use
+for a new (unlabeled) dataset, simulations can help identify the best-performing
+combination of model components.
 
-- :ref:`Webapp (the frontend) <lab/simulation_webapp:simulate via the webapp>`
+ASReview LAB offers three versatile methods to run simulations:
+
+- :ref:`Simulate with ASReview LAB <lab/simulation_overview:Simulate with ASReview LAB>`
 - :doc:`Command line interface <simulation_cli>`
 - :doc:`Python API <simulation_api_example>`
 
+Simulating with ASReview LAB allows you to evaluate model performance using
+various metrics and estimate workload reduction achieved through active learning
+compared to manual screening.
 
-What is a simulation?
----------------------
-
-A simulation involves mimicking the screening process with a certain model. As
-it is already known which records are labeled as relevant, the software can
-automatically reenact the screening process as if a human was labeling the
-records in interaction with the Active Learning model.
-
-Why run a simulation?
----------------------
-
-Simulating with ASReview LAB has multiple purposes. First, the performance of
-one or multiple models can be measured by different metrics (see
-:ref:`Analyzing results <lab/simulation_results:Analyzing results>`). A convenient one
-is that you can investigate the amount of work you could have saved by using
-active learning compared to your manual screening process.
-
-Suppose you don't know which model to choose for a new (unlabeled) dataset. In
-that case, you can experiment with the best performing combination of the
-classifier, feature extraction, query strategy, and balancing and test the
-performance on a labeled dataset with similar characteristics.
-
-You could also use the simulation mode to benchmark your own model against
-existing models for different available datasets. ASReview LAB allows for adding
-new models `via a template
+Additionally, simulation mode enables benchmarking your custom models against
+existing ones across diverse datasets. ASReview LAB supports extending its
+capabilities by adding new models `via a template
 <https://github.com/asreview/template-extension-new-model>`_.
-
-You can also find 'odd' relevant records in a 'classical' search. Such records
-are typically found isolated from most other records and might be worth closer
-inspection
 
 Datasets for simulation
 -----------------------
 
-Simulations require :ref:`fully labeled datasets <lab/data_labeled:fully labeled data>`
-(labels: ``0`` = irrelevant, ``1`` = relevant). Such a dataset can be the result of an
-earlier study. ASReview offers also fully labeled datasets via the
-`SYNERGY dataset <https://github.com/asreview/synergy-dataset>`_. These datasets are
-available via the user interface in the *Data* step of the setup and in the command
-line with the prefix `synergy:` (e.g. `synergy:van_de_schoot_2018`).
+Simulations require :ref:`fully labeled datasets <lab/data_labeled:fully labeled
+data>` (labels: ``0`` = irrelevant, ``1`` = relevant). Such a dataset can be the
+result of an earlier study. ASReview also provides fully labeled datasets via the
+`SYNERGY dataset <https://github.com/asreview/synergy-dataset>`_. These datasets
+are available via the user interface in the *Data* step of the setup and in the
+command line with the prefix `synergy:` (e.g., `synergy:van_de_schoot_2018`).
 
 .. tip::
 
-    When you import your data, make sure to remove duplicates and to retrieve
-    as many abstracts as possible (`See Importance-of-abstracts blog for help
-    <https://asreview.ai/blog/the-importance-of-abstracts/>`_). With clean data you
-    benefit most from what :doc:`active learning <about>`
-    has to offer.
+    When importing your data, ensure duplicates are removed and as many abstracts
+    as possible are retrieved (`See Importance-of-abstracts blog for help
+    <https://asreview.ai/blog/the-importance-of-abstracts/>`_). Clean data allows
+    you to fully benefit from what :doc:`active learning <about>` has to offer.
+
+Simulate with ASReview LAB
+--------------------------
+
+To run a simulation in the ASReview LAB, go to Simulations, create a project in
+the same way as described in :doc:`project_create`. Most of the steps of the
+setup are identical or straightforward. Make sure you import a :ref:`fully
+labeled dataset <lab/data_labeled:fully labeled data>` or use one of the
+benchmark datasets.
+
+Selecting prior knowledge is straightforward. In case you know relevant records
+to start with, use the search function. In case you don't, the simulation will
+start with random screening.
+
+Click on Simulate to start the simulation. The simulation will run in the
+background. You can follow the progress on the projects overview page. Once the
+simulation is finished, the project can be opened to analyze or the results.
 
 
-Cloud environments
-------------------
+Insights into simulation results
+--------------------------------
 
-For advanced scenarios, such as executing ASReview simulations in cloud
-environments or running them in parallel, consult the specialized `cloud
-usage guide <https://github.com/asreview/cloud-usage>`__. This guide provides
-tailored instructions for a variety of use cases, including simulations on
-cloud platforms such as SURF, Digital Ocean, AWS, Azure, and leveraging
-Kubernetes for large-scale simulation tasks. More information can be found in
-the paper: `Optimizing ASReview simulations: A generic multiprocessing
-solution for 'light-data' and 'heavy-data' users
-<https://osf.io/preprints/psyarxiv/9h5ju>`__
+After a simulation, the results can be exported to an ASReview project file
+(extension `.asreview`). This file contains a wealth of variables and logs
+related to the simulation. The data can be extracted from the project file via
+the API or with one of the available extensions. See :doc:`these examples on the
+Project API <../technical/example_api_asreview_file>` for more information about
+accessing the project file.
+
+One readily available extension for analyzing simulation results is
+`ASReview Insights <https://github.com/asreview/asreview-insights>`_. This
+extension provides tools for plotting recall and extracting statistical results
+for several performance metrics, such as Loss, Work Saved over Sampling (WSS),
+the proportion of Relevant Records Found (RRF), Extra Relevant Records Found
+(ERF), and Average Time to Discover (ATD).
+
+Install ASReview Insights directly from PyPi:
+
+.. code-block:: bash
+
+	pip install asreview-insights
+
+Detailed documentation on the extension can be found on the `ASReview Insights
+<https://github.com/asreview/asreview-insights>`_ project page.

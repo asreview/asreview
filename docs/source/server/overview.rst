@@ -11,6 +11,19 @@ account or connect via their GitHub, ORCID, or Google accounts.
 See the :doc:`configuration` details for more
 information on how to configure your ASReview LAB on your server.
 
+
+* **Server Stack**
+
+    - To streamline self-hosting and enterprise-level deployments, the ASReview
+      Server Stack provides a production-ready Docker Compose set-up, available
+      on GitHub at `asreview-server-stack`. This configuration packages the main
+      components of ASReview—such as the AI engine (model server), the React
+      front-end, and a database layer—into separate, containerized services. As
+      a result, organizations can run ASReview on their own hardware or in a
+      cloud environment, ensuring data privacy and compliance with institutional
+      policies.
+
+
 Features
 --------
 
@@ -38,19 +51,3 @@ ASReview LAB Server provides a easy way to create an account with your email.
 
 .. figure:: ../../images/server_email.png
    :alt: Create account with account and password
-
-Installation
-------------
-
-ASReview LAB server is installed in the same way as ASReview LAB. See the
-:doc:`../lab/installation` instructions for more information. See
-:doc:`configuration` for more information on
-how to configure authentication on your ASReview LAB server.
-
-Optional: If you want to make use of the PostgreSQL database, you need to
-install the `psycopg2` package. This can be done by running the following
-command:
-
-.. code-block:: bash
-
-    pip install psycopg2

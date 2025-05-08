@@ -150,8 +150,8 @@ html_theme_options = {
         },
     ],
     "logo": {
-        "image_light": "https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg",
-        "image_dark": "https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg",
+        "image_light": "https://raw.githubusercontent.com/asreview/asreview-artwork/refs/heads/master/LogoASReview/asreview_logo_light.svg",
+        "image_dark": "https://raw.githubusercontent.com/asreview/asreview-artwork/refs/heads/master/LogoASReview/asreview_logo_dark.svg",
     },
     "announcement": "ASReview LAB 2.0 is now available! <a href='https://asreview.nl/download'>Try it out</a>.",
     "use_edit_page_button": True,
