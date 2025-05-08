@@ -1,25 +1,25 @@
 Screening
 =========
 
-As soon as your project is initiated, you can start screening records. Click on
-*Reviewer* in the left menu if your project is not on the review page yet.
-ASReview LAB presents you a title and abstract to screen and label.
+Once your project is set up, you can immediately begin screening records. To get
+started, click on *Reviewer* in the left menu if you are not already on the
+review page. ASReview LAB will present you with a title and abstract to evaluate
+and label.
 
-You are asked to make a decision: relevant or irrelevant?
+Your task is to decide whether the record is relevant or irrelevant. Simply
+click on your choice, and the next record will be presented to you. While you
+review, ASReview LAB works in the background, training a model based on your
+decisions and continuously improving its understanding of your preferences. This
+process updates the ranking of the remaining records, ensuring that the most
+relevant records are prioritized for review.
 
-Click on the decision of your choice, and a new record is presented to you.
-While you review the next record, a new model is being trained. ASReview LAB
-continuously improves its understanding of your decisions, constantly updating
-the underlying ordering of the records.
-
-Each labeling decision by the user starts the training of a new model, provided no model is being trained at that time. When this new model is trained, the unseen
-records' rank order is updated. Training and labeling occur asynchronously. With
-fast models, a new ranking will likely be available before the user finishes
-reading the text. With slower models, training continues until a new model is
-trained, and the user can continue screening the next record in line (2nd, 3rd,
-etc.). Therefore, the record shown to the user can be the one with the highest
-relevance score of the second-to-last model or the highest-ranked as a result of
-the latest model until a new model is trained.
+Each labeling decision by the user starts the training of a new model, provided
+no model is being trained at that time. When this new model is trained, the
+unseen records' rank order is updated. Training and labeling occur
+asynchronously. With fast models, a new ranking will likely be available before
+the user finishes reading the text. With slower models, training continues until
+a new model is trained, and the user can continue screening the next record in
+line (2nd, 3rd, etc.).
 
 As you keep reviewing documents and providing labels, you will probably see
 fewer relevant records. When to stop screening is left to you. See
@@ -31,8 +31,8 @@ when to stop.
   If you are in doubt about your decision, take your time as you are the oracle.
   Based on your input, a new model will be trained, and you do not want to
   confuse the prediction model. For the model, it may be better to consult
-  others and read the full text (in the case of reviewing abstracts of scientific
-  papers).
+  others and read the full text (in the case of reviewing abstracts of
+  scientific papers).
 
 Autosave
 --------
@@ -58,10 +58,10 @@ You can change decisions on this page.
 Full Text
 ---------
 
-If Digital Object Identifiers (DOI) or URLs is available in the metadata of the
+If Digital Object Identifiers (DOI) or URLs are available in the metadata of the
 records in your dataset, ASReview LAB will display the DOI and URL during
-screening. Most of the time, DOIs point to the full-text of a publication. See
-:doc:`datasets <data>` for more information on including DOI and URL values to
+screening. Most of the time, DOIs point to the full text of a publication. See
+:doc:`datasets <data>` for more information on including DOI and URL values in
 your datasets.
 
 Keyboard shortcuts
@@ -95,16 +95,18 @@ model and how it works, or if you want to switch to a different model.
 4. Go back to the reviewer screen if you are not there yet.
 
 .. note::
-  The model information is only available when the model is trained. If you
-  haven't trained a model yet, you will not see that the record is presented
-  to you at random.
+
+  The model information is only available when the record presented to you is
+  the recommendation of a model. If you haven't trained a model yet, you will
+  not see that the record is presented to you at random.
 
 .. warning::
-  Switching models during screening can be hard to understand for new users or non-technical
-  users. As the model is trained in the background after each decision, records
-  might be presented with the "old" model for a while. Once the new model is
-  trained, a record is presented to you based on the new model. This can be
-  confusing for new users.
+
+  Switching models during screening can be hard to understand for new users or
+  non-technical users. As the model is trained in the background after each
+  decision, records might be presented with the "old" model for a while. Once
+  the new model is trained, a record is presented to you based on the new model.
+  This can be confusing for new users.
 
 Dark mode
 ---------
@@ -122,6 +124,7 @@ functionality.
 
 Font size
 ---------
+
 ASReview LAB allows you to adjust the font size of the text displayed during
 screening.
 
@@ -133,5 +136,5 @@ screening.
 ELAS Game
 ---------
 
-If you want a break from screening, click on the ELAS mascotte on the top right
-in the reviewer screen `;)`. Let us know about your high score!
+If you want a break from screening, click on the ELAS mascot on the top right in
+the reviewer screen `;)`. Let us know about your high score!

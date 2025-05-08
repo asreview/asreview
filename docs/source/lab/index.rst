@@ -53,7 +53,7 @@ maintaining high accuracy and reproducibility.
     project_create
     screening
     progress
-    validation_review
+    validation
     manage
 
 
