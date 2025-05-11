@@ -37,7 +37,7 @@ To export your project:
 1. :doc:`start`.
 2. Go to *Reviews* (http://localhost:5000/reviews) or *Simulations* (http://localhost:5000/simulations)
 3. Click the three dots on the right of the project you want to export.
-5. Click on *Export Project*
+4. Click on *Export Project*
 
 .. tip::
 
@@ -57,4 +57,4 @@ To permanently delete a project, including ALL files:
 3. Click the three dots on the right of the project you want to export.
 4. Click on *Export Project*
 5. Type the project name in the confirmation box.
-4. Click on *Delete forever*.
+6. Click on *Delete forever*.
