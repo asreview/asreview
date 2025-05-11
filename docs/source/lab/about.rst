@@ -163,12 +163,12 @@ encounter as you use ASReview LAB.
 
   Review
     Reviewing is the decision-making process on the relevance of
-    :term:`records` ("relevant", "irrelevant"). The term reviewing is
+    :term:`record` ("relevant", "irrelevant"). The term reviewing is
     interchangeable with Labeling, Screening, and Classifying.
 
   User
     The human annotator or screener is the person who labels
-    :term:`records`.
+    :term:`record`.
 
 
 Key principles

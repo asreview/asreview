@@ -17,7 +17,7 @@ Preruisities
 ------------
 
 - Docker and Docker Compose installed on your server. See the `Docker
-  installation instructions <https://docs.docker.com/get-docker/>`_.
+  installation instructions <https://docs.docker.com/get-started/get-docker/>`_.
 - A server with sufficient resources to run the ASReview LAB application and
   database. We recommend at least 8 GB of RAM and 4 CPU cores for a production
   environment.

@@ -108,7 +108,7 @@ that are specific for authenticating ASReview are summarized below:
   <https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app>`_,
   `Orcid
   <https://info.orcid.org/documentation/api-tutorials/api-tutorial-get-and-authenticated-orcid-id/>`_
-  en `Google <https://support.google.com/cloud/answer/6158849?hl=en>`_). Please
+  en `Google <https://support.google.com/cloud/answer/15549257?hl=en>`_). Please
   note that the `AUTHORIZATION_URL` and `TOKEN_URL` of the Orcid entry are
   sandbox-urls, and thus not to be used in production. Omit this parameter if
   OAuth is unwanted.
@@ -127,7 +127,7 @@ Full configuration
 ASReview LAB settings
 
 - `ASREVIEW_LAB_CONFIG_PATH` - Path to ASReview LAB config TOML file with ASReview LAB configuration.
-- `ASRVIEW_LAB_*` - All ASReview LAB settings are prefixed with `ASREVIEW_LAB_`. They include all settings from https://flask.palletsprojects.com/en/3.0.x/config/#builtin-configuration-values. Most important the secret key for ASReview LAB `ASREVIEW_LAB_SECRET_KEY`.
+- `ASRVIEW_LAB_*` - All ASReview LAB settings are prefixed with `ASREVIEW_LAB_`. They include all settings from https://flask.palletsprojects.com/en/stable/config/. Most important the secret key for ASReview LAB `ASREVIEW_LAB_SECRET_KEY`.
 
 Login configuration
 
@@ -152,7 +152,7 @@ Cookie configuration
 Mail configuration
 
 - `ASRVIEW_LAB_EMAIL_VERIFICATION` - If true, email verification is required for new accounts.
-- `ASREVIEW_LAB_MAIL_*` - Mail related config from https://pythonhosted.org/Flask-Mail/#configuring-flask-mail
+- `ASREVIEW_LAB_MAIL_*` - Mail related config from https://flask-mail.readthedocs.io/en/latest/
 
 CORS configuration
 

@@ -102,10 +102,10 @@ are many ways to get involved, and it might be easier than you think.
   others to use ASReview in innovative ways.
 
 - **Contribute Code**: If you're a developer, check out our `CONTRIBUTING.md
-  <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_ for
+  <https://github.com/asreview/asreview/blob/main/CONTRIBUTING.md>`_ for
   instructions on how to get started. We also have detailed guidelines for
   `developers
-  <https://github.com/asreview/asreview/blob/master/DEVELOPMENT.md>`_.
+  <https://github.com/asreview/asreview/blob/main/DEVELOPMENT.md>`_.
 
 - **Improve Documentation**: Help us make our documentation better! If you spot
   errors or think something could be explained more clearly, feel free to
