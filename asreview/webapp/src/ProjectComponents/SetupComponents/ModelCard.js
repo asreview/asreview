@@ -213,7 +213,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                 {modelConfig.name &&
                   (modelConfig.name === "custom" ||
                     !modelConfig.name.startsWith("elas_u")) && (
-                    <Alert severity="warning" sx={{ mb: 3 }}>
+                    <Alert severity="info" sx={{ mb: 3 }}>
                       {modelConfig.name === "custom" &&
                         "Composing a custom AI model is an advanced feature recommended only for experienced users. "}
                       {
