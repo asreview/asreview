@@ -40,46 +40,8 @@ a web browser and can be used on desktops, laptops, tablets, and mobile devices.
 ASReview LAB Server enables users to create an account or connect via their
 GitHub, ORCID, or Google accounts.
 
-See the :doc:`configuration` details for more information on how to configure
-your ASReview LAB on your server.
-
 To streamline self-hosting and enterprise-level deployments, the ASReview Server
 Stack provides a production-ready Docker Compose setup. Follow the installation
-instructions in the :doc:`installation` section to get started.
-
-
-Authentication
---------------
-
-OAuth
-~~~~~
-
-ASReview LAB Server provides an easy way to log in with your GitHub, ORCID, or
-Google account. This allows users to authenticate themselves without the need to
-create a separate account. More Oauth providers are supported but not documented
-or extensively tested.
-
-See the :doc:`configuration` details for more information on how to configure
-your ASReview on your server to enable Oauth.
-
-.. figure:: ../../images/server_signin.png
-	:alt: Sign in with GitHub, ORCID, or Google account
-
-
-Basic authentication
-~~~~~~~~~~~~~~~~~~~~
-
-ASReview LAB Server provides an easy way to create an account with your email.
-
-
-.. figure:: ../../images/server_email.png
-   :alt: Create account with email and password
-
-
-SAML authentication
-~~~~~~~~~~~~~~~~~~~
-
-ASReview LAB Server provides the option to use SAML authentication. This allows
-users to authenticate themselves using their organization's SAML identity
-provider. This is especially useful for organizations that want to use ASReview
-LAB Server in a secure environment and want to manage user accounts centrally.
+instructions in the :doc:`installation` section to get started. See the
+:doc:`configuration` details for more information on how to configure your
+ASReview LAB on your server.

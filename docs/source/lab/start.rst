@@ -137,3 +137,39 @@ For example, start ASReview LAB on port 5001:
 .. code:: bash
 
 	asreview lab --port 5001
+
+
+
+Local server with authentication
+--------------------------------
+
+.. note:: For production use, it is recommended to use the Docker setup. See the
+   :doc:`../server/overview` section for more information.
+
+The most basic configuration of the ASReview LAB application with authentication
+is to run the application from the CLI with the ``--enable-auth`` flag. The
+application will start with authentication enabled and will create a SQLite
+database if it does not exist. The database will be stored in the ASReview
+projects folder. The database contains the user accounts and links them to
+projects.
+
+Start the application with authentication enabled:
+
+.. code:: bash
+
+    asreview lab --enable-auth --secret-key=<secret key> --salt=<salt>
+
+where ``--enable-auth`` forces the application to run in an authenticated mode,
+``<secret key>`` is a string that is used for encrypting cookies and ``<salt>``
+is a string that is used to hash passwords. The ``--secret-key`` and ``--salt``
+parameters are mandatory if authentication is required.
+
+To create user accounts, one can use the ``add-users`` command of the
+``auth-tool`` sub command of the ASReview application:
+
+.. code:: bash
+
+    asreview auth-tool add-users
+
+For more information about auth-tool and creating users, see the section
+`Create user accounts <#create-user-accounts-with-auth-tool>`_ below.
