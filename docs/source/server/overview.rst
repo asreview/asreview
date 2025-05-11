@@ -1,53 +1,85 @@
 ASReview LAB Server
 ===================
 
-ASReview LAB Server is a self-hosted, secure version of ASReview LAB. It is
-designed for facilitate users who want to use ASReview LAB but without the need
-to install it on their own computer. The web application that can be accessed
-from any device with a web browser and can be used on desktops, laptops,
-tablets, and mobile devices. ASReview LAB Server enables users to create an
-account or connect via their GitHub, ORCID, or Google accounts.
+ASReview LAB Server is a self-hosted, secure version of ASReview LAB that
+enables users to screen together in the same project. It is designed with
+organizations and multi-user situations in mind but can also be used by
+individuals who want to use ASReview LAB without installing it on their own
+computer.
 
-See the :doc:`configuration` details for more
-information on how to configure your ASReview LAB on your server.
+The self-hosted ASReview LAB Server is especially useful for:
+
+- **Organizations**: Organizations can use ASReview LAB Server to give access to
+  ASReview LAB to their employees. This can be useful for organizations that
+  make extensive use of ASReview LAB or other applications of screening
+  prioritization.
+
+- **Multi-user screening**: ASReview LAB Server is designed for multi-user
+  situations. This means that multiple users can screen the same set of records
+  at the same time. All users interact with the same AI model and the same set
+  of records.
+
+- **Data privacy**: ASReview LAB Server is self-hosted, which means that
+  organizations can deploy it on their own hardware or in the cloud. This
+  ensures that data is kept private and secure, and that organizations can
+  comply with institutional policies.
+
+- **Heavy models**: ASReview LAB Server is designed to separate the AI engine
+  (Task server) from the front-end and back-end. This implies that the AI engine
+  can be run on a separate server, which can be more powerful than the front-end
+  and back-end servers. This is especially useful for organizations that have
+  heavy models that require a lot of processing power or even GPUs.
+
+- **Mobile screening**: ASReview LAB Server enables users to screen on mobile
+  devices. This can lead to increased productivity and efficiency, as users can
+  screen records on the go.
+
+It facilitates users who want to use ASReview LAB without the need to install it
+on their own computer. The web application can be accessed from any device with
+a web browser and can be used on desktops, laptops, tablets, and mobile devices.
+ASReview LAB Server enables users to create an account or connect via their
+GitHub, ORCID, or Google accounts.
+
+See the :doc:`configuration` details for more information on how to configure
+your ASReview LAB on your server.
+
+To streamline self-hosting and enterprise-level deployments, the ASReview Server
+Stack provides a production-ready Docker Compose setup. Follow the installation
+instructions in the :doc:`installation` section to get started.
 
 
-* **Server Stack**
+Authentication
+--------------
 
-    - To streamline self-hosting and enterprise-level deployments, the ASReview
-      Server Stack provides a production-ready Docker Compose set-up, available
-      on GitHub at `asreview-server-stack`. This configuration packages the main
-      components of ASReview—such as the AI engine (model server), the React
-      front-end, and a database layer—into separate, containerized services. As
-      a result, organizations can run ASReview on their own hardware or in a
-      cloud environment, ensuring data privacy and compliance with institutional
-      policies.
+OAuth
+~~~~~
 
+ASReview LAB Server provides an easy way to log in with your GitHub, ORCID, or
+Google account. This allows users to authenticate themselves without the need to
+create a separate account. More Oauth providers are supported but not documented
+or extensively tested.
 
-Features
---------
-
-ASReview LAB provides two options for creating an account: by connecting with
-your GitHub, ORCID, or Google account, or by creating an account. All
-information is stored securely on the ASReview LAB server and fully self-hosted.
-
-Log in with GitHub, ORCID, or Google
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-ASReview LAB Server provides a easy way to log in with your GitHub, ORCID, or
-Google account.
+See the :doc:`configuration` details for more information on how to configure
+your ASReview on your server to enable Oauth.
 
 .. figure:: ../../images/server_signin.png
 	:alt: Sign in with GitHub, ORCID, or Google account
 
-See the :doc:`configuration` details for more
-information on how to configure your ASReview on your server to enable this
-feature.
 
-Create account
-~~~~~~~~~~~~~~
+Basic authentication
+~~~~~~~~~~~~~~~~~~~~
 
-ASReview LAB Server provides a easy way to create an account with your email.
+ASReview LAB Server provides an easy way to create an account with your email.
+
 
 .. figure:: ../../images/server_email.png
-   :alt: Create account with account and password
+   :alt: Create account with email and password
+
+
+SAML authentication
+~~~~~~~~~~~~~~~~~~~
+
+ASReview LAB Server provides the option to use SAML authentication. This allows
+users to authenticate themselves using their organization's SAML identity
+provider. This is especially useful for organizations that want to use ASReview
+LAB Server in a secure environment and want to manage user accounts centrally.
