@@ -1,5 +1,5 @@
 import { Container, Stack } from "@mui/material";
-import { useParams, useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 import {
   ModelCard,
@@ -8,6 +8,7 @@ import {
 } from "ProjectComponents/SetupComponents";
 
 import { ProjectContext } from "context/ProjectContext";
+import { projectModes } from "globals.js";
 
 const DetailsPage = () => {
   const { project_id } = useParams();
@@ -18,13 +19,9 @@ const DetailsPage = () => {
     <ProjectContext.Provider value={project_id}>
       <Container maxWidth="md" aria-label="details page" sx={{ mb: 3 }}>
         <Stack spacing={3}>
-          {mode === "oracle" && <TagCard editable={false} />}
-          <ModelCard
-            mode={mode}
-            editable={mode === "oracle"}
-            showWarning={true}
-          />
-          <PriorCard editable={mode === "oracle"} mode={mode} />
+          {mode !== projectModes.SIMULATION && <TagCard editable={false} />}
+          <ModelCard mode={mode} editable={mode !== projectModes.SIMULATION} />
+          <PriorCard mode={mode} editable={mode !== projectModes.SIMULATION} />
         </Stack>
       </Container>
     </ProjectContext.Provider>

@@ -1,33 +1,33 @@
+import BalanceIcon from "@mui/icons-material/Balance";
+import BoltIcon from "@mui/icons-material/Bolt";
+import ExtractIcon from "@mui/icons-material/ContentCopy";
+import LanguageIcon from "@mui/icons-material/Language";
+import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
+import PsychologyIcon from "@mui/icons-material/Psychology";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   Alert,
   Box,
+  Button,
   Card,
   CardContent,
   Divider,
   FormControl,
   FormHelperText,
+  Grid2 as Grid,
+  IconButton,
   InputLabel,
   ListSubheader,
   MenuItem,
+  Popover,
   Select,
   Skeleton,
+  Snackbar,
   Stack,
   Typography,
-  IconButton,
-  Popover,
-  Button,
-  Grid2 as Grid,
-  Snackbar,
 } from "@mui/material";
+import { useContext, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import React, { useState, useContext } from "react";
-import BoltIcon from "@mui/icons-material/Bolt";
-import LanguageIcon from "@mui/icons-material/Language";
-import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
-import SearchIcon from "@mui/icons-material/Search";
-import ExtractIcon from "@mui/icons-material/ContentCopy";
-import PsychologyIcon from "@mui/icons-material/Psychology";
-import BalanceIcon from "@mui/icons-material/Balance";
 
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
@@ -85,7 +85,7 @@ const ModelComponentSelect = ({
   </FormControl>
 );
 
-const ModelCard = ({ mode = null, trainNewModel = false }) => {
+const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
   const project_id = useContext(ProjectContext);
   const queryClient = useQueryClient();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -247,6 +247,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                       });
                     }}
                     label="Select Model"
+                    disabled={!editable}
                     sx={{ mb: 3 }}
                   >
                     <ListSubheader sx={{ bgcolor: "transparent" }}>
