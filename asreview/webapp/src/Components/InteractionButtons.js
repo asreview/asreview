@@ -21,20 +21,24 @@ import { CiteDialog } from "Components";
 import React from "react";
 
 const InteractionButtons = () => {
-  const [state, setState] = React.useState({
-    citeStyle: null,
-    anchorEl: null,
+  const [citeState, setCiteState] = React.useState({
+    open: false,
+    style: null,
   });
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const setCiteStyle = (citeStyle) => {
-    setState({ anchorEl: null, citeStyle });
+  const handleCiteStyleChange = (style) => {
+    setCiteState({ open: true, style });
+    setAnchorEl(null);
   };
 
-  const setAnchorEl = (anchorEl) => {
-    setState({ ...state, anchorEl });
+  const handleCiteDialogClose = () => {
+    setCiteState({ open: false, style: citeState.style });
   };
 
-  const { citeStyle, anchorEl } = state;
+  const resetCiteState = () => {
+    setCiteState({ open: citeState.open, style: null });
+  };
 
   const open = Boolean(anchorEl);
 
@@ -91,22 +95,31 @@ const InteractionButtons = () => {
                   horizontal: "center",
                 }}
               >
-                <MenuItem onClick={() => setCiteStyle("apa")}>APA</MenuItem>
-                <MenuItem onClick={() => setCiteStyle("bib")}>BibTex</MenuItem>
-                <MenuItem onClick={() => setCiteStyle("ris")}>RIS</MenuItem>
-                <MenuItem onClick={() => setCiteStyle("mla")}>MLA</MenuItem>
-                <MenuItem onClick={() => setCiteStyle("chicago")}>
+                <MenuItem onClick={() => handleCiteStyleChange("apa")}>
+                  APA
+                </MenuItem>
+                <MenuItem onClick={() => handleCiteStyleChange("bib")}>
+                  BibTex
+                </MenuItem>
+                <MenuItem onClick={() => handleCiteStyleChange("ris")}>
+                  RIS
+                </MenuItem>
+                <MenuItem onClick={() => handleCiteStyleChange("mla")}>
+                  MLA
+                </MenuItem>
+                <MenuItem onClick={() => handleCiteStyleChange("chicago")}>
                   Chicago
                 </MenuItem>
-                <MenuItem onClick={() => setCiteStyle("vancouver")}>
+                <MenuItem onClick={() => handleCiteStyleChange("vancouver")}>
                   Vancouver
                 </MenuItem>
               </Menu>
 
               <CiteDialog
-                open={citeStyle !== null}
-                citeStyle={citeStyle}
-                onClose={() => setCiteStyle(null)}
+                open={citeState.open}
+                citeStyle={citeState.style}
+                onClose={handleCiteDialogClose}
+                onExited={resetCiteState}
               />
             </Grid>
             <Grid
