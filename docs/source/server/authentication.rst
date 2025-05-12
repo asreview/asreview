@@ -12,16 +12,15 @@ or extensively tested.
 See the :doc:`configuration` details for more information on how to configure
 your ASReview on your server to enable OAuth.
 
-.. figure:: ../../images/server_signin.png
+.. figure:: ../../images/fullscreen_server_signin_oauth.png
 	:alt: Sign in with GitHub, ORCID, or Google account
 
 Basic authentication
 --------------------
 
 ASReview LAB Server provides an easy way to create an account with your email.
-
-.. figure:: ../../images/server_email.png
-   :alt: Create account with email and password
+This is eanbled by default when authentication is enabled. You can let users
+make an account themselves or create accounts for them with :doc:`auth_tool`.
 
 Authentication with remote user
 -------------------------------

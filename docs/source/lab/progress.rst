@@ -22,11 +22,10 @@ Feel free to ask questions about the statistics and charts on the Discussion
 platform https://github.com/asreview/asreview/discussions.
 
 
-.. figure:: ../../images/project_analytics.png
-   :alt: ASReview LAB progress analytics for fully labeled
+.. figure:: ../../images/fullscreen_projects.png
+   :alt: ASReview LAB progress Dashboard
 
-   This figure shows the Dashboard of a finished review. All relevant records
-   are found.
+   The Dashboard of a review that almost hit the stopping criteria.
 
 
 Stop screening

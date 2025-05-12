@@ -13,6 +13,16 @@ decisions and continuously improving its understanding of your preferences. This
 process updates the ranking of the remaining records, ensuring that the most
 relevant records are prioritized for review.
 
+
+.. figure:: ../../images/fullscreen_review.png
+   :alt: Reviewer screen for ASReview LAB
+
+   The review screen of ASReview LAB with the title and abstract of a record to
+   review. Click on the relevant or irrelevant button to label the record and
+   continue to the next record. You can also add a note to the record or check
+   self-defined tags.
+
+
 Each labeling decision by the user starts the training of a new model, provided
 no model is being trained at that time. When this new model is trained, the
 unseen records' rank order is updated. Training and labeling occur

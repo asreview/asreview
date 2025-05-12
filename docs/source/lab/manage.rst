@@ -8,8 +8,13 @@ dashboard shows all your projects. You can open a project by clicking on the
 project name.
 
 
-.. figure:: ../../images/dashboard_project_options.png
-   :alt: ASReview LAB Projects dashboard show options
+.. figure:: ../../images/fullscreen_projects.png
+   :alt: ASReview LAB Projects dashboard
+
+   On the Reviews or Simulations page, you can see all your projects. You can
+   open a project dashboard by clicking on the project name. You can also start
+   screening directly by clicking on the *Review* button. The three dots on the
+   right allow you to export or delete the project.
 
 Import Project
 --------------

@@ -13,8 +13,14 @@ labeled by another screener or an AI model, you have the opportunity to validate
 or challenge these labels, helping to refine the dataset by correcting any
 potential misclassifications. This is useful for quality evaluation.
 
-.. figure:: ../../images/project_screening_validation.png
-   :alt: ASReview Screening in Validation Mode
+.. figure:: ../../images/fullscreen_review_validation.png
+   :alt: Reviewer screen for ASReview LAB with label to validation label
+
+   The review screen of ASReview LAB with the title and abstract of a record to
+   review. The box above the labeling buttons indicates the label of the record
+   according to the dataset. This label can be validated or challenged.
+
+
 
 Validation reviews for education
 --------------------------------
