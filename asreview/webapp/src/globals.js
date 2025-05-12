@@ -12,6 +12,9 @@ export const feedbackURL =
 
 export const discussionsURL =
   "https://github.com/asreview/asreview/discussions";
+export const githubURL = "https://github.com/asreview/asreview";
+export const newsletterURL = "https://asreview.ai/newsletter/subscribe";
+export const communityURL = "https://asreview.nl/community";
 
 export const getDesignTokens = (mode) => ({
   palette: {

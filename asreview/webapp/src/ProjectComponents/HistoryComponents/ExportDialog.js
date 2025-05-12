@@ -121,7 +121,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
             )}
             <Box sx={{ mt: 1 }}>
               <Button
-                href="https://asreview.readthedocs.io/en/latest/project_export.html"
+                href="https://asreview.readthedocs.io/en/latest/lab/progress.html#export-dataset"
                 target="_blank"
                 rel="noopener noreferrer"
                 size="small"

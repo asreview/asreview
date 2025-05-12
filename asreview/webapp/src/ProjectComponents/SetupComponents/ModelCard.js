@@ -310,7 +310,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     window.open(
-                                      "https://asreview.nl/dory",
+                                      "https://asreview.readthedocs.io/en/latest/lab/dory.html",
                                       "_blank",
                                       "noopener,noreferrer",
                                     );
@@ -379,7 +379,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     window.open(
-                                      "https://asreview.nl/dory",
+                                      "https://asreview.readthedocs.io/en/latest/lab/dory.html",
                                       "_blank",
                                       "noopener,noreferrer",
                                     );
@@ -822,7 +822,7 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
 
             <Box>
               <Button
-                href="https://asreview.readthedocs.io/en/latest/guides/activelearning.html"
+                href="https://asreview.readthedocs.io/en/latest/lab/about.html"
                 target="_blank"
                 rel="noopener noreferrer"
               >

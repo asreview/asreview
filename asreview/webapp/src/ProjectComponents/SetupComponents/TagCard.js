@@ -192,7 +192,7 @@ const InfoPopover = ({ anchorEl, handlePopoverClose }) => {
 
           <Box>
             <Button
-              href="https://asreview.readthedocs.io/en/latest/guides/tagging.html"
+              href="https://asreview.readthedocs.io/en/latest/lab/project_create.html#add-tags"
               target="_blank"
               rel="noopener noreferrer"
             >

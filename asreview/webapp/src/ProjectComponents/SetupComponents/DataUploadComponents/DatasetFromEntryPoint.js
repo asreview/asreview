@@ -194,7 +194,7 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
           <Tab
             key="add-dataset-button-tab"
             component={Link}
-            href="https://asreview.readthedocs.io/en/latest/reference.html#module-asreview.data"
+            href="https://asreview.readthedocs.io/en/latest/technical/extensions.html"
             target="_blank"
             rel="noopener noreferrer"
             icon={
