@@ -26,7 +26,7 @@ import { projectModes } from "globals.js";
 import { useToggle } from "hooks/useToggle";
 import { AddPriorKnowledge } from "./SearchComponents";
 
-const PriorCard = ({ editable = true, mode = projectModes.ORACLE }) => {
+const PriorCard = ({ mode = projectModes.ORACLE, editable = true }) => {
   const project_id = useContext(ProjectContext);
   const queryClient = useQueryClient();
 
