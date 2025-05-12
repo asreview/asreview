@@ -2,19 +2,16 @@ export const api_url = window.api_url + "api/";
 export const auth_url = window.api_url + "auth/";
 export const collab_url = window.api_url + "team/";
 
-export const asreviewURL = "https://asreview.nl/";
+// external links
+export const asreviewURL = "https://asreview.ai/";
 export const donateURL = "https://asreview.nl/donate";
-
 export const communityURL = "https://asreview.nl/community";
-
 export const feedbackURL =
   "https://github.com/asreview/asreview/issues/new/choose";
-
 export const discussionsURL =
   "https://github.com/asreview/asreview/discussions";
 export const githubURL = "https://github.com/asreview/asreview";
 export const newsletterURL = "https://asreview.ai/newsletter/subscribe";
-export const communityURL = "https://asreview.nl/community";
 
 export const getDesignTokens = (mode) => ({
   palette: {
