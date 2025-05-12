@@ -12,6 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ProjectAPI } from "api";
+import { documentationURL } from "globals.js";
 import React from "react";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
@@ -224,7 +225,7 @@ const WordCounts = () => {
               </Box>
               <Box>
                 <Button
-                  href="https://asreview.readthedocs.io"
+                  href={documentationURL}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

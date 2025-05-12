@@ -476,7 +476,7 @@ const StoppingSuggestion = ({ project_id }) => {
             </Box>
             <Box sx={{ mt: 1 }}>
               <Button
-                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                href="https://asreview.readthedocs.io/en/latest/lab/progress.html"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -570,7 +570,7 @@ const StoppingSuggestion = ({ project_id }) => {
               </Button>
               <Box sx={{ mt: "auto" }}>
                 <Button
-                  href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                  href="https://asreview.readthedocs.io/en/latest/lab/progress.html"
                   target="_blank"
                   rel="noopener noreferrer"
                   size="small"
@@ -655,7 +655,7 @@ const StoppingSuggestion = ({ project_id }) => {
               </Button>
               <Box sx={{ mt: "auto" }}>
                 <Button
-                  href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                  href="https://asreview.readthedocs.io/en/latest/lab/progress.html"
                   target="_blank"
                   rel="noopener noreferrer"
                   size="small"
