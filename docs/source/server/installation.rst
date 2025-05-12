@@ -112,7 +112,7 @@ information.
 .. name configured in your SSL certificate.
 
 PostgreSQL database
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 You can replace the SQLite database used for authentication with a `PostgreSQL
 database <https://www.postgresql.org/>`_. This requires an extra step during
