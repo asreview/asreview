@@ -45,19 +45,30 @@ const citationStyles = {
   ],
 };
 
-const CiteDialog = ({ open, onClose, citeStyle = "apa" }) => {
+const CiteDialog = ({ open, onClose, onExited, citeStyle = "apa" }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(citationStyles[citeStyle]).then(() => {
-      setSnackbarOpen(true);
-      onClose();
-    });
+    navigator.clipboard
+      .writeText(citationStyles[citeStyle].join("\n"))
+      .then(() => {
+        setSnackbarOpen(true);
+        onClose();
+      });
   };
 
   return (
     <>
-      <Dialog open={open} onClose={onClose} maxWidth="md">
+      <Dialog
+        open={open}
+        onClose={onClose}
+        maxWidth="md"
+        slotProps={{
+          transition: {
+            onExited: onExited,
+          },
+        }}
+      >
         <DialogTitle>Cite ASReview LAB</DialogTitle>
         <Divider />
         <DialogContent sx={{ overflow: "auto" }}>
