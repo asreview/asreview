@@ -1,8 +1,8 @@
 import {
   Diversity3Outlined,
   EmailOutlined,
-  SchoolOutlined,
   PaymentOutlined,
+  SchoolOutlined,
   StarBorder,
 } from "@mui/icons-material";
 import {
@@ -20,7 +20,7 @@ import "App.css";
 import { CiteDialog } from "Components";
 import React from "react";
 
-import { communityURL, donateURL, githubURL, newsletterURL } from "globals.js";
+import { communityURL, donateURL, newsletterURL } from "globals.js";
 
 const InteractionButtons = () => {
   const [state, setState] = React.useState({
@@ -143,7 +143,7 @@ const InteractionButtons = () => {
               <Button
                 component={Link}
                 target="_blank"
-                href="https://asreview.nl/donate"
+                href={donateURL}
                 color="inherit"
               >
                 <Stack
@@ -165,7 +165,7 @@ const InteractionButtons = () => {
               <Button
                 component={Link}
                 target="_blank"
-                href="https://asreview.ai/newsletter/subscribe"
+                href={newsletterURL}
                 color="inherit"
               >
                 <Stack
