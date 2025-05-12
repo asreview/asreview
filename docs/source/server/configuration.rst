@@ -1,5 +1,5 @@
 Server configuration
---------------------
+====================
 
 ASReview LAB offers a number of options to run the application on a server. It
 is possible to run the application on a server with or without authentication.
@@ -12,7 +12,7 @@ accounts to projects. Currently we are using a SQLite database
 projects folder to store that information.
 
 Getting started
-~~~~~~~~~~~~~~~
+---------------
 
 To configure the authentication in more detail we need to create a TOML file
 that contains all relevant authentication parameters. The parameters in that
@@ -122,7 +122,7 @@ the TOML file.
 
 
 Full configuration
-~~~~~~~~~~~~~~~~~~~
+------------------
 
 ASReview LAB settings
 

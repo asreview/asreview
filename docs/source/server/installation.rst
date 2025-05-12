@@ -51,27 +51,23 @@ To deploy ASReview LAB Server to production, follow these steps:
 
     cd asreview-server-stack
 
-3. Copy the example environment file to a new file::
+3. Configure the environment file if needed. In the env file, you find
+   parameters of the Docker compose file only::
 
-    cp .env.example .env
+    nano .env
 
-4. Edit the `.env` file to configure the environment variables for your server.
-   You can use the example environment file as a reference. Make sure to set
-   the following variables:
+4. Edit the `asreview_config.toml` file to configure the ASReview LAB
+   application. You can use the example configuration file provided in the
+   repository as a starting point.
 
-   - `ASREVIEW_SERVER_HOST`: The host name or IP address of your server.
-   - `ASREVIEW_SERVER_PORT`: The port number for the ASReview LAB Server
-     application. Default is `80`.
-   - `ASREVIEW_SERVER_SSL_PORT`: The port number for the ASReview LAB Server
-     application with SSL. Default is `443`.
-   - `ASREVIEW_SERVER_DB_URL`: The URL for the PostgreSQL database. Default is
-     `postgresql://postgres:password@db:5432/asreview`.
-   - `ASREVIEW_SERVER_DB_NAME`: The name of the PostgreSQL database. Default is
-     `asreview`.
-   - `ASREVIEW_SERVER_DB_USER`: The username for the PostgreSQL database.
-     Default is `postgres`.
-   - `ASREVIEW_SERVER_DB_PASSWORD`: The password for the PostgreSQL database.
-     Default is `password`.
+5. Change the secrets in the `asreview_config.toml` file. The secrets are used
+   to encrypt sensitive data, such password salt and the session key. You can
+   use the `openssl` command to generate a random secret key:
+
+   .. code-block:: none
+
+      openssl rand -hex 32
+
 
 SSL Configuration
 -----------------
