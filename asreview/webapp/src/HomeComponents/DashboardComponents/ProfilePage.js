@@ -373,7 +373,7 @@ const ProfilePage = (props) => {
               Save
             </Button>
             <Button onClick={handleReset} sx={{ marginRight: "15px" }}>
-              reset
+              Reset
             </Button>
           </Stack>
         </>
