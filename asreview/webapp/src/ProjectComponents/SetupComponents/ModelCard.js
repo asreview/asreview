@@ -218,13 +218,12 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                         "Composing a custom AI model is an advanced feature recommended only for experienced users. "}
                       {
                         <>
-                          This AI model will begin training in the background
-                          and might take longer than the faster{" "}
-                          <strong>Ultra</strong> models. While the model is
-                          training, your screening process will continue
-                          uninterrupted using the currently active model. The
-                          system will automatically switch to the newly trained
-                          model once it's ready.
+                          This AI model trains in the background and takes
+                          substantially longer to vectorize the dataset than the
+                          faster <strong>Ultra</strong> models. While it trains
+                          the model, you can continue screening with the
+                          previous model. The system will automatically switch
+                          to the new model as soon as it's ready.
                         </>
                       }
                     </Alert>
