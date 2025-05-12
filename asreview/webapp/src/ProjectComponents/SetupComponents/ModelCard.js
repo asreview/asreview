@@ -220,11 +220,10 @@ const ModelCard = ({ mode = null, trainNewModel = false }) => {
                         <>
                           This AI model trains in the background and takes
                           substantially longer to vectorize the dataset than the
-                          faster <strong>Ultra</strong> models. While it
-                          trains the model, you can continue
-                          screening with the previous model. The system will
-                          automatically switch to the new model as soon as it's
-                          ready.
+                          faster <strong>Ultra</strong> models. While it trains
+                          the model, you can continue screening with the
+                          previous model. The system will automatically switch
+                          to the new model as soon as it's ready.
                         </>
                       }
                     </Alert>
