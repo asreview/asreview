@@ -11,8 +11,8 @@ accounts to projects. Currently we are using a SQLite database
 (asreview.development.sqlite or asreview.production.sqlite) in the ASReview
 projects folder to store that information.
 
-Full authentication configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Getting started
+~~~~~~~~~~~~~~~
 
 To configure the authentication in more detail we need to create a TOML file
 that contains all relevant authentication parameters. The parameters in that
