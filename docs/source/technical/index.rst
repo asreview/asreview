@@ -9,7 +9,7 @@ Technical guide
 
     cli
 
-    extensions_dev
+    extensions
 
 .. toctree::
     :maxdepth: 2

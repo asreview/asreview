@@ -2,7 +2,7 @@ Command Line
 ============
 
 ASReview provides a powerful command-line interface for running
-tasks :doc:`../lab/start` and :doc:`../lab/simulation_cli`. Also, :doc:`extensions_dev`
+tasks :doc:`../lab/start` and :doc:`../lab/simulation_cli`. Also, :doc:`extensions`
 often make use of the command-line interface by extending it with
 subcommands.
 

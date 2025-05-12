@@ -188,8 +188,8 @@ models:
 
     asreview algorithms
 
-The command includes models added via :doc:`../technical/extensions_dev`. See
-:doc:`../technical/extensions_dev` for more information on developing new models
+The command includes models added via :doc:`../technical/extensions`. See
+:doc:`../technical/extensions` for more information on developing new models
 and install them via extensions.
 
 Use :code:`pip install asreview-dory` to get access to all Dory models. The Dory

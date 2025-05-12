@@ -40,7 +40,7 @@ interface for users of computer terminals to start ASReview LAB, run
 simulations, list algorithms, and more. The command `asreview lab` will start
 the user-friendly web app interface. It can also be extended with subcommands
 provided by both official and community-built extensions (see
-:doc:`extensions_dev`).
+:doc:`extensions`).
 
 Servers
 -------
@@ -79,4 +79,4 @@ Extensions
 ASReview LAB is designed to be extensible, allowing users to add new models,
 subcommands, and datasets. The extension system is built on top of the core
 ASReview API and Python's entry point system. More information on developing
-extensions can be found under :doc:`extensions_dev`.
+extensions can be found under :doc:`extensions`.
