@@ -25,7 +25,7 @@ The self-hosted ASReview LAB Server is especially useful for:
   comply with institutional policies.
 
 - **Heavy models**: ASReview LAB Server is designed to separate the AI engine
-  (Task server) from the front-end and back-end. This implies that the AI engine
+  (Task server) from the front end and back end. This implies that the AI engine
   can be run on a separate server, which can be more powerful than the front-end
   and back-end servers. This is especially useful for organizations that have
   heavy models that require a lot of processing power or even GPUs.

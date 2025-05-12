@@ -6,15 +6,15 @@ your own server. It is designed to be easy to install and configure, and
 provides the same functionality as the ASReview LAB application with extra
 features like user authentication and crowd screening.
 
-The software can be installed in a similar was as ASReview LAB. However, for
+The software can be installed in a similar way as ASReview LAB. However, for
 production environments, we recommend using `ASReview Server Stack
 <https://github.com/asreview/asreview-server-stack>`_. This is a Docker Compose
-set-up that packages the main components of ASReview—such as the AI engine (task
-server), the React front-end, reverse proxy server, and a database layer—into
+setup that packages the main components of ASReview—such as the AI engine (task
+server), the React front end, reverse proxy server, and a database layer—into
 separate, containerized services.
 
-Preruisities
-------------
+Prerequisites
+-------------
 
 - Docker and Docker Compose installed on your server. See the `Docker
   installation instructions <https://docs.docker.com/get-started/get-docker/>`_.
@@ -24,10 +24,9 @@ Preruisities
 - A domain name or IP address for your server. This is required for the reverse
   proxy configuration.
 
-
 Optional
 
-- Git installed on your server such that you can clone the ASReview Server Stack
+- Git installed on your server so that you can clone the ASReview Server Stack
   repository from GitHub. If you don't have Git installed, you can download the
   repository as a ZIP file and extract it to your server.
 - A valid SSL certificate for your domain name. This is required for secure
@@ -51,8 +50,8 @@ To deploy ASReview LAB Server to production, follow these steps:
 
     cd asreview-server-stack
 
-3. Configure the environment file if needed. In the env file, you find
-   parameters of the Docker compose file only::
+3. Configure the environment file if needed. In the `.env` file, you find
+   parameters of the Docker Compose file only::
 
     nano .env
 
@@ -61,13 +60,12 @@ To deploy ASReview LAB Server to production, follow these steps:
    repository as a starting point.
 
 5. Change the secrets in the `asreview_config.toml` file. The secrets are used
-   to encrypt sensitive data, such password salt and the session key. You can
+   to encrypt sensitive data, such as password salt and the session key. You can
    use the `openssl` command to generate a random secret key:
 
    .. code-block:: none
 
       openssl rand -hex 32
-
 
 SSL Configuration
 -----------------
@@ -121,9 +119,9 @@ database <https://www.postgresql.org/>`_. This requires an extra step during
 installation and an extra step in the configuration file:
 
 1. Install the `psycopg2 <https://www.psycopg.org/docs/>`_ package. At the time
-   of this writing 2 versions of this package exist: ``psycopg2`` and
+   of this writing, two versions of this package exist: ``psycopg2`` and
    ``psycopg2-binary``. According to the `documentation
-   <https://www.psycopg.org/docs/install.html#quick-install>`_ the binary
+   <https://www.psycopg.org/docs/install.html#quick-install>`_, the binary
    version works on most operating systems. You can skip this step if you use
    the Docker image provided by the ASReview Server Stack.
 2. Then add the ``SQLALCHEMY_DATABASE_URI`` key to the config file:

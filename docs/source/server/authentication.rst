@@ -6,40 +6,37 @@ OAuth
 
 ASReview LAB Server provides an easy way to log in with your GitHub, ORCID, or
 Google account. This allows users to authenticate themselves without the need to
-create a separate account. More Oauth providers are supported but not documented
+create a separate account. More OAuth providers are supported but not documented
 or extensively tested.
 
 See the :doc:`configuration` details for more information on how to configure
-your ASReview on your server to enable Oauth.
+your ASReview on your server to enable OAuth.
 
 .. figure:: ../../images/server_signin.png
 	:alt: Sign in with GitHub, ORCID, or Google account
-
 
 Basic authentication
 --------------------
 
 ASReview LAB Server provides an easy way to create an account with your email.
 
-
 .. figure:: ../../images/server_email.png
    :alt: Create account with email and password
-
 
 Authentication with remote user
 -------------------------------
 
 ASReview LAB Server provides the option to outsource authentication completely
-to a webserver or middleware application that is placed in front of ASReview.
-This is a common pattern in webhosting: we use a webserver like Nginx to
+to a web server or middleware application that is placed in front of ASReview.
+This is a common pattern in web hosting: we use a web server like Nginx to
 implement authentication (for example, using its built-in modules for things
-like LDAP authentication), and let it *reverse proxy* to the webapplication we
-want to serve (ASReview). The webserver then only needs to pass on the
+like LDAP authentication), and let it *reverse proxy* to the web application we
+want to serve (ASReview). The web server then only needs to pass on the
 information about the user (such as username, full name, email address) to
-ASreview in the HTTP headers.
+ASReview in the HTTP headers.
 
 Although this is a powerful feature that allows one to leverage a myriad of
-authentication options, **it should be used with caution**. If the webserver is
+authentication options, **it should be used with caution**. If the web server is
 not properly configured, ASReview will be improperly secured.
 
 Note that if the user specified by the remote user header does not yet exist, it

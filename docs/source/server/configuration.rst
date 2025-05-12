@@ -5,24 +5,24 @@ ASReview LAB offers a number of options to run the application on a server. It
 is possible to run the application on a server with or without authentication.
 The latter is the default option. This page describes how to configure the
 ASReview LAB application to run on a server with authentication enabled. With
-authentication enabled, users can to run their projects in their own separate
-workspaces. Authentication requires the storage of user accounts and link these
-accounts to projects. Currently we are using a SQLite database
+authentication enabled, users can run their projects in their own separate
+workspaces. Authentication requires the storage of user accounts and links these
+accounts to projects. Currently, we are using a SQLite database
 (asreview.development.sqlite or asreview.production.sqlite) in the ASReview
 projects folder to store that information.
 
 Getting started
 ---------------
 
-To configure the authentication in more detail we need to create a TOML file
+To configure the authentication in more detail, we need to create a TOML file
 that contains all relevant authentication parameters. The parameters in that
 TOML file will override parameters that were passed in the CLI. Below is an
 example of a TOML file (extension `.toml`) that enables authentication and OAuth
-with Github, Orcid and Google. It also enables email verification and allows
+with GitHub, ORCID, and Google. It also enables email verification and allows
 users to create their own accounts. The email server is configured to confirm
 new accounts and to allow users to retrieve a new password if they forget it.
 The TOML file also contains the necessary parameters to run the application in a
-secure way (https).
+secure way (HTTPS).
 
 .. code-block::  toml
 
