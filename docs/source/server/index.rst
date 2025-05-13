@@ -14,3 +14,5 @@ Server guide
     auth_tool
 
     configuration
+
+    migration
