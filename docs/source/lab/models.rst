@@ -98,7 +98,7 @@ various versions:
     - Balanced
   * - ELAS u3
     - TF-IDF
-    - SVM
+    - Naive Bayes
     - Maximum
     - Balanced
 
