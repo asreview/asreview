@@ -1,6 +1,11 @@
 Installation
 ============
 
+.. note::
+
+  Migrating from ASReview version 1 to version 2? Follow the :doc:`migration`
+  guide.
+
 ASReview LAB Server is a web application that allows you to run ASReview LAB on
 your own server. It is designed to be easy to install and configure, and
 provides the same functionality as the ASReview LAB application with extra
