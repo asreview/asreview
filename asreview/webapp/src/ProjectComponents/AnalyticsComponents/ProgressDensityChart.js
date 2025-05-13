@@ -69,8 +69,13 @@ export default function ProgressDensityChart(props) {
     const downloadFileName = `progress_density_chart.${format}`;
 
     const exportImageOptions = {
+      backgroundColor: theme.palette.background.paper,
+      width: 900,
+      height: 450,
+      pixelRatio: 3,
       style: {
-        paddingTop: "30px",
+        transform: "translate(60px, 30px)",
+        transformOrigin: "top left",
       },
     };
 
@@ -91,7 +96,6 @@ export default function ProgressDensityChart(props) {
         toJpeg(node, {
           ...exportImageOptions,
           quality: 1,
-          bgcolor: theme.palette.background.paper,
         })
           .then((dataUrl) => {
             const link = document.createElement("a");
@@ -104,7 +108,10 @@ export default function ProgressDensityChart(props) {
           });
         break;
       case "svg":
-        toSvg(node, exportImageOptions)
+        toSvg(node, {
+          ...exportImageOptions,
+          backgroundColor: "transparent",
+        })
           .then((dataUrl) => {
             const link = document.createElement("a");
             link.download = downloadFileName;
