@@ -74,7 +74,7 @@ export default function ProgressDensityChart(props) {
       height: 450,
       pixelRatio: 3,
       style: {
-        transform: "translate(60px, 30px)",
+        transform: "translate(60px, 45px)",
         transformOrigin: "top left",
       },
     };
@@ -109,8 +109,14 @@ export default function ProgressDensityChart(props) {
         break;
       case "svg":
         toSvg(node, {
-          ...exportImageOptions,
-          backgroundColor: "transparent",
+          style: {
+            transform: "translate(0px, 15px)",
+            transformOrigin: "top left",
+          },
+          backgroundColor:
+            theme.palette.mode === "dark"
+              ? theme.palette.background.paper
+              : "transparent",
         })
           .then((dataUrl) => {
             const link = document.createElement("a");
