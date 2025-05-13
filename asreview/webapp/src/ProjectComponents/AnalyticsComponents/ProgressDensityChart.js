@@ -66,11 +66,17 @@ export default function ProgressDensityChart(props) {
   const handleDownload = (format) => {
     setAnchorElMenu(null);
     const node = chartRef.current;
-    const downloadFileName = `chart.${format}`;
+    const downloadFileName = `progress_density_chart.${format}`;
+
+    const exportImageOptions = {
+      style: {
+        paddingTop: "30px",
+      },
+    };
 
     switch (format) {
       case "png":
-        toPng(node)
+        toPng(node, exportImageOptions)
           .then((dataUrl) => {
             const link = document.createElement("a");
             link.download = downloadFileName;
@@ -82,7 +88,11 @@ export default function ProgressDensityChart(props) {
           });
         break;
       case "jpeg":
-        toJpeg(node, { quality: 1, bgcolor: theme.palette.background.paper })
+        toJpeg(node, {
+          ...exportImageOptions,
+          quality: 1,
+          bgcolor: theme.palette.background.paper,
+        })
           .then((dataUrl) => {
             const link = document.createElement("a");
             link.download = downloadFileName;
@@ -94,7 +104,7 @@ export default function ProgressDensityChart(props) {
           });
         break;
       case "svg":
-        toSvg(node)
+        toSvg(node, exportImageOptions)
           .then((dataUrl) => {
             const link = document.createElement("a");
             link.download = downloadFileName;
@@ -269,13 +279,13 @@ export default function ProgressDensityChart(props) {
             onClose={handleMenuClose}
           >
             <MenuItem onClick={() => handleDownload("png")}>
-              Download as PNG
+              Export as PNG
             </MenuItem>
             <MenuItem onClick={() => handleDownload("jpeg")}>
-              Download as JPEG
+              Export as JPEG
             </MenuItem>
             <MenuItem onClick={() => handleDownload("svg")}>
-              Download as SVG
+              Export as SVG
             </MenuItem>
           </Menu>
           <IconButton
