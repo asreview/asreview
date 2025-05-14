@@ -106,7 +106,7 @@ version](https://badge.fury.io/py/asreview.svg)](https://badge.fury.io/py/asrevi
 6. **Export Results**: Download your labeled dataset or project file.
 
 [![ASReview
-LAB](https://github.com/asreview/asreview/blob/main/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html
+LAB](https://github.com/asreview/asreview/blob/main/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/stable/lab/about.html
 "ASReview LAB")
 
 ---
