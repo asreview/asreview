@@ -36,7 +36,6 @@ prioritize the most relevant records. Active learning ensures that the review
 process becomes more efficient over time, focusing on the records that are most
 likely to be relevant.
 
-
 .. list-table:: Model Overview
    :header-rows: 1
 
@@ -46,16 +45,16 @@ likely to be relevant.
      - Requires
    * - ELAS Ultra
      - u-series
-     - Rapid and excellent performing model for most use cases.
+     - Rapid and excellent-performing model for most use cases.
      - -
    * - ELAS Multilingual
      - l-series
      - Designed for multilingual datasets.
-     - ASReview Dory
+     - :doc:`dory`, :ref:`Hardware Requirements <lab/models:Hardware Requirements>`
    * - ELAS Heavy
      - h-series
      - Focuses on semantic understanding of text.
-     - ASReview Dory
+     - :doc:`dory`, :ref:`Hardware Requirements <lab/models:Hardware Requirements>`
 
 For most users, the pre-configured ELAS models are sufficient. However, if you
 want more control, you can create custom models by mixing and matching
@@ -257,7 +256,27 @@ Tips for customization:
   Start with simpler combinations and gradually explore more complex setups as
   you gain experience.
 
-Model numbering
+Hardware Requirements
+---------------------
+
+The hardware requirements for running AI models in ASReview LAB vary depending
+on the complexity of the model. The ELAS Ultra models are lightweight and can
+run efficiently on most modern systems, including laptops and desktops, without
+requiring specialized hardware. In contrast, the ELAS Multilingual and ELAS
+Heavy models utilize advanced machine learning techniques and feature
+extractors, making them computationally intensive. These models often require
+significant CPU or GPU power to perform efficiently, especially when working
+with large datasets.
+
+For optimal performance, ELAS Multilingual and ELAS Heavy models are better
+suited for server installations or systems equipped with dedicated GPUs. If you
+plan to use these models, ensure that your hardware includes a multi-core
+processor with high clock speed and at least 16 GB of RAM. Some operating
+systems will also benefit from a modern GPU for faster processing. Running these
+models on underpowered hardware may result in slower performance, longer
+training times, and inefficient screening.
+
+Model Numbering
 ---------------
 
 The ELAS models are numbered with a letter and a number. The letter indicates
