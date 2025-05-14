@@ -9,7 +9,6 @@
   <b>🎉 ASReview LAB v2 is here! 🎉</b><br>
   <i>Faster, smarter, and more flexible than ever before.<br>
   Discover the new AI models, improved workflow, and enhanced user experience.<br>
-  <a href="https://asreview.readthedocs.io/en/latest/">Read the v2 documentation</a> | <a href="https://asreview.app">Try the live demo</a>
   </i>
 </p>
 
@@ -22,55 +21,41 @@
 </p>
 </br>
 
-## ASReview LAB v2: Active Learning for Systematic Reviews
+## ASReview LAB: Active Learning for Systematic Reviews
 
 **ASReview LAB** is an open-source machine learning tool for efficient,
 transparent, and interactive screening of large textual datasets. It is widely
 used for systematic reviews, meta-analyses, and any scenario requiring
 systematic text screening.
 
-*ASReview LAB has been scientifically validated and published in [Nature Machine Intelligence](https://doi.org/10.1038/s42256-020-00287-7).*
-
-### What's New in Version 2?
-
-- **New ELAS AI Models**: Pre-configured, high-performance (+24%) models for different
-  use cases (Ultra, Multilingual, Heavy).
-- **Improved User Experience**: Faster interface, better progress monitoring,
-  and more customization options (dark mode, font size, keyboard shortcuts).
-- **ASReview LAB Server with crowd screening**: Screen one project together with others
-- **Quick project setup**: Start screening new datasets in seconds with the quick setup for projects.
-- **New model extension Dory**: [ASReview
-  Dory](https://github.com/asreview/asreview-dory)
-- **Add customizable tags**: Add tags and groups of tags to your records and label decisions. This make data extraction a lot easier!**
-
----
-
-## Key Features
+The key features of **ASReview LAB** are:
 
 - **Active Learning**: Interactively prioritize records using AI models that
   learn from your labeling decisions.
+- **Scientifically validated**: ASReview LAB has been scientifically validated and published in [Nature Machine Intelligence](https://doi.org/10.1038/s42256-020-00287-7).
 - **Flexible AI Models**: Choose from pre-configured ELAS models or build your
   own with custom components.
 - **Simulation toolkit**: Assess model performance on fully labeled datasets.
-- **Autosave & Label Management**: All decisions are saved automatically;
+- **Label Management**: All decisions are saved automatically;
   easily change labels at any time.
 - **User-Centric Design**: Humans are the oracle; the interface is transparent
   and customizable.
-- **Privacy First**: No usage or user data is collected.
+- **Privacy First**: Everything is open source and no usage or user data is collected.
 
 ---
 
-## The ASReview LAB Workflow
+### What's New in Version 2?
 
-1. **Import Data**: Load your dataset (CSV, RIS, XLSX, etc.).
-2. **Create Project**: Set up a new review or simulation project.
-3. **Select Prior Knowledge**: Optionally provide known relevant/irrelevant
-   records.
-4. **Start Screening**: Label records as relevant or irrelevant; the AI model
-   continuously improves.
-5. **Monitor Progress**: Use the dashboard to track your progress and decide
-   when to stop.
-6. **Export Results**: Download your labeled dataset or project file.
+On May 14th, ASReview LAB version 2 was released with a large set of new features. The most notable new features are:
+
+- **New ELAS AI Models**: Pre-configured, high-performance (+24%) models for different
+  use cases (Ultra, Multilingual, Heavy). More new and exciting models can be find now in our new [ASReview
+  Dory](https://github.com/asreview/asreview-dory) extension.
+- **Improved User Experience**: Faster interface, better progress monitoring,
+  and more customization options (dark mode, font size, keyboard shortcuts).
+- **ASReview LAB Server with crowd screening**: Screen in one project with multiple experts. All users interact with the same AI.
+- **Quick project setup**: Start screening new datasets in seconds with the quick setup for projects.
+- **Add customizable tags**: Add tags and groups of tags to your records and label decisions. This makes data extraction much easier!
 
 ---
 
@@ -91,50 +76,65 @@ pip install --upgrade asreview
 For Docker and advanced installation, see the [installation
 guide](https://asreview.readthedocs.io/en/latest/installation.html).
 
+Latest version of ASReview LAB: [![PyPI version](https://badge.fury.io/py/asreview.svg)](https://badge.fury.io/py/asreview)
+
+
+
+## The ASReview LAB Workflow
+
+1. **Import Data**: Load your dataset (CSV, RIS, XLSX, etc.).
+2. **Create Project**: Set up a new review or simulation project.
+3. **Select Prior Knowledge**: Optionally provide known relevant or not relevant
+   records.
+4. **Start Screening**: Label records as Relevant or Not Relevant; the AI model
+   continuously improves.
+5. **Monitor Progress**: Use the dashboard to track your progress and decide
+   when to stop.
+6. **Export Results**: Download your labeled dataset or project file.
+
+[![ASReview LAB](https://github.com/asreview/asreview/blob/main/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html "ASReview LAB")
+
 ---
 
 ## Documentation & Resources
 
-- [Getting Started](https://asreview.readthedocs.io/en/latest/about.html)
-- [Quick Tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html)
-- [Model Guide](https://asreview.readthedocs.io/en/latest/lab/models.html)
+- [Documentation](https://asreview.readthedocs.io/)
+- [Video tutorials](https://www.youtube.com/@ASReview)
+- [AI models of ASReview LAB](https://asreview.readthedocs.io/en/latest/lab/models.html)
 - [FAQ](https://github.com/asreview/asreview/discussions?discussions_q=sort%3Atop)
 - [Live Demo](https://asreview.app)
 
----
 
 ## Citation
 
-If you use ASReview, please cite:
+If you wish to cite the underlying methodology of the ASReview software,
+please use the following publication in Nature Machine Intelligence:
 
 > van de Schoot, R., de Bruin, J., Schram, R. et al. An open source machine
-> learning framework for efficient and transparent systematic reviews. Nat Mach
-> Intell 3, 125–133 (2021). https://doi.org/10.1038/s42256-020-00287-7
+> learning framework for efficient and transparent systematic reviews.
+> Nat Mach Intell 3, 125–133 (2021). https://doi.org/10.1038/s42256-020-00287-7
 
-For software citation, see [Zenodo](https://doi.org/10.5281/zenodo.3345592).
+For citing the software, please refer to the specific release of the ASReview
+software on Zenodo https://doi.org/10.5281/zenodo.3345592. The menu on the right
+can be used to find the citation format of prevalence.
 
----
+For more scientific publications on the ASReview software, go to
+[asreview.ai/papers](https://asreview.ai/papers/).
 
-## Contact & Community
+## Community & Contact
 
-- [ASReview Research Team](https://asreview.ai/about)
-- [Documentation](https://asreview.readthedocs.io/)
+The best resources to find an answer to your question or ways to get in
+contact with the team are:
+
 - [Newsletter](https://asreview.ai/newsletter/subscribe)
-- [Issue Tracker](https://github.com/asreview/asreview/issues)
-- [Donate](https://asreview.ai/donate)
-- Email: [asreview@uu.nl](mailto:asreview@uu.nl)
-
-[![PyPI
-version](https://badge.fury.io/py/asreview.svg)](https://badge.fury.io/py/asreview)
-[![DOI](https://zenodo.org/badge/164874894.svg)](https://zenodo.org/badge/latestdoi/164874894)
-[![Downloads](https://static.pepy.tech/badge/asreview)](https://github.com/asreview/asreview#installation)
-[![CII Best
-Practices](https://bestpractices.coreinfrastructure.org/projects/4755/badge)](https://bestpractices.coreinfrastructure.org/projects/4755)
-
----
+- [FAQ](https://github.com/asreview/asreview/discussions?discussions_q=sort%3Atop)
+- [Community events](https://asreview.ai/events)
+- [Issues or feature requests](https://github.com/asreview/asreview/issues)
+- [Donate to ASReview](https://asreview.ai/donate)
+- [Contact](mailto:asreview@uu.nl) (asreview@uu.nl)
 
 ## License
 
-ASReview is licensed under the Apache 2.0 [LICENSE](LICENSE). The ASReview team
-accepts no responsibility or liability for the use of the tool or any direct or
-indirect damages arising out of its application.
+The ASReview software has an Apache 2.0 [LICENSE](LICENSE). The ASReview team
+accepts no responsibility or liability for the use of the ASReview tool or any
+direct or indirect damages arising out of the application of the tool.
