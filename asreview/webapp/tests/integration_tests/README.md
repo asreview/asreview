@@ -47,3 +47,13 @@ $ pytest -v -o asreview/webapp/tests/integration_tests/signup_signin_create_proj
 ```
 
 In this concrete example, the test is executed against the frontend of ASReview that runs on a local server on port 3000, using FireFox as the test browser, and the authorization PostgreSQL database can also be found under local host, port 5432.
+
+## CI
+
+On CI, integration tests run against a freshly built 'production' version of ASReview: assets are compiled, the pip package is installed, and `asreview lab` is run using [this config file](../config/auth_integration_config.toml).
+
+For ease of installation, the CI tests use the `chrome` driver for Selenium. Keep in mind that test results may sometimes vary when using different drivers. When debugging integration tests that fail on CI, you can also try to reproduce by running the Github Action locally using [nektos/act](https://github.com/nektos/act). For example:
+
+`act -W .github/workflows/ci-integration.yml --container-options "-v /tmp/seleniumout:/tmp/seleniumout" --env SELENIUM_SCREENSHOT_DIR="/tmp/seleniumout"`
+
+...this starts the action on a container locally, mounting `/tmp/seleniumout` on the container, and setting this as the directory in which debug-screenshots are saved when using the `utils.save_sreenshot` function.
