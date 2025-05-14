@@ -3,7 +3,6 @@ FROM python:3.11-slim AS builder
 WORKDIR /app
 
 # Copy and build asreview
-# git is used by versioneer to define the project version
 COPY . /app
 RUN apt-get update \
     && apt-get install -y git npm \
@@ -11,7 +10,7 @@ RUN apt-get update \
     && python3 setup.py compile_assets \
     && pip3 install --user gunicorn \
     && pip3 install --user . \
-    && pip3 install --user asreview-datatools asreview-insights asreview-makita asreview-wordcloud
+    && pip3 install --user asreview-datatools asreview-insights asreview-makita
 
 # Second stage
 FROM python:3.11-slim
