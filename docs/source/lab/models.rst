@@ -60,7 +60,7 @@ For most users, the pre-configured ELAS models are sufficient. However, if you
 want more control, you can create custom models by mixing and matching
 components. This flexibility allows you to tailor the AI model to your specific
 dataset and research goals. Custom models can combine components from both
-ASReview and the :doc:`dory` package, offering advanced options for those with
+ASReview and the :doc:`dory` extension, offering advanced options for those with
 more technical expertise.
 
 ELAS Ultra
@@ -91,7 +91,7 @@ various versions:
     - Querier
     - Balancer
   * - ELAS u4
-    - TF-IDF
+    - TF-IDF (with bigrams)
     - SVM
     - Maximum
     - Balanced
@@ -129,6 +129,16 @@ Key features of ELAS Multilingual:
 - **Flexibility**: Suitable for a wide range of multilingual systematic review
   tasks.
 
+Requirements for ELAS Multilingual:
+
+- **Dory extension**: The ELAS Multilingual models require the :doc:`dory`
+  extension for feature extraction. Install the extension using the following
+  command: ``pip install asreview-dory``.
+- **Hardware**: These models are computationally intensive and may require
+  significant CPU or GPU power to perform efficiently, especially with large
+  datasets. See the section on :ref:`Hardware Requirements <lab/models:Hardware
+  Requirements>` for more details.
+
 The following table outlines the components of the ELAS Multilingual model for
 its various versions:
 
@@ -145,15 +155,6 @@ its various versions:
     - SVM
     - Maximum
     - Balanced
-
-.. note::
-
-  ELAS Multilingual models require the :doc:`dory` package to be installed. You
-  can install it using the following command:
-
-  .. code:: bash
-
-    pip install asreview-dory
 
 For more information about the `multilingual-e5-large` feature extractor,
 including its support for over 100 languages, visit the official documentation
@@ -176,6 +177,16 @@ Key features of ELAS Heavy:
 - **Ideal for Complex Reviews**: Suitable for datasets where semantic nuances
   play a significant role.
 
+Requirements for ELAS Heavy:
+
+- **Dory extension**: The ELAS Heavy models require the :doc:`dory`
+  extension for feature extraction. Install the extension using the following
+  command: ``pip install asreview-dory``.
+- **Hardware**: These models are computationally intensive and may require
+  significant CPU or GPU power to perform efficiently, especially with large
+  datasets. See the section on :ref:`Hardware Requirements <lab/models:Hardware
+  Requirements>` for more details.
+
 The following table outlines the components of the ELAS Heavy model for its
 various versions:
 
@@ -193,18 +204,9 @@ various versions:
     - Maximum
     - Balanced
 
-.. note::
-
-  ELAS Heavy models require the :ref:`asreview-dory` package to be installed.
-  You can install it using the following command:
-
-  .. code:: bash
-
-    pip install asreview-dory
-
 For more information about the `mxbai-embed-large-v1` feature extractor and its
 capabilities, refer to the official documentation provided in the ASReview Dory
-package.
+extension.
 
 Custom ELAS Models
 ~~~~~~~~~~~~~~~~~~
@@ -234,7 +236,7 @@ models:
 - **Balancers**: `Balanced`
 
 For advanced users, you can also integrate components from the :doc:`dory`
-package, which provides access to more powerful feature extractors and
+extension, which provides access to more powerful feature extractors and
 classifiers:
 
 - **ASReview Dory Feature Extractors**: `doc2vec`, `gtr-t5-large`, `labse`,
@@ -308,4 +310,4 @@ screening records as usual.
 .. note::
 
   Switching to a more complex model, such as those requiring the ASReview Dory
-  package, may take longer to train.
+  extension, may take longer to train.
