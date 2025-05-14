@@ -566,10 +566,7 @@ class SQLiteState:
             raise ValueError(f"Record with id {record_id} not found.")
 
         cur.execute(
-            (
-                "INSERT INTO decision_changes (record_id, label, time) "
-                "VALUES (?, ?, ?)"
-            ),
+            ("INSERT INTO decision_changes (record_id, label, time) VALUES (?, ?, ?)"),
             (record_id, label, time.time()),
         )
 
@@ -612,10 +609,7 @@ class SQLiteState:
         cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))
 
         cur.execute(
-            (
-                "INSERT INTO decision_changes (record_id, label, time) "
-                "VALUES (?, ?, ?)"
-            ),
+            ("INSERT INTO decision_changes (record_id, label, time) VALUES (?, ?, ?)"),
             (record_id, None, current_time),
         )
         self._conn.commit()
