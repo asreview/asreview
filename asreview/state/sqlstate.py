@@ -128,8 +128,9 @@ class SQLiteState:
         cur.execute(
             """CREATE TABLE decision_changes
                             (record_id INTEGER,
-                            new_label INTEGER,
-                            time FLOAT)"""
+                            label INTEGER,
+                            time FLOAT,
+                            user_id INTEGER)"""
         )
 
         self._conn.commit()
@@ -542,7 +543,7 @@ class SQLiteState:
                 dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
             )
 
-    def update(self, record_id, label=None, tags=None):
+    def update(self, record_id, label=None, tags=None, user_id=None):
         """Change the label or tag of an already labeled record.
 
         Parameters
@@ -557,20 +558,31 @@ class SQLiteState:
 
         cur = self._conn.cursor()
 
-        cur.execute(
-            "UPDATE results SET label = ?, tags=? WHERE record_id = ?",
-            (label, json.dumps({"tags": tags}), record_id),
-        )
+        # Build dynamic SQL for updating only provided fields
+        fields = []
+        values = []
+        if label is not None:
+            fields.append("label = ?")
+            values.append(label)
+        if tags is not None:
+            fields.append("tags = ?")
+            values.append(json.dumps(tags))
+        if not fields:
+            raise ValueError("At least one of label or tags must be provided.")
+
+        values.append(record_id)
+        sql = f"UPDATE results SET {', '.join(fields)} WHERE record_id = ?"
+        cur.execute(sql, tuple(values))
 
         if cur.rowcount == 0:
             raise ValueError(f"Record with id {record_id} not found.")
 
         cur.execute(
             (
-                "INSERT INTO decision_changes (record_id, new_label, time) "
-                "VALUES (?, ?, ?)"
+                "INSERT INTO decision_changes (record_id, label, time, user_id) "
+                "VALUES (?, ?, ?, ?)"
             ),
-            (record_id, label, time.time()),
+            (record_id, label, time.time(), user_id),
         )
 
         self._conn.commit()
@@ -612,10 +624,7 @@ class SQLiteState:
         cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))
 
         cur.execute(
-            (
-                "INSERT INTO decision_changes (record_id, new_label, time) "
-                "VALUES (?, ?, ?)"
-            ),
+            ("INSERT INTO decision_changes (record_id, label, time) VALUES (?, ?, ?)"),
             (record_id, None, current_time),
         )
         self._conn.commit()
@@ -623,14 +632,14 @@ class SQLiteState:
     def get_decision_changes(self):
         """Get the record ids for any decision changes.
 
-        Get the record ids of the records whose labels have been changed
-        after the original labeling action.
+        Get the record ids of the records whose labels have been changed after the
+        original labeling action.
 
         Returns
         -------
         pd.DataFrame
-            Dataframe with columns 'record_id', 'new_label', and 'time' for
-            each record of which the labeling decision was changed.
+            Dataframe with columns 'record_id', 'label', 'time', and 'user_id' for each
+            record of which the labeling decision was changed.
         """
 
         return pd.read_sql_query("SELECT * FROM decision_changes", self._conn)

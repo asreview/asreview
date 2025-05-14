@@ -179,6 +179,7 @@ const RecordCardLabeler = ({
       label: label,
       tagValues: tagValuesState,
       retrain_model: retrainAfterDecision,
+      post: editState,
     });
   };
 
@@ -487,7 +488,9 @@ const RecordCardLabeler = ({
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        label === 1 ? "Change to irrelevant" : "Label relevant"
+                        label === 1
+                          ? "Change to Not Relevant"
+                          : "Change to Relevant"
                       }
                     />
                   </MenuItem>
