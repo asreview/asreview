@@ -310,7 +310,7 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     window.open(
-                                      "https://asreview.nl/dory",
+                                      "https://asreview.readthedocs.io/en/stable/lab/models.html",
                                       "_blank",
                                       "noopener,noreferrer",
                                     );
@@ -379,7 +379,7 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     window.open(
-                                      "https://asreview.nl/dory",
+                                      "https://asreview.readthedocs.io/en/stable/lab/models.html",
                                       "_blank",
                                       "noopener,noreferrer",
                                     );
