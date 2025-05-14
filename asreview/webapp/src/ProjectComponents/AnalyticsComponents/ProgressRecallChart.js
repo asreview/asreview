@@ -76,11 +76,22 @@ export default function ProgressRecallChart({
     setAnchorElMenu(null);
 
     const node = chartRef.current;
-    const downloadFileName = `chart.${format}`;
+    const downloadFileName = `progress_recall_chart.${format}`;
+
+    const exportImageOptions = {
+      backgroundColor: theme.palette.background.paper,
+      width: 900,
+      height: 450,
+      pixelRatio: 3,
+      style: {
+        transform: "translate(60px, 45px)",
+        transformOrigin: "top left",
+      },
+    };
 
     switch (format) {
       case "png":
-        toPng(node)
+        toPng(node, exportImageOptions)
           .then((dataUrl) => {
             const link = document.createElement("a");
             link.download = downloadFileName;
@@ -92,7 +103,10 @@ export default function ProgressRecallChart({
           });
         break;
       case "jpeg":
-        toJpeg(node, { quality: 1, bgcolor: theme.palette.background.paper })
+        toJpeg(node, {
+          ...exportImageOptions,
+          quality: 1,
+        })
           .then((dataUrl) => {
             const link = document.createElement("a");
             link.download = downloadFileName;
@@ -104,7 +118,16 @@ export default function ProgressRecallChart({
           });
         break;
       case "svg":
-        toSvg(node)
+        toSvg(node, {
+          style: {
+            transform: "translate(0px, 15px)",
+            transformOrigin: "top left",
+          },
+          backgroundColor:
+            theme.palette.mode === "dark"
+              ? theme.palette.background.paper
+              : "transparent",
+        })
           .then((dataUrl) => {
             const link = document.createElement("a");
             link.download = downloadFileName;
@@ -213,13 +236,13 @@ export default function ProgressRecallChart({
             onClose={handleMenuClose}
           >
             <MenuItem onClick={() => handleDownload("png")}>
-              Download as PNG
+              Export as PNG
             </MenuItem>
             <MenuItem onClick={() => handleDownload("jpeg")}>
-              Download as JPEG
+              Export as JPEG
             </MenuItem>
             <MenuItem onClick={() => handleDownload("svg")}>
-              Download as SVG
+              Export as SVG
             </MenuItem>
           </Menu>
           <IconButton
