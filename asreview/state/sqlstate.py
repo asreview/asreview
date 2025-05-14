@@ -128,7 +128,7 @@ class SQLiteState:
         cur.execute(
             """CREATE TABLE decision_changes
                             (record_id INTEGER,
-                            new_label INTEGER,
+                            label INTEGER,
                             time FLOAT)"""
         )
 
@@ -567,7 +567,7 @@ class SQLiteState:
 
         cur.execute(
             (
-                "INSERT INTO decision_changes (record_id, new_label, time) "
+                "INSERT INTO decision_changes (record_id, label, time) "
                 "VALUES (?, ?, ?)"
             ),
             (record_id, label, time.time()),
@@ -613,7 +613,7 @@ class SQLiteState:
 
         cur.execute(
             (
-                "INSERT INTO decision_changes (record_id, new_label, time) "
+                "INSERT INTO decision_changes (record_id, label, time) "
                 "VALUES (?, ?, ?)"
             ),
             (record_id, None, current_time),
@@ -629,7 +629,7 @@ class SQLiteState:
         Returns
         -------
         pd.DataFrame
-            Dataframe with columns 'record_id', 'new_label', and 'time' for
+            Dataframe with columns 'record_id', 'label', and 'time' for
             each record of which the labeling decision was changed.
         """
 

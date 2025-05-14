@@ -249,7 +249,7 @@ class Simulate:
             feature_extractor = _get_name_from_estimator(cycle.feature_extractor)
             training_set = len(self._results)
 
-        new_labels = pd.DataFrame(
+        new_results = pd.DataFrame(
             {
                 "record_id": record_ids,
                 "label": pd.Series(self.labels).iloc[record_ids],
@@ -266,14 +266,14 @@ class Simulate:
         )
 
         if not hasattr(self, "_results") or self._results.empty:
-            self._results = new_labels
+            self._results = new_results
         else:
             self._results = pd.concat(
-                [self._results, new_labels],
+                [self._results, new_results],
                 ignore_index=True,
             )
 
-        return new_labels
+        return new_results
 
     def to_sql(self, fp):
         """Write the data a sql file.

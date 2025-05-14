@@ -370,7 +370,7 @@ def test_update_decision(tmpdir):
         new_labels = [1 - x for x in TEST_LABELS[:3]] + [TEST_LABELS[1]]
 
         assert change_table["record_id"].to_list() == changed_records
-        assert change_table["new_label"].to_list() == new_labels
+        assert change_table["label"].to_list() == new_labels
 
 
 def test_last_ranking(tmpdir):

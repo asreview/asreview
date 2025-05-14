@@ -99,20 +99,24 @@ def _project_state_converter_v1_v2(review_path):
 
         sqlstate._replace_last_ranking_from_df(df_last_ranking)
 
-    try:
-        df_decision_updates = pandas.read_sql_table(
-            "SELECT * FROM decision_updates", conn
-        )
-        df_decision_updates["time"] = (
-            pandas.to_datetime(df_decision_updates["time"]).astype("int64")
-            // int(1e3)
-            / int(1e6)
-        )
-        df_decision_updates.to_sql(
-            "decision_updates", sqlstate._conn, if_exists="replace", index=False
-        )
-    except ValueError:
-        pass
+    df_decision_changes = pandas.read_sql_query("SELECT * FROM decision_changes", conn)
+    df_decision_changes["time"] = (
+        pandas.to_datetime(df_decision_changes["time"]).astype("int64")
+        // int(1e3)
+        / int(1e6)
+    )
+    df_decision_changes.rename(
+        columns={
+            "new_label": "label",
+        },
+        inplace=True,
+    )
+    # add column user_id
+    df_decision_changes["user_id"] = None
+
+    df_decision_changes.to_sql(
+        "decision_changes", sqlstate._conn, if_exists="replace", index=False
+    )
 
     conn.close()
     sqlstate.close()
