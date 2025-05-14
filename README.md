@@ -1,11 +1,20 @@
+<!-- ASReview LAB v2 Banner -->
 <p align="center">
-  <a href="https://github.com/asreview/asreview">
-    <img width="60%" height="60%" src="https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg">
-  </a>
+  <img width="60%" height="60%" src="https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg">
 </p>
 
-<br/><br/>
-<br>
+<br/>
+
+<p align="center">
+  <b>🎉 ASReview LAB v2 is here! 🎉</b><br>
+  <i>Faster, smarter, and more flexible than ever before.<br>
+  Discover the new AI models, improved workflow, and enhanced user experience.<br>
+  <a href="https://asreview.readthedocs.io/en/latest/">Read the v2 documentation</a> | <a href="https://asreview.app">Try the live demo</a>
+  </i>
+</p>
+
+<br/>
+
 <p align="center">
   <a href="https://asreview.nl/download"><img src="https://img.shields.io/badge/Installation-FFCD00?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik00ODAtMzIwIDI4MC01MjBsNTYtNTggMTA0IDEwNHYtMzI2aDgwdjMyNmwxMDQtMTA0IDU2IDU4LTIwMCAyMDBaTTI0MC0xNjBxLTMzIDAtNTYuNS0yMy41VDE2MC0yNDB2LTEyMGg4MHYxMjBoNDgwdi0xMjBoODB2MTIwcTAgMzMtMjMuNSA1Ni41VDcyMC0xNjBIMjQwWiIvPjwvc3ZnPg=="/></a>
   <a href="https://asreview.readthedocs.org"><img src="https://img.shields.io/badge/Documentation-FFCD00?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik0zMjAtMjQwaDMyMHYtODBIMzIwdjgwWm0wLTE2MGgzMjB2LTgwSDMyMHY4MFpNMjQwLTgwcS0zMyAwLTU2LjUtMjMuNVQxNjAtMTYwdi02NDBxMC0zMyAyMy41LTU2LjVUMjQwLTg4MGgzMjBsMjQwIDI0MHY0ODBxMCAzMy0yMy41IDU2LjVUNzIwLTgwSDI0MFptMjgwLTUyMHYtMjAwSDI0MHY2NDBoNDgwdi00NDBINTIwWk0yNDAtODAwdjIwMC0yMDAgNjQwLTY0MFoiLz48L3N2Zz4="/></a>
@@ -13,106 +22,157 @@
 </p>
 </br>
 
-## ASReview: Active learning for Systematic Reviews
+## ASReview LAB v2: Active Learning for Systematic Reviews
 
-Systematically screening large amounts of textual data is time-consuming and
-often tiresome. The rapidly evolving field of Artificial Intelligence (AI) has
-allowed the development of AI-aided pipelines that assist in finding relevant
-texts for search tasks. A well-established approach to increasing efficiency
-is screening prioritization via [Active
-Learning](https://asreview.readthedocs.io/en/latest/guides/activelearning.html).
+**ASReview LAB** is an open-source machine learning tool for efficient,
+transparent, and interactive screening of large textual datasets. It is widely
+used for systematic reviews, meta-analyses, and any scenario requiring
+systematic text screening.
 
-The Active learning for Systematic Reviews (ASReview) project, published in
-[_Nature Machine Intelligence_](https://doi.org/10.1038/s42256-020-00287-7)
-implements different machine learning algorithms that interactively query the
-researcher. ASReview LAB is designed to accelerate the step of screening
-textual data with a minimum of records to be read by a human with no or very
-few false negatives. ASReview LAB will save time, increase the quality of
-output and strengthen the transparency of work when screening large amounts of
-textual data to retrieve relevant information. Active Learning will support
-decision-making in any discipline or industry.
+*ASReview LAB has been scientifically validated and published in [Nature Machine Intelligence](https://doi.org/10.1038/s42256-020-00287-7).*
 
-ASReview software implements three different modes:
+### What's New in Version 2?
 
-- **Oracle** Screen textual data in
-  interaction with the active learning model. The reviewer is the 'oracle',
-  making the labeling decisions.
-- **Exploration** Explore or
-  demonstrate ASReview LAB with a completely labeled dataset. This mode is
-  suitable for teaching purposes.
-- **Simulation** Evaluate
-  the performance of active learning models on fully labeled data. Simulations
-  can be run in ASReview LAB or via the command line interface with more
-  advanced options.
+- **New ELAS AI Models**: Pre-configured, high-performance models for different
+  use cases (Ultra, Multilingual, Heavy).
+- **Custom Model Builder**: Mix and match feature extractors, classifiers,
+  queriers, and balancers.
+- **Improved User Experience**: Faster interface, better progress monitoring,
+  and more customization options (dark mode, font size, keyboard shortcuts).
+- **Enhanced Screening Workflow**: Asynchronous model training, autosave, and
+  easy label changes.
+- **Advanced Extension Support**: Seamless integration with [ASReview
+  Dory](https://github.com/asreview/asreview-dory) and other extensions for
+  powerful new features.
+
+---
+
+## Key Features
+
+- **Active Learning**: Interactively prioritize records using AI models that
+  learn from your labeling decisions.
+- **Flexible AI Models**: Choose from pre-configured ELAS models or build your
+  own with custom components.
+- **Simulation toolkit**: Assess model performance on fully labeled datasets.
+- **Autosave & Label Management**: All decisions are saved automatically;
+  easily change labels at any time.
+- **User-Centric Design**: Humans are the oracle; the interface is transparent
+  and customizable.
+- **Privacy First**: No usage or user data is collected.
+
+---
+
+## General Workflow
+
+1. **Import Data**: Load your dataset (CSV, RIS, XLSX, etc.).
+2. **Create Project**: Set up a new review or simulation project.
+3. **Select Prior Knowledge**: Optionally provide known relevant/irrelevant
+   records.
+4. **Start Screening**: Label records as relevant or irrelevant; the AI model
+   continuously improves.
+5. **Monitor Progress**: Use the dashboard to track your progress and decide
+   when to stop.
+6. **Export Results**: Download your labeled dataset or project file.
+
+---
+
+## AI Models in ASReview LAB
+
+ASReview LAB v2 introduces the **ELAS** (Electronic Learning Assistant System)
+models:
+
+| Model             | Short Name | Description                                 | Requirements         |
+|-------------------|------------|---------------------------------------------|----------------------|
+| ELAS Ultra        | u-series   | Fast, efficient, for most use cases         | None                 |
+| ELAS Multilingual | l-series   | Handles multilingual datasets               | Dory extension, CPU/GPU |
+| ELAS Heavy        | h-series   | Advanced semantic understanding             | Dory extension, CPU/GPU |
+
+- **Custom Models**: Combine feature extractors (e.g., TF-IDF,
+  multilingual-e5-large), classifiers (SVM, Naive Bayes, Neural Networks),
+  queriers, and balancers.
+- **Extension Support**: Use advanced components from [ASReview
+  Dory](https://github.com/asreview/asreview-dory).
+
+See the [Model
+Documentation](https://asreview.readthedocs.io/en/latest/lab/models.html) for
+details.
+
+---
+
+## Screening Workflow
+
+- **Labeling**: Decide if each record is relevant or irrelevant. The AI model
+  updates rankings after each decision.
+- **Autosave**: All decisions and notes are saved automatically.
+- **Change Decisions**: Edit labels anytime via the Collection page.
+- **Full Text Support**: View DOIs and URLs if available in your dataset.
+- **Keyboard Shortcuts**: Speed up screening with customizable shortcuts.
+- **Model Information**: View which model made each recommendation.
+- **Customization**: Switch between dark/light mode and adjust font size.
+
+---
 
 ## Installation
 
-The ASReview software requires Python 3.8 or later. Detailed step-by-step
-instructions to install Python and ASReview are available for
-[Windows](https://asreview.ai/installation-guide-windows/) and
-[macOS](https://asreview.ai/installation-guide-macos/) users.
+Requires Python 3.10 or later.
 
 ```bash
 pip install asreview
 ```
 
-Upgrade ASReview with the following command:
+Upgrade:
 
 ```bash
 pip install --upgrade asreview
 ```
 
-To install ASReview LAB with Docker, see [Install with Docker](https://asreview.readthedocs.io/en/latest/installation.html).
+For Docker and advanced installation, see the [installation
+guide](https://asreview.readthedocs.io/en/latest/installation.html).
 
-## How it works
+---
 
-[![ASReview LAB explained - animation](https://img.youtube.com/vi/k-a2SCq-LtA/0.jpg)](https://www.youtube.com/watch?v=k-a2SCq-LtA)
+## Documentation & Resources
 
-## Getting started
+- [Getting Started](https://asreview.readthedocs.io/en/latest/about.html)
+- [Quick Tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html)
+- [Model Guide](https://asreview.readthedocs.io/en/latest/lab/models.html)
+- [FAQ](https://github.com/asreview/asreview/discussions?discussions_q=sort%3Atop)
+- [Live Demo](https://asreview.app)
 
-[Getting Started with ASReview
-LAB](https://asreview.readthedocs.io/en/latest/about.html).
-
-[![ASReview LAB](https://github.com/asreview/asreview/blob/main/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html "ASReview LAB")
+---
 
 ## Citation
 
-If you wish to cite the underlying methodology of the ASReview software,
-please use the following publication in Nature Machine Intelligence:
+If you use ASReview, please cite:
 
 > van de Schoot, R., de Bruin, J., Schram, R. et al. An open source machine
-> learning framework for efficient and transparent systematic reviews.
-> Nat Mach Intell 3, 125–133 (2021). https://doi.org/10.1038/s42256-020-00287-7
+> learning framework for efficient and transparent systematic reviews. Nat Mach
+> Intell 3, 125–133 (2021). https://doi.org/10.1038/s42256-020-00287-7
 
-For citing the software, please refer to the specific release of
-the ASReview software on Zenodo https://doi.org/10.5281/zenodo.3345592. The menu on the
-right can be used to find the citation format of prevalence.
+For software citation, see [Zenodo](https://doi.org/10.5281/zenodo.3345592).
 
-For more scientific publications on the ASReview software, go to
-[asreview.ai/papers](https://asreview.ai/papers/).
+---
 
-## Contact
+## Contact & Community
 
-For an overview of the team working on ASReview, see [ASReview Research Team](https://asreview.ai/about).
-ASReview LAB is maintained by
-[Jonathan de Bruin](https://github.com/J535D165) and [Yongchao Terry Ma](https://github.com/terrymyc).
+- [ASReview Research Team](https://asreview.ai/about)
+- [Documentation](https://asreview.readthedocs.io/)
+- [Newsletter](https://asreview.ai/newsletter/subscribe)
+- [Issue Tracker](https://github.com/asreview/asreview/issues)
+- [Donate](https://asreview.ai/donate)
+- Email: [asreview@uu.nl](mailto:asreview@uu.nl)
 
-The best resources to find an answer to your question or ways to get in
-contact with the team are:
+[![PyPI
+version](https://badge.fury.io/py/asreview.svg)](https://badge.fury.io/py/asreview)
+[![DOI](https://zenodo.org/badge/164874894.svg)](https://zenodo.org/badge/latestdoi/164874894)
+[![Downloads](https://static.pepy.tech/badge/asreview)](https://github.com/asreview/asreview#installation)
+[![CII Best
+Practices](https://bestpractices.coreinfrastructure.org/projects/4755/badge)](https://bestpractices.coreinfrastructure.org/projects/4755)
 
-- Documentation - [asreview.readthedocs.io](https://asreview.readthedocs.io/)
-- Newsletter - [asreview.ai/newsletter/subscribe](https://asreview.ai/newsletter/subscribe)
-- Quick tour - [ASReview LAB quick tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html)
-- Issues or feature requests - [ASReview issue tracker](https://github.com/asreview/asreview/issues)
-- FAQ - [ASReview Discussions](https://github.com/asreview/asreview/discussions?discussions_q=sort%3Atop)
-- Donation - [asreview.ai/donate](https://asreview.ai/donate)
-- Contact - [asreview@uu.nl](mailto:asreview@uu.nl)
-
-[![PyPI version](https://badge.fury.io/py/asreview.svg)](https://badge.fury.io/py/asreview) [![DOI](https://zenodo.org/badge/164874894.svg)](https://zenodo.org/badge/latestdoi/164874894)
-[![Downloads](https://static.pepy.tech/badge/asreview)](https://github.com/asreview/asreview#installation) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4755/badge)](https://bestpractices.coreinfrastructure.org/projects/4755)
+---
 
 ## License
 
-The ASReview software has an Apache 2.0 [LICENSE](LICENSE). The ASReview team
-accepts no responsibility or liability for the use of the ASReview tool or any
-direct or indirect damages arising out of the application of the tool.
+ASReview is licensed under the Apache 2.0 [LICENSE](LICENSE). The ASReview team
+accepts no responsibility or liability for the use of the tool or any direct or
+indirect damages arising out of its application.
