@@ -6,7 +6,7 @@
       "items": [
         {
           "title": "How is Utrecht University linked to ASReview?",
-          "url": "https://www.uu.nl/en/organisation/methodology-and-statistics/projects"
+          "url": "https://www.uu.nl/en/research/ai-labs/disc-ai-lab"
         },
         {
           "title": "How does active learning help with systematic reviews?",
@@ -14,15 +14,15 @@
         },
         {
           "title": "Has the use of ASReview been validated?",
-          "url": "https://asreview.nl/blog/project/intro_paper_asreview/"
+          "url": "https://doi.org/10.1038/s42256-020-00287-7"
         },
         {
           "title": "How to prepare your data?",
-          "url": "https://asreview.readthedocs.io/en/latest/intro/datasets.html"
+          "url": "https://asreview.readthedocs.io/en/stable/lab/data.html"
         },
         {
           "title": "How to contribute to the open source ASReview project?",
-          "url": "https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md"
+          "url": "https://github.com/asreview/asreview/blob/main/CONTRIBUTING.md"
         }
       ]
     }
