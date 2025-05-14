@@ -9,8 +9,7 @@ RUN apt-get update \
     && pip3 install --upgrade pip setuptools \
     && python3 setup.py compile_assets \
     && pip3 install --user gunicorn \
-    && pip3 install --user . \
-    && pip3 install --user asreview-datatools asreview-insights asreview-makita
+    && pip3 install --user .
 
 # Second stage
 FROM python:3.11-slim
