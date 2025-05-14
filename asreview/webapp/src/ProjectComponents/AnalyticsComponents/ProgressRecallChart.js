@@ -354,7 +354,7 @@ export default function ProgressRecallChart({
             </Box>
             <Box>
               <Button
-                href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                href="https://asreview.readthedocs.io/en/latest/lab/progress.html"
                 target="_blank"
                 rel="noopener noreferrer"
               >

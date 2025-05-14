@@ -398,7 +398,7 @@ const TimeSavedCard = ({ project_id }) => {
             </Box>
             <Box sx={{ textAlign: "center", pt: 1 }}>
               <Button
-                href="https://asreview.readthedocs.io/en/latest/guides/active_learning.html"
+                href="https://asreview.readthedocs.io/en/latest/lab/about.html"
                 target="_blank"
                 rel="noopener noreferrer"
                 size="small"

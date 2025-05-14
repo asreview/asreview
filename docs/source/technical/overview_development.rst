@@ -1,62 +1,82 @@
-Overview
-========
+Architecture
+============
 
-The development section is meant for users that need advanced functions of
-ASReview LAB and for developers. It contains technical information on the
-usage, instructions for developing extensions, and an extensive API reference.
+ASReview provides developers and researchers (with a more technical skill set)
+with several interfaces to interact directly with the underlying ASReview
+machinery. This enables the development of custom algorithms, the integration of
+ASReview into larger projects, and the creation of custom workflows. The
+following overview shows the available interfaces for interacting with the
+ASReview software:
 
-ASReview architecture
----------------------
-
-ASReview provides users an API to interact directly with the underlying ASReview
-machinery. This provides researchers an interface to study the behavior of
-algorithms and develop custom workflows. The following overview shows the
-available interfaces for interacting with the ASReview software:
-
-..
-  Source file of image can be found at
-  https://github.com/asreview/asreview-artwork/tree/master/LayerOverview
-
-.. figure:: ../../figures/asreview_layers_light_no_BG.png
+.. figure:: ../../figures/architecture.png
    :alt: ASReview API
 
+Core Interfaces
+---------------
 
-* Layer 5: ASReview CLOUD
+API
+~~~
 
-    - ASReview is currently in development. For information on ASReview CLOUD,
-      be sure visit our communication channels.
+ASReview LAB ships with a documented Application Programming Interface (API)
+that provides models, data, and project management functionality. The rich set
+of functions, classes, and modules allows researchers and developers to develop
+custom workflows, integrate new algorithms, or embed ASReview functionality in
+larger projects. It is also the foundation for the higher-level interfaces of
+ASReview LAB. For detailed documentation, refer to the :doc:`API reference
+<reference/asreview>`.
 
-* Layer 4: :doc:`ASReview LAB <../lab/project_create>`
+REST API
+~~~~~~~~
 
-    - ASReview LAB is the user friendly webapp and all underlying
-      interfaces. Documentation on LAB
-      can be found in the :doc:`ASReview LAB section <../lab/project_create>`.
+A stateless REST API written in Flask provides an interface for web applications
+built on ASReview. While integral to ASReview LAB, this REST API is still under
+active development and is not yet fully documented.
 
-* Layer 3: REST API
+CLI
+~~~
 
-    - The REST API uses a Flask REST API to provide a method to let the React
-      webapp communicate with the backend and algorithms. The REST API is not
-      documented and should be considered 'internal use only'.
+The :doc:`Command Line Interface (CLI) <cli>` of ASReview provides an
+interface for users of computer terminals to start ASReview LAB, run
+simulations, list algorithms, and more. The command `asreview lab` will start
+the user-friendly web app interface. It can also be extended with subcommands
+provided by both official and community-built extensions (see
+:doc:`extensions`).
 
-* Layer 2: :doc:`cli`
+Servers
+-------
 
-    - The Command Line is an interface used to open ASReview LAB, run
-      simulations, and run :doc:`Subcommand extensions <extensions_dev>` for ASReview. This development section documents all available
-      command line options for both :doc:`ASReview LAB <../lab/start>` and :doc:`simulation mode <../lab/simulation_cli>`.
+Task Server
+~~~~~~~~~~~
 
-* Layer 1: :doc:`reference/asreview`
+ASReview LAB v2 introduces a task server for handling asynchronous tasks like
+training agents and running simulations. The task server comes with a network
+socket interface and makes use of the Transmission Control Protocol (TCP) for
+communication. Via environment variables or :doc:`../server/configuration`, you can
+set the port, the host, and the number of workers. The variables are:
 
-    - The ASReview API is a low level Python interface for ASReview. This
-      interface requires detailed knowledge about the workings of the software.
-      This reference contains extensive documentation on all functions, classes,
-      and modules found in ASReview.
+.. envvar:: ASREVIEW_LAB_TASK_MANAGER_PORT
 
-    - An outline for usage can be found in :doc:`../lab/simulation_api_example` and :doc:`example_api_asreview_file`.
+  The port for the task server.
+
+.. envvar:: ASREVIEW_LAB_TASK_MANAGER_HOST
+
+  The host for the task server.
+
+.. envvar:: ASREVIEW_LAB_TASK_MANAGER_WORKERS
+
+  The number of workers for the task server.
+
+ASReview LAB Server
+~~~~~~~~~~~~~~~~~~~
+
+The LAB server runs on Flask and serves the RESTful API and the web application.
+It is responsible for handling incoming requests and serving the ASReview LAB
+web application. The LAB server is started with the command `asreview lab`.
 
 Extensions
 ----------
 
-:doc:`The Create an extension <extensions_dev>` section documents the creation
-of model, subcommand, and dataset extensions for ASReview. More information on
-extensions can be found in the extension
-:doc:`extensions_dev`.
+ASReview LAB is designed to be extensible, allowing users to add new models,
+subcommands, and datasets. The extension system is built on top of the core
+ASReview API and Python's entry point system. More information on developing
+extensions can be found under :doc:`extensions`.

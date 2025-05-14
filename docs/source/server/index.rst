@@ -1,10 +1,18 @@
-ASReview LAB Server
-===================
+Server guide
+============
 
 .. toctree::
     :maxdepth: 2
-    :caption: Overview
+    :caption: Introduction
 
     overview
 
+    installation
+
+    authentication
+
+    auth_tool
+
     configuration
+
+    migration

@@ -20,6 +20,8 @@ import "App.css";
 import { CiteDialog } from "Components";
 import React from "react";
 
+import { donateURL, githubURL, newsletterURL } from "globals.js";
+
 const InteractionButtons = () => {
   const [citeState, setCiteState] = React.useState({
     open: false,
@@ -132,7 +134,7 @@ const InteractionButtons = () => {
               <Button
                 component={Link}
                 target="_blank"
-                href="https://github.com/asreview/asreview"
+                href={githubURL}
                 color="inherit"
               >
                 <Stack
@@ -154,7 +156,7 @@ const InteractionButtons = () => {
               <Button
                 component={Link}
                 target="_blank"
-                href="https://asreview.nl/donate"
+                href={donateURL}
                 color="inherit"
               >
                 <Stack
@@ -176,7 +178,7 @@ const InteractionButtons = () => {
               <Button
                 component={Link}
                 target="_blank"
-                href="https://asreview.ai/newsletter/subscribe"
+                href={newsletterURL}
                 color="inherit"
               >
                 <Stack

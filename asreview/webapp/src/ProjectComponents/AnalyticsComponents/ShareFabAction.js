@@ -7,12 +7,12 @@ import {
   WhatsappShareButton,
 } from "react-share";
 import { styled } from "@mui/material/styles";
+import { asreviewURL } from "globals.js";
 
 const Root = styled("div")(({ theme }) => ({
   display: "none",
 }));
 
-const asreview_url = "https://asreview.ai";
 const hashtag = "SystematicReview";
 
 export default function ShareFabAction(props) {
@@ -28,31 +28,27 @@ export default function ShareFabAction(props) {
     <Root>
       <TwitterShareButton
         ref={props.xRef}
-        url={asreview_url}
+        url={asreviewURL}
         title={text_en}
         via="asreviewlab"
         hashtags={[hashtag]}
       />
       <FacebookShareButton
         ref={props.facebookRef}
-        url={asreview_url}
+        url={asreviewURL}
         quote={text_en}
       />
       <WeiboShareButton
         ref={props.weiboRef}
-        url={asreview_url}
+        url={asreviewURL}
         title={text_cn}
       />
       <WhatsappShareButton
         ref={props.whatsappRef}
-        url={asreview_url}
+        url={asreviewURL}
         title={text_en}
       />
-      <EmailShareButton
-        ref={props.emailRef}
-        url={asreview_url}
-        body={text_en}
-      />
+      <EmailShareButton ref={props.emailRef} url={asreviewURL} body={text_en} />
     </Root>
   );
 }

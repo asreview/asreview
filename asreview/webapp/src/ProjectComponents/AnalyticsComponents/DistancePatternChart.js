@@ -286,7 +286,7 @@ const DistancePatternChart = ({ project_id, showLast = false, mode }) => {
                 </Box>
                 <Box>
                   <Button
-                    href="https://asreview.readthedocs.io/en/latest/progress.html#analytics"
+                    href="https://asreview.readthedocs.io/en/latest/lab/progress.html"
                     target="_blank"
                     rel="noopener noreferrer"
                   >

@@ -3,13 +3,13 @@ Technical guide
 
 .. toctree::
     :maxdepth: 2
-    :caption: Architecture
+    :caption: Introduction
 
     overview_development
 
     cli
 
-    extensions_dev
+    extensions
 
 .. toctree::
     :maxdepth: 2

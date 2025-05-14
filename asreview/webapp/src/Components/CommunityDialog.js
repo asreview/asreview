@@ -22,7 +22,7 @@ import { InlineErrorHandler, OpenInNewIconStyled } from "Components";
 
 import { useMediaQuery } from "@mui/material";
 import { UtilsAPI } from "api";
-import { feedbackURL } from "globals.js";
+import { feedbackURL, discussionsURL, documentationURL } from "globals.js";
 import { StyledDialog } from "StyledComponents/StyledDialog";
 
 const CommunityDialog = ({ onHelp, toggleHelp }) => {
@@ -79,11 +79,7 @@ const CommunityDialog = ({ onHelp, toggleHelp }) => {
               <InlineErrorHandler message={error?.message} button={false} />
             </ListItem>
           )}
-          <ListItem
-            component={"a"}
-            href={`https://asreview.readthedocs.io/en/latest/`}
-            target="_blank"
-          >
+          <ListItem component={"a"} href={documentationURL} target="_blank">
             <ListItemIcon></ListItemIcon>
             <Typography display="block" color="primary">
               <b>Browse the documentation</b> <OpenInNewIconStyled />
@@ -97,10 +93,7 @@ const CommunityDialog = ({ onHelp, toggleHelp }) => {
           </ListItem>
           <ListItem>
             <Card sx={{ width: "1" }}>
-              <CardActionArea
-                href={`https://github.com/asreview/asreview/discussions`}
-                target="_blank"
-              >
+              <CardActionArea href={discussionsURL} target="_blank">
                 <CardHeader
                   avatar={
                     <Avatar sx={{ bgcolor: "primary.main" }}>

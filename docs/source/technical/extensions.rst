@@ -1,16 +1,16 @@
-Extensions
-==========
+Developing Extensions
+=====================
 
 ASReview extensions enable you to integrate your programs with the ASReview
-framework seamlessly, by using the Python API. These extensions fall into three
-different categories, and interact with the API in different ways.
+framework seamlessly by using the Python API. These extensions fall into three
+different categories and interact with the API in different ways.
 
 1. `Model extensions`_
 2. `Subcommand extensions`_
 3. `Dataset extensions`_
 
-The extensibility of the framework is provided by the entrypoints of
-setuptools. You will need to create a package and install it (for example with
+The extensibility of the framework is provided by the entry points of
+setuptools. You will need to create a package and install it (for example, with
 pip).
 
 Did you develop a useful extension to ASReview and want to list it on `the
@@ -21,22 +21,21 @@ Request or open an issue on `GitHub
 
 For more information on the ASReview API for creating an extension, a technical
 reference for development is found under the :doc:`reference/asreview`. This
-technical reference contains functions for use in your extension, and an
-overview of all classes to extend on.
-
+technical reference contains functions for use in your extension and an
+overview of all classes to extend.
 
 Model Extensions
 ----------------
 
 An extension of a :class:`asreview.models.base.BaseModel` type class.
 
-Model extensions extent the ASReview software with new classifiers, query
+Model extensions extend the ASReview software with new classifiers, query
 strategies, balance strategies, or feature extraction techniques. These
 extensions extend one of the model base classes
-(:class:`asreview.models.balance.base`,
-:class:`asreview.models.classifiers.base`,
-:class:`asreview.models.feature_extraction.base`,
-:class:`asreview.models.query.base`).
+(:class:`asreview.models.balancers`,
+:class:`asreview.models.classifiers`,
+:class:`asreview.models.feature_extractors`,
+:class:`asreview.models.queriers`).
 
 The easiest way to extend ASReview with a model is by using the |template_link|.
 Create a copy of the template and add the new algorithm to a new model file. It
@@ -47,19 +46,10 @@ is advised to use the following structure of the package:
     ├── README.md
     ├── asreviewcontrib
     │   └── models
-    │       ├── classifiers
-    │       │   ├── __init__.py
-    │       │   └── example_model.py
-    │       ├── feature_extraction
-    │       │   ├── __init__.py
-    │       │   └── example_feature_extraction.py
-    │       ├── balance
-    │       │   ├── __init__.py
-    │       │   └── example_balance_strategies.py
-    │       └── query
-    │           ├── __init__.py
-    │           └── example_query_strategies.py
-    ├── setup.py
+    │       ├── classifiers.py
+    │       ├── feature_extractors.py
+    │       ├── balancers.py
+    │       └── queriers.py
     └── tests
 
 The next step is to add metadata to the `setup.py
@@ -73,13 +63,13 @@ models.
         'asreview.models.classifiers': [
             'example = asreviewcontrib.models.classifiers.example_model:ExampleClassifier',
         ],
-        'asreview.models.feature_extraction': [
+        'asreview.models.feature_extractors': [
             # define feature_extraction algorithms
         ],
-        'asreview.models.balance': [
+        'asreview.models.balancers': [
             # define balance_strategy algorithms
         ],
-        'asreview.models.query': [
+        'asreview.models.queriers': [
             # define query_strategy algorithms
         ]
     },
@@ -161,7 +151,6 @@ the root of the package, and set the keyword argument `entry_points` of
 After installing this package, ASReview is extended with the ``asreview
 example`` subcommand. See ``asreview -h`` for this option.
 
-
 Dataset Extensions
 ------------------
 
@@ -186,14 +175,13 @@ following package structure:
     ├── setup.py
     └── tests
 
-For minimal functionality, ``your_dataset.py`` should extent
+For minimal functionality, ``your_dataset.py`` should extend
 :class:`asreview.datasets.BaseDataSet` and
 :class:`asreview.datasets.BaseDataGroup`.
 
 A working template to clone and use can be found at `Template for extending
 ASReview with a new dataset
 <https://github.com/asreview/template-extension-new-dataset>`_.
-
 
 Further functionality can be
 extensions of any other class in :mod:`asreview.datasets`.

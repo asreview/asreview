@@ -17,40 +17,33 @@ The simulation command line tool can be accessed directly like:
 
 This performs a simulation with the default active learning model, where
 ``MY_DATASET.csv`` is the path to the :ref:`lab/data_labeled:Fully labeled data`
-you want to simulate. The result of the simulation is stored, after a
-successful simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION``
-is the filename you prefer and the extension is ``.asreview``
-(ASReview project file extension).
+you want to simulate. The result of the simulation is stored, after a successful
+simulation, at ``MY_SIMULATION.asreview`` where ``MY_SIMULATION`` is the
+filename you prefer and the extension is ``.asreview`` (ASReview project file
+extension).
 
 Simulation progress
 -------------------
 
 The progress of the simulation is given with two progress bars. The top one is
-used to count the number of relevant records found. The bottom one monitors
-the number of records labeled. By default (with ``--n-stop min``), the
-simulation stops once the the top progress bar reaches 100%.
+used to count the number of relevant records found. The bottom one monitors the
+number of records labeled. By default (see ``--n-stop``), the simulation stops
+once the the top progress bar reaches 100%.
 
 .. code-block:: bash
 
-  Simulation started
+    Relevant records found: 100%|█████████████████████████████████████████████████████████| 38/38 [00:04<00:00,  7.83it/s]
+    Records labeled       :   7%|███▊                                                  | 322/4544 [00:04<01:03, 66.37it/s]
 
-  Relevant records found: 100%|███████████████████████████████████████████████| 43/43 [00:03<00:00, 13.42it/s]
-  Records labeled       :   7%|██▉                                        | 420/6189 [00:03<00:43, 133.58it/s]
-
-  Simulation finished
+    Loss: 0.021
+    NDCG: 0.530
 
 Command line arguments for simulating
 -------------------------------------
 
 The command ``asreview simulate --help`` provides an overview of available
-arguments for the simulation.
-
-Each of the sections below describe the available arguments. The example below
-shows how you can set the command line arguments. This can be helpful if you
-are new to the using the command line. For example, you want to change the
-query strategy being used. The command line and this documentation show
-``-q, --query_strategy QUERY_STRATEGY``. The default is ``max``. If you want
-to change it to ``max_random``, you use:
+arguments for the simulation. Each of the sections below describe the available
+arguments. The example below shows how you can set the command line arguments.
 
 .. code-block:: bash
 
@@ -82,33 +75,40 @@ For example:
 Active learning
 ~~~~~~~~~~~~~~~
 
-.. option:: -e, --feature_extraction FEATURE_EXTRACTION
+.. option:: --ai AI
 
-    The default is TF-IDF (:code:`tfidf`). More options and details are listed
-    in :mod:`asreview.models.feature_extraction`.
+    The AI to simulate with. Default is :code:`elas_u4`.
 
-.. option:: -m, --model MODEL
+.. option:: -c, --classifier CLASSIFIER
 
-    The default is Naive Bayes (:code:`nb`). More options and details are listed
-    in :mod:`asreview.models.classifiers`.
+    The classifier for active learning. Default is Naive Bayes (:code:`nb`).
 
-.. option:: -q, --query_strategy QUERY_STRATEGY
+.. option:: -q, --querier QUERIER
 
-    The default is Maximum (:code:`max`). More options and details are listed
-    in :mod:`asreview.models.query`.
+    The querier for active learning. Default is Maximum (:code:`max`).
 
-.. option:: -b, --balance_strategy BALANCE_STRATEGY
+.. option:: -b, --balancer BALANCER
 
-    The default is :code:`double`. The balancing strategy is used to deal with
-    the sparsity of relevant records. More options and details are listed
-    in :mod:`asreview.models.balance`
+    Data rebalancing strategy mainly for RNN methods. Helps against imbalanced
+    datasets with few inclusions and many exclusions. Default is
+    :code:`balanced`.
+
+.. option:: -e, --feature-extractor FEATURE_EXTRACTOR
+
+    Feature extraction algorithm. Some combinations of feature extractors and
+    classifiers are not supported or feasible. Default is TF-IDF
+    (:code:`tfidf`).
 
 .. option:: --seed SEED
 
-    To make your simulations reproducible you can use the ``--seed`` and
-    ``--prior-seed`` options. 'prior_seed' controls the starting set of papers
-    to train the model on, while the 'seed' controls the seed of the random
-    number generation that is used after initialization.
+    Seed for the model (classifiers, balance strategies, feature extraction
+    techniques, and query strategies).
+
+.. option:: --prior-seed PRIOR_SEED
+
+    Seed for selecting prior records if the ``--prior-idx`` option is not used.
+    If the option ``--prior-idx`` is used with one or more indices, this option
+    is ignored.
 
 .. option:: --embedding EMBEDDING_FP
 
@@ -118,83 +118,79 @@ Active learning
 Prior knowledge
 ~~~~~~~~~~~~~~~
 
-By default, the model initializes with one relevant and one irrelevant record.
+By default, the model initializes with no prior included or excluded records.
 You can set the number of priors by ``--n-prior-included`` and
-``--n-prior-excluded``. However, if you want to initialize your model with a
-specific set of starting papers, you can use ``--prior-idx`` to select the
-indices of the papers you want to start the simulation with. When no prior
-knowledge is assigned (using ``--n-prior-included 0 --n-prior-excluded 0``),
-the first records from the dataset are employed as priors in the order they
-were provided until the first 0 and 1 are encountered.
+``--n-prior-excluded``. Alternatively, you can initialize your model with a
+specific set of starting papers using ``--prior-idx`` or ``--prior-record-id``
+to select the indices or record IDs of the papers you want to start the
+simulation with.
 
 The following options can be used to label prior knowledge:
 
 .. option:: --n-prior-included N_PRIOR_INCLUDED
 
-    The number of prior included papers. Only used when :code:`prior_idx` is
-    not given. Default 1.
+    Sample n prior included records. Only used when ``--prior-idx`` is not
+    given. Default 0.
 
 .. option:: --n-prior-excluded N_PRIOR_EXCLUDED
 
-    The number of prior excluded papers. Only used when :code:`prior_idx` is
-    not given. Default 1.
-
+    Sample n prior excluded records. Only used when ``--prior-idx`` is not
+    given. Default 0.
 
 .. option:: --prior-idx [PRIOR_IDX [PRIOR_IDX ...]]
 
-    Prior indices by rownumber (rownumbers start at 0).
+    Prior indices by row number (row numbers start at 0).
 
+.. option:: --prior-record-id [PRIOR_RECORD_ID [PRIOR_RECORD_ID ...]]
 
-.. option:: --prior-seed prior_seed
-
-    Seed for setting the prior indices if the prior_idx option is not used. If
-    the option prior_idx is used with one or more index, this option is
-    ignored.
-
+    Prior indices by record ID.
 
 
 Simulation setup
 ~~~~~~~~~~~~~~~~
 
-.. option:: --n_query n_query
+.. option:: --n-query N_QUERY
 
-    Controls the number of records to be labeled before the model is
-    retrained. Increase ``n_query``, for example, to reduce the time it
-    takes to simulate. Default 1.
+    Number of records queried each query. Default 1.
 
-.. option:: --n-stop n_stop
+.. option:: --n-stop N_STOP
 
-    The number of label actions to simulate. Default, 'min' will stop
-    simulating when all relevant records are found. Use -1 to simulate all
-    labels actions.
+    The number of label actions to simulate. If not set, simulation stops after
+    the last relevant record is found. Use -1 to simulate all label actions.
 
+.. option:: --config-file CONFIG_FILE
 
-Save
-~~~~
+    Configuration file for the learning cycle.
 
 
-.. option:: --state_file STATE_FILE, -o STATE_FILE
+Results
+~~~~~~~
+
+.. option:: --output OUTPUT, -o OUTPUT
 
     Location to ASReview project file of simulation.
+
+.. option:: --verbose VERBOSE, -v VERBOSE
+
+    Verbosity level.
 
 
 Algorithms
 ----------
 
 The command line interface provides an easy way to get an overview of all
-available active learning model elements (classifiers, query strategies,
-balance strategies, and feature extraction algorithms) and their names for
-command line usage in ASReview LAB. It also includes models added
-via :doc:`../technical/extensions_dev`. The following command lists
-the available models:
+available active learning model elements (classifiers, query strategies, balance
+strategies, and feature extraction algorithms) and their names for command line
+usage in ASReview LAB. The following command lists the available
+models:
 
 .. code:: bash
 
     asreview algorithms
 
-See :doc:`../technical/extensions_dev` for more information on developing new models
+The command includes models added via :doc:`../technical/extensions`. See
+:doc:`../technical/extensions` for more information on developing new models
 and install them via extensions.
 
-Some models require additional dependencies to be installed. Use
-:code:`pip install asreview[all]` to install all additional dependencies
-at once or check the installation instruction in the :doc:`../technical/reference/asreview`.
+Use :code:`pip install asreview-dory` to get access to all Dory models. The Dory
+extension contains a collection of New and Exciting MOdels.

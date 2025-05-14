@@ -1,8 +1,8 @@
 Start ASReview LAB
 ==================
 
-After you install ASReview LAB, start the program via the command line to
-start using it.
+After you install ASReview LAB, start the program via the command line to start
+using it.
 
 .. code:: bash
 
@@ -11,15 +11,15 @@ start using it.
 When you are using Windows, open `CMD.exe` and run the command. When you use
 MacOS or Linux, you can open `Terminal` and run the command.
 
-The information in the sections below is more advanced and not needed for the
-majority of the ASReview LAB users.
+Read the following sections for advanced options to start or configure ASReview
+LAB users.
 
 Command line arguments for starting ASReview LAB
 ------------------------------------------------
 
-ASReview LAB provides a powerful command line interface for running ASReview
-LAB with other options or even run tasks like simulations. For a list of
-available commands in ASReview LAB, type :code:`asreview lab --help`.
+ASReview LAB provides a powerful command line interface for running ASReview LAB
+with other options or even run tasks like simulations. For a list of available
+commands in ASReview LAB, type :code:`asreview lab --help`.
 
 :program:`asreview lab` launches the ASReview LAB software (the frontend).
 
@@ -35,18 +35,13 @@ available commands in ASReview LAB, type :code:`asreview lab --help`.
 
 	Show help message and exit.
 
-.. option:: --ip IP
+.. option:: --host HOST
 
-    The IP address the server will listen on.
+    The host/IP address the server will listen on.
 
 .. option:: --port PORT
 
 	The port the server will listen on.
-
-.. option:: --port-retries NUMBER_RETRIES
-
-	The number of additional ports to try if the specified port is not
-        available.
 
 .. option:: --enable-auth ENABLE_AUTH
 
@@ -68,6 +63,11 @@ available commands in ASReview LAB, type :code:`asreview lab --help`.
 
 	Do not open ASReview LAB in a browser after startup.
 
+.. option:: --port-retries NUMBER_RETRIES
+
+	The number of additional ports to try if the specified port is not
+        available.
+
 .. option:: --certfile CERTFILE_FULL_PATH
 
     The full path to an SSL/TLS certificate file.
@@ -76,22 +76,9 @@ available commands in ASReview LAB, type :code:`asreview lab --help`.
 
     The full path to a private key file for usage with SSL/TLS.
 
-.. option:: --embedding EMBEDDING_FP
+.. option:: --skip-update-check
 
-    File path of embedding matrix. Required for LSTM models.
-
-.. option:: --clean-project CLEAN_PROJECT
-
-    Safe cleanup of temporary files in project.
-
-.. option:: --clean-all-projects CLEAN_ALL_PROJECTS
-
-    Safe cleanup of temporary files in all projects.
-
-.. option:: --seed SEED
-
-	Seed for the model (classifiers, balance strategies, feature extraction
-	techniques, and query strategies). Use an integer between 0 and 2^32 - 1.
+	Skip checking for updates.
 
 
 Set environment variables
@@ -107,8 +94,8 @@ The following environment variables are available.
 How you set environment variables depends on the operating system and the
 environment in which you deploy ASReview LAB.
 
-In MacOS or Linux operating systems, you can set environment variables from the command
-line. For example:
+In MacOS or Linux operating systems, you can set environment variables from the
+command line. For example:
 
 .. code:: bash
 
@@ -120,7 +107,8 @@ On Windows, you can use the following syntax:
 
 	set ASREVIEW_PATH=~/.asreview
 
-To check if you set an environment variable successfully, run the following on \*nix operating systems:
+To check if you set an environment variable successfully, run the following on
+\*nix operating systems:
 
 .. code:: bash
 
@@ -136,8 +124,8 @@ Or the following on Windows operating systems:
 Run ASReview LAB on localhost with a different port
 ---------------------------------------------------
 
-By default, ASReview LAB runs on port 5000. If that port is already in use or
-if you want to specify a different port, start ASReview LAB with the following
+By default, ASReview LAB runs on port 5000. If that port is already in use or if
+you want to specify a different port, start ASReview LAB with the following
 command:
 
 .. code:: bash
@@ -149,3 +137,39 @@ For example, start ASReview LAB on port 5001:
 .. code:: bash
 
 	asreview lab --port 5001
+
+
+
+Local server with authentication
+--------------------------------
+
+.. note:: For production use, it is recommended to use the Docker setup. See the
+   :doc:`../server/overview` section for more information.
+
+The most basic configuration of the ASReview LAB application with authentication
+is to run the application from the CLI with the ``--enable-auth`` flag. The
+application will start with authentication enabled and will create a SQLite
+database if it does not exist. The database will be stored in the ASReview
+projects folder. The database contains the user accounts and links them to
+projects.
+
+Start the application with authentication enabled:
+
+.. code:: bash
+
+    asreview lab --enable-auth --secret-key=<secret key> --salt=<salt>
+
+where ``--enable-auth`` forces the application to run in an authenticated mode,
+``<secret key>`` is a string that is used for encrypting cookies and ``<salt>``
+is a string that is used to hash passwords. The ``--secret-key`` and ``--salt``
+parameters are mandatory if authentication is required.
+
+To create user accounts, one can use the ``add-users`` command of the
+``auth-tool`` sub command of the ASReview application:
+
+.. code:: bash
+
+    asreview auth-tool add-users
+
+For more information about auth-tool and creating users, see the section
+`Create user accounts <#create-user-accounts-with-auth-tool>`_ below.

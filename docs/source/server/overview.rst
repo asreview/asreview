@@ -1,56 +1,47 @@
 ASReview LAB Server
 ===================
 
-ASReview LAB Server is a self-hosted, secure version of ASReview LAB. It is
-designed for facilitate users who want to use ASReview LAB but without the need
-to install it on their own computer. The web application that can be accessed
-from any device with a web browser and can be used on desktops, laptops,
-tablets, and mobile devices. ASReview LAB Server enables users to create an
-account or connect via their GitHub, ORCID, or Google accounts.
+ASReview LAB Server is a self-hosted, secure version of ASReview LAB that
+enables users to screen together in the same project. It is designed with
+organizations and multi-user situations in mind but can also be used by
+individuals who want to use ASReview LAB without installing it on their own
+computer.
 
-See the :doc:`configuration` details for more
-information on how to configure your ASReview LAB on your server.
+The self-hosted ASReview LAB Server is especially useful for:
 
-Features
---------
+- **Organizations**: Organizations can use ASReview LAB Server to give access to
+  ASReview LAB to their employees. This can be useful for organizations that
+  make extensive use of ASReview LAB or other applications of screening
+  prioritization.
 
-ASReview LAB provides two options for creating an account: by connecting with
-your GitHub, ORCID, or Google account, or by creating an account. All
-information is stored securely on the ASReview LAB server and fully self-hosted.
+- **Multi-user screening**: ASReview LAB Server is designed for multi-user
+  situations. This means that multiple users can screen the same set of records
+  at the same time. All users interact with the same AI model and the same set
+  of records.
 
-Log in with GitHub, ORCID, or Google
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- **Data privacy**: ASReview LAB Server is self-hosted, which means that
+  organizations can deploy it on their own hardware or in the cloud. This
+  ensures that data is kept private and secure, and that organizations can
+  comply with institutional policies.
 
-ASReview LAB Server provides a easy way to log in with your GitHub, ORCID, or
-Google account.
+- **Heavy models**: ASReview LAB Server is designed to separate the AI engine
+  (Task server) from the front end and back end. This implies that the AI engine
+  can be run on a separate server, which can be more powerful than the front-end
+  and back-end servers. This is especially useful for organizations that have
+  heavy models that require a lot of processing power or even GPUs.
 
-.. figure:: ../../images/server_signin.png
-	:alt: Sign in with GitHub, ORCID, or Google account
+- **Mobile screening**: ASReview LAB Server enables users to screen on mobile
+  devices. This can lead to increased productivity and efficiency, as users can
+  screen records on the go.
 
-See the :doc:`configuration` details for more
-information on how to configure your ASReview on your server to enable this
-feature.
+It facilitates users who want to use ASReview LAB without the need to install it
+on their own computer. The web application can be accessed from any device with
+a web browser and can be used on desktops, laptops, tablets, and mobile devices.
+ASReview LAB Server enables users to create an account or connect via their
+GitHub, ORCID, or Google accounts.
 
-Create account
-~~~~~~~~~~~~~~
-
-ASReview LAB Server provides a easy way to create an account with your email.
-
-.. figure:: ../../images/server_email.png
-   :alt: Create account with account and password
-
-Installation
-------------
-
-ASReview LAB server is installed in the same way as ASReview LAB. See the
-:doc:`../lab/installation` instructions for more information. See
-:doc:`configuration` for more information on
-how to configure authentication on your ASReview LAB server.
-
-Optional: If you want to make use of the PostgreSQL database, you need to
-install the `psycopg2` package. This can be done by running the following
-command:
-
-.. code-block:: bash
-
-    pip install psycopg2
+To streamline self-hosting and enterprise-level deployments, the ASReview Server
+Stack provides a production-ready Docker Compose setup. Follow the installation
+instructions in the :doc:`installation` section to get started. See the
+:doc:`configuration` details for more information on how to configure your
+ASReview LAB on your server.
