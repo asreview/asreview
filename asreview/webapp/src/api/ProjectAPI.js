@@ -678,7 +678,7 @@ class ProjectAPI {
       `projects/${variables.project_id}/record/${variables.record_id}`;
     return new Promise((resolve, reject) => {
       axios({
-        method: variables.edit ? "post" : "put",
+        method: variables.post ? "post" : "put",
         url: url,
         data: body,
         withCredentials: true,
