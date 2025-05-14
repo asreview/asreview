@@ -179,6 +179,7 @@ const RecordCardLabeler = ({
       label: label,
       tagValues: tagValuesState,
       retrain_model: retrainAfterDecision,
+      edit: editState,
     });
   };
 
