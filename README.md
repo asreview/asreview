@@ -1,6 +1,6 @@
 <!-- ASReview LAB v2 Banner -->
 <p align="center">
-  <img width="60%" height="60%" src="https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg">
+  <img width="60%" height="60%" src="https://raw.githubusercontent.com/asreview/asreview-artwork/refs/heads/master/LogoASReview/asreview_logo_light.svg">
 </p>
 
 <br/>
