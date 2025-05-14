@@ -1378,15 +1378,10 @@ def api_label_record(project, record_id):  # noqa: F401
     # return the combination of document_id and label.
     record_id = int(request.form.get("record_id"))
     label = int(request.form.get("label"))
+    tags = json.loads(request.form.get("tags", "[]"))
 
     if label not in [0, 1]:
         return jsonify(message="Invalid label"), 400
-
-    tags = request.form.get("tags", type=str)
-    if not tags:
-        tags = []
-    else:
-        tags = json.loads(tags)
 
     retrain_model = bool(request.form.get("retrain_model", default=False))
 
