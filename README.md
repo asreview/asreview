@@ -33,17 +33,15 @@ systematic text screening.
 
 ### What's New in Version 2?
 
-- **New ELAS AI Models**: Pre-configured, high-performance models for different
+- **New ELAS AI Models**: Pre-configured, high-performance (+24%) models for different
   use cases (Ultra, Multilingual, Heavy).
-- **Custom Model Builder**: Mix and match feature extractors, classifiers,
-  queriers, and balancers.
 - **Improved User Experience**: Faster interface, better progress monitoring,
   and more customization options (dark mode, font size, keyboard shortcuts).
-- **Enhanced Screening Workflow**: Asynchronous model training, autosave, and
-  easy label changes.
-- **Advanced Extension Support**: Seamless integration with [ASReview
-  Dory](https://github.com/asreview/asreview-dory) and other extensions for
-  powerful new features.
+- **ASReview LAB Server with crowd screening**: Screen one project together with others
+- **Quick project setup**: Start screening new datasets in seconds with the quick setup for projects.
+- **New model extension Dory**: [ASReview
+  Dory](https://github.com/asreview/asreview-dory)
+- **Add customizable tags**: Add tags and groups of tags to your records and label decisions. This make data extraction a lot easier!**
 
 ---
 
@@ -62,7 +60,7 @@ systematic text screening.
 
 ---
 
-## General Workflow
+## The ASReview LAB Workflow
 
 1. **Import Data**: Load your dataset (CSV, RIS, XLSX, etc.).
 2. **Create Project**: Set up a new review or simulation project.
@@ -73,42 +71,6 @@ systematic text screening.
 5. **Monitor Progress**: Use the dashboard to track your progress and decide
    when to stop.
 6. **Export Results**: Download your labeled dataset or project file.
-
----
-
-## AI Models in ASReview LAB
-
-ASReview LAB v2 introduces the **ELAS** (Electronic Learning Assistant System)
-models:
-
-| Model             | Short Name | Description                                 | Requirements         |
-|-------------------|------------|---------------------------------------------|----------------------|
-| ELAS Ultra        | u-series   | Fast, efficient, for most use cases         | None                 |
-| ELAS Multilingual | l-series   | Handles multilingual datasets               | Dory extension, CPU/GPU |
-| ELAS Heavy        | h-series   | Advanced semantic understanding             | Dory extension, CPU/GPU |
-
-- **Custom Models**: Combine feature extractors (e.g., TF-IDF,
-  multilingual-e5-large), classifiers (SVM, Naive Bayes, Neural Networks),
-  queriers, and balancers.
-- **Extension Support**: Use advanced components from [ASReview
-  Dory](https://github.com/asreview/asreview-dory).
-
-See the [Model
-Documentation](https://asreview.readthedocs.io/en/latest/lab/models.html) for
-details.
-
----
-
-## Screening Workflow
-
-- **Labeling**: Decide if each record is relevant or irrelevant. The AI model
-  updates rankings after each decision.
-- **Autosave**: All decisions and notes are saved automatically.
-- **Change Decisions**: Edit labels anytime via the Collection page.
-- **Full Text Support**: View DOIs and URLs if available in your dataset.
-- **Keyboard Shortcuts**: Speed up screening with customizable shortcuts.
-- **Model Information**: View which model made each recommendation.
-- **Customization**: Switch between dark/light mode and adjust font size.
 
 ---
 
