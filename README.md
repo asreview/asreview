@@ -86,7 +86,7 @@ pip install --upgrade asreview
 ```
 
 For Docker and advanced installation, see the [installation
-guide](https://asreview.readthedocs.io/en/latest/installation.html).
+guide](https://asreview.readthedocs.io/en/stable/lab/installation.html).
 
 Latest version of ASReview LAB: [![PyPI
 version](https://badge.fury.io/py/asreview.svg)](https://badge.fury.io/py/asreview)
