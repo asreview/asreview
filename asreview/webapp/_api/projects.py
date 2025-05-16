@@ -323,15 +323,24 @@ def api_list_data_readers():
 def api_upgrade_projects(projects):
     """Get upgrade project"""
 
+    errors = []
+
     for project, _ in projects:
-        if project.config.get("version", "").startswith("1."):
-            migrate_project_v1_v2(project.project_path)
-        elif project.config.get("version", "").startswith("2."):
-            pass
-        else:
-            raise ValueError(
-                f"Project version {project.config.get('version', '')} not supported."
-            )
+        try:
+            if project.config.get("version", "").startswith("1."):
+                migrate_project_v1_v2(project.project_path)
+            elif project.config.get("version", "").startswith("2."):
+                pass
+            else:
+                raise ValueError(
+                    f"Project version {project.config.get('version', '')} not supported."
+                )
+        except Exception as err:
+            errors.append(str(err))
+            continue
+
+    if errors:
+        return jsonify({"message": " ".join(errors)}), 400
 
     return jsonify({"success": True})
 
