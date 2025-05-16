@@ -205,7 +205,7 @@ def is_setup_without_reviews(folder):
     with open(Path(folder, "project.json")) as f:
         config = json.load(f)
 
-    if len(config.get("reviews")) == 0:
+    if len(config.get("reviews", [])) == 0:
         return True
 
     return False
