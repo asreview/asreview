@@ -97,7 +97,7 @@ const ProjectsOverview = ({ mode }) => {
               There was an error while upgrading your projects. Please contact
               the ASReview team via asreview@uu.nl.
             </Typography>
-            <br />
+            <Box sx={{ mt: 2 }} />
             <Typography variant="body1">{upgradeError.message}</Typography>
           </Alert>
         )}
