@@ -79,6 +79,34 @@ def duplicated(df, pid="doi"):
     return s_dups
 
 
+def _fix_unclosed_list(value, parse_func, error_type):
+    if (value.startswith("['") or value.startswith('["')) and not value.endswith("]"):
+        # This is a list, but it is not closed. Try to fix it.
+        if value.endswith("'"):
+            return parse_func(value + "]")
+        elif value.endswith('"'):
+            return parse_func(value + "]")
+        else:
+            try:
+                # Try to fix the string by adding a closing bracket.
+                return parse_func(value + "']")
+            except error_type:
+                # If that fails, try adding a closing double quote.
+                return parse_func(value + '"]')
+    elif value.startswith("['") or value.startswith('["'):
+        return parse_func(value)
+    else:
+        raise error_type(f"Failed to parse {value} as a list value")
+
+
+def _parse_json_list_from_string(value):
+    return _fix_unclosed_list(value, json.loads, json.decoder.JSONDecodeError)
+
+
+def _parse_literal_list_from_string(value):
+    return _fix_unclosed_list(value, literal_eval, SyntaxError)
+
+
 def convert_to_list(value):
     """Convert a value to a list.
 
@@ -96,20 +124,22 @@ def convert_to_list(value):
     elif isinstance(value, str):
         if value == "":
             return []
+
+        # Check if the string is a JSON dumped list or a Python literal list value.
         if value[0] == "[":
-            # Check if it's a json dumped list.
             try:
-                return json.loads(value)
+                # Try to parse the string as a JSON list.
+                return _parse_json_list_from_string(value)
+            # If that fails, try to parse it as a Python literal list value.
             except json.decoder.JSONDecodeError:
                 # Maybe it's a Python literal value?
                 try:
-                    return literal_eval(value)
+                    return _parse_literal_list_from_string(value)
                 except SyntaxError:
                     raise ValueError(
-                        "value is a string starting with '[', but is not a JSON"
-                        " dumped list or a Python literal list value."
-                        f" Value: {value}"
+                        f"Can't parse {value} as JSON or Python literal list value"
                     )
+
         # Assume it is a list of items separated by one of ,;:
         longest_split = []
         for sep in {",", ";", ":"}:
