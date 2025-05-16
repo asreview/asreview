@@ -231,4 +231,4 @@ def migrate_project_v1_v2(folder):
             project_config = json.load(f)
             project_id = project_config.get("id", "unknown")
 
-        raise Exception(f"Failed to upgrade project {project_id}.")
+        raise Exception(f"Failed to upgrade project {project_id}.") from e
