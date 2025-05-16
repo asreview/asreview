@@ -208,6 +208,21 @@ def test_duplicate_of(store):
     assert duplicate_record.duplicate_of is None
 
 
+def test_load_dataset_no_abstracts(tmpdir):
+    test_fp = tmpdir / "no_abstracts.csv"
+    df = pd.DataFrame(
+        {
+            "title": ["Title 1", "Title 2"],
+            "authors": ["Author A", "Author B"],
+            "abstract": [None, None],
+        }
+    )
+    df.to_csv(test_fp, index=False)
+    ds = load_dataset(test_fp, dataset_id="foo")
+
+    assert ds.get_df()["abstract"].replace("", None).isnull().all()
+
+
 @pytest.mark.parametrize(
     "file_name,n_lines",
     [
