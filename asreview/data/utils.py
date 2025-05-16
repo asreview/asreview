@@ -79,46 +79,32 @@ def duplicated(df, pid="doi"):
     return s_dups
 
 
-def _parse_json_list_from_string(value):
+def _fix_unclosed_list(value, parse_func, error_type):
     if (value.startswith("['") or value.startswith('["')) and not value.endswith("]"):
-        # This is a JSON list, but it is not closed. Try to fix it.
+        # This is a list, but it is not closed. Try to fix it.
         if value.endswith("'"):
-            return json.loads(value + "]")
+            return parse_func(value + "]")
         elif value.endswith('"'):
-            return json.loads(value + "]")
+            return parse_func(value + "]")
         else:
             try:
                 # Try to fix the string by adding a closing bracket.
-                return json.loads(value + "']")
-            except json.decoder.JSONDecodeError:
+                return parse_func(value + "']")
+            except error_type:
                 # If that fails, try adding a closing double quote.
-                return json.loads(value + '"]')
+                return parse_func(value + '"]')
     elif value.startswith("['") or value.startswith('["'):
-        return json.loads(value)
+        return parse_func(value)
     else:
-        raise json.decoder.JSONDecodeError(
-            f"Failed to parse {value} as a JSON list value"
-        )
+        raise error_type(f"Failed to parse {value} as a list value")
+
+
+def _parse_json_list_from_string(value):
+    return _fix_unclosed_list(value, json.loads, json.decoder.JSONDecodeError)
 
 
 def _parse_literal_list_from_string(value):
-    if (value.startswith("['") or value.startswith('["')) and not value.endswith("]"):
-        # This is a literal list, but it is not closed. Try to fix it.
-        if value.endswith("'"):
-            return literal_eval(value + "]")
-        elif value.endswith('"'):
-            return literal_eval(value + "]")
-        else:
-            try:
-                # Try to fix the string by adding a closing bracket.
-                return literal_eval(value + "']")
-            except SyntaxError:
-                # If that fails, try adding a closing double quote.
-                return literal_eval(value + '"]')
-    elif value.startswith("['") or value.startswith('["'):
-        return literal_eval(value)
-    else:
-        raise SyntaxError(f"Failed to parse {value} as a Python literal list value")
+    return _fix_unclosed_list(value, literal_eval, SyntaxError)
 
 
 def convert_to_list(value):
