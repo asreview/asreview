@@ -2,6 +2,7 @@ from abc import ABC
 from abc import abstractmethod
 
 import pandas as pd
+import numpy as np
 
 from asreview.data.record import Record
 from asreview.data.utils import convert_to_list
@@ -63,6 +64,7 @@ class BaseReader(ABC):
     @classmethod
     def read_records(cls, fp, dataset_id, record_cls=Record, *args, **kwargs):
         df = cls.read_data(fp, *args, **kwargs)
+        df.replace([pd.NA, np.nan], cls.__fillna_default__[0], inplace=True)
         df = cls.clean_data(df)
         return cls.to_records(df, dataset_id=dataset_id, record_cls=record_cls)
 
@@ -113,7 +115,7 @@ class BaseReader(ABC):
                 for cleaning_method in cleaning_methods:
                     df[column] = df[column].apply(cleaning_method)
         if cls.__fillna_default__ is not None:
-            df = df.fillna(pd.NA).replace([pd.NA], cls.__fillna_default__)
+            df.replace([pd.NA, np.nan], cls.__fillna_default__[0], inplace=True)
         return df
 
     @classmethod
