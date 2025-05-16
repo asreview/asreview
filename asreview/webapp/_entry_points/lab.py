@@ -164,7 +164,7 @@ def lab_entry_point(argv):
     update_available = False
     if not args.skip_update_check:
         update_available, latest_version = _check_for_update()
-        if not update_available:
+        if update_available:
             version_str += (
                 f" [red][Update available: {asr.__version__} -> {latest_version}][/red]"
             )
