@@ -183,6 +183,34 @@ def _migrate_project_v1_v2(folder):
         )
 
 
+def is_setup_without_reviews(folder):
+    """Check if the project is a setup project without data or reviews.
+
+    Parameters
+    ----------
+    folder: str
+        The folder of the project to check
+
+    Returns
+    -------
+    bool
+        True if the project is a setup without data, False otherwise.
+    """
+
+    if not Path(folder, "project.json").exists():
+        raise FileNotFoundError(
+            f"Project file {Path(folder, 'project.json')} does not exist."
+        )
+
+    with open(Path(folder, "project.json")) as f:
+        config = json.load(f)
+
+    if len(config.get("reviews")) == 0:
+        return True
+
+    return False
+
+
 def migrate_project_v1_v2(folder):
     """Migrate a project from version 1 to version 2.
 
@@ -205,6 +233,10 @@ def migrate_project_v1_v2(folder):
         )
 
     try:
+        if is_setup_without_reviews(folder):
+            shutil.rmtree(folder)
+            return
+
         with tempfile.TemporaryDirectory() as tmpdir:
             shutil.copytree(
                 folder,
