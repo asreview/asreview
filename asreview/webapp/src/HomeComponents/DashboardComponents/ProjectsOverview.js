@@ -1,5 +1,6 @@
 import {
   Alert,
+  Box,
   Button,
   Container,
   Divider,
@@ -93,8 +94,12 @@ const ProjectsOverview = ({ mode }) => {
         )}
         {upgradeError && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            There was an error while upgrading your projects. Please contact the
-            ASReview team via asreview@uu.nl.
+            <Typography variant="h6">
+              There was an error while upgrading your projects. Please contact
+              the ASReview team via asreview@uu.nl.
+            </Typography>
+            <Box sx={{ mt: 2 }} />
+            <Typography variant="body1">{upgradeError.message}</Typography>
           </Alert>
         )}
         <Stack spacing={6}>
