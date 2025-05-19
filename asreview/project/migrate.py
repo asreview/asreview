@@ -37,6 +37,10 @@ def _project_config_converter_v1_v2(project_json):
         except KeyError:
             pass
 
+        # fix projects with training errors
+        if project_json["reviews"][i]["status"] == "error":
+            project_json["reviews"][i]["status"] = "review"
+
     return project_json
 
 
