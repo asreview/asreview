@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { useMutation, useQuery } from "react-query";
+import { useMutation } from "react-query";
 
 import { FileUpload } from "@mui/icons-material";
 import {
@@ -75,13 +75,13 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     [addDataset, mode, isCreatingProjectError, resetAddDataset],
   );
 
-  const { data: readers } = useQuery(
-    ["fetchDatasetReaders", { project_id: project_id }],
-    ProjectAPI.fetchDatasetReaders,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  // const { data: readers } = useQuery(
+  //   ["fetchDatasetReaders", { project_id: project_id }],
+  //   ProjectAPI.fetchDatasetReaders,
+  //   {
+  //     refetchOnWindowFocus: false,
+  //   },
+  // );
 
   // Use showOpenFilePicker() style accept object for cross-platform compatibility
   const acceptedFileTypes = {
