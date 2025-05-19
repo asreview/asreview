@@ -70,7 +70,7 @@ def _project_state_converter_v1_v2(review_path):
             "feature_extraction": "feature_extractor",
         }
     )
-    df_results["tags"] = None
+    df_results["tags"] = []
     df_results["user_id"] = None
     df_results["time"] = (
         pandas.to_datetime(df_results["labeling_time"]).astype("int64")
