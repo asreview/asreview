@@ -5,10 +5,17 @@ import pytest
 import rispy
 from pytest import mark
 
+import asreview as asr
 from asreview.data.loader import _from_file
 from asreview.data.loader import load_records
 from asreview.data.ris import RISReader
 from asreview.utils import _is_url
+
+
+def test_default_reader_loading():
+    readers = asr.extensions("readers")
+
+    assert len(readers) == 6
 
 
 @mark.parametrize(
