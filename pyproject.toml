@@ -47,6 +47,7 @@ classifiers = [
 ]
 license = "Apache-2.0"
 dependencies = [
+    "importlib-metadata>=4.11.4 ; python_version<='3.11'",
     "numpy",
     "pandas>=2,<3",
     "scikit-learn>=1.5",

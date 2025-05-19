@@ -1,9 +1,8 @@
 import json
 from pathlib import Path
-from importlib.metadata import entry_points
-
 
 from asreview import extensions
+from asreview import get_extension
 
 
 def read_tags_data(project):
@@ -38,7 +37,7 @@ def add_id_to_tags(group):
 
 def get_dist_extensions_metadata():
     """Get all distributions with models."""
-    entries = entry_points(group="asreview.models", name="_metadata")
+    entries = get_extension(group="models", name="_metadata")
 
     all_metadata = {}
 

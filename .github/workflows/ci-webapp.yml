@@ -22,7 +22,7 @@ jobs:
           python-version: "3.13"
       - name: Install ruff
         run: |
-          pip install .[dev]
+          pip install .[lint]
       - name: Lint Python
         run: |
           ruff check asreview/webapp

@@ -12,7 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from importlib.metadata import entry_points
+import sys
+
+# The standard library importlib.metadata returns sometimes duplicate entrypoints for
+# all Python versions up to and including 3.11
+# https://github.com/python/importlib_metadata/issues/410#issuecomment-1304258228
+if sys.version_info >= (3, 12):
+    from importlib.metadata import entry_points
+else:
+    from importlib_metadata import entry_points
 
 
 def extensions(group):
