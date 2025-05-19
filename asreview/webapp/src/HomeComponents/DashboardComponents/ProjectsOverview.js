@@ -45,7 +45,8 @@ const ProjectsOverview = ({ mode }) => {
   const inReviewProjects = data?.result.filter(
     (project) =>
       project.reviews[0]?.status === projectStatuses.REVIEW ||
-      project.reviews[0]?.status === projectStatuses.SETUP,
+      project.reviews[0]?.status === projectStatuses.SETUP ||
+      project.reviews[0]?.status === "error", // backwards compatibility fix for migration file
   );
   const finishedProjects = data?.result.filter(
     (project) => project.reviews[0]?.status === projectStatuses.FINISHED,
