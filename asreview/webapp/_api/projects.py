@@ -1070,8 +1070,6 @@ def _flatten_tags(results, tags_config):
         del results["tags"]
         return results
 
-    print(results["tags"])
-
     df_tags = []
     for _, row in results["tags"].items():
         # fix migration of projects without list-like values in tags column
