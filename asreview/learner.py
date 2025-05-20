@@ -87,8 +87,7 @@ class ActiveLearningCycle:
     stopper: BaseStopper
         The stopping criteria. Default is None.
     n_query: int, callable
-        The number of instances to query at once. If None, the querier
-        will determine the number of instances to query. Default is None.
+        The number of instances to query at once. Default is 1.
 
     """
 
