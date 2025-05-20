@@ -45,7 +45,7 @@ const SignOutItem = () => {
   const { mutate: handleSignOut } = useMutation(AuthAPI.signout, {
     onSuccess: () => {
       queryClient.invalidateQueries();
-      navigate("/signin");
+      navigate(window.postLogoutUrl);
     },
   });
 
