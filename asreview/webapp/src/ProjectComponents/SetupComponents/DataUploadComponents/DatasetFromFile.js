@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { useMutation, useQuery } from "react-query";
+import { useMutation } from "react-query";
 
 import { FileUpload } from "@mui/icons-material";
 import {
@@ -76,20 +76,24 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     [addDataset, mode, isCreatingProjectError, resetAddDataset],
   );
 
-  const { data: readers } = useQuery(
-    ["fetchDatasetReaders", { project_id: project_id }],
-    ProjectAPI.fetchDatasetReaders,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  // const { data: readers } = useQuery(
+  //   ["fetchDatasetReaders", { project_id: project_id }],
+  //   ProjectAPI.fetchDatasetReaders,
+  //   {
+  //     refetchOnWindowFocus: false,
+  //   },
+  // );
 
-  let acceptedFileTypes = "";
-  if (readers?.result) {
-    acceptedFileTypes = readers.result
-      .map((reader) => reader.extension)
-      .join(", ");
-  }
+  // Use showOpenFilePicker() style accept object for cross-platform compatibility
+  const acceptedFileTypes = {
+    "text/csv": [".csv"],
+    "text/tab-separated-values": [".tsv", ".tab"],
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+      ".xlsx",
+    ],
+    "application/x-research-info-systems": [".ris"],
+    "text/plain": [".ris", ".tsv", ".tab"], // fallback for some platforms
+  };
 
   const {
     getRootProps,
@@ -111,6 +115,10 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     ...(isDragAccept ? acceptStyle : {}),
     ...(isDragReject ? rejectStyle : {}),
   };
+
+  const acceptedExtensions = [
+    ...new Set(Object.values(acceptedFileTypes).flat()),
+  ].join(", ");
 
   return (
     <Stack
@@ -163,7 +171,7 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
                   }dataset here`}
             </Typography>
             <Typography fontSize="1rem">
-              Accepted files: {acceptedFileTypes}
+              Accepted files: {acceptedExtensions}
             </Typography>
 
             {isCreatingProjectError && (
