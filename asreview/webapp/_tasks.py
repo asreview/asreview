@@ -76,7 +76,7 @@ def run_model(project):
 
         if cycle.classifier is not None:
             cycle.fit(
-                fm[labeled["record_id"].astype(int).values],
+                fm[labeled["record_id"].values],
                 labeled["label"].values,
             )
 
