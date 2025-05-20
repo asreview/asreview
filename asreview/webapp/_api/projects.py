@@ -892,7 +892,7 @@ def api_import_project():
             with zip_obj.open("project.json") as f:
                 project_config = json.load(f)
         except KeyError as err:
-            raise ValueError("Invalid ASReview project file.") from err
+            raise ValueError("Invalid ASReview project file") from err
 
     if project_config["version"].startswith("1."):
         warnings.append(
