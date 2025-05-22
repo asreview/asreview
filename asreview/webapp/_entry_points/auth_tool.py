@@ -295,7 +295,9 @@ class AuthTool:
                     lambda x: bool(x) and len(x) > 2,
                     "Full name must contain more than 2 characters.",
                 )
-                origin = input("Origin (leave empty if you're not using Remote User Handling): ")
+                origin = input(
+                    "Origin (leave empty if you're not using Remote User Handling): "
+                )
                 origin = origin.strip()
                 affiliation = input("Affiliation: ")
                 password = self._ensure_valid_value_for(
@@ -308,7 +310,7 @@ class AuthTool:
                     "email": email,
                     "name": name,
                     "affiliation": affiliation,
-                    "password": password
+                    "password": password,
                 }
                 # add origin if string is provided
                 if origin != "":
