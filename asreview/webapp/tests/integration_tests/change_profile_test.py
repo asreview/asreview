@@ -74,11 +74,10 @@ def test_change_profile(driver, url, database_uri):
 
     # log out
     utils.sign_out(driver)
-    utils.wait_for_redirect(driver, base_url + "/signin")
+    utils.wait_for_redirect(driver, base_url +  "/custom_logout_page")
 
     # log back in with new data
     utils.sign_in(driver, base_url, new_user_data)
-    utils.save_screenshot(driver, name="post_signin")
     # check if we are on the project dashboard
     utils.wait_for_redirect(driver, base_url + "/reviews")
 
