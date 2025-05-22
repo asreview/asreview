@@ -37,6 +37,7 @@ def interactive_user_data():
         "Y",
         user_data["email"],
         user_data["name"],
+        user_data["origin"],
         user_data["affiliation"],
         user_data["password"],
         "n",
