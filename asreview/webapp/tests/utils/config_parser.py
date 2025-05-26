@@ -42,6 +42,7 @@ def get_user_data(test_user_id):
     return {
         "email": section["email"],
         "name": section["name"],
+        "origin": "asreview",
         "affiliation": section["affiliation"],
         "password": section["password"],
     }

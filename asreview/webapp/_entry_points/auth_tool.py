@@ -153,6 +153,7 @@ def insert_user(session, entry):
         name=entry["name"],
         affiliation=entry["affiliation"],
         password=entry["password"],
+        origin=entry.get("origin", "asreview").lower(),
         confirmed=True,
     )
     try:
@@ -294,6 +295,10 @@ class AuthTool:
                     lambda x: bool(x) and len(x) > 2,
                     "Full name must contain more than 2 characters.",
                 )
+                origin = input(
+                    "Origin (leave empty if you're not using Remote User Handling): "
+                )
+                origin = origin.strip()
                 affiliation = input("Affiliation: ")
                 password = self._ensure_valid_value_for(
                     "Password (required)",
@@ -301,15 +306,17 @@ class AuthTool:
                     "Use 8 or more characters with a mix of letters, numbers & symbols.",  # noqa
                 )
 
-                insert_user(
-                    self.session,
-                    {
-                        "email": email,
-                        "name": name,
-                        "affiliation": affiliation,
-                        "password": password,
-                    },
-                )
+                entry_data = {
+                    "email": email,
+                    "name": name,
+                    "affiliation": affiliation,
+                    "password": password,
+                }
+                # add origin if string is provided
+                if origin != "":
+                    entry_data["origin"] = origin
+
+                insert_user(self.session, entry_data)
             else:
                 break
 
