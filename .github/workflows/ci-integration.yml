@@ -1,0 +1,54 @@
+name: Test ASReview webapp (integration)
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  selenium-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: # must be valid values that can be passed to pytest's --driver option
+          - 'chrome'
+    env:
+      ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI: sqlite:////tmp/db.sqlite
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          fetch-tags: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "asreview/webapp/package-lock.json"
+      - uses: nanasess/setup-chromedriver@v2
+        if: matrix.browser == 'chrome'
+      - name: Install requirements
+        run: pip3 install .[test] setuptools gunicorn
+      - name: Compile assets
+        run: python setup.py compile_assets
+      - name: Install ASReview from source
+        run: |
+          pip3 install .
+      - name: Run chromedriver
+        if: matrix.browser == 'chrome'
+        run: |
+          export DISPLAY=:99
+          chromedriver --url-base=/wd/hub &
+      - name: Run tests
+        run: |
+          echo "DB URI: $ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI"
+          cd asreview/webapp
+          asreview lab \
+            --config-path "$GITHUB_WORKSPACE/asreview/webapp/tests/config/auth_integration_config.toml" \
+            --skip-update-check --no-browser &
+          sleep 1
+          pytest tests/integration_tests \
+            -v \
+            --driver ${{ matrix.browser }} \
+            --url http://localhost:5000 \
+            --database-uri ${{ env.ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI }}
