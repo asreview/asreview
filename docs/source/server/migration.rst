@@ -66,7 +66,7 @@ Step 2: Migrate the Database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The first step is to migrate the database, which includes user profiles and
-other related data. 
+other related data.
 
 Run the following command to migrate the database:
 
@@ -111,5 +111,3 @@ run the following command inside the container:
 .. code-block:: bash
 
     docker exec -it asreview-server-stack-asreview-1 asreview migrate --projects
-
-
