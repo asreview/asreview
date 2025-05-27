@@ -74,6 +74,11 @@ class RISReader(BaseReader):
     read_format = [".ris", ".txt"]
     write_format = [".csv", ".tsv", ".xlsx", ".ris"]
 
+    mime_types = {
+        "application/x-research-info-systems": [".ris", ".txt"],
+        "text/plain": [".txt", ".ris"],
+    }
+
     def _strip_zotero_p_tags(note_list):
         """Converter function for removing the XHTML <p></p> tags from Zotero export.
 

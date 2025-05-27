@@ -313,7 +313,13 @@ def api_list_data_readers():
     """Get the list of available data readers and read formats."""
     payload = {"result": []}
     for e in extensions("readers"):
-        payload["result"].append({"extension": e.name})
+        reader = e.load()
+        payload["result"].append(
+            {
+                "extension": e.name,
+                "mime_types": getattr(reader, "mime_types", []),
+            }
+        )
     return jsonify(payload)
 
 

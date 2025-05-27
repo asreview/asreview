@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 
 import { FileUpload } from "@mui/icons-material";
 import {
@@ -76,24 +76,23 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     [addDataset, mode, isCreatingProjectError, resetAddDataset],
   );
 
-  // const { data: readers } = useQuery(
-  //   ["fetchDatasetReaders", { project_id: project_id }],
-  //   ProjectAPI.fetchDatasetReaders,
-  //   {
-  //     refetchOnWindowFocus: false,
-  //   },
-  // );
+  const { data } = useQuery(
+    ["fetchDatasetReaders", { project_id: project_id }],
+    ProjectAPI.fetchDatasetReaders,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
 
-  // Use showOpenFilePicker() style accept object for cross-platform compatibility
-  const acceptedFileTypes = {
-    "text/csv": [".csv"],
-    "text/tab-separated-values": [".tsv", ".tab"],
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
-      ".xlsx",
-    ],
-    "application/x-research-info-systems": [".ris"],
-    "text/plain": [".ris", ".tsv", ".tab"], // fallback for some platforms
-  };
+  const acceptedFileTypes = data?.result
+    ? data.result.reduce((acc, reader) => {
+        Object.entries(reader.mime_types).forEach(([mime, exts]) => {
+          if (!acc[mime]) acc[mime] = [];
+          acc[mime].push(...exts);
+        });
+        return acc;
+      }, {})
+    : {};
 
   const {
     getRootProps,
@@ -116,9 +115,15 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     ...(isDragReject ? rejectStyle : {}),
   };
 
-  const acceptedExtensions = [
-    ...new Set(Object.values(acceptedFileTypes).flat()),
-  ].join(", ");
+  const acceptedExtensions = data?.result
+    ? [
+        ...new Set(
+          data.result.flatMap((reader) =>
+            Object.values(reader.mime_types).flat(),
+          ),
+        ),
+      ].join(", ")
+    : "";
 
   return (
     <Stack

@@ -27,6 +27,12 @@ class CSVReader(BaseReader):
     read_format = [".csv", ".tab", ".tsv"]
     write_format = [".csv", ".tsv", ".xlsx"]
 
+    mime_types = {
+        "text/csv": [".csv"],
+        "text/tab-separated-values": [".tsv", ".tab"],
+        "text/plain": [".csv", ".tsv", ".tab"],
+    }
+
     @classmethod
     def read_data(cls, fp):
         """Import dataset.
@@ -84,6 +90,10 @@ class ExcelReader(BaseReader):
 
     read_format = [".xlsx"]
     write_format = [".csv", ".tsv", ".xlsx"]
+
+    mime_types = {
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+    }
 
     @classmethod
     def read_data(cls, fp):
