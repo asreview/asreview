@@ -28,7 +28,6 @@ export function register(config) {
     }
 
     if (!isLocalhost) {
-      // Register the service worker if not on localhost
       // We only use offline pages on localhost
       return;
     }
