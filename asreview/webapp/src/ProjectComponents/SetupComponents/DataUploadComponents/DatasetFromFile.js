@@ -6,6 +6,7 @@ import { FileUpload } from "@mui/icons-material";
 import {
   Alert,
   Avatar,
+  Box,
   ButtonBase,
   CircularProgress,
   Paper,
@@ -152,22 +153,16 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
             py: 10,
           }}
         >
-          <Stack
-            spacing={2}
-            justifyContent="center"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              textAlign: "center",
-            }}
-          >
-            {isCreatingProject ? (
-              <CircularProgress />
-            ) : (
-              <Avatar>
-                <FileUpload fontSize="large" />
-              </Avatar>
-            )}
+          <Stack spacing={2} justifyContent="center" direction={"column"}>
+            <Box display="flex" justifyContent="center">
+              {isCreatingProject ? (
+                <CircularProgress />
+              ) : (
+                <Avatar>
+                  <FileUpload fontSize="large" />
+                </Avatar>
+              )}
+            </Box>
             <Typography fontSize="1.4rem">
               {mobileScreen
                 ? "Upload dataset"
@@ -178,11 +173,16 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
             <Typography fontSize="1rem">
               Accepted files: {acceptedExtensions}
             </Typography>
+
+            {isCreatingProjectError && (
+              <Box>
+                <Alert severity="error" sx={{ mx: 3 }}>
+                  {createProjectError?.message}
+                </Alert>
+              </Box>
+            )}
           </Stack>
         </ButtonBase>
-        {isCreatingProjectError && (
-          <Alert severity="error">{createProjectError?.message}</Alert>
-        )}
       </Paper>
     </Stack>
   );

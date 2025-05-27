@@ -892,7 +892,7 @@ def api_import_project():
             with zip_obj.open("project.json") as f:
                 project_config = json.load(f)
         except KeyError as err:
-            raise ValueError("Invalid ASReview project file.") from err
+            raise ValueError("Invalid ASReview project file") from err
 
     if project_config["version"].startswith("1."):
         warnings.append(
@@ -1072,6 +1072,11 @@ def _flatten_tags(results, tags_config):
 
     df_tags = []
     for _, row in results["tags"].items():
+        # fix migration of projects without list-like values in tags column
+        if not isinstance(row, list):
+            df_tags.append({})
+            continue
+
         tags = {}
         for group in row:
             for tag in group["values"]:

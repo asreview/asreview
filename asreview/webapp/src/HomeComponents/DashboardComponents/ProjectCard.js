@@ -152,7 +152,8 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
           </ButtonBase>
         </Grid>
         {mode === projectModes.ORACLE &&
-          review?.status === projectStatuses.REVIEW &&
+          (review?.status === projectStatuses.REVIEW ||
+            review?.status === "error") &&
           largeScreen && (
             <Grid size={"auto"}>
               <Button

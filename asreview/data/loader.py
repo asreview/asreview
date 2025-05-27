@@ -26,10 +26,13 @@ def _get_reader(fp):
         fn = _get_filename_from_url(fp)
     else:
         fn = Path(fp).name
+
+    print(fn)
+
     try:
         return load_extension("readers", Path(fn).suffix)
     except ValueError as e:
-        raise ValueError(f"No reader found for file at location {fp}") from e
+        raise ValueError(f"No reader found for file {fn}") from e
 
 
 def _get_writer(fp):

@@ -2,6 +2,7 @@ import { FileUpload } from "@mui/icons-material";
 import {
   Alert,
   Avatar,
+  Box,
   Button,
   ButtonBase,
   CircularProgress,
@@ -116,31 +117,32 @@ const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
             py: 10,
           }}
         >
-          <Stack
-            spacing={2}
-            justifyContent="center"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              textAlign: "center",
-            }}
-          >
-            {isLoading ? (
-              <CircularProgress />
-            ) : (
-              <Avatar>
-                <FileUpload fontSize="large" />
-              </Avatar>
-            )}
+          <Stack spacing={2} justifyContent="center" direction={"column"}>
+            <Box display="flex" justifyContent="center">
+              {isLoading ? (
+                <CircularProgress />
+              ) : (
+                <Avatar>
+                  <FileUpload fontSize="large" />
+                </Avatar>
+              )}
+            </Box>
             <Typography fontSize="1.4rem">
               {mobileScreen
                 ? "Upload ASReview file"
                 : "Click or drop an ASReview file here"}
             </Typography>
             <Typography fontSize="1rem">Accepted files: .asreview</Typography>
+
+            {isError && (
+              <Box>
+                <Alert severity="error" sx={{ mx: 3 }}>
+                  {error?.message}
+                </Alert>
+              </Box>
+            )}
           </Stack>
         </ButtonBase>
-        {isError && <Alert severity="error">{error?.message}</Alert>}
       </Paper>
     </Stack>
   );
