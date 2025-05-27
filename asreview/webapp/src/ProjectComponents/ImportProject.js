@@ -71,7 +71,7 @@ const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
     multiple: false,
     noClick: true,
     accept: {
-      "application/zip": [".asreview"],
+      "application/asreview": [".asreview"],
     },
   });
 

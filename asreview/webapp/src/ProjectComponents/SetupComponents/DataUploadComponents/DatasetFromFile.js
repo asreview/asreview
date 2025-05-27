@@ -76,7 +76,7 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     [addDataset, mode, isCreatingProjectError, resetAddDataset],
   );
 
-  const { data: readers } = useQuery(
+  const { data } = useQuery(
     ["fetchDatasetReaders", { project_id: project_id }],
     ProjectAPI.fetchDatasetReaders,
     {
@@ -84,12 +84,15 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     },
   );
 
-  let acceptedFileTypes = "";
-  if (readers?.result) {
-    acceptedFileTypes = readers.result
-      .map((reader) => reader.extension)
-      .join(", ");
-  }
+  const acceptedFileTypes = data?.result
+    ? data.result.reduce((acc, reader) => {
+        Object.entries(reader.mime_types).forEach(([mime, exts]) => {
+          if (!acc[mime]) acc[mime] = [];
+          acc[mime].push(...exts);
+        });
+        return acc;
+      }, {})
+    : {};
 
   const {
     getRootProps,
@@ -111,6 +114,16 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     ...(isDragAccept ? acceptStyle : {}),
     ...(isDragReject ? rejectStyle : {}),
   };
+
+  const acceptedExtensions = data?.result
+    ? [
+        ...new Set(
+          data.result.flatMap((reader) =>
+            Object.values(reader.mime_types).flat(),
+          ),
+        ),
+      ].join(", ")
+    : "";
 
   return (
     <Stack
@@ -163,7 +176,7 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
                   }dataset here`}
             </Typography>
             <Typography fontSize="1rem">
-              Accepted files: {acceptedFileTypes}
+              Accepted files: {acceptedExtensions}
             </Typography>
 
             {isCreatingProjectError && (
