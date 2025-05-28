@@ -37,7 +37,7 @@ pytest -v "$TEST_FILES" \
     --driver "$DRIVER" \
     --url "http://localhost:$PORT" \
     "$@" || echo "Test run failed!"
-    
+
 echo "Stopping docker compose"
 cd -
 docker compose down

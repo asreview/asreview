@@ -74,7 +74,7 @@ def test_change_profile(driver, url, database_uri):
 
     # log out
     utils.sign_out(driver)
-    utils.wait_for_redirect(driver, base_url +  "/custom_logout_page")
+    utils.wait_for_redirect(driver, base_url + "/custom_logout_page")
 
     # log back in with new data
     utils.sign_in(driver, base_url, new_user_data)
