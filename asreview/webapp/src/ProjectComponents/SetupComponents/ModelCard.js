@@ -822,7 +822,7 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
 
             <Box>
               <Button
-                href="https://asreview.nl/blog/asreview-model-selection-guide/"
+                href="https://asreview.readthedocs.io/en/stable/lab/models.html"
                 target="_blank"
                 rel="noopener noreferrer"
               >
