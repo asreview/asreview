@@ -49,15 +49,14 @@ def _signed_in_payload(user):
 
 
 def _select_user_by_email(email):
-    stmt = select(User).where(
-        or_(User.identifier == email, User.email == email)
-    )
+    stmt = select(User).where(or_(User.identifier == email, User.email == email))
     return DB.session.execute(stmt).scalar_one_or_none()
 
 
 # ------------------
 #      ROUTES
 # ------------------
+
 
 @bp.route("/signin", methods=["POST"])
 def signin():
@@ -112,7 +111,7 @@ def signup():
 
         # check if email already exists
         user = _select_user_by_email(email)
-        
+
         # return error if user doesn't exist
         if isinstance(user, User):
             result = (403, f'User with email "{email}" already exists.')
