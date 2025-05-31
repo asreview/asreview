@@ -30,7 +30,7 @@ def test_get_users_as_admin(client_auth):
     # Create admin user
     admin_user = get_user(1)
     au.signup_user(client_auth, admin_user)
-    
+
     # Set user as admin and sign in
     user = crud.get_user_by_identifier(admin_user.identifier)
     user.role = "admin"
@@ -45,7 +45,7 @@ def test_get_users_as_admin(client_auth):
     # signin Admin (remember that signing up means
     # signing in now).
     au.signin_user(client_auth, user)
-    
+
     # Test get all users
     response = client_auth.get("/admin/users")
 
@@ -53,7 +53,7 @@ def test_get_users_as_admin(client_auth):
     data = response.get_json()
     assert "users" in data
     assert len(data["users"]) == 3  # admin + 2 regular users
-    
+
     # Check if admin user is in the list
     admin_found = False
     for user_data in data["users"]:
@@ -70,10 +70,10 @@ def test_get_users_as_non_admin_forbidden(client_auth):
     regular_user = get_user(1)
     au.signup_user(client_auth, regular_user)
     au.signin_user(client_auth, regular_user)
-    
+
     # Test get all users as non-admin
     response = client_auth.get("/admin/users")
-    
+
     assert response.status_code == 403
     data = response.get_json()
     assert data["message"] == "Admin access required."
@@ -82,7 +82,7 @@ def test_get_users_as_non_admin_forbidden(client_auth):
 def test_get_users_without_login_unauthorized(client_auth):
     """Test that unauthenticated users cannot retrieve all users"""
     response = client_auth.get("/admin/users")
-    
+
     assert response.status_code == 401
     data = response.get_json()
     assert data["message"] == "Login required."
@@ -98,13 +98,13 @@ def test_create_user_as_admin(client_auth):
     # Create admin user
     admin_user = get_user(1)
     au.signup_user(client_auth, admin_user)
-    
+
     # Set user as admin and sign in
     user = crud.get_user_by_identifier(admin_user.identifier)
     user.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Create new user via API
     new_user_data = {
         "identifier": "newuser@example.com",
@@ -113,21 +113,19 @@ def test_create_user_as_admin(client_auth):
         "name": "New User",
         "affiliation": "Test University",
         "password": "TestPassword123",
-        "role": "member"
+        "role": "member",
     }
-    
+
     response = client_auth.post(
-        "/admin/users",
-        data=json.dumps(new_user_data),
-        content_type="application/json"
+        "/admin/users", data=json.dumps(new_user_data), content_type="application/json"
     )
-    
+
     assert response.status_code == 201
     data = response.get_json()
     assert data["message"] == "User created successfully"
     assert data["user"]["identifier"] == new_user_data["identifier"]
     assert data["user"]["role"] == "member"
-    
+
     # Verify user was created in database
     created_user = crud.get_user_by_identifier(new_user_data["identifier"])
     assert created_user is not None
@@ -140,32 +138,30 @@ def test_create_user_as_admin_with_admin_role(client_auth):
     # Create admin user
     admin_user = get_user(1)
     au.signup_user(client_auth, admin_user)
-    
+
     # Set user as admin and sign in
     user = crud.get_user_by_identifier(admin_user.identifier)
     user.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Create new admin user via API
     new_admin_data = {
         "identifier": "newadmin@example.com",
         "email": "newadmin@example.com",
         "name": "New Admin",
         "password": "AdminPassword123",
-        "role": "admin"
+        "role": "admin",
     }
-    
+
     response = client_auth.post(
-        "/admin/users",
-        data=json.dumps(new_admin_data),
-        content_type="application/json"
+        "/admin/users", data=json.dumps(new_admin_data), content_type="application/json"
     )
-    
+
     assert response.status_code == 201
     data = response.get_json()
     assert data["user"]["role"] == "admin"
-    
+
     # Verify user was created with admin role
     created_user = crud.get_user_by_identifier(new_admin_data["identifier"])
     assert created_user.role == "admin"
@@ -176,27 +172,27 @@ def test_create_user_duplicate_identifier(client_auth):
     # Create admin user
     admin_user = get_user(1)
     au.signup_user(client_auth, admin_user)
-    
+
     # Set user as admin and sign in
     user = crud.get_user_by_identifier(admin_user.identifier)
     user.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Try to create user with same identifier as admin
     duplicate_user_data = {
         "identifier": admin_user.identifier,
         "email": "different@example.com",
         "name": "Different User",
-        "password": "TestPassword123"
+        "password": "TestPassword123",
     }
-    
+
     response = client_auth.post(
         "/admin/users",
         data=json.dumps(duplicate_user_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 409
     data = response.get_json()
     assert "already exists" in data["message"]
@@ -208,21 +204,19 @@ def test_create_user_as_non_admin_forbidden(client_auth):
     regular_user = get_user(1)
     au.signup_user(client_auth, regular_user)
     au.signin_user(client_auth, regular_user)
-    
+
     # Try to create user as non-admin
     new_user_data = {
         "identifier": "newuser@example.com",
         "email": "newuser@example.com",
         "name": "New User",
-        "password": "TestPassword123"
+        "password": "TestPassword123",
     }
-    
+
     response = client_auth.post(
-        "/admin/users",
-        data=json.dumps(new_user_data),
-        content_type="application/json"
+        "/admin/users", data=json.dumps(new_user_data), content_type="application/json"
     )
-    
+
     assert response.status_code == 403
     data = response.get_json()
     assert data["message"] == "Admin access required."
@@ -238,37 +232,37 @@ def test_update_user_as_admin(client_auth):
     # Create admin user
     admin_user = get_user(1)
     au.signup_user(client_auth, admin_user)
-    
+
     # Create regular user to update
     regular_user = get_user(2)
     au.signup_user(client_auth, regular_user)
     regular_user_obj = crud.get_user_by_identifier(regular_user.identifier)
-    
+
     # Set user as admin and sign in
     user = crud.get_user_by_identifier(admin_user.identifier)
     user.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Update user data
     update_data = {
         "name": "Updated Name",
         "affiliation": "Updated University",
-        "role": "admin"
+        "role": "admin",
     }
-    
+
     response = client_auth.put(
         f"/admin/users/{regular_user_obj.id}",
         data=json.dumps(update_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 200
     data = response.get_json()
     assert data["message"] == "User updated successfully"
     assert data["user"]["name"] == "Updated Name"
     assert data["user"]["role"] == "admin"
-    
+
     # Verify updates in database
     updated_user = crud.get_user_by_identifier(regular_user.identifier)
     assert updated_user.name == "Updated Name"
@@ -281,22 +275,22 @@ def test_update_nonexistent_user(client_auth):
     # Create admin user
     admin_user = get_user(1)
     au.signup_user(client_auth, admin_user)
-    
+
     # Set user as admin and sign in
     user = crud.get_user_by_identifier(admin_user.identifier)
     user.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Try to update non-existent user
     update_data = {"name": "Updated Name"}
-    
+
     response = client_auth.put(
         "/admin/users/99999",
         data=json.dumps(update_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 404
     data = response.get_json()
     assert data["message"] == "User not found"
@@ -309,21 +303,21 @@ def test_update_user_as_non_admin_forbidden(client_auth):
     user2 = get_user(2)
     au.signup_user(client_auth, user1)
     au.signup_user(client_auth, user2)
-    
+
     user2_obj = crud.get_user_by_identifier(user2.identifier)
-    
+
     # Sign in as first user (non-admin)
     au.signin_user(client_auth, user1)
-    
+
     # Try to update second user
     update_data = {"name": "Updated Name"}
-    
+
     response = client_auth.put(
         f"/admin/users/{user2_obj.id}",
         data=json.dumps(update_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 403
     data = response.get_json()
     assert data["message"] == "Admin access required."
@@ -339,12 +333,12 @@ def test_delete_user_as_admin(client_auth):
     # Create admin user
     admin_user = get_user(1)
     au.signup_user(client_auth, admin_user)
-    
+
     # Create regular user to delete
     regular_user = get_user(2)
     au.signup_user(client_auth, regular_user)
     regular_user_obj = crud.get_user_by_identifier(regular_user.identifier)
-    
+
     # Set user as admin and sign in
     admin_user = crud.get_user_by_identifier(admin_user.identifier)
     admin_user.role = "admin"
@@ -353,15 +347,15 @@ def test_delete_user_as_admin(client_auth):
 
     # verify we have 2 users
     assert len(crud.list_users()) == 2
-    
+
     # Delete user
     response = client_auth.delete(f"/admin/users/{regular_user_obj.id}")
-    
+
     assert response.status_code == 200
     data = response.get_json()
     assert data["message"] == "User deleted successfully"
     assert data["deleted_user"]["identifier"] == regular_user.identifier
-    
+
     # Verify user was deleted from database
     all_users = crud.list_users()
     assert len(all_users) == 1
@@ -373,16 +367,16 @@ def test_delete_nonexistent_user(client_auth):
     # Create admin user
     admin_user = get_user(1)
     au.signup_user(client_auth, admin_user)
-    
+
     # Set user as admin and sign in
     user = crud.get_user_by_identifier(admin_user.identifier)
     user.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Try to delete non-existent user
     response = client_auth.delete("/admin/users/99999")
-    
+
     assert response.status_code == 404
     data = response.get_json()
     assert data["message"] == "User not found"
@@ -395,15 +389,15 @@ def test_delete_user_as_non_admin_forbidden(client_auth):
     user2 = get_user(2)
     au.signup_user(client_auth, user1)
     au.signup_user(client_auth, user2)
-    
+
     user2_obj = crud.get_user_by_identifier(user2.identifier)
-    
+
     # Sign in as first user (non-admin)
     au.signin_user(client_auth, user1)
-    
+
     # Try to delete second user
     response = client_auth.delete(f"/admin/users/{user2_obj.id}")
-    
+
     assert response.status_code == 403
     data = response.get_json()
     assert data["message"] == "Admin access required."
@@ -419,21 +413,21 @@ def test_get_single_user_as_admin(client_auth):
     # Create admin user
     admin_user = get_user(1)
     au.signup_user(client_auth, admin_user)
-    
+
     # Create regular user
     regular_user = get_user(2)
     au.signup_user(client_auth, regular_user)
     regular_user_obj = crud.get_user_by_identifier(regular_user.identifier)
-    
+
     # Set user as admin and sign in
     user = crud.get_user_by_identifier(admin_user.identifier)
     user.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Get specific user
     response = client_auth.get(f"/admin/users/{regular_user_obj.id}")
-    
+
     assert response.status_code == 200
     data = response.get_json()
     assert "user" in data
@@ -447,16 +441,16 @@ def test_get_single_nonexistent_user(client_auth):
     # Create admin user
     admin_user = get_user(1)
     au.signup_user(client_auth, admin_user)
-    
+
     # Set user as admin and sign in
     user = crud.get_user_by_identifier(admin_user.identifier)
     user.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Try to get non-existent user
     response = client_auth.get("/admin/users/99999")
-    
+
     assert response.status_code == 404
     data = response.get_json()
     assert data["message"] == "User not found"
@@ -469,15 +463,15 @@ def test_get_single_user_as_non_admin_forbidden(client_auth):
     user2 = get_user(2)
     au.signup_user(client_auth, user1)
     au.signup_user(client_auth, user2)
-    
+
     user2_obj = crud.get_user_by_identifier(user2.identifier)
-    
+
     # Sign in as first user (non-admin)
     au.signin_user(client_auth, user1)
-    
+
     # Try to get second user
     response = client_auth.get(f"/admin/users/{user2_obj.id}")
-    
+
     assert response.status_code == 403
     data = response.get_json()
     assert data["message"] == "Admin access required."

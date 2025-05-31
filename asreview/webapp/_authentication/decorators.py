@@ -51,6 +51,7 @@ def login_required(func):
 
     return decorated_view
 
+
 def admin_required(func):
     @wraps(func)
     @login_required
@@ -62,6 +63,7 @@ def admin_required(func):
         return func(*args, **kwargs)
 
     return decorated_view
+
 
 def project_authorization(f):
     """

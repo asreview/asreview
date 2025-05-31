@@ -35,7 +35,7 @@ def get_users():
         stmt = select(User)
         users = DB.session.execute(stmt).scalars().all()
         user_list = []
-        
+
         for user in users:
             user_data = {
                 "id": user.id,
@@ -49,7 +49,7 @@ def get_users():
                 "role": user.role,
             }
             user_list.append(user_data)
-        
+
         return jsonify({"users": user_list}), 200
     except SQLAlchemyError as e:
         return jsonify({"message": f"Database error: {str(e)}"}), 500
@@ -61,28 +61,32 @@ def create_user():
     """Create a new user (admin only)"""
     try:
         data = request.get_json()
-        
+
         # Required fields
         identifier = data.get("identifier", "").strip()
         origin = data.get("origin", "asreview").strip()
         email = data.get("email", "").strip() if data.get("email") else None
         name = data.get("name", "").strip()
-        
+
         # Optional fields
-        affiliation = data.get("affiliation", "").strip() if data.get("affiliation") else None
+        affiliation = (
+            data.get("affiliation", "").strip() if data.get("affiliation") else None
+        )
         password = data.get("password")
         confirmed = data.get("confirmed", True)
         public = data.get("public", True)
         role = data.get("role", "member")
-        
+
         # Check if user already exists
         existing_user = User.query.filter(
             or_(User.identifier == identifier, User.email == email)
         ).first()
-        
+
         if existing_user:
-            return jsonify({"message": "User with this identifier or email already exists"}), 409
-        
+            return jsonify(
+                {"message": "User with this identifier or email already exists"}
+            ), 409
+
         # Create new user
         user = User(
             identifier=identifier,
@@ -95,21 +99,23 @@ def create_user():
             public=public,
         )
         user.role = role
-        
+
         DB.session.add(user)
         DB.session.commit()
-        
-        return jsonify({
-            "message": "User created successfully",
-            "user": {
-                "id": user.id,
-                "identifier": user.identifier,
-                "email": user.email,
-                "name": user.name,
-                "role": user.role,
+
+        return jsonify(
+            {
+                "message": "User created successfully",
+                "user": {
+                    "id": user.id,
+                    "identifier": user.identifier,
+                    "email": user.email,
+                    "name": user.name,
+                    "role": user.role,
+                },
             }
-        }), 201
-        
+        ), 201
+
     except ValueError as e:
         DB.session.rollback()
         return jsonify({"message": f"Validation error: {str(e)}"}), 400
@@ -129,9 +135,9 @@ def update_user(user_id):
         user = DB.session.get(User, user_id)
         if not user:
             return jsonify({"message": "User not found"}), 404
-        
+
         data = request.get_json()
-        
+
         # Update fields if provided
         if "identifier" in data:
             user.identifier = data["identifier"].strip()
@@ -142,34 +148,40 @@ def update_user(user_id):
         if "name" in data:
             user.name = data["name"].strip()
         if "affiliation" in data:
-            user.affiliation = data["affiliation"].strip() if data["affiliation"] else None
+            user.affiliation = (
+                data["affiliation"].strip() if data["affiliation"] else None
+            )
         if "confirmed" in data:
             user.confirmed = data["confirmed"]
         if "public" in data:
             user.public = data["public"]
         if "role" in data:
             user.role = data["role"]
-        
+
         # Handle password update
         if "password" in data and data["password"]:
             if user.origin == "asreview":
                 user.hashed_password = User.create_password_hash(data["password"])
             else:
-                return jsonify({"message": "Cannot set password for non-asreview users"}), 400
-        
+                return jsonify(
+                    {"message": "Cannot set password for non-asreview users"}
+                ), 400
+
         DB.session.commit()
-        
-        return jsonify({
-            "message": "User updated successfully",
-            "user": {
-                "id": user.id,
-                "identifier": user.identifier,
-                "email": user.email,
-                "name": user.name,
-                "role": user.role,
+
+        return jsonify(
+            {
+                "message": "User updated successfully",
+                "user": {
+                    "id": user.id,
+                    "identifier": user.identifier,
+                    "email": user.email,
+                    "name": user.name,
+                    "role": user.role,
+                },
             }
-        }), 200
-        
+        ), 200
+
     except ValueError as e:
         DB.session.rollback()
         return jsonify({"message": f"Validation error: {str(e)}"}), 400
@@ -189,7 +201,7 @@ def delete_user(user_id):
         user = DB.session.get(User, user_id)
         if not user:
             return jsonify({"message": "User not found"}), 404
-        
+
         # Store user info for response
         user_info = {
             "id": user.id,
@@ -197,15 +209,14 @@ def delete_user(user_id):
             "email": user.email,
             "name": user.name,
         }
-        
+
         DB.session.delete(user)
         DB.session.commit()
-        
-        return jsonify({
-            "message": "User deleted successfully",
-            "deleted_user": user_info
-        }), 200
-        
+
+        return jsonify(
+            {"message": "User deleted successfully", "deleted_user": user_info}
+        ), 200
+
     except SQLAlchemyError as e:
         DB.session.rollback()
         return jsonify({"message": f"Database error: {str(e)}"}), 500
@@ -219,7 +230,7 @@ def get_user(user_id):
         user = DB.session.get(User, user_id)
         if not user:
             return jsonify({"message": "User not found"}), 404
-        
+
         user_data = {
             "id": user.id,
             "identifier": user.identifier,
@@ -231,8 +242,8 @@ def get_user(user_id):
             "public": user.public,
             "role": user.role,
         }
-        
+
         return jsonify({"user": user_data}), 200
-        
+
     except SQLAlchemyError as e:
         return jsonify({"message": f"Database error: {str(e)}"}), 500
