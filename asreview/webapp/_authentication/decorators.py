@@ -51,6 +51,17 @@ def login_required(func):
 
     return decorated_view
 
+def admin_required(func):
+    @wraps(func)
+    @login_required
+    def decorated_view(*args, **kwargs):
+        # Assume user is logged in if we reached here
+        role = getattr(current_user, "role", None)
+        if role != "admin":
+            return jsonify({"message": "Admin access required."}), 403
+        return func(*args, **kwargs)
+
+    return decorated_view
 
 def project_authorization(f):
     """
