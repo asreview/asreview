@@ -14,10 +14,7 @@
 
 import json
 
-import pytest
-
 from asreview.webapp import DB
-from asreview.webapp._authentication.models import User
 import asreview.webapp.tests.utils.api_utils as au
 from asreview.webapp.tests.utils.config_parser import get_user
 import asreview.webapp.tests.utils.crud as crud
