@@ -1,13 +1,18 @@
 import { Box, Toolbar } from "@mui/material";
 
 import { AutoModeOutlined } from "@mui/icons-material";
+import ManageAccountsIconOutlined from "@mui/icons-material/ManageAccounts";
 
 import { DrawerItem } from "StyledComponents/StyledDrawerItem";
 import SimulateOutlined from "icons/SimulateOutlined";
 
 import { NavLink } from "react-router-dom";
 
+import { useAuth } from "hooks/useAuth";
+
 const LandingDrawerItems = ({ onClick = null, rail = false }) => {
+  const { isAdmin } = useAuth();
+
   return (
     <Box
       sx={{
@@ -35,6 +40,17 @@ const LandingDrawerItems = ({ onClick = null, rail = false }) => {
         component={NavLink}
         onClick={onClick}
       />
+      {window.authentication && isAdmin && (
+        <DrawerItem
+          key={"admin"}
+          to={"/admin"}
+          primary={"Admin"}
+          rail={rail}
+          icon={<ManageAccountsIconOutlined />}
+          component={NavLink}
+          onClick={onClick}
+        />
+      )}
     </Box>
   );
 };

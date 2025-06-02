@@ -1,3 +1,4 @@
+export { default as AdminAPI } from "./AdminAPI";
 export { default as AuthAPI } from "./AuthAPI";
 export { default as ProjectAPI } from "./ProjectAPI";
 export { default as UtilsAPI } from "./UtilsAPI";

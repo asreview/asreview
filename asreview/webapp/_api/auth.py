@@ -44,6 +44,7 @@ def _signed_in_payload(user):
         "logged_in": True,
         "name": user.get_name(),
         "id": user.id,
+        "role": user.role,
         "message": f"User {user.identifier} is logged in.",
     }
 
@@ -395,7 +396,11 @@ def update_profile():
 @login_remote_user
 @login_required
 def user():
-    return jsonify({"name": current_user.get_name(), "id": current_user.id}), 200
+    return jsonify({
+        "name": current_user.get_name(),
+        "id": current_user.id,
+        "role": current_user.role
+    }), 200
 
 
 @bp.route("/signout", methods=["DELETE"])

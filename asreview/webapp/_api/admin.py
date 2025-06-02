@@ -63,10 +63,8 @@ def create_user():
         data = request.get_json()
 
         # Required fields
-        identifier = data.get("identifier", "").strip()
-        origin = data.get("origin", "asreview").strip()
-        email = data.get("email", "").strip() if data.get("email") else None
         name = data.get("name", "").strip()
+        email = data.get("email", "").strip() if data.get("email") else None
 
         # Optional fields
         affiliation = (
@@ -79,7 +77,7 @@ def create_user():
 
         # Check if user already exists
         existing_user = User.query.filter(
-            or_(User.identifier == identifier, User.email == email)
+            or_(User.identifier == email, User.email == email)
         ).first()
 
         if existing_user:
@@ -89,10 +87,10 @@ def create_user():
 
         # Create new user
         user = User(
-            identifier=identifier,
-            origin=origin,
+            identifier=email,
             email=email,
             name=name,
+            origin="asreview",
             affiliation=affiliation,
             password=password,
             confirmed=confirmed,
@@ -139,12 +137,9 @@ def update_user(user_id):
         data = request.get_json()
 
         # Update fields if provided
-        if "identifier" in data:
-            user.identifier = data["identifier"].strip()
-        if "origin" in data:
-            user.origin = data["origin"].strip()
         if "email" in data:
             user.email = data["email"].strip() if data["email"] else None
+            user.identifier = user.email
         if "name" in data:
             user.name = data["name"].strip()
         if "affiliation" in data:

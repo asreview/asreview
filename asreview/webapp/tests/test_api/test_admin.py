@@ -182,7 +182,7 @@ def test_create_user_duplicate_identifier(client_auth):
     # Try to create user with same identifier as admin
     duplicate_user_data = {
         "identifier": admin_user.identifier,
-        "email": "different@example.com",
+        "email": admin_user.identifier,
         "name": "Different User",
         "password": "TestPassword123",
     }
