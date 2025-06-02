@@ -396,11 +396,13 @@ def update_profile():
 @login_remote_user
 @login_required
 def user():
-    return jsonify({
-        "name": current_user.get_name(),
-        "id": current_user.id,
-        "role": current_user.role
-    }), 200
+    return jsonify(
+        {
+            "name": current_user.get_name(),
+            "id": current_user.id,
+            "role": current_user.role,
+        }
+    ), 200
 
 
 @bp.route("/signout", methods=["DELETE"])
