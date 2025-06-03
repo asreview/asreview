@@ -113,7 +113,12 @@ def run_simulation(project):
         asr.ActiveLearningCycle.from_meta(_read_cycle_data(project)),
     ]
 
-    sim = Simulate(project.data_store.get_df(), project.data_store["included"], cycles)
+    sim = Simulate(
+        project.data_store.get_df(),
+        project.data_store["included"],
+        cycles,
+        print_progress=False,
+    )
     try:
         sim.label(priors)
         sim.review()
