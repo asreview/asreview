@@ -475,3 +475,56 @@ def test_get_single_user_as_non_admin_forbidden(client_auth):
     assert response.status_code == 403
     data = response.get_json()
     assert data["message"] == "Admin access required."
+
+
+# ###################
+# ADMIN GET PROJECTS
+# ###################
+
+
+def test_get_projects_as_admin(client_auth):
+    """Test that admin can retrieve all projects"""
+    # Create admin user
+    admin_user = get_user(1)
+    au.signup_user(client_auth, admin_user)
+
+    # Set user as admin and sign in
+    user = crud.get_user_by_identifier(admin_user.identifier)
+    user.role = "admin"
+    DB.session.commit()
+    au.signin_user(client_auth, admin_user)
+
+    # Test get all projects
+    response = client_auth.get("/admin/projects")
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "projects" in data
+    assert "total_count" in data
+    assert isinstance(data["projects"], list)
+    assert isinstance(data["total_count"], int)
+    assert data["total_count"] == len(data["projects"])
+
+
+def test_get_projects_as_non_admin_forbidden(client_auth):
+    """Test that non-admin users cannot retrieve all projects"""
+    # Create regular user
+    regular_user = get_user(1)
+    au.signup_user(client_auth, regular_user)
+    au.signin_user(client_auth, regular_user)
+
+    # Test get all projects as non-admin
+    response = client_auth.get("/admin/projects")
+
+    assert response.status_code == 403
+    data = response.get_json()
+    assert data["message"] == "Admin access required."
+
+
+def test_get_projects_without_login_unauthorized(client_auth):
+    """Test that unauthenticated users cannot retrieve all projects"""
+    response = client_auth.get("/admin/projects")
+
+    assert response.status_code == 401
+    data = response.get_json()
+    assert data["message"] == "Login required."

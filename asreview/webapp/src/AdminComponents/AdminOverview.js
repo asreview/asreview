@@ -13,7 +13,7 @@ import {
 
 import { PeopleOutlined, FolderOutlined } from "@mui/icons-material";
 
-import { UsersComponent } from "AdminComponents";
+import { UsersComponent, ProjectsComponent } from "AdminComponents";
 
 const AdminPageHeader = () => {
   return (
@@ -119,34 +119,7 @@ const AdminOverview = ({ mobileScreen }) => {
           {/* Tab Content */}
           {activeTab === "users" && <UsersComponent />}
 
-          {activeTab === "projects" && (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: "300px",
-                textAlign: "center",
-              }}
-            >
-              <Typography
-                variant="h5"
-                sx={{
-                  fontFamily: "Roboto Serif",
-                  mb: 2,
-                  color: "primary.main",
-                }}
-              >
-                Project Management
-              </Typography>
-              <Alert severity="info" sx={{ maxWidth: "400px" }}>
-                <Typography variant="body2">
-                  Project management features are coming soon!
-                </Typography>
-              </Alert>
-            </Box>
-          )}
+          {activeTab === "projects" && <ProjectsComponent />}
         </Box>
       </Container>
     </>

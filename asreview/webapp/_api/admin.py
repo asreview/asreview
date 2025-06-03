@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+import logging
+from pathlib import Path
+
 from flask import Blueprint
 from flask import jsonify
 from flask import request
@@ -22,7 +26,9 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import admin_required
+from asreview.webapp._authentication.models import Project
 from asreview.webapp._authentication.models import User
+from asreview.webapp.utils import asreview_path
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -242,3 +248,97 @@ def get_user(user_id):
 
     except SQLAlchemyError as e:
         return jsonify({"message": f"Database error: {str(e)}"}), 500
+
+
+@bp.route("/projects", methods=["GET"])
+@admin_required
+def get_all_projects():
+    """Get all projects across all users (admin only)"""
+    try:
+        stmt = select(Project)
+        projects = DB.session.execute(stmt).scalars().all()
+        project_list = []
+
+        for db_project in projects:
+            try:
+                # Build the path to the project.json file
+                project_path = Path(asreview_path()) / db_project.project_id / "project.json"
+                
+                # Initialize project data with database info
+                project_data = {
+                    "id": db_project.id,
+                    "project_id": db_project.project_id,
+                    "owner_id": db_project.owner_id,
+                    "owner_name": (db_project.owner.name or db_project.owner.identifier) if db_project.owner else "Unknown",
+                    "owner_email": db_project.owner.email if db_project.owner else "Unknown",
+                    "name": "Unknown",  # Default value
+                    "created_at_unix": None,
+                    "version": None,
+                    "mode": None,
+                    "status": "error"  # Default to error, will be updated if config is valid
+                }
+
+                # Try to read project.json file for additional details
+                if project_path.exists():
+                    try:
+                        with open(project_path, 'r', encoding='utf-8') as f:
+                            project_config = json.load(f)
+                            
+                        # Update with data from project.json
+                        project_data.update({
+                            "name": project_config.get("name", "Unnamed Project"),
+                            "created_at_unix": project_config.get("created_at_unix"),
+                            "version": project_config.get("version"),
+                            "mode": project_config.get("mode"),
+                        })
+                        
+                        # Determine status from project.json
+                        reviews = project_config.get("reviews", [])
+                        if reviews:
+                            # Use the status from the first review
+                            project_data["status"] = reviews[0].get("status", "setup")
+                        else:
+                            # No reviews in config, set to setup status
+                            project_data["status"] = "setup"
+                            
+                    except (json.JSONDecodeError, IOError) as e:
+                        logging.warning(f"Could not read project.json for {db_project.project_id}: {e}")
+                        # Keep error status (already set), add error details
+                        project_data["error"] = "Could not read project configuration"
+                else:
+                    # Keep error status (already set), add error details
+                    project_data["error"] = "Project configuration file not found"
+
+                project_list.append(project_data)
+
+            except Exception as e:
+                logging.error(f"Error processing project {db_project.project_id}: {e}")
+                # Still add the project but mark it as having an error
+                project_list.append({
+                    "id": db_project.id,
+                    "project_id": db_project.project_id,
+                    "owner_id": db_project.owner_id,
+                    "owner_name": (db_project.owner.name or db_project.owner.identifier) if db_project.owner else "Unknown",
+                    "owner_email": db_project.owner.email if db_project.owner else "Unknown",
+                    "name": "Error Loading Project",
+                    "status": "error",
+                    "error": str(e)
+                })
+
+        # Sort projects by creation date (newest first), with None values last
+        project_list = sorted(
+            project_list,
+            key=lambda x: (x.get("created_at_unix") is not None, x.get("created_at_unix") or 0),
+            reverse=True,
+        )
+
+        return jsonify({
+            "projects": project_list,
+            "total_count": len(project_list)
+        }), 200
+
+    except SQLAlchemyError as e:
+        return jsonify({"message": f"Database error: {str(e)}"}), 500
+    except Exception as e:
+        logging.error(f"Error retrieving projects: {e}")
+        return jsonify({"message": f"Error retrieving projects: {str(e)}"}), 500

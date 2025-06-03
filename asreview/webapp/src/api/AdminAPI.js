@@ -95,6 +95,21 @@ class AdminAPI {
         });
     });
   }
+
+  // Get all projects
+  static fetchProjects() {
+    const url = admin_url + "projects";
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
 }
 
 export default AdminAPI;
