@@ -52,27 +52,27 @@ is advised to use the following structure of the package:
     │       └── queriers.py
     └── tests
 
-The next step is to add metadata to the `setup.py
-<https://github.com/asreview/template-extension-new-model/blob/main/setup.py>`__
-file. Edit the ``name`` of the package and point the ``entry_points`` to the
+The next step is to add metadata to the ``pyproject.toml``
+file. Edit the ``name`` of the package and point the ``entry-points`` to the
 models.
 
-.. code:: bash
+.. code:: toml
 
-    entry_points={
-        'asreview.models.classifiers': [
-            'example = asreviewcontrib.models.classifiers.example_model:ExampleClassifier',
-        ],
-        'asreview.models.feature_extractors': [
-            # define feature_extraction algorithms
-        ],
-        'asreview.models.balancers': [
-            # define balance_strategy algorithms
-        ],
-        'asreview.models.queriers': [
-            # define query_strategy algorithms
-        ]
-    },
+    [project]
+    name = "asreviewcontrib-yourmodel"
+    # ...other metadata...
+
+    [project.entry-points."asreview.models.classifiers"]
+    example = "asreviewcontrib.models.classifiers.example_model:ExampleClassifier"
+
+    [project.entry-points."asreview.models.feature_extractors"]
+    # define feature_extraction algorithms
+
+    [project.entry-points."asreview.models.balancers"]
+    # define balance_strategy algorithms
+
+    [project.entry-points."asreview.models.queriers"]
+    # define query_strategy algorithms
 
 This code registers the model with name ``example``.
 
@@ -132,21 +132,22 @@ following package structure:
     │       ├── __init__.py
     │       ├── entrypoint.py
     │       └── example_utils.py
-    ├── setup.py
+    ├── pyproject.toml
     └── tests
 
 
-Create a ``setup.py`` in
-the root of the package, and set the keyword argument `entry_points` of
-``setup()`` under ``asreview.entry_points``, for example:
+Create a ``pyproject.toml`` in
+the root of the package, and set the entry points under
+``[project.entry-points."asreview.entry_points"]``, for example:
 
-.. code:: python
+.. code:: toml
 
-    entry_points={
-        "asreview.entry_points": [
-            "example = asreviewcontrib.example.entrypoint:ExampleEntryPoint",
-        ]
-    }
+    [project]
+    name = "asreviewcontrib-example"
+    # ...other metadata...
+
+    [project.entry-points."asreview.entry_points"]
+    example = "asreviewcontrib.example.entrypoint:ExampleEntryPoint"
 
 After installing this package, ASReview is extended with the ``asreview
 example`` subcommand. See ``asreview -h`` for this option.
@@ -172,7 +173,7 @@ following package structure:
     │       └── your_dataset.py
     ├── data
     │   └── your_dataset.csv
-    ├── setup.py
+    ├── pyproject.toml
     └── tests
 
 For minimal functionality, ``your_dataset.py`` should extend
