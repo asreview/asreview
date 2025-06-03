@@ -343,7 +343,7 @@ const PriorCard = ({ mode = projectModes.ORACLE, editable = true }) => {
 
             <Box>
               <Button
-                href="https://asreview.readthedocs.io/en/latest/guides/priorknowledge.html"
+                href="https://asreview.readthedocs.io/en/stable/lab/project_create.html#prior-knowledge"
                 target="_blank"
                 rel="noopener noreferrer"
               >

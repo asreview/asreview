@@ -1,7 +1,6 @@
 import {
   Alert,
   Box,
-  Button,
   Card,
   CardContent,
   Divider,
@@ -12,7 +11,6 @@ import {
   Typography,
 } from "@mui/material";
 import { ProjectAPI } from "api";
-import { documentationURL } from "globals.js";
 import React from "react";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
@@ -222,15 +220,6 @@ const WordCounts = () => {
                   this:
                 </Typography>
                 <WordExample />
-              </Box>
-              <Box>
-                <Button
-                  href={documentationURL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Learn more
-                </Button>
               </Box>
             </Stack>
           </Box>

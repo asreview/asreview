@@ -216,7 +216,7 @@ const RecordCardModelTraining = ({ record, modelLogLevel, sx }) => {
               </Box>
               <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
                 <Button
-                  href="https://asreview.readthedocs.io/en/latest/guides/activelearning.html"
+                  href="https://asreview.readthedocs.io/en/stable/lab/models.html"
                   target="_blank"
                   rel="noopener noreferrer"
                   size="small"
