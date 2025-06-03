@@ -203,7 +203,7 @@ const DatasetCard = ({
             </Box>
             <Box sx={{ mt: 1 }}>
               <Button
-                href="https://asreview.nl/blog/active-learning-explained/"
+                href="https://asreview.readthedocs.io/en/stable/lab/data_format.html"
                 target="_blank"
                 rel="noopener noreferrer"
                 size="small"
