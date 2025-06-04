@@ -4,13 +4,14 @@ import {
   Stack,
   Typography,
   Card,
+  CardActionArea,
   Chip,
   Tooltip,
   Alert,
   Grid2 as Grid,
 } from "@mui/material";
 
-import { projectStatuses } from "globals.js";
+import { getStatusColor, getStatusLabel } from "utils/projectStatus";
 
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
@@ -18,45 +19,9 @@ import en from "javascript-time-ago/locale/en";
 TimeAgo.addLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
-const AdminProjectCard = ({ project }) => {
-  const getStatusColor = (status) => {
-    switch (status) {
-      case projectStatuses.SETUP:
-        return "warning";
-      case projectStatuses.REVIEW:
-        return "primary";
-      case projectStatuses.FINISHED:
-        return "success";
-      case "error":
-        return "error";
-      default:
-        return "default";
-    }
-  };
-
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case projectStatuses.SETUP:
-        return "Setup";
-      case projectStatuses.REVIEW:
-        return "In Review";
-      case projectStatuses.FINISHED:
-        return "Finished";
-      case "error":
-        return "Error";
-      default:
-        return "Unknown";
-    }
-  };
-
-  return (
-    <Card
-      sx={{
-        width: "100%",
-        p: 3,
-      }}
-      elevation={0}
-    >
+const ProjectCard = React.memo(({ project, onClick }) => {
+  const cardContent = (
+    <>
       <Grid container spacing={3} columns={14} alignItems="center">
         <Grid size="grow">
           <Stack direction="row" spacing={1} sx={{ width: "100%" }}>
@@ -120,8 +85,25 @@ const AdminProjectCard = ({ project }) => {
           <Typography variant="body2">{project.error}</Typography>
         </Alert>
       )}
+    </>
+  );
+
+  return (
+    <Card
+      sx={{
+        width: "100%",
+      }}
+      elevation={0}
+    >
+      {onClick ? (
+        <CardActionArea onClick={() => onClick(project)} sx={{ p: 3 }}>
+          {cardContent}
+        </CardActionArea>
+      ) : (
+        <Box sx={{ p: 3 }}>{cardContent}</Box>
+      )}
     </Card>
   );
-};
+});
 
-export default AdminProjectCard;
+export default ProjectCard;

@@ -5,8 +5,6 @@ import {
   Box,
   Stack,
   Typography,
-  IconButton,
-  Popover,
   Alert,
   CircularProgress,
   Divider,
@@ -16,13 +14,19 @@ import {
 import { FolderOutlined } from "@mui/icons-material";
 
 import { AdminAPI } from "api";
-import { InlineErrorHandler } from "Components";
-import AdminProjectCard from "./AdminProjectCard";
-import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
+import {
+  InlineErrorHandler,
+  HelpPopover,
+  LoadingState,
+  ErrorState,
+} from "Components";
+import ProjectCard from "./ProjectCard";
+import ProjectDetailsModal from "./ProjectDetailsModal";
 import { projectStatuses } from "globals.js";
 
 const ProjectsComponent = () => {
-  const [anchorElInfo, setAnchorElInfo] = React.useState(null);
+  const [selectedProject, setSelectedProject] = React.useState(null);
+  const [detailsModalOpen, setDetailsModalOpen] = React.useState(false);
 
   // Fetch projects from the API
   const {
@@ -36,15 +40,15 @@ const ProjectsComponent = () => {
     retry: 2,
   });
 
-  const handleHelpPopoverOpen = (event) => {
-    setAnchorElInfo(event.currentTarget);
+  const handleProjectClick = (project) => {
+    setSelectedProject(project);
+    setDetailsModalOpen(true);
   };
 
-  const handleHelpPopoverClose = () => {
-    setAnchorElInfo(null);
+  const handleDetailsModalClose = () => {
+    setDetailsModalOpen(false);
+    setSelectedProject(null);
   };
-
-  const openInfo = Boolean(anchorElInfo);
 
   // Categorize projects by status
   const categorizeProjects = React.useMemo(() => {
@@ -84,124 +88,85 @@ const ProjectsComponent = () => {
         <Typography variant="h6" fontFamily="Roboto Serif">
           Project Management
         </Typography>
-        <IconButton size="small" onClick={handleHelpPopoverOpen}>
-          <StyledLightBulb fontSize="small" />
-        </IconButton>
-        <Popover
-          open={openInfo}
-          anchorEl={anchorElInfo}
-          onClose={handleHelpPopoverClose}
-          slotProps={{
-            paper: {
-              sx: {
-                borderRadius: 2,
-                maxWidth: 375,
-              },
-            },
-          }}
-        >
-          <Box sx={{ p: 2.5 }}>
-            <Stack spacing={2.5} alignItems="flex-start">
-              <Typography variant="subtitle1" fontWeight="bold">
-                Project Overview
+        <HelpPopover>
+          <Stack spacing={2.5} alignItems="flex-start">
+            <Typography variant="subtitle1" fontWeight="bold">
+              Project Overview
+            </Typography>
+            <Typography variant="body2" sx={{ textAlign: "justify" }}>
+              View and monitor all projects across the ASReview system. This
+              includes projects from all users, regardless of ownership.
+            </Typography>
+            <Alert severity="info">
+              <Typography variant="body2">
+                Project names and details are retrieved from project
+                configuration files. Projects without valid configuration files
+                will show as having errors.
               </Typography>
-              <Typography variant="body2" sx={{ textAlign: "justify" }}>
-                View and monitor all projects across the ASReview system. This
-                includes projects from all users, regardless of ownership.
+            </Alert>
+            <Box>
+              <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2 }}>
+                Project Status
               </Typography>
-              <Alert severity="info">
-                <Typography variant="body2">
-                  Project names and details are retrieved from project
-                  configuration files. Projects without valid configuration
-                  files will show as having errors.
-                </Typography>
-              </Alert>
-              <Box>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight="bold"
-                  sx={{ mb: 2 }}
-                >
-                  Project Status
-                </Typography>
-                <Stack spacing={1}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Chip
-                      size="small"
-                      label="Setup"
-                      color="warning"
-                      variant="filled"
-                    />
-                    <Typography variant="body2">
-                      Project is being configured
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Chip
-                      size="small"
-                      label="In Review"
-                      color="primary"
-                      variant="filled"
-                    />
-                    <Typography variant="body2">
-                      Active project under review
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Chip
-                      size="small"
-                      label="Finished"
-                      color="success"
-                      variant="filled"
-                    />
-                    <Typography variant="body2">Completed project</Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Chip
-                      size="small"
-                      label="Error"
-                      color="error"
-                      variant="filled"
-                    />
-                    <Typography variant="body2">
-                      Project has configuration issues
-                    </Typography>
-                  </Box>
-                </Stack>
-              </Box>
-            </Stack>
-          </Box>
-        </Popover>
+              <Stack spacing={1}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Chip
+                    size="small"
+                    label="Setup"
+                    color="warning"
+                    variant="filled"
+                  />
+                  <Typography variant="body2">
+                    Project is being configured
+                  </Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Chip
+                    size="small"
+                    label="In Review"
+                    color="primary"
+                    variant="filled"
+                  />
+                  <Typography variant="body2">
+                    Active project under review
+                  </Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Chip
+                    size="small"
+                    label="Finished"
+                    color="success"
+                    variant="filled"
+                  />
+                  <Typography variant="body2">Completed project</Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Chip
+                    size="small"
+                    label="Error"
+                    color="error"
+                    variant="filled"
+                  />
+                  <Typography variant="body2">
+                    Project has configuration issues
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
+          </Stack>
+        </HelpPopover>
       </Box>
 
       {/* Loading State */}
-      {isLoading && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            minHeight: "300px",
-          }}
-        >
-          <Stack spacing={2} alignItems="center">
-            <CircularProgress />
-            <Typography variant="body2" color="text.secondary">
-              Loading projects...
-            </Typography>
-          </Stack>
-        </Box>
-      )}
+      {isLoading && <LoadingState message="Loading projects..." />}
 
       {/* Error State */}
       {isError && (
-        <Box sx={{ mb: 3 }}>
-          <InlineErrorHandler
-            message={error?.message || "Failed to load projects"}
-            button
-            refetch={refetch}
-          />
-        </Box>
+        <ErrorState
+          message="Failed to load projects"
+          error={error}
+          onRetry={refetch}
+        />
       )}
 
       {/* Main Content - only show when not loading and no error */}
@@ -217,9 +182,10 @@ const ProjectsComponent = () => {
               </Divider>
               <Grid container spacing={2}>
                 {categorizeProjects.review.map((project) => (
-                  <AdminProjectCard
+                  <ProjectCard
                     project={project}
                     key={project.project_id}
+                    onClick={handleProjectClick}
                   />
                 ))}
               </Grid>
@@ -236,9 +202,10 @@ const ProjectsComponent = () => {
               </Divider>
               <Grid container spacing={2}>
                 {categorizeProjects.finished.map((project) => (
-                  <AdminProjectCard
+                  <ProjectCard
                     project={project}
                     key={project.project_id}
+                    onClick={handleProjectClick}
                   />
                 ))}
               </Grid>
@@ -255,9 +222,10 @@ const ProjectsComponent = () => {
               </Divider>
               <Grid container spacing={2}>
                 {categorizeProjects.setup.map((project) => (
-                  <AdminProjectCard
+                  <ProjectCard
                     project={project}
                     key={project.project_id}
+                    onClick={handleProjectClick}
                   />
                 ))}
               </Grid>
@@ -274,9 +242,10 @@ const ProjectsComponent = () => {
               </Divider>
               <Grid container spacing={2}>
                 {categorizeProjects.error.map((project) => (
-                  <AdminProjectCard
+                  <ProjectCard
                     project={project}
                     key={project.project_id}
+                    onClick={handleProjectClick}
                   />
                 ))}
               </Grid>
@@ -308,6 +277,13 @@ const ProjectsComponent = () => {
           )}
         </Stack>
       )}
+
+      {/* Project Details Modal */}
+      <ProjectDetailsModal
+        open={detailsModalOpen}
+        onClose={handleDetailsModalClose}
+        project={selectedProject}
+      />
     </Box>
   );
 };

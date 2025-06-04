@@ -12,7 +12,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import RouteNotFound from "RouteNotFound";
 
 import { ReviewPage } from "ProjectComponents/ReviewComponents";
-import { AdminOverview } from "AdminComponents";
+import { Overview } from "AdminComponents";
 import { useAuth } from "hooks/useAuth";
 
 import "./App.css";
@@ -51,9 +51,7 @@ const App = () => {
             >
               <Route
                 index
-                element={
-                  <AdminOverview key={"admin"} mobileScreen={mobileScreen} />
-                }
+                element={<Overview key={"admin"} mobileScreen={mobileScreen} />}
               />
             </Route>
           )}

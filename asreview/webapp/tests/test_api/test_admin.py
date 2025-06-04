@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import json
+from unittest.mock import patch
 
 from asreview.webapp import DB
 import asreview.webapp.tests.utils.api_utils as au
@@ -482,10 +483,49 @@ def test_get_single_user_as_non_admin_forbidden(client_auth):
 # ###################
 
 
+def _create_test_users_with_projects(client_auth):
+    """Helper function to create real users and projects for testing"""
+    # Create first user and project
+    user1 = get_user(1)
+    au.signup_user(client_auth, user1)
+    au.signin_user(client_auth, user1)
+    
+    # Create project for user1
+    response1 = au.create_project(client_auth, mode="oracle", benchmark="synergy:van_der_Valk_2021")
+    assert response1.status_code == 201
+    project1_data = response1.get_json()
+    
+    # Sign out user1
+    au.signout_user(client_auth)
+    
+    # Create second user and project
+    user2 = get_user(2)
+    au.signup_user(client_auth, user2)
+    au.signin_user(client_auth, user2)
+    
+    # Create project for user2
+    response2 = au.create_project(client_auth, mode="oracle", benchmark="synergy:van_der_Valk_2021")
+    assert response2.status_code == 201
+    project2_data = response2.get_json()
+    
+    # Sign out user2
+    au.signout_user(client_auth)
+    
+    return {
+        'user1': user1,
+        'user2': user2,
+        'project1': project1_data,
+        'project2': project2_data
+    }
+
+
 def test_get_projects_as_admin(client_auth):
     """Test that admin can retrieve all projects"""
+    # Create test users with real projects
+    test_data = _create_test_users_with_projects(client_auth)
+    
     # Create admin user
-    admin_user = get_user(1)
+    admin_user = get_user(3)  # Use user 3 since 1 and 2 are already used
     au.signup_user(client_auth, admin_user)
 
     # Set user as admin and sign in
@@ -503,17 +543,21 @@ def test_get_projects_as_admin(client_auth):
     assert "total_count" in data
     assert isinstance(data["projects"], list)
     assert isinstance(data["total_count"], int)
-    assert data["total_count"] == len(data["projects"])
+    assert data["total_count"] == 2  # Should see both projects from users 1 and 2
 
 
 def test_get_projects_as_non_admin_forbidden(client_auth):
     """Test that non-admin users cannot retrieve all projects"""
-    # Create regular user
-    regular_user = get_user(1)
+    # Create test users with real projects
+    test_data = _create_test_users_with_projects(client_auth)
+    
+    # Create regular (non-admin) user
+    regular_user = get_user(3)  # Use user 3 since 1 and 2 are already used
     au.signup_user(client_auth, regular_user)
     au.signin_user(client_auth, regular_user)
 
-    # Test get all projects as non-admin
+    # Test get all projects as non-admin - should be forbidden regardless
+    # of existing projects
     response = client_auth.get("/admin/projects")
 
     assert response.status_code == 403

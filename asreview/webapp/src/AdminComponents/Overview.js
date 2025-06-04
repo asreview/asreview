@@ -36,7 +36,7 @@ const AdminPageHeader = () => {
   );
 };
 
-const AdminOverview = ({ mobileScreen }) => {
+const Overview = ({ mobileScreen }) => {
   const smallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const [activeTab, setActiveTab] = React.useState("users");
 
@@ -126,4 +126,4 @@ const AdminOverview = ({ mobileScreen }) => {
   );
 };
 
-export default AdminOverview;
+export default Overview;

@@ -38,10 +38,8 @@ const UserCard = ({ user, onEdit, onDelete, isAdmin }) => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        transition: "all 0.2s ease-in-out",
         "&:hover": {
-          transform: "translateY(-2px)",
-          boxShadow: 3,
+          filter: "brightness(0.96)",
         },
       }}
     >
