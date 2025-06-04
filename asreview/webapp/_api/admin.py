@@ -262,36 +262,46 @@ def get_all_projects():
         for db_project in projects:
             try:
                 # Build the path to the project.json file
-                project_path = Path(asreview_path()) / db_project.project_id / "project.json"
-                
+                project_path = (
+                    Path(asreview_path()) / db_project.project_id / "project.json"
+                )
+
                 # Initialize project data with database info
                 project_data = {
                     "id": db_project.id,
                     "project_id": db_project.project_id,
                     "owner_id": db_project.owner_id,
-                    "owner_name": (db_project.owner.name or db_project.owner.identifier) if db_project.owner else "Unknown",
-                    "owner_email": db_project.owner.email if db_project.owner else "Unknown",
+                    "owner_name": (db_project.owner.name or db_project.owner.identifier)
+                    if db_project.owner
+                    else "Unknown",
+                    "owner_email": db_project.owner.email
+                    if db_project.owner
+                    else "Unknown",
                     "name": "Unknown",  # Default value
                     "created_at_unix": None,
                     "version": None,
                     "mode": None,
-                    "status": "error"  # Default to error, will be updated if config is valid
+                    "status": "error",  # Default to error, will be updated if config is valid
                 }
 
                 # Try to read project.json file for additional details
                 if project_path.exists():
                     try:
-                        with open(project_path, 'r', encoding='utf-8') as f:
+                        with open(project_path, "r", encoding="utf-8") as f:
                             project_config = json.load(f)
-                            
+
                         # Update with data from project.json
-                        project_data.update({
-                            "name": project_config.get("name", "Unnamed Project"),
-                            "created_at_unix": project_config.get("created_at_unix"),
-                            "version": project_config.get("version"),
-                            "mode": project_config.get("mode"),
-                        })
-                        
+                        project_data.update(
+                            {
+                                "name": project_config.get("name", "Unnamed Project"),
+                                "created_at_unix": project_config.get(
+                                    "created_at_unix"
+                                ),
+                                "version": project_config.get("version"),
+                                "mode": project_config.get("mode"),
+                            }
+                        )
+
                         # Determine status from project.json
                         reviews = project_config.get("reviews", [])
                         if reviews:
@@ -300,9 +310,11 @@ def get_all_projects():
                         else:
                             # No reviews in config, set to setup status
                             project_data["status"] = "setup"
-                            
+
                     except (json.JSONDecodeError, IOError) as e:
-                        logging.warning(f"Could not read project.json for {db_project.project_id}: {e}")
+                        logging.warning(
+                            f"Could not read project.json for {db_project.project_id}: {e}"
+                        )
                         # Keep error status (already set), add error details
                         project_data["error"] = "Could not read project configuration"
                 else:
@@ -314,28 +326,38 @@ def get_all_projects():
             except Exception as e:
                 logging.error(f"Error processing project {db_project.project_id}: {e}")
                 # Still add the project but mark it as having an error
-                project_list.append({
-                    "id": db_project.id,
-                    "project_id": db_project.project_id,
-                    "owner_id": db_project.owner_id,
-                    "owner_name": (db_project.owner.name or db_project.owner.identifier) if db_project.owner else "Unknown",
-                    "owner_email": db_project.owner.email if db_project.owner else "Unknown",
-                    "name": "Error Loading Project",
-                    "status": "error",
-                    "error": str(e)
-                })
+                project_list.append(
+                    {
+                        "id": db_project.id,
+                        "project_id": db_project.project_id,
+                        "owner_id": db_project.owner_id,
+                        "owner_name": (
+                            db_project.owner.name or db_project.owner.identifier
+                        )
+                        if db_project.owner
+                        else "Unknown",
+                        "owner_email": db_project.owner.email
+                        if db_project.owner
+                        else "Unknown",
+                        "name": "Error Loading Project",
+                        "status": "error",
+                        "error": str(e),
+                    }
+                )
 
         # Sort projects by creation date (newest first), with None values last
         project_list = sorted(
             project_list,
-            key=lambda x: (x.get("created_at_unix") is not None, x.get("created_at_unix") or 0),
+            key=lambda x: (
+                x.get("created_at_unix") is not None,
+                x.get("created_at_unix") or 0,
+            ),
             reverse=True,
         )
 
-        return jsonify({
-            "projects": project_list,
-            "total_count": len(project_list)
-        }), 200
+        return jsonify(
+            {"projects": project_list, "total_count": len(project_list)}
+        ), 200
 
     except SQLAlchemyError as e:
         return jsonify({"message": f"Database error: {str(e)}"}), 500
