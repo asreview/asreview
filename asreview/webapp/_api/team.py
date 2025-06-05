@@ -47,7 +47,7 @@ def users(project_id):
     if (
         project not in current_user.projects
         and project not in current_user.involved_in
-        and current_user.role != "admin"
+        and not current_user.is_admin
     ):
         return jsonify(REQUESTER_FRAUD), 404
 
