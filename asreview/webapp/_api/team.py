@@ -43,11 +43,11 @@ def users(project_id):
     """Returns all users involved in a project."""
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
 
-    # Allow access if user is owner, collaborator, or admin
+    # Deny if user is member and this person is not somehow involved in the project
     if (
-        project not in current_user.projects
+        current_user.is_member
+        and project not in current_user.projects
         and project not in current_user.involved_in
-        and not current_user.is_admin
     ):
         return jsonify(REQUESTER_FRAUD), 404
 
