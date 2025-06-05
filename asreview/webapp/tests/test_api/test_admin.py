@@ -489,33 +489,37 @@ def _create_test_users_with_projects(client_auth):
     user1 = get_user(1)
     au.signup_user(client_auth, user1)
     au.signin_user(client_auth, user1)
-    
+
     # Create project for user1
-    response1 = au.create_project(client_auth, mode="oracle", benchmark="synergy:van_der_Valk_2021")
+    response1 = au.create_project(
+        client_auth, mode="oracle", benchmark="synergy:van_der_Valk_2021"
+    )
     assert response1.status_code == 201
     project1_data = response1.get_json()
-    
+
     # Sign out user1
     au.signout_user(client_auth)
-    
+
     # Create second user and project
     user2 = get_user(2)
     au.signup_user(client_auth, user2)
     au.signin_user(client_auth, user2)
-    
+
     # Create project for user2
-    response2 = au.create_project(client_auth, mode="oracle", benchmark="synergy:van_der_Valk_2021")
+    response2 = au.create_project(
+        client_auth, mode="oracle", benchmark="synergy:van_der_Valk_2021"
+    )
     assert response2.status_code == 201
     project2_data = response2.get_json()
-    
+
     # Sign out user2
     au.signout_user(client_auth)
-    
+
     return {
-        'user1': user1,
-        'user2': user2,
-        'project1': project1_data,
-        'project2': project2_data
+        "user1": user1,
+        "user2": user2,
+        "project1": project1_data,
+        "project2": project2_data,
     }
 
 
@@ -523,7 +527,7 @@ def test_get_projects_as_admin(client_auth):
     """Test that admin can retrieve all projects"""
     # Create test users with real projects
     test_data = _create_test_users_with_projects(client_auth)
-    
+
     # Create admin user
     admin_user = get_user(3)  # Use user 3 since 1 and 2 are already used
     au.signup_user(client_auth, admin_user)
@@ -550,7 +554,7 @@ def test_get_projects_as_non_admin_forbidden(client_auth):
     """Test that non-admin users cannot retrieve all projects"""
     # Create test users with real projects
     test_data = _create_test_users_with_projects(client_auth)
-    
+
     # Create regular (non-admin) user
     regular_user = get_user(3)  # Use user 3 since 1 and 2 are already used
     au.signup_user(client_auth, regular_user)
@@ -583,10 +587,10 @@ def test_transfer_ownership_to_non_member(client_auth):
     """Test transferring project ownership to a user who is not a collaborator"""
     # Create test users and projects
     test_data = _create_test_users_with_projects(client_auth)
-    user1 = test_data['user1']
-    user2 = test_data['user2']
-    project1 = test_data['project1']
-    
+    user1 = test_data["user1"]
+    user2 = test_data["user2"]
+    project1 = test_data["project1"]
+
     # Create admin user
     admin_user = get_user(3)
     au.signup_user(client_auth, admin_user)
@@ -594,45 +598,49 @@ def test_transfer_ownership_to_non_member(client_auth):
     admin_user_obj.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Get project and user objects
     project1_obj = crud.get_project_by_project_id(project1["id"])
     user2_obj = crud.get_user_by_identifier(user2.identifier)
-    
+
     # Verify initial state - user1 is owner, user2 is not collaborator
     assert project1_obj.owner_id == crud.get_user_by_identifier(user1.identifier).id
     assert user2_obj not in project1_obj.collaborators
     assert user2_obj not in project1_obj.pending_invitations
-    
+
     # Transfer ownership from user1 to user2
     transfer_data = {"new_owner_id": user2_obj.id}
     response = client_auth.post(
         f"/admin/projects/{project1_obj.id}/transfer-ownership",
         data=json.dumps(transfer_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 200
     data = response.get_json()
     assert data["message"] == "Project ownership transferred successfully"
     assert data["project"]["new_owner"]["id"] == user2_obj.id
     assert data["project"]["new_owner"]["name"] == user2_obj.name
-    
+
     # Verify final state - user2 is now owner, user1 is completely removed
     DB.session.refresh(project1_obj)
     assert project1_obj.owner_id == user2_obj.id
-    assert crud.get_user_by_identifier(user1.identifier) not in project1_obj.collaborators
-    assert user2_obj not in project1_obj.collaborators  # New owner shouldn't be in collaborators
+    assert (
+        crud.get_user_by_identifier(user1.identifier) not in project1_obj.collaborators
+    )
+    assert (
+        user2_obj not in project1_obj.collaborators
+    )  # New owner shouldn't be in collaborators
 
 
 def test_transfer_ownership_to_existing_collaborator(client_auth):
     """Test transferring project ownership to an existing collaborator"""
     # Create test users and projects
     test_data = _create_test_users_with_projects(client_auth)
-    user1 = test_data['user1']
-    user2 = test_data['user2']
-    project1 = test_data['project1']
-    
+    user1 = test_data["user1"]
+    user2 = test_data["user2"]
+    project1 = test_data["project1"]
+
     # Create admin user
     admin_user = get_user(3)
     au.signup_user(client_auth, admin_user)
@@ -640,47 +648,51 @@ def test_transfer_ownership_to_existing_collaborator(client_auth):
     admin_user_obj.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Get project and user objects
     project1_obj = crud.get_project_by_project_id(project1["id"])
     user1_obj = crud.get_user_by_identifier(user1.identifier)
     user2_obj = crud.get_user_by_identifier(user2.identifier)
-    
+
     # Add user2 as a collaborator to project1
     crud.create_collaboration(DB, project1_obj, user2_obj)
-    
+
     # Verify initial state - user1 is owner, user2 is collaborator
     assert project1_obj.owner_id == user1_obj.id
     assert user2_obj in project1_obj.collaborators
-    
+
     # Transfer ownership from user1 to user2 (existing collaborator)
     transfer_data = {"new_owner_id": user2_obj.id}
     response = client_auth.post(
         f"/admin/projects/{project1_obj.id}/transfer-ownership",
         data=json.dumps(transfer_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 200
     data = response.get_json()
     assert data["message"] == "Project ownership transferred successfully"
     assert data["project"]["new_owner"]["id"] == user2_obj.id
-    
+
     # Verify final state - user2 is owner and removed from collaborators, user1 is completely removed
     DB.session.refresh(project1_obj)
     assert project1_obj.owner_id == user2_obj.id
-    assert user2_obj not in project1_obj.collaborators  # New owner removed from collaborators
-    assert user1_obj not in project1_obj.collaborators  # Old owner not added as collaborator
+    assert (
+        user2_obj not in project1_obj.collaborators
+    )  # New owner removed from collaborators
+    assert (
+        user1_obj not in project1_obj.collaborators
+    )  # Old owner not added as collaborator
 
 
 def test_transfer_ownership_to_user_with_pending_invitation(client_auth):
     """Test transferring project ownership to a user with a pending invitation"""
     # Create test users and projects
     test_data = _create_test_users_with_projects(client_auth)
-    user1 = test_data['user1']
-    user2 = test_data['user2']
-    project1 = test_data['project1']
-    
+    user1 = test_data["user1"]
+    user2 = test_data["user2"]
+    project1 = test_data["project1"]
+
     # Create admin user
     admin_user = get_user(3)
     au.signup_user(client_auth, admin_user)
@@ -688,48 +700,52 @@ def test_transfer_ownership_to_user_with_pending_invitation(client_auth):
     admin_user_obj.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Get project and user objects
     project1_obj = crud.get_project_by_project_id(project1["id"])
     user1_obj = crud.get_user_by_identifier(user1.identifier)
     user2_obj = crud.get_user_by_identifier(user2.identifier)
-    
+
     # Add user2 as a pending invitation to project1
     crud.create_invitation(DB, project1_obj, user2_obj)
-    
+
     # Verify initial state - user1 is owner, user2 has pending invitation
     assert project1_obj.owner_id == user1_obj.id
     assert user2_obj in project1_obj.pending_invitations
     assert user2_obj not in project1_obj.collaborators
-    
+
     # Transfer ownership from user1 to user2 (who has pending invitation)
     transfer_data = {"new_owner_id": user2_obj.id}
     response = client_auth.post(
         f"/admin/projects/{project1_obj.id}/transfer-ownership",
         data=json.dumps(transfer_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 200
     data = response.get_json()
     assert data["message"] == "Project ownership transferred successfully"
     assert data["project"]["new_owner"]["id"] == user2_obj.id
-    
+
     # Verify final state - user2 is owner and removed from pending invitations, user1 is completely removed
     DB.session.refresh(project1_obj)
     assert project1_obj.owner_id == user2_obj.id
-    assert user2_obj not in project1_obj.pending_invitations  # New owner removed from pending invitations
+    assert (
+        user2_obj not in project1_obj.pending_invitations
+    )  # New owner removed from pending invitations
     assert user2_obj not in project1_obj.collaborators  # New owner not in collaborators
-    assert user1_obj not in project1_obj.collaborators  # Old owner not added as collaborator
+    assert (
+        user1_obj not in project1_obj.collaborators
+    )  # Old owner not added as collaborator
 
 
 def test_transfer_ownership_to_current_owner_fails(client_auth):
     """Test that transferring ownership to the current owner fails"""
     # Create test users and projects
     test_data = _create_test_users_with_projects(client_auth)
-    user1 = test_data['user1']
-    project1 = test_data['project1']
-    
+    user1 = test_data["user1"]
+    project1 = test_data["project1"]
+
     # Create admin user
     admin_user = get_user(3)
     au.signup_user(client_auth, admin_user)
@@ -737,19 +753,19 @@ def test_transfer_ownership_to_current_owner_fails(client_auth):
     admin_user_obj.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Get project and user objects
     project1_obj = crud.get_project_by_project_id(project1["id"])
     user1_obj = crud.get_user_by_identifier(user1.identifier)
-    
+
     # Try to transfer ownership to the current owner (should fail)
     transfer_data = {"new_owner_id": user1_obj.id}
     response = client_auth.post(
         f"/admin/projects/{project1_obj.id}/transfer-ownership",
         data=json.dumps(transfer_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 400
     data = response.get_json()
     assert data["message"] == "User is already the owner of this project"
@@ -769,15 +785,15 @@ def test_transfer_ownership_nonexistent_project(client_auth):
     admin_user_obj.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Try to transfer ownership of non-existent project
     transfer_data = {"new_owner_id": regular_user_obj.id}
     response = client_auth.post(
         "/admin/projects/99999/transfer-ownership",
         data=json.dumps(transfer_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 404
     data = response.get_json()
     assert data["message"] == "Project not found"
@@ -787,8 +803,8 @@ def test_transfer_ownership_nonexistent_user(client_auth):
     """Test transferring ownership to non-existent user fails"""
     # Create test users and projects
     test_data = _create_test_users_with_projects(client_auth)
-    project1 = test_data['project1']
-    
+    project1 = test_data["project1"]
+
     # Create admin user
     admin_user = get_user(3)
     au.signup_user(client_auth, admin_user)
@@ -796,18 +812,18 @@ def test_transfer_ownership_nonexistent_user(client_auth):
     admin_user_obj.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Get project object
     project1_obj = crud.get_project_by_project_id(project1["id"])
-    
+
     # Try to transfer ownership to non-existent user
     transfer_data = {"new_owner_id": 99999}
     response = client_auth.post(
         f"/admin/projects/{project1_obj.id}/transfer-ownership",
         data=json.dumps(transfer_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 404
     data = response.get_json()
     assert data["message"] == "New owner not found"
@@ -817,8 +833,8 @@ def test_transfer_ownership_missing_new_owner_id(client_auth):
     """Test transferring ownership without providing new_owner_id fails"""
     # Create test users and projects
     test_data = _create_test_users_with_projects(client_auth)
-    project1 = test_data['project1']
-    
+    project1 = test_data["project1"]
+
     # Create admin user
     admin_user = get_user(3)
     au.signup_user(client_auth, admin_user)
@@ -826,18 +842,18 @@ def test_transfer_ownership_missing_new_owner_id(client_auth):
     admin_user_obj.role = "admin"
     DB.session.commit()
     au.signin_user(client_auth, admin_user)
-    
+
     # Get project object
     project1_obj = crud.get_project_by_project_id(project1["id"])
-    
+
     # Try to transfer ownership without new_owner_id
     transfer_data = {}
     response = client_auth.post(
         f"/admin/projects/{project1_obj.id}/transfer-ownership",
         data=json.dumps(transfer_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 400
     data = response.get_json()
     assert data["message"] == "new_owner_id is required"
@@ -847,25 +863,25 @@ def test_transfer_ownership_as_non_admin_forbidden(client_auth):
     """Test that non-admin users cannot transfer project ownership"""
     # Create test users and projects
     test_data = _create_test_users_with_projects(client_auth)
-    user1 = test_data['user1']
-    user2 = test_data['user2']
-    project = test_data['project2']
-    
+    user1 = test_data["user1"]
+    user2 = test_data["user2"]
+    project = test_data["project2"]
+
     # Sign in as regular user (user1, who owns the project)
     au.signin_user(client_auth, user1)
-    
+
     # Get project and user objects
     project1_obj = crud.get_project_by_project_id(project["id"])
     user1_obj = crud.get_user_by_identifier(user1.identifier)
-    
+
     # Try to transfer ownership as non-admin
     transfer_data = {"new_owner_id": user1_obj.id}
     response = client_auth.post(
         f"/admin/projects/{project1_obj.id}/transfer-ownership",
         data=json.dumps(transfer_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 403
     data = response.get_json()
     assert data["message"] == "Admin access required."
@@ -874,15 +890,15 @@ def test_transfer_ownership_as_non_admin_forbidden(client_auth):
 def test_transfer_ownership_without_login_unauthorized(client_auth):
     """Test that unauthenticated users cannot transfer project ownership"""
     # Don't sign in any user
-    
+
     # Try to transfer ownership without authentication
     transfer_data = {"new_owner_id": 1}
     response = client_auth.post(
         "/admin/projects/1/transfer-ownership",
         data=json.dumps(transfer_data),
-        content_type="application/json"
+        content_type="application/json",
     )
-    
+
     assert response.status_code == 401
     data = response.get_json()
     assert data["message"] == "Login required."

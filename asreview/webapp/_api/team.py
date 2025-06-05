@@ -44,9 +44,11 @@ def users(project_id):
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
 
     # Allow access if user is owner, collaborator, or admin
-    if (project not in current_user.projects and 
-        project not in current_user.involved_in and 
-        current_user.role != "admin"):
+    if (
+        project not in current_user.projects
+        and project not in current_user.involved_in
+        and current_user.role != "admin"
+    ):
         return jsonify(REQUESTER_FRAUD), 404
 
     users = sorted(

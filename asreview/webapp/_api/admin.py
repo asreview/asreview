@@ -389,7 +389,9 @@ def transfer_project_ownership(project_id):
 
         # Check if the new owner is different from current owner
         if project.owner_id == new_owner_id:
-            return jsonify({"message": "User is already the owner of this project"}), 400
+            return jsonify(
+                {"message": "User is already the owner of this project"}
+            ), 400
 
         # Store old owner reference for cleanup
         old_owner = project.owner
@@ -414,18 +416,20 @@ def transfer_project_ownership(project_id):
             project.pending_invitations.remove(old_owner)
         DB.session.commit()
 
-        return jsonify({
-            "message": "Project ownership transferred successfully",
-            "project": {
-                "id": project.id,
-                "project_id": project.project_id,
-                "new_owner": {
-                    "id": new_owner.id,
-                    "name": new_owner.name,
-                    "email": new_owner.email,
-                }
+        return jsonify(
+            {
+                "message": "Project ownership transferred successfully",
+                "project": {
+                    "id": project.id,
+                    "project_id": project.project_id,
+                    "new_owner": {
+                        "id": new_owner.id,
+                        "name": new_owner.name,
+                        "email": new_owner.email,
+                    },
+                },
             }
-        }), 200
+        ), 200
 
     except ValueError as e:
         DB.session.rollback()
@@ -436,4 +440,6 @@ def transfer_project_ownership(project_id):
     except Exception as e:
         DB.session.rollback()
         logging.error(f"Error transferring project ownership: {e}")
-        return jsonify({"message": f"Error transferring project ownership: {str(e)}"}), 500
+        return jsonify(
+            {"message": f"Error transferring project ownership: {str(e)}"}
+        ), 500
