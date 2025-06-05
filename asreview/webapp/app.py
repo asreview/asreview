@@ -140,6 +140,8 @@ def create_app(**config_vars):
     @app.route("/social-preview.png")
     @app.route("/robots.txt")
     @app.route("/app.webmanifest")
+    @app.route("/offline.html")
+    @app.route("/service-worker.js")
     def static_from_root(path=None):
         return send_from_directory("build", request.path[1:])
 
