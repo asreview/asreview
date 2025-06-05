@@ -364,3 +364,76 @@ def get_all_projects():
     except Exception as e:
         logging.error(f"Error retrieving projects: {e}")
         return jsonify({"message": f"Error retrieving projects: {str(e)}"}), 500
+
+
+@bp.route("/projects/<int:project_id>/transfer-ownership", methods=["POST"])
+@admin_required
+def transfer_project_ownership(project_id):
+    """Transfer project ownership to another user (admin only)"""
+    try:
+        data = request.get_json()
+        new_owner_id = data.get("new_owner_id")
+
+        if not new_owner_id:
+            return jsonify({"message": "new_owner_id is required"}), 400
+
+        # Get the project
+        project = DB.session.get(Project, project_id)
+        if not project:
+            return jsonify({"message": "Project not found"}), 404
+
+        # Get the new owner
+        new_owner = DB.session.get(User, new_owner_id)
+        if not new_owner:
+            return jsonify({"message": "New owner not found"}), 404
+
+        # Check if the new owner is different from current owner
+        if project.owner_id == new_owner_id:
+            return jsonify({"message": "User is already the owner of this project"}), 400
+
+        # Store old owner reference for cleanup
+        old_owner = project.owner
+
+        # Remove new owner from collaborators if they're currently a member
+        if new_owner in project.collaborators:
+            project.collaborators.remove(new_owner)
+
+        # Remove new owner from pending invitations if they have one
+        if new_owner in project.pending_invitations:
+            project.pending_invitations.remove(new_owner)
+
+        # Transfer ownership
+        project.owner_id = new_owner_id
+
+        # Remove old owner from collaborators list (complete removal)
+        if old_owner and old_owner in project.collaborators:
+            project.collaborators.remove(old_owner)
+
+        # Remove old owner from pending invitations if they had one
+        if old_owner and old_owner in project.pending_invitations:
+            project.pending_invitations.remove(old_owner)
+        DB.session.commit()
+
+        return jsonify({
+            "message": "Project ownership transferred successfully",
+            "project": {
+                "id": project.id,
+                "project_id": project.project_id,
+                "new_owner": {
+                    "id": new_owner.id,
+                    "name": new_owner.name,
+                    "email": new_owner.email,
+                }
+            }
+        }), 200
+
+    except ValueError as e:
+        DB.session.rollback()
+        return jsonify({"message": f"Validation error: {str(e)}"}), 400
+    except SQLAlchemyError as e:
+        DB.session.rollback()
+        return jsonify({"message": f"Database error: {str(e)}"}), 500
+    except Exception as e:
+        DB.session.rollback()
+        logging.error(f"Error transferring project ownership: {e}")
+        return jsonify({"message": f"Error transferring project ownership: {str(e)}"}), 500

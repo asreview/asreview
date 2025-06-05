@@ -110,6 +110,28 @@ class AdminAPI {
         });
     });
   }
+
+  // Transfer project ownership
+  static transferProjectOwnership(projectId, newOwnerId) {
+    const url = admin_url + `projects/${projectId}/transfer-ownership`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: { new_owner_id: newOwnerId },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
 }
 
 export default AdminAPI;
