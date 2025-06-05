@@ -1,0 +1,20 @@
+services:
+  asreview:
+    build:
+      context: ../../../../
+      dockerfile: Dockerfile # the dockerfile has 'asreview' as entry point, sets the project dir to /project_folder.
+    command:
+      [
+        "lab",
+        "--config",
+        "/config/$TEST_CONFIG_FILE",
+        "--skip-update-check",
+        "--no-browser",
+      ]
+    ports:
+      - "${PORT}:5000"
+    environment:
+      - TEST_CONFIG_FILE=${TEST_CONFIG_FILE} # specify config file relative to ../config dir
+    volumes:
+      - ../config:/config/
+      - ${TEST_DB_DIR}:/project_folder
