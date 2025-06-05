@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import json
-from unittest.mock import patch
 
 from asreview.webapp import DB
 import asreview.webapp.tests.utils.api_utils as au
@@ -526,7 +525,7 @@ def _create_test_users_with_projects(client_auth):
 def test_get_projects_as_admin(client_auth):
     """Test that admin can retrieve all projects"""
     # Create test users with real projects
-    test_data = _create_test_users_with_projects(client_auth)
+    _create_test_users_with_projects(client_auth)
 
     # Create admin user
     admin_user = get_user(3)  # Use user 3 since 1 and 2 are already used
@@ -553,7 +552,7 @@ def test_get_projects_as_admin(client_auth):
 def test_get_projects_as_non_admin_forbidden(client_auth):
     """Test that non-admin users cannot retrieve all projects"""
     # Create test users with real projects
-    test_data = _create_test_users_with_projects(client_auth)
+    _create_test_users_with_projects(client_auth)
 
     # Create regular (non-admin) user
     regular_user = get_user(3)  # Use user 3 since 1 and 2 are already used
@@ -864,7 +863,6 @@ def test_transfer_ownership_as_non_admin_forbidden(client_auth):
     # Create test users and projects
     test_data = _create_test_users_with_projects(client_auth)
     user1 = test_data["user1"]
-    user2 = test_data["user2"]
     project = test_data["project2"]
 
     # Sign in as regular user (user1, who owns the project)
