@@ -32,6 +32,7 @@ import {
 import {
   DistancePatternChart,
   LabelingHistory,
+  Metrics,
   ProgressDensityChart,
   ProgressRecallChart,
   ReviewProgress,
@@ -299,14 +300,28 @@ const AnalyticsPage = () => {
           )}
         </Grid>
 
-        <Typography
-          variant="h6"
-          color="text.secondary"
-          sx={{ fontFamily: "Roboto Serif", mb: 2, pt: 4 }}
-        >
-          Analytics
-        </Typography>
-        <Divider />
+        {data?.mode === "simulate" && (
+          <>
+            <Typography
+              variant="h6"
+              color="text.secondary"
+              sx={{ fontFamily: "Roboto Serif", mb: 2, pt: 4 }}
+            >
+              Metrics
+            </Typography>
+            <Divider />
+            <Metrics project_id={project_id} />
+
+            <Typography
+              variant="h6"
+              color="text.secondary"
+              sx={{ fontFamily: "Roboto Serif", mb: 2, pt: 4 }}
+            >
+              Analytics
+            </Typography>
+            <Divider />
+          </>
+        )}
 
         <Box>
           <Tabs

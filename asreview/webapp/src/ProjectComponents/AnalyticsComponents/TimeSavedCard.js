@@ -204,7 +204,7 @@ const TimeSavedCard = ({ project_id }) => {
         </Box>
 
         <Grid container spacing={3}>
-          <Grid item size={{ xs: 12, md: 5 }}>
+          <Grid size={{ xs: 12, md: 5 }}>
             <Stack
               spacing={1}
               alignItems="center"
@@ -257,7 +257,7 @@ const TimeSavedCard = ({ project_id }) => {
             sx={{ display: { xs: "none", md: "block" } }}
           />
 
-          <Grid item size={{ xs: 12, md: 5 }}>
+          <Grid size={{ xs: 12, md: 5 }}>
             <Stack spacing={1}>
               <Typography
                 variant="subtitle1"
