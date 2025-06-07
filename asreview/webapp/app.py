@@ -34,6 +34,7 @@ from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
 from asreview.webapp import DB
+from asreview.webapp._api import admin
 from asreview.webapp._api import auth
 from asreview.webapp._api import projects
 from asreview.webapp._api import team
@@ -124,6 +125,7 @@ def create_app(**config_vars):
             app.config["REMOTE_USER"] = RemoteUserHandler(app.config["REMOTE_USER"])
 
         with app.app_context():
+            app.register_blueprint(admin.bp)
             app.register_blueprint(auth.bp)
             app.register_blueprint(team.bp)
 

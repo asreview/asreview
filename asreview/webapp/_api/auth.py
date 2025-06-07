@@ -20,6 +20,7 @@ from flask import request
 from flask_login import current_user
 from flask_login import logout_user
 from sqlalchemy import and_
+from sqlalchemy import select
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
@@ -43,8 +44,14 @@ def _signed_in_payload(user):
         "logged_in": True,
         "name": user.get_name(),
         "id": user.id,
+        "role": user.role,
         "message": f"User {user.identifier} is logged in.",
     }
+
+
+def _select_user_by_email(email):
+    stmt = select(User).where(or_(User.identifier == email, User.email == email))
+    return DB.session.execute(stmt).scalar_one_or_none()
 
 
 # ------------------
@@ -58,9 +65,7 @@ def signin():
     password = request.form.get("password", "")
 
     # get the user
-    user = User.query.filter(
-        or_(User.identifier == email, User.email == email)
-    ).one_or_none()
+    user = _select_user_by_email(email)
 
     if not user:
         # user does not exsist
@@ -106,9 +111,8 @@ def signup():
         public = bool(int(request.form.get("public", "1")))
 
         # check if email already exists
-        user = User.query.filter(
-            or_(User.identifier == email, User.email == email)
-        ).one_or_none()
+        user = _select_user_by_email(email)
+
         # return error if user doesn't exist
         if isinstance(user, User):
             result = (403, f'User with email "{email}" already exists.')
@@ -256,9 +260,7 @@ def forgot_password():
         email_address = request.form.get("email", "").strip()
 
         # check if email already exists
-        user = User.query.filter(
-            or_(User.identifier == email_address, User.email == email_address)
-        ).one_or_none()
+        user = _select_user_by_email(email_address)
 
         if not user:
             result = (404, f'User with email "{email_address}" not found.')
@@ -394,7 +396,13 @@ def update_profile():
 @login_remote_user
 @login_required
 def user():
-    return jsonify({"name": current_user.get_name(), "id": current_user.id}), 200
+    return jsonify(
+        {
+            "name": current_user.get_name(),
+            "id": current_user.id,
+            "role": current_user.role,
+        }
+    ), 200
 
 
 @bp.route("/signout", methods=["DELETE"])
