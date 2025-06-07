@@ -7,3 +7,8 @@ export { default as UserFormDialog } from "./UserFormDialog";
 export { default as UserCard } from "./UserCard";
 export { default as UserActionsMenu } from "./UserActionsMenu";
 export { default as DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
+export { default as SectionHeader } from "./SectionHeader";
+export { default as ProjectOwnerSection } from "./ProjectOwnerSection";
+export { default as TeamSection } from "./TeamSection";
+export { default as UserAvatar } from "./UserAvatar";
+export { default as UserListItem } from "./UserListItem";

@@ -4,12 +4,11 @@ import { useQuery } from "react-query";
 import {
   Box,
   Stack,
-  Typography,
   Alert,
   CircularProgress,
-  Divider,
   Grid2 as Grid,
   Chip,
+  Typography,
 } from "@mui/material";
 import { FolderOutlined } from "@mui/icons-material";
 
@@ -22,6 +21,7 @@ import {
 } from "Components";
 import ProjectCard from "./ProjectCard";
 import ProjectDetailsModal from "./ProjectDetailsModal";
+import SectionHeader from "./SectionHeader";
 import { projectStatuses } from "globals.js";
 
 const ProjectsComponent = () => {
@@ -175,11 +175,11 @@ const ProjectsComponent = () => {
           {/* In Review Projects */}
           {categorizeProjects.review.length > 0 && (
             <>
-              <Divider sx={{ my: 4 }}>
-                <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
-                  Current Reviews ({categorizeProjects.review.length})
-                </Typography>
-              </Divider>
+              <SectionHeader
+                title={`Current Reviews (${categorizeProjects.review.length})`}
+                dividerSx={{ my: 4 }}
+                showIcon={false}
+              />
               <Grid container spacing={2}>
                 {categorizeProjects.review.map((project) => (
                   <ProjectCard
@@ -195,11 +195,11 @@ const ProjectsComponent = () => {
           {/* Finished Projects */}
           {categorizeProjects.finished.length > 0 && (
             <>
-              <Divider sx={{ my: 4 }}>
-                <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
-                  Finished Reviews ({categorizeProjects.finished.length})
-                </Typography>
-              </Divider>
+              <SectionHeader
+                title={`Finished Reviews (${categorizeProjects.finished.length})`}
+                dividerSx={{ my: 4 }}
+                showIcon={false}
+              />
               <Grid container spacing={2}>
                 {categorizeProjects.finished.map((project) => (
                   <ProjectCard
@@ -215,11 +215,11 @@ const ProjectsComponent = () => {
           {/* Setup Projects */}
           {categorizeProjects.setup.length > 0 && (
             <>
-              <Divider sx={{ my: 4 }}>
-                <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
-                  Projects in Setup ({categorizeProjects.setup.length})
-                </Typography>
-              </Divider>
+              <SectionHeader
+                title={`Projects in Setup (${categorizeProjects.setup.length})`}
+                dividerSx={{ my: 4 }}
+                showIcon={false}
+              />
               <Grid container spacing={2}>
                 {categorizeProjects.setup.map((project) => (
                   <ProjectCard
@@ -235,11 +235,11 @@ const ProjectsComponent = () => {
           {/* Error Projects */}
           {categorizeProjects.error.length > 0 && (
             <>
-              <Divider sx={{ my: 4 }}>
-                <Typography variant="h5" sx={{ fontFamily: "Roboto Serif" }}>
-                  Projects with Issues ({categorizeProjects.error.length})
-                </Typography>
-              </Divider>
+              <SectionHeader
+                title={`Projects with Issues (${categorizeProjects.error.length})`}
+                dividerSx={{ my: 4 }}
+                showIcon={false}
+              />
               <Grid container spacing={2}>
                 {categorizeProjects.error.map((project) => (
                   <ProjectCard

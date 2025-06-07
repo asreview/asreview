@@ -8,32 +8,28 @@ import {
   Button,
   Typography,
   Box,
-  Stack,
   Chip,
-  Divider,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Avatar,
   CircularProgress,
   Alert,
   Grid2 as Grid,
   Snackbar,
+  Stack,
+  Divider,
 } from "@mui/material";
 import {
-  PersonOutlined,
   AdminPanelSettingsOutlined,
   GroupOutlined,
   CalendarTodayOutlined,
-  LabelOutlined,
   SwapHorizOutlined,
 } from "@mui/icons-material";
 
 import { TeamAPI, AdminAPI } from "api";
 import { InlineErrorHandler, UserSelector } from "Components";
 import { getStatusColor, getStatusLabel } from "utils/projectStatus";
-import { getInitials, getUserDisplayName } from "utils/userUtils";
+import { getUserDisplayName } from "utils/userUtils";
+import SectionHeader from "./SectionHeader";
+import ProjectOwnerSection from "./ProjectOwnerSection";
+import TeamSection from "./TeamSection";
 
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
@@ -225,178 +221,36 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
             </Grid>
           </Box>
 
-          <Divider />
-
           {/* Owner Information */}
           <Box>
-            <Typography variant="h6" gutterBottom>
-              <AdminPanelSettingsOutlined
-                fontSize="small"
-                sx={{ mr: 1, verticalAlign: "middle" }}
-              />
-              Project Owner
-            </Typography>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Avatar sx={{ bgcolor: "primary.main" }}>
-                {getInitials(currentProject.owner_name)}
-              </Avatar>
-              <Box>
-                <Typography variant="body1" fontWeight="medium">
-                  {currentProject.owner_name}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {currentProject.owner_email}
-                </Typography>
-                {(() => {
-                  const owner = collaborators?.find((user) => user.owner);
-                  return owner?.affiliation ? (
-                    <Typography variant="body2" color="textSecondary">
-                      {owner.affiliation}
-                    </Typography>
-                  ) : null;
-                })()}
-              </Box>
-            </Box>
+            <SectionHeader
+              icon={AdminPanelSettingsOutlined}
+              title="Project Owner"
+            />
+            <ProjectOwnerSection
+              project={currentProject}
+              collaborators={collaborators}
+            />
           </Box>
 
-          <Divider />
-
-          {/* Members Section */}
+          {/* Team Section */}
           <Box>
-            <Typography variant="h6" gutterBottom>
-              <GroupOutlined
-                fontSize="small"
-                sx={{ mr: 1, verticalAlign: "middle" }}
-              />
-              Members
-            </Typography>
-
-            {collaboratorsLoading && (
-              <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-                <CircularProgress size={24} />
-              </Box>
-            )}
-
-            {collaboratorsError && (
-              <Alert severity="warning" sx={{ mt: 1 }}>
-                <Typography variant="body2">
-                  Unable to load project members. This may occur after ownership
-                  transfer if admin access has changed.
-                </Typography>
-              </Alert>
-            )}
-
-            {collaborators && (
-              <Box>
-                {(() => {
-                  const nonOwnerMembers = collaborators.filter(
-                    (user) => (user.member || user.pending) && !user.owner,
-                  );
-                  return (
-                    <>
-                      <Typography
-                        variant="body2"
-                        color="textSecondary"
-                        sx={{ mb: 2 }}
-                      >
-                        {nonOwnerMembers.length} member
-                        {nonOwnerMembers.length !== 1 ? "s" : ""}
-                      </Typography>
-
-                      {nonOwnerMembers.length > 0 ? (
-                        <List sx={{ pt: 0 }}>
-                          {nonOwnerMembers.map((user) => (
-                            <ListItem key={user.id} sx={{ px: 0 }}>
-                              <ListItemAvatar>
-                                <Avatar
-                                  sx={{
-                                    bgcolor: user.owner
-                                      ? "primary.main"
-                                      : "secondary.main",
-                                  }}
-                                >
-                                  {getInitials(user.name)}
-                                </Avatar>
-                              </ListItemAvatar>
-                              <ListItemText
-                                primary={
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      gap: 1,
-                                    }}
-                                  >
-                                    <Typography variant="body1">
-                                      {user.name || user.email}
-                                    </Typography>
-                                    {user.owner && (
-                                      <Chip
-                                        label="Owner"
-                                        size="small"
-                                        color="primary"
-                                        variant="outlined"
-                                      />
-                                    )}
-                                    {user.pending && (
-                                      <Chip
-                                        label="Pending"
-                                        size="small"
-                                        color="warning"
-                                        variant="outlined"
-                                      />
-                                    )}
-                                  </Box>
-                                }
-                                secondary={
-                                  <Stack spacing={0.5}>
-                                    <Typography
-                                      variant="body2"
-                                      color="textSecondary"
-                                    >
-                                      {user.email}
-                                    </Typography>
-                                    {user.affiliation && (
-                                      <Typography
-                                        variant="body2"
-                                        color="textSecondary"
-                                      >
-                                        {user.affiliation}
-                                      </Typography>
-                                    )}
-                                  </Stack>
-                                }
-                              />
-                            </ListItem>
-                          ))}
-                        </List>
-                      ) : (
-                        <Typography
-                          variant="body2"
-                          color="textSecondary"
-                          sx={{ fontStyle: "italic" }}
-                        >
-                          No additional members
-                        </Typography>
-                      )}
-                    </>
-                  );
-                })()}
-              </Box>
-            )}
+            <SectionHeader icon={GroupOutlined} title="Team" />
+            <TeamSection
+              collaborators={collaborators}
+              isLoading={collaboratorsLoading}
+              isError={collaboratorsError}
+              errorMessage="Unable to load project team. This may occur after ownership transfer if admin access has changed."
+              projectId={currentProject.project_id}
+            />
           </Box>
-
-          <Divider />
 
           {/* Transfer Ownership Section */}
           <Box>
-            <Typography variant="h6" gutterBottom>
-              <SwapHorizOutlined
-                fontSize="small"
-                sx={{ mr: 1, verticalAlign: "middle" }}
-              />
-              Transfer Ownership
-            </Typography>
+            <SectionHeader
+              icon={SwapHorizOutlined}
+              title="Transfer Ownership"
+            />
             <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
               Transfer this project to another user. If the user is currently a
               member, they will be removed from the members list and become the
