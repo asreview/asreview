@@ -246,5 +246,3 @@ def delete_invitation(project_id, user_id):
         except SQLAlchemyError as e:
             response = jsonify({"message": f"Error deleting invitation: {str(e)}"}), 500
     return response
-
-
