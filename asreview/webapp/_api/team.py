@@ -95,10 +95,14 @@ def end_collaboration(project_id, user_id):
                 project.collaborators.remove(user)
                 DB.session.commit()
                 response = (
-                    jsonify({
-                        "message": "Member removed successfully.",
-                        "user": get_user_project_properties(user, project, current_user),
-                    }),
+                    jsonify(
+                        {
+                            "message": "Member removed successfully.",
+                            "user": get_user_project_properties(
+                                user, project, current_user
+                            ),
+                        }
+                    ),
                     200,
                 )
             else:
@@ -152,10 +156,14 @@ def invite(project_id, user_id):
         try:
             DB.session.commit()
             response = (
-                jsonify({
-                    "message": "Invitation is successfully created.",
-                    "user": get_user_project_properties(user, project, current_user)
-                }),
+                jsonify(
+                    {
+                        "message": "Invitation is successfully created.",
+                        "user": get_user_project_properties(
+                            user, project, current_user
+                        ),
+                    }
+                ),
                 200,
             )
         except SQLAlchemyError:
@@ -239,10 +247,14 @@ def delete_invitation(project_id, user_id):
                 project.pending_invitations.remove(user)
                 DB.session.commit()
                 response = (
-                    jsonify({
-                        "message": "Invitation cancelled successfully.",
-                        "user": get_user_project_properties(user, project, current_user),
-                    }),
+                    jsonify(
+                        {
+                            "message": "Invitation cancelled successfully.",
+                            "user": get_user_project_properties(
+                                user, project, current_user
+                            ),
+                        }
+                    ),
                     200,
                 )
             else:
