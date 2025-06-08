@@ -98,7 +98,6 @@ def end_collaboration(project_id, user_id):
                     jsonify({
                         "message": "Member removed successfully.",
                         "user": get_user_project_properties(user, project, current_user),
-                        "action": "member_removed"
                     }),
                     200,
                 )
@@ -150,7 +149,10 @@ def invite(project_id, user_id):
         try:
             DB.session.commit()
             response = (
-                jsonify(get_user_project_properties(user, project, current_user)),
+                jsonify({
+                    "message": "Invitation is successfully created.",
+                    "user": get_user_project_properties(user, project, current_user)
+                }),
                 200,
             )
         except SQLAlchemyError:
@@ -237,7 +239,6 @@ def delete_invitation(project_id, user_id):
                     jsonify({
                         "message": "Invitation cancelled successfully.",
                         "user": get_user_project_properties(user, project, current_user),
-                        "action": "invitation_cancelled"
                     }),
                     200,
                 )

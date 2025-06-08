@@ -21,9 +21,10 @@ import {
   GroupOutlined,
   CalendarTodayOutlined,
   SwapHorizOutlined,
+  DeleteOutlined,
 } from "@mui/icons-material";
 
-import { TeamAPI, AdminAPI } from "api";
+import { TeamAPI, AdminAPI, ProjectAPI } from "api";
 import { InlineErrorHandler, UserSelector } from "Components";
 import { getStatusColor, getStatusLabel } from "utils/projectStatus";
 import { getUserDisplayName } from "utils/userUtils";
@@ -40,6 +41,7 @@ const timeAgo = new TimeAgo("en-US");
 const ProjectDetailsModal = ({ open, onClose, project }) => {
   const queryClient = useQueryClient();
   const [selectedNewOwner, setSelectedNewOwner] = React.useState(null);
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = React.useState(false);
   const [snackbarState, setSnackbarState] = React.useState({
     open: false,
     message: "",
@@ -117,6 +119,37 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
     },
   );
 
+  // Delete project mutation
+  const deleteProjectMutation = useMutation(
+    ({ projectId }) =>
+      ProjectAPI.mutateDeleteProject({ project_id: projectId }),
+    {
+      onSuccess: () => {
+        setSnackbarState({
+          open: true,
+          message: "Project deleted successfully",
+          severity: "success",
+        });
+        setDeleteConfirmDialog(false);
+        // Refresh project list and close modal
+        queryClient.invalidateQueries(["fetchAdminProjects"]);
+        queryClient.invalidateQueries(["fetchProjects"]);
+        // Close modal after a short delay to allow user to see success message
+        setTimeout(() => {
+          onClose();
+        }, 1500);
+      },
+      onError: (error) => {
+        setSnackbarState({
+          open: true,
+          message: error?.message || "Failed to delete project",
+          severity: "error",
+        });
+        setDeleteConfirmDialog(false);
+      },
+    },
+  );
+
   const handleTransferOwnership = () => {
     if (selectedNewOwner && currentProject) {
       transferOwnershipMutation.mutate({
@@ -124,6 +157,20 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
         newOwnerId: selectedNewOwner.id,
       });
     }
+  };
+
+  const handleDeleteProject = () => {
+    setDeleteConfirmDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (currentProject) {
+      deleteProjectMutation.mutate({ projectId: currentProject.project_id });
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirmDialog(false);
   };
 
   const handleSnackbarClose = () => {
@@ -288,6 +335,33 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
             </Grid>
           </Box>
 
+          {/* Delete Project Section */}
+          <Box>
+            <SectionHeader icon={DeleteOutlined} title="Delete Project" />
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              <Typography variant="body2" fontWeight="medium" sx={{ mb: 1 }}>
+                Danger Zone
+              </Typography>
+              <Typography variant="body2">
+                Deleting a project is permanent and cannot be undone. All
+                project data, including reviews, labels, and settings will be
+                permanently removed.
+              </Typography>
+            </Alert>
+            <Button
+              variant="contained"
+              color="error"
+              startIcon={<DeleteOutlined />}
+              onClick={handleDeleteProject}
+              disabled={deleteProjectMutation.isLoading}
+              sx={{ mb: 1 }}
+            >
+              {deleteProjectMutation.isLoading
+                ? "Deleting..."
+                : "Delete Project"}
+            </Button>
+          </Box>
+
           {/* Error Information */}
           {currentProject.error && (
             <>
@@ -337,6 +411,72 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
           {snackbarState.message}
         </Alert>
       </Snackbar>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteConfirmDialog}
+        onClose={handleCancelDelete}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Typography variant="h5" fontFamily="Roboto Serif" color="error">
+            Delete Project
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Alert severity="error" sx={{ mb: 2 }}>
+            <Typography variant="body2" fontWeight="medium">
+              This action cannot be undone!
+            </Typography>
+          </Alert>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Are you sure you want to delete the project{" "}
+            <strong>"{currentProject?.name || "Unnamed Project"}"</strong>?
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            This will permanently remove:
+          </Typography>
+          <Box component="ul" sx={{ mt: 1, mb: 0, pl: 2 }}>
+            <Typography component="li" variant="body2" color="textSecondary">
+              All project data and configuration
+            </Typography>
+            <Typography component="li" variant="body2" color="textSecondary">
+              All review history and labels
+            </Typography>
+            <Typography component="li" variant="body2" color="textSecondary">
+              All team member associations
+            </Typography>
+            <Typography component="li" variant="body2" color="textSecondary">
+              Any exported data will remain unaffected
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleCancelDelete}
+            disabled={deleteProjectMutation.isLoading}
+            variant="outlined"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDelete}
+            color="error"
+            variant="contained"
+            disabled={deleteProjectMutation.isLoading}
+            startIcon={
+              deleteProjectMutation.isLoading ? (
+                <CircularProgress size={16} />
+              ) : (
+                <DeleteOutlined />
+              )
+            }
+          >
+            {deleteProjectMutation.isLoading ? "Deleting..." : "Delete Project"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 };
