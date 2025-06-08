@@ -24,7 +24,11 @@ def get_user_project_properties(user, project, current_user):
     me = user.id == current_user.id
 
     selectable = not (pending or member or owner)
-    deletable = (current_user.id == project.owner_id or current_user.is_admin) and (member or pending) and not me
+    deletable = (
+        (current_user.id == project.owner_id or current_user.is_admin)
+        and (member or pending)
+        and not me
+    )
 
     return dict(
         result,
@@ -152,7 +156,7 @@ def invite(project_id, user_id):
     # check if project is from current user or if current user is admin
     if project and (project.owner == current_user or current_user.is_admin):
         user = DB.session.get(User, user_id)
-        
+
         # Check if user is already invited to avoid unique constraint violation
         if user in project.pending_invitations:
             response = (

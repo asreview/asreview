@@ -454,46 +454,45 @@ def add_project_member(project_id):
         data = request.get_json()
         if not data or "user_id" not in data:
             return jsonify({"message": "User ID is required"}), 400
-        
+
         user_id = data["user_id"]
-        
+
         # Get project
         project = DB.session.get(Project, project_id)
         if not project:
             return jsonify({"message": "Project not found"}), 404
-        
+
         # Get user
         user = DB.session.get(User, user_id)
         if not user:
             return jsonify({"message": "User not found"}), 404
-        
+
         # Check if user is already the owner
         if user.id == project.owner_id:
             return jsonify({"message": "Cannot add project owner as member"}), 400
-        
+
         # Check if user is already a collaborator
         if user in project.collaborators:
             return jsonify({"message": "User is already a member"}), 400
-        
+
         # Check if user has a pending invitation
         if user in project.pending_invitations:
             return jsonify({"message": "User already has a pending invitation"}), 400
-        
+
         # Add user as collaborator
         project.collaborators.append(user)
         DB.session.commit()
-        
+
         # Import here to avoid circular imports
         from asreview.webapp._api.team import get_user_project_properties
         from flask_login import current_user
-        
+
         user_props = get_user_project_properties(user, project, current_user)
-        
-        return jsonify({
-            "message": "Member added successfully",
-            "user": user_props
-        }), 200
-        
+
+        return jsonify(
+            {"message": "Member added successfully", "user": user_props}
+        ), 200
+
     except SQLAlchemyError as e:
         DB.session.rollback()
         logging.exception(e)
