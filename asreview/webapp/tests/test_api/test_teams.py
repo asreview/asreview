@@ -13,7 +13,7 @@ from asreview.webapp.tests.utils.config_parser import get_user
 
 def verify_user_summary(response_json, user):
     return all(
-        k in response_json['user'] and response_json['user'][k] == v
+        k in response_json["user"] and response_json["user"][k] == v
         for k, v in user.summarize().items()
     )
 
@@ -320,27 +320,29 @@ def test_user3_cant_delete_collaboration(setup_auth):
 def test_admin_can_delete_invitation(setup_auth):
     """Test that an admin can delete a pending invitation from a project she don't owns"""
     client, user1, user2, _, project = setup_auth
-    
+
     # User1 (project owner) invites user2
     r = au.invite(client, project, user2)
     assert r.status_code == 200
     assert r.json["user"]["pending"]
-    
+
     # Verify invitation exists
     r = au.list_collaborators(client, project)
     assert r.status_code == 200
     pending_users = [item for item in r.json if item["pending"]]
     assert len(pending_users) == 1
     assert pending_users[0]["id"] == user2.id
-    
+
     # Sign out user1
     au.signout_user(client)
-    
+
     # Create admin user (user4) and sign in
-    admin_user = au.create_and_signin_user(client, 1)  # Note: create_and_signin_user creates a new user
+    admin_user = au.create_and_signin_user(
+        client, 1
+    )  # Note: create_and_signin_user creates a new user
     admin_user.role = "admin"
     DB.session.commit()
-    
+
     # Admin should be able to delete the invitation
     r = au.delete_invitation(client, project, user2)
     assert r.status_code == 200
@@ -350,20 +352,20 @@ def test_admin_can_delete_invitation(setup_auth):
     assert r.json["user"]["selectable"]  # Should be selectable again
 
 
-# Test admin can delete collaboration from another user's project  
+# Test admin can delete collaboration from another user's project
 def test_admin_can_delete_collaboration(setup_auth):
     """Test that an admin can delete an active collaboration from a project she don't owns"""
     client, user1, user2, _, project = setup_auth
-    
+
     # User1 (project owner) invites user2
     au.invite(client, project, user2)
-    
+
     # User2 accepts invitation
     au.signout_user(client)
     au.signin_user(client, user2)
     au.accept_invitation(client, project)
     au.signout_user(client)
-    
+
     # Sign back in as user1 to verify collaboration exists
     au.signin_user(client, user1)
     r = au.list_collaborators(client, project)
@@ -373,15 +375,15 @@ def test_admin_can_delete_collaboration(setup_auth):
     member_ids = {item["id"] for item in members}
     assert user1.id in member_ids
     assert user2.id in member_ids
-    
+
     # Sign out user1
     au.signout_user(client)
-    
+
     # Create admin user and sign in
     admin_user = au.create_and_signin_user(client, 1)  # Creates a new admin user
     admin_user.role = "admin"
     DB.session.commit()
-    
+
     # Admin should be able to remove the collaboration
     r = au.delete_collaboration(client, project, user2)
     assert r.status_code == 200

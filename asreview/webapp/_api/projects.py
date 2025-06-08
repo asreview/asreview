@@ -1524,7 +1524,9 @@ def api_delete_project(project):  # noqa: F401
                     if current_user.is_admin:
                         return jsonify(message="Project not found in database."), 404
                     else:
-                        return jsonify(message="Project not found or access denied."), 403
+                        return jsonify(
+                            message="Project not found or access denied."
+                        ), 403
 
             # and remove the folder
             shutil.rmtree(project.project_path)

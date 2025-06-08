@@ -489,27 +489,27 @@ def test_admin_can_delete_other_users_project(client_auth):
     # Create first user (project owner)
     owner_user = au.create_and_signin_user(client_auth, 1)
     assert len(crud.list_projects()) == 0
-    
+
     # Create a project for the first user
     r = au.create_project(client_auth, "oracle", benchmark="synergy:van_der_Valk_2021")
     assert r.status_code == 201
     project_id = r.json["id"]
     assert len(crud.list_projects()) == 1
-    
+
     # Sign out first user
     au.signout_user(client_auth)
-    
+
     # Create second user (admin)
     admin_user = au.create_and_signin_user(client_auth, 2)
-    
+
     # Set the second user as admin
     admin_user.role = "admin"
     DB.session.commit()
-    
+
     # delete project
     project = crud.list_projects()[0]
     r = au.delete_project(client_auth, project)
-    
+
     assert r.status_code == 200
     assert r.json["success"]
     assert len(crud.list_projects()) == 0
@@ -521,27 +521,27 @@ def test_regular_user_cannot_delete_other_users_project(client_auth):
     # Create first user (project owner)
     owner_user = au.create_and_signin_user(client_auth, 1)
     assert len(crud.list_projects()) == 0
-    
+
     # Create a project for the first user
     r = au.create_project(client_auth, "oracle", benchmark="synergy:van_der_Valk_2021")
     assert r.status_code == 201
     project_id = r.json["id"]
     assert len(crud.list_projects()) == 1
-    
+
     # Sign out first user
     au.signout_user(client_auth)
-    
+
     # Create second user (regular member)
     regular_user = au.create_and_signin_user(client_auth, 2)
-    
+
     # Verify regular user is not admin
     assert regular_user.role == "member"
     assert not regular_user.is_admin
-    
+
     # Verify regular user cannot delete the project owned by first user
     project = crud.list_projects()[0]
     r = au.delete_project(client_auth, project)
-    
+
     # Should return 403 Forbidden
     assert r.status_code == 403
     assert len(crud.list_projects()) == 1
