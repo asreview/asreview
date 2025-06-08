@@ -77,15 +77,15 @@ def end_collaboration(project_id, user_id):
     # check if project is owned by current user, if the user is
     # involved in the project, or if current user is admin
     if project and (
-        (project.owner == current_user) 
+        (project.owner == current_user)
         or (project in current_user.involved_in)
         or current_user.is_admin
     ):
         user = DB.session.get(User, user_id)
-        
+
         if not user:
             return jsonify({"message": "User not found."}), 404
-        
+
         # Prevent removing project owner
         if user.id == project.owner_id:
             return jsonify({"message": "Cannot remove project owner."}), 400
@@ -105,7 +105,10 @@ def end_collaboration(project_id, user_id):
                 response = (jsonify({"message": "User is not a collaborator."}), 400)
 
         except SQLAlchemyError as e:
-            response = (jsonify({"message": f"Error removing collaborator: {str(e)}"}), 500)
+            response = (
+                jsonify({"message": f"Error removing collaborator: {str(e)}"}),
+                500,
+            )
     return response
 
 
@@ -227,10 +230,10 @@ def delete_invitation(project_id, user_id):
     if project and (project.owner == current_user or current_user.is_admin):
         # get user
         user = DB.session.get(User, user_id)
-        
+
         if not user:
             return jsonify({"message": "User not found."}), 404
-        
+
         try:
             if user in project.pending_invitations:
                 project.pending_invitations.remove(user)
@@ -243,7 +246,10 @@ def delete_invitation(project_id, user_id):
                     200,
                 )
             else:
-                response = (jsonify({"message": "User does not have a pending invitation."}), 400)
+                response = (
+                    jsonify({"message": "User does not have a pending invitation."}),
+                    400,
+                )
         except SQLAlchemyError as e:
             response = jsonify({"message": f"Error deleting invitation: {str(e)}"}), 500
     return response
