@@ -991,7 +991,6 @@ def test_add_member_to_project_already_member_fails(client_auth):
     """Test that trying to add existing member fails"""
     # Create test users and projects
     test_data = _create_test_users_with_projects(client_auth)
-    user1 = test_data["user1"]
     user2 = test_data["user2"]
     project1 = test_data["project1"]
 
@@ -1027,7 +1026,6 @@ def test_add_member_to_project_with_pending_invitation_fails(client_auth):
     """Test that trying to add user with pending invitation fails"""
     # Create test users and projects
     test_data = _create_test_users_with_projects(client_auth)
-    user1 = test_data["user1"]
     user2 = test_data["user2"]
     project1 = test_data["project1"]
 
