@@ -3,9 +3,7 @@ from inspect import getfullargspec
 import pytest
 
 import asreview.webapp.tests.utils.api_utils as au
-import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
-from asreview.webapp.tests.utils.config_parser import get_user
 
 # NOTE: user 1 is signed in and has a single project, invites
 # other users who accept and reject

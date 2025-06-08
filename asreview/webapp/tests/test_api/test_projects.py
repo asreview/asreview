@@ -487,13 +487,12 @@ def test_delete_project(client, project):
 def test_admin_can_delete_other_users_project(client_auth):
     """Test that an admin can delete a project owned by another user"""
     # Create first user (project owner)
-    owner_user = au.create_and_signin_user(client_auth, 1)
+    au.create_and_signin_user(client_auth, 1)
     assert len(crud.list_projects()) == 0
     
     # Create a project for the first user
     r = au.create_project(client_auth, "oracle", benchmark="synergy:van_der_Valk_2021")
     assert r.status_code == 201
-    project_id = r.json["id"]
     assert len(crud.list_projects()) == 1
     
     # Sign out first user
@@ -519,13 +518,12 @@ def test_admin_can_delete_other_users_project(client_auth):
 def test_regular_user_cannot_delete_other_users_project(client_auth):
     """Test that a regular user cannot delete a project owned by another user"""
     # Create first user (project owner)
-    owner_user = au.create_and_signin_user(client_auth, 1)
+    au.create_and_signin_user(client_auth, 1)
     assert len(crud.list_projects()) == 0
     
     # Create a project for the first user
     r = au.create_project(client_auth, "oracle", benchmark="synergy:van_der_Valk_2021")
     assert r.status_code == 201
-    project_id = r.json["id"]
     assert len(crud.list_projects()) == 1
     
     # Sign out first user
