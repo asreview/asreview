@@ -900,3 +900,321 @@ def test_transfer_ownership_without_login_unauthorized(client_auth):
     assert response.status_code == 401
     data = response.get_json()
     assert data["message"] == "Login required."
+
+
+# ###################
+# ADMIN ADD PROJECT MEMBER
+# ###################
+
+
+def test_add_member_to_project_as_admin(client_auth):
+    """Test that admin can add a member directly to any project"""
+    # Create test users and projects
+    test_data = _create_test_users_with_projects(client_auth)
+    user1 = test_data["user1"]
+    user2 = test_data["user2"]
+    project1 = test_data["project1"]
+
+    # Create admin user
+    admin_user = get_user(3)
+    au.signup_user(client_auth, admin_user)
+    admin_user_obj = crud.get_user_by_identifier(admin_user.identifier)
+    admin_user_obj.role = "admin"
+    DB.session.commit()
+    au.signin_user(client_auth, admin_user)
+
+    # Get project and user objects
+    project1_obj = crud.get_project_by_project_id(project1["id"])
+    user1_obj = crud.get_user_by_identifier(user1.identifier)
+    user2_obj = crud.get_user_by_identifier(user2.identifier)
+
+    # Verify initial state - user1 is owner, user2 is not involved
+    assert project1_obj.owner_id == user1_obj.id
+    assert user2_obj not in project1_obj.collaborators
+    assert user2_obj not in project1_obj.pending_invitations
+
+    # Add user2 as member to project1
+    add_member_data = {"user_id": user2_obj.id}
+    response = client_auth.post(
+        f"/admin/projects/{project1_obj.id}/add-member",
+        data=json.dumps(add_member_data),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["message"] == "Member added successfully"
+    assert data["user"]["id"] == user2_obj.id
+    assert data["user"]["member"] is True
+    assert data["user"]["owner"] is False
+    assert data["user"]["pending"] is False
+
+    # Verify final state - user2 is now a collaborator
+    DB.session.refresh(project1_obj)
+    assert user2_obj in project1_obj.collaborators
+    assert user2_obj not in project1_obj.pending_invitations
+
+
+def test_add_member_to_project_already_owner_fails(client_auth):
+    """Test that trying to add project owner as member fails"""
+    # Create test users and projects
+    test_data = _create_test_users_with_projects(client_auth)
+    user1 = test_data["user1"]
+    project1 = test_data["project1"]
+
+    # Create admin user
+    admin_user = get_user(3)
+    au.signup_user(client_auth, admin_user)
+    admin_user_obj = crud.get_user_by_identifier(admin_user.identifier)
+    admin_user_obj.role = "admin"
+    DB.session.commit()
+    au.signin_user(client_auth, admin_user)
+
+    # Get project and user objects
+    project1_obj = crud.get_project_by_project_id(project1["id"])
+    user1_obj = crud.get_user_by_identifier(user1.identifier)
+
+    # Try to add project owner as member (should fail)
+    add_member_data = {"user_id": user1_obj.id}
+    response = client_auth.post(
+        f"/admin/projects/{project1_obj.id}/add-member",
+        data=json.dumps(add_member_data),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["message"] == "Cannot add project owner as member"
+
+
+def test_add_member_to_project_already_member_fails(client_auth):
+    """Test that trying to add existing member fails"""
+    # Create test users and projects
+    test_data = _create_test_users_with_projects(client_auth)
+    user1 = test_data["user1"]
+    user2 = test_data["user2"]
+    project1 = test_data["project1"]
+
+    # Create admin user
+    admin_user = get_user(3)
+    au.signup_user(client_auth, admin_user)
+    admin_user_obj = crud.get_user_by_identifier(admin_user.identifier)
+    admin_user_obj.role = "admin"
+    DB.session.commit()
+    au.signin_user(client_auth, admin_user)
+
+    # Get project and user objects
+    project1_obj = crud.get_project_by_project_id(project1["id"])
+    user2_obj = crud.get_user_by_identifier(user2.identifier)
+
+    # Add user2 as collaborator first
+    crud.create_collaboration(DB, project1_obj, user2_obj)
+
+    # Try to add user2 again (should fail)
+    add_member_data = {"user_id": user2_obj.id}
+    response = client_auth.post(
+        f"/admin/projects/{project1_obj.id}/add-member",
+        data=json.dumps(add_member_data),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["message"] == "User is already a member"
+
+
+def test_add_member_to_project_with_pending_invitation_fails(client_auth):
+    """Test that trying to add user with pending invitation fails"""
+    # Create test users and projects
+    test_data = _create_test_users_with_projects(client_auth)
+    user1 = test_data["user1"]
+    user2 = test_data["user2"]
+    project1 = test_data["project1"]
+
+    # Create admin user
+    admin_user = get_user(3)
+    au.signup_user(client_auth, admin_user)
+    admin_user_obj = crud.get_user_by_identifier(admin_user.identifier)
+    admin_user_obj.role = "admin"
+    DB.session.commit()
+    au.signin_user(client_auth, admin_user)
+
+    # Get project and user objects
+    project1_obj = crud.get_project_by_project_id(project1["id"])
+    user2_obj = crud.get_user_by_identifier(user2.identifier)
+
+    # Add user2 as pending invitation first
+    crud.create_invitation(DB, project1_obj, user2_obj)
+
+    # Try to add user2 as member directly (should fail)
+    add_member_data = {"user_id": user2_obj.id}
+    response = client_auth.post(
+        f"/admin/projects/{project1_obj.id}/add-member",
+        data=json.dumps(add_member_data),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["message"] == "User already has a pending invitation"
+
+
+def test_add_member_nonexistent_project_fails(client_auth):
+    """Test adding member to non-existent project fails"""
+    # Create a regular user to add
+    regular_user = get_user(2)
+    au.signup_user(client_auth, regular_user)
+    regular_user_obj = crud.get_user_by_identifier(regular_user.identifier)
+
+    # Create admin user
+    admin_user = get_user(1)
+    au.signup_user(client_auth, admin_user)
+    admin_user_obj = crud.get_user_by_identifier(admin_user.identifier)
+    admin_user_obj.role = "admin"
+    DB.session.commit()
+    au.signin_user(client_auth, admin_user)
+
+    # Try to add member to non-existent project
+    add_member_data = {"user_id": regular_user_obj.id}
+    response = client_auth.post(
+        "/admin/projects/99999/add-member",
+        data=json.dumps(add_member_data),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 404
+    data = response.get_json()
+    assert data["message"] == "Project not found"
+
+
+def test_add_member_nonexistent_user_fails(client_auth):
+    """Test adding non-existent user as member fails"""
+    # Create test users and projects
+    test_data = _create_test_users_with_projects(client_auth)
+    project1 = test_data["project1"]
+
+    # Create admin user
+    admin_user = get_user(3)
+    au.signup_user(client_auth, admin_user)
+    admin_user_obj = crud.get_user_by_identifier(admin_user.identifier)
+    admin_user_obj.role = "admin"
+    DB.session.commit()
+    au.signin_user(client_auth, admin_user)
+
+    # Get project object
+    project1_obj = crud.get_project_by_project_id(project1["id"])
+
+    # Try to add non-existent user as member
+    add_member_data = {"user_id": 99999}
+    response = client_auth.post(
+        f"/admin/projects/{project1_obj.id}/add-member",
+        data=json.dumps(add_member_data),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 404
+    data = response.get_json()
+    assert data["message"] == "User not found"
+
+
+def test_add_member_missing_user_id_fails(client_auth):
+    """Test adding member without providing user_id fails"""
+    # Create test users and projects
+    test_data = _create_test_users_with_projects(client_auth)
+    project1 = test_data["project1"]
+
+    # Create admin user
+    admin_user = get_user(3)
+    au.signup_user(client_auth, admin_user)
+    admin_user_obj = crud.get_user_by_identifier(admin_user.identifier)
+    admin_user_obj.role = "admin"
+    DB.session.commit()
+    au.signin_user(client_auth, admin_user)
+
+    # Get project object
+    project1_obj = crud.get_project_by_project_id(project1["id"])
+
+    # Try to add member without user_id
+    add_member_data = {}
+    response = client_auth.post(
+        f"/admin/projects/{project1_obj.id}/add-member",
+        data=json.dumps(add_member_data),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["message"] == "User ID is required"
+
+
+def test_add_member_as_non_admin_forbidden(client_auth):
+    """Test that non-admin users cannot add members to projects"""
+    # Create test users and projects
+    test_data = _create_test_users_with_projects(client_auth)
+    user1 = test_data["user1"]
+    user2 = test_data["user2"]
+    project1 = test_data["project1"]
+
+    # Sign in as regular user (user1, who owns the project)
+    au.signin_user(client_auth, user1)
+
+    # Get project and user objects
+    project1_obj = crud.get_project_by_project_id(project1["id"])
+    user2_obj = crud.get_user_by_identifier(user2.identifier)
+
+    # Try to add member as non-admin (even if project owner)
+    add_member_data = {"user_id": user2_obj.id}
+    response = client_auth.post(
+        f"/admin/projects/{project1_obj.id}/add-member",
+        data=json.dumps(add_member_data),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 403
+    data = response.get_json()
+    assert data["message"] == "Admin access required."
+
+
+def test_add_member_without_login_unauthorized(client_auth):
+    """Test that unauthenticated users cannot add members to projects"""
+    # Don't sign in any user
+
+    # Try to add member without authentication
+    add_member_data = {"user_id": 1}
+    response = client_auth.post(
+        "/admin/projects/1/add-member",
+        data=json.dumps(add_member_data),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 401
+    data = response.get_json()
+    assert data["message"] == "Login required."
+
+
+def test_add_member_invalid_json_fails(client_auth):
+    """Test adding member with malformed JSON data fails"""
+    # Create test users and projects
+    test_data = _create_test_users_with_projects(client_auth)
+    project1 = test_data["project1"]
+
+    # Create admin user
+    admin_user = get_user(3)
+    au.signup_user(client_auth, admin_user)
+    admin_user_obj = crud.get_user_by_identifier(admin_user.identifier)
+    admin_user_obj.role = "admin"
+    DB.session.commit()
+    au.signin_user(client_auth, admin_user)
+
+    # Get project object
+    project1_obj = crud.get_project_by_project_id(project1["id"])
+
+    # Try to add member with malformed JSON (this will cause Flask to return 400 for bad JSON)
+    response = client_auth.post(
+        f"/admin/projects/{project1_obj.id}/add-member",
+        data="{invalid json syntax",
+        content_type="application/json",
+    )
+
+    # Flask route should return 500 status code
+    assert response.status_code == 500

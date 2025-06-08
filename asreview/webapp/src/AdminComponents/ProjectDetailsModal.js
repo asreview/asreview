@@ -22,12 +22,12 @@ import {
   CalendarTodayOutlined,
   SwapHorizOutlined,
   DeleteOutlined,
+  PersonAddOutlined,
 } from "@mui/icons-material";
 
 import { TeamAPI, AdminAPI, ProjectAPI } from "api";
-import { InlineErrorHandler, UserSelector } from "Components";
+import { UserSelector } from "Components";
 import { getStatusColor, getStatusLabel } from "utils/projectStatus";
-import { getUserDisplayName } from "utils/userUtils";
 import SectionHeader from "./SectionHeader";
 import ProjectOwnerSection from "./ProjectOwnerSection";
 import TeamSection from "./TeamSection";
@@ -40,7 +40,7 @@ const timeAgo = new TimeAgo("en-US");
 
 const ProjectDetailsModal = ({ open, onClose, project }) => {
   const queryClient = useQueryClient();
-  const [selectedNewOwner, setSelectedNewOwner] = React.useState(null);
+  const [selectedUser, setSelectedUser] = React.useState(null);
   const [deleteConfirmDialog, setDeleteConfirmDialog] = React.useState(false);
   const [snackbarState, setSnackbarState] = React.useState({
     open: false,
@@ -74,7 +74,6 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
     data: collaborators,
     isLoading: collaboratorsLoading,
     isError: collaboratorsError,
-    error: collaboratorsErrorData,
   } = useQuery(
     ["fetchProjectUsers", currentProject?.project_id],
     TeamAPI.fetchUsers,
@@ -99,7 +98,7 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
           message: `Project ownership transferred to ${data.project.new_owner.name}`,
           severity: "success",
         });
-        setSelectedNewOwner(null);
+        setSelectedUser(null);
         // Invalidate all relevant queries to refresh project data
         queryClient.invalidateQueries(["fetchAdminProjects"]);
         queryClient.invalidateQueries([
@@ -113,6 +112,68 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
         setSnackbarState({
           open: true,
           message: error?.message || "Failed to transfer project ownership",
+          severity: "error",
+        });
+      },
+    },
+  );
+
+  // Add member mutation
+  const addMemberMutation = useMutation(
+    ({ projectId, userId }) => {
+      console.log("AdminAPI methods:", Object.getOwnPropertyNames(AdminAPI));
+      console.log("addProjectMember function:", AdminAPI.addProjectMember);
+      return AdminAPI.addProjectMember(projectId, userId);
+    },
+    {
+      onSuccess: (data) => {
+        setSnackbarState({
+          open: true,
+          message: `${data.user.name || data.user.email} added as member successfully`,
+          severity: "success",
+        });
+        setSelectedUser(null);
+        // Invalidate queries to refresh data
+        queryClient.invalidateQueries(["fetchAdminProjects"]);
+        queryClient.invalidateQueries([
+          "fetchProjectUsers",
+          currentProject?.project_id,
+        ]);
+        queryClient.invalidateQueries(["fetchAdminUsers"]);
+      },
+      onError: (error) => {
+        setSnackbarState({
+          open: true,
+          message: error?.message || "Failed to add member",
+          severity: "error",
+        });
+      },
+    },
+  );
+
+  // Invite user mutation
+  const inviteUserMutation = useMutation(
+    ({ projectId, userId }) => TeamAPI.inviteUser({ projectId, userId }),
+    {
+      onSuccess: (data) => {
+        setSnackbarState({
+          open: true,
+          message: `Invitation sent to ${data.user.name || data.user.email} successfully`,
+          severity: "success",
+        });
+        setSelectedUser(null);
+        // Invalidate queries to refresh data
+        queryClient.invalidateQueries(["fetchAdminProjects"]);
+        queryClient.invalidateQueries([
+          "fetchProjectUsers",
+          currentProject?.project_id,
+        ]);
+        queryClient.invalidateQueries(["fetchAdminUsers"]);
+      },
+      onError: (error) => {
+        setSnackbarState({
+          open: true,
+          message: error?.message || "Failed to send invitation",
           severity: "error",
         });
       },
@@ -150,13 +211,92 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
     },
   );
 
-  const handleTransferOwnership = () => {
-    if (selectedNewOwner && currentProject) {
+  // Determine the appropriate action based on user status
+  const getUserAction = React.useMemo(() => {
+    if (!selectedUser || !collaborators) return null;
+
+    const userInProject = collaborators.find((u) => u.id === selectedUser.id);
+
+    if (!userInProject) {
+      // User not involved in project - can be added as member, invited, or transfer ownership
+      return {
+        type: "multiple_options",
+        canAddDirectly: true,
+        canInvite: true,
+        canTransfer: true,
+        label: "Multiple Actions",
+      };
+    }
+
+    if (userInProject.owner) {
+      // User is already owner
+      return {
+        type: "none",
+        label: "Already Project Owner",
+      };
+    }
+
+    if (userInProject.pending) {
+      // User has pending invitation - can only transfer ownership
+      return {
+        type: "transfer_only",
+        label: "Transfer Ownership",
+      };
+    }
+
+    if (userInProject.member) {
+      // User is already member - can only transfer ownership
+      return {
+        type: "transfer_only",
+        label: "Transfer Ownership",
+      };
+    }
+
+    return {
+      type: "multiple_options",
+      canAddDirectly: true,
+      canInvite: true,
+      canTransfer: true,
+      label: "Multiple Actions",
+    };
+  }, [selectedUser, collaborators]);
+
+  const handleUserAction = () => {
+    if (!selectedUser || !currentProject || !getUserAction) return;
+
+    const action = getUserAction;
+
+    if (action.type === "transfer_only") {
+      // Transfer ownership - uses database ID
       transferOwnershipMutation.mutate({
         projectId: currentProject.id,
-        newOwnerId: selectedNewOwner.id,
+        newOwnerId: selectedUser.id,
+      });
+    } else if (action.type === "multiple_options") {
+      // Default to adding member directly (faster) - uses database ID
+      addMemberMutation.mutate({
+        projectId: currentProject.id,
+        userId: selectedUser.id,
       });
     }
+  };
+
+  const handleTransferOwnership = () => {
+    if (!selectedUser || !currentProject) return;
+
+    transferOwnershipMutation.mutate({
+      projectId: currentProject.id,
+      newOwnerId: selectedUser.id,
+    });
+  };
+
+  const handleInviteUser = () => {
+    if (!selectedUser || !currentProject) return;
+
+    inviteUserMutation.mutate({
+      projectId: currentProject.project_id,
+      userId: selectedUser.id,
+    });
   };
 
   const handleDeleteProject = () => {
@@ -292,47 +432,124 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
             />
           </Box>
 
-          {/* Transfer Ownership Section */}
+          {/* User Management Section */}
           <Box>
-            <SectionHeader
-              icon={SwapHorizOutlined}
-              title="Transfer Ownership"
-            />
+            <SectionHeader icon={PersonAddOutlined} title="User Management" />
             <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-              Transfer this project to another user. If the user is currently a
-              member, they will be removed from the members list and become the
-              new owner with full access and control.
+              Add members, send invitations, or transfer project ownership.
+              Available actions depend on the selected user's current status.
             </Typography>
             <Grid container spacing={2} alignItems="flex-end">
-              <Grid size={8}>
+              <Grid size={6}>
                 <UserSelector
                   projectId={currentProject.project_id}
-                  value={selectedNewOwner}
-                  onChange={(event, newValue) => setSelectedNewOwner(newValue)}
-                  label="New Owner"
-                  placeholder="Select a user to transfer ownership to..."
-                  excludeOwner={true}
+                  value={selectedUser}
+                  onChange={(event, newValue) => setSelectedUser(newValue)}
+                  label="Select User"
+                  placeholder="Choose a user to manage..."
+                  excludeOwner={false}
                   excludeMembers={false}
-                  disabled={transferOwnershipMutation.isLoading}
+                  disabled={
+                    transferOwnershipMutation.isLoading ||
+                    addMemberMutation.isLoading ||
+                    inviteUserMutation.isLoading
+                  }
                 />
               </Grid>
-              <Grid size={4}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleTransferOwnership}
-                  disabled={
-                    !selectedNewOwner || transferOwnershipMutation.isLoading
-                  }
-                  sx={{ mb: 1 }}
-                  fullWidth
-                >
-                  {transferOwnershipMutation.isLoading
-                    ? "Transferring..."
-                    : "Transfer"}
-                </Button>
+              <Grid size={6}>
+                <Box sx={{ mb: 1 }}>
+                  {getUserAction?.type === "multiple_options" && (
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      sx={{ flexWrap: "wrap", gap: 0.5 }}
+                    >
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleUserAction}
+                        disabled={!selectedUser || addMemberMutation.isLoading}
+                        size="small"
+                        startIcon={<PersonAddOutlined />}
+                        sx={{ minWidth: "auto", flex: "1 1 auto" }}
+                      >
+                        {addMemberMutation.isLoading
+                          ? "Adding..."
+                          : "Add Member"}
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="secondary"
+                        onClick={handleInviteUser}
+                        disabled={!selectedUser || inviteUserMutation.isLoading}
+                        size="small"
+                        sx={{ minWidth: "auto", flex: "1 1 auto" }}
+                      >
+                        {inviteUserMutation.isLoading
+                          ? "Inviting..."
+                          : "Send Invite"}
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="warning"
+                        onClick={handleTransferOwnership}
+                        disabled={
+                          !selectedUser || transferOwnershipMutation.isLoading
+                        }
+                        size="small"
+                        startIcon={<SwapHorizOutlined />}
+                        sx={{ minWidth: "auto", flex: "1 1 auto" }}
+                      >
+                        {transferOwnershipMutation.isLoading
+                          ? "Transferring..."
+                          : "Transfer Ownership"}
+                      </Button>
+                    </Stack>
+                  )}
+                  {getUserAction?.type === "transfer_only" && (
+                    <Button
+                      variant="contained"
+                      color="warning"
+                      onClick={handleUserAction}
+                      disabled={
+                        !selectedUser || transferOwnershipMutation.isLoading
+                      }
+                      fullWidth
+                      size="small"
+                      startIcon={<SwapHorizOutlined />}
+                    >
+                      {transferOwnershipMutation.isLoading
+                        ? "Transferring..."
+                        : "Transfer Ownership"}
+                    </Button>
+                  )}
+                  {getUserAction?.type === "none" && (
+                    <Button variant="outlined" disabled fullWidth size="small">
+                      Already Project Owner
+                    </Button>
+                  )}
+                  {!getUserAction && selectedUser && (
+                    <Button variant="outlined" disabled fullWidth size="small">
+                      Select a user
+                    </Button>
+                  )}
+                </Box>
               </Grid>
             </Grid>
+            {selectedUser && getUserAction && (
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                sx={{ mt: 1, fontStyle: "italic" }}
+              >
+                {getUserAction.type === "multiple_options" &&
+                  "Add Member: Grants immediate access. Send Invite: User must accept invitation. Transfer Ownership: User becomes project owner."}
+                {getUserAction.type === "transfer_only" &&
+                  "This user will become the new project owner with full control."}
+                {getUserAction.type === "none" &&
+                  "This user is already the project owner."}
+              </Typography>
+            )}
           </Box>
 
           {/* Delete Project Section */}

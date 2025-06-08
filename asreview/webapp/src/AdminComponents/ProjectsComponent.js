@@ -5,7 +5,6 @@ import {
   Box,
   Stack,
   Alert,
-  CircularProgress,
   Grid2 as Grid,
   Chip,
   Typography,
@@ -13,12 +12,7 @@ import {
 import { FolderOutlined } from "@mui/icons-material";
 
 import { AdminAPI } from "api";
-import {
-  InlineErrorHandler,
-  HelpPopover,
-  LoadingState,
-  ErrorState,
-} from "Components";
+import { HelpPopover, LoadingState, ErrorState } from "Components";
 import ProjectCard from "./ProjectCard";
 import ProjectDetailsModal from "./ProjectDetailsModal";
 import SectionHeader from "./SectionHeader";
