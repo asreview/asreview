@@ -1,0 +1,104 @@
+<!-- /public/offline.html -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ASReview LAB - Almost there!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        background: #fffcf7;
+        color: #2b1d1a;
+        font-family: "Segoe UI", "Roboto", Arial, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .container {
+        background: #f7f2e6;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(122, 105, 88, 0.08);
+        padding: 2.5rem 2rem 2rem 2rem;
+        max-width: 400px;
+        text-align: center;
+        border: 2px solid #e7e3d9;
+      }
+      h1 {
+        color: #7a6958;
+        margin-bottom: 0.5em;
+        font-size: 2rem;
+        font-weight: 700;
+      }
+      ol {
+        text-align: left;
+        margin: 1.5em 0 2em 1.2em;
+        color: #6d4c41;
+        font-size: 1.1rem;
+      }
+      ol li {
+        margin-bottom: 1.2em;
+        margin-top: 1.2em;
+      }
+      code {
+        background: #e7e3d9;
+        color: #2b1d1a;
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-size: 1em;
+      }
+      .refresh-btn {
+        background: #719166;
+        color: #fff;
+        border: none;
+        border-radius: 24px;
+        padding: 0.7em 2em;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-top: 1em;
+        box-shadow: 0 2px 8px rgba(113, 145, 102, 0.08);
+      }
+      .refresh-btn:hover {
+        background: #5d7d59;
+      }
+      @media (max-width: 500px) {
+        .container {
+          max-width: 95vw;
+          padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+        }
+        h1 {
+          font-size: 1.3rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Almost there!</h1>
+      <p>You need one more step before you can start screening.</p>
+      <ol>
+        <li id="open-instruction">Open the terminal</li>
+        <li>Type <code>asreview lab --no-browser</code></li>
+        <li>Return to this page</li>
+      </ol>
+    </div>
+    <script>
+      // Detect platform and update instruction
+      const instruction = document.getElementById("open-instruction");
+      if (navigator.userAgent.includes("Windows")) {
+        instruction.textContent = "Open the Command Prompt";
+      } else {
+        instruction.textContent = "Open the terminal";
+      }
+
+      // Refresh page on window focus
+      window.addEventListener("focus", () => {
+        window.location.reload();
+      });
+    </script>
+  </body>
+</html>

@@ -20,6 +20,8 @@ import "@fontsource/roboto/700.css";
 import "@fontsource/kanit/500.css";
 import "@fontsource/kanit/700.css";
 
+import * as serviceWorker from "./serviceWorker";
+
 const queryClient = new QueryClient();
 
 function ASReviewApp() {
@@ -47,3 +49,6 @@ function ASReviewApp() {
 const container = document.getElementById("root");
 const root = createRoot(container);
 root.render(<ASReviewApp />);
+
+// Register the service worker for offline support
+serviceWorker.register();
