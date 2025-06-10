@@ -55,16 +55,23 @@ const ProjectsComponent = () => {
       };
     }
 
-    const setup = projectsData.projects.filter(
-      (p) => p.status === projectStatuses.SETUP,
+    const sortByName = (projects) =>
+      projects.sort((a, b) => a.name.localeCompare(b.name));
+
+    const setup = sortByName(
+      projectsData.projects.filter((p) => p.status === projectStatuses.SETUP),
     );
-    const review = projectsData.projects.filter(
-      (p) => p.status === projectStatuses.REVIEW,
+    const review = sortByName(
+      projectsData.projects.filter((p) => p.status === projectStatuses.REVIEW),
     );
-    const finished = projectsData.projects.filter(
-      (p) => p.status === projectStatuses.FINISHED,
+    const finished = sortByName(
+      projectsData.projects.filter(
+        (p) => p.status === projectStatuses.FINISHED,
+      ),
     );
-    const error = projectsData.projects.filter((p) => p.status === "error");
+    const error = sortByName(
+      projectsData.projects.filter((p) => p.status === "error"),
+    );
 
     return { setup, review, finished, error };
   }, [projectsData]);

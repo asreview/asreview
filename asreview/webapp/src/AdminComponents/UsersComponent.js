@@ -53,9 +53,16 @@ const UsersComponent = () => {
       return [];
     }
 
-    const allUsers = usersData.users;
-    const adminUsers = allUsers.filter((user) => user.role === "admin");
-    const memberUsers = allUsers.filter((user) => user.role === "member");
+    const sortByName = (users) =>
+      users.sort((a, b) => a.name.localeCompare(b.name));
+
+    const allUsers = sortByName([...usersData.users]);
+    const adminUsers = sortByName(
+      usersData.users.filter((user) => user.role === "admin"),
+    );
+    const memberUsers = sortByName(
+      usersData.users.filter((user) => user.role === "member"),
+    );
 
     return [
       {
