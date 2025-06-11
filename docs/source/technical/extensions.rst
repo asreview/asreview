@@ -41,11 +41,12 @@ is advised to use the following structure of the package:
 
     ├── README.md
     ├── asreviewcontrib
-    │   └── example
-    │       ├── __init__.py
-    │       ├── entrypoint.py
-    │       └── example_utils.py
-    ├── pyproject.toml
+    │   └── models
+    │       ├── classifiers.py
+    │       ├── feature_extractors.py
+    │       ├── balancers.py
+    │       └── queriers.py
+    └── tests
 
 The next step is to add metadata to the ``pyproject.toml`` file. Edit the
 ``name`` of the package and point the ``entry-points`` to the models.
@@ -109,20 +110,27 @@ structure: ``asreviewcontrib.{extension_name}.{your_modules}``. For example:
 
 .. code:: bash
 
-    ├── README.md ├── asreviewcontrib │   └── example │       ├── __init__.py
-    │       ├── entrypoint.py │       └── example_utils.py ├── pyproject.toml
+    ├── README.md
+    ├── asreviewcontrib
+    │   └── example
+    │       ├── __init__.py
+    │       ├── entrypoint.py
+    │       └── example_utils.py
+    ├── pyproject.toml
     └── tests
-
 
 Create a ``pyproject.toml`` in the root of the package, and define the entry
 points under ``[project.entry-points."asreview.entry_points"]``, for example:
 
 .. code:: toml
 
-    [project] name = "asreviewcontrib-example" # ...other metadata...
+    [project] name = "asreviewcontrib-example"
 
-    [project.entry-points."asreview.entry_points"] example =
-    "asreviewcontrib.example.entrypoint:ExampleEntryPoint"
+    # ...other metadata...
+
+    [project.entry-points."asreview.entry_points"]
+
+    example = "asreviewcontrib.example.entrypoint:ExampleEntryPoint"
 
 After installing this package, ASReview is extended with the ``asreview
 example`` subcommand. See ``asreview -h`` for this option.
@@ -141,9 +149,15 @@ structure:
 
 .. code:: bash
 
-    ├── README.md ├── asreviewcontrib │   └── dataset_name │       ├──
-    __init__.py │       └── your_dataset.py ├── data │   └── your_dataset.csv
-    ├── pyproject.toml └── tests
+    ├── README.md
+    ├── asreviewcontrib
+    │   └── dataset_name
+    │       ├── __init__.py
+    │       └── your_dataset.py
+    ├── data
+    │   └── your_dataset.csv
+    ├── pyproject.toml
+    └── tests
 
 For minimal functionality, ``your_dataset.py`` should extend
 :class:`asreview.datasets.BaseDataSet` and
