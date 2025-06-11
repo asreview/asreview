@@ -39,9 +39,13 @@ is advised to use the following structure of the package:
 
 .. code:: bash
 
-    ├── README.md ├── asreviewcontrib │   └── models │       ├── classifiers.py
-    │       ├── feature_extractors.py │       ├── balancers.py │       └──
-    queriers.py └── tests
+    ├── README.md
+    ├── asreviewcontrib
+    │   └── example
+    │       ├── __init__.py
+    │       ├── entrypoint.py
+    │       └── example_utils.py
+    ├── pyproject.toml
 
 The next step is to add metadata to the ``pyproject.toml`` file. Edit the
 ``name`` of the package and point the ``entry-points`` to the models.
