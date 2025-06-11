@@ -48,19 +48,25 @@ The next step is to add metadata to the ``pyproject.toml`` file. Edit the
 
 .. code:: toml
 
-    [project] name = "asreviewcontrib-yourmodel" # ...other metadata...
+    [project]
 
-    [project.entry-points."asreview.models.classifiers"] example =
-    "asreviewcontrib.models.classifiers.example_model:ExampleClassifier"
+    name = "asreviewcontrib-yourmodel"
 
-    [project.entry-points."asreview.models.feature_extractors"] # define
-    feature_extraction algorithms
+    [project.entry-points."asreview.models.classifiers"]
 
-    [project.entry-points."asreview.models.balancers"] # define balance_strategy
-    algorithms
+    example = "asreviewcontrib.models.classifiers.example_model:ExampleClassifier"
 
-    [project.entry-points."asreview.models.queriers"] # define query_strategy
-    algorithms
+    [project.entry-points."asreview.models.feature_extractors"]
+
+    # define feature_extraction algorithms
+
+    [project.entry-points."asreview.models.balancers"]
+
+    # define balance_strategy algorithms
+
+    [project.entry-points."asreview.models.queriers"]
+
+    # define query_strategy algorithms
 
 This code registers the model with name ``example``.
 
