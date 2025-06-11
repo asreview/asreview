@@ -47,7 +47,7 @@ def _check_for_update():
     """Check if there is an update available."""
 
     try:
-        r = requests.get("https://pypi.org/pypi/asreview/json")
+        r = requests.get("https://pypi.org/pypi/asreview/json", timeout=2)
         r.raise_for_status()
         latest_version = r.json()["info"]["version"]
         if latest_version != asr.__version__ and "+" not in asr.__version__:
@@ -55,7 +55,7 @@ def _check_for_update():
 
         return False, latest_version
     except Exception:
-        pass
+        return False, None
 
 
 def _wait_for_server(host, port, timeout=60):
@@ -107,10 +107,6 @@ def lab_entry_point(argv):
     parser = _lab_parser()
     mark_deprecated_help_strings(parser)
     args = parser.parse_args(argv)
-
-    # check for update
-    if not args.skip_update_check:
-        _check_for_update()
 
     app = create_app(
         config_path=args.config_path,
