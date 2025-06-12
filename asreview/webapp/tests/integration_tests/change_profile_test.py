@@ -73,8 +73,7 @@ def test_change_profile(driver, url, database_uri):
     assert user.affiliation == new_user_data["affiliation"]
 
     # log out
-    utils.sign_out(driver)
-    utils.wait_for_redirect(driver, base_url + "/custom_logout_page")
+    utils.sign_out(driver, base_url)
 
     # log back in with new data
     utils.sign_in(driver, base_url, new_user_data)
