@@ -61,7 +61,11 @@ You can run the script from any directory by simply calling it, e.g. `./run_test
 
 To force a rebuild of the application image, run `docker compose build` from within this directory.
 
-See the comments in [run_tests.sh](./run_tests.sh) for information on environment variables that you can tioggle.
+See the comments in [run_tests.sh](./run_tests.sh) for information on environment variables that you can toggle.
+
+### Test with optional reverse proxy
+
+By setting the `TEST_REVERSE_PROXY` environment variable to `true`, `run_tests.sh` will place an `nginx` reverse proxy in front of ASReview. Reverse proxies are often used in production instances, so this feature can be a helpful way to debug such scenarios.
 
 ## CI
 
