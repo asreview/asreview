@@ -49,6 +49,8 @@ from asreview.extensions import extensions
 from asreview.extensions import load_extension
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
+from asreview.metrics import loss
+from asreview.metrics import ndcg
 from asreview.models import AI_MODEL_CONFIGURATIONS
 from asreview.models import get_ai_config
 from asreview.models.stoppers import NConsecutiveIrrelevant
@@ -1282,6 +1284,26 @@ def api_get_progress_info(project):  # noqa: F401
             "n_records": n_records,
             "n_records_no_priors": n_records - n_priors,
             "n_pool": n_records - len(labels),
+        }
+    )
+
+
+@bp.route("/projects/<project_id>/metrics", methods=["GET"])
+@login_required
+@project_authorization
+def api_get_metrics(project):
+    """Get metrics of the sysrev"""
+
+    if project.config.get("mode") != PROJECT_MODE_SIMULATE:
+        return jsonify("Metrics are only available for simulation projects"), 404
+
+    with open_state(project.project_path) as s:
+        labels = s.get_results_table(priors=False)["label"]
+
+    return jsonify(
+        {
+            "ndcg": round(ndcg(labels), 3),
+            "loss": round(loss(labels), 3),
         }
     )
 
