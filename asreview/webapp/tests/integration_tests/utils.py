@@ -14,6 +14,7 @@ from asreview.webapp._authentication.models import User
 SELENIUM_SCREENSHOT_DIR = os.getenv("SELENIUM_SCREENSHOT_DIR", "/tmp")
 ASREVIEW_LAB_POST_LOGOUT_URL = os.getenv("ASREVIEW_LAB_POST_LOGOUT_URL", "/signin")
 
+
 def save_screenshot(driver, name="screenshot", dirpath=SELENIUM_SCREENSHOT_DIR):
     os.makedirs(dirpath, exist_ok=True)
     driver.save_screenshot(f"{dirpath}/{name}.png")
