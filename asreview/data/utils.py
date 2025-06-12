@@ -4,6 +4,12 @@ from ast import literal_eval
 import numpy as np
 import pandas as pd
 
+# When using a method like `pd.Series.replace` Pandas tries to infer the new data type
+# of the series after the replacement. In the future Pandas only does this if you
+# explicitly call pd.Series.infer_objects. By setting this option, we silence the
+# future deprecation warnings.
+pd.set_option('future.no_silent_downcasting', True)
+
 
 def duplicated(df, pid="doi"):
     """Return boolean Series denoting duplicate rows.
@@ -154,9 +160,10 @@ def convert_to_list(value):
         )
 
 
-def standardize_included_label(value):
-    if isinstance(value, str):
-        conversion_dict = {
+def standardize_included_label(series):
+    try:
+        # Convert string values to 0, 1 or None.
+        series = series.str.lower().replace({
             "": None,
             "0": 0,
             "1": 1,
@@ -164,9 +171,9 @@ def standardize_included_label(value):
             "no": 0,
             "y": 1,
             "n": 0,
-        }
-        value = value.lower()
-        value = conversion_dict[value]
-    if pd.isna(value):
-        value = None
-    return value
+        }).infer_objects(copy=False)
+    except AttributeError:
+        # Series does not contain string values.
+        pass
+    series = series.replace([pd.NA, np.nan], None).infer_objects(copy=False)
+    return series

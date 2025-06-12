@@ -55,7 +55,7 @@ class BaseReader(ABC):
     __cleaning_methods__ = {
         "authors": [lambda series: series.apply(convert_to_list)],
         "keywords": [lambda series: series.apply(convert_to_list)],
-        "included": [lambda series: series.apply(standardize_included_label)],
+        "included": [standardize_included_label],
     }
 
     # Fill missing values with this value. It should be a tuple with one entry which is
