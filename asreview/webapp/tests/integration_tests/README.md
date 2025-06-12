@@ -52,14 +52,16 @@ In this concrete example, the test is executed against the frontend of ASReview 
 
 The `run_tests.sh` script is a convenience script that:
 
-1. Build ASReview from the default [Dockerfile](../../../../Dockerfile)
+1. Builds ASReview from the default [Dockerfile](../../../../Dockerfile)
 1. Starts it with docker-compose
 1. Runs all integration tests against the dockerized instance
 1. Stops the docker containers
 
 You can run the script from any directory by simply calling it, e.g. `./run_tests.sh` from this directory.
 
-See the comments in [run_tests.sh](./run_tests.sh) for information on environment variables that you can toggle.
+To force a rebuild of the application image, run `docker compose build` from within this directory.
+
+See the comments in [run_tests.sh](./run_tests.sh) for information on environment variables that you can tioggle.
 
 ## CI
 
