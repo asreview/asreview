@@ -39,10 +39,10 @@ function MetricsInfoPopover({ open, anchorEl, onClose }) {
               Progress metrics
             </Typography>
             <Typography variant="body2" align="justify">
-              <strong>Loss</strong> measures how well the model ranks and
-              finds the relevant records in the dataset. Lower values indicate
-              better performance. A loss of 0 is ideal, meaning the model
-              perfectly predicts the relevance of records.
+              <strong>Loss</strong> measures how well the model ranks and finds
+              the relevant records in the dataset. Lower values indicate better
+              performance. A loss of 0 is ideal, meaning the model perfectly
+              predicts the relevance of records.
             </Typography>
             <Typography variant="body2" align="justify" sx={{ mt: 1 }}>
               <strong>NDCG</strong> (Normalized Discounted Cumulative Gain)
