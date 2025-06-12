@@ -202,3 +202,10 @@ CORS configuration
    `ASREVIEW_LAB_CORS_SUPPORTS_CREDENTIALS`, which is always true.
    `ASREVIEW_LAB_CORS_ORIGINS` is used to link backend to frontend on different
    host and port.
+
+.. option:: ASREVIEW_LAB_POST_LOGOUT_URL
+
+   URL to which to redirec the user after they have signed out. Default is the standard login page `/signin`.
+   It can be useful to set this to a custom path when using external users, with remote user auth or OAuth. In that
+   case, you might want to redirect the user to an organizational page after logout. Note that this should be set to a valid URI,
+   so `/custom_logout_page` and not `custom_logout_page`.
