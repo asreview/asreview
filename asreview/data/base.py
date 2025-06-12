@@ -49,11 +49,13 @@ class BaseReader(ABC):
     }
 
     # Dictionary {column name : function to apply to the column} of function that clean
-    # the data after reading it. The function should act on individual values.
+    # the data after reading it. The function should act pandas.Series objects. If you
+    # have a function acting on individual values, use
+    # `lambda series: series.apply(function)`.
     __cleaning_methods__ = {
-        "authors": [convert_to_list],
-        "keywords": [convert_to_list],
-        "included": [standardize_included_label],
+        "authors": [lambda series: series.apply(convert_to_list)],
+        "keywords": [lambda series: series.apply(convert_to_list)],
+        "included": [lambda series: series.apply(standardize_included_label)],
     }
 
     # Fill missing values with this value. It should be a tuple with one entry which is
@@ -113,7 +115,7 @@ class BaseReader(ABC):
         for column, cleaning_methods in cls.__cleaning_methods__.items():
             if column in df.columns:
                 for cleaning_method in cleaning_methods:
-                    df[column] = df[column].apply(cleaning_method)
+                    df[column] = cleaning_method(df[column])
         if cls.__fillna_default__ is not None:
             df.replace([pd.NA, np.nan], cls.__fillna_default__[0], inplace=True)
         return df
