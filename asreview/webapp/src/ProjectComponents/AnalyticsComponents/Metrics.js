@@ -39,10 +39,10 @@ function MetricsInfoPopover({ open, anchorEl, onClose }) {
               Progress metrics
             </Typography>
             <Typography variant="body2" align="justify">
-              <strong>Loss</strong> measures how well the model's predictions
-              match the true labels. Lower values indicate better performance. A
-              loss of 0 is ideal, meaning the model perfectly predicts the
-              relevance of records.
+              <strong>Loss</strong> measures how well the model reranks and
+              finds the relevant records in the dataset. Lower values indicate
+              better performance. A loss of 0 is ideal, meaning the model
+              perfectly predicts the relevance of records.
             </Typography>
             <Typography variant="body2" align="justify" sx={{ mt: 1 }}>
               <strong>NDCG</strong> (Normalized Discounted Cumulative Gain)
@@ -59,7 +59,7 @@ function MetricsInfoPopover({ open, anchorEl, onClose }) {
             </Typography>
             <Typography variant="body2" sx={{ mb: 1, textAlign: "justify" }}>
               These metrics are only available when running a{" "}
-              <strong>Simulation</strong> project, where the true relevance of
+              <strong>Simulation</strong> project, where the relevance labels of
               all records is known. In regular review projects, these metrics
               are not available.
             </Typography>
