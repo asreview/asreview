@@ -9,8 +9,12 @@ jobs:
       matrix:
         browser: # must be valid values that can be passed to pytest's --driver option
           - 'chrome'
-    env:
-      ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI: sqlite:////tmp/db.sqlite
+        reverse_proxy: # whether to test with a reverse proxy in front of asreview
+          - false
+          # - true
+        post_logout_url: #
+          - '' # default is /signin
+          # - /custom_logout_page
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,14 +45,6 @@ jobs:
           chromedriver --url-base=/wd/hub &
       - name: Run tests
         run: |
-          echo "DB URI: $ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI"
-          cd asreview/webapp
-          asreview lab \
-            --config-path "$GITHUB_WORKSPACE/asreview/webapp/tests/config/auth_integration_config.toml" \
-            --skip-update-check --no-browser &
-          sleep 1
-          pytest tests/integration_tests \
-            -v \
-            --driver ${{ matrix.browser }} \
-            --url http://localhost:5000 \
-            --database-uri ${{ env.ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI }}
+          export TEST_REVERSE_PROXY="${{ matrix.reverse_proxy }}"
+          export DRIVER="${{ matrix.browser }}"
+          asreview/webapp/tests/integration_tests/run_tests.sh
