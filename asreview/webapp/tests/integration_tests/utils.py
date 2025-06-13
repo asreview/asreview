@@ -12,6 +12,7 @@ from asreview.webapp._authentication.models import Project
 from asreview.webapp._authentication.models import User
 
 SELENIUM_SCREENSHOT_DIR = os.getenv("SELENIUM_SCREENSHOT_DIR", "/tmp")
+ASREVIEW_LAB_POST_LOGOUT_URL = os.getenv("ASREVIEW_LAB_POST_LOGOUT_URL", "/signin")
 
 
 def save_screenshot(driver, name="screenshot", dirpath=SELENIUM_SCREENSHOT_DIR):
@@ -132,9 +133,10 @@ def sign_in(driver, base_url, account_data):
     click_element(driver, "button#sign-in")
 
 
-def sign_out(driver):
+def sign_out(driver, base_url, post_logout_url=ASREVIEW_LAB_POST_LOGOUT_URL):
     click_element(driver, "[aria-label='account of current user'")
     click_element(driver, "//p[contains(text(), 'Sign out')]", selector_type=By.XPATH)
+    wait_for_redirect(driver, f"{base_url}{post_logout_url}")
 
 
 def page_contains_text(
@@ -148,6 +150,7 @@ def page_contains_text(
 
 
 def wait_for_redirect(driver, redirect_url, wait_time=10):
+    print(f"Waiting for redirect to: {redirect_url}")
     WebDriverWait(driver, wait_time).until(
         lambda driver: driver.current_url == redirect_url
     )

@@ -5,3 +5,6 @@ data
 env
 instance
 project_folder
+asreview/webapp/tests/integration_tests/docker-compose.yml
+asreview/webapp/tests/integration_tests/.env
+asreview/webapp/tests/integration_tests/run_tests.sh

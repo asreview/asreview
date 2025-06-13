@@ -1,0 +1,28 @@
+services:
+  asreview:
+    build:
+      context: ../../../../
+      dockerfile: Dockerfile # the dockerfile has 'asreview' as entry point, sets the project dir to /project_folder.
+    command:
+      [
+        "lab",
+        "--config",
+        "/config/$TEST_CONFIG_FILE",
+        "--skip-update-check",
+        "--no-browser",
+      ]
+    environment:
+      - TEST_CONFIG_FILE=${TEST_CONFIG_FILE} # specify config file relative to ../config dir
+      - ASREVIEW_LAB_POST_LOGOUT_URL=${ASREVIEW_LAB_POST_LOGOUT_URL}
+    volumes:
+      - ../config:/config/
+      - ${TEST_DB_DIR}:/project_folder
+    ports:
+      - "5000:5000"
+  nginx:
+    profiles: [reverse-proxy]
+    image: nginx:stable-alpine
+    ports:
+      - "5432:80"
+    volumes:
+      - ./docker-test-with-nginx:/etc/nginx/conf.d
