@@ -1520,23 +1520,35 @@ def api_get_record(project):  # noqa: F401
 @project_authorization
 def api_delete_project(project):  # noqa: F401
     """"""
-
     if project.project_path.exists() and project.project_path.is_dir():
         try:
             # remove from database if applicable
             if current_app.config.get("AUTHENTICATION", True):
-                project = Project.query.filter(
-                    and_(
-                        Project.project_id == project.project_id,
-                        Project.owner_id == current_user.id,
-                    )
-                ).one_or_none()
+                # Allow project owners or admins to delete projects
+                if current_user.is_admin:
+                    # Admin can delete any project
+                    project_db = Project.query.filter(
+                        Project.project_id == project.project_id
+                    ).one_or_none()
+                else:
+                    # Regular users can only delete their own projects
+                    project_db = Project.query.filter(
+                        and_(
+                            Project.project_id == project.project_id,
+                            Project.owner_id == current_user.id,
+                        )
+                    ).one_or_none()
 
-                if project is not None:
-                    DB.session.delete(project)
+                if project_db is not None:
+                    DB.session.delete(project_db)
                     DB.session.commit()
                 else:
-                    return jsonify(message="Failed to delete project in DB."), 500
+                    if current_user.is_admin:
+                        return jsonify(message="Project not found in database."), 404
+                    else:
+                        return jsonify(
+                            message="Project not found or access denied."
+                        ), 403
 
             # and remove the folder
             shutil.rmtree(project.project_path)

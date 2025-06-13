@@ -20,7 +20,7 @@ def get_user(test_user_id):
     account that can be found in the config file.
     The test_user_id refers to the position of the
     user account credentials in the .ini file
-    (1, 2, or 3)"""
+    (1, 2, 3, or 4)"""
     section = config[f"user{test_user_id}"]
     # create user
     user = User(

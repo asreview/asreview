@@ -483,6 +483,68 @@ def test_delete_project(client, project):
     assert r.json["success"]
 
 
+# Test admin deleting another user's project
+def test_admin_can_delete_other_users_project(client_auth):
+    """Test that an admin can delete a project owned by another user"""
+    # Create first user (project owner)
+    au.create_and_signin_user(client_auth, 1)
+    assert len(crud.list_projects()) == 0
+
+    # Create a project for the first user
+    r = au.create_project(client_auth, "oracle", benchmark="synergy:van_der_Valk_2021")
+    assert r.status_code == 201
+    assert len(crud.list_projects()) == 1
+
+    # Sign out first user
+    au.signout_user(client_auth)
+
+    # Create second user (admin)
+    admin_user = au.create_and_signin_user(client_auth, 2)
+
+    # Set the second user as admin
+    admin_user.role = "admin"
+    DB.session.commit()
+
+    # delete project
+    project = crud.list_projects()[0]
+    r = au.delete_project(client_auth, project)
+
+    assert r.status_code == 200
+    assert r.json["success"]
+    assert len(crud.list_projects()) == 0
+
+
+# Test regular user cannot delete another user's project
+def test_regular_user_cannot_delete_other_users_project(client_auth):
+    """Test that a regular user cannot delete a project owned by another user"""
+    # Create first user (project owner)
+    au.create_and_signin_user(client_auth, 1)
+    assert len(crud.list_projects()) == 0
+
+    # Create a project for the first user
+    r = au.create_project(client_auth, "oracle", benchmark="synergy:van_der_Valk_2021")
+    assert r.status_code == 201
+    assert len(crud.list_projects()) == 1
+
+    # Sign out first user
+    au.signout_user(client_auth)
+
+    # Create second user (regular member)
+    regular_user = au.create_and_signin_user(client_auth, 2)
+
+    # Verify regular user is not admin
+    assert regular_user.role == "member"
+    assert not regular_user.is_admin
+
+    # Verify regular user cannot delete the project owned by first user
+    project = crud.list_projects()[0]
+    r = au.delete_project(client_auth, project)
+
+    # Should return 403 Forbidden
+    assert r.status_code == 403
+    assert len(crud.list_projects()) == 1
+
+
 @pytest.mark.parametrize(
     "api_call,project_required,params",
     [

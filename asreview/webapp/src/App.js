@@ -12,6 +12,8 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import RouteNotFound from "RouteNotFound";
 
 import { ReviewPage } from "ProjectComponents/ReviewComponents";
+import { Overview } from "AdminComponents";
+import { useAuth } from "hooks/useAuth";
 
 import "./App.css";
 
@@ -33,12 +35,27 @@ const App = () => {
     noSsr: true,
   });
 
+  const { isAdmin } = useAuth();
+
   return (
     <>
       <CssBaseline />
 
       <div aria-label="nav and main content">
         <Routes>
+          {/* Admin routes */}
+          {window.authentication && isAdmin && (
+            <Route
+              path="admin"
+              element={<PageWithDrawer navComponent={LandingDrawerItems} />}
+            >
+              <Route
+                index
+                element={<Overview key={"admin"} mobileScreen={mobileScreen} />}
+              />
+            </Route>
+          )}
+
           {/* Authentication routes */}
           {window.authentication && (
             <>
