@@ -49,7 +49,7 @@ def _set_log_verbosity(verbose):
 def _convert_id_to_idx(data_obj, record_id):
     """Convert record_id to row number."""
 
-    inv_record_id = dict(zip(data_obj.df.index.tolist(), range(len(data_obj))))
+    inv_record_id = dict(zip(data_obj["record_id"].tolist(), range(len(data_obj))))
 
     result = []
     for i in record_id:
