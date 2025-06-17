@@ -107,15 +107,12 @@ class TaskManager:
             self.session.rollback()
 
     def is_waiting(self, project_id):
-        record = (
+        return (
             self.session.query(ProjectQueueModel)
             .filter_by(project_id=project_id)
             .first()
+            or False
         )
-        if record is None:
-            return False
-        else:
-            return record
 
     def is_pending(self, project_id):
         return project_id in self.pending
@@ -269,18 +266,16 @@ class TaskManager:
             Event to signal that the manager should shut down.
 
         """
+        logging.info(f"...starting server on {self.host}:{self.port}")
+
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.host, self.port))
         self.server_socket.listen()
 
-        # Acknowledge MultipProcessing we could connect
         if mp_start_event is not None:
             mp_start_event.set()
 
-        # Set a timeout
         self.server_socket.settimeout(1.0)
-
-        logging.info(f"...starting server on {self.host}:{self.port}")
 
         try:
             while mp_shutdown_event is None or not mp_shutdown_event.is_set():
@@ -301,7 +296,8 @@ class TaskManager:
                     # continue to check for shutdown conditions
                     continue
 
-                except OSError:
+                except OSError as e:
+                    logging.error(f"Socket error occurred: {e}")
                     break  # Exit the loop if the socket is closed
 
         except KeyboardInterrupt:
@@ -325,9 +321,10 @@ class TaskManager:
         if self.server_socket:
             try:
                 self.server_socket.close()
-            except OSError:
-                pass  # Ignore errors if socket is already closed
-            self.server_socket = None
+            except OSError as e:
+                logging.error(f"Failed to close server socket: {e}")
+            finally:
+                self.server_socket = None
         logging.info("TaskManager has been stopped.")
 
         # Close the database session

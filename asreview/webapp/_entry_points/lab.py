@@ -213,7 +213,7 @@ def lab_entry_point(argv):
         start_time = time.time()
         while not start_event.is_set():
             time.sleep(0.1)
-            if time.time() - start_time > 5:
+            if time.time() - start_time > 10:
                 console.print(
                     "\n\n[red]Error: unable to startup the task server.[/red]\n\n"
                 )
