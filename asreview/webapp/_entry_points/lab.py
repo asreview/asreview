@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
+import atexit
 import logging
 import multiprocessing as mp
 import os
+import signal
 import socket
+import sys
 import time
 import webbrowser
 from pathlib import Path
@@ -34,6 +37,9 @@ from asreview.webapp.utils import asreview_path
 # Host name
 HOST_NAME = os.getenv("ASREVIEW_LAB_HOST", "localhost")
 PORT_NUMBER = os.getenv("ASREVIEW_LAB_PORT", 5000)
+
+# Platform detection - cache for efficiency
+IS_WINDOWS = sys.platform.startswith('win')
 
 
 def _check_port_in_use(host, port):
@@ -84,6 +90,39 @@ def _open_browser_when_ready(host, port, start_url, console, timeout=60):
         )
 
 
+def _setup_multiprocessing():
+    """Setup multiprocessing for Windows compatibility."""
+    if IS_WINDOWS:
+        # Set spawn method explicitly for Windows
+        try:
+            mp.set_start_method('spawn', force=True)
+        except RuntimeError:
+            # Already set, ignore
+            pass
+    
+
+def _cleanup_task_manager(process, shutdown_event, console):
+    """Cleanup function for task manager process."""
+    if process and process.is_alive():
+        console.print("Shutting down task manager...")
+        shutdown_event.set()
+        
+        # Give more time on Windows for cleanup
+        timeout = 15 if IS_WINDOWS else 10
+        process.join(timeout=timeout)
+        
+        if process.is_alive():
+            console.print("[red]Force terminating task manager...[/red]")
+            process.terminate()
+            process.join(timeout=5)
+            
+            if process.is_alive():
+                console.print("[red]Killing task manager process...[/red]")
+                if hasattr(process, 'kill'):
+                    process.kill()
+                process.join()
+
+
 def lab_entry_point(argv):
     """Entry point for the ASReview LAB webapp.
 
@@ -103,6 +142,9 @@ def lab_entry_point(argv):
     >>> ASREVIEW_LAB_SECRET_KEY="my-secret" asreview lab
     >>> asreview lab --secret-key "my-secret"
     """
+    
+    # Setup multiprocessing for Windows compatibility
+    _setup_multiprocessing()
 
     parser = _lab_parser()
     mark_deprecated_help_strings(parser)
@@ -193,22 +235,41 @@ def lab_entry_point(argv):
     # define events for task manager to signal when to start and shutdown
     start_event = mp.Event()
     shutdown_event = mp.Event()
+    process = None
 
-    # set the task manager to run in a separate process
-    process = mp.Process(
-        target=run_task_manager,
-        args=(
-            app.config.get("TASK_MANAGER_WORKERS", None),
-            app.config.get("TASK_MANAGER_HOST", None),
-            app.config.get("TASK_MANAGER_PORT", None),
-            start_event,
-            shutdown_event,
-            app.config.get("TASK_MANAGER_VERBOSE", False),
-        ),
-    )
-    process.start()
+    def cleanup_on_exit():
+        """Clean up function for atexit registration."""
+        if process and process.is_alive():
+            _cleanup_task_manager(process, shutdown_event, console)
+
+    def signal_handler(signum, frame):
+        """Handle shutdown signals properly on Windows."""
+        console.print(f"\n\nReceived signal {signum}, shutting down...")
+        cleanup_on_exit()
+        sys.exit(0)
+
+    # Register signal handlers for graceful shutdown
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
+    # Register cleanup function for atexit
+    atexit.register(cleanup_on_exit)
 
     try:
+        # set the task manager to run in a separate process
+        process = mp.Process(
+            target=run_task_manager,
+            args=(
+                app.config.get("TASK_MANAGER_WORKERS", None),
+                app.config.get("TASK_MANAGER_HOST", None),
+                app.config.get("TASK_MANAGER_PORT", None),
+                start_event,
+                shutdown_event,
+                app.config.get("TASK_MANAGER_VERBOSE", False),
+            ),
+        )
+        process.start()
+
         # wait for the process to spin up
         start_time = time.time()
         while not start_event.is_set():
@@ -217,34 +278,22 @@ def lab_entry_point(argv):
                 console.print(
                     "\n\n[red]Error: unable to startup the task server.[/red]\n\n"
                 )
-                process.terminate()
-                process.join()
+                _cleanup_task_manager(process, shutdown_event, console)
                 return
 
         waitress.serve(app, host=args.host, port=port, threads=6)
 
     except KeyboardInterrupt:
-        # waitress is now shutting down, shut down the task manager gracefully
-        shutdown_event.set()
+        console.print("\n\nShutting down server...\n\n")
+        _cleanup_task_manager(process, shutdown_event, console)
 
-        console.print("\n\nShutting down server.\n\n")
+    except Exception as e:
+        console.print(f"\n\n[red]Error: {e}[/red]\n\n")
+        _cleanup_task_manager(process, shutdown_event, console)
+        raise
 
     finally:
-        if process.is_alive():
-            console.print(
-                "Waiting for background task manager to shut down gracefully..."
-            )
-            process.join(timeout=10)
-            console.print("Background task manager shut down gracefully.\n\n")
-
-        if process.is_alive():
-            # If it didn't shut down gracefully, terminate it forcefully
-            console.print(
-                "[red]Background task manager did not shut down gracefully. "
-                "Terminating forcefully.[/red]\n\n"
-            )
-            process.terminate()
-            process.join()
+        _cleanup_task_manager(process, shutdown_event, console)
 
 
 def _lab_parser():
@@ -338,3 +387,8 @@ def _lab_parser():
     )
 
     return parser
+
+
+if __name__ == '__main__':
+    # Required for Windows multiprocessing
+    mp.freeze_support()
