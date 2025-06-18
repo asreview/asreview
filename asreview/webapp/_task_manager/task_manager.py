@@ -2,7 +2,10 @@ import json
 import logging
 import multiprocessing as mp
 import socket
+import sys
 import threading
+import signal
+import time
 from collections import deque
 
 from sqlalchemy import create_engine
@@ -18,6 +21,9 @@ from asreview.webapp._tasks import run_task
 DEFAULT_TASK_MANAGER_HOST = "localhost"
 DEFAULT_TASK_MANAGER_PORT = 5101
 DEFAULT_TASK_MANAGER_WORKERS = 2
+
+# Platform detection - cache for efficiency
+IS_WINDOWS = sys.platform.startswith('win')
 
 
 def _setup_logging(verbose=False):
@@ -107,15 +113,12 @@ class TaskManager:
             self.session.rollback()
 
     def is_waiting(self, project_id):
-        record = (
+        return (
             self.session.query(ProjectQueueModel)
             .filter_by(project_id=project_id)
             .first()
+            or False
         )
-        if record is None:
-            return False
-        else:
-            return record
 
     def is_pending(self, project_id):
         return project_id in self.pending
@@ -258,6 +261,43 @@ class TaskManager:
 
         conn.close()
 
+    def _bind_server_socket(self, mp_start_event=None):
+        """Bind the server socket to the configured host and port."""
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        
+        # Enable socket reuse - critical for Windows
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        
+        # Windows-specific socket options
+        if IS_WINDOWS:
+            # SO_EXCLUSIVEADDRUSE prevents other processes from binding to the same port
+            try:
+                self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+            except (OSError, AttributeError):
+                # Not available on all Windows versions
+                logging.debug("SO_EXCLUSIVEADDRUSE not available on this Windows version")
+        
+        try:
+            self.server_socket.bind((self.host, self.port))
+        except OSError as e:
+            # Handle both Unix (48) and Windows (10048) "address in use" errors
+            if e.errno in (48, 10048) or "address already in use" in str(e).lower():
+                logging.error(f"Address already in use: {self.host}:{self.port}")
+
+                if self.server_socket:
+                    self.server_socket.close()
+                    self.server_socket = None
+
+                if mp_start_event is not None:
+                    logging.info("Reusing task server on address.")
+                    mp_start_event.set()
+                    return False
+
+            logging.error(f"Failed to bind socket: {e}")
+            return False
+
+        return True
+
     def start_manager(self, mp_start_event=None, mp_shutdown_event=None):
         """Start the task manager.
 
@@ -269,48 +309,60 @@ class TaskManager:
             Event to signal that the manager should shut down.
 
         """
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.bind((self.host, self.port))
+        logging.info(f"Starting task server on {self.host}:{self.port}")
+
+        if not self._bind_server_socket(mp_start_event):
+            return
+
         self.server_socket.listen()
 
-        # Acknowledge MultipProcessing we could connect
         if mp_start_event is not None:
             mp_start_event.set()
 
-        # Set a timeout
         self.server_socket.settimeout(1.0)
 
-        logging.info(f"...starting server on {self.host}:{self.port}")
+        # Setup signal handler for graceful shutdown
+        def _signal_handler(signum, frame):
+            logging.info(f"Received signal {signum}, shutting down task manager...")
+            if mp_shutdown_event is not None:
+                mp_shutdown_event.set()
+            else:
+                self.stop_manager()
 
-        try:
-            while mp_shutdown_event is None or not mp_shutdown_event.is_set():
-                try:
-                    # Accept incoming connections with a timeout
-                    conn, _ = self.server_socket.accept()
-                    # Start a new thread to handle the client connection
-                    client_thread = threading.Thread(
-                        target=self._handle_incoming_messages, args=(conn,)
-                    )
-                    client_thread.start()
+        # Register signal handlers - Windows has limited signal support
+        signal.signal(signal.SIGINT, _signal_handler)
+        if hasattr(signal, 'SIGTERM'):
+            signal.signal(signal.SIGTERM, _signal_handler)
+        
+        # Windows-specific: handle SIGBREAK if available
+        if IS_WINDOWS and hasattr(signal, 'SIGBREAK'):
+            signal.signal(signal.SIGBREAK, _signal_handler)
 
-                except socket.timeout:
-                    # No incoming connections => perform handling queue
-                    self._process_buffer()
-                    # Pop tasks from database into 'pending'
-                    self.pop_waiting_queue()
-                    # continue to check for shutdown conditions
-                    continue
+        while mp_shutdown_event is None or not mp_shutdown_event.is_set():
+            try:
+                # Accept incoming connections with a timeout
+                conn, _ = self.server_socket.accept()
+                # Start a new thread to handle the client connection
+                client_thread = threading.Thread(
+                    target=self._handle_incoming_messages, args=(conn,)
+                )
+                client_thread.daemon = True  # Ensure threads don't prevent shutdown
+                client_thread.start()
 
-                except OSError:
-                    break  # Exit the loop if the socket is closed
+            except socket.timeout:
+                # No incoming connections => perform handling queue
+                self._process_buffer()
+                # Pop tasks from database into 'pending'
+                self.pop_waiting_queue()
+                continue
 
-        except KeyboardInterrupt:
-            # Handle graceful shutdown on keyboard interrupt
-            # Most useful when task manager is run in foreground
-            logging.info("...Shutting down task manager")
-
-        finally:
-            self.stop_manager()
+            except OSError as e:
+                if mp_shutdown_event and mp_shutdown_event.is_set():
+                    # Expected error during shutdown
+                    logging.info("Socket closed during shutdown")
+                else:
+                    logging.error(f"Socket error occurred: {e}")
+                break  # Exit the loop if the socket is closed
 
     def stop_manager(self, mp_shutdown_event=None):
         """Gracefully stop the manager and close the socket."""
@@ -321,22 +373,31 @@ class TaskManager:
             logging.info("Shutting down task manager...")
             mp_shutdown_event.set()
 
-        # Close the server socket
-        if self.server_socket:
+        # Close the server socket with proper cleanup
+        if hasattr(self, 'server_socket') and self.server_socket:
             try:
+                # Shutdown the socket before closing - important for Windows
+                try:
+                    self.server_socket.shutdown(socket.SHUT_RDWR)
+                except OSError:
+                    # Socket might already be closed/shutdown
+                    pass
                 self.server_socket.close()
-            except OSError:
-                pass  # Ignore errors if socket is already closed
-            self.server_socket = None
+            except OSError as e:
+                logging.error(f"Failed to close server socket: {e}")
+            finally:
+                self.server_socket = None
+        
         logging.info("TaskManager has been stopped.")
 
         # Close the database session
-        if self.session:
+        if hasattr(self, 'session') and self.session:
             try:
                 self.session.close()
             except Exception as e:
                 logging.error(f"Failed to close database session: {e}")
-            self.session = None
+            finally:
+                self.session = None
 
 
 def run_task_manager(
@@ -347,6 +408,10 @@ def run_task_manager(
     mp_shutdown_event=None,
     verbose=False,
 ):
+    # Windows multiprocessing protection
+    if IS_WINDOWS:
+        mp.freeze_support()
+    
     kwargs = {}
     if max_workers is not None:
         kwargs["max_workers"] = max_workers
@@ -356,5 +421,18 @@ def run_task_manager(
         kwargs["port"] = port
 
     _setup_logging(verbose)
-    manager = TaskManager(**kwargs)
-    manager.start_manager(mp_start_event, mp_shutdown_event)
+    
+    try:
+        manager = TaskManager(**kwargs)
+        manager.start_manager(mp_start_event, mp_shutdown_event)
+    except Exception as e:
+        logging.error(f"Task manager failed to start: {e}")
+        if mp_start_event:
+            # Signal failure to start
+            mp_start_event.set()
+        raise
+
+
+if __name__ == '__main__':
+    # Required for Windows multiprocessing when run directly
+    mp.freeze_support()
