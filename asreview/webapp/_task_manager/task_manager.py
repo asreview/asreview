@@ -5,7 +5,6 @@ import socket
 import sys
 import threading
 import signal
-import time
 from collections import deque
 
 from sqlalchemy import create_engine
