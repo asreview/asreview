@@ -22,7 +22,7 @@ DEFAULT_TASK_MANAGER_PORT = 5101
 DEFAULT_TASK_MANAGER_WORKERS = 2
 
 # Platform detection - cache for efficiency
-IS_WINDOWS = sys.platform.startswith('win')
+IS_WINDOWS = sys.platform.startswith("win")
 
 
 def _setup_logging(verbose=False):
@@ -263,19 +263,23 @@ class TaskManager:
     def _bind_server_socket(self, mp_start_event=None):
         """Bind the server socket to the configured host and port."""
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        
+
         # Enable socket reuse - critical for Windows
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        
+
         # Windows-specific socket options
         if IS_WINDOWS:
             # SO_EXCLUSIVEADDRUSE prevents other processes from binding to the same port
             try:
-                self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+                self.server_socket.setsockopt(
+                    socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1
+                )
             except (OSError, AttributeError):
                 # Not available on all Windows versions
-                logging.debug("SO_EXCLUSIVEADDRUSE not available on this Windows version")
-        
+                logging.debug(
+                    "SO_EXCLUSIVEADDRUSE not available on this Windows version"
+                )
+
         try:
             self.server_socket.bind((self.host, self.port))
         except OSError as e:
@@ -330,11 +334,11 @@ class TaskManager:
 
         # Register signal handlers - Windows has limited signal support
         signal.signal(signal.SIGINT, _signal_handler)
-        if hasattr(signal, 'SIGTERM'):
+        if hasattr(signal, "SIGTERM"):
             signal.signal(signal.SIGTERM, _signal_handler)
-        
+
         # Windows-specific: handle SIGBREAK if available
-        if IS_WINDOWS and hasattr(signal, 'SIGBREAK'):
+        if IS_WINDOWS and hasattr(signal, "SIGBREAK"):
             signal.signal(signal.SIGBREAK, _signal_handler)
 
         while mp_shutdown_event is None or not mp_shutdown_event.is_set():
@@ -373,7 +377,7 @@ class TaskManager:
             mp_shutdown_event.set()
 
         # Close the server socket with proper cleanup
-        if hasattr(self, 'server_socket') and self.server_socket:
+        if hasattr(self, "server_socket") and self.server_socket:
             try:
                 # Shutdown the socket before closing - important for Windows
                 try:
@@ -386,11 +390,11 @@ class TaskManager:
                 logging.error(f"Failed to close server socket: {e}")
             finally:
                 self.server_socket = None
-        
+
         logging.info("TaskManager has been stopped.")
 
         # Close the database session
-        if hasattr(self, 'session') and self.session:
+        if hasattr(self, "session") and self.session:
             try:
                 self.session.close()
             except Exception as e:
@@ -410,7 +414,7 @@ def run_task_manager(
     # Windows multiprocessing protection
     if IS_WINDOWS:
         mp.freeze_support()
-    
+
     kwargs = {}
     if max_workers is not None:
         kwargs["max_workers"] = max_workers
@@ -420,7 +424,7 @@ def run_task_manager(
         kwargs["port"] = port
 
     _setup_logging(verbose)
-    
+
     try:
         manager = TaskManager(**kwargs)
         manager.start_manager(mp_start_event, mp_shutdown_event)
@@ -432,6 +436,6 @@ def run_task_manager(
         raise
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Required for Windows multiprocessing when run directly
     mp.freeze_support()

@@ -39,7 +39,7 @@ HOST_NAME = os.getenv("ASREVIEW_LAB_HOST", "localhost")
 PORT_NUMBER = os.getenv("ASREVIEW_LAB_PORT", 5000)
 
 # Platform detection - cache for efficiency
-IS_WINDOWS = sys.platform.startswith('win')
+IS_WINDOWS = sys.platform.startswith("win")
 
 
 def _check_port_in_use(host, port):
@@ -95,30 +95,30 @@ def _setup_multiprocessing():
     if IS_WINDOWS:
         # Set spawn method explicitly for Windows
         try:
-            mp.set_start_method('spawn', force=True)
+            mp.set_start_method("spawn", force=True)
         except RuntimeError:
             # Already set, ignore
             pass
-    
+
 
 def _cleanup_task_manager(process, shutdown_event, console):
     """Cleanup function for task manager process."""
     if process and process.is_alive():
         console.print("Shutting down task manager...")
         shutdown_event.set()
-        
+
         # Give more time on Windows for cleanup
         timeout = 15 if IS_WINDOWS else 10
         process.join(timeout=timeout)
-        
+
         if process.is_alive():
             console.print("[red]Force terminating task manager...[/red]")
             process.terminate()
             process.join(timeout=5)
-            
+
             if process.is_alive():
                 console.print("[red]Killing task manager process...[/red]")
-                if hasattr(process, 'kill'):
+                if hasattr(process, "kill"):
                     process.kill()
                 process.join()
 
@@ -142,7 +142,7 @@ def lab_entry_point(argv):
     >>> ASREVIEW_LAB_SECRET_KEY="my-secret" asreview lab
     >>> asreview lab --secret-key "my-secret"
     """
-    
+
     # Setup multiprocessing for Windows compatibility
     _setup_multiprocessing()
 
@@ -251,7 +251,7 @@ def lab_entry_point(argv):
     # Register signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    
+
     # Register cleanup function for atexit
     atexit.register(cleanup_on_exit)
 
@@ -389,6 +389,6 @@ def _lab_parser():
     return parser
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Required for Windows multiprocessing
     mp.freeze_support()
