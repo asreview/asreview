@@ -3,6 +3,7 @@ import logging
 import multiprocessing as mp
 import socket
 import threading
+import signal
 from collections import deque
 
 from sqlalchemy import create_engine
@@ -255,6 +256,29 @@ class TaskManager:
 
         conn.close()
 
+    def _bind_server_socket(self, mp_start_event=None):
+        """Bind the server socket to the configured host and port."""
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            self.server_socket.bind((self.host, self.port))
+        except OSError as e:
+            if e.errno == 48:
+                logging.error(f"Address already in use: {self.host}:{self.port}")
+
+                if self.server_socket:
+                    self.server_socket.close()
+                    self.server_socket = None
+
+                if mp_start_event is not None:
+                    logging.info("Reusing task server on address.")
+                    mp_start_event.set()
+                    return False
+
+            logging.error(f"Failed to bind socket: {e}")
+            return False
+
+        return True
+
     def start_manager(self, mp_start_event=None, mp_shutdown_event=None):
         """Start the task manager.
 
@@ -266,10 +290,11 @@ class TaskManager:
             Event to signal that the manager should shut down.
 
         """
-        logging.info(f"...starting server on {self.host}:{self.port}")
+        logging.info(f"Starting task server on {self.host}:{self.port}")
 
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.bind((self.host, self.port))
+        if not self._bind_server_socket(mp_start_event):
+            return
+
         self.server_socket.listen()
 
         if mp_start_event is not None:
@@ -277,36 +302,38 @@ class TaskManager:
 
         self.server_socket.settimeout(1.0)
 
-        try:
-            while mp_shutdown_event is None or not mp_shutdown_event.is_set():
-                try:
-                    # Accept incoming connections with a timeout
-                    conn, _ = self.server_socket.accept()
-                    # Start a new thread to handle the client connection
-                    client_thread = threading.Thread(
-                        target=self._handle_incoming_messages, args=(conn,)
-                    )
-                    client_thread.start()
+        # Setup signal handler for graceful shutdown
+        def _signal_handler(signum, frame):
+            logging.info(f"Received signal {signum}, shutting down task manager...")
+            if mp_shutdown_event is not None:
+                mp_shutdown_event.set()
+            else:
+                self.stop_manager()
 
-                except socket.timeout:
-                    # No incoming connections => perform handling queue
-                    self._process_buffer()
-                    # Pop tasks from database into 'pending'
-                    self.pop_waiting_queue()
-                    # continue to check for shutdown conditions
-                    continue
+        signal.signal(signal.SIGINT, _signal_handler)
+        signal.signal(signal.SIGTERM, _signal_handler)
 
-                except OSError as e:
-                    logging.error(f"Socket error occurred: {e}")
-                    break  # Exit the loop if the socket is closed
+        while mp_shutdown_event is None or not mp_shutdown_event.is_set():
+            try:
+                # Accept incoming connections with a timeout
+                conn, _ = self.server_socket.accept()
+                # Start a new thread to handle the client connection
+                client_thread = threading.Thread(
+                    target=self._handle_incoming_messages, args=(conn,)
+                )
+                client_thread.start()
 
-        except KeyboardInterrupt:
-            # Handle graceful shutdown on keyboard interrupt
-            # Most useful when task manager is run in foreground
-            logging.info("...Shutting down task manager")
+            except socket.timeout:
+                # No incoming connections => perform handling queue
+                self._process_buffer()
+                # Pop tasks from database into 'pending'
+                self.pop_waiting_queue()
+                # continue to check for shutdown conditions
+                continue
 
-        finally:
-            self.stop_manager()
+            except OSError as e:
+                logging.error(f"Socket error occurred: {e}")
+                break  # Exit the loop if the socket is closed
 
     def stop_manager(self, mp_shutdown_event=None):
         """Gracefully stop the manager and close the socket."""
