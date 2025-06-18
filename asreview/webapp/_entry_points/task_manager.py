@@ -5,8 +5,7 @@ import textwrap
 from asreview.webapp._task_manager.task_manager import DEFAULT_TASK_MANAGER_HOST
 from asreview.webapp._task_manager.task_manager import DEFAULT_TASK_MANAGER_PORT
 from asreview.webapp._task_manager.task_manager import DEFAULT_TASK_MANAGER_WORKERS
-from asreview.webapp._task_manager.task_manager import TaskManager
-from asreview.webapp._task_manager.task_manager import _setup_logging
+from asreview.webapp._task_manager.task_manager import run_task_manager
 
 description = """\
 This entry point launches an instance of ASReview's task manager. You can
@@ -41,12 +40,9 @@ def main(argv):
     )
     args = parser.parse_args(argv)
 
-    verbose = os.getenv("ASREVIEW_LAB_TASK_MANAGER_VERBOSE", args.verbose)
-    _setup_logging(verbose=verbose)
-
-    manager = TaskManager(
+    run_task_manager(
         max_workers=os.getenv("ASREVIEW_LAB_TASK_MANAGER_WORKERS", args.workers),
         host=os.getenv("ASREVIEW_LAB_TASK_MANAGER_HOST", args.host),
         port=os.getenv("ASREVIEW_LAB_TASK_MANAGER_PORT", args.port),
+        verbose=os.getenv("ASREVIEW_LAB_TASK_MANAGER_VERBOSE", args.verbose),
     )
-    manager.start_manager()
