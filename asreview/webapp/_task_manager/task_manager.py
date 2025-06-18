@@ -4,6 +4,7 @@ import multiprocessing as mp
 import socket
 import threading
 import signal
+import errno
 from collections import deque
 
 from sqlalchemy import create_engine
@@ -332,6 +333,9 @@ class TaskManager:
                 continue
 
             except OSError as e:
+                if e.errno == errno.EBADF:
+                    # Socket was closed, exit loop silently
+                    break
                 logging.error(f"Socket error occurred: {e}")
                 break  # Exit the loop if the socket is closed
 
