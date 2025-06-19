@@ -210,7 +210,7 @@ def lab_entry_point(argv):
             app.config.get("TASK_MANAGER_PORT", None),
             start_event,
             shutdown_event,
-            getattr(args, "verbose", False),  # pass CLI verbosity to task manager
+            getattr(args, "verbose", 0),
         ),
     )
     process.start()
