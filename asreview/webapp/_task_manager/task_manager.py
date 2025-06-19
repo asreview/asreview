@@ -34,16 +34,16 @@ def _setup_logging(verbose=0):
     elif verbose == 1:
         log_level = "INFO"
     else:
-        return  # Default logging
+        log_level = None
 
-    numeric_level = getattr(logging, log_level.upper(), None)
-    if not isinstance(numeric_level, int):
-        raise ValueError(f"Invalid log level: {log_level}")
+    if log_level is not None:
+        numeric_level = getattr(logging, log_level.upper(), None)
+        if not isinstance(numeric_level, int):
+            raise ValueError(f"Invalid log level: {log_level}")
 
-    logger.setLevel(numeric_level)
+        logger.setLevel(numeric_level)
+
     logger.propagate = False
-
-    # Remove all handlers associated with the logger (to avoid duplicates)
     logger.handlers.clear()
 
     handler = logging.StreamHandler()
@@ -293,19 +293,20 @@ class TaskManager:
         try:
             self.server_socket.bind((self.host, self.port))
         except OSError as e:
-            if e.errno == 48:
-                logger.error(f"Address already in use: {self.host}:{self.port}")
-
+            if e.errno in (48, 98):
                 if self.server_socket:
                     self.server_socket.close()
                     self.server_socket = None
 
                 if mp_start_event is not None:
-                    logger.warning(f"Socket reused on {self.host}:{self.port}")
+                    logger.warning(
+                        "Address already in use, socket "
+                        f"reused on {self.host}:{self.port}"
+                    )
                     mp_start_event.set()
                     return False
 
-            logger.error(f"Failed to bind socket: {e}")
+            logger.exception(f"Failed to bind socket: {e}")
             return False
 
         logger.info(f"Socket bound to {self.host}:{self.port}")
