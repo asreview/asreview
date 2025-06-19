@@ -3,6 +3,8 @@ from ast import literal_eval
 
 import numpy as np
 import pandas as pd
+from rispy import LIST_TYPE_TAGS
+from rispy import TAG_KEY_MAPPING
 
 # When using a method like `pd.Series.replace` Pandas tries to infer the new data type
 # of the series after the replacement. In the future Pandas only does this if you
@@ -11,7 +13,10 @@ import pandas as pd
 pd.set_option("future.no_silent_downcasting", True)
 
 # Character used to join items in a list when converting lists to string.
-LIST_JOIN_CHAR = "|"
+LIST_JOIN_CHAR = ";"
+
+RIS_LIST_COLUMNS = [TAG_KEY_MAPPING[list_type_tag] for list_type_tag in LIST_TYPE_TAGS]
+PANDAS_CSV_MAX_CELL_LIMIT = 131072
 
 
 def duplicated(df, pid="doi"):
@@ -157,6 +162,15 @@ def convert_list_to_string(series):
         If the series contains non-string values.
     """
     return series.str.join(LIST_JOIN_CHAR)
+
+
+def convert_ris_list_columns_to_string(df):
+    for col in RIS_LIST_COLUMNS:
+        if col in df.columns:
+            df[col] = convert_list_to_string(df[col]).str.slice(
+                stop=PANDAS_CSV_MAX_CELL_LIMIT
+            )
+    return df
 
 
 def convert_to_list(value):

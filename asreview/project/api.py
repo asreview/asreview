@@ -121,6 +121,14 @@ class Project:
     def data_dir(self):
         return self.project_path / "data"
 
+    @property
+    def input_data_fp(self):
+        datasets = self.config.get("datasets")
+        if not datasets:
+            return
+        file_name = datasets[0]["name"]
+        return self.data_dir / file_name
+
     @classmethod
     def create(
         cls,
@@ -294,10 +302,11 @@ class Project:
         raise NotImplementedError("Removing datasets is not implemented yet")
 
     def read_input_data(self, *args, **kwargs):
-        file_name = self.config["datasets"][0]["name"]
-        fp = self.data_dir / file_name
-        reader = _get_reader(fp)
-        return reader.read_data(fp, *args, **kwargs)
+        reader = self.get_input_data_reader()
+        return reader.read_data(self.input_data_fp, *args, **kwargs)
+
+    def get_input_data_reader(self):
+        return _get_reader(self.input_data_fp)
 
     @property
     def feature_matrices(self):
