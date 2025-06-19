@@ -8,7 +8,10 @@ import pandas as pd
 # of the series after the replacement. In the future Pandas only does this if you
 # explicitly call pd.Series.infer_objects. By setting this option, we silence the
 # future deprecation warnings.
-pd.set_option('future.no_silent_downcasting', True)
+pd.set_option("future.no_silent_downcasting", True)
+
+# Character used to join items in a list when converting lists to string.
+LIST_JOIN_CHAR = "|"
 
 
 def duplicated(df, pid="doi"):
@@ -113,6 +116,49 @@ def _parse_literal_list_from_string(value):
     return _fix_unclosed_list(value, literal_eval, SyntaxError)
 
 
+def convert_string_to_list(series):
+    """Convert values in a series to from strings to lists.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Series containing string values.
+
+    Returns
+    -------
+    pd.Series
+        All string values are split on `LIST_JOIN_CHAR`. All other values are left
+        alone.
+    """
+    try:
+        series = series.str.split(LIST_JOIN_CHAR)
+    except AttributeError:
+        # The series does not contain string values.
+        pass
+    return series
+
+
+def convert_list_to_string(series):
+    """Convert values in a series to from lists to strings.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Series containing list values.
+
+    Returns
+    -------
+    pd.Series
+        All list values are joined using `LIST_JOIN_CHAR`.
+
+    Throws
+    ------
+    AttributeError
+        If the series contains non-string values.
+    """
+    return series.str.join(LIST_JOIN_CHAR)
+
+
 def convert_to_list(value):
     """Convert a value to a list.
 
@@ -163,15 +209,21 @@ def convert_to_list(value):
 def standardize_included_label(series):
     try:
         # Convert string values to 0, 1 or None.
-        series = series.str.lower().replace({
-            "": None,
-            "0": 0,
-            "1": 1,
-            "yes": 1,
-            "no": 0,
-            "y": 1,
-            "n": 0,
-        }).infer_objects(copy=False)
+        series = (
+            series.str.lower()
+            .replace(
+                {
+                    "": None,
+                    "0": 0,
+                    "1": 1,
+                    "yes": 1,
+                    "no": 0,
+                    "y": 1,
+                    "n": 0,
+                }
+            )
+            .infer_objects(copy=False)
+        )
     except AttributeError:
         # Series does not contain string values.
         pass
