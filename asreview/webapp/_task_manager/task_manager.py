@@ -111,6 +111,8 @@ class TaskManager:
 
         Session = sessionmaker(bind=engine)
         self.session = Session()
+        self.client_thread = None
+        self.client_conn = None
 
     @property
     def waiting(self):
@@ -353,7 +355,11 @@ class TaskManager:
                 client_thread = threading.Thread(
                     target=self._handle_incoming_messages, args=(conn,)
                 )
+                # client_thread.daemon = True
                 client_thread.start()
+                # Store the latest client thread and conn
+                self.client_thread = client_thread
+                self.client_conn = conn
 
             except socket.timeout:
                 # No incoming connections => perform handling queue
@@ -369,6 +375,18 @@ class TaskManager:
                     break
                 logger.error(f"Socket error occurred: {e}")
                 break  # Exit the loop if the socket is closed
+
+        # After exiting main loop, clean up client thread
+        if self.client_thread and self.client_conn:
+            try:
+                self.client_conn.shutdown(socket.SHUT_RDWR)
+            except Exception:
+                pass
+            try:
+                self.client_conn.close()
+            except Exception:
+                pass
+            self.client_thread.join(timeout=1.0)
 
     def stop_manager(self, mp_shutdown_event=None):
         """Gracefully stop the manager and close the socket."""
@@ -396,6 +414,18 @@ class TaskManager:
             except Exception as e:
                 logger.error(f"Failed to close database session: {e}")
             self.session = None
+
+        # After closing server socket and DB session, also clean up client thread
+        if getattr(self, "client_thread", None) and getattr(self, "client_conn", None):
+            try:
+                self.client_conn.shutdown(socket.SHUT_RDWR)
+            except Exception:
+                pass
+            try:
+                self.client_conn.close()
+            except Exception:
+                pass
+            self.client_thread.join(timeout=1.0)
 
 
 def run_task_manager(
