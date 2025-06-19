@@ -293,7 +293,7 @@ class Project:
         """Remove dataset from project."""
         raise NotImplementedError("Removing datasets is not implemented yet")
 
-    def read_input_data(self, reader=None, *args, **kwargs):
+    def read_input_data(self, *args, **kwargs):
         file_name = self.config["datasets"][0]["name"]
         fp = self.data_dir / file_name
         reader = _get_reader(fp)
