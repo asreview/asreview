@@ -37,7 +37,6 @@ PORT_NUMBER = os.getenv("ASREVIEW_LAB_PORT", 5000)
 
 
 def _check_port_in_use(host, port):
-    logging.info(f"Checking if host and port are available :: {host}:{port}")
     host = host.replace("https://", "").replace("http://", "")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex((host, port)) == 0
@@ -108,6 +107,13 @@ def lab_entry_point(argv):
     mark_deprecated_help_strings(parser)
     args = parser.parse_args(argv)
 
+    # Set logging level based on verbosity
+    verbosity = getattr(args, "verbose", 0)
+    if verbosity == 1:
+        logging.basicConfig(level=logging.INFO)
+    elif verbosity >= 2:
+        logging.basicConfig(level=logging.DEBUG)
+
     app = create_app(
         config_path=args.config_path,
         secret_key=args.secret_key,
@@ -137,6 +143,7 @@ def lab_entry_point(argv):
     port = args.port
     original_port = port
     while _check_port_in_use(args.host, port) is True:
+        logging.debug(f"Address is not available :: {args.host}:{port}")
         port = int(port) + 1
         if port - original_port >= args.port_retries:
             raise ConnectionError(
@@ -203,7 +210,7 @@ def lab_entry_point(argv):
             app.config.get("TASK_MANAGER_PORT", None),
             start_event,
             shutdown_event,
-            app.config.get("TASK_MANAGER_VERBOSE", False),
+            getattr(args, "verbose", False),  # pass CLI verbosity to task manager
         ),
     )
     process.start()
@@ -231,11 +238,9 @@ def lab_entry_point(argv):
 
     finally:
         if process.is_alive():
-            console.print(
-                "Waiting for background task manager to shut down gracefully..."
-            )
+            console.print("ASReview LAB is shutting down...\n")
             process.join(timeout=10)
-            console.print("Background task manager shut down gracefully.\n\n")
+            console.print("ASReview LAB shut down.\n\n")
 
         if process.is_alive():
             # If it didn't shut down gracefully, terminate it forcefully
@@ -335,6 +340,15 @@ def _lab_parser():
         dest="skip_update_check",
         action="store_true",
         help="Skip checking for updates.",
+    )
+
+    # Add verbosity argument
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="Increase output verbosity. -v for INFO, -vv for DEBUG.",
     )
 
     return parser

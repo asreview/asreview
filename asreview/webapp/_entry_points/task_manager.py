@@ -18,7 +18,11 @@ environment variables taking precedence.
 def main(argv):
     parser = argparse.ArgumentParser(description=textwrap.dedent(description).strip())
     parser.add_argument(
-        "--verbose", action="store_true", help="Enable verbose logging."
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="Increase output verbosity. -v for INFO, -vv for DEBUG.",
     )
     parser.add_argument(
         "--workers",
@@ -44,5 +48,5 @@ def main(argv):
         max_workers=os.getenv("ASREVIEW_LAB_TASK_MANAGER_WORKERS", args.workers),
         host=os.getenv("ASREVIEW_LAB_TASK_MANAGER_HOST", args.host),
         port=os.getenv("ASREVIEW_LAB_TASK_MANAGER_PORT", args.port),
-        verbose=os.getenv("ASREVIEW_LAB_TASK_MANAGER_VERBOSE", args.verbose),
+        verbose=int(os.getenv("ASREVIEW_LAB_TASK_MANAGER_VERBOSE", args.verbose)),
     )
