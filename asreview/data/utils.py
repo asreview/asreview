@@ -3,6 +3,20 @@ from ast import literal_eval
 
 import numpy as np
 import pandas as pd
+from rispy import LIST_TYPE_TAGS
+from rispy import TAG_KEY_MAPPING
+
+# When using a method like `pd.Series.replace` Pandas tries to infer the new data type
+# of the series after the replacement. In the future Pandas only does this if you
+# explicitly call pd.Series.infer_objects. By setting this option, we silence the
+# future deprecation warnings.
+pd.set_option("future.no_silent_downcasting", True)
+
+# Character used to join items in a list when converting lists to string.
+LIST_JOIN_CHAR = ";"
+
+RIS_LIST_COLUMNS = [TAG_KEY_MAPPING[list_type_tag] for list_type_tag in LIST_TYPE_TAGS]
+PANDAS_CSV_MAX_CELL_LIMIT = 131072
 
 
 def duplicated(df, pid="doi"):
@@ -107,6 +121,58 @@ def _parse_literal_list_from_string(value):
     return _fix_unclosed_list(value, literal_eval, SyntaxError)
 
 
+def convert_string_to_list(series):
+    """Convert values in a series to from strings to lists.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Series containing string values.
+
+    Returns
+    -------
+    pd.Series
+        All string values are split on `LIST_JOIN_CHAR`. All other values are left
+        alone.
+    """
+    try:
+        series = series.str.split(LIST_JOIN_CHAR)
+    except AttributeError:
+        # The series does not contain string values.
+        pass
+    return series
+
+
+def convert_list_to_string(series):
+    """Convert values in a series to from lists to strings.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Series containing list values.
+
+    Returns
+    -------
+    pd.Series
+        All list values are joined using `LIST_JOIN_CHAR`.
+
+    Throws
+    ------
+    AttributeError
+        If the series contains non-string values.
+    """
+    return series.str.join(LIST_JOIN_CHAR)
+
+
+def convert_ris_list_columns_to_string(df):
+    for col in RIS_LIST_COLUMNS:
+        if col in df.columns:
+            df[col] = convert_list_to_string(df[col]).str.slice(
+                stop=PANDAS_CSV_MAX_CELL_LIMIT
+            )
+    return df
+
+
 def convert_to_list(value):
     """Convert a value to a list.
 
@@ -154,19 +220,26 @@ def convert_to_list(value):
         )
 
 
-def standardize_included_label(value):
-    if isinstance(value, str):
-        conversion_dict = {
-            "": None,
-            "0": 0,
-            "1": 1,
-            "yes": 1,
-            "no": 0,
-            "y": 1,
-            "n": 0,
-        }
-        value = value.lower()
-        value = conversion_dict[value]
-    if pd.isna(value):
-        value = None
-    return value
+def standardize_included_label(series):
+    try:
+        # Convert string values to 0, 1 or None.
+        series = (
+            series.str.lower()
+            .replace(
+                {
+                    "": None,
+                    "0": 0,
+                    "1": 1,
+                    "yes": 1,
+                    "no": 0,
+                    "y": 1,
+                    "n": 0,
+                }
+            )
+            .infer_objects(copy=False)
+        )
+    except AttributeError:
+        # Series does not contain string values.
+        pass
+    series = series.replace([pd.NA, np.nan], None).infer_objects(copy=False)
+    return series
