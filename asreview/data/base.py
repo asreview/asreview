@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 from asreview.data.record import Record
-from asreview.data.utils import convert_to_list
+from asreview.data.utils import convert_string_to_list
 from asreview.data.utils import standardize_included_label
 
 
@@ -53,8 +53,8 @@ class BaseReader(ABC):
     # have a function acting on individual values, use
     # `lambda series: series.apply(function)`.
     __cleaning_methods__ = {
-        "authors": [lambda series: series.apply(convert_to_list)],
-        "keywords": [lambda series: series.apply(convert_to_list)],
+        "authors": [convert_string_to_list],
+        "keywords": [convert_string_to_list],
         "included": [standardize_included_label],
     }
 

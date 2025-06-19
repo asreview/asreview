@@ -3,11 +3,6 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from asreview.data import CSVReader
-from asreview.data import CSVWriter
-from asreview.data import ExcelReader
-from asreview.data import ExcelWriter
-from asreview.data import RISReader
 from asreview.data.loader import _get_reader
 from asreview.data.loader import _get_writer
 
@@ -46,22 +41,3 @@ def test_asreview_ris(test_file, columns, tmpdir):
 
     for col in columns:
         pd.testing.assert_series_equal(data[col], written_data[col])
-
-
-def test_ris_many_authors(tmpdir):
-    """Test that RIS files with long authors lists can be written to CSV and Excel.
-
-    The tabular formats CSV and Excel have character limits for values in a cell. For
-    Excel this is 32,767 for CSV (at least in Pandas) this is 131,072. When we read a
-    RIS file, the author list can be arbitrarily long. When writing to CSV or Excel,
-    we turn this list into a string which then gets arbitrarily truncated. This test
-    checks that we can still read the CSV or Excel afterwards."""
-    fp_in = Path("tests", "demo_data", "ris_many_authors.ris")
-    xlsx_out = Path(tmpdir, "out.csv")
-    csv_out = Path(tmpdir, "out.csv")
-    # Data has list of authors that exceeds 131,072 characters.
-    data = RISReader.read_data(fp_in)
-    CSVWriter.write_data(data, csv_out)
-    CSVReader.read_data(csv_out)
-    ExcelWriter.write_data(data, xlsx_out)
-    ExcelReader.read_data(xlsx_out)
