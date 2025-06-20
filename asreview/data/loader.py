@@ -27,8 +27,6 @@ def _get_reader(fp):
     else:
         fn = Path(fp).name
 
-    print(fn)
-
     try:
         return load_extension("readers", Path(fn).suffix)
     except ValueError as e:
