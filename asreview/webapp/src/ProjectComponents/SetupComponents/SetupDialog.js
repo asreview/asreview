@@ -104,6 +104,7 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
   // state management
   const [showSettings, setShowSettings] = React.useState(false);
   const [feedbackBar, setFeedbackBar] = React.useState(null);
+  const [simulationStarted, setSimulationStarted] = React.useState(false);
 
   const { data } = useQuery(
     ["fetchProject", { project_id: project_id }],
@@ -118,6 +119,7 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
     mutationKey: ["mutateReviewStatus"],
     onSuccess: () => {
       if (mode === projectModes.SIMULATION) {
+        setSimulationStarted(true);
         onClose();
       } else {
         navigate(`/reviews/${data?.id}/reviewer`);
@@ -144,7 +146,12 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
           onExited: () => {
             queryClient.invalidateQueries("fetchProjects");
 
-            setFeedbackBar(`Your project has been saved as draft`);
+            setFeedbackBar(
+              simulationStarted
+                ? "Simulation started"
+                : `Your project has been saved as draft`,
+            );
+            setSimulationStarted(false);
 
             setShowSettings(false);
           },
@@ -155,50 +162,69 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
           <ProjectContext.Provider value={data.id}>
             <DialogProjectName project_id={data.id} dataset_name={data.name} />
             <DialogContent>
-              <Collapse in={!showSettings}>
-                <Box sx={{ mt: 3 }}>
-                  <DatasetCard
-                    project_id={data?.id}
-                    onResetDataset={onClose}
-                    hideLabeledInfo={mode === projectModes.SIMULATION}
-                  />
-                </Box>
-              </Collapse>
-
-              <Box sx={{ textAlign: "center", my: 2 }}>
-                <Button onClick={() => setShowSettings(!showSettings)}>
-                  {showSettings ? "Show dataset" : "Show options"}
-                </Button>
-              </Box>
-              <Collapse in={showSettings} mountOnEnter>
-                {mode !== projectModes.SIMULATION && (
-                  <Box sx={{ mb: 3 }}>
-                    <TagCard project_id={data?.id} mobileScreen={fullScreen} />
+              {mode === projectModes.SIMULATION ? (
+                <>
+                  <Box sx={{ mt: 3 }}>
+                    <DatasetCard
+                      project_id={data?.id}
+                      onResetDataset={onClose}
+                      hideLabeledInfo={true}
+                    />
                   </Box>
-                )}
-                <Box sx={{ my: 3 }}>
-                  <ModelCard mode={mode} />
-                </Box>
-                <Box sx={{ my: 3 }}>
-                  <PriorCard mode={mode} />
-                </Box>
-              </Collapse>
+                  <Box sx={{ my: 3 }}>
+                    <ModelCard mode={mode} />
+                  </Box>
+                  <Box sx={{ my: 3 }}>
+                    <PriorCard mode={mode} />
+                  </Box>
+                </>
+              ) : (
+                <>
+                  <Collapse in={!showSettings}>
+                    <Box sx={{ mt: 3 }}>
+                      <DatasetCard
+                        project_id={data?.id}
+                        onResetDataset={onClose}
+                        hideLabeledInfo={false}
+                      />
+                    </Box>
+                  </Collapse>
+
+                  <Box sx={{ textAlign: "center", my: 2 }}>
+                    <Button onClick={() => setShowSettings(!showSettings)}>
+                      {showSettings ? "Show dataset" : "Show options"}
+                    </Button>
+                  </Box>
+                  <Collapse in={showSettings} mountOnEnter>
+                    <Box sx={{ mb: 3 }}>
+                      <TagCard
+                        project_id={data?.id}
+                        mobileScreen={fullScreen}
+                      />
+                    </Box>
+                    <Box sx={{ my: 3 }}>
+                      <ModelCard mode={mode} />
+                    </Box>
+                    <Box sx={{ my: 3 }}>
+                      <PriorCard mode={mode} />
+                    </Box>
+                  </Collapse>
+                </>
+              )}
             </DialogContent>
             <DialogActions>
-              <Button
-                onClick={onClose}
-                // disabled={isLoading}
-              >
-                Cancel
-              </Button>
+              <Button onClick={onClose}>Cancel</Button>
               <Button
                 onClick={() => {
+                  setSimulationStarted(false);
+                  if (mode === projectModes.SIMULATION) {
+                    setSimulationStarted(true);
+                  }
                   setStatus({
                     project_id: data?.id,
                     status: projectStatuses.REVIEW,
                   });
                 }}
-                // disabled={isLoading}
               >
                 {mode === projectModes.SIMULATION ? "Simulate" : "Screen"}
               </Button>
