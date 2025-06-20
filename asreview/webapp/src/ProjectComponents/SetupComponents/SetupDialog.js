@@ -104,6 +104,7 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
   // state management
   const [showSettings, setShowSettings] = React.useState(false);
   const [feedbackBar, setFeedbackBar] = React.useState(null);
+  const [simulationStarted, setSimulationStarted] = React.useState(false);
 
   const { data } = useQuery(
     ["fetchProject", { project_id: project_id }],
@@ -118,6 +119,7 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
     mutationKey: ["mutateReviewStatus"],
     onSuccess: () => {
       if (mode === projectModes.SIMULATION) {
+        setSimulationStarted(true);
         onClose();
       } else {
         navigate(`/reviews/${data?.id}/reviewer`);
@@ -144,7 +146,12 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
           onExited: () => {
             queryClient.invalidateQueries("fetchProjects");
 
-            setFeedbackBar(`Your project has been saved as draft`);
+            setFeedbackBar(
+              simulationStarted
+                ? "Simulation started"
+                : `Your project has been saved as draft`,
+            );
+            setSimulationStarted(false);
 
             setShowSettings(false);
           },
@@ -206,20 +213,18 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
               )}
             </DialogContent>
             <DialogActions>
-              <Button
-                onClick={onClose}
-                // disabled={isLoading}
-              >
-                Cancel
-              </Button>
+              <Button onClick={onClose}>Cancel</Button>
               <Button
                 onClick={() => {
+                  setSimulationStarted(false);
+                  if (mode === projectModes.SIMULATION) {
+                    setSimulationStarted(true);
+                  }
                   setStatus({
                     project_id: data?.id,
                     status: projectStatuses.REVIEW,
                   });
                 }}
-                // disabled={isLoading}
               >
                 {mode === projectModes.SIMULATION ? "Simulate" : "Screen"}
               </Button>
