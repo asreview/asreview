@@ -15,6 +15,7 @@ import argparse
 import logging
 import multiprocessing as mp
 import os
+import signal
 import socket
 import time
 import webbrowser
@@ -22,7 +23,7 @@ from pathlib import Path
 from threading import Thread
 
 import requests
-import waitress
+from waitress.server import create_server
 from rich.console import Console
 
 import asreview as asr
@@ -198,8 +199,8 @@ def lab_entry_point(argv):
     console.print("\n\nPress [bold]Ctrl+C[/bold] to exit.\n\n")
 
     # define events for task manager to signal when to start and shutdown
-    start_event = mp.Event()
-    shutdown_event = mp.Event()
+    start_task_server = mp.Event()
+    shutdown_task_server = mp.Event()
 
     # set the task manager to run in a separate process
     process = mp.Process(
@@ -208,39 +209,41 @@ def lab_entry_point(argv):
             app.config.get("TASK_MANAGER_WORKERS", None),
             app.config.get("TASK_MANAGER_HOST", None),
             app.config.get("TASK_MANAGER_PORT", None),
-            start_event,
-            shutdown_event,
+            start_task_server,
+            shutdown_task_server,
             getattr(args, "verbose", 0),
         ),
     )
     process.start()
 
     try:
-        # wait for the process to spin up
         start_time = time.time()
-        while not start_event.is_set():
+        while not start_task_server.is_set():
             time.sleep(0.1)
             if time.time() - start_time > 10:
-                console.print(
-                    "\n\n[red]Error: unable to startup the task server.[/red]\n\n"
+                raise TimeoutError(
+                    "Unable to startup the task server within the timeout period."
                 )
-                process.terminate()
-                process.join()
-                return
+    except TimeoutError as e:
+        console.print(f"\n\n[red]Error: {str(e)}[/red]\n\n")
+        process.terminate()
+        process.join()
+        return
 
-        waitress.serve(app, host=args.host, port=port, threads=6)
+    # Create the waitress server
+    server = create_server(app, host=args.host, port=port, threads=6)
 
-    except KeyboardInterrupt:
-        # waitress is now shutting down, shut down the task manager gracefully
-        shutdown_event.set()
+    def handle_sig(sig, frame):
+        console.print("ASReview LAB is shutting down...\n")
 
-        console.print("\n\nShutting down server.\n\n")
+        # Close the server gracefully
+        server.close()
 
-    finally:
+        # Signal the task server to shut down
+        shutdown_task_server.set()
+
         if process.is_alive():
-            console.print("ASReview LAB is shutting down...\n")
             process.join(timeout=10)
-            console.print("ASReview LAB shut down.\n\n")
 
         if process.is_alive():
             # If it didn't shut down gracefully, terminate it forcefully
@@ -250,6 +253,22 @@ def lab_entry_point(argv):
             )
             process.terminate()
             process.join()
+
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        signal.signal(sig, handle_sig)
+
+    # Start the server
+    try:
+        server.run()
+    except OSError as e:
+        # Bug in waitress that raises OSError with errno 9
+        # when the server is closed with Ctrl+C
+        if e.errno == 9:
+            pass
+        else:
+            raise e
+
+    console.print("ASReview LAB shut down.\n\n")
 
 
 def _lab_parser():

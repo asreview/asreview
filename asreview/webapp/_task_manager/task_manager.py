@@ -340,10 +340,7 @@ class TaskManager:
 
         def _signal_handler(signum, frame):
             logger.info(f"Shutting down task manager due to signal {signum}")
-            if mp_shutdown_event is not None:
-                mp_shutdown_event.set()
-            else:
-                self.stop_manager()
+            self.stop_manager(mp_shutdown_event)
 
         signal.signal(signal.SIGINT, _signal_handler)
         signal.signal(signal.SIGTERM, _signal_handler)
@@ -409,6 +406,7 @@ class TaskManager:
         logger.info("Task manager has been stopped.")
 
         # Close the database session
+
         if self.session:
             try:
                 self.session.close()
