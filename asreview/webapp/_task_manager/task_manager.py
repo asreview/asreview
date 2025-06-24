@@ -292,7 +292,7 @@ class TaskManager:
     def _bind_server_socket(self, mp_start_event=None):
         """Bind the server socket to the configured host and port."""
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             self.server_socket.bind((self.host, self.port))
         except OSError as e:
