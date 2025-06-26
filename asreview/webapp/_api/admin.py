@@ -19,8 +19,8 @@ from pathlib import Path
 from flask import Blueprint
 from flask import jsonify
 from flask import request
-from sqlalchemy import select
 from sqlalchemy import or_
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -484,8 +484,9 @@ def add_project_member(project_id):
         DB.session.commit()
 
         # Import here to avoid circular imports
-        from asreview.webapp._api.team import get_user_project_properties
         from flask_login import current_user
+
+        from asreview.webapp._api.team import get_user_project_properties
 
         user_props = get_user_project_properties(user, project, current_user)
 
