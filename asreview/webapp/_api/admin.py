@@ -551,13 +551,15 @@ def get_task_queue_status():
                 if task.created_at:
                     time_diff = datetime.now(timezone.utc) - task.created_at
                     waiting_seconds = round(time_diff.total_seconds(), 2)
-                
-                waiting_projects.append({
-                    "project_id": task.project_id,
-                    "simulation": task.simulation,
-                    "waiting_seconds": waiting_seconds
-                })
-            
+
+                waiting_projects.append(
+                    {
+                        "project_id": task.project_id,
+                        "simulation": task.simulation,
+                        "waiting_seconds": waiting_seconds,
+                    }
+                )
+
             # Calculate oldest waiting time (timestamps already converted)
             if waiting_tasks and waiting_tasks[0].created_at:
                 time_diff = datetime.now(timezone.utc) - waiting_tasks[0].created_at
@@ -577,8 +579,10 @@ def get_task_queue_status():
             if task_manager_result["status"] == "connected":
                 response["task_manager_info"] = task_manager_result["data"]
                 # Include running project IDs for admin monitoring
-                response["running_projects"] = task_manager_result["data"].get("running_project_ids", [])
-            
+                response["running_projects"] = task_manager_result["data"].get(
+                    "running_project_ids", []
+                )
+
             return jsonify(response), 200
 
         finally:
