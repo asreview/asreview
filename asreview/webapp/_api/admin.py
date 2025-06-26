@@ -30,7 +30,10 @@ from asreview.webapp._authentication.models import Project
 from asreview.webapp._authentication.models import User
 from asreview.webapp.utils import asreview_path
 from asreview.webapp._task_manager.models import ProjectQueueModel
-from asreview.webapp._task_manager.task_manager import DEFAULT_TASK_MANAGER_HOST, DEFAULT_TASK_MANAGER_PORT
+from asreview.webapp._task_manager.task_manager import (
+    DEFAULT_TASK_MANAGER_HOST,
+    DEFAULT_TASK_MANAGER_PORT,
+)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -511,10 +514,10 @@ def add_project_member(project_id):
 
 # Please note: the Task Manager is running in an independent process. It might
 # get stuck. The route below checks the status of the Task Manager in 2 ways.
-# It reads the waiting projects directly from the queue database. If the waiting 
+# It reads the waiting projects directly from the queue database. If the waiting
 # time is very long it might point to a problem in the Task Manager.
 # It also requests the status of the amount of running processes (model training)
-# via the Task Manager. When the Task Manager is stuck we probably won't get a 
+# via the Task Manager. When the Task Manager is stuck we probably won't get a
 # response.
 @bp.route("/task-queue-status", methods=["GET"])
 @admin_required
@@ -523,17 +526,19 @@ def get_task_queue_status():
     try:
         # Create separate connection to queue database
         session, engine = _create_queue_database_session()
-        
+
         try:
             # Get all waiting tasks ordered by creation time
-            waiting_tasks = session \
-                .query(ProjectQueueModel) \
-                .order_by(ProjectQueueModel.created_at).all()
-            
+            waiting_tasks = (
+                session.query(ProjectQueueModel)
+                .order_by(ProjectQueueModel.created_at)
+                .all()
+            )
+
             total_waiting = len(waiting_tasks)
             oldest_waiting_seconds = None
             waiting_projects = []
-            
+
             # Process waiting tasks
             for task in waiting_tasks:
                 # Calculate waiting time in seconds for each task
@@ -552,32 +557,34 @@ def get_task_queue_status():
             if waiting_tasks and waiting_tasks[0].created_at:
                 time_diff = datetime.utcnow() - waiting_tasks[0].created_at
                 oldest_waiting_seconds = int(time_diff.total_seconds())
-            
+
             # Try to get Task Manager status
             task_manager_result = _get_task_manager_status()
-            
+
             response = {
                 "total_waiting": total_waiting,
                 "oldest_waiting_seconds": oldest_waiting_seconds,
                 "waiting_projects": waiting_projects,
                 "task_manager_status": task_manager_result["status"],
-                "task_manager_error": task_manager_result.get("error")
+                "task_manager_error": task_manager_result.get("error"),
             }
-            
+
             if task_manager_result["status"] == "connected":
                 response["task_manager_info"] = task_manager_result["data"]
                 # Include running project IDs for admin monitoring
                 response["running_projects"] = task_manager_result["data"].get("running_project_ids", [])
             
             return jsonify(response), 200
-            
+
         finally:
             session.close()
             engine.dispose()
-            
+
     except Exception as e:
         logging.error(f"Error retrieving task queue status: {e}")
-        return jsonify({"message": f"Error retrieving task queue status: {str(e)}"}), 500
+        return jsonify(
+            {"message": f"Error retrieving task queue status: {str(e)}"}
+        ), 500
 
 
 @bp.route("/task-queue-reset", methods=["POST"])
@@ -587,42 +594,48 @@ def reset_task_queue():
     try:
         # Step 1: Clear the database
         session, engine = _create_queue_database_session()
-        
+
         try:
             # Get count before clearing
             waiting_count = session.query(ProjectQueueModel).count()
-            
+
             # Clear all waiting tasks
             session.query(ProjectQueueModel).delete()
             session.commit()
-            
+
             logging.info(f"Cleared {waiting_count} waiting tasks from queue database")
-            
+
         finally:
             session.close()
             engine.dispose()
-        
+
         # Step 2: Signal Task Manager to reset pending tasks
         try:
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client_socket.settimeout(3.0)  # Add timeout for consistency
-            client_socket.connect((DEFAULT_TASK_MANAGER_HOST, DEFAULT_TASK_MANAGER_PORT))
-            
+            client_socket.connect(
+                (DEFAULT_TASK_MANAGER_HOST, DEFAULT_TASK_MANAGER_PORT)
+            )
+
             payload = {"action": "reset_pending"}
             client_socket.sendall(json.dumps(payload).encode("utf-8"))
             client_socket.close()
-            
+
             logging.info("Sent reset signal to Task Manager")
-            
+
         except socket.error as e:
-            logging.warning(f"Could not signal Task Manager to reset pending tasks: {e}")
+            logging.warning(
+                f"Could not signal Task Manager to reset pending tasks: {e}"
+            )
             # Continue anyway - database was cleared successfully
-        
-        return jsonify({
-            "message": "Task queue reset successfully",
-            "cleared_waiting_tasks": waiting_count
-        }), 200
-        
+
+        return jsonify(
+            {
+                "message": "Task queue reset successfully",
+                "cleared_waiting_tasks": waiting_count,
+            }
+        ), 200
+
     except Exception as e:
         logging.error(f"Error resetting task queue: {e}")
         return jsonify({"message": f"Error resetting task queue: {str(e)}"}), 500
@@ -646,36 +659,30 @@ def _get_task_manager_status():
         # Send status query
         query = {"action": "status_query"}
         client_socket.sendall(json.dumps(query).encode("utf-8"))
-        
+
         # Read response with timeout
         response_data = client_socket.recv(1024)
         print(response_data)
         client_socket.close()
-        
+
         if response_data:
             status_data = json.loads(response_data.decode("utf-8"))
-            return {
-                "status": "connected",
-                "data": status_data
-            }
+            return {"status": "connected", "data": status_data}
         else:
             return {
                 "status": "no_response",
-                "error": "Task Manager connected but sent no data"
+                "error": "Task Manager connected but sent no data",
             }
-        
+
     except socket.timeout:
         return {
             "status": "timeout",
-            "error": "Task Manager did not respond within 3 seconds"
+            "error": "Task Manager did not respond within 3 seconds",
         }
     except ConnectionRefusedError:
-        return {
-            "status": "offline",
-            "error": "Task Manager is not running"
-        }
+        return {"status": "offline", "error": "Task Manager is not running"}
     except Exception as e:
         return {
             "status": "error",
-            "error": f"Failed to connect to Task Manager: {str(e)}"
+            "error": f"Failed to connect to Task Manager: {str(e)}",
         }
