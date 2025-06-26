@@ -34,6 +34,7 @@ from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
 from asreview.webapp import DB
+from asreview.webapp._api import admin
 from asreview.webapp._api import auth
 from asreview.webapp._api import projects
 from asreview.webapp._api import team
@@ -106,24 +107,41 @@ def create_app(**config_vars):
             # create tables in case they don't exist
             DB.create_all()
 
-        # store oauth config in oauth handler
-        if bool(app.config.get("OAUTH", False)):
-            # set configuration
-            app.config["OAUTH"] = OAuthHandler(app.config["OAUTH"])
-            # check if user set ALLOW_ACCOUNT_CREATION to True, then
-            # raise error
+        # authentication methods that use non-local users.
+        # these methods are mutually exclusive.
+        external_auth_methods = {
+            "OAUTH": OAuthHandler,
+            "REMOTE_USER": RemoteUserHandler,
+        }
+
+        configured_external_auth_methods = [
+            k for k in app.config.keys() if k in external_auth_methods.keys()
+        ]
+        if len(configured_external_auth_methods) > 1:
+            raise ValueError(
+                "You configured multiple non-local authentication methods: {}. "
+                "This is not supported. Please configure only one.".format(
+                    configured_external_auth_methods
+                )
+            )
+        elif configured_external_auth_methods:
+            auth_method = configured_external_auth_methods[0]
+            handler = external_auth_methods[auth_method]
+
+            # set configuration for the auth method to a newly initialized handler
+            app.config[auth_method] = handler(app.config[auth_method])
+
             if app.config.get("ALLOW_ACCOUNT_CREATION"):
                 raise ValueError(
-                    "When oAuth is used for authentication, the app "
-                    "will not allow account creation"
+                    "When {} is used for authentication, the app "
+                    "will not allow account creation".format(auth_method)
                 )
-            # explicitly set account creation to False when oAuth is
+            # explicitly set account creation to False
             # used to avoid account conflicts.
             app.config["ALLOW_ACCOUNT_CREATION"] = False
-        if bool(app.config.get("REMOTE_USER", False)):
-            app.config["REMOTE_USER"] = RemoteUserHandler(app.config["REMOTE_USER"])
 
         with app.app_context():
+            app.register_blueprint(admin.bp)
             app.register_blueprint(auth.bp)
             app.register_blueprint(team.bp)
 
@@ -140,6 +158,8 @@ def create_app(**config_vars):
     @app.route("/social-preview.png")
     @app.route("/robots.txt")
     @app.route("/app.webmanifest")
+    @app.route("/offline.html")
+    @app.route("/service-worker.js")
     def static_from_root(path=None):
         return send_from_directory("build", request.path[1:])
 
@@ -161,6 +181,7 @@ def create_app(**config_vars):
     @app.route("/signin", methods=["GET"])
     @app.route("/oauth_callback", methods=["GET"])
     @app.route("/reset_password", methods=["GET"])
+    @login_remote_user
     def index(**kwargs):
         if isinstance(app.config.get("OAUTH", False), OAuthHandler):
             oauth_params = json.dumps(app.config.get("OAUTH").front_end_params())
@@ -178,6 +199,7 @@ def create_app(**config_vars):
             ).lower(),
             email_verification=str(app.config.get("EMAIL_VERIFICATION", False)).lower(),
             oauth=oauth_params,
+            post_logout_url=str(app.config.get("POST_LOGOUT_URL", "/signin")).lower(),
         )
 
     @app.route("/", methods=["GET"])

@@ -49,7 +49,7 @@ def _set_log_verbosity(verbose):
 def _convert_id_to_idx(data_obj, record_id):
     """Convert record_id to row number."""
 
-    inv_record_id = dict(zip(data_obj.df.index.tolist(), range(len(data_obj))))
+    inv_record_id = dict(zip(data_obj["record_id"].tolist(), range(len(data_obj))))
 
     result = []
     for i in record_id:
@@ -260,7 +260,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         default=0,
         type=int,
         help="Sample n prior included records. "
-        "Only used when --prior-idx is not given. Default 0.",
+        "Only used when --prior-idx and --prior-record-id are not given. Default: 0.",
     )
 
     parser.add_argument(
@@ -268,7 +268,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         default=0,
         type=int,
         help="Sample n prior excluded records. "
-        "Only used when --prior-idx is not given. Default 0.",
+        "Only used when --prior-idx and --prior-record-id are not given. Default: 0.",
     )
 
     parser.add_argument(
@@ -276,7 +276,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         default=[],
         nargs="*",
         type=int,
-        help="Prior indices by rownumber (0 is first rownumber).",
+        help="Prior indices by row number (0 is first row).",
     )
     parser.add_argument(
         "--prior-record-id",
@@ -289,60 +289,57 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "--ai",
         type=str,
         default=get_ai_config()["name"],
-        help=f"The AI to simulate with. Default {get_ai_config()['name']}.",
+        help=f"The AI to simulate with. Default: '{get_ai_config()['name']}'.",
     )
     parser.add_argument(
         "-c",
         "--classifier",
         type=str,
-        help="The classifier for active learning. Default: 'nb'.",
+        help="The classifier for active learning. Default: as set by --ai.",
     )
     parser.add_argument(
         "-q",
         "--querier",
         type=str,
-        help="The querier for active learning. Default: 'max'.",
+        help="The querier for active learning. Default: as set by --ai.",
     )
     parser.add_argument(
         "-b",
         "--balancer",
         type=str,
         dest="balancer",
-        help="Data rebalancing strategy mainly for RNN methods. Helps against"
-        " imbalanced dataset with few inclusions and many exclusions. "
-        "Default: 'balanced'",
+        help="Balancing strategy for active learning (with imbalanced data). "
+        "Default: as set by --ai.",
     )
     parser.add_argument(
         "-e",
         "--feature-extractor",
         type=str,
-        help="Feature extraction algorithm. Some combinations of feature"
-        " extractors and classifiers are not supported or feasible. Default: 'tfidf'.",
+        help="Feature extraction algorithm to transform text to vectors. Default: as set by --ai.",
     )
     parser.add_argument(
         "--prior-seed",
         type=int,
-        help="Seed for selecting prior records if the --prior-idx option is "
-        "not used. If the option --prior-idx is used with one or more "
-        "index, this option is ignored.",
+        help="Seed for selecting prior records if --prior-idx and --prior-record-id are not used. "
+        "If either --prior-idx or --prior-record-id is used with one or more indices, this option is ignored. Default: None.",
     )
     parser.add_argument(
         "--seed",
         type=int,
         help="Seed for the model (classifiers, balance strategies, "
-        "feature extraction techniques, and query strategies).",
+        "feature extraction techniques, and query strategies). Default: None.",
     )
     parser.add_argument(
         "--n-query",
         default=1,
         type=int,
-        help="Number of records queried each query. Default 1.",
+        help="Number of records queried each query. Default: 1.",
     )
     parser.add_argument(
         "--n-stop",
         type=int,
         help="The number of label actions to simulate. If not set, simulation stops "
-        "after last relevant was found. Use -1 to simulate all label actions.",
+        "after last relevant was found. Use -1 to simulate all label actions. Default: None.",
     )
 
     # configuration file
@@ -360,5 +357,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="Location to ASReview project file of simulation.",
     )
 
-    parser.add_argument("--verbose", "-v", default=0, type=int, help="Verbosity")
+    parser.add_argument(
+        "--verbose", "-v", default=0, type=int, help="Verbosity. Default: 0."
+    )
     return parser

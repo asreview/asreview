@@ -24,7 +24,11 @@ def get_user_project_properties(user, project, current_user):
     me = user.id == current_user.id
 
     selectable = not (pending or member or owner)
-    deletable = current_user.id == project.owner_id and (member or pending) and not me
+    deletable = (
+        (current_user.id == project.owner_id or current_user.is_admin)
+        and (member or pending)
+        and not me
+    )
 
     return dict(
         result,
@@ -43,7 +47,12 @@ def users(project_id):
     """Returns all users involved in a project."""
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
 
-    if project not in current_user.projects and project not in current_user.involved_in:
+    # Deny if user is member and this person is not somehow involved in the project
+    if (
+        current_user.is_member
+        and project not in current_user.projects
+        and project not in current_user.involved_in
+    ):
         return jsonify(REQUESTER_FRAUD), 404
 
     users = sorted(
@@ -63,29 +72,51 @@ def users(project_id):
 @bp.route("/projects/<project_id>/users/<user_id>", methods=["DELETE"])
 @login_required
 def end_collaboration(project_id, user_id):
-    """Project owner removes a collaborator, or collaborator
+    """Project owner or admin removes a collaborator, or collaborator
     removes him/herself."""
     response = jsonify(REQUESTER_FRAUD), 404
     # get project
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
 
-    # check if project is owned by current user or if the user is
-    # involved in the project
+    # check if project is owned by current user, if the user is
+    # involved in the project, or if current user is admin
     if project and (
-        (project.owner == current_user) or (project in current_user.involved_in)
+        (project.owner == current_user)
+        or (project in current_user.involved_in)
+        or current_user.is_admin
     ):
         user = DB.session.get(User, user_id)
 
-        try:
-            project.collaborators.remove(user)
-            DB.session.commit()
-            response = (
-                jsonify(get_user_project_properties(user, project, current_user)),
-                200,
-            )
+        if not user:
+            return jsonify({"message": "User not found."}), 404
 
-        except SQLAlchemyError:
-            response = (jsonify({"message": "Error removing collaborator."}), 404)
+        # Prevent removing project owner
+        if user.id == project.owner_id:
+            return jsonify({"message": "Cannot remove project owner."}), 400
+
+        try:
+            if user in project.collaborators:
+                project.collaborators.remove(user)
+                DB.session.commit()
+                response = (
+                    jsonify(
+                        {
+                            "message": "Member removed successfully.",
+                            "user": get_user_project_properties(
+                                user, project, current_user
+                            ),
+                        }
+                    ),
+                    200,
+                )
+            else:
+                response = (jsonify({"message": "User is not a collaborator."}), 400)
+
+        except SQLAlchemyError as e:
+            response = (
+                jsonify({"message": f"Error removing collaborator: {str(e)}"}),
+                500,
+            )
     return response
 
 
@@ -118,25 +149,43 @@ def pending_invitations():
 @bp.route("/invitations/projects/<project_id>/users/<user_id>", methods=["POST"])
 @login_required
 def invite(project_id, user_id):
-    """Project owner invites a user to collaborate on a project"""
+    """Project owner or admin invites a user to collaborate on a project"""
     response = jsonify(REQUESTER_FRAUD), 404
     # get project
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
-    # check if project is from current user
-    if project and project.owner == current_user:
+    # check if project is from current user or if current user is admin
+    if project and (project.owner == current_user or current_user.is_admin):
         user = DB.session.get(User, user_id)
-        project.pending_invitations.append(user)
-        try:
-            DB.session.commit()
-            response = (
-                jsonify(get_user_project_properties(user, project, current_user)),
-                200,
-            )
-        except SQLAlchemyError:
+
+        # Check if user is already invited to avoid unique constraint violation
+        if user in project.pending_invitations:
             response = (
                 jsonify({"message": f'User "{user.identifier}" not invited.'}),
                 404,
             )
+        else:
+            # Store user identifier before DB operation to avoid session rollback issues
+            user_identifier = user.identifier
+            project.pending_invitations.append(user)
+            try:
+                DB.session.commit()
+                response = (
+                    jsonify(
+                        {
+                            "message": "Invitation is successfully created.",
+                            "user": get_user_project_properties(
+                                user, project, current_user
+                            ),
+                        }
+                    ),
+                    200,
+                )
+            except SQLAlchemyError:
+                DB.session.rollback()
+                response = (
+                    jsonify({"message": f'User "{user_identifier}" not invited.'}),
+                    404,
+                )
     return response
 
 
@@ -196,22 +245,38 @@ def reject_invitation(project_id):
 @bp.route("/invitations/projects/<project_id>/users/<user_id>", methods=["DELETE"])
 @login_required
 def delete_invitation(project_id, user_id):
-    """removes an invitation"""
+    """Project owner or admin removes an invitation"""
     response = jsonify(REQUESTER_FRAUD), 404
     # get project
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
-    # check if project is from current user
-    if project and project.owner == current_user:
+    # check if project is from current user or if current user is admin
+    if project and (project.owner == current_user or current_user.is_admin):
         # get user
         user = DB.session.get(User, user_id)
-        # remove from project
-        project.pending_invitations.remove(user)
+
+        if not user:
+            return jsonify({"message": "User not found."}), 404
+
         try:
-            DB.session.commit()
-            response = (
-                jsonify(get_user_project_properties(user, project, current_user)),
-                200,
-            )
-        except SQLAlchemyError:
-            response = jsonify({"message": "Error deleting invitation."}), 404
+            if user in project.pending_invitations:
+                project.pending_invitations.remove(user)
+                DB.session.commit()
+                response = (
+                    jsonify(
+                        {
+                            "message": "Invitation cancelled successfully.",
+                            "user": get_user_project_properties(
+                                user, project, current_user
+                            ),
+                        }
+                    ),
+                    200,
+                )
+            else:
+                response = (
+                    jsonify({"message": "User does not have a pending invitation."}),
+                    400,
+                )
+        except SQLAlchemyError as e:
+            response = jsonify({"message": f"Error deleting invitation: {str(e)}"}), 500
     return response

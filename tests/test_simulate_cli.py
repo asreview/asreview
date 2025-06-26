@@ -39,6 +39,18 @@ def test_prior_idx(tmp_project, demo_data_path):
     assert results_table["querier"][2:].notnull().all()
 
 
+def test_prior_record_ids(tmp_project, demo_data_path):
+    argv = f"{demo_data_path} -o {tmp_project} --prior-record-id 0 9".split()
+    _cli_simulate(argv)
+
+    with asr.open_state(tmp_project) as state:
+        results_table = state.get_results_table()
+
+    assert results_table["record_id"].head(2).to_list() == [0, 9]
+    assert results_table["querier"][:1].isnull().all()
+    assert results_table["querier"][2:].notnull().all()
+
+
 def test_n_prior_included(tmp_project, demo_data_path):
     argv = f"{demo_data_path} -o {tmp_project} --n-prior-included 2 --prior-seed 535".split()
     _cli_simulate(argv)

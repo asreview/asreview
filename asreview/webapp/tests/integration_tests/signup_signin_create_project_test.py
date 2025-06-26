@@ -100,4 +100,5 @@ def test_signup_signin_signout(driver, url, database_uri, reading_time):
     utils.sign_in(driver, base_url, ACCOUNT)
     utils.sign_out(driver)
 
-    utils.wait_for_redirect(driver, base_url + "/signin")
+    utils.sign_in(driver, base_url, ACCOUNT)
+    utils.sign_out(driver, base_url)

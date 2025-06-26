@@ -14,28 +14,24 @@ setuptools. You will need to create a package and install it (for example, with
 pip).
 
 Did you develop a useful extension to ASReview and want to list it on `the
-Discussion platform
-<https://github.com/asreview/asreview/discussions/1140>`__? Create a Pull
-Request or open an issue on `GitHub
-<https://github.com/asreview/asreview/issues>`__.
+Discussion platform <https://github.com/asreview/asreview/discussions/1140>`__?
+Leave a message there, and we will add it to the list of extensions.
 
 For more information on the ASReview API for creating an extension, a technical
 reference for development is found under the :doc:`reference/asreview`. This
-technical reference contains functions for use in your extension and an
-overview of all classes to extend.
+technical reference contains functions for use in your extension and an overview
+of all classes to extend.
 
 Model Extensions
 ----------------
 
-An extension of a :class:`asreview.models.base.BaseModel` type class.
-
 Model extensions extend the ASReview software with new classifiers, query
-strategies, balance strategies, or feature extraction techniques. These
-extensions extend one of the model base classes
-(:class:`asreview.models.balancers`,
-:class:`asreview.models.classifiers`,
-:class:`asreview.models.feature_extractors`,
-:class:`asreview.models.queriers`).
+strategies, balance strategies, or feature extraction techniques. Model
+extensions are Python packages that can be installed in the ASReview
+environment. Model extensions typically inherit from the
+:class:`sklearn.base.BaseEstimator` class in Scikit-learn or have a similar
+interface. The model extensions can be used in the ASReview LAB and via the
+Command Line Interface (CLI).
 
 The easiest way to extend ASReview with a model is by using the |template_link|.
 Create a copy of the template and add the new algorithm to a new model file. It
@@ -52,27 +48,30 @@ is advised to use the following structure of the package:
     │       └── queriers.py
     └── tests
 
-The next step is to add metadata to the `setup.py
-<https://github.com/asreview/template-extension-new-model/blob/main/setup.py>`__
-file. Edit the ``name`` of the package and point the ``entry_points`` to the
-models.
+The next step is to add metadata to the ``pyproject.toml`` file. Edit the
+``name`` of the package and point the ``entry-points`` to the models.
 
-.. code:: bash
+.. code:: toml
 
-    entry_points={
-        'asreview.models.classifiers': [
-            'example = asreviewcontrib.models.classifiers.example_model:ExampleClassifier',
-        ],
-        'asreview.models.feature_extractors': [
-            # define feature_extraction algorithms
-        ],
-        'asreview.models.balancers': [
-            # define balance_strategy algorithms
-        ],
-        'asreview.models.queriers': [
-            # define query_strategy algorithms
-        ]
-    },
+    [project]
+
+    name = "asreviewcontrib-yourmodel"
+
+    [project.entry-points."asreview.models.classifiers"]
+
+    example = "asreviewcontrib.models.classifiers.example_model:ExampleClassifier"
+
+    [project.entry-points."asreview.models.feature_extractors"]
+
+    # define feature_extraction algorithms
+
+    [project.entry-points."asreview.models.balancers"]
+
+    # define balance_strategy algorithms
+
+    [project.entry-points."asreview.models.queriers"]
+
+    # define query_strategy algorithms
 
 This code registers the model with name ``example``.
 
@@ -84,8 +83,6 @@ This code registers the model with name ``example``.
 Subcommand Extensions
 ---------------------
 
-An extension of the :class:`asreview.entry_points.base.BaseEntryPoint` class.
-
 Subcommand extensions are programs that create a new entry point for ASReview.
 From this entry point the Python API can be used in many ways (like ``plot`` or
 ``simulate``).
@@ -94,35 +91,22 @@ Extensions in ASReview are Python packages and can extend the subcommands of
 asreview (see ``asreview -h``). An example of a subcommand extension is
 `ASReview Insights <https://github.com/asreview/asreview-insights>`_.
 
-The easiest way to create a new subcommand is by defining a class that can be
-used as a new entry point for ASReview. This class should inherit from
-:class:`asreview.entry_points.base.BaseEntryPoint`. Add the functionality to the
-class method ``execute``.
+The easiest way to create a new subcommand is by defining a function or class
+with `execute` method that can be used as a new entry point for ASReview.
 
 .. code:: python
 
-    from asreview.entry_points import BaseEntryPoint
-
-    class ExampleEntryPoint(BaseEntryPoint):
-
-        description = "Description of example extension"
-        extension_name = "asreview-example"  # Name of the extension
-        version = "1.0"  # Version of the extension in x.y(.z) format.
+    class ExampleEntryPoint:
 
         def execute(self, argv):
             pass  # Implement your functionality here.
 
-It is strongly recommended to define the attributes ``description``,
-``extension_name``, and ``version``.
-
 The class method ``execute`` accepts a positional argument (``argv`` in this
-example).  First create the functionality you would like to be able to use in
-any directory. The argument ``argv`` are the command line arguments left after
-removing asreview and the entry point.
+example).  The argument ``argv`` are the command line arguments for your
+subcommand.
 
-It is advised to place the newly defined class ``ExampleEntryPoints`` in the
-following package structure:
-``asreviewcontrib.{extension_name}.{your_modules}``. For example:
+It is advised to place the newly defined entry point in the following package
+structure: ``asreviewcontrib.{extension_name}.{your_modules}``. For example:
 
 .. code:: bash
 
@@ -132,21 +116,21 @@ following package structure:
     │       ├── __init__.py
     │       ├── entrypoint.py
     │       └── example_utils.py
-    ├── setup.py
+    ├── pyproject.toml
     └── tests
 
+Create a ``pyproject.toml`` in the root of the package, and define the entry
+points under ``[project.entry-points."asreview.entry_points"]``, for example:
 
-Create a ``setup.py`` in
-the root of the package, and set the keyword argument `entry_points` of
-``setup()`` under ``asreview.entry_points``, for example:
+.. code:: toml
 
-.. code:: python
+    [project] name = "asreviewcontrib-example"
 
-    entry_points={
-        "asreview.entry_points": [
-            "example = asreviewcontrib.example.entrypoint:ExampleEntryPoint",
-        ]
-    }
+    # ...other metadata...
+
+    [project.entry-points."asreview.entry_points"]
+
+    example = "asreviewcontrib.example.entrypoint:ExampleEntryPoint"
 
 After installing this package, ASReview is extended with the ``asreview
 example`` subcommand. See ``asreview -h`` for this option.
@@ -157,11 +141,11 @@ Dataset Extensions
 An extension of the :class:`asreview.datasets.BaseDataSet` class.
 
 Dataset extensions integrate new datasets for use in ASReview. Adding datasets
-via extension provides quick access to the dataset via Command Line Interface or in
-ASReview LAB.
+via extension provides quick access to the dataset via Command Line Interface or
+in ASReview LAB.
 
-It is advised to place the new dataset ``your_dataset`` in the
-following package structure:
+It is advised to place the new dataset ``your_dataset`` in the following package
+structure:
 
 .. code:: bash
 
@@ -172,7 +156,7 @@ following package structure:
     │       └── your_dataset.py
     ├── data
     │   └── your_dataset.csv
-    ├── setup.py
+    ├── pyproject.toml
     └── tests
 
 For minimal functionality, ``your_dataset.py`` should extend
@@ -183,5 +167,5 @@ A working template to clone and use can be found at `Template for extending
 ASReview with a new dataset
 <https://github.com/asreview/template-extension-new-dataset>`_.
 
-Further functionality can be
-extensions of any other class in :mod:`asreview.datasets`.
+Further functionality can be extensions of any other class in
+:mod:`asreview.datasets`.

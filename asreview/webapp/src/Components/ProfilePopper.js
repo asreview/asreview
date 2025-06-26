@@ -40,12 +40,10 @@ import { useToggle } from "hooks/useToggle";
 const SignOutItem = () => {
   const queryClient = useQueryClient();
 
-  const navigate = useNavigate();
-
   const { mutate: handleSignOut } = useMutation(AuthAPI.signout, {
     onSuccess: () => {
       queryClient.invalidateQueries();
-      navigate("/signin");
+      window.location.replace(window.postLogoutUrl);
     },
   });
 

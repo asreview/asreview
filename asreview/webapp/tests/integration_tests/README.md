@@ -48,6 +48,25 @@ $ pytest -v -o asreview/webapp/tests/integration_tests/signup_signin_create_proj
 
 In this concrete example, the test is executed against the frontend of ASReview that runs on a local server on port 3000, using FireFox as the test browser, and the authorization PostgreSQL database can also be found under local host, port 5432.
 
+## run_tests.sh
+
+The `run_tests.sh` script is a convenience script that:
+
+1. Builds ASReview from the default [Dockerfile](../../../../Dockerfile)
+1. Starts it with docker-compose
+1. Runs all integration tests against the dockerized instance
+1. Stops the docker containers
+
+You can run the script from any directory by simply calling it, e.g. `./run_tests.sh` from this directory.
+
+To force a rebuild of the application image, run `docker compose build` from within this directory.
+
+See the comments in [run_tests.sh](./run_tests.sh) for information on environment variables that you can toggle.
+
+### Test with optional reverse proxy
+
+By setting the `TEST_REVERSE_PROXY` environment variable to `true`, `run_tests.sh` will place an `nginx` reverse proxy in front of ASReview. Reverse proxies are often used in production instances, so this feature can be a helpful way to debug such scenarios.
+
 ## CI
 
 On CI, integration tests run against a freshly built 'production' version of ASReview: assets are compiled, the pip package is installed, and `asreview lab` is run using [this config file](../config/auth_integration_config.toml).

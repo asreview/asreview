@@ -52,6 +52,19 @@ def login_required(func):
     return decorated_view
 
 
+def admin_required(func):
+    @wraps(func)
+    @login_required
+    def decorated_view(*args, **kwargs):
+        # Assume user is logged in if we reached here
+        role = getattr(current_user, "role", None)
+        if role != "admin":
+            return jsonify({"message": "Admin access required."}), 403
+        return func(*args, **kwargs)
+
+    return decorated_view
+
+
 def project_authorization(f):
     """
     Decorator to enforce project-level authorization for a given route.
@@ -98,9 +111,9 @@ def project_authorization(f):
         if project is None:
             raise ProjectNotFoundError(f"Project '{project_id}' not found")
 
-        # if there is a project, check if permissiton
+        # if there is a project, check if permission
         all_users = set([project.owner] + project.collaborators)
-        if current_user not in all_users:
+        if not current_user.is_admin and current_user not in all_users:
             return jsonify({"message": "no permission"}), 403
 
         project_path = get_project_path(project_id)

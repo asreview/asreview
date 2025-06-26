@@ -89,7 +89,7 @@ should run the migration command inside the Docker container. For example:
 
 .. code-block:: bash
 
-    docker exec -it asreview-server-stack-database-1 asreview migrate --db
+    docker exec -it asreview-server-stack-asreview-1 asreview migrate --db
 
 Step 3: Migrate the Projects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
