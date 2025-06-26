@@ -1,5 +1,6 @@
 import json
 import time
+from io import BytesIO
 from pathlib import Path
 
 import pytest
@@ -384,6 +385,32 @@ def test_export_result(client, project, format):
 
     r = au.export_project_dataset(client, project, format)
     assert r.status_code == 200
+
+
+# Test uploading a RIS file with many authors, exporting it and importing it again.
+# This checks https://github.com/asreview/asreview/issues/2252 is fixed.
+def test_export_project_many_authors(client, user):
+    tests_folder = Path(__file__).parent.parent
+    with open(tests_folder / "data" / "ris_many_authors.ris", "rb") as f:
+        ris_create_response = au.create_project(
+            client, file=(f, "ris_many_authors.ris")
+        )
+    assert ris_create_response.status_code == 201
+    project = user.projects[0] if user is not None else get_projects()[0]
+    au.label_random_project_data_record(client, project, 1)
+    for file_format in ("csv", "tsv", "xlsx"):
+        export_response = au.export_project_dataset(
+            client,
+            project,
+            file_format,
+            collections=("relevant", "irrelevant", "not_seen"),
+        )
+        assert export_response.status_code == 200
+        export_data = export_response.data
+        create_response = au.create_project(
+            client, file=(BytesIO(export_data), f"export.{file_format}")
+        )
+        assert create_response.status_code == 201
 
 
 # Test exporting the entire project
