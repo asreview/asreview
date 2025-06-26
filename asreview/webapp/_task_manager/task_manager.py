@@ -111,10 +111,10 @@ class TaskManager:
 
         Session = sessionmaker(bind=engine)
         self.session = Session()
-        
+
         # Handle migration for created_at column
         self._migrate_created_at_column()
-        
+
         self.client_thread = None
         self.client_conn = None
 
@@ -124,13 +124,15 @@ class TaskManager:
             # Check if created_at column exists
             result = self.session.execute(text("PRAGMA table_info(queue)"))
             columns = [row[1] for row in result.fetchall()]
-            
-            if 'created_at' not in columns:
+
+            if "created_at" not in columns:
                 logger.info("Adding created_at column to queue table")
                 # Add the column with a default value for existing records
-                self.session.execute(text(
-                    "ALTER TABLE queue ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
-                ))
+                self.session.execute(
+                    text(
+                        "ALTER TABLE queue ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+                    )
+                )
                 self.session.commit()
                 logger.info("created_at column added successfully")
             else:
@@ -185,7 +187,7 @@ class TaskManager:
         """Reset all pending tasks - terminates running subprocesses."""
         if self.running_processes:
             logger.info(f"Resetting {len(self.running_processes)} pending tasks")
-            
+
             # Terminate all running processes
             for project_id, process in self.running_processes.items():
                 try:
@@ -195,12 +197,16 @@ class TaskManager:
                         # Give process 5 seconds to terminate gracefully, then kill
                         process.join(timeout=5.0)
                         if process.is_alive():
-                            logger.warning(f"Force killing process for project {project_id}")
+                            logger.warning(
+                                f"Force killing process for project {project_id}"
+                            )
                             process.kill()
                             process.join()
                 except Exception as e:
-                    logger.error(f"Failed to terminate process for project {project_id}: {e}")
-            
+                    logger.error(
+                        f"Failed to terminate process for project {project_id}: {e}"
+                    )
+
             self.running_processes.clear()
             logger.info("All pending tasks terminated and cleared")
         else:
@@ -322,14 +328,16 @@ class TaskManager:
                 if not data:
                     # Process any remaining buffered messages on disconnect
                     if client_buffer.strip():
-                        client_buffer = self._process_complete_messages(client_buffer, conn)
+                        client_buffer = self._process_complete_messages(
+                            client_buffer, conn
+                        )
                     # client disconnected
                     break
 
                 else:
                     message = data.decode("utf-8")
                     client_buffer += message
-                    
+
                     # Try to process complete JSON messages immediately
                     client_buffer = self._process_complete_messages(client_buffer, conn)
 
@@ -341,17 +349,17 @@ class TaskManager:
 
     def _process_complete_messages(self, client_buffer, conn):
         """Process complete JSON messages immediately, return remaining buffer."""
-        # do not try to parse empty message or if we know in advance we did not 
+        # do not try to parse empty message or if we know in advance we did not
         # receive the entire message
         stripped_buffer = client_buffer.strip()
-        if not (stripped_buffer and stripped_buffer.endswith('}')):
+        if not (stripped_buffer and stripped_buffer.endswith("}")):
             return client_buffer
 
         try:
             # Try to parse as complete JSON message(s)
             temp_buffer = "[" + client_buffer.replace("}{", "},{") + "]"
             messages = json.loads(temp_buffer)
-            
+
             # Process status queries immediately, queue others
             for message in messages:
                 if message.get("action") == "status_query":
@@ -360,10 +368,10 @@ class TaskManager:
                 else:
                     # Queue non-status messages for later processing
                     self.message_buffer.append(message)
-            
+
             # All complete messages have been processed, clear the buffer
             return ""
-                
+
         except json.JSONDecodeError:
             # JSON is incomplete, keep buffering
             return client_buffer
@@ -374,7 +382,7 @@ class TaskManager:
             status = {
                 "max_workers": self.max_workers,
                 "currently_running": len(self.running_processes),
-                "available_slots": self._count_available_slots()
+                "available_slots": self._count_available_slots(),
             }
             response = json.dumps(status).encode("utf-8")
             conn.sendall(response)
