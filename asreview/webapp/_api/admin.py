@@ -37,6 +37,7 @@ from asreview.webapp._task_manager.task_manager import (
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+from datetime import timezone
 import socket
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -535,16 +536,20 @@ def get_task_queue_status():
                 .all()
             )
 
+            # Convert all timestamps to UTC timezone-aware immediately
+            for task in waiting_tasks:
+                task.created_at = _ensure_utc_timezone(task.created_at)
+
             total_waiting = len(waiting_tasks)
             oldest_waiting_seconds = None
             waiting_projects = []
 
-            # Process waiting tasks
+            # Process waiting tasks (timestamps are now all UTC timezone-aware)
             for task in waiting_tasks:
                 # Calculate waiting time in seconds for each task
                 waiting_seconds = None
                 if task.created_at:
-                    time_diff = datetime.utcnow() - task.created_at
+                    time_diff = datetime.now(timezone.utc) - task.created_at
                     waiting_seconds = round(time_diff.total_seconds(), 2)
                 
                 waiting_projects.append({
@@ -553,9 +558,9 @@ def get_task_queue_status():
                     "waiting_seconds": waiting_seconds
                 })
             
-            # Calculate oldest waiting time
+            # Calculate oldest waiting time (timestamps already converted)
             if waiting_tasks and waiting_tasks[0].created_at:
-                time_diff = datetime.utcnow() - waiting_tasks[0].created_at
+                time_diff = datetime.now(timezone.utc) - waiting_tasks[0].created_at
                 oldest_waiting_seconds = int(time_diff.total_seconds())
 
             # Try to get Task Manager status
@@ -641,6 +646,13 @@ def reset_task_queue():
         return jsonify({"message": f"Error resetting task queue: {str(e)}"}), 500
 
 
+def _ensure_utc_timezone(dt):
+    """Convert naive datetime to UTC timezone-aware datetime."""
+    if dt and dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 def _create_queue_database_session():
     """Create a database session for the queue database."""
     database_url = f"sqlite:///{asreview_path()}/queue.sqlite"
@@ -662,7 +674,6 @@ def _get_task_manager_status():
 
         # Read response with timeout
         response_data = client_socket.recv(1024)
-        print(response_data)
         client_socket.close()
 
         if response_data:
