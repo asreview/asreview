@@ -121,66 +121,19 @@ def _parse_literal_list_from_string(value):
     return _fix_unclosed_list(value, literal_eval, SyntaxError)
 
 
-def convert_string_to_list(series):
-    """Convert values in a series to from strings to lists.
-
-    Parameters
-    ----------
-    series : pd.Series
-        Series containing string values.
-
-    Returns
-    -------
-    pd.Series
-        All string values are split on `LIST_JOIN_CHAR`. All other values are left
-        alone.
-    """
-    try:
-        series = series.str.split(LIST_JOIN_CHAR)
-    except AttributeError:
-        # The series does not contain string values.
-        pass
-    return series
-
-
-def convert_list_to_string(series):
-    """Convert values in a series to from lists to strings.
-
-    Parameters
-    ----------
-    series : pd.Series
-        Series containing list values.
-
-    Returns
-    -------
-    pd.Series
-        All list values are joined using `LIST_JOIN_CHAR`.
-
-    Throws
-    ------
-    AttributeError
-        If the series contains non-string values.
-    """
-    return series.str.join(LIST_JOIN_CHAR)
-
-
 def convert_ris_list_columns_to_string(df):
     for col in RIS_LIST_COLUMNS:
         if col in df.columns:
-            df[col] = convert_list_to_string(df[col]).str.slice(
-                stop=PANDAS_CSV_MAX_CELL_LIMIT
+            df[col] = (
+                df[col]
+                .str.join(LIST_JOIN_CHAR)
+                .str.slice(stop=PANDAS_CSV_MAX_CELL_LIMIT)
             )
     return df
 
 
-def convert_to_list(value):
-    """Convert a value to a list.
-
-    This function tries to be very permissive in what input it allows. The goal is
-    to accept input from as many different kinds of input files as possible. If you
-    are certain what format the input has, you are probably better of parsing that
-    format directly.
-    """
+def convert_value_to_list(value):
+    """Convert a value to a list."""
     if isinstance(value, list):
         return value
     elif isinstance(value, np.ndarray):
@@ -188,58 +141,26 @@ def convert_to_list(value):
     elif pd.isna(value):
         return []
     elif isinstance(value, str):
-        if value == "":
-            return []
-
-        # Check if the string is a JSON dumped list or a Python literal list value.
-        if value[0] == "[":
-            try:
-                # Try to parse the string as a JSON list.
-                return _parse_json_list_from_string(value)
-            # If that fails, try to parse it as a Python literal list value.
-            except json.decoder.JSONDecodeError:
-                # Maybe it's a Python literal value?
-                try:
-                    return _parse_literal_list_from_string(value)
-                except SyntaxError:
-                    raise ValueError(
-                        f"Can't parse {value} as JSON or Python literal list value"
-                    )
-
-        # Assume it is a list of items separated by one of ,;:
-        longest_split = []
-        for sep in {",", ";", ":"}:
-            split_value = value.split(sep)
-            if len(split_value) > len(longest_split):
-                longest_split = split_value
-        # Remove excess whitespace in case the items were separated by ', ' for example.
-        return [item.strip() for item in longest_split]
+        return value.split(LIST_JOIN_CHAR)
     else:
         raise ValueError(
             f"value should be of type `list`, `np.ndarray` or `str`. Value: {value}"
         )
 
 
-def standardize_included_label(series):
-    try:
-        # Convert string values to 0, 1 or None.
-        series = (
-            series.str.lower()
-            .replace(
-                {
-                    "": None,
-                    "0": 0,
-                    "1": 1,
-                    "yes": 1,
-                    "no": 0,
-                    "y": 1,
-                    "n": 0,
-                }
-            )
-            .infer_objects(copy=False)
-        )
-    except AttributeError:
-        # Series does not contain string values.
-        pass
-    series = series.replace([pd.NA, np.nan], None).infer_objects(copy=False)
-    return series
+def standardize_included_label(value):
+    replacement_dict = {
+        "": None,
+        pd.NA: None,
+        np.nan: None,
+        "0": 0,
+        "1": 1,
+        "yes": 1,
+        "no": 0,
+        "y": 1,
+        "n": 0,
+    }
+    if value in replacement_dict:
+        return replacement_dict[value]
+    else:
+        return value

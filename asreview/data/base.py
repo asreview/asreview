@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 from asreview.data.record import Record
-from asreview.data.utils import convert_string_to_list
+from asreview.data.utils import convert_value_to_list
 from asreview.data.utils import standardize_included_label
 
 
@@ -49,12 +49,10 @@ class BaseReader(ABC):
     }
 
     # Dictionary {column name : function to apply to the column} of function that clean
-    # the data after reading it. The function should act pandas.Series objects. If you
-    # have a function acting on individual values, use
-    # `lambda series: series.apply(function)`.
+    # the data after reading it. The function should act on individual values.
     __cleaning_methods__ = {
-        "authors": [convert_string_to_list],
-        "keywords": [convert_string_to_list],
+        "authors": [convert_value_to_list],
+        "keywords": [convert_value_to_list],
         "included": [standardize_included_label],
     }
 
@@ -115,7 +113,7 @@ class BaseReader(ABC):
         for column, cleaning_methods in cls.__cleaning_methods__.items():
             if column in df.columns:
                 for cleaning_method in cleaning_methods:
-                    df[column] = cleaning_method(df[column])
+                    df[column] = df[column].apply(cleaning_method)
         if cls.__fillna_default__ is not None:
             df.replace([pd.NA, np.nan], cls.__fillna_default__[0], inplace=True)
         return df
