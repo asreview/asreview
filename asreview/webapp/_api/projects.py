@@ -45,8 +45,10 @@ import asreview as asr
 from asreview.data import CSVWriter
 from asreview.data import ExcelWriter
 from asreview.data import RISReader
+from asreview.data import TSVWriter
 from asreview.data.search import fuzzy_find
-from asreview.data.utils import convert_ris_list_columns_to_string, duplicated
+from asreview.data.utils import convert_ris_list_columns_to_string
+from asreview.data.utils import duplicated
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
@@ -1180,7 +1182,7 @@ def api_export_dataset(project):
     input_reader = project.get_input_data_reader()
     writer = load_extension("writers", f".{file_format}")
     if issubclass(input_reader, RISReader) and issubclass(
-        writer, (CSVWriter, ExcelWriter)
+        writer, (CSVWriter, TSVWriter, ExcelWriter)
     ):
         df_user_input_data = convert_ris_list_columns_to_string(df_user_input_data)
 
