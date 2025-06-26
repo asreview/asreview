@@ -29,7 +29,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Snackbar,
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
@@ -129,6 +128,84 @@ const TrainingQueueHeader = ({ refetch, isLoading, resetQueueMutation }) => (
   </Box>
 );
 
+const formatDuration = (seconds) => {
+  if (!seconds) return "N/A";
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m ${secs}s`;
+  } else if (minutes > 0) {
+    return `${minutes}m ${secs}s`;
+  } else {
+    return `${secs}s`;
+  }
+};
+
+const ProjectTable = ({ title, description, projects, type }) => (
+  <Paper sx={{ mt: 3 }}>
+    <Box sx={{ p: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        {title}
+      </Typography>
+      {description && (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {description}
+        </Typography>
+      )}
+    </Box>
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Project ID</TableCell>
+            <TableCell>Type</TableCell>
+            {type === "waiting" && <TableCell>Waiting Time</TableCell>}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {projects.map((project, index) => (
+            <TableRow key={index}>
+              <TableCell>
+                <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
+                  {type === "running" ? project : project.project_id}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                {type === "running" ? (
+                  <Chip
+                    label="Training"
+                    color="primary"
+                    size="small"
+                    icon={<RunningIcon />}
+                  />
+                ) : (
+                  <Chip
+                    label={project.simulation ? "Simulation" : "Training"}
+                    color={project.simulation ? "secondary" : "primary"}
+                    size="small"
+                    icon={
+                      project.simulation ? <ScheduleIcon /> : <RunningIcon />
+                    }
+                  />
+                )}
+              </TableCell>
+              {type === "waiting" && (
+                <TableCell>
+                  {project.waiting_seconds !== null
+                    ? formatDuration(Math.floor(project.waiting_seconds))
+                    : "Unknown"}
+                </TableCell>
+              )}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  </Paper>
+);
+
 const TrainingQueueComponent = () => {
   const queryClient = useQueryClient();
 
@@ -157,21 +234,6 @@ const TrainingQueueComponent = () => {
       console.log("Reset queue error:", error);
     },
   });
-
-  const formatDuration = (seconds) => {
-    if (!seconds) return "N/A";
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    if (hours > 0) {
-      return `${hours}h ${minutes}m ${secs}s`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${secs}s`;
-    } else {
-      return `${secs}s`;
-    }
-  };
 
   const getTaskManagerStatusColor = (status) => {
     switch (status) {
@@ -441,70 +503,25 @@ const TrainingQueueComponent = () => {
         </Grid2>
       </Grid2>
 
+      {/* Currently Training Projects - Show First */}
+      {queueStatus?.running_projects &&
+        queueStatus.running_projects.length > 0 && (
+          <ProjectTable
+            title={`Currently Training (${queueStatus.running_projects.length})`}
+            description="Projects that are actively running in Task Manager subprocesses"
+            projects={queueStatus.running_projects}
+            type="running"
+          />
+        )}
+
       {/* Waiting Projects Table */}
       {queueStatus?.waiting_projects &&
         queueStatus.waiting_projects.length > 0 && (
-          <Paper sx={{ mt: 3 }}>
-            <Box sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>
-                Waiting Projects
-              </Typography>
-            </Box>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Project ID</TableCell>
-                    <TableCell>Type</TableCell>
-                    <TableCell>Queued At</TableCell>
-                    <TableCell>Waiting Time</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {queueStatus.waiting_projects.map((project, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <Typography
-                          variant="body2"
-                          sx={{ fontFamily: "monospace" }}
-                        >
-                          {project.project_id}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={project.simulation ? "Simulation" : "Training"}
-                          color={project.simulation ? "secondary" : "primary"}
-                          size="small"
-                          icon={
-                            project.simulation ? (
-                              <ScheduleIcon />
-                            ) : (
-                              <RunningIcon />
-                            )
-                          }
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {project.created_at
-                          ? new Date(project.created_at).toLocaleString()
-                          : "Unknown"}
-                      </TableCell>
-                      <TableCell>
-                        {project.created_at &&
-                          formatDuration(
-                            Math.floor(
-                              (new Date() - new Date(project.created_at)) /
-                                1000,
-                            ),
-                          )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
+          <ProjectTable
+            title={`Waiting Projects (${queueStatus.waiting_projects.length})`}
+            projects={queueStatus.waiting_projects}
+            type="waiting"
+          />
         )}
 
       {/* Empty State */}

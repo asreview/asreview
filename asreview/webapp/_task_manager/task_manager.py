@@ -374,7 +374,8 @@ class TaskManager:
             status = {
                 "max_workers": self.max_workers,
                 "currently_running": len(self.running_processes),
-                "available_slots": self._count_available_slots()
+                "available_slots": self._count_available_slots(),
+                "running_project_ids": list(self.running_processes.keys())
             }
             response = json.dumps(status).encode("utf-8")
             conn.sendall(response)
