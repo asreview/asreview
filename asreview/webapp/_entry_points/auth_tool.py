@@ -460,9 +460,11 @@ class AuthTool:
         query = self.session.query(User)
 
         if self.args.unconfirmed:
-            query = query.filter(not User.confirmed, not User.token_valid())
+            query = query.filter(User.confirmed.is_(False), User.has_expired_token)
             if query.count() > 0:
-                print(f"Found {query.count()} unconfirmed user accounts.")
+                print(
+                    f"Found {query.count()} unconfirmed user accounts with expired tokens."
+                )
         else:
             if query.count() > 0:
                 print(f"Found {query.count()} user accounts eligible for deletion.")

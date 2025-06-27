@@ -29,6 +29,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.sql import func
 
 from asreview.webapp import DB
 from asreview.webapp.utils import asreview_path
@@ -203,15 +205,19 @@ class User(UserMixin, DB.Model):
         self.token_created_at = None
         return self
 
-    def token_valid(self, provided_token, max_minutes=20):
-        """Checks whether provided token is correct and still valid"""
-        # there must be a token and a timestamp
+    @hybrid_property
+    def has_expired_token(self):
+        """Check if the user's token is expired."""
         if bool(self.token) and bool(self.token_created_at):
             diff = (dt.datetime.now() - self.token_created_at).total_seconds()
-            # return if token is correct and we are still before deadline
-            return self.token == provided_token and diff <= max_minutes * 60
-        else:
-            return False
+            return diff > 20 * 60  # Default max_minutes = 20
+        return False
+
+    @has_expired_token.expression
+    def has_expired_token(cls):
+        """Query-level logic for expired tokens."""
+        expiration_time = func.datetime(cls.token_created_at, f"+{20} minutes")
+        return func.now() > expiration_time
 
     @property
     def is_admin(self):
