@@ -6,7 +6,6 @@ import os
 import sys
 from argparse import RawTextHelpFormatter
 from uuid import UUID
-import datetime as dt
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
