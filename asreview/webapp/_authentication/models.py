@@ -25,12 +25,12 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
+from sqlalchemy.sql import func
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.sql import func
 
 from asreview.webapp import DB
 from asreview.webapp.utils import asreview_path
