@@ -527,7 +527,7 @@ def delete_account():
                 ),
                 400,
             )
-        
+
         # delete projects from ASReview folder
         user_projects = Project.query.filter_by(owner_id=user.id).all()
         for project in user_projects:

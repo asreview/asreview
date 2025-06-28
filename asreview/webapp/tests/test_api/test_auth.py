@@ -675,6 +675,7 @@ def test_successful_delete_account(client_auth):
     assert r.json["message"] == "Account deleted successfully"
     # verify user is deleted from database - expect NoResultFound exception
     from sqlalchemy.exc import NoResultFound
+
     with pytest.raises(NoResultFound):
         crud.get_user_by_identifier(user.identifier)
 
@@ -684,7 +685,9 @@ def test_delete_account_blocked_when_owns_projects(client_auth):
     # create and signin user
     au.create_and_signin_user(client_auth)
     # create a project for this user
-    r = au.create_project(client_auth, mode="oracle", benchmark="synergy:van_der_Valk_2021")
+    r = au.create_project(
+        client_auth, mode="oracle", benchmark="synergy:van_der_Valk_2021"
+    )
     assert r.status_code == 201
     # try to delete account
     r = au.delete_account(client_auth)
