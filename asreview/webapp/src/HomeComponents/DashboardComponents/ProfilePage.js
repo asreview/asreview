@@ -70,6 +70,10 @@ const ProfilePage = (props) => {
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [deleteError, setDeleteError] = React.useState(null);
 
+  // Hide delete button for new OAuth users completing their profile
+  const shouldHideDeleteButton =
+    window.oAuthData !== "false" && showFirstTimeMessage;
+
   const { error, isError, mutate } = useMutation(AuthAPI.updateProfile, {
     onSuccess: (data) => {
       if (data.email_changed && data.user_id) {
@@ -408,26 +412,28 @@ const ProfilePage = (props) => {
             </Button>
           </Stack>
 
-          <Stack spacing={1} sx={{ mt: 4 }}>
-            <Typography variant="h6">Delete account</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Once you delete your account, there is no going back. Please be
-              certain.
-            </Typography>
-            <Button
-              variant="contained"
-              color="error"
-              onClick={handleClickOpenDeleteDialog}
-              sx={{ width: "fit-content" }}
-            >
-              Delete your account
-            </Button>
-            {deleteError && (
-              <FHT>
-                <InlineErrorHandler message={deleteError} />
-              </FHT>
-            )}
-          </Stack>
+          {!shouldHideDeleteButton && (
+            <Stack spacing={1} sx={{ mt: 4 }}>
+              <Typography variant="h6">Delete account</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Once you delete your account, there is no going back. Please be
+                certain.
+              </Typography>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={handleClickOpenDeleteDialog}
+                sx={{ width: "fit-content" }}
+              >
+                Delete your account
+              </Button>
+              {deleteError && (
+                <FHT>
+                  <InlineErrorHandler message={deleteError} />
+                </FHT>
+              )}
+            </Stack>
+          )}
 
           <Dialog
             open={openDeleteDialog}

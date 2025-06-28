@@ -658,3 +658,92 @@ def test_must_be_signed_in_to_signout(client_auth, api_call):
         r = api_call(client_auth, {})
     # asserts
     assert r.status_code == 401
+
+
+# ###################
+# DELETE ACCOUNT
+# ###################
+
+
+# Test successful account deletion
+def test_successful_delete_account(client_auth):
+    # create and signin user
+    user = au.create_and_signin_user(client_auth)
+    # delete account
+    r = au.delete_account(client_auth)
+    assert r.status_code == 200
+    assert r.json["message"] == "Account deleted successfully"
+    # verify user is deleted from database - expect NoResultFound exception
+    from sqlalchemy.exc import NoResultFound
+    with pytest.raises(NoResultFound):
+        crud.get_user_by_identifier(user.identifier)
+
+
+# Test cannot delete account when user owns projects
+def test_delete_account_blocked_when_owns_projects(client_auth):
+    # create and signin user
+    au.create_and_signin_user(client_auth)
+    # create a project for this user
+    r = au.create_project(client_auth, mode="oracle", benchmark="synergy:van_der_Valk_2021")
+    assert r.status_code == 201
+    # try to delete account
+    r = au.delete_account(client_auth)
+    assert r.status_code == 400
+    assert "You still own projects" in r.json["message"]
+    assert "transfer ownership or delete them" in r.json["message"]
+
+
+# Test cannot delete the only admin account
+def test_delete_account_blocked_when_only_admin(client_auth):
+    # create and signin user
+    user = au.create_and_signin_user(client_auth)
+    # make user an admin
+    user.role = "admin"
+    crud.update_user(DB, user, "role", "admin")
+    # try to delete account
+    r = au.delete_account(client_auth)
+    assert r.status_code == 400
+    assert "Cannot delete the only admin account" in r.json["message"]
+    assert "create another admin account first" in r.json["message"]
+
+
+# Test admin can delete account when there are multiple admins
+def test_admin_can_delete_when_multiple_admins_exist(client_auth):
+    # create and signin first admin user
+    user1 = au.create_and_signin_user(client_auth, test_user_id=1)
+    user1.role = "admin"
+    crud.update_user(DB, user1, "role", "admin")
+    # signout first user
+    au.signout_user(client_auth)
+    # create and signin second admin user
+    user2 = au.create_and_signin_user(client_auth, test_user_id=2)
+    user2.role = "admin"
+    crud.update_user(DB, user2, "role", "admin")
+    # now first admin should be able to delete their account
+    au.signout_user(client_auth)
+    au.signin_user(client_auth, user1)
+    r = au.delete_account(client_auth)
+    assert r.status_code == 200
+    assert r.json["message"] == "Account deleted successfully"
+
+
+# Test user must be logged in to delete account
+def test_delete_account_requires_login(client_auth):
+    # try to delete account without logging in
+    r = au.delete_account(client_auth)
+    assert r.status_code == 401
+
+
+# Test delete account logs out the user
+def test_delete_account_logs_out_user(client_auth):
+    # create and signin user
+    au.create_and_signin_user(client_auth)
+    # verify user is logged in
+    r = au.user(client_auth)
+    assert r.status_code == 200
+    # delete account
+    r = au.delete_account(client_auth)
+    assert r.status_code == 200
+    # verify user is logged out
+    r = au.user(client_auth)
+    assert r.status_code == 401
