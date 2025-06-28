@@ -74,7 +74,7 @@ const ResetQueueConfirmDialog = ({ open, onClose, onConfirm, isLoading }) => (
         disabled={isLoading}
         startIcon={<ClearAllIcon />}
       >
-        {isLoading ? "Resetting..." : "Reset Queue"}
+        {isLoading ? "Resetting..." : "Remove tasks"}
       </Button>
     </DialogActions>
   </Dialog>
