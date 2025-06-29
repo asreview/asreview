@@ -385,7 +385,7 @@ const DistancePatternChart = ({ project_id, showLast = false, mode }) => {
                   ry: 10,
                 },
                 "& .MuiChartsAxis-left .MuiChartsAxis-label": {
-                  transform: "translateX(-10px)",
+                  transform: "translateX(-15px)",
                 },
                 height: "100%",
                 width: "100%",
