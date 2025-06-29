@@ -2,6 +2,11 @@ import {
   Button,
   Checkbox,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   FormHelperText as FHT,
   FormControl,
   FormControlLabel,
@@ -62,6 +67,8 @@ const ProfilePage = (props) => {
   const [showPasswordFields, setShowPasswordFields] = React.useState(false);
   const [searchParams] = useSearchParams();
   const showFirstTimeMessage = searchParams.get("first_time");
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+  const [deleteError, setDeleteError] = React.useState(null);
 
   const { error, isError, mutate } = useMutation(AuthAPI.updateProfile, {
     onSuccess: (data) => {
@@ -78,6 +85,30 @@ const ProfilePage = (props) => {
       console.log(err);
     },
   });
+
+  const { mutate: deleteAccount } = useMutation(AuthAPI.deleteAccount, {
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      navigate("/signin");
+    },
+    onError: (err) => {
+      setDeleteError(err.message);
+      handleCloseDeleteDialog();
+    },
+  });
+
+  const handleClickOpenDeleteDialog = () => {
+    setDeleteError(null);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+  };
+
+  const handleDeleteAccount = () => {
+    deleteAccount();
+  };
 
   const handleSubmit = () => {
     if (formik.isValid) {
@@ -376,6 +407,50 @@ const ProfilePage = (props) => {
               Reset
             </Button>
           </Stack>
+
+          <Stack spacing={1} sx={{ mt: 4 }}>
+            <Typography variant="h6">Delete account</Typography>
+            <Typography variant="body2" color="text.secondary">
+              Once you delete your account, there is no going back. Please be
+              certain.
+            </Typography>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleClickOpenDeleteDialog}
+              sx={{ width: "fit-content" }}
+            >
+              Delete your account
+            </Button>
+            {deleteError && (
+              <FHT>
+                <InlineErrorHandler message={deleteError} />
+              </FHT>
+            )}
+          </Stack>
+
+          <Dialog
+            open={openDeleteDialog}
+            onClose={handleCloseDeleteDialog}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {"Delete your account?"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Are you sure you want to delete your account? This action cannot
+                be undone.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
+              <Button onClick={handleDeleteAccount} color="error" autoFocus>
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       )}
     </Container>
