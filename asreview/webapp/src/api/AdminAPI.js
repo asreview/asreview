@@ -156,6 +156,42 @@ class AdminAPI {
         });
     });
   }
+
+  // Get task queue status
+  static getTaskQueueStatus() {
+    const url = admin_url + "task-queue-status";
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  // Reset task queue
+  static resetTaskQueue() {
+    const url = admin_url + "task-queue-reset";
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
 }
 
 export default AdminAPI;

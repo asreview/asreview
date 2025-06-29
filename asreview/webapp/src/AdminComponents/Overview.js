@@ -10,9 +10,17 @@ import {
   useMediaQuery,
 } from "@mui/material";
 
-import { PeopleOutlined, FolderOutlined } from "@mui/icons-material";
+import {
+  PeopleOutlined,
+  FolderOutlined,
+  QueueOutlined,
+} from "@mui/icons-material";
 
-import { UsersComponent, ProjectsComponent } from "AdminComponents";
+import {
+  UsersComponent,
+  ProjectsComponent,
+  TrainingQueueComponent,
+} from "AdminComponents";
 
 const AdminPageHeader = () => {
   return (
@@ -51,7 +59,7 @@ const Overview = ({ mobileScreen }) => {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: "repeat(2, 1fr)",
+                gridTemplateColumns: "repeat(3, 1fr)",
                 gap: 1,
                 mb: 3,
               }}
@@ -76,6 +84,17 @@ const Overview = ({ mobileScreen }) => {
                   </Box>
                 }
                 onClick={() => clickTab("projects")}
+                sx={{ width: "100%" }}
+              />
+              <Tab
+                value="trainingqueue"
+                label={
+                  <Box>
+                    <QueueOutlined sx={{ fontSize: 32 }} />
+                    <Typography>Training Queue</Typography>
+                  </Box>
+                }
+                onClick={() => clickTab("trainingqueue")}
                 sx={{ width: "100%" }}
               />
             </Box>
@@ -112,6 +131,17 @@ const Overview = ({ mobileScreen }) => {
                 onClick={() => clickTab("projects")}
                 sx={{ mx: 1 }}
               />
+              <Tab
+                value="trainingqueue"
+                label={
+                  <Box>
+                    <QueueOutlined sx={{ fontSize: 32 }} />
+                    <Typography>Training Queue</Typography>
+                  </Box>
+                }
+                onClick={() => clickTab("trainingqueue")}
+                sx={{ mx: 1 }}
+              />
             </Tabs>
           )}
 
@@ -119,6 +149,8 @@ const Overview = ({ mobileScreen }) => {
           {activeTab === "users" && <UsersComponent />}
 
           {activeTab === "projects" && <ProjectsComponent />}
+
+          {activeTab === "trainingqueue" && <TrainingQueueComponent />}
         </Box>
       </Container>
     </>

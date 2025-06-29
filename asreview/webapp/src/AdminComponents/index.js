@@ -1,6 +1,7 @@
 export { default as Overview } from "./Overview";
 export { default as UsersComponent } from "./UsersComponent";
 export { default as ProjectsComponent } from "./ProjectsComponent";
+export { default as TrainingQueueComponent } from "./TrainingQueueComponent";
 export { default as ProjectCard } from "./ProjectCard";
 export { default as ProjectDetailsModal } from "./ProjectDetailsModal";
 export { default as UserFormDialog } from "./UserFormDialog";
