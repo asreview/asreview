@@ -132,7 +132,7 @@ export default function Metrics({ project_id }) {
               Loss
             </Typography>
             <Typography variant="h6" sx={{ mt: 0.5 }}>
-              {isLoading ? <Skeleton width={40} /> : data?.loss}
+              {isLoading ? <Skeleton width={40} /> : data?.loss?.toFixed(3)}
             </Typography>
           </Card>
           <Card
@@ -151,7 +151,7 @@ export default function Metrics({ project_id }) {
               NDCG
             </Typography>
             <Typography variant="h6" sx={{ mt: 0.5 }}>
-              {isLoading ? <Skeleton width={40} /> : data?.ndcg}
+              {isLoading ? <Skeleton width={40} /> : data?.ndcg?.toFixed(3)}
             </Typography>
           </Card>
         </Stack>
