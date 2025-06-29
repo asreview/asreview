@@ -1297,13 +1297,20 @@ def api_get_metrics(project):
     if project.config.get("mode") != PROJECT_MODE_SIMULATE:
         return jsonify("Metrics are only available for simulation projects"), 404
 
+    n_records = len(project.data_store)
+
     with open_state(project.project_path) as s:
-        labels = s.get_results_table(priors=False)["label"]
+        labels_no_priors = s.get_results_table(priors=False)["label"]
+        n_priors = len(s.get_priors())
+
+    labels_padded = list(labels_no_priors) + [0] * (
+        n_records - n_priors - len(labels_no_priors)
+    )
 
     return jsonify(
         {
-            "ndcg": round(ndcg(labels), 3),
-            "loss": round(loss(labels), 3),
+            "ndcg": round(ndcg(labels_padded), 3),
+            "loss": round(loss(labels_padded), 3),
         }
     )
 
