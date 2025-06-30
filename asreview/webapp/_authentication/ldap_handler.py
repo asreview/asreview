@@ -1,6 +1,7 @@
 import ldap3
 from ldap3 import Server, Connection, ALL, NTLM
 
+
 class LDAPHandler:
     def __init__(self, config=None):
         if not (bool(config) and isinstance(config, dict)):
@@ -34,10 +35,7 @@ class LDAPHandler:
             if self.bind_dn:
                 # Use service account to search
                 search_conn = Connection(
-                    server,
-                    self.bind_dn,
-                    self.bind_password,
-                    auto_bind=True
+                    server, self.bind_dn, self.bind_password, auto_bind=True
                 )
             else:
                 # Anonymous search
@@ -51,8 +49,8 @@ class LDAPHandler:
                     self.username_attribute,
                     self.email_attribute,
                     self.name_attribute,
-                    self.affiliation_attribute
-                ]
+                    self.affiliation_attribute,
+                ],
             )
 
             if not search_conn.entries:
@@ -69,14 +67,11 @@ class LDAPHandler:
                     user=user_dn,
                     password=password,
                     authentication=NTLM,
-                    auto_bind=True
+                    auto_bind=True,
                 )
             else:
                 auth_conn = Connection(
-                    server,
-                    user=user_dn,
-                    password=password,
-                    auto_bind=True
+                    server, user=user_dn, password=password, auto_bind=True
                 )
 
             # If we get here, authentication succeeded
