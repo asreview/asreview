@@ -40,7 +40,9 @@ class LDAPHandler:
                 # Anonymous search
                 search_conn = Connection(server, auto_bind=True)
 
-            search_filter = self.user_search_filter.format(username=username, email=username)
+            search_filter = self.user_search_filter.format(
+                username=username, email=username
+            )
             search_conn.search(
                 self.user_search_base,
                 search_filter,
