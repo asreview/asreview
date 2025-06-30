@@ -135,7 +135,7 @@ const SignInForm = () => {
                 >
                   Sign in
                 </Button>
-                {window.allowAccountCreation && (
+                {window.allowAccountCreation && !window.ldapEnabled && (
                   <Button
                     id="create-profile"
                     onClick={() => navigate("/signup")}
@@ -144,7 +144,7 @@ const SignInForm = () => {
                     Create profile
                   </Button>
                 )}
-                {window.emailVerification && (
+                {window.emailVerification && !window.ldapEnabled && (
                   <Button
                     id="forgot-password"
                     onClick={() => navigate("/forgot_password")}
@@ -157,9 +157,9 @@ const SignInForm = () => {
             </>
           )}
 
-          {window.oAuthData && Object.keys(window.oAuthData).length > 0 && (
-            <SignInOAuth oAuthData={window.oAuthData} />
-          )}
+          {window.oAuthData &&
+            Object.keys(window.oAuthData).length > 0 &&
+            !window.ldapEnabled && <SignInOAuth oAuthData={window.oAuthData} />}
         </>
       )}
       {forgotPassword && (

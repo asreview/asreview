@@ -496,7 +496,7 @@ def oauth_callback():
 
 @bp.route("/ldap_signin", methods=["POST"])
 def ldap_signin():
-    username = request.form.get("username").strip()
+    email = request.form.get("email").strip()
     password = request.form.get("password", "")
 
     ldap_handler = current_app.config.get("LDAP", False)
@@ -504,7 +504,7 @@ def ldap_signin():
         return jsonify({"message": "LDAP authentication not configured"}), 400
 
     # Authenticate with LDAP
-    user_info = ldap_handler.authenticate_user(username, password)
+    user_info = ldap_handler.authenticate_user(email, password)
     if not user_info:
         return jsonify({"message": "Invalid LDAP credentials"}), 401
 
