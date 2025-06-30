@@ -1,4 +1,3 @@
-import ldap3
 from ldap3 import Server, Connection, ALL, NTLM
 
 
@@ -100,6 +99,6 @@ class LDAPHandler:
 
             return (identifier, email, name, affiliation)
 
-        except Exception as e:
-            # Log error and return None for failed authentication
+        except Exception:
+            # return None for failed authentication
             return None
