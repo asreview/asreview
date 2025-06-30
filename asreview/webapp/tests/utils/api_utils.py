@@ -90,6 +90,10 @@ def get_profile(client: FlaskClient):
     return client.get("/auth/get_profile")
 
 
+def delete_account(client: FlaskClient):
+    return client.delete("/auth/delete_account")
+
+
 # ########################
 # Teams API calls
 # ########################

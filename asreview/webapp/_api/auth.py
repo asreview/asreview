@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import shutil
 
 from flask import Blueprint
 from flask import current_app
@@ -502,7 +503,7 @@ def delete_account():
         user = current_user
 
         # Block deletion if user is an admin and the only admin
-        if user.role == "admin":
+        if user.is_admin:
             admin_count = DB.session.query(User).filter_by(role="admin").count()
             if admin_count <= 1:
                 return (
@@ -521,12 +522,19 @@ def delete_account():
                 jsonify(
                     {
                         "message": "You still own projects. "
-                        "Please transfer ownership or delete them before deleting your account."
+                        "Please let an admin transfer ownership or delete them before deleting your account."
                     }
                 ),
                 400,
             )
 
+        # delete projects from ASReview folder
+        user_projects = Project.query.filter_by(owner_id=user.id).all()
+        for project in user_projects:
+            if project.project_path.exists():
+                shutil.rmtree(project.project_path)
+
+        # delete user plus records in projects table
         DB.session.delete(user)
         DB.session.commit()
 
