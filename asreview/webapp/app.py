@@ -39,6 +39,7 @@ from asreview.webapp._api import auth
 from asreview.webapp._api import projects
 from asreview.webapp._api import team
 from asreview.webapp._authentication.decorators import login_remote_user
+from asreview.webapp._authentication.ldap_handler import LDAPHandler
 from asreview.webapp._authentication.models import User
 from asreview.webapp._authentication.oauth_handler import OAuthHandler
 from asreview.webapp._authentication.remote_user_handler import RemoteUserHandler
@@ -112,6 +113,7 @@ def create_app(**config_vars):
         external_auth_methods = {
             "OAUTH": OAuthHandler,
             "REMOTE_USER": RemoteUserHandler,
+            "LDAP": LDAPHandler,
         }
 
         configured_external_auth_methods = [
