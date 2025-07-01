@@ -513,7 +513,7 @@ def ldap_signin():
     # Find or create user in database
     user = User.query.filter(User.identifier == identifier).one_or_none()
     account_created = False
-    
+
     if user is None:
         # Create new user
         user = User(
