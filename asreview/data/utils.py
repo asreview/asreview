@@ -1,8 +1,19 @@
-import json
-from ast import literal_eval
-
 import numpy as np
 import pandas as pd
+from rispy import LIST_TYPE_TAGS
+from rispy import TAG_KEY_MAPPING
+
+# When using a method like `pd.Series.replace` Pandas tries to infer the new data type
+# of the series after the replacement. In the future Pandas only does this if you
+# explicitly call pd.Series.infer_objects. By setting this option, we silence the
+# future deprecation warnings.
+pd.set_option("future.no_silent_downcasting", True)
+
+# Character used to join items in a list when converting lists to string.
+LIST_JOIN_CHAR = ";"
+
+RIS_LIST_COLUMNS = [TAG_KEY_MAPPING[list_type_tag] for list_type_tag in LIST_TYPE_TAGS]
+PANDAS_CSV_MAX_CELL_LIMIT = 131072
 
 
 def duplicated(df, pid="doi"):
@@ -79,42 +90,19 @@ def duplicated(df, pid="doi"):
     return s_dups
 
 
-def _fix_unclosed_list(value, parse_func, error_type):
-    if (value.startswith("['") or value.startswith('["')) and not value.endswith("]"):
-        # This is a list, but it is not closed. Try to fix it.
-        if value.endswith("'"):
-            return parse_func(value + "]")
-        elif value.endswith('"'):
-            return parse_func(value + "]")
-        else:
-            try:
-                # Try to fix the string by adding a closing bracket.
-                return parse_func(value + "']")
-            except error_type:
-                # If that fails, try adding a closing double quote.
-                return parse_func(value + '"]')
-    elif value.startswith("['") or value.startswith('["'):
-        return parse_func(value)
-    else:
-        raise error_type(f"Failed to parse {value} as a list value")
+def convert_ris_list_columns_to_string(df):
+    for col in RIS_LIST_COLUMNS:
+        if col in df.columns:
+            df[col] = (
+                df[col]
+                .str.join(LIST_JOIN_CHAR)
+                .str.slice(stop=PANDAS_CSV_MAX_CELL_LIMIT)
+            )
+    return df
 
 
-def _parse_json_list_from_string(value):
-    return _fix_unclosed_list(value, json.loads, json.decoder.JSONDecodeError)
-
-
-def _parse_literal_list_from_string(value):
-    return _fix_unclosed_list(value, literal_eval, SyntaxError)
-
-
-def convert_to_list(value):
-    """Convert a value to a list.
-
-    This function tries to be very permissive in what input it allows. The goal is
-    to accept input from as many different kinds of input files as possible. If you
-    are certain what format the input has, you are probably better of parsing that
-    format directly.
-    """
+def convert_value_to_list(value):
+    """Convert a value to a list."""
     if isinstance(value, list):
         return value
     elif isinstance(value, np.ndarray):
@@ -122,32 +110,7 @@ def convert_to_list(value):
     elif pd.isna(value):
         return []
     elif isinstance(value, str):
-        if value == "":
-            return []
-
-        # Check if the string is a JSON dumped list or a Python literal list value.
-        if value[0] == "[":
-            try:
-                # Try to parse the string as a JSON list.
-                return _parse_json_list_from_string(value)
-            # If that fails, try to parse it as a Python literal list value.
-            except json.decoder.JSONDecodeError:
-                # Maybe it's a Python literal value?
-                try:
-                    return _parse_literal_list_from_string(value)
-                except SyntaxError:
-                    raise ValueError(
-                        f"Can't parse {value} as JSON or Python literal list value"
-                    )
-
-        # Assume it is a list of items separated by one of ,;:
-        longest_split = []
-        for sep in {",", ";", ":"}:
-            split_value = value.split(sep)
-            if len(split_value) > len(longest_split):
-                longest_split = split_value
-        # Remove excess whitespace in case the items were separated by ', ' for example.
-        return [item.strip() for item in longest_split]
+        return value.split(LIST_JOIN_CHAR)
     else:
         raise ValueError(
             f"value should be of type `list`, `np.ndarray` or `str`. Value: {value}"
@@ -155,18 +118,18 @@ def convert_to_list(value):
 
 
 def standardize_included_label(value):
-    if isinstance(value, str):
-        conversion_dict = {
-            "": None,
-            "0": 0,
-            "1": 1,
-            "yes": 1,
-            "no": 0,
-            "y": 1,
-            "n": 0,
-        }
-        value = value.lower()
-        value = conversion_dict[value]
-    if pd.isna(value):
-        value = None
-    return value
+    replacement_dict = {
+        "": None,
+        pd.NA: None,
+        np.nan: None,
+        "0": 0,
+        "1": 1,
+        "yes": 1,
+        "no": 0,
+        "y": 1,
+        "n": 0,
+    }
+    if value in replacement_dict:
+        return replacement_dict[value]
+    else:
+        return value
