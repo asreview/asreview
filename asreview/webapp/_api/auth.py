@@ -512,6 +512,8 @@ def ldap_signin():
 
     # Find or create user in database
     user = User.query.filter(User.identifier == identifier).one_or_none()
+    account_created = False
+    
     if user is None:
         # Create new user
         user = User(
@@ -525,9 +527,12 @@ def ldap_signin():
         )
         DB.session.add(user)
         DB.session.commit()
+        account_created = True
 
     # Log in the user
     if perform_login_user(user, current_app):
-        return jsonify(_signed_in_payload(user)), 200
+        payload = _signed_in_payload(user)
+        payload["account_created"] = account_created
+        return jsonify(payload), 200
     else:
         return jsonify({"message": "Authentication succeeded but login failed"}), 500

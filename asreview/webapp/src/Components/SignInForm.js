@@ -41,10 +41,14 @@ const SignInForm = () => {
         if (data.logged_in) {
           setEmail("");
           setPassword("");
-          if (from === "/") {
-            navigate("/reviews");
+          if (Boolean(data?.account_created)) {
+            navigate("/profile?first_time=true");
           } else {
-            navigate(from, { replace: true });
+            if (from === "/") {
+              navigate("/reviews");
+            } else {
+              navigate(from, { replace: true });
+            }
           }
         } else {
           console.error("Backend could not log you in.");
