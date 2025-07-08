@@ -46,6 +46,8 @@ class RemoteUserHandler:
             raise RemoteUserNotAllowed
 
         identifier = env_headers.get(self.user_identifier_header, "")
+        if len(identifier) == 0:
+            raise ValueError(f"RemoteUserHandler has insufficient data: identifier not provided.")
         identifier_parts = identifier.split("@")
         username = identifier_parts[
             0
@@ -61,7 +63,7 @@ class RemoteUserHandler:
             email = f"{username}@{self.default_email_domain}"
 
         return {
-            "identifier": identifier if identifier else None,
+            "identifier": email,
             "name": env_headers.get(self.user_name_header, username),
             "email": email,
             "affiliation": env_headers.get(
