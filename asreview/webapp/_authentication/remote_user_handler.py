@@ -47,7 +47,9 @@ class RemoteUserHandler:
 
         identifier = env_headers.get(self.user_identifier_header, "")
         if len(identifier) == 0:
-            raise ValueError(f"RemoteUserHandler has insufficient data: identifier not provided.")
+            raise ValueError(
+                f"RemoteUserHandler has insufficient data: identifier not provided."
+            )
         identifier_parts = identifier.split("@")
         username = identifier_parts[
             0
