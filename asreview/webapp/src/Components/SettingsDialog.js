@@ -209,7 +209,7 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
           variant="subtitle2"
           sx={{ mt: 2, textAlign: "center" }}
           component="a"
-          href="https://asreview.readthedocs.io/en/stable/"
+          href="https://asreview.readthedocs.io/en/stable/lab/about.html"
           target="_blank"
           rel="noopener noreferrer"
         >
