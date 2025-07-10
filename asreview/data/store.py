@@ -202,21 +202,31 @@ class DataStore:
                 dtype=self.pandas_dtype_mapping,
             )
 
-    def search(self, query, limit=None) -> list[Record]:
-        with self.Session() as session:
-            text_stmt = (
-                "SELECT r.*"
-                " FROM record_fts"
-                " JOIN record r ON r.record_id = record_fts.rowid"
-                " WHERE record_fts MATCH :query"
+    def search(self, query, bm25_ranking=False, limit=None):
+        # I create the SQL command to execute as a string and not using sqlalchemy ORM
+        # because SQLite FTS5 is not supported through the ORM.
+        tablename = self.record_cls.__tablename__
+        fts_tablename = f"{tablename}_fts"
+        if bm25_ranking:
+            bm25_weight_string = ", ".join(
+                str(weight) for weight in self.record_cls.__bm25_weights__
             )
-            params = {"query": query}
-            if limit is not None:
-                text_stmt += " LIMIT :limit"
-                params["limit"] = limit
-            stmt = select(Record).from_statement(text(text_stmt))
-            records = session.execute(
-                stmt,
-                params,
-            ).scalars()
-            return records.all()
+            ranking_string = f", bm25({fts_tablename}, {bm25_weight_string}) AS score"
+            order_string = "ORDER BY score"
+        else:
+            ranking_string = ""
+            order_string = ""
+        stmt = (
+            f"SELECT r.*{ranking_string}"
+            f" FROM {fts_tablename}"
+            f" JOIN {tablename} r ON r.record_id = {fts_tablename}.rowid"
+            f" WHERE {fts_tablename} MATCH :query {order_string}"
+        )
+        params = {"query": query}
+        if limit is not None:
+            stmt += " LIMIT :limit"
+            params["limit"] = int(limit)
+        stmt = select(Record).from_statement(text(stmt))
+        with self.Session() as session:
+            records = session.execute(stmt, params).scalars().all()
+        return records

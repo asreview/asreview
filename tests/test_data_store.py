@@ -277,7 +277,7 @@ def test_search(store):
     record2 = Record(
         dataset_row=1,
         dataset_id="foo",
-        title="title gamma",
+        title="title title title title gamma",
         abstract="abstract delta",
         authors=["A2", "A3"],
         keywords=["bar", "baz"],
@@ -285,14 +285,24 @@ def test_search(store):
     store.add_records([record1, record2])
     assert store.search("alpha") == [record1]
     assert store.search("title") == [record1, record2]
-    assert store.search("title", limit=1) == [record1]
+    assert store.search("gamma") == [record2]
+    # Check bm25.
+    assert store.search("title", bm25_ranking=True) == [record2, record1]
 
-    # Check authors field.
+    # Check abstract.
+    assert store.search("beta") == [record1]
+    assert store.search("abstract") == [record1, record2]
+    assert store.search("delta") == [record2]
+
+    # Check authors.
     assert store.search("A1") == [record1]
     assert store.search("A2") == [record1, record2]
     assert store.search("A3") == [record2]
 
-    # Check keywords field.;
+    # Check keywords.
     assert store.search("foo") == [record1]
     assert store.search("bar") == [record1, record2]
     assert store.search("baz") == [record2]
+
+    # Check limit.
+    assert store.search("title", limit=1) == [record1]
