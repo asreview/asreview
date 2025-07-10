@@ -285,7 +285,7 @@ def test_search(store):
     store.add_records([record1, record2])
     assert store.search("alpha") == [record1]
     assert store.search("title") == [record1, record2]
-    assert store.search("title", n=1) == [record1]
+    assert store.search("title", limit=1) == [record1]
 
     # Check authors field.
     assert store.search("A1") == [record1]

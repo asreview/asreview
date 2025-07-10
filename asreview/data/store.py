@@ -202,7 +202,7 @@ class DataStore:
                 dtype=self.pandas_dtype_mapping,
             )
 
-    def search(self, query, n=None) -> list[Record]:
+    def search(self, query, limit=None) -> list[Record]:
         with self.Session() as session:
             text_stmt = (
                 "SELECT r.*"
@@ -211,9 +211,9 @@ class DataStore:
                 " WHERE record_fts MATCH :query"
             )
             params = {"query": query}
-            if n is not None:
-                text_stmt += " LIMIT :number"
-                params["number"] = n
+            if limit is not None:
+                text_stmt += " LIMIT :limit"
+                params["limit"] = limit
             stmt = select(Record).from_statement(text(text_stmt))
             records = session.execute(
                 stmt,
