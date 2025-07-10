@@ -42,7 +42,6 @@ from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
 import asreview as asr
-from asreview.data.search import fuzzy_find
 from asreview.data.utils import duplicated
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
@@ -513,21 +512,15 @@ def api_search_data(project):  # noqa: F401
     if not q:
         return jsonify({"result": []})
 
-    search_data = project.data_store[["title", "authors", "keywords"]]
-
     with open_state(project.project_path) as s:
         labeled_record_ids = s.get_results_table()["record_id"].to_list()
 
-    result_ids = fuzzy_find(
-        search_data,
-        q,
-        max_return=max_results,
-        exclude=labeled_record_ids,
+    records = project.data_store.search(
+        query=q, limit=max_results, exclude=labeled_record_ids
     )
 
     result = []
-    for result_id in result_ids:
-        record = project.data_store.get_records(result_id)
+    for record in records:
         record_d = asdict(record)
         record_d["state"] = None
         record_d["tags_form"] = read_tags_data(project)
