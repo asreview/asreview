@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sqlalchemy import NullPool
 from sqlalchemy import create_engine
-from sqlalchemy import text
+from sqlalchemy import text, select
 from sqlalchemy.orm import sessionmaker
 
 from asreview.data.record import Base
@@ -204,14 +204,19 @@ class DataStore:
 
     def search(self, query, n=None) -> list[Record]:
         with self.Session() as session:
-            record_ids = session.scalars(
-                text("SELECT record_id FROM record_fts WHERE record_fts MATCH :query"),
-                {"query": query},
-            ).all()
-            if n is not None:
-                record_ids = record_ids[:n]
-            return (
-                session.query(self.record_cls)
-                .where(self.record_cls.record_id.in_(record_ids))
-                .all()
+            text_stmt = (
+                "SELECT r.*"
+                " FROM record_fts"
+                " JOIN record r ON r.record_id = record_fts.rowid"
+                " WHERE record_fts MATCH :query"
             )
+            params = {"query": query}
+            if n is not None:
+                text_stmt += " LIMIT :number"
+                params["number"] = n
+            stmt = select(Record).from_statement(text(text_stmt))
+            records = session.execute(
+                stmt,
+                params,
+            ).scalars()
+            return records.all()
