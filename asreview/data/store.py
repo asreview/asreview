@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
 from sqlalchemy import NullPool
+from sqlalchemy import bindparam
 from sqlalchemy import create_engine
-from sqlalchemy import text, select
+from sqlalchemy import select
+from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 
 from asreview.data.record import Record
@@ -202,11 +204,12 @@ class DataStore:
                 dtype=self.pandas_dtype_mapping,
             )
 
-    def search(self, query, bm25_ranking=False, limit=None):
+    def search(self, query, bm25_ranking=False, limit=None, exclude=None):
         # I create the SQL command to execute as a string and not using sqlalchemy ORM
         # because SQLite FTS5 is not supported through the ORM.
         tablename = self.record_cls.__tablename__
         fts_tablename = f"{tablename}_fts"
+
         if bm25_ranking:
             bm25_weight_string = ", ".join(
                 str(weight) for weight in self.record_cls.__bm25_weights__
@@ -222,11 +225,15 @@ class DataStore:
             f" JOIN {tablename} r ON r.record_id = {fts_tablename}.rowid"
             f" WHERE {fts_tablename} MATCH :query {order_string}"
         )
-        params = {"query": query}
+
+        params = [bindparam("query", value=query)]
+        if exclude:
+            stmt += " AND r.record_id NOT IN :exclude"
+            params.append(bindparam("exclude", value=exclude, expanding=True))
         if limit is not None:
             stmt += " LIMIT :limit"
-            params["limit"] = int(limit)
-        stmt = select(Record).from_statement(text(stmt))
+            params.append(bindparam("limit", value=int(limit)))
+        stmt = select(Record).from_statement(text(stmt).bindparams(*params))
         with self.Session() as session:
-            records = session.execute(stmt, params).scalars().all()
+            records = session.execute(stmt).scalars().all()
         return records

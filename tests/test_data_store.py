@@ -306,3 +306,5 @@ def test_search(store):
 
     # Check limit.
     assert store.search("title", limit=1) == [record1]
+
+    assert store.search("title", exclude=[0, 3, 5]) == [record2]
