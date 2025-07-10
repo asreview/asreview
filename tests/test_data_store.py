@@ -267,12 +267,32 @@ def test_dataset_with_record_ids():
 
 def test_search(store):
     record1 = Record(
-        dataset_row=0, dataset_id="foo", title="title alpha", abstract="abstract beta"
+        dataset_row=0,
+        dataset_id="foo",
+        title="title alpha",
+        abstract="abstract beta",
+        authors=["A1", "A2"],
+        keywords=["foo", "bar"],
     )
     record2 = Record(
-        dataset_row=1, dataset_id="foo", title="title gamma", abstract="abstract delta"
+        dataset_row=1,
+        dataset_id="foo",
+        title="title gamma",
+        abstract="abstract delta",
+        authors=["A2", "A3"],
+        keywords=["bar", "baz"],
     )
     store.add_records([record1, record2])
     assert store.search("alpha") == [record1]
     assert store.search("title") == [record1, record2]
     assert store.search("title", n=1) == [record1]
+
+    # Check authors field.
+    assert store.search("A1") == [record1]
+    assert store.search("A2") == [record1, record2]
+    assert store.search("A3") == [record2]
+
+    # Check keywords field.;
+    assert store.search("foo") == [record1]
+    assert store.search("bar") == [record1, record2]
+    assert store.search("baz") == [record2]

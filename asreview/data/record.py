@@ -144,27 +144,34 @@ class Record(Base):
         return included
 
 
+text_search_columns = ["title", "abstract", "authors", "keywords"]
+new_fields = [f"new.{col}" for col in text_search_columns]
+old_fields = [f"old.{col}" for col in text_search_columns]
+fields_string = ", ".join(text_search_columns)
+new_fields_string = ", ".join(new_fields)
+old_fields_string = ", ".join(old_fields)
 fts_table_name = f"{Record.__tablename__}_fts"
+
 create_fts_table = DDL(f"""
-    CREATE VIRTUAL TABLE IF NOT EXISTS {fts_table_name} USING fts5(title, abstract, content={Record.__tablename__});
+    CREATE VIRTUAL TABLE IF NOT EXISTS {fts_table_name} USING fts5({fields_string}, content={Record.__tablename__});
 """)
 
 insert_trigger = DDL(f"""
     CREATE TRIGGER IF NOT EXISTS record_ai AFTER INSERT ON record BEGIN
-        INSERT INTO {fts_table_name}(rowid, title, abstract) VALUES (new.record_id, new.title, new.abstract);
+        INSERT INTO {fts_table_name}(rowid, {fields_string}) VALUES (new.record_id, {new_fields_string});
     END;
 """)
 
 delete_trigger = DDL(f"""
     CREATE TRIGGER IF NOT EXISTS record_ad AFTER DELETE ON record BEGIN
-        INSERT INTO {fts_table_name}({fts_table_name}, rowid, title, abstract) VALUES('delete', old.record_id, old.title, old.abstract);
+        INSERT INTO {fts_table_name}({fts_table_name}, rowid, {fields_string}) VALUES('delete', old.record_id, {old_fields_string});
     END;
 """)
 
 update_trigger = DDL(f"""
     CREATE TRIGGER IF NOT EXISTS record_au AFTER UPDATE ON record BEGIN
-        INSERT INTO {fts_table_name}({fts_table_name}, rowid, title, abstract) VALUES('delete', old.record_id, old.title, old.abstract);
-        INSERT INTO {fts_table_name}(rowid, title, abstract) VALUES (new.record_id, new.title, new.abstract);
+        INSERT INTO {fts_table_name}({fts_table_name}, rowid, {fields_string}) VALUES('delete', old.record_id, {old_fields_string});
+        INSERT INTO {fts_table_name}(rowid, {fields_string}) VALUES (new.record_id, {new_fields_string});
     END;
 """)
 
