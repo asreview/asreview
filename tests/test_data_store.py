@@ -263,3 +263,14 @@ def test_dataset_with_record_ids():
     store = load_dataset(fp)
     record_ids = store["record_id"]
     assert record_ids.to_list() == list(range(len(store)))
+
+
+def test_search(store):
+    record1 = Record(
+        dataset_row=0, dataset_id="foo", title="title alpha", abstract="abstract beta"
+    )
+    record2 = Record(
+        dataset_row=1, dataset_id="foo", title="title gamma", abstract="abstract delta"
+    )
+    store.add_records([record1, record2])
+    assert store.search("alpha") == [record1]

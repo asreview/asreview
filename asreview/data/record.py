@@ -1,8 +1,10 @@
 from typing import Optional
 
 import pandas as pd
+from sqlalchemy import DDL
 from sqlalchemy import ForeignKey
 from sqlalchemy import UniqueConstraint
+from sqlalchemy import event
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import MappedAsDataclass
@@ -140,3 +142,33 @@ class Record(Base):
                 f"included should be one of 0, 1, or None. Not '{included}'"
             )
         return included
+
+
+fts_table_name = f"{Record.__tablename__}_fts"
+create_fts_table = DDL(f"""
+    CREATE VIRTUAL TABLE IF NOT EXISTS {fts_table_name} USING fts5(title, abstract, content={Record.__tablename__});
+""")
+
+insert_trigger = DDL(f"""
+    CREATE TRIGGER IF NOT EXISTS record_ai AFTER INSERT ON record BEGIN
+        INSERT INTO {fts_table_name}(rowid, title, abstract) VALUES (new.record_id, new.title, new.abstract);
+    END;
+""")
+
+delete_trigger = DDL(f"""
+    CREATE TRIGGER IF NOT EXISTS record_ad AFTER DELETE ON record BEGIN
+        INSERT INTO {fts_table_name}({fts_table_name}, rowid, title, abstract) VALUES('delete', old.record_id, old.title, old.abstract);
+    END;
+""")
+
+update_trigger = DDL(f"""
+    CREATE TRIGGER IF NOT EXISTS record_au AFTER UPDATE ON record BEGIN
+        INSERT INTO {fts_table_name}({fts_table_name}, rowid, title, abstract) VALUES('delete', old.record_id, old.title, old.abstract);
+        INSERT INTO {fts_table_name}(rowid, title, abstract) VALUES (new.record_id, new.title, new.abstract);
+    END;
+""")
+
+event.listen(Base.metadata, "after_create", create_fts_table)
+event.listen(Base.metadata, "after_create", insert_trigger)
+event.listen(Base.metadata, "after_create", delete_trigger)
+event.listen(Base.metadata, "after_create", update_trigger)
