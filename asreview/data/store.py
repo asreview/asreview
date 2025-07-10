@@ -5,7 +5,6 @@ from sqlalchemy import create_engine
 from sqlalchemy import text, select
 from sqlalchemy.orm import sessionmaker
 
-from asreview.data.record import Base
 from asreview.data.record import Record
 
 CURRENT_DATASTORE_VERSION = 0
@@ -94,7 +93,8 @@ class DataStore:
         If you are creating a new data store, you will need to call this method before
         adding data to the data store."""
         self.user_version = CURRENT_DATASTORE_VERSION
-        Base.metadata.create_all(self.engine)
+        self.record_cls._setup_sqlite_fts()
+        self.record_cls.metadata.create_all(self.engine)
 
     def add_records(self, records):
         """Add records to the data store.
