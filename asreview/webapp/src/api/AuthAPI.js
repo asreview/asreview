@@ -38,7 +38,10 @@ class AuthAPI {
     body.set("email", variables.email);
     body.set("password", variables.password);
 
-    const url = auth_url + `signin`;
+    // Use LDAP signin endpoint if LDAP is configured, otherwise use regular signin
+    const endpoint = window.ldapEnabled ? "ldap_signin" : "signin";
+    const url = auth_url + endpoint;
+
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
