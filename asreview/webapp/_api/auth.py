@@ -28,6 +28,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import login_remote_user
 from asreview.webapp._authentication.decorators import login_required
+from asreview.webapp._authentication.ldap_handler import LDAPHandler
 from asreview.webapp._authentication.models import User
 from asreview.webapp._authentication.oauth_handler import OAuthHandler
 from asreview.webapp._authentication.utils import has_email_configuration
@@ -491,3 +492,47 @@ def oauth_callback():
     status, message = result
     response = jsonify(message)
     return response, status
+
+
+@bp.route("/ldap_signin", methods=["POST"])
+def ldap_signin():
+    email = request.form.get("email").strip()
+    password = request.form.get("password", "")
+
+    ldap_handler = current_app.config.get("LDAP", False)
+    if not isinstance(ldap_handler, LDAPHandler):
+        return jsonify({"message": "LDAP authentication not configured"}), 400
+
+    # Authenticate with LDAP
+    user_info = ldap_handler.authenticate_user(email, password)
+    if not user_info:
+        return jsonify({"message": "Invalid LDAP credentials"}), 401
+
+    identifier, email, name, affiliation = user_info
+
+    # Find or create user in database
+    user = User.query.filter(User.identifier == identifier).one_or_none()
+    account_created = False
+
+    if user is None:
+        # Create new user
+        user = User(
+            identifier=identifier,
+            origin="ldap",
+            email=email,
+            name=name,
+            affiliation=affiliation,
+            confirmed=True,
+            public=True,
+        )
+        DB.session.add(user)
+        DB.session.commit()
+        account_created = True
+
+    # Log in the user
+    if perform_login_user(user, current_app):
+        payload = _signed_in_payload(user)
+        payload["account_created"] = account_created
+        return jsonify(payload), 200
+    else:
+        return jsonify({"message": "Authentication succeeded but login failed"}), 500
