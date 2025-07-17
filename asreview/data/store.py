@@ -209,6 +209,7 @@ class DataStore:
         # because SQLite FTS5 is not supported through the ORM.
         tablename = self.record_cls.__tablename__
         fts_tablename = f"{tablename}_fts"
+        query = self.get_fts5_query_string(query)
 
         if bm25_ranking:
             bm25_weight_string = ", ".join(
@@ -237,3 +238,21 @@ class DataStore:
         with self.Session() as session:
             records = session.execute(stmt).scalars().all()
         return records
+
+    def get_fts5_query_string(self, query):
+        """Get a query string for use in SQLite fts5 search.
+
+        See https://sqlite.org/fts5.html section 3 for the full fts query syntax.
+
+        Parameters
+        ----------
+        query : str
+            Query string.
+
+        Returns
+        -------
+        str
+            Escaped query string for fts. The input is wrapped in double quotes and any
+            double qoute present in the query is replace by two.
+        """
+        return '"' + query.replace('"', '""') + '"'
