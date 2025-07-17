@@ -162,8 +162,10 @@ def login_remote_user(f):
                     user_info = remote_user_handler.handle_request(request.environ)
                 except HTTPException as e:
                     return jsonify({"message": e.description}), 401
+                except ValueError:
+                    user_info = None
 
-                if user_info["identifier"]:
+                if user_info:
                     user = User.query.filter(
                         User.identifier == user_info["identifier"]
                     ).one_or_none()
