@@ -124,6 +124,7 @@ def test_get_column(store_with_data, records):
 def test_custom_record(tmpdir):
     class CustomRecord(Base):
         __tablename__ = "custom"
+        __text_search_columns__ = ("foo",)
         foo: Mapped[str]
 
     fp = Path(tmpdir, PATH_DATA_STORE)
@@ -263,3 +264,48 @@ def test_dataset_with_record_ids():
     store = load_dataset(fp)
     record_ids = store["record_id"]
     assert record_ids.to_list() == list(range(len(store)))
+
+
+def test_search(store):
+    record1 = Record(
+        dataset_row=0,
+        dataset_id="foo",
+        title="title alpha",
+        abstract="abstract beta",
+        authors=["A1", "A2"],
+        keywords=["foo", "bar"],
+    )
+    record2 = Record(
+        dataset_row=1,
+        dataset_id="foo",
+        title="title title title title gamma",
+        abstract="abstract delta",
+        authors=["A2", "A3"],
+        keywords=["bar", "baz"],
+    )
+    store.add_records([record1, record2])
+    assert store.search("alpha") == [record1]
+    assert store.search("title") == [record1, record2]
+    assert store.search("gamma") == [record2]
+    # Check bm25.
+    assert store.search("title", bm25_ranking=True) == [record2, record1]
+
+    # Check abstract.
+    assert store.search("beta") == [record1]
+    assert store.search("abstract") == [record1, record2]
+    assert store.search("delta") == [record2]
+
+    # Check authors.
+    assert store.search("A1") == [record1]
+    assert store.search("A2") == [record1, record2]
+    assert store.search("A3") == [record2]
+
+    # Check keywords.
+    assert store.search("foo") == [record1]
+    assert store.search("bar") == [record1, record2]
+    assert store.search("baz") == [record2]
+
+    # Check limit.
+    assert store.search("title", limit=1) == [record1]
+
+    assert store.search("title", exclude=[0, 3, 5]) == [record2]

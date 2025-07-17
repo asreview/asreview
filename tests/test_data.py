@@ -5,34 +5,12 @@ import pandas as pd
 from pytest import mark
 
 import asreview as asr
-from asreview import load_dataset
-from asreview.data.search import fuzzy_find
 from asreview.data.utils import duplicated
 from asreview.datasets import DatasetManager
 
 
 def exists(url):
     return urllib.request.urlopen(url).getcode() == 200
-
-
-@mark.parametrize(
-    "keywords,record_id",
-    [
-        ("bronchogenic duplication cyst", 0),
-        ("diagnositc accuracy microscopy female priority", 1),
-        ("immunophenotiping", 4),
-        ("Foregut report embryoogenesis", 4),
-        ("Liu Adler", 0),
-        ("Khoury cysts", 4),
-        ("Isolated Edwards", 5),
-        ("Kwintanilla-djeck Neck", 3),
-        ("Cancer case computer contrast pancreatomy Yamada", 2),
-    ],
-)
-def test_fuzzy_finder(keywords, record_id):
-    fp = Path("tests", "demo_data", "embase.csv")
-    dataset = load_dataset(fp)
-    assert fuzzy_find(dataset, keywords)[0] == record_id
 
 
 @mark.internet_required

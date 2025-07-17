@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
 from sqlalchemy import NullPool
+from sqlalchemy import bindparam
 from sqlalchemy import create_engine
+from sqlalchemy import select
 from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 
-from asreview.data.record import Base
 from asreview.data.record import Record
 
 CURRENT_DATASTORE_VERSION = 0
@@ -94,7 +95,8 @@ class DataStore:
         If you are creating a new data store, you will need to call this method before
         adding data to the data store."""
         self.user_version = CURRENT_DATASTORE_VERSION
-        Base.metadata.create_all(self.engine)
+        self.record_cls._setup_sqlite_fts()
+        self.record_cls.metadata.create_all(self.engine)
 
     def add_records(self, records):
         """Add records to the data store.
@@ -201,3 +203,60 @@ class DataStore:
                 con,
                 dtype=self.pandas_dtype_mapping,
             )
+
+    def search(self, query, bm25_ranking=False, limit=None, exclude=None):
+        # I create the SQL command to execute as a string and not using sqlalchemy ORM
+        # because SQLite FTS5 is not supported through the ORM.
+        if not self.record_cls.__text_search_columns__:
+            raise NotImplementedError(
+                f"Record class {self.record_cls} has no searchable columns."
+            )
+        tablename = self.record_cls.__tablename__
+        fts_tablename = f"{tablename}_fts"
+        query = self.get_fts5_query_string(query)
+
+        if bm25_ranking:
+            bm25_weight_string = ", ".join(
+                str(weight) for weight in self.record_cls.__bm25_weights__
+            )
+            ranking_string = f", bm25({fts_tablename}, {bm25_weight_string}) AS score"
+            order_string = "ORDER BY score"
+        else:
+            ranking_string = ""
+            order_string = ""
+        stmt = (
+            f"SELECT r.*{ranking_string}"
+            f" FROM {fts_tablename}"
+            f" JOIN {tablename} r ON r.record_id = {fts_tablename}.rowid"
+            f" WHERE {fts_tablename} MATCH :query {order_string}"
+        )
+
+        params = [bindparam("query", value=query)]
+        if exclude:
+            stmt += " AND r.record_id NOT IN :exclude"
+            params.append(bindparam("exclude", value=exclude, expanding=True))
+        if limit is not None:
+            stmt += " LIMIT :limit"
+            params.append(bindparam("limit", value=int(limit)))
+        stmt = select(Record).from_statement(text(stmt).bindparams(*params))
+        with self.Session() as session:
+            records = session.execute(stmt).scalars().all()
+        return records
+
+    def get_fts5_query_string(self, query):
+        """Get a query string for use in SQLite fts5 search.
+
+        See https://sqlite.org/fts5.html section 3 for the full fts query syntax.
+
+        Parameters
+        ----------
+        query : str
+            Query string.
+
+        Returns
+        -------
+        str
+            Escaped query string for fts. The input is wrapped in double quotes and any
+            double qoute present in the query is replace by two.
+        """
+        return '"' + query.replace('"', '""') + '"'
