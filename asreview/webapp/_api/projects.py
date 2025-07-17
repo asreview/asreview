@@ -42,6 +42,11 @@ from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
 import asreview as asr
+from asreview.data import CSVWriter
+from asreview.data import ExcelWriter
+from asreview.data import RISReader
+from asreview.data import TSVWriter
+from asreview.data.utils import convert_ris_list_columns_to_string
 from asreview.data.utils import duplicated
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
@@ -1101,16 +1106,10 @@ def _flatten_tags(results, tags_config):
 @project_authorization
 def api_export_dataset(project):
     """Export dataset with relevant/irrelevant labels"""
-
     file_format = request.args.get("format", default="csv", type=str)
     export_name = request.args.get("export_name", default=1, type=int)
     export_email = request.args.get("export_email", default=1, type=int)
     collections = request.args.getlist("collections", type=str)
-
-    df_user_input_data = project.read_input_data()
-    df_user_input_data = df_user_input_data.loc[
-        :, ~df_user_input_data.columns.str.startswith("asreview_")
-    ]
 
     with open_state(project.project_path) as s:
         df_results = s.get_results_table().set_index("record_id")
@@ -1168,6 +1167,20 @@ def api_export_dataset(project):
 
     del df_results["user_id"]
 
+    df_user_input_data = project.read_input_data()
+    df_user_input_data = df_user_input_data.loc[
+        :, ~df_user_input_data.columns.str.startswith("asreview_")
+    ]
+    # If the input is RIS and the output is CSV or Excel, we need to convert list
+    # columns to strings to avoid too long lists being truncated and leading to corrupt
+    # files.
+    input_reader = project.get_input_data_reader()
+    writer = load_extension("writers", f".{file_format}")
+    if issubclass(input_reader, RISReader) and issubclass(
+        writer, (CSVWriter, TSVWriter, ExcelWriter)
+    ):
+        df_user_input_data = convert_ris_list_columns_to_string(df_user_input_data)
+
     df_export = df_user_input_data.join(
         df_results.add_prefix("asreview_"), how="left"
     ).loc[export_order]
@@ -1175,7 +1188,6 @@ def api_export_dataset(project):
     tmp_path = tempfile.TemporaryDirectory()
     tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
 
-    writer = load_extension("writers", f".{file_format}")
     writer.write_data(df_export, tmp_path_dataset)
 
     return send_file(

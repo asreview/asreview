@@ -1,5 +1,6 @@
+from collections.abc import Iterable
 import time
-from typing import Union
+from typing import Literal, Union
 
 from flask.testing import FlaskClient
 
@@ -88,6 +89,10 @@ def user(client):
 
 def get_profile(client: FlaskClient):
     return client.get("/auth/get_profile")
+
+
+def delete_account(client: FlaskClient):
+    return client.delete("/auth/delete_account")
 
 
 # ########################
@@ -279,10 +284,16 @@ def set_project_status(
 
 
 def export_project_dataset(
-    client: FlaskClient, project: Union[Project, asr.Project], format: str
+    client: FlaskClient,
+    project: Union[Project, asr.Project],
+    format: str,
+    collections: Iterable[Literal["relevant", "irrelevant", "not_seen"]] | None = None,
 ):
     id = get_project_id(project)
-    return client.get(f"/api/projects/{id}/export_dataset?format={format}")
+    query_string = {"format": format}
+    if collections is not None:
+        query_string["collections"] = collections
+    return client.get(f"/api/projects/{id}/export_dataset", query_string=query_string)
 
 
 def export_project(

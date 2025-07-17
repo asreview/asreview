@@ -45,14 +45,16 @@ const ProjectCard = React.memo(({ project, onClick }) => {
                 Owner: {project?.owner_name}
                 {project?.owner_email && ` (${project?.owner_email})`}
               </Typography>
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                sx={{ fontFamily: "monospace" }}
+              >
+                ID: {project?.project_id}
+              </Typography>
               {project?.created_at_unix && (
                 <Typography variant="body2" color="textSecondary">
                   Created: {timeAgo.format(project.created_at_unix * 1000)}
-                </Typography>
-              )}
-              {project?.version && (
-                <Typography variant="body2" color="textSecondary">
-                  Version: {project.version}
                 </Typography>
               )}
             </Box>

@@ -94,7 +94,7 @@ class TaskManager:
         host=DEFAULT_TASK_MANAGER_HOST,
         port=DEFAULT_TASK_MANAGER_PORT,
     ):
-        self.pending = set()
+        self.running_processes = {}  # project_id -> Process object
         self.max_workers = int(max_workers)
 
         # set up parameters for socket endpoint
@@ -111,8 +111,35 @@ class TaskManager:
 
         Session = sessionmaker(bind=engine)
         self.session = Session()
+
+        # Handle migration for created_at column
+        self._migrate_created_at_column()
+
         self.client_thread = None
         self.client_conn = None
+
+    def _migrate_created_at_column(self):
+        """Add created_at column if it doesn't exist (for existing deployments)."""
+        try:
+            # Check if created_at column exists
+            result = self.session.execute(text("PRAGMA table_info(queue)"))
+            columns = [row[1] for row in result.fetchall()]
+
+            if "created_at" not in columns:
+                logger.info("Adding created_at column to queue table")
+                # Add the column with a default value for existing records
+                self.session.execute(
+                    text(
+                        "ALTER TABLE queue ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+                    )
+                )
+                self.session.commit()
+                logger.info("created_at column added successfully")
+            else:
+                logger.debug("created_at column already exists")
+        except Exception as e:
+            logger.error(f"Failed to migrate created_at column: {e}")
+            self.session.rollback()
 
     @property
     def waiting(self):
@@ -145,23 +172,52 @@ class TaskManager:
         )
 
     def is_pending(self, project_id):
-        return project_id in self.pending
+        return project_id in self.running_processes
 
     def remove_pending(self, project_id):
-        if project_id in self.pending:
-            self.pending.remove(project_id)
+        if project_id in self.running_processes:
+            del self.running_processes[project_id]
             logger.info(f"Task for project {project_id} removed from pending area")
         else:
             logger.error(
                 f"Failed to find task for project {project_id} in pending area"
             )
 
-    def move_from_waiting_to_pending(self, project_id):
+    def reset_pending_tasks(self):
+        """Reset all pending tasks - terminates running subprocesses."""
+        if self.running_processes:
+            logger.info(f"Resetting {len(self.running_processes)} pending tasks")
+
+            # Terminate all running processes
+            for project_id, process in self.running_processes.items():
+                try:
+                    if process.is_alive():
+                        logger.info(f"Terminating process for project {project_id}")
+                        process.terminate()
+                        # Give process 5 seconds to terminate gracefully, then kill
+                        process.join(timeout=5.0)
+                        if process.is_alive():
+                            logger.warning(
+                                f"Force killing process for project {project_id}"
+                            )
+                            process.kill()
+                            process.join()
+                except Exception as e:
+                    logger.error(
+                        f"Failed to terminate process for project {project_id}: {e}"
+                    )
+
+            self.running_processes.clear()
+            logger.info("All pending tasks terminated and cleared")
+        else:
+            logger.info("No pending tasks to reset")
+
+    def move_from_waiting_to_pending(self, project_id, process):
         record = self.is_waiting(project_id)
         if record:
             try:
                 # add to pending
-                self.add_pending(project_id)
+                self.add_pending(project_id, process)
                 # delete
                 self.session.execute(text("BEGIN TRANSACTION"))
                 self.session.delete(record)
@@ -175,9 +231,9 @@ class TaskManager:
                     f"Failed to move task for project {project_id} to pending area"
                 )
 
-    def add_pending(self, project_id):
-        if project_id not in self.pending:
-            self.pending.add(project_id)
+    def add_pending(self, project_id, process):
+        if project_id not in self.running_processes:
+            self.running_processes[project_id] = process
 
     def __execute_job(self, project_id, simulation):
         try:
@@ -190,14 +246,14 @@ class TaskManager:
             )
             p.start()
             logger.info(f"Task for project {project_id} started in a subprocess")
-            return True
+            return p  # Return the process object
         except Exception as _:
             message = f"Failed to spin up training process for project: {project_id}"
             logger.error(message)
-            return False
+            return None
 
     def _count_available_slots(self):
-        return self.max_workers - len(self.pending)
+        return self.max_workers - len(self.running_processes)
 
     def pop_waiting_queue(self):
         """Moves tasks from the database and executes them in subprocess."""
@@ -226,7 +282,7 @@ class TaskManager:
                 project_id = record.project_id
                 simulation = record.simulation
 
-                if project_id in self.pending:
+                if project_id in self.running_processes:
                     # continue if this project is already in pending
                     continue
                 elif self._count_available_slots() == 0:
@@ -235,9 +291,10 @@ class TaskManager:
                 else:
                     # we have a slot and a new project,
                     # execute job:
-                    if self.__execute_job(project_id, simulation):
+                    process = self.__execute_job(project_id, simulation)
+                    if process:
                         # move out of waiting and put into pending
-                        self.move_from_waiting_to_pending(project_id)
+                        self.move_from_waiting_to_pending(project_id, process)
 
     def _process_buffer(self):
         """Injects messages in the database."""
@@ -258,6 +315,9 @@ class TaskManager:
                     logger.error(f"Failed to train model for project {project_id}")
                 self.remove_pending(project_id)
 
+            elif action == "reset_pending":
+                self.reset_pending_tasks()
+
     def _handle_incoming_messages(self, conn):
         """Handles incoming traffic."""
         client_buffer = ""
@@ -266,16 +326,11 @@ class TaskManager:
                 data = conn.recv(self.receive_bytes)
                 logger.debug(f"{data}")
                 if not data:
-                    # if client_buffer is full convert to json and
-                    # put in buffer
-                    if client_buffer != "":
-                        logger.debug(f"{client_buffer}")
-                        # we may be dealing with multiple messages,
-                        # update buffer to produce a correct json string
-                        client_buffer = "[" + client_buffer.replace("}{", "},{") + "]"
-                        messages = json.loads(client_buffer)
-                        logger.debug(f"Received socket message(s): {messages}")
-                        self.message_buffer.extend(deque(messages))
+                    # Process any remaining buffered messages on disconnect
+                    if client_buffer.strip():
+                        client_buffer = self._process_complete_messages(
+                            client_buffer, conn
+                        )
                     # client disconnected
                     break
 
@@ -283,11 +338,58 @@ class TaskManager:
                     message = data.decode("utf-8")
                     client_buffer += message
 
+                    # Try to process complete JSON messages immediately
+                    client_buffer = self._process_complete_messages(client_buffer, conn)
+
             except Exception as e:
                 logger.info(f"Error while receiving message:\n{e}\n")
                 break
 
         conn.close()
+
+    def _process_complete_messages(self, client_buffer, conn):
+        """Process complete JSON messages immediately, return remaining buffer."""
+        # do not try to parse empty message or if we know in advance we did not
+        # receive the entire message
+        stripped_buffer = client_buffer.strip()
+        if not (stripped_buffer and stripped_buffer.endswith("}")):
+            return client_buffer
+
+        try:
+            # Try to parse as complete JSON message(s)
+            temp_buffer = "[" + client_buffer.replace("}{", "},{") + "]"
+            messages = json.loads(temp_buffer)
+
+            # Process status queries immediately, queue others
+            for message in messages:
+                if message.get("action") == "status_query":
+                    logger.debug(f"Processing immediate status query: {message}")
+                    self._send_status_response(conn)
+                else:
+                    # Queue non-status messages for later processing
+                    self.message_buffer.append(message)
+
+            # All complete messages have been processed, clear the buffer
+            return ""
+
+        except json.JSONDecodeError:
+            # JSON is incomplete, keep buffering
+            return client_buffer
+
+    def _send_status_response(self, conn):
+        """Send status response back to client."""
+        try:
+            status = {
+                "max_workers": self.max_workers,
+                "currently_running": len(self.running_processes),
+                "available_slots": self._count_available_slots(),
+                "running_project_ids": list(self.running_processes.keys()),
+            }
+            response = json.dumps(status).encode("utf-8")
+            conn.sendall(response)
+            logger.debug(f"Sent status response: {status}")
+        except Exception as e:
+            logger.error(f"Failed to send status response: {e}")
 
     def _bind_server_socket(self, mp_start_event=None):
         """Bind the server socket to the configured host and port."""
