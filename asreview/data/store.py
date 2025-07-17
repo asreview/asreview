@@ -207,6 +207,10 @@ class DataStore:
     def search(self, query, bm25_ranking=False, limit=None, exclude=None):
         # I create the SQL command to execute as a string and not using sqlalchemy ORM
         # because SQLite FTS5 is not supported through the ORM.
+        if not self.record_cls.__text_search_columns__:
+            raise NotImplementedError(
+                f"Record class {self.record_cls} has no searchable columns."
+            )
         tablename = self.record_cls.__tablename__
         fts_tablename = f"{tablename}_fts"
         query = self.get_fts5_query_string(query)

@@ -106,6 +106,8 @@ class Base(DeclarativeBase, MappedAsDataclass):
         keep the virtual table in sync with the real table. This method should always be
         called before calling `cls.metadata.create_all`.
         """
+        if not cls.__text_search_columns__:
+            return
         new_fields = [f"new.{col}" for col in cls.__text_search_columns__]
         old_fields = [f"old.{col}" for col in cls.__text_search_columns__]
         fields_string = ", ".join(cls.__text_search_columns__)

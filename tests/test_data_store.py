@@ -124,6 +124,7 @@ def test_get_column(store_with_data, records):
 def test_custom_record(tmpdir):
     class CustomRecord(Base):
         __tablename__ = "custom"
+        __text_search_columns__ = ("foo",)
         foo: Mapped[str]
 
     fp = Path(tmpdir, PATH_DATA_STORE)
