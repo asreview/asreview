@@ -88,11 +88,14 @@ def test_is_empty(store, records):
     assert not store.is_empty()
 
 
-def test_get_records(store_with_data):
+def test_get_records(store_with_data, records):
     row_number = 1
     record = store_with_data.get_records(row_number)
     assert isinstance(record, Record)
     assert record.record_id == row_number
+
+    all_records = store_with_data.get_records()
+    assert len(all_records) == len(records)
 
 
 def test_get_df(store_with_data):

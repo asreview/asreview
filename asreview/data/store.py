@@ -158,13 +158,13 @@ class DataStore:
         with self.Session() as session:
             return session.query(self.record_cls).first() is None
 
-    def get_records(self, record_id):
+    def get_records(self, record_id = None):
         """Get the records with the given record identifiers.
 
         Parameters
         ----------
-        record_id : int | list[int]
-            Record identifier or list record identifiers.
+        record_id : int | list[int] | None
+            Record identifier or list record identifiers. If None, get all records.
 
         Returns
         -------
@@ -174,7 +174,9 @@ class DataStore:
             record_id = record_id.item()
 
         with self.Session() as session:
-            if isinstance(record_id, int):
+            if record_id is None:
+                return session.query(self.record_cls).all()
+            elif isinstance(record_id, int):
                 return (
                     session.query(self.record_cls)
                     .filter(self.record_cls.record_id == record_id)
