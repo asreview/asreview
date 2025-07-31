@@ -1,7 +1,7 @@
 from typing import Optional
 
 import pandas as pd
-from sqlalchemy import DDL
+from sqlalchemy import DDL, CheckConstraint
 from sqlalchemy import ForeignKey
 from sqlalchemy import UniqueConstraint
 from sqlalchemy import event
@@ -143,7 +143,13 @@ class Base(DeclarativeBase, MappedAsDataclass):
 
 class Record(Base):
     __tablename__ = "record"
-    __table_args__ = (UniqueConstraint("dataset_row", "dataset_id"),)
+    __table_args__ = (
+        UniqueConstraint("dataset_row", "dataset_id"),
+        CheckConstraint(
+            "duplicate_of IS NULL OR duplicate_of != record_id",
+            name="no_self_duplicate",
+        ),
+    )
 
     # SQLite FTS parameters.
     __text_search_columns__ = ["title", "abstract", "authors", "keywords"]
