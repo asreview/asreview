@@ -201,7 +201,7 @@ def test_duplicate_of(store):
     broken_duplicate_record = Record(
         dataset_id="foo", dataset_row=2, duplicate_of=non_existing_record_id
     )
-    with pytest.raises(IntegrityError):
+    with pytest.raises(ValueError):
         store.add_records([broken_duplicate_record])
 
     # Check that duplicate_of is set to null after duplicate is deleted.
@@ -312,3 +312,28 @@ def test_search(store):
     assert store.search("title", limit=1) == [record1]
 
     assert store.search("title", exclude=[0, 3, 5]) == [record2]
+
+
+@pytest.mark.parametrize(
+    "duplicate_chain, normalized_chain",
+    [
+        # r0 -> r0 => r0 -> None
+        ({0: 0}, {0: None}),
+        # r0 -> r1 -> r0 => r1 -> r0 -> None
+        ({0: 1, 1: 0}, {0: None, 1: 0}),
+        # r0 -> r1 -> r2 -> None => r0 -> r2, r1 -> r2, r2 -> None
+        ({0: 1, 1: 2, 2: None}, {0: 2, 1: 2, 2: None}),
+        # r0 -> r1 -> r2 -> r3 -> r1 => rk -> r0, r0 -> None
+        ({0: 1, 1: 2, 2: 3, 3: 1}, {0: None, 1: 0, 2: 0, 3: 0}),
+    ],
+)
+def test_groups(store, duplicate_chain, normalized_chain):
+    records = [
+        Record(dataset_row=idx, dataset_id="foo") for idx in range(len(duplicate_chain))
+    ]
+    store.add_records(records)
+    store.set_groups(duplicate_chain)
+    stored_duplicate_chain = {
+        record.record_id: record.duplicate_of for record in store.get_records()
+    }
+    assert stored_duplicate_chain == normalized_chain

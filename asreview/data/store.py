@@ -3,13 +3,89 @@ import pandas as pd
 from sqlalchemy import NullPool
 from sqlalchemy import bindparam
 from sqlalchemy import create_engine
+from sqlalchemy import event
 from sqlalchemy import select
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.functions import coalesce
 
 from asreview.data.record import Record
 
 CURRENT_DATASTORE_VERSION = 0
+
+
+def normalize_duplicate_chain(session, record: Record):
+    """Normalize the duplicate chain of a record.
+
+    We consider records to be in a group when they point to each other with the
+    `duplicate_of` column. We want to make it easy to query the groups by making sure
+    that all records in a group point to the same root record. We call the records
+    pointing to each other with the `duplicate_of` field the duplicate chain of the
+    record. So we want to avoid duplicate chains of length more than 2 and we want to
+    avoid circular duplicate chains.
+
+    For example, if `r1`, `r2` and `r3` are in a group we want to have:
+    ```
+    r1.duplicate_of = r3
+    r2.duplicate_of = r3
+    r3.duplicate_of = None
+    ```
+    and not
+    ```
+    r1.duplicate_of = r2
+    r2.duplicate_of = r3
+    r3.duplicate_of = None
+    ```
+    or even `r3.duplicate_of = r1`. We also avoid things like `r1.duplicate_of = r2` and
+    `r2.duplicate_of = 1` or even `r1.duplicate_of = r1`.
+
+    Parameters
+    ----------
+    session : sqlalchemy.Session
+        Database session.
+    record : Record
+        Record for which to normalize the duplicate chain.
+
+    Raises
+    ------
+    ValueError
+        If `record.duplicate_of` contains a non-existent record id.
+    """
+    current = record
+    record_chain = [current]
+
+    while current.duplicate_of is not None:
+        next_record = session.get(Record, current.duplicate_of)
+        if next_record is None:
+            raise ValueError(f"Invalid duplicate_of reference: {current.duplicate_of}")
+        if next_record in record_chain:
+            # cycle detected, set the record with the minimal record_id as root.
+            min_id = min(r.record_id for r in record_chain)
+            for r in record_chain:
+                r.duplicate_of = min_id if r.record_id != min_id else None
+            return
+        record_chain.append(next_record)
+        current = next_record
+
+    if len(record_chain) > 2:
+        root = record_chain[-1]
+        for r in record_chain[:-1]:
+            r.duplicate_of = root.record_id
+
+
+# Hook that ensures that record duplicate chains get normalized before flushing the
+# record to the database.
+@event.listens_for(Session, "before_flush")
+def flatten_duplicate_of(session, flush_context, instances):
+    record_mutations = session.new.union(session.dirty)
+    if any(record.duplicate_of is not None for record in record_mutations):
+        # By sorting the records by record_id we make sure that all detected
+        # duplicate chains will contain the record with the lowest record_id. So we
+        # guarantee that the normalized chain will have the record with the lowest
+        # record_id as a root.
+        for record in sorted(record_mutations, key=lambda record: record.record_id):
+            normalize_duplicate_chain(session, record)
 
 
 class DataStore:
@@ -105,6 +181,12 @@ class DataStore:
         ----------
         records : list[self.record_cls]
             List of records to add to the store.
+
+        Raises
+        ------
+        ValueError
+            If some `record.duplicate_of` points to a non-existing record_id. You should
+            instead use `DataStore.add_groups` to set values of `duplicate_of`.
         """
         # SQLite makes an autoincremented primary key column start at 1. We want it to
         # start at 0, so that the record_id is equal to the row number of the record in
@@ -164,7 +246,7 @@ class DataStore:
         with self.Session() as session:
             return session.query(self.record_cls).first() is None
 
-    def get_records(self, record_id = None):
+    def get_records(self, record_id=None):
         """Get the records with the given record identifiers.
 
         Parameters
@@ -197,6 +279,43 @@ class DataStore:
 
                 record_id_to_position = {id: i for i, id in enumerate(record_id)}
                 return sorted(records, key=lambda r: record_id_to_position[r.record_id])
+
+    def set_groups(self, groups):
+        """Add record group information to the data store.
+
+        Parameters
+        ----------
+        groups : dict[int, int | None]
+            Dictionary `{record_id: group_root_record_id}`. The keys should contain all
+            record_ids in the data store. If multiple records are in the same group, the
+            value of `group_root_id` should be the record_id of one of the record in the
+            group. This data is added to the record as the `duplicate_of` attribute. The
+            data store will normalize these values: One record is chosen as the root,
+            satisfying `root.duplicate_of = None`. All other records in the group will
+            get `record.duplicate_of = root.record_id`.
+
+        Raises
+        ------
+        ValueError
+            If the keys of `groups` does not consist of the full set of record_ids that
+            are in the data store.
+        """
+        with self.Session() as session, session.begin():
+            records = session.scalars(select(Record)).all()
+            if set(record.record_id for record in records) != set(groups.keys()):
+                raise ValueError(
+                    "`groups` should be a dictionary of the form"
+                    " `{record_id: group_id}` containing all record_ids in the data store."
+                )
+            for record in records:
+                record.duplicate_of = groups[record.record_id]
+
+    def get_groups(self):
+        stmt = select(Record.record_id).group_by(
+            coalesce(Record.duplicate_of, Record.record_id)
+        )
+        with self.Session() as session:
+            return session.query(stmt).all()
 
     def get_df(self):
         """Get all data from the data store as a pandas DataFrmae.
