@@ -80,10 +80,6 @@ def normalize_duplicate_chain(session, record: Record):
 def flatten_duplicate_of(session, flush_context, instances):
     record_mutations = session.new.union(session.dirty)
     if any(record.duplicate_of is not None for record in record_mutations):
-        # By sorting the records by record_id we make sure that all detected
-        # duplicate chains will contain the record with the lowest record_id. So we
-        # guarantee that the normalized chain will have the record with the lowest
-        # record_id as a root.
         for record in sorted(record_mutations, key=lambda record: record.record_id):
             normalize_duplicate_chain(session, record)
 
@@ -311,11 +307,21 @@ class DataStore:
                 record.duplicate_of = groups[record.record_id]
 
     def get_groups(self):
-        stmt = select(Record.record_id).group_by(
-            coalesce(Record.duplicate_of, Record.record_id)
-        )
+        """Get the record groups.
+
+        Returns
+        -------
+        list[tuple[int, int]]
+            List of tuples (group_id, record_id) ordered by group id. The tuples values
+            are also accessible by the attribute names (so `tuple.group_id` and
+            `tuple.record_id`).
+        """
+        stmt = select(
+            coalesce(Record.duplicate_of, Record.record_id).label("group_id"),
+            Record.record_id,
+        ).order_by("group_id")
         with self.Session() as session:
-            return session.query(stmt).all()
+            return session.execute(stmt).all()
 
     def get_df(self):
         """Get all data from the data store as a pandas DataFrmae.

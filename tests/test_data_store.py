@@ -327,7 +327,7 @@ def test_search(store):
         ({0: 1, 1: 2, 2: 3, 3: 1}, {0: None, 1: 0, 2: 0, 3: 0}),
     ],
 )
-def test_groups(store, duplicate_chain, normalized_chain):
+def test_set_groups(store, duplicate_chain, normalized_chain):
     records = [
         Record(dataset_row=idx, dataset_id="foo") for idx in range(len(duplicate_chain))
     ]
@@ -337,3 +337,23 @@ def test_groups(store, duplicate_chain, normalized_chain):
         record.record_id: record.duplicate_of for record in store.get_records()
     }
     assert stored_duplicate_chain == normalized_chain
+
+
+@pytest.mark.parametrize(
+    "input_data, stored_data",
+    [
+        ({0: None, 1: None, 2: None, 3: None}, [(0, 0), (1, 1), (2, 2), (3, 3)]),
+        ({0: 1, 1: 0, 2: None, 3: None}, [(0, 0), (0, 1), (2, 2), (3, 3)]),
+        ({0: 3, 1: None, 2: 0, 3: 2}, [(0, 0), (0, 2), (0, 3), (1, 1)]),
+        ({0: 2, 1: 3, 2: 0, 3: 1}, [(0, 0), (0, 2), (1, 1), (1, 3)]),
+        ({0: 1, 1: 3, 2: 1, 3: 2}, [(0, 0), (0, 1), (0, 2), (0, 3)]),
+    ],
+)
+def test_get_groups(store, input_data, stored_data):
+    records = [
+        Record(dataset_row=idx, dataset_id="foo") for idx in range(len(input_data))
+    ]
+    store.add_records(records)
+    store.set_groups(input_data)
+    groups = store.get_groups()
+    assert groups == stored_data
