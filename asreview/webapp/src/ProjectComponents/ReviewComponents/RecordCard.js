@@ -372,7 +372,12 @@ const RecordCard = ({
 
   if (!tags && record.tags_form) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight={100}>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight={100}
+      >
         <CircularProgress />
       </Box>
     );
