@@ -93,7 +93,7 @@ const RecordCardContent = ({
           <Divider />
           <Stack direction="row" spacing={1}>
             {!(record.doi === undefined || record.doi === null) && (
-              <Tooltip title="View content">
+              <Tooltip title="View full text in popup">
                 <StyledIconButton
                   className="record-card-icon"
                   onClick={handleOpenDialog}
