@@ -132,7 +132,8 @@ const RecordCardLabeler = ({
   label,
   labelFromDataset = null,
   tagsForm,
-  tagValues = null,
+  tagValues,
+  onTagChange,
   note = null,
   showNotes = true,
   labelTime = null,
@@ -142,12 +143,10 @@ const RecordCardLabeler = ({
   landscape = false,
   retrainAfterDecision = true,
   changeDecision = true,
+  compact = false,
 }) => {
   const [editState] = useToggle(!(label === 1 || label === 0));
   const [showNotesDialog, toggleShowNotesDialog] = useToggle(false);
-  const [tagValuesState, setTagValuesState] = React.useState(
-    tagValues ? tagValues : structuredClone(tagsForm),
-  );
 
   const { error, isError, isLoading, mutate, isSuccess } = useMutation(
     ProjectAPI.mutateClassification,
@@ -161,15 +160,15 @@ const RecordCardLabeler = ({
   );
 
   const handleTagValueChange = (isChecked, groupId, tagId) => {
-    let groupI = tagValuesState.findIndex((group) => group.id === groupId);
-    let tagI = tagValuesState[groupI].values.findIndex(
-      (tag) => tag.id === tagId,
-    );
+    if (!onTagChange) return;
 
-    let tagValuesCopy = structuredClone(tagValuesState);
+    let groupI = tagValues.findIndex((group) => group.id === groupId);
+    let tagI = tagValues[groupI].values.findIndex((tag) => tag.id === tagId);
+
+    let tagValuesCopy = structuredClone(tagValues);
     tagValuesCopy[groupI].values[tagI]["checked"] = isChecked;
 
-    setTagValuesState(tagValuesCopy);
+    onTagChange(tagValuesCopy);
   };
 
   const makeDecision = (label) => {
@@ -177,7 +176,7 @@ const RecordCardLabeler = ({
       project_id: project_id,
       record_id: record_id,
       label: label,
-      tagValues: tagValuesState,
+      tagValues: tagValues,
       retrain_model: retrainAfterDecision,
       post: editState,
     });
@@ -236,7 +235,7 @@ const RecordCardLabeler = ({
                             control={
                               <Checkbox
                                 checked={
-                                  tagValuesState[i]?.values[j]?.checked || false
+                                  tagValues?.[i]?.values[j]?.checked || false
                                 }
                                 onChange={(e) => {
                                   handleTagValueChange(
@@ -265,7 +264,7 @@ const RecordCardLabeler = ({
         )}
       </Box>
       <Box>
-        {(note !== null || labelFromDataset !== null) && (
+        {(note !== null || (labelFromDataset !== null && !compact)) && (
           <>
             <Divider />
             <CardContent>
@@ -285,7 +284,7 @@ const RecordCardLabeler = ({
                   <Typography sx={{ mt: 1 }}>{note}</Typography>
                 </Paper>
               )}
-              {labelFromDataset === 0 && (
+              {labelFromDataset === 0 && !compact && (
                 <Paper
                   elevation={0}
                   sx={{
@@ -302,7 +301,7 @@ const RecordCardLabeler = ({
                   </Typography>
                 </Paper>
               )}
-              {labelFromDataset === 1 && (
+              {labelFromDataset === 1 && !compact && (
                 <Paper
                   elevation={0}
                   sx={{
@@ -340,7 +339,7 @@ const RecordCardLabeler = ({
                   : null,
           })}
         >
-          {editState && (
+          {editState && !compact && (
             <>
               <Tooltip
                 title="Label as relevant (keyboard shortcut: R)"
@@ -383,7 +382,7 @@ const RecordCardLabeler = ({
               </Tooltip>
             </>
           )}
-          {(label === 1 || label === 0) && (
+          {(label === 1 || label === 0) && !compact && (
             <>
               {!landscape && (
                 <Typography
