@@ -117,6 +117,12 @@ class DataStore:
             session.add_all(records)
 
     def delete_record(self, record_id):
+        """Delete a record from the store.
+
+        WARNING: This method is purely here for completeness, it should not be used in
+        any production setting. Deleting records can lead to undefined behavior because
+        we make assumptions about the record_id in other parts of the code.
+        """
         with self.Session() as session, session.begin():
             record = session.get(self.record_cls, record_id)
             if record is None:
