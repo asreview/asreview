@@ -1,4 +1,10 @@
-from ldap3 import Server, Connection, ALL, NTLM
+try:
+    from ldap3 import Server, Connection, ALL, NTLM
+except ImportError:
+    raise ImportError(
+        "LDAP authentication requires the 'ldap3' package. "
+        "Install it with: pip install asreview[ldap]"
+    )
 
 
 class LDAPHandler:

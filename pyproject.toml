@@ -68,7 +68,6 @@ dependencies = [
     "synergy_dataset",
     "sqlalchemy-utils",
     "tomli; python_version < '3.11'",
-    "ldap3",
 ]
 dynamic = ["version"]
 requires-python = ">=3.10"
@@ -137,6 +136,7 @@ is_fittable = "asreview.models.stoppers:IsFittable"
 n_consecutive_irrelevant = "asreview.models.stoppers:NConsecutiveIrrelevant"
 
 [project.optional-dependencies]
+ldap = ["ldap3"]
 lint = ["ruff", "check-manifest"]
 test = [
     "coverage",
