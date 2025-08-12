@@ -151,6 +151,23 @@ class AuthAPI {
     });
   }
 
+  static deleteAccount() {
+    const url = auth_url + "delete_account";
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "delete",
+        url: url,
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static resetPassword(variables) {
     let body = new FormData();
     body.set("password", variables.password);

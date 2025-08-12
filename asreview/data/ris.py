@@ -24,7 +24,7 @@ import pandas as pd
 import rispy
 
 from asreview.data.base import BaseReader
-from asreview.data.utils import convert_to_list
+from asreview.data.utils import convert_value_to_list
 from asreview.utils import _is_url
 
 RIS_NOTE_LABEL_MAPPING = {
@@ -189,10 +189,10 @@ class RISReader(BaseReader):
         # order of authors, or duplicate authors appearing in the list.
         if "authors" not in df:
             df["authors"] = None
-        df["authors"] = df["authors"].apply(convert_to_list)
         if "first_authors" not in df:
             df["first_authors"] = None
-        df["first_authors"] = df["first_authors"].apply(convert_to_list)
+        df["authors"] = df["authors"].apply(convert_value_to_list)
+        df["first_authors"] = df["first_authors"].apply(convert_value_to_list)
         df["authors"] = df["authors"] + df["first_authors"]
 
         return super().clean_data(df)

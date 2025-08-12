@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+import shutil
 
 from flask import Blueprint
 from flask import current_app
@@ -20,14 +22,15 @@ from flask import request
 from flask_login import current_user
 from flask_login import logout_user
 from sqlalchemy import and_
-from sqlalchemy import select
 from sqlalchemy import or_
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import SQLAlchemyError
 
 from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import login_remote_user
 from asreview.webapp._authentication.decorators import login_required
+from asreview.webapp._authentication.models import Project
 from asreview.webapp._authentication.models import User
 from asreview.webapp._authentication.oauth_handler import OAuthHandler
 from asreview.webapp._authentication.utils import has_email_configuration
@@ -40,7 +43,6 @@ except ImportError:
 from asreview.webapp._authentication.utils import perform_login_user
 from asreview.webapp._authentication.utils import send_confirm_account_email
 from asreview.webapp._authentication.utils import send_forgot_password_email
-
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -547,3 +549,60 @@ def ldap_signin():
         return jsonify(payload), 200
     else:
         return jsonify({"message": "Authentication succeeded but login failed"}), 500
+
+
+@bp.route("/delete_account", methods=["DELETE"])
+@login_required
+def delete_account():
+    """Delete the current logged-in user's account"""
+    try:
+        user = current_user
+
+        # Block deletion if user is an admin and the only admin
+        if user.is_admin:
+            admin_count = DB.session.query(User).filter_by(role="admin").count()
+            if admin_count <= 1:
+                return (
+                    jsonify(
+                        {
+                            "message": "Cannot delete the only admin account. "
+                            "Please create another admin account first."
+                        }
+                    ),
+                    400,
+                )
+
+        # Block deletion if user owns projects
+        if Project.query.filter_by(owner_id=user.id).count() > 0:
+            return (
+                jsonify(
+                    {
+                        "message": "You still own projects. "
+                        "Please let an admin transfer ownership or delete them before deleting your account."
+                    }
+                ),
+                400,
+            )
+
+        # delete projects from ASReview folder
+        user_projects = Project.query.filter_by(owner_id=user.id).all()
+        for project in user_projects:
+            if project.project_path.exists():
+                shutil.rmtree(project.project_path)
+
+        # delete user plus records in projects table
+        DB.session.delete(user)
+        DB.session.commit()
+
+        # Logout the user after account deletion
+        logout_user()
+
+        return jsonify({"message": "Account deleted successfully"}), 200
+
+    except SQLAlchemyError as e:
+        DB.session.rollback()
+        return jsonify({"message": f"Database error: {str(e)}"}), 500
+    except Exception as e:
+        DB.session.rollback()
+        logging.error(f"Error deleting account: {e}")
+        return jsonify({"message": f"Error deleting account: {str(e)}"}), 500

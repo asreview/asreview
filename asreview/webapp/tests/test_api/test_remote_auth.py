@@ -12,7 +12,7 @@ from asreview.webapp.tests.utils.misc import custom_remote_auth_headers
 @pytest.mark.parametrize("uri", ["/", "/signup"])
 def test_no_login_without_header(client_remote_auth, uri):
     custom_headers = custom_remote_auth_headers(
-        identifier=""
+        remote_user=""
     )  # setup the REMOTE_AUTH_SECRET header
     r = client_remote_auth.get(uri, **custom_headers)
     assert r.status_code == 302
@@ -20,7 +20,7 @@ def test_no_login_without_header(client_remote_auth, uri):
 
 
 def test_no_login_without_secret(client_remote_auth, uri="/"):
-    custom_headers = custom_remote_auth_headers(identifier="foo", secret=None)
+    custom_headers = custom_remote_auth_headers(remote_user="foo", secret=None)
 
     response = client_remote_auth.get(uri, follow_redirects=True, **custom_headers)
     assert "REMOTE_AUTH_SECRET did not match" in response.get_json()["message"]
@@ -34,8 +34,8 @@ def test_no_login_without_secret(client_remote_auth, uri="/"):
 
 @pytest.mark.parametrize("uri", ["/", "/signup"])
 def test_login_with_header(client_remote_auth, uri):
-    user_identifier = "foo"
-    custom_headers = custom_remote_auth_headers(identifier=user_identifier)
+    user_identifier = "foo@dev.bar"
+    custom_headers = custom_remote_auth_headers(remote_user=user_identifier)
 
     def get_uri(path):
         return client_remote_auth.get(uri, follow_redirects=True, **custom_headers)
@@ -69,7 +69,7 @@ def test_api_returns_401_without_header(client_remote_auth):
 
 
 def test_api_returns_user_with_header(client_remote_auth):
-    custom_headers = custom_remote_auth_headers(identifier="foo@dev.bar")
+    custom_headers = custom_remote_auth_headers(remote_user="foo@dev.bar")
 
     r = client_remote_auth.get("/auth/user", **custom_headers)
     user_info = r.get_json()
