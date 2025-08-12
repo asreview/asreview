@@ -28,10 +28,15 @@ from sqlalchemy.exc import SQLAlchemyError
 from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import login_remote_user
 from asreview.webapp._authentication.decorators import login_required
-from asreview.webapp._authentication.ldap_handler import LDAPHandler
 from asreview.webapp._authentication.models import User
 from asreview.webapp._authentication.oauth_handler import OAuthHandler
 from asreview.webapp._authentication.utils import has_email_configuration
+
+# Optional LDAP support
+try:
+    from asreview.webapp._authentication.ldap_handler import LDAPHandler
+except ImportError:
+    LDAPHandler = None
 from asreview.webapp._authentication.utils import perform_login_user
 from asreview.webapp._authentication.utils import send_confirm_account_email
 from asreview.webapp._authentication.utils import send_forgot_password_email
@@ -496,6 +501,12 @@ def oauth_callback():
 
 @bp.route("/ldap_signin", methods=["POST"])
 def ldap_signin():
+    if LDAPHandler is None:
+        return jsonify({
+            "message": "LDAP authentication requires the 'ldap3' package. "
+                      "Install it with: pip install asreview[ldap]"
+        }), 400
+
     email = request.form.get("email").strip()
     password = request.form.get("password", "")
 
