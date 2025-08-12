@@ -504,10 +504,12 @@ def oauth_callback():
 @bp.route("/ldap_signin", methods=["POST"])
 def ldap_signin():
     if LDAPHandler is None:
-        return jsonify({
-            "message": "LDAP authentication requires the 'ldap3' package. "
-                      "Install it with: pip install asreview[ldap]"
-        }), 400
+        return jsonify(
+            {
+                "message": "LDAP authentication requires the 'ldap3' package. "
+                "Install it with: pip install asreview[ldap]"
+            }
+        ), 400
 
     email = request.form.get("email").strip()
     password = request.form.get("password", "")
