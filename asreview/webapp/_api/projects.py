@@ -31,7 +31,9 @@ from flask import Blueprint
 from flask import abort
 from flask import current_app
 from flask import jsonify
+from flask import redirect
 from flask import request
+from flask import Response
 from flask import send_file
 from flask_login import current_user
 from sklearn.feature_extraction.text import CountVectorizer
@@ -78,6 +80,9 @@ from asreview.webapp._task_manager.task_manager import DEFAULT_TASK_MANAGER_PORT
 from asreview.webapp._tasks import run_model
 from asreview.webapp._tasks import run_simulation
 from asreview.webapp.utils import asreview_path
+import os
+import requests
+from urllib.parse import quote
 from asreview.webapp.utils import get_project_path
 
 try:
@@ -90,6 +95,96 @@ except importlib.metadata.PackageNotFoundError:
 
 
 bp = Blueprint("api", __name__, url_prefix="/api")
+
+UNPAYWALL_EMAIL = "asreview@openaccess.org" # For the Unpaywall API, can be changed to any email address for tracking purposes
+
+@bp.route("/oa/get_url", methods=["GET"])
+def get_oa_url():
+    """Get the Open Access URL for a given DOI."""
+    doi = request.args.get("doi", type=str)
+    if not doi:
+        return jsonify({"error": "missing doi"}), 400
+    if doi.startswith("https://doi.org/"):
+        doi = doi.split("doi.org/")[-1]
+
+    pdf_url = None
+    html_url = None
+
+    try:
+        # 1. Unpaywall
+        if UNPAYWALL_EMAIL:
+            try:
+                u = f"https://api.unpaywall.org/v2/{quote(doi)}?email={quote(UNPAYWALL_EMAIL)}"
+                ur = requests.get(u, timeout=8)
+                if ur.ok:
+                    ud = ur.json()
+                    loc = ud.get("best_oa_location", {}) or {}
+                    pdf_url = loc.get("url_for_pdf")
+                    html_url = loc.get("url_for_landing_page") or loc.get("url")
+            except Exception:
+                pass
+
+        # 2. OpenAlex if no PDF found
+        if not pdf_url:
+            try:
+                meta = requests.get(
+                    f"https://api.openalex.org/works/https://doi.org/{quote(doi)}",
+                    timeout=8,
+                )
+                if meta.ok:
+                    data = meta.json()
+                    locations = []
+                    for loc_source in [
+                        data.get("best_oa_location"),
+                        data.get("primary_location"),
+                        *(data.get("locations") or []),
+                    ]:
+                        if loc_source:
+                            locations.append(loc_source)
+
+                    for loc in locations:
+                        if loc.get("pdf_url"):
+                            pdf_url = loc.get("pdf_url")
+                            if not html_url and loc.get("landing_page_url"):
+                                html_url = loc.get("landing_page_url")
+                            break
+                        if not html_url and loc.get("landing_page_url"):
+                            html_url = loc.get("landing_page_url")
+            except Exception:
+                pass
+
+        if pdf_url:
+            try:
+                upstream = requests.get(pdf_url, timeout=15, stream=True)
+                upstream.raise_for_status()
+                ct = upstream.headers.get("Content-Type", "")
+
+                if "application/pdf" in ct:
+
+                    def gen():
+                        for chunk in upstream.iter_content(chunk_size=8192):
+                            if chunk:
+                                yield chunk
+
+                    return Response(
+                        gen(),
+                        mimetype="application/pdf",
+                        headers={
+                            "Content-Disposition": "inline; filename=oa.pdf",
+                            "Cache-Control": "public, max-age=86400",
+                        },
+                    )
+            except Exception:
+                pass
+
+        if html_url:
+            return jsonify({"html_url": html_url})
+
+        return jsonify({"error": "no_oa_link_found"}), 404
+
+    except Exception as err:
+        logging.exception(err)
+        return jsonify({"error": str(err)}), 502
 
 
 def _fill_last_ranking(project, ranking):

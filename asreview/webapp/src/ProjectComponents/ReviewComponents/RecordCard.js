@@ -2,6 +2,7 @@ import {
   Link as LinkIcon,
   Close as CloseIcon,
   Visibility as VisibilityIcon,
+  OpenInNew as OpenInNewIcon,
 } from "@mui/icons-material";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -11,13 +12,13 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  InputAdornment,
   Collapse,
   Dialog,
   Divider,
   Fade,
   Grid2 as Grid,
   IconButton,
-  Link,
   Stack,
   TextField,
   Tooltip,
@@ -40,10 +41,39 @@ const RecordCardContent = ({
   const [readMoreOpen, toggleReadMore] = useToggle();
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [iframeLoading, setIframeLoading] = React.useState(true);
+  const [iframeSrc, setIframeSrc] = React.useState(null);
 
   const handleOpenDialog = () => {
     setIframeLoading(true);
     setDialogOpen(true);
+    (async () => {
+      const fallbackUrl = record.url ? record.url : doiUrl;
+      setIframeSrc(fallbackUrl);
+      if (record.doi) {
+        const apiUrl = `${window.api_url}api/oa/get_url?doi=${encodeURIComponent(
+          record.doi,
+        )}`;
+        try {
+          const response = await fetch(apiUrl, {
+            method: "GET",
+            credentials: "include",
+          });
+          if (response.ok) {
+            const contentType = response.headers.get("content-type") || "";
+            if (contentType.includes("application/pdf")) {
+              setIframeSrc(response.url);
+            } else if (contentType.includes("application/json")) {
+              const data = await response.json();
+              if (data.html_url) {
+                setIframeSrc(data.html_url);
+              }
+            }
+          }
+        } catch (error) {
+          console.warn("Failed to get Open Access URL:", error);
+        }
+      }
+    })();
   };
 
   const handleCloseDialog = () => {
@@ -61,6 +91,7 @@ const RecordCardContent = ({
   };
 
   const doiUrl = getDoiUrl(record.doi);
+  const primaryLinkUrl = record.url ? record.url : doiUrl;
 
   return (
     <React.Fragment>
@@ -92,8 +123,8 @@ const RecordCardContent = ({
           </Typography>
           <Divider />
           <Stack direction="row" spacing={1}>
-            {!(record.doi === undefined || record.doi === null) && (
-              <Tooltip title="View full text in popup">
+            {(record.doi || record.url) && (
+              <Tooltip title="View full text">
                 <StyledIconButton
                   className="record-card-icon"
                   onClick={handleOpenDialog}
@@ -103,7 +134,7 @@ const RecordCardContent = ({
               </Tooltip>
             )}
 
-            {!(record.url === undefined || record.url === null) && (
+            {record.url && (
               <Tooltip title="Open URL">
                 <StyledIconButton
                   className="record-card-icon"
@@ -230,40 +261,49 @@ const RecordCardContent = ({
                 >
                   <CloseIcon />
                 </IconButton>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  size="small"
-                  value={doiUrl}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "20px",
-                      color: "black",
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "black",
+                <Box sx={{ flexGrow: 1 }}>
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                    value={primaryLinkUrl}
+                    InputProps={{
+                      readOnly: true,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {iframeLoading && (
+                            <CircularProgress size={16} thickness={5} />
+                          )}
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "20px",
+                        color: "black",
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "black",
+                        },
                       },
-                    },
-                  }}
-                />
+                    }}
+                  />
+                </Box>
+                <Tooltip title="Open link in a new tab">
+                  <IconButton
+                    aria-label="open in new tab"
+                    onClick={() =>
+                      window.open(
+                        primaryLinkUrl,
+                        "_blank",
+                        "noopener,noreferrer",
+                      )
+                    }
+                    size="small"
+                  >
+                    <OpenInNewIcon />
+                  </IconButton>
+                </Tooltip>
               </Box>
-              <Typography
-                variant="body2"
-                sx={{ textAlign: "center", color: "text.secondary", pt: 1 }}
-              >
-                Trouble loading?{" "}
-                <Link
-                  href={doiUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  underline="always"
-                  sx={{ color: "text.secondary" }}
-                >
-                  Open in a new tab
-                </Link>
-              </Typography>
             </Box>
             <Box
               sx={{
@@ -273,25 +313,10 @@ const RecordCardContent = ({
                 bgcolor: "#fff",
               }}
             >
-              {iframeLoading && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <CircularProgress />
-                </Box>
-              )}
               <iframe
                 onLoad={() => setIframeLoading(false)}
-                src={doiUrl}
+                onError={() => setIframeLoading(false)}
+                src={iframeSrc || primaryLinkUrl}
                 title={record.title}
                 width="100%"
                 height="100%"
