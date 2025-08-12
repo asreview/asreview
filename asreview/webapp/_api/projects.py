@@ -96,7 +96,8 @@ except importlib.metadata.PackageNotFoundError:
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
-UNPAYWALL_EMAIL = "asreview@openaccess.org" # For the Unpaywall API, can be changed to any email address for tracking purposes
+UNPAYWALL_EMAIL = "asreview@openaccess.org"  # For the Unpaywall API, can be changed to any email address for tracking purposes
+
 
 @bp.route("/oa/get_url", methods=["GET"])
 def get_oa_url():
