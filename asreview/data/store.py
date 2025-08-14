@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.functions import coalesce
 
+from asreview.data.record import Base
 from asreview.data.record import Record
 
 CURRENT_DATASTORE_VERSION = 0
@@ -78,7 +79,9 @@ def normalize_duplicate_chain(session, record: Record):
 # record to the database.
 @event.listens_for(Session, "before_flush")
 def flatten_duplicate_of(session, flush_context, instances):
-    record_mutations = session.new.union(session.dirty)
+    record_mutations = [
+        obj for obj in session.new.union(session.dirty) if isinstance(obj, Base)
+    ]
     if any(record.duplicate_of is not None for record in record_mutations):
         for record in sorted(record_mutations, key=lambda record: record.record_id):
             normalize_duplicate_chain(session, record)
