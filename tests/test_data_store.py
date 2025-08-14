@@ -357,3 +357,16 @@ def test_get_groups(store, input_data, stored_data):
     store.set_groups(input_data)
     groups = store.get_groups()
     assert groups == stored_data
+
+    for target_record_id in range(len(input_data)):
+        target_group_id = next(
+            group_id
+            for (group_id, record_id) in stored_data
+            if record_id == target_record_id
+        )
+        group = [
+            (group_id, record_id)
+            for (group_id, record_id) in stored_data
+            if group_id == target_group_id
+        ]
+        assert store.get_groups(target_record_id) == group

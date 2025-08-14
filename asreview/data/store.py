@@ -309,8 +309,13 @@ class DataStore:
             for record in records:
                 record.duplicate_of = groups[record.record_id]
 
-    def get_groups(self):
+    def get_groups(self, record_id=None):
         """Get the record groups.
+
+        Parameters
+        ----------
+        record_id : int | None
+            Get only the group containing the record with this record_id.
 
         Returns
         -------
@@ -319,12 +324,23 @@ class DataStore:
             are also accessible by the attribute names (so `tuple.group_id` and
             `tuple.record_id`).
         """
+        # The group_id is equal to the value of `duplicate_of` is present, otherwise it
+        # is the `record_id`. This is true because we normalize the duplicate chains.
+        group_expr = coalesce(Record.duplicate_of, Record.record_id)
         stmt = select(
-            coalesce(Record.duplicate_of, Record.record_id).label("group_id"),
+            group_expr.label("group_id"),
             Record.record_id,
-        ).order_by("group_id")
+        )
+        if record_id is not None:
+            # Get the records in the group of the record with the given record_id.
+            target_group_subq = (
+                select(group_expr)
+                .where(Record.record_id == record_id)
+                .scalar_subquery()
+            )
+            stmt = stmt.where(group_expr == target_group_subq)
         with self.Session() as session:
-            return session.execute(stmt).all()
+            return session.execute(stmt.order_by("group_id")).all()
 
     def get_df(self):
         """Get all data from the data store as a pandas DataFrmae.
