@@ -111,10 +111,10 @@ encounter as you use ASReview LAB.
 .. glossary::
 
   Active learning model
-    An active learning model is a machine learning model that is used to
-    prioritize the records in the dataset. The model interactively learns from
-    the labels provided by the :term:`user` and improves its performance over
-    time.
+    An active learning model is a machine learning model that is used to 
+    prioritize the records (:term:`record`) in the :term:`dataset`. The model 
+    interactively learns from the labels provided by the :term:`user` and improves 
+    its performance over time.
 
   CLI
     The CLI is the Command Line Interface that is used to start ASReview LAB and
@@ -124,22 +124,35 @@ encounter as you use ASReview LAB.
     A dataset is the collection of records (:term:`record`) that the :term:`user` reviews.
 
   ELAS
-    ELAS stands for "Electronic Learning Assistant". It is the name of the
-    mascot of ASReview and used for storytelling and to increase explainability.
+    ELAS stands for “Electronic Learning Assistant”. It is the name of ASReview's 
+    mascot. ELAS is used for storytelling and enhancing explainability.
 
   Extension
     An extension is an additional element to the ASReview LAB, such as the
     `ASReview Dory <https://github.com/asreview/asreview-dory>`__ extension.
 
+  Labeling tags
+    Labeling tags allow the :term:`user` to categorize records (:term:`record`) based on 
+    specific criteria, such as reasons for inclusion and exclusion, study characteristics, 
+    or quality assessment.
+
   Note
-    A note is the information added by the :term:`user` in the note field and
-    stored in the :term:`project`. It can be edited on the History page.
+    A note allows the :term:`user` to add custom comments or observations about a :term:`record` 
+    during the :term:`review` process. This note is stored in the :term:`project` and can be used 
+    to clarify decisions or track reasoning. It can be edited on the Collection page.
+
+  Prior knowledge
+    Prior knowledge refers to labeled records (:term:`record`) that are used to train 
+    the machine learning model in ASReview. This knowledge can be provided at the beginning 
+    of the screening process or added at any point during the :term:`review`. It helps guide the 
+    model in ranking the most likely relevant records, thereby improving the efficiency 
+    and focus of the screening process.
 
   Project
-    A project is a project created in ASReview LAB and can be a "review" or a
-    "simulation". A project contains the :term:`dataset`, :term:`Active learning
-    model`, and the :term:`user` labels. A project can be exported to an ASReview file with extension
-    ``.asreview``. The project can be imported back into ASReview LAB.
+    A project is created in ASReview LAB and can be a “review” or a “simulation”. 
+    It contains the :term:`dataset`, :term:`Active learning model`, and the 
+    :term:`user` labels. A project can be exported to an ASReview file with 
+    extension ``.asreview``. The project can be imported back into ASReview LAB.
 
   Status
     The project status is the stage that a :term:`project` is at in ASReview
@@ -151,15 +164,15 @@ encounter as you use ASReview LAB.
 
   Simulation
     A simulation is a project that is used to test the performance of the
-    :term:`Active learning model` on a fully labeled dataset. The simulation
-    allows the user to evaluate the performance of the model and compare it to
-    other models.
+    :term:`Active learning model` on a fully labeled :term:`dataset`. 
+    The simulation allows the :term:`user` to evaluate the performance of the model and 
+    compare it to other models.
 
   Record
-    A record is the piece of text that needs to be labeled. It usually consists
-    of a title and an abstract. The record is the unit of analysis in ASReview
-    LAB. For scholars, a record is a title and abstract of a paper. For other
-    domains, it can be any piece of text that needs to be labeled.
+    A record is the unit of text that requires labeling in ASReview LAB. It 
+    typically includes a title and an abstract, and may also contain keywords. 
+    In academic contexts, a record usually refers to the title and abstract of a paper. 
+    In other domains, it can represent any text snippet that needs to be labeled.
 
   Review
     Reviewing is the decision-making process on the relevance of
@@ -167,8 +180,7 @@ encounter as you use ASReview LAB.
     interchangeable with Labeling, Screening, and Classifying.
 
   User
-    The human annotator or screener is the person who labels
-    :term:`record`.
+    The user is the human annotator or screener who labels records (:term:`record`).
 
 
 Key principles
