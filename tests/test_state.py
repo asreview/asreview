@@ -473,26 +473,25 @@ def test_add_extra_column(tmpdir):
     [
         # Single group, single record
         ([(1, 1, "cat")], [(10, 1)], [(1, 1, "cat")], None),
-
         # Single group, label propagates to all records
-        ([(1, 1, "cat")], [(10, 1), (10, 2), (10, 3)],
-         [(1, 1, "cat"), (2, 1, "cat"), (3, 1, "cat")], None),
-
+        (
+            [(1, 1, "cat")],
+            [(10, 1), (10, 2), (10, 3)],
+            [(1, 1, "cat"), (2, 1, "cat"), (3, 1, "cat")],
+            None,
+        ),
         # Two groups, labels propagate separately
-        ([(1, 1, "cat"), (3, 0, "dog")],
-         [(10, 1), (10, 2), (20, 3), (20, 4)],
-         [(1, 1, "cat"), (2, 1, "cat"), (3, 0, "dog"), (4, 0, "dog")], None),
-
+        (
+            [(1, 1, "cat"), (3, 0, "dog")],
+            [(10, 1), (10, 2), (20, 3), (20, 4)],
+            [(1, 1, "cat"), (2, 1, "cat"), (3, 0, "dog"), (4, 0, "dog")],
+            None,
+        ),
         # Group with no label should not appear in output
-        ([(1, 1)],
-         [(10, 1), (10, 2), (20, 3), (20, 4)],
-         [(1, 1), (2, 1)], None),
-
+        ([(1, 1)], [(10, 1), (10, 2), (20, 3), (20, 4)], [(1, 1), (2, 1)], None),
         # Conflicting info in same group should raise ValueError
-        ([(1, 1), (2, 0)],
-         [(10, 1), (10, 2)],
-         None, ValueError),
-    ]
+        ([(1, 1), (2, 0)], [(10, 1), (10, 2)], None, ValueError),
+    ],
 )
 def test_propagate_record_info(record_info, groups, expected, raises):
     if raises:
