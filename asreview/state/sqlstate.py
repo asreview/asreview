@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import defaultdict
 import json
 import sqlite3
 import time
@@ -50,6 +51,67 @@ RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
 }
 
 CURRENT_STATE_VERSION = 2
+
+
+def _propagate_record_info(record_info, groups):
+    """Propagate record-level information across groups of records.
+
+    Each group defines a set of records that must share the same info. If one
+    record in a group has associated info, that info is propagated to all
+    other records in the group. If multiple records in the same group have
+    conflicting info, a ValueError is raised.
+
+    Parameters
+    ----------
+    record_info : list[tuple]
+        A list of tuples in the form ``(record_id, *info)``, where ``info`` is
+        any associated data for the record.
+    groups : list of tuple
+        A list of tuples in the form ``(group_id, record_id)``, where
+        ``group_id`` identifies the group a record belongs to.
+
+    Returns
+    -------
+    list of tuple
+        A list of tuples in the form ``(record_id, *info)`` where the info has
+        been propagated to all records in the same group.
+
+    Raises
+    ------
+    ValueError
+        If records within the same group have conflicting info.
+    """
+    record_to_group = {}
+    group_to_records = defaultdict(list)
+    for group_id, record_id in groups:
+        record_to_group[record_id] = group_id
+        group_to_records[group_id].append(record_id)
+
+    group_to_info = defaultdict(set)
+    for record_id, *info in record_info:
+        group_id = record_to_group[record_id]
+        group_to_info[group_id].add(tuple(info))
+
+    multivalued_groups = [
+        {
+            "group_id": group_id,
+            "record_ids": group_to_records[group_id],
+            "info": info_set,
+        }
+        for group_id, info_set in group_to_info.items()
+        if len(info_set) > 1
+    ]
+    if multivalued_groups:
+        raise ValueError(
+            f"All records in the same group should have the same record info: {multivalued_groups}"
+        )
+
+    output = []
+    for group_id, info_set in group_to_info.items():
+        info = next(iter(info_set))
+        record_ids = group_to_records[group_id]
+        output += [(record_id, *info) for record_id in record_ids]
+    return output
 
 
 class SQLiteState:
