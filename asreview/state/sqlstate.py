@@ -289,16 +289,13 @@ class SQLiteState:
 
         if tags is None:
             tags = [None for _ in record_ids]
-
-        if len({len(record_ids), len(labels), len(tags)}) != 1:
-            raise ValueError("Input data should be of the same length.")
-
-        if tags is None:
-            tags = [None for _ in record_ids]
         elif isinstance(tags, dict):
             tags = [json.dumps(tags) for _ in record_ids]
         else:
             tags = [json.dumps(tag) for tag in tags]
+
+        if len({len(record_ids), len(labels), len(tags)}) != 1:
+            raise ValueError("Input data should be of the same length.")
 
         labeling_time = time.time()
 
