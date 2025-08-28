@@ -290,10 +290,15 @@ def api_create_project():  # noqa: F401
                     labeled_indices
                 ].tolist()
 
+                if project.config.get("group_similar_records"):
+                    groups = project.data_store.get_groups()
+                else:
+                    groups = None
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
                     labels=labels,
                     user_id=None,
+                    groups=groups,
                 )
 
     except Exception as err:
@@ -1443,14 +1448,23 @@ def api_label_record(project, record_id):  # noqa: F401
         current_user.id if current_app.config.get("AUTHENTICATION", True) else None
     )
 
+    if project.config.get("group_similar_records"):
+        group = project.data_store.get_groups(record_id=record_id)
+        # Group consists of tuples (group_id, record_id).
+        record_ids = [record_id for (_, record_id) in group]
+    else:
+        record_ids = [record_id]
+
     with open_state(project.project_path) as state:
         if request.method == "PUT":
-            state.update(record_id, label=label, tags=tags, user_id=user_id)
+            state.update(record_ids, label=label, tags=tags, user_id=user_id)
         else:
+            labels = [label for _ in record_ids]
+            tags = [tags for _ in record_ids]
             state.add_labeling_data(
-                record_ids=[record_id],
-                labels=[label],
-                tags=[tags],
+                record_ids=record_ids,
+                labels=labels,
+                tags=tags,
                 user_id=user_id,
             )
 

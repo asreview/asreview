@@ -334,7 +334,9 @@ class SQLiteState:
             }
         ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
-    def add_labeling_data(self, record_ids, labels, tags=None, user_id=None):
+    def add_labeling_data(
+        self, record_ids, labels, tags=None, user_id=None, groups=None
+    ):
         """Add the data corresponding to a labeling action to the state file.
 
         Parameters
@@ -359,6 +361,10 @@ class SQLiteState:
         if len({len(record_ids), len(labels), len(tags)}) != 1:
             raise ValueError("Input data should be of the same length.")
 
+        record_data_list = list(zip(record_ids, labels, tags))
+        if groups:
+            record_data_list = _propagate_record_info(record_data_list, groups)
+
         labeling_time = time.time()
 
         con = self._conn
@@ -375,17 +381,17 @@ class SQLiteState:
             ),
             [
                 (
-                    int(record_ids[i]),
-                    int(labels[i]),
+                    int(record_data[0]),
+                    int(record_data[1]),
                     labeling_time,
-                    tags[i],
+                    record_data[2],
                     user_id,
                 )
-                for i in range(len(record_ids))
+                for record_data in record_data_list
             ],
         )
 
-        if cur.rowcount != len(record_ids):
+        if cur.rowcount != len(record_data_list):
             raise ValueError("Failed to insert or update labels for record.")
 
         con.commit()
@@ -602,18 +608,20 @@ class SQLiteState:
                 dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
             )
 
-    def update(self, record_id, label=None, tags=None, user_id=None):
-        """Change the label or tag of an already labeled record.
+    def update(self, record_ids, label=None, tags=None, user_id=None):
+        """Change the label or tag of already labeled records.
 
         Parameters
         ----------
-        record_id: int
-            Id of the record whose label should be changed.
+        record_ids: int | list[int]
+            ID or list of IDs of the records whose label or tag should be changed.
         label: 0 / 1
-            New label of the record.
+            New label of the records.
         tags: list
-            Tags list to add to the record.
+            Tags list to add to the records.
         """
+        if isinstance(record_ids, int):
+            record_ids = [record_ids]
 
         cur = self._conn.cursor()
 
@@ -629,19 +637,19 @@ class SQLiteState:
         if not fields:
             raise ValueError("At least one of label or tags must be provided.")
 
-        values.append(record_id)
+        insert_values = [(*values, record_id) for record_id in record_ids]
         sql = f"UPDATE results SET {', '.join(fields)} WHERE record_id = ?"
-        cur.execute(sql, tuple(values))
+        cur.executemany(sql, insert_values)
 
-        if cur.rowcount == 0:
-            raise ValueError(f"Record with id {record_id} not found.")
+        if cur.rowcount != len(record_ids):
+            raise ValueError("Failed to update data for record.")
 
-        cur.execute(
+        cur.executemany(
             (
                 "INSERT INTO decision_changes (record_id, label, time, user_id) "
                 "VALUES (?, ?, ?, ?)"
             ),
-            (record_id, label, time.time(), user_id),
+            [(record_id, label, time.time(), user_id) for record_id in record_ids],
         )
 
         self._conn.commit()
@@ -668,23 +676,27 @@ class SQLiteState:
 
         self._conn.commit()
 
-    def delete_record_labeling_data(self, record_id):
-        """Delete the labeling data for the given record id.
+    def delete_record_labeling_data(self, record_ids):
+        """Delete the labeling data for the given record IDs.
 
         Parameters
         ----------
-        record_id : str
-            Identifier of the record to delete.
-
+        record_ids : int | list[int]
+            Identifiers of the records to delete.
         """
+        if isinstance(record_ids, int):
+            record_ids = [record_ids]
         current_time = time.time()
 
         cur = self._conn.cursor()
-        cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))
+        cur.executemany(
+            "DELETE FROM results WHERE record_id=?",
+            [(record_id,) for record_id in record_ids],
+        )
 
-        cur.execute(
+        cur.executemany(
             ("INSERT INTO decision_changes (record_id, label, time) VALUES (?, ?, ?)"),
-            (record_id, None, current_time),
+            [(record_id, None, current_time) for record_id in record_ids],
         )
         self._conn.commit()
 

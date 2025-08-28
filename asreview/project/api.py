@@ -137,6 +137,7 @@ class Project:
         project_mode="oracle",
         project_name=None,
         project_tags=None,
+        group_similar_records=False,
     ):
         """Initialize the necessary files specific to the web app."""
 
@@ -171,6 +172,7 @@ class Project:
                 "reviews": [],
                 "feature_matrices": [],
                 "tags": project_tags,
+                "group_similar_records": group_similar_records,
             }
 
             jsonschema.validate(instance=config, schema=SCHEMA)
