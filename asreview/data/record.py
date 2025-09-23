@@ -104,12 +104,14 @@ class Record(Base):
 
     title: Mapped[str] = mapped_column(default="")
     abstract: Mapped[str] = mapped_column(default="")
+    journal: Mapped[Optional[str]] = mapped_column(default=None)
     # authors and keywords could also be in their own separate table.
     authors: Mapped[list] = mapped_column(default_factory=list)
     keywords: Mapped[list] = mapped_column(default_factory=list)
     year: Mapped[Optional[int]] = mapped_column(default=None)
     doi: Mapped[Optional[str]] = mapped_column(default=None)
     url: Mapped[Optional[str]] = mapped_column(default=None)
+    source: Mapped[Optional[str]] = mapped_column(default=None)
     included: Mapped[Optional[int]] = mapped_column(default=None)
 
     @validates("authors", "keywords")
@@ -122,7 +124,7 @@ class Record(Base):
             raise ValueError(f"'{key}' should be a list of strings")
         return value
 
-    @validates("title", "abstract", "doi", "url")
+    @validates("title", "abstract", "journal", "doi", "url", "source")
     def validate_string(self, key, value):
         if value == "":
             return None

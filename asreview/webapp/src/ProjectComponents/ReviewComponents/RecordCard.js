@@ -53,6 +53,26 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
             </Box>
           )}
         </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          {record.journal ? (
+            <Typography sx={{ color: "text.secondary", fontWeight: "bold" }}>
+              {record.journal}
+            </Typography>
+          ) : (
+            <Box sx={{ flexGrow: 1 }} />
+          )}
+          {record.source && (
+            <Typography variant="body1" sx={{ color: "text.secondary" }}>
+              {record.source}
+            </Typography>
+          )}
+        </Box>
         <Divider />
         <Stack direction="row" spacing={1}>
           {!(record.doi === undefined || record.doi === null) && (
