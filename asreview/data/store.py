@@ -284,10 +284,10 @@ class DataStore:
 
         Parameters
         ----------
-        groups : dict[int, int | None]
-            Dictionary `{record_id: group_root_record_id}`. The keys should contain all
-            record_ids in the data store. If multiple records are in the same group, the
-            value of `group_root_id` should be the record_id of one of the record in the
+        groups : list[tuple[int,int]]
+            List of tuples (group_id, record_id). All record_ids in the data store
+            should be present. If multiple records are in the same group, the
+            value of `group_id` should be the record_id of one of the record in the
             group. This data is added to the record as the `duplicate_of` attribute. The
             data store will normalize these values: One record is chosen as the root,
             satisfying `root.duplicate_of = None`. All other records in the group will
@@ -296,18 +296,21 @@ class DataStore:
         Raises
         ------
         ValueError
-            If the keys of `groups` does not consist of the full set of record_ids that
-            are in the data store.
+            If the `groups` does not contain all record_ids that are in the data store.
         """
+        record_to_group = {
+            record_id: group_id if group_id != record_id else None
+            for (group_id, record_id) in groups
+        }
         with self.Session() as session, session.begin():
             records = session.scalars(select(Record)).all()
-            if set(record.record_id for record in records) != set(groups.keys()):
+            if set(record.record_id for record in records) != set(record_to_group.keys()):
                 raise ValueError(
                     "`groups` should be a dictionary of the form"
                     " `{record_id: group_id}` containing all record_ids in the data store."
                 )
             for record in records:
-                record.duplicate_of = groups[record.record_id]
+                record.duplicate_of = record_to_group[record.record_id]
 
     def get_groups(self, record_id=None):
         """Get the record groups.

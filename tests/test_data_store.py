@@ -315,24 +315,18 @@ def test_search(store):
 
 
 @pytest.mark.parametrize(
-    "duplicate_chain, normalized_chain",
+    "groups, normalized_chain",
     [
-        # r0 -> r0 => r0 -> None
-        ({0: 0}, {0: None}),
-        # r0 -> r1 -> r0 => r1 -> r0 -> None
-        ({0: 1, 1: 0}, {0: None, 1: 0}),
-        # r0 -> r1 -> r2 -> None => r0 -> r2, r1 -> r2, r2 -> None
-        ({0: 1, 1: 2, 2: None}, {0: 2, 1: 2, 2: None}),
-        # r0 -> r1 -> r2 -> r3 -> r1 => rk -> r0, r0 -> None
-        ({0: 1, 1: 2, 2: 3, 3: 1}, {0: None, 1: 0, 2: 0, 3: 0}),
+        ([(0, 0)], {0: None}),
+        ([(0, 0), (0, 1)], {0: None, 1: 0}),
+        ([(0, 0), (0, 2), (1, 1)], {0: None, 1: None, 2: 0}),
+        ([(3, 0), (1, 1), (1, 2), (3, 3)], {0: 3, 1: None, 2: 1, 3: None}),
     ],
 )
-def test_set_groups(store, duplicate_chain, normalized_chain):
-    records = [
-        Record(dataset_row=idx, dataset_id="foo") for idx in range(len(duplicate_chain))
-    ]
+def test_set_groups(store, groups, normalized_chain):
+    records = [Record(dataset_row=idx, dataset_id="foo") for idx in range(len(groups))]
     store.add_records(records)
-    store.set_groups(duplicate_chain)
+    store.set_groups(groups)
     stored_duplicate_chain = {
         record.record_id: record.duplicate_of for record in store.get_records()
     }
