@@ -304,7 +304,9 @@ class DataStore:
         }
         with self.Session() as session, session.begin():
             records = session.scalars(select(Record)).all()
-            if set(record.record_id for record in records) != set(record_to_group.keys()):
+            if set(record.record_id for record in records) != set(
+                record_to_group.keys()
+            ):
                 raise ValueError(
                     "`groups` should be a dictionary of the form"
                     " `{record_id: group_id}` containing all record_ids in the data store."
