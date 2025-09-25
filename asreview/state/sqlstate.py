@@ -89,7 +89,7 @@ def _propagate_record_info(record_info, groups):
 
     group_to_info = defaultdict(set)
     for record_id, *info in record_info:
-        group_id = record_to_group[record_id]
+        group_id = record_to_group.get(record_id, record_id)
         group_to_info[group_id].add(tuple(info))
 
     multivalued_groups = [
@@ -109,7 +109,7 @@ def _propagate_record_info(record_info, groups):
     output = []
     for group_id, info_set in group_to_info.items():
         info = next(iter(info_set))
-        record_ids = group_to_records[group_id]
+        record_ids = group_to_records.get(group_id, [group_id])
         output += [(record_id, *info) for record_id in record_ids]
     return output
 

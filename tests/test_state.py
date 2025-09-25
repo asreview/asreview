@@ -491,6 +491,13 @@ def test_add_extra_column(tmpdir):
         ([(1, 1)], [(10, 1), (10, 2), (20, 3), (20, 4)], [(1, 1), (2, 1)], None),
         # Conflicting info in same group should raise ValueError
         ([(1, 1), (2, 0)], [(10, 1), (10, 2)], None, ValueError),
+        # Records without group info are treated as being in a singleton group.
+        (
+            [(1, "cat"), (2, "dog")],
+            [(10, 1), (10, 3)],
+            [(1, "cat"), (2, "dog"), (3, "cat")],
+            None,
+        ),
     ],
 )
 def test_propagate_record_info(record_info, groups, expected, raises):
@@ -500,4 +507,4 @@ def test_propagate_record_info(record_info, groups, expected, raises):
     else:
         result = _propagate_record_info(record_info, groups)
         # Convert to set for order-independent comparison
-        assert result == expected
+        assert set(result) == set(expected)
