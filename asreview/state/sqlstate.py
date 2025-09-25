@@ -351,7 +351,8 @@ class SQLiteState:
             User id of the user who labeled the records.
         groups: list[tuple[int,int]] | None
             A list of tuples in the form `(group_id, record_id)`, where `group_id`
-            identifies the group a record belongs to.
+            identifies the group a record belongs to. If there are other records in the
+            group of an added record, their data will be added as well.
         """
 
         if tags is None:
@@ -611,7 +612,7 @@ class SQLiteState:
                 dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
             )
 
-    def update(self, record_ids, label=None, tags=None, user_id=None):
+    def update(self, record_ids, label=None, tags=None, user_id=None, groups=None):
         """Change the label or tag of already labeled records.
 
         Parameters
@@ -622,11 +623,19 @@ class SQLiteState:
             New label of the records.
         tags: list
             Tags list to add to the records.
+        groups: list[tuple[int,int]] | None
+            A list of tuples in the form `(group_id, record_id)`, where `group_id`
+            identifies the group a record belongs to. If there are other records in the
+            group of a deleted record, their data will be updated as well.
         """
         if isinstance(record_ids, int):
             record_ids = [record_ids]
 
-        cur = self._conn.cursor()
+        if groups:
+            records = [(record_id,) for record_id in record_ids]
+            record_ids = [
+                record[0] for record in _propagate_record_info(records, groups)
+            ]
 
         # Build dynamic SQL for updating only provided fields
         fields = []
@@ -642,6 +651,8 @@ class SQLiteState:
 
         insert_values = [(*values, record_id) for record_id in record_ids]
         sql = f"UPDATE results SET {', '.join(fields)} WHERE record_id = ?"
+
+        cur = self._conn.cursor()
         cur.executemany(sql, insert_values)
 
         if cur.rowcount != len(record_ids):
@@ -679,16 +690,27 @@ class SQLiteState:
 
         self._conn.commit()
 
-    def delete_record_labeling_data(self, record_ids):
+    def delete_record_labeling_data(self, record_ids, groups=None):
         """Delete the labeling data for the given record IDs.
 
         Parameters
         ----------
         record_ids : int | list[int]
             Identifiers of the records to delete.
+        groups: list[tuple[int,int]] | None
+            A list of tuples in the form `(group_id, record_id)`, where `group_id`
+            identifies the group a record belongs to. If there are other records in the
+            group of a deleted record, their data will be deleted as well.
         """
         if isinstance(record_ids, int):
             record_ids = [record_ids]
+
+        if groups:
+            records = [(record_id,) for record_id in record_ids]
+            record_ids = [
+                record[0] for record in _propagate_record_info(records, groups)
+            ]
+
         current_time = time.time()
 
         cur = self._conn.cursor()

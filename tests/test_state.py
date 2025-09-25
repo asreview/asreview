@@ -374,6 +374,49 @@ def test_update_decision(tmpdir):
         assert change_table["label"].to_list() == new_labels
 
 
+def test_update_decision_groups(tmpdir):
+    project_path = Path(tmpdir, "test.asreview")
+    asr.Project.create(project_path)
+    with asr.open_state(project_path) as state:
+        state.add_labeling_data(record_ids=[1, 2, 3], labels=[1, 1, 1])
+        state.update(record_ids=1, label=0, groups=[(10, 1), (10, 2)])
+        pd.testing.assert_frame_equal(
+            state.get_results_table(columns=["record_id", "label"]),
+            pd.DataFrame([[1, 0], [2, 0], [3, 1]], columns=["record_id", "label"]),
+            check_dtype=False,
+        )
+        pd.testing.assert_frame_equal(
+            state.get_decision_changes()[["record_id", "label"]],
+            pd.DataFrame([[1, 0], [2, 0]], columns=["record_id", "label"]),
+            check_dtype=False,
+        )
+        state.update(record_ids=3, label=0)
+        pd.testing.assert_frame_equal(
+            state.get_results_table(columns=["record_id", "label"]),
+            pd.DataFrame([[1, 0], [2, 0], [3, 0]], columns=["record_id", "label"]),
+            check_dtype=False,
+        )
+        pd.testing.assert_frame_equal(
+            state.get_decision_changes()[["record_id", "label"]],
+            pd.DataFrame([[1, 0], [2, 0], [3, 0]], columns=["record_id", "label"]),
+            check_dtype=False,
+        )
+        state.update(record_ids=[1, 3], groups=[(10, 2), (10, 3)], label=1)
+        pd.testing.assert_frame_equal(
+            state.get_results_table(columns=["record_id", "label"]),
+            pd.DataFrame([[1, 1], [2, 1], [3, 1]], columns=["record_id", "label"]),
+            check_dtype=False,
+        )
+        pd.testing.assert_frame_equal(
+            state.get_decision_changes()[["record_id", "label"]],
+            pd.DataFrame(
+                [[1, 0], [2, 0], [3, 0], [1, 1], [2, 1], [3, 1]],
+                columns=["record_id", "label"],
+            ),
+            check_dtype=False,
+        )
+
+
 def test_last_ranking(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)

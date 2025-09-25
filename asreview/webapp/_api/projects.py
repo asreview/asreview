@@ -1449,23 +1449,22 @@ def api_label_record(project, record_id):  # noqa: F401
     )
 
     if project.config.get("group_similar_records"):
-        group = project.data_store.get_groups(record_id=record_id)
-        # Group consists of tuples (group_id, record_id).
-        record_ids = [record_id for (_, record_id) in group]
+        groups = project.data_store.get_groups(record_id=record_id)
     else:
-        record_ids = [record_id]
+        groups = None
 
     with open_state(project.project_path) as state:
         if request.method == "PUT":
-            state.update(record_ids, label=label, tags=tags, user_id=user_id)
+            state.update(
+                record_id, label=label, tags=tags, user_id=user_id, groups=groups
+            )
         else:
-            labels = [label for _ in record_ids]
-            tags = [tags for _ in record_ids]
             state.add_labeling_data(
-                record_ids=record_ids,
-                labels=labels,
+                record_ids=[record_id],
+                labels=[label],
                 tags=tags,
                 user_id=user_id,
+                groups=groups,
             )
 
     if retrain_model:
