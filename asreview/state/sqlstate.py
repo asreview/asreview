@@ -66,9 +66,9 @@ def _propagate_record_info(record_info, groups):
     record_info : list[tuple]
         A list of tuples in the form ``(record_id, *info)``, where ``info`` is
         any associated data for the record.
-    groups : list of tuple
-        A list of tuples in the form ``(group_id, record_id)``, where
-        ``group_id`` identifies the group a record belongs to.
+    groups: list[tuple[int,int]] | None
+        A list of tuples in the form `(group_id, record_id)`, where `group_id`
+        identifies the group a record belongs to.
 
     Returns
     -------
@@ -349,6 +349,9 @@ class SQLiteState:
             A dict of tags to save with the labeled records.
         user_id: int
             User id of the user who labeled the records.
+        groups: list[tuple[int,int]] | None
+            A list of tuples in the form `(group_id, record_id)`, where `group_id`
+            identifies the group a record belongs to.
         """
 
         if tags is None:
