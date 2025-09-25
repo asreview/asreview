@@ -3,6 +3,7 @@ import time
 from io import BytesIO
 from pathlib import Path
 
+import pandas as pd
 import pytest
 from jsonschema.exceptions import ValidationError
 
@@ -260,6 +261,26 @@ def test_label_item(client, project, label):
     r = au.label_random_project_data_record(client, project, label)
     assert r.status_code == 200
     assert r.json["success"]
+
+
+def test_label_grouped_item(client, project):
+    asr_project = asr.Project(project.project_path)
+    asr_project.update_config(group_similar_records=True)
+
+    groups = [
+        (record_id, record_id) for record_id in range(len(asr_project.data_store))
+    ]
+    groups[1] = (0, 1)
+    asr_project.data_store.set_groups(groups)
+    r = au.label_project_record(client, project, record_id=0, label=1)
+    assert r.status_code == 200
+    with asr.open_state(asr_project) as state:
+        results = state.get_results_table(columns=["record_id", "label"])
+    pd.testing.assert_frame_equal(
+        results,
+        pd.DataFrame([[0, 1], [1, 1]], columns=["record_id", "label"]),
+        check_dtype=False,
+    )
 
 
 # Test getting labeled records

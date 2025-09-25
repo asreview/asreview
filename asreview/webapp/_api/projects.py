@@ -1462,7 +1462,7 @@ def api_label_record(project, record_id):  # noqa: F401
             state.add_labeling_data(
                 record_ids=[record_id],
                 labels=[label],
-                tags=tags,
+                tags=[tags],
                 user_id=user_id,
                 groups=groups,
             )
