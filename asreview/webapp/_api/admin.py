@@ -266,17 +266,19 @@ def get_user(user_id):
                     "id": db_project.id,
                     "project_id": db_project.project_id,
                     "name": project.config.get("name", "Unnamed Project"),
-                    "role": "owner"
+                    "role": "owner",
                 }
                 user_projects.append(project_info)
             except Exception as e:
                 logging.warning(f"Could not load project {db_project.project_id}: {e}")
-                user_projects.append({
-                    "id": db_project.id,
-                    "project_id": db_project.project_id,
-                    "name": "Error Loading Project",
-                    "role": "owner"
-                })
+                user_projects.append(
+                    {
+                        "id": db_project.id,
+                        "project_id": db_project.project_id,
+                        "name": "Error Loading Project",
+                        "role": "owner",
+                    }
+                )
 
         # Get projects where user is collaborator
         for db_project in user.involved_in:
@@ -286,17 +288,19 @@ def get_user(user_id):
                     "id": db_project.id,
                     "project_id": db_project.project_id,
                     "name": project.config.get("name", "Unnamed Project"),
-                    "role": "collaborator"
+                    "role": "collaborator",
                 }
                 user_projects.append(project_info)
             except Exception as e:
                 logging.warning(f"Could not load project {db_project.project_id}: {e}")
-                user_projects.append({
-                    "id": db_project.id,
-                    "project_id": db_project.project_id,
-                    "name": "Error Loading Project",
-                    "role": "collaborator"
-                })
+                user_projects.append(
+                    {
+                        "id": db_project.id,
+                        "project_id": db_project.project_id,
+                        "name": "Error Loading Project",
+                        "role": "collaborator",
+                    }
+                )
 
         user_data["projects"] = user_projects
 
