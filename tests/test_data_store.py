@@ -14,6 +14,7 @@ from asreview.data.store import CURRENT_DATASTORE_VERSION
 from asreview.data.store import DataStore
 from asreview.project.api import PATH_DATA_STORE
 from asreview.utils import _is_url
+from asreview.data.utils import identify_groups
 
 
 @pytest.fixture
@@ -355,5 +356,26 @@ def test_get_groups(store, groups):
     for (group_id, record_id) in groups:
         group_members = set((g_id, r_id) for (g_id, r_id) in groups if g_id == group_id)
         assert group_members == set(store.get_groups(record_id=record_id))
+
+
+@pytest.mark.parametrize(
+    "input_data,expected",
+    [
+        # No duplicates
+        (["a", "b", "c"], [(0, 0), (1, 1), (2, 2)]),
+        # Simple duplicate
+        (["a", "b", "a"], [(0, 0), (1, 1), (0, 2)]),
+        # Multiple duplicates of same element
+        (["x", "x", "x"], [(0, 0), (0, 1), (0, 2)]),
+        # Mix of unique and duplicate
+        (["a", "b", "a", "c", "b"], [(0, 0), (1, 1), (0, 2), (3, 3), (1, 4)]),
+        # Integers instead of strings
+        ([1, 2, 3, 1, 2], [(0, 0), (1, 1), (2, 2), (0, 3), (1, 4)]),
+        # Empty iterable
+        ([], []),
+    ],
+)
+def test_identify_groups(input_data, expected):
+    assert identify_groups(input_data) == expected
 
 
