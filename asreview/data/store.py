@@ -308,8 +308,8 @@ class DataStore:
                 record_to_group.keys()
             ):
                 raise ValueError(
-                    "`groups` should be a dictionary of the form"
-                    " `{record_id: group_id}` containing all record_ids in the data store."
+                    "`groups` should be a list of tuples of the form `(group_id,"
+                    " record_id)` containing all record_ids in the data store."
                 )
             for record in records:
                 record.duplicate_of = record_to_group[record.record_id]
