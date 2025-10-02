@@ -185,7 +185,7 @@ class DataStore:
         ------
         ValueError
             If some `record.duplicate_of` points to a non-existing record_id. You should
-            instead use `DataStore.add_groups` to set values of `duplicate_of`.
+            instead use `DataStore.set_groups` to set values of `duplicate_of`.
         """
         # SQLite makes an autoincremented primary key column start at 1. We want it to
         # start at 0, so that the record_id is equal to the row number of the record in

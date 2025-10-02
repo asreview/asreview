@@ -423,3 +423,23 @@ def test_identify_record_groups(records, record_ids, feature_extractors, expecte
         record.record_id = record_id
     result = identify_record_groups(records, feature_extractors)
     assert set(result) == set(expected)
+
+
+def test_load_dataset_grouped(tmpdir):
+    # Create a ris file that contains another dataset twice.
+    with open(Path("tests", "demo_data", "pubmed_zotero.ris")) as f:
+        file_text = f.read()
+    duplicate_fp = Path(tmpdir, "duplicate_test.ris")
+    # duplicate_fp = Path("tests", "demo_data", "duplicated_dataset.ris")
+    with open(duplicate_fp, "w") as f:
+        f.write(file_text + "\n\n" + file_text)
+
+    dataset = load_dataset(duplicate_fp, group_similar_records=True)
+    # The original dataset has 6 records, so this one has 12.
+    assert len(dataset) == 12
+    # There should be six groups, each containing the original record and the duplicated
+    # record six row lower.
+    groups = dataset.get_groups()
+    assert set(groups) == set((i, i) for i in range(6)).union(
+        set((i, i + 6) for i in range(6))
+    )

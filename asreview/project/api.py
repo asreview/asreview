@@ -38,13 +38,14 @@ from filelock import FileLock
 from asreview.data.loader import _from_file
 from asreview.data.loader import _get_reader
 from asreview.data.store import DataStore
+from asreview.data.utils import identify_record_groups
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
-from asreview.project.migrate import migrate_project_v1_v2
 from asreview.models import get_ai_config
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
+from asreview.project.migrate import migrate_project_v1_v2
 from asreview.project.schema import SCHEMA
 from asreview.state.sqlstate import SQLiteState
 from asreview.utils import _get_filename_from_url
@@ -298,6 +299,10 @@ class Project:
             name=file_name.rsplit(".", 1)[0],
             datasets=[{"id": dataset_id, "name": file_name}],
         )
+
+        if self.config.get("group_similar_records"):
+            groups = identify_record_groups(records)
+            self.data_store.set_groups(groups)
 
     def remove_dataset(self):
         """Remove dataset from project."""

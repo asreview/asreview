@@ -15,6 +15,12 @@ LIST_JOIN_CHAR = ";"
 RIS_LIST_COLUMNS = [TAG_KEY_MAPPING[list_type_tag] for list_type_tag in LIST_TYPE_TAGS]
 PANDAS_CSV_MAX_CELL_LIMIT = 131072
 
+# Default feature extractor for identifying groups of records.
+DEFAULT_EXTRACTORS = (
+    lambda record: record.title,
+    lambda record: record.abstract,
+)
+
 
 def duplicated(df, pid="doi"):
     """Return boolean Series denoting duplicate rows.
@@ -163,15 +169,15 @@ def identify_groups(s):
     return groups
 
 
-def identify_record_groups(records, feature_extractors):
+def identify_record_groups(records, feature_extractors=DEFAULT_EXTRACTORS):
     """Identify groups of duplicate records.
 
     Parameters
     ----------
     records : Iterable[Record]
         Records in which to identify groups.
-    feature_extractors : Sequence[Callable[[Record], Hashable]
-        List of functions that extract a feature from a record .
+    feature_extractors : Sequence[Callable[[Record], Hashable], optional
+        List of functions that extract a feature from a record.
 
     Returns
     -------
