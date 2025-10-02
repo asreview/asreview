@@ -334,33 +334,26 @@ def test_set_groups(store, groups, normalized_chain):
 
 
 @pytest.mark.parametrize(
-    "input_data, stored_data",
+    "groups",
     [
-        ({0: None, 1: None, 2: None, 3: None}, [(0, 0), (1, 1), (2, 2), (3, 3)]),
-        ({0: 1, 1: 0, 2: None, 3: None}, [(0, 0), (0, 1), (2, 2), (3, 3)]),
-        ({0: 3, 1: None, 2: 0, 3: 2}, [(0, 0), (0, 2), (0, 3), (1, 1)]),
-        ({0: 2, 1: 3, 2: 0, 3: 1}, [(0, 0), (0, 2), (1, 1), (1, 3)]),
-        ({0: 1, 1: 3, 2: 1, 3: 2}, [(0, 0), (0, 1), (0, 2), (0, 3)]),
+        [(0, 0), (1, 1), (2, 2), (3, 3)],
+        [(0, 0), (0, 1), (2, 2), (3, 3)],
+        [(0, 0), (0, 2), (0, 3), (1, 1)],
+        [(0, 0), (0, 2), (1, 1), (1, 3)],
+        [(0, 0), (0, 1), (0, 2), (0, 3)],
     ],
 )
-def test_get_groups(store, input_data, stored_data):
+def test_get_groups(store, groups):
     records = [
-        Record(dataset_row=idx, dataset_id="foo") for idx in range(len(input_data))
+        Record(dataset_row=idx, dataset_id="foo") for idx in range(len(groups))
     ]
     store.add_records(records)
-    store.set_groups(input_data)
-    groups = store.get_groups()
-    assert groups == stored_data
+    store.set_groups(groups)
+    stored_groups = store.get_groups()
+    assert stored_groups == groups
 
-    for target_record_id in range(len(input_data)):
-        target_group_id = next(
-            group_id
-            for (group_id, record_id) in stored_data
-            if record_id == target_record_id
-        )
-        group = [
-            (group_id, record_id)
-            for (group_id, record_id) in stored_data
-            if group_id == target_group_id
-        ]
-        assert store.get_groups(target_record_id) == group
+    for (group_id, record_id) in groups:
+        group_members = set((g_id, r_id) for (g_id, r_id) in groups if g_id == group_id)
+        assert group_members == set(store.get_groups(record_id=record_id))
+
+
