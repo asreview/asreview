@@ -6,6 +6,7 @@ from pytest import mark
 
 import asreview as asr
 from asreview.data.utils import duplicated
+from asreview.data.utils import identify_groups
 from asreview.datasets import DatasetManager
 
 
@@ -107,3 +108,24 @@ def test_duplicated_all_empty():
 
     result = duplicated(data)
     assert result.equals(pd.Series([False, False, False, False, False, False]))
+
+
+@mark.parametrize(
+    "input_data,expected",
+    [
+        # No duplicates
+        (["a", "b", "c"], [(0, 0), (1, 1), (2, 2)]),
+        # Simple duplicate
+        (["a", "b", "a"], [(0, 0), (1, 1), (0, 2)]),
+        # Multiple duplicates of same element
+        (["x", "x", "x"], [(0, 0), (0, 1), (0, 2)]),
+        # Mix of unique and duplicate
+        (["a", "b", "a", "c", "b"], [(0, 0), (1, 1), (0, 2), (3, 3), (1, 4)]),
+        # Integers instead of strings
+        ([1, 2, 3, 1, 2], [(0, 0), (1, 1), (2, 2), (0, 3), (1, 4)]),
+        # Empty iterable
+        ([], []),
+    ],
+)
+def test_identify_groups(input_data, expected):
+    assert identify_groups(input_data) == expected

@@ -133,3 +133,31 @@ def standardize_included_label(value):
         return replacement_dict[value]
     else:
         return value
+
+
+def identify_groups(s):
+    """
+    Identify groups of duplicate values.
+
+    Parameters
+    ----------
+    s : Iterable[Hashable]
+        Iterable of items for which to identify the groups.
+
+    Returns
+    -------
+    list[tuple[int, int]]
+        A list where each element corresponds to an input element and is a tuple:
+        (first_occurrence_index, current_index).
+
+    Examples
+    --------
+    >>> s = ["a", "b", "a", "c", "b"]
+    >>> find_duplicate_groups(s)
+    [(0, 0), (1, 1), (0, 2), (3, 3), (1, 4)]
+    """
+    first_seen = {}
+    groups = []
+    for idx, item in enumerate(s):
+        groups.append((first_seen.setdefault(item, idx), idx))
+    return groups
