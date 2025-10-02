@@ -138,7 +138,7 @@ class Project:
         project_mode="oracle",
         project_name=None,
         project_tags=None,
-        group_similar_records=False,
+        group_similar_records=True,
     ):
         """Initialize the necessary files specific to the web app."""
 
