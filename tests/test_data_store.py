@@ -420,6 +420,6 @@ def test_identify_groups(input_data, expected):
 )
 def test_identify_record_groups(records, record_ids, feature_extractors, expected):
     for record, record_id in zip(records, record_ids):
-        record.id = record_id
+        record.record_id = record_id
     result = identify_record_groups(records, feature_extractors)
     assert set(result) == set(expected)

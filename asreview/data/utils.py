@@ -187,7 +187,7 @@ def identify_record_groups(records, feature_extractors):
             records,
         )
     )
-    index_to_id = [record.id for record in records]
+    index_to_id = [record.record_id for record in records]
     return [
         (index_to_id[group_id], index_to_id[record_id])
         for (group_id, record_id) in groups
