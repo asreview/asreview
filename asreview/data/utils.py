@@ -161,3 +161,34 @@ def identify_groups(s):
     for idx, item in enumerate(s):
         groups.append((first_seen.setdefault(item, idx), idx))
     return groups
+
+
+def identify_record_groups(records, feature_extractors):
+    """Identify groups of duplicate records.
+
+    Parameters
+    ----------
+    records : Iterable[Record]
+        Records in which to identify groups.
+    feature_extractors : Sequence[Callable[[Record], Hashable]
+        List of functions that extract a feature from a record .
+
+    Returns
+    -------
+    list[tuple[int, int]]
+        A list of tuples `(group_id, record_id)`, where two records get the same value
+        for `group_id` if they have identical features.
+    """
+    groups = identify_groups(
+        map(
+            lambda record: tuple(
+                feature_extractor(record) for feature_extractor in feature_extractors
+            ),
+            records,
+        )
+    )
+    index_to_id = [record.id for record in records]
+    return [
+        (index_to_id[group_id], index_to_id[record_id])
+        for (group_id, record_id) in groups
+    ]

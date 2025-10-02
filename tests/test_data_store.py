@@ -15,6 +15,7 @@ from asreview.data.store import DataStore
 from asreview.project.api import PATH_DATA_STORE
 from asreview.utils import _is_url
 from asreview.data.utils import identify_groups
+from asreview.data.utils import identify_record_groups
 
 
 @pytest.fixture
@@ -345,15 +346,13 @@ def test_set_groups(store, groups, normalized_chain):
     ],
 )
 def test_get_groups(store, groups):
-    records = [
-        Record(dataset_row=idx, dataset_id="foo") for idx in range(len(groups))
-    ]
+    records = [Record(dataset_row=idx, dataset_id="foo") for idx in range(len(groups))]
     store.add_records(records)
     store.set_groups(groups)
     stored_groups = store.get_groups()
     assert stored_groups == groups
 
-    for (group_id, record_id) in groups:
+    for group_id, record_id in groups:
         group_members = set((g_id, r_id) for (g_id, r_id) in groups if g_id == group_id)
         assert group_members == set(store.get_groups(record_id=record_id))
 
@@ -379,3 +378,48 @@ def test_identify_groups(input_data, expected):
     assert identify_groups(input_data) == expected
 
 
+@pytest.mark.parametrize(
+    "records, record_ids, feature_extractors, expected",
+    [
+        # Case 1: identical titles → grouped
+        (
+            [
+                Record("ds1", 1, title="A"),
+                Record("ds1", 2, title="A"),
+                Record("ds1", 3, title="B"),
+            ],
+            [0, 1, 2],
+            [lambda r: r.title],
+            [(0, 0), (0, 1), (2, 2)],
+        ),
+        # Case 2: use dataset_id and dataset_row → all unique
+        (
+            [
+                Record("ds1", 1, title="A"),
+                Record("ds1", 2, title="A"),
+                Record("ds1", 3, title="A"),
+            ],
+            [4, 2, 7],
+            [lambda r: r.dataset_id, lambda r: r.dataset_row],
+            # All unique → group id = record id
+            [(4, 4), (2, 2), (7, 7)],
+        ),
+        # Case 3: two different groups by DOI
+        (
+            [
+                Record("ds1", 1, doi="x"),
+                Record("ds1", 2, doi="y"),
+                Record("ds1", 3, doi="x"),
+            ],
+            [3, 4, 5],
+            [lambda r: r.doi],
+            # First and third same group
+            [(3, 3), (4, 4), (3, 5)],
+        ),
+    ],
+)
+def test_identify_record_groups(records, record_ids, feature_extractors, expected):
+    for record, record_id in zip(records, record_ids):
+        record.id = record_id
+    result = identify_record_groups(records, feature_extractors)
+    assert set(result) == set(expected)
