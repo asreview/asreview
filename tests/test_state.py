@@ -551,3 +551,25 @@ def test_propagate_record_info(record_info, groups, expected, raises):
         result = _propagate_record_info(record_info, groups)
         # Convert to set for order-independent comparison
         assert set(result) == set(expected)
+
+
+@pytest.mark.parametrize(
+    "record_info, groups, expected",
+    [
+        ([(1, 1, "cat")], [(10, 1)], []),
+        (
+            [(1, 1, "cat")],
+            [(10, 1), (10, 2), (10, 3)],
+            [(2, 1, "cat"), (3, 1, "cat")],
+        ),
+        (
+            [(1, 1, "cat"), (3, 0, "dog")],
+            [(10, 1), (10, 2), (20, 3), (20, 4)],
+            [(2, 1, "cat"), (4, 0, "dog")],
+        ),
+    ],
+)
+def test_propage_only_new(record_info, groups, expected):
+    result = _propagate_record_info(record_info, groups, return_only_new=True)
+    # Convert to set for order-independent comparison
+    assert set(result) == set(expected)

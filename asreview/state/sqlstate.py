@@ -53,7 +53,7 @@ RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
 CURRENT_STATE_VERSION = 2
 
 
-def _propagate_record_info(record_info, groups):
+def _propagate_record_info(record_info, groups, return_only_new=False):
     """Propagate record-level information across groups of records.
 
     Each group defines a set of records that must share the same info. If one
@@ -106,11 +106,20 @@ def _propagate_record_info(record_info, groups):
             f"All records in the same group should have the same record info: {multivalued_groups}"
         )
 
+    if return_only_new:
+        original_record_ids = set(record_id for record_id, *_ in record_info)
     output = []
     for group_id, info_set in group_to_info.items():
         info = next(iter(info_set))
         record_ids = group_to_records.get(group_id, [group_id])
-        output += [(record_id, *info) for record_id in record_ids]
+        if return_only_new:
+            output += [
+                (record_id, *info)
+                for record_id in record_ids
+                if record_id not in original_record_ids
+            ]
+        else:
+            output += [(record_id, *info) for record_id in record_ids]
     return output
 
 
