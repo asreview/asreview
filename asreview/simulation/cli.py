@@ -23,6 +23,7 @@ import numpy as np
 from sklearn.utils import check_random_state
 
 from asreview import load_dataset
+from asreview.data.utils import identify_record_groups
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
@@ -149,8 +150,15 @@ def _cli_simulate(argv):
         )
         project.add_dataset(args.dataset, dataset_id=filename)
         data_store = project.data_store
+        if args.group_similar_records:
+            groups = identify_record_groups(data_store.get_records())
+            data_store.set_groups(groups)
     else:
-        data_store = load_dataset(args.dataset, dataset_id=filename)
+        data_store = load_dataset(
+            args.dataset,
+            dataset_id=filename,
+            group_similar_records=args.group_similar_records,
+        )
 
     prior_idx = args.prior_idx
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
@@ -179,11 +187,14 @@ def _cli_simulate(argv):
         ActiveLearningCycle.from_meta(cycle_meta),
     ]
 
+    groups = data_store.get_groups() if args.group_similar_records else None
+
     sim = Simulate(
         data_store.get_df(),
         data_store["included"],
         cycles,
         stopper=stopper,
+        groups=groups,
     )
 
     # select or sample prior knowledge and then label it
@@ -340,6 +351,11 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         type=int,
         help="The number of label actions to simulate. If not set, simulation stops "
         "after last relevant was found. Use -1 to simulate all label actions. Default: None.",
+    )
+    parser.add_argument(
+        "--group-similar-records",
+        action="store_true",
+        help="Put identical records in groups and label these records at the same time.",
     )
 
     # configuration file
