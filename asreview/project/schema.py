@@ -40,6 +40,7 @@ SCHEMA = {
                 {"id": "tfidf", "filename": "tfidf_feature_matrix.npz"}
             ],
             "dataset_path": "example.ris",
+            "group_similar_records": False,
         }
     ],
     "required": ["version", "id", "mode", "name"],
@@ -253,6 +254,14 @@ SCHEMA = {
                 ]
             ],
         },
+    },
+    "group_similar_records": {
+        "$id": "#/properties/group_similar_records",
+        "type": ["boolean", "null"],
+        "title": "The description schema",
+        "description": "Should similar records be grouped together and all receive the same label.",
+        "default": False,
+        "examples": [False],
     },
     "additionalProperties": True,
 }

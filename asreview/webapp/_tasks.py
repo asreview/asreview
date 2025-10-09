@@ -113,11 +113,18 @@ def run_simulation(project):
         asr.ActiveLearningCycle.from_meta(_read_cycle_data(project)),
     ]
 
+    groups = (
+        project.data_store.get_groups()
+        if project.config.get("group_similar_records")
+        else None
+    )
+
     sim = Simulate(
         project.data_store.get_df(),
         project.data_store["included"],
         cycles,
         print_progress=False,
+        groups=groups,
     )
     try:
         sim.label(priors)

@@ -8,6 +8,7 @@ from scipy.sparse import csr_matrix
 import asreview as asr
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.models.balancers import Balanced
+from asreview.state.sqlstate import _propagate_record_info
 
 TEST_LABELS = [1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
 TEST_RECORD_IDS = [
@@ -373,6 +374,49 @@ def test_update_decision(tmpdir):
         assert change_table["label"].to_list() == new_labels
 
 
+def test_update_decision_groups(tmpdir):
+    project_path = Path(tmpdir, "test.asreview")
+    asr.Project.create(project_path)
+    with asr.open_state(project_path) as state:
+        state.add_labeling_data(record_ids=[1, 2, 3], labels=[1, 1, 1])
+        state.update(record_ids=1, label=0, groups=[(10, 1), (10, 2)])
+        pd.testing.assert_frame_equal(
+            state.get_results_table(columns=["record_id", "label"]),
+            pd.DataFrame([[1, 0], [2, 0], [3, 1]], columns=["record_id", "label"]),
+            check_dtype=False,
+        )
+        pd.testing.assert_frame_equal(
+            state.get_decision_changes()[["record_id", "label"]],
+            pd.DataFrame([[1, 0], [2, 0]], columns=["record_id", "label"]),
+            check_dtype=False,
+        )
+        state.update(record_ids=3, label=0)
+        pd.testing.assert_frame_equal(
+            state.get_results_table(columns=["record_id", "label"]),
+            pd.DataFrame([[1, 0], [2, 0], [3, 0]], columns=["record_id", "label"]),
+            check_dtype=False,
+        )
+        pd.testing.assert_frame_equal(
+            state.get_decision_changes()[["record_id", "label"]],
+            pd.DataFrame([[1, 0], [2, 0], [3, 0]], columns=["record_id", "label"]),
+            check_dtype=False,
+        )
+        state.update(record_ids=[1, 3], groups=[(10, 2), (10, 3)], label=1)
+        pd.testing.assert_frame_equal(
+            state.get_results_table(columns=["record_id", "label"]),
+            pd.DataFrame([[1, 1], [2, 1], [3, 1]], columns=["record_id", "label"]),
+            check_dtype=False,
+        )
+        pd.testing.assert_frame_equal(
+            state.get_decision_changes()[["record_id", "label"]],
+            pd.DataFrame(
+                [[1, 0], [2, 0], [3, 0], [1, 1], [2, 1], [3, 1]],
+                columns=["record_id", "label"],
+            ),
+            check_dtype=False,
+        )
+
+
 def test_last_ranking(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
@@ -465,3 +509,67 @@ def test_add_extra_column(tmpdir):
 
         assert isinstance(top_ranked, pd.Series)
         assert len(top_ranked) == 1
+
+
+@pytest.mark.parametrize(
+    "record_info, groups, expected, raises",
+    [
+        # Single group, single record
+        ([(1, 1, "cat")], [(10, 1)], [(1, 1, "cat")], None),
+        # Single group, label propagates to all records
+        (
+            [(1, 1, "cat")],
+            [(10, 1), (10, 2), (10, 3)],
+            [(1, 1, "cat"), (2, 1, "cat"), (3, 1, "cat")],
+            None,
+        ),
+        # Two groups, labels propagate separately
+        (
+            [(1, 1, "cat"), (3, 0, "dog")],
+            [(10, 1), (10, 2), (20, 3), (20, 4)],
+            [(1, 1, "cat"), (2, 1, "cat"), (3, 0, "dog"), (4, 0, "dog")],
+            None,
+        ),
+        # Group with no label should not appear in output
+        ([(1, 1)], [(10, 1), (10, 2), (20, 3), (20, 4)], [(1, 1), (2, 1)], None),
+        # Conflicting info in same group should raise ValueError
+        ([(1, 1), (2, 0)], [(10, 1), (10, 2)], None, ValueError),
+        # Records without group info are treated as being in a singleton group.
+        (
+            [(1, "cat"), (2, "dog")],
+            [(10, 1), (10, 3)],
+            [(1, "cat"), (2, "dog"), (3, "cat")],
+            None,
+        ),
+    ],
+)
+def test_propagate_record_info(record_info, groups, expected, raises):
+    if raises:
+        with pytest.raises(raises):
+            _propagate_record_info(record_info, groups)
+    else:
+        result = _propagate_record_info(record_info, groups)
+        # Convert to set for order-independent comparison
+        assert set(result) == set(expected)
+
+
+@pytest.mark.parametrize(
+    "record_info, groups, expected",
+    [
+        ([(1, 1, "cat")], [(10, 1)], []),
+        (
+            [(1, 1, "cat")],
+            [(10, 1), (10, 2), (10, 3)],
+            [(2, 1, "cat"), (3, 1, "cat")],
+        ),
+        (
+            [(1, 1, "cat"), (3, 0, "dog")],
+            [(10, 1), (10, 2), (20, 3), (20, 4)],
+            [(2, 1, "cat"), (4, 0, "dog")],
+        ),
+    ],
+)
+def test_propage_only_new(record_info, groups, expected):
+    result = _propagate_record_info(record_info, groups, return_only_new=True)
+    # Convert to set for order-independent comparison
+    assert set(result) == set(expected)
