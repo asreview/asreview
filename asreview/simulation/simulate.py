@@ -47,6 +47,37 @@ def _get_name_from_estimator(estimator):
     return estimator.name
 
 
+def _assert_no_conflicts_in_groups(labels, groups):
+    """Ensures that all records within the same group share the same label.
+
+    This function checks for label consistency within groups of records.
+    For each `(group_id, record_id)` pair in `groups`, it verifies that
+    all records assigned to the same `group_id` have identical labels
+    according to the `labels` list. If any group contains conflicting
+    labels, an `AssertionError` is raised.
+
+    Parameters
+    ----------
+    labels : list
+        A list of labels, where the entry in spot `i` contains the label of the record
+        with `record_id = i`.
+    groups : Iterable[tuple[int, int]]
+        An iterable of `(group_id, record_id)` pairs representing which records belong
+        to which groups.
+
+    Raises
+    ------
+    AssertionError
+        If a group contains records with differing labels.
+    """
+    group_to_label = {}
+    for group_id, record_id in groups:
+        label = labels[record_id]
+        if group_id in group_to_label and group_to_label[group_id] != label:
+            raise AssertionError(f"Group {group_id} contains conflicting labels.")
+        group_to_label[group_id] = label
+
+
 class Simulate:
     """ASReview simulation class.
 
