@@ -15,7 +15,7 @@ import AuthAPI from "api/AuthAPI";
 import { useFormik } from "formik";
 import { useToggle } from "hooks/useToggle";
 import * as React from "react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import * as Yup from "yup";
 import { InlineErrorHandler } from ".";

@@ -1,6 +1,6 @@
 import { Button, Stack, Typography, useMediaQuery } from "@mui/material";
 import * as React from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 
 import { Container } from "@mui/material";

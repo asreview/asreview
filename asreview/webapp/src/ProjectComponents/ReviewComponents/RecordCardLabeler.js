@@ -11,7 +11,7 @@ import {
   Divider,
   FormControlLabel,
   FormGroup,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   ListItemIcon,
   ListItemText,
@@ -26,7 +26,7 @@ import {
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import React from "react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useHotkeys } from "react-hotkeys-hook";
 

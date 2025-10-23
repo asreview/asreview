@@ -9,11 +9,11 @@ import {
   IconButton,
   Popover,
   Button,
-  Grid2 as Grid,
+  Grid,
   Alert,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ProjectAPI } from "api";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";

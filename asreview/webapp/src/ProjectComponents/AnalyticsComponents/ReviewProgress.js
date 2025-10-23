@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   Card,
   CardContent,
-  Grid2 as Grid,
+  Grid,
   Paper,
   Skeleton,
   Stack,
@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 

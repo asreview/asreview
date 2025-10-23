@@ -15,7 +15,7 @@ import ReviewScreenOutlined from "icons/ReviewScreenOutlined";
 import { ProjectDeleteDialog, ProjectRenameDialog } from "ProjectComponents";
 import { SetupDialog } from "ProjectComponents/SetupComponents";
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 
 import {
@@ -24,7 +24,7 @@ import {
   ButtonBase,
   Card,
   Chip,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   LinearProgress,
   ListItemIcon,

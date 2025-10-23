@@ -1,5 +1,5 @@
 import React from "react";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogTitle,
@@ -11,7 +11,7 @@ import {
   Chip,
   CircularProgress,
   Alert,
-  Grid2 as Grid,
+  Grid,
   Snackbar,
   Stack,
   Divider,

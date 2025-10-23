@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { ProjectAPI } from "api";
 import { useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 function MetricsInfoPopover({ open, anchorEl, onClose }) {

@@ -13,6 +13,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  Grid,
   IconButton,
   Popover,
   Skeleton,
@@ -26,13 +27,12 @@ import { useContext } from "react";
 import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
 
 import { ProjectAPI } from "api";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Add } from "@mui/icons-material";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import StyleIcon from "@mui/icons-material/Style";
-import Grid from "@mui/material/Grid2";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 

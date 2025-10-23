@@ -17,7 +17,7 @@ import {
   Article as ArticleIcon,
   FileDownloadOutlined as FileDownloadOutlinedIcon,
 } from "@mui/icons-material";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { ProjectAPI } from "api";
 import { projectStatuses } from "globals.js";

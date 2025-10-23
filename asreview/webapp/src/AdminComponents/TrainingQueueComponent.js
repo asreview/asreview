@@ -5,7 +5,7 @@ import {
   Card,
   CardContent,
   Chip,
-  Grid2,
+  Grid,
   IconButton,
   Paper,
   Stack,
@@ -40,7 +40,7 @@ import {
   ExpandMore as ExpandMoreIcon,
   Help as HelpIcon,
 } from "@mui/icons-material";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminAPI } from "api";
 
 const ResetQueueConfirmDialog = ({ open, onClose, onConfirm, isLoading }) => (
@@ -440,9 +440,9 @@ const TrainingQueueComponent = () => {
       />
 
       {/* Status Cards */}
-      <Grid2 container spacing={3} sx={{ mb: 3 }}>
+      <Grid container spacing={3} sx={{ mb: 3 }}>
         {/* Database Status */}
-        <Grid2 size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -464,10 +464,10 @@ const TrainingQueueComponent = () => {
               </Stack>
             </CardContent>
           </Card>
-        </Grid2>
+        </Grid>
 
         {/* Task Manager Status */}
-        <Grid2 size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -500,8 +500,8 @@ const TrainingQueueComponent = () => {
               </Stack>
             </CardContent>
           </Card>
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
 
       {/* Currently Training Projects - Show First */}
       {queueStatus?.running_projects &&

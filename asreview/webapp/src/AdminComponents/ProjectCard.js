@@ -7,7 +7,7 @@ import {
   CardActionArea,
   Chip,
   Alert,
-  Grid2 as Grid,
+  Grid,
 } from "@mui/material";
 
 import { getStatusColor, getStatusLabel } from "utils/projectStatus";

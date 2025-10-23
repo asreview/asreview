@@ -1,9 +1,9 @@
 import React from "react";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import {
   Box,
-  Grid2 as Grid,
+  Grid,
   Stack,
   Typography,
   IconButton,

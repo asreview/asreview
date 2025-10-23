@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
 import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
@@ -10,13 +10,13 @@ import {
   Card,
   CardContent,
   Divider,
+  Grid,
   IconButton,
   Popover,
   Skeleton,
   Stack,
   Typography,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2";
 import { LabelHistoryPrior } from "ProjectComponents/HistoryComponents";
 import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";

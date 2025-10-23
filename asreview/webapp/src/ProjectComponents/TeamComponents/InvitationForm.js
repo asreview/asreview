@@ -1,16 +1,10 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Grid2 as Grid,
-} from "@mui/material";
+import { Button, Card, CardContent, CardHeader, Grid } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Snackbar from "@mui/material/Snackbar";
 import TextField from "@mui/material/TextField";
 import { TeamAPI } from "api";
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const InvitationForm = ({ project_id }) => {
   const queryClient = useQueryClient();

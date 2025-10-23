@@ -1,6 +1,6 @@
 import * as React from "react";
 import ReactLoading from "react-loading";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { ProjectAPI } from "api";
 
 import {

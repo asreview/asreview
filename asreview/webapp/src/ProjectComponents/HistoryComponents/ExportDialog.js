@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import { ProjectAPI } from "api";
 import * as React from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { StyledDialog } from "StyledComponents/StyledDialog";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 

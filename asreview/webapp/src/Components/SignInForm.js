@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { ForgotPassword } from "Components";
 import * as React from "react";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import { InlineErrorHandler, SignInOAuth } from ".";
 

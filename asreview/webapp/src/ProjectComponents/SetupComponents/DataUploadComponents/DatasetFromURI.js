@@ -14,7 +14,7 @@ import { ProjectAPI } from "api";
 import { InlineErrorHandler } from "Components";
 import { StyledInputSearch } from "StyledComponents/StyledInputSearch";
 
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 
 const DatasetFromURI = ({ mode, setSetupProjectId }) => {
   const [localURI, setURI] = React.useState("");

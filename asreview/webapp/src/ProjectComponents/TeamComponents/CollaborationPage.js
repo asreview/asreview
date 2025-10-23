@@ -13,7 +13,7 @@ import { AuthAPI, TeamAPI } from "api";
 import { InlineErrorHandler } from "Components";
 import { useToggle } from "hooks/useToggle";
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 const CollaborationPage = ({ project_id }) => {

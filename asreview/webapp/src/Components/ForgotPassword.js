@@ -7,7 +7,7 @@ import {
   TextField,
 } from "@mui/material";
 import * as React from "react";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 import AuthAPI from "api/AuthAPI";
@@ -68,7 +68,6 @@ const ForgotPassword = ({ showNotification }) => {
           )}
         </Stack>
       </CardContent>
-
       <CardActions sx={{ p: 2 }}>
         {window.emailVerification && (
           <Button

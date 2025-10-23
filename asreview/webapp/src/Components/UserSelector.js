@@ -1,6 +1,6 @@
 import React from "react";
 import { Autocomplete, TextField, Typography } from "@mui/material";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { TeamAPI } from "api";
 import { getUserDisplayName } from "utils/userUtils";
 

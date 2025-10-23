@@ -23,7 +23,7 @@ import {
 import { InitialsAvatar } from "StyledComponents/InitialsAvatar";
 import { ProjectAPI, TeamAPI } from "api";
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 
 const initDeleteData = {

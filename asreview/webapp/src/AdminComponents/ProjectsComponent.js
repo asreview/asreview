@@ -1,14 +1,7 @@
 import React from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
-import {
-  Box,
-  Stack,
-  Alert,
-  Grid2 as Grid,
-  Chip,
-  Typography,
-} from "@mui/material";
+import { Box, Stack, Alert, Grid, Chip, Typography } from "@mui/material";
 import { FolderOutlined } from "@mui/icons-material";
 
 import { AdminAPI } from "api";

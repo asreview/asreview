@@ -28,7 +28,7 @@ import {
   DatasetFromURI,
 } from "ProjectComponents/SetupComponents/DataUploadComponents";
 
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 const Upload = ({ mode }) => {
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));

@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Grid2 as Grid,
+  Grid,
   SpeedDial,
   SpeedDialAction,
   Stack,
@@ -19,7 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import {
   EmailIcon,
