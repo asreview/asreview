@@ -62,13 +62,10 @@ refresh in the browser.
 
 #### Visual Studio Code task
 
-Users of Visual Studio Code can set up servers easily by configuring a task
-([ASReview Development `tasks.json` on GitHub
-gist](https://gist.github.com/J535D165/9dd94fec840115c844059658904f7607)).
-
-Use the task `startASReviewDevServer` to start the development servers. This
-task enables authentication by default. Use `startASReviewDevServer_NoAuth` for
-the non-authenticated version.
+Users of Visual Studio Code can set up the development servers easily by using
+Visual Studio Code tasks. Use the task `startASReviewDevServer` to start the
+development servers. This task enables authentication by default. Use
+`startASReviewDevServer_NoAuth` for the non-authenticated version.
 
 #### Authentication
 
