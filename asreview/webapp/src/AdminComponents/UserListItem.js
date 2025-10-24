@@ -19,9 +19,26 @@ const UserListItem = ({
   showDeleteButton = false,
   onDelete,
   disableDelete = false,
+  onUserClick,
 }) => {
+  const handleUserClick = () => {
+    if (onUserClick) {
+      onUserClick(user);
+    }
+  };
   return (
-    <ListItem sx={{ px: 0, py: 1 }}>
+    <ListItem
+      sx={{
+        px: 0,
+        py: 1,
+        cursor: onUserClick ? "pointer" : "default",
+        "&:hover": {
+          backgroundColor: onUserClick ? "action.hover" : "transparent",
+          borderRadius: 1,
+        },
+      }}
+      onClick={handleUserClick}
+    >
       <ListItemAvatar>
         <UserAvatar user={user} isOwner={user.owner} isPending={user.pending} />
       </ListItemAvatar>
@@ -34,7 +51,17 @@ const UserListItem = ({
               gap: 1,
             }}
           >
-            <Typography variant="body1">{user.name || user.email}</Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: onUserClick ? "primary.main" : "text.primary",
+                "&:hover": {
+                  textDecoration: onUserClick ? "underline" : "none",
+                },
+              }}
+            >
+              {user.name || user.email}
+            </Typography>
             {showPendingChip && user.pending && (
               <Chip
                 label="Pending"

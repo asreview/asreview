@@ -24,6 +24,7 @@ import { InlineErrorHandler } from "Components";
 import { UserFormDialog } from "AdminComponents";
 import UserCard from "./UserCard";
 import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
+import ProjectDetailsModal from "./ProjectDetailsModal";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 const UsersComponent = () => {
@@ -34,6 +35,10 @@ const UsersComponent = () => {
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [userToDelete, setUserToDelete] = React.useState(null);
+
+  // Project modal state
+  const [selectedProject, setSelectedProject] = React.useState(null);
+  const [projectModalOpen, setProjectModalOpen] = React.useState(false);
 
   // Fetch users from the API
   const {
@@ -184,6 +189,24 @@ const UsersComponent = () => {
   const handleCloseDeleteDialog = () => {
     setDeleteDialogOpen(false);
     setUserToDelete(null);
+  };
+
+  const handleProjectClick = (project) => {
+    setSelectedProject(project);
+    setProjectModalOpen(true);
+  };
+
+  const handleProjectModalClose = () => {
+    setProjectModalOpen(false);
+    setSelectedProject(null);
+  };
+
+  const handleUserClickFromProject = (user) => {
+    setSelectedUser(user);
+    setDialogMode("edit");
+    setUserFormDialogOpen(true);
+    // Close project modal when opening user modal
+    setProjectModalOpen(false);
   };
 
   const openInfo = Boolean(anchorElInfo);
@@ -379,6 +402,7 @@ const UsersComponent = () => {
         isSubmitting={dialogMode === "create" ? isCreatingUser : isUpdatingUser}
         user={selectedUser}
         mode={dialogMode}
+        onProjectClick={handleProjectClick}
       />
 
       {/* Delete Confirmation Dialog */}
@@ -388,6 +412,14 @@ const UsersComponent = () => {
         onConfirm={handleConfirmDelete}
         user={userToDelete}
         isDeleting={isDeletingUser}
+      />
+
+      {/* Project Details Modal */}
+      <ProjectDetailsModal
+        open={projectModalOpen}
+        onClose={handleProjectModalClose}
+        project={selectedProject}
+        onUserClick={handleUserClickFromProject}
       />
     </Box>
   );

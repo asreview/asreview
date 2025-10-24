@@ -26,6 +26,7 @@ const UserList = React.memo(
     showDeleteButton = false,
     onDelete,
     isDeleting = false,
+    onUserClick,
   }) => {
     if (users.length === 0) {
       return (
@@ -49,6 +50,7 @@ const UserList = React.memo(
             showDeleteButton={showDeleteButton}
             onDelete={onDelete}
             disableDelete={isDeleting}
+            onUserClick={onUserClick}
           />
         ))}
       </List>
@@ -85,6 +87,7 @@ const TeamSection = ({
   isError,
   errorMessage,
   projectId,
+  onUserClick,
 }) => {
   const queryClient = useQueryClient();
   const [deleteConfirmDialog, setDeleteConfirmDialog] = React.useState({
@@ -199,6 +202,7 @@ const TeamSection = ({
           showDeleteButton={true}
           onDelete={handleDeleteUser}
           isDeleting={isDeleting}
+          onUserClick={onUserClick}
         />
       </Box>
 
@@ -216,6 +220,7 @@ const TeamSection = ({
           showDeleteButton={true}
           onDelete={handleDeleteUser}
           isDeleting={isDeleting}
+          onUserClick={onUserClick}
         />
       </Box>
 
