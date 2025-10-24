@@ -34,27 +34,25 @@ const SignInForm = () => {
 
   const [showPassword, toggleShowPassword] = useToggle();
 
-  const { error, isError, isLoading, mutate, reset } = useMutation(
-    AuthAPI.signin,
-    {
-      onSuccess: (data) => {
-        if (data.logged_in) {
-          setEmail("");
-          setPassword("");
-          if (from === "/") {
-            navigate("/reviews");
-          } else {
-            navigate(from, { replace: true });
-          }
+  const { error, isError, isLoading, mutate, reset } = useMutation({
+    mutationFn: AuthAPI.signin,
+    onSuccess: (data) => {
+      if (data.logged_in) {
+        setEmail("");
+        setPassword("");
+        if (from === "/") {
+          navigate("/reviews");
         } else {
-          console.error("Backend could not log you in.");
+          navigate(from, { replace: true });
         }
-      },
-      onError: (data) => {
-        console.error("Signin error", data);
-      },
+      } else {
+        console.error("Backend could not log you in.");
+      }
     },
-  );
+    onError: (data) => {
+      console.error("Signin error", data);
+    },
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();

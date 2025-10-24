@@ -35,7 +35,8 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
     edit: false,
   });
 
-  const { isLoading, mutate } = useMutation(ProjectAPI.mutateInfo, {
+  const { isLoading, mutate } = useMutation({
+    mutationFn: ProjectAPI.mutateInfo,
     mutationKey: ["mutateInfo"],
     onSuccess: (data) => {
       setState({
@@ -106,16 +107,15 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
   const [feedbackBar, setFeedbackBar] = React.useState(null);
   const [simulationStarted, setSimulationStarted] = React.useState(false);
 
-  const { data } = useQuery(
-    ["fetchProject", { project_id: project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      enabled: open,
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data } = useQuery({
+    queryKey: ["fetchProject", { project_id: project_id }],
+    queryFn: ProjectAPI.fetchInfo,
+    enabled: open,
+    refetchOnWindowFocus: false,
+  });
 
-  const { mutate: setStatus } = useMutation(ProjectAPI.mutateReviewStatus, {
+  const { mutate: setStatus } = useMutation({
+    mutationFn: ProjectAPI.mutateReviewStatus,
     mutationKey: ["mutateReviewStatus"],
     onSuccess: () => {
       if (mode === projectModes.SIMULATION) {

@@ -74,7 +74,8 @@ const ResetPassword = () => {
     },
   });
 
-  const { mutate } = useMutation(AuthAPI.resetPassword, {
+  const { mutate } = useMutation({
+    mutationFn: AuthAPI.resetPassword,
     onMutate: () => {
       queryClient.resetQueries("user");
     },

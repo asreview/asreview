@@ -26,15 +26,13 @@ const ProjectDeleteDialog = ({
 
   const [deleteInput, setDeleteInput] = React.useState("");
 
-  const { error, isError, isLoading, mutate, reset } = useMutation(
-    ProjectAPI.mutateDeleteProject,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries("fetchProjects");
-        onClose();
-      },
+  const { error, isError, isLoading, mutate, reset } = useMutation({
+    mutationFn: ProjectAPI.mutateDeleteProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries("fetchProjects");
+      onClose();
     },
-  );
+  });
 
   const onChangeTitle = (event) => {
     if (isError) {

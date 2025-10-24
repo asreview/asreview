@@ -42,7 +42,9 @@ const UsersComponent = () => {
     isError,
     error,
     refetch,
-  } = useQuery(["fetchUsers"], AdminAPI.fetchUsers, {
+  } = useQuery({
+    queryKey: ["fetchUsers"],
+    queryFn: AdminAPI.fetchUsers,
     refetchOnWindowFocus: false,
     retry: 2,
   });
@@ -84,52 +86,46 @@ const UsersComponent = () => {
   }, [usersData]);
 
   // Mutation for creating new users
-  const { mutate: createUser, isLoading: isCreatingUser } = useMutation(
-    AdminAPI.createUser,
-    {
-      onSuccess: () => {
-        refetch(); // Refresh the user list
-        setUserFormDialogOpen(false);
-        setSelectedUser(null);
-      },
-      onError: (error) => {
-        console.error("Failed to create user:", error);
-        // You could add a toast notification here
-      },
+  const { mutate: createUser, isLoading: isCreatingUser } = useMutation({
+    mutationFn: AdminAPI.createUser,
+    onSuccess: () => {
+      refetch(); // Refresh the user list
+      setUserFormDialogOpen(false);
+      setSelectedUser(null);
     },
-  );
+    onError: (error) => {
+      console.error("Failed to create user:", error);
+      // You could add a toast notification here
+    },
+  });
 
   // Mutation for updating users
-  const { mutate: updateUser, isLoading: isUpdatingUser } = useMutation(
-    ({ userId, userData }) => AdminAPI.updateUser(userId, userData),
-    {
-      onSuccess: () => {
-        refetch(); // Refresh the user list
-        setUserFormDialogOpen(false);
-        setSelectedUser(null);
-      },
-      onError: (error) => {
-        console.error("Failed to update user:", error);
-        // You could add a toast notification here
-      },
+  const { mutate: updateUser, isLoading: isUpdatingUser } = useMutation({
+    mutationFn: ({ userId, userData }) => AdminAPI.updateUser(userId, userData),
+    onSuccess: () => {
+      refetch(); // Refresh the user list
+      setUserFormDialogOpen(false);
+      setSelectedUser(null);
     },
-  );
+    onError: (error) => {
+      console.error("Failed to update user:", error);
+      // You could add a toast notification here
+    },
+  });
 
   // Mutation for deleting users
-  const { mutate: deleteUser, isLoading: isDeletingUser } = useMutation(
-    (userId) => AdminAPI.deleteUser(userId),
-    {
-      onSuccess: () => {
-        refetch(); // Refresh the user list
-        setDeleteDialogOpen(false);
-        setUserToDelete(null);
-      },
-      onError: (error) => {
-        console.error("Failed to delete user:", error);
-        // You could add a toast notification here
-      },
+  const { mutate: deleteUser, isLoading: isDeletingUser } = useMutation({
+    mutationFn: (userId) => AdminAPI.deleteUser(userId),
+    onSuccess: () => {
+      refetch(); // Refresh the user list
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
     },
-  );
+    onError: (error) => {
+      console.error("Failed to delete user:", error);
+      // You could add a toast notification here
+    },
+  });
 
   const handleHelpPopoverOpen = (event) => {
     setAnchorElInfo(event.currentTarget);

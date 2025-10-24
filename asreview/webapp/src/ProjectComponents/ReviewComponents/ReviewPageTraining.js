@@ -58,14 +58,12 @@ const FinishSetup = ({ project_id, refetch }) => {
   const [openSkipTraining, toggleSkipTraining] = useToggle();
 
   // mutate and start new training
-  const { mutate: startTraining, isLoading: isTraining } = useMutation(
-    ProjectAPI.mutateTraining,
-    {
-      onSuccess: () => {
-        refetch();
-      },
+  const { mutate: startTraining, isLoading: isTraining } = useMutation({
+    mutationFn: ProjectAPI.mutateTraining,
+    onSuccess: () => {
+      refetch();
     },
-  );
+  });
 
   const skipTraining = (method) => {
     if (method === "random") {

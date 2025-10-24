@@ -35,13 +35,11 @@ const PriorCard = ({ mode = projectModes.ORACLE, editable = true }) => {
   // const [priorType, setPriorType] = React.useState("records");
   const priorType = "records";
 
-  const { data, isLoading } = useQuery(
-    ["fetchLabeledStats", { project_id: project_id }],
-    ProjectAPI.fetchLabeledStats,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data, isLoading } = useQuery({
+    queryKey: ["fetchLabeledStats", { project_id: project_id }],
+    queryFn: ProjectAPI.fetchLabeledStats,
+    refetchOnWindowFocus: false,
+  });
 
   const onClosePriorSearch = () => {
     queryClient.resetQueries("fetchLabeledStats");

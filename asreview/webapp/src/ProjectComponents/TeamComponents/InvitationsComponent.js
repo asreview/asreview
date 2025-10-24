@@ -18,7 +18,8 @@ const InvitationsComponent = ({ onEmpty = null }) => {
     TeamAPI.getProjectInvitations(),
   );
 
-  const { mutate: handleAcceptance } = useMutation(TeamAPI.acceptInvitation, {
+  const { mutate: handleAcceptance } = useMutation({
+    mutationFn: TeamAPI.acceptInvitation,
     onSuccess: (data) => {
       queryClient.invalidateQueries("fetchProjects");
 
@@ -41,7 +42,8 @@ const InvitationsComponent = ({ onEmpty = null }) => {
     },
   });
 
-  const { mutate: handleRejection } = useMutation(TeamAPI.rejectInvitation, {
+  const { mutate: handleRejection } = useMutation({
+    mutationFn: TeamAPI.rejectInvitation,
     onSuccess: (data) => {
       queryClient.invalidateQueries("getProjectInvitations");
 

@@ -57,7 +57,8 @@ const ConfirmAccount = () => {
     },
   });
 
-  const { mutate } = useMutation(AuthAPI.confirmAccount, {
+  const { mutate } = useMutation({
+    mutationFn: AuthAPI.confirmAccount,
     onMutate: () => {
       queryClient.resetQueries("user");
     },

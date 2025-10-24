@@ -155,21 +155,19 @@ const ImportProject = ({ ...buttonProps }) => {
   const [importSnackbar, toggleImportSnackbar] = useToggle();
   const [warningDialog, toggleWarningDialog] = useToggle();
 
-  const { mutate, isLoading, data, isError, error } = useMutation(
-    ProjectAPI.mutateImportProject,
-    {
-      mutationKey: ["importProject"],
-      onSuccess: (data) => {
-        queryClient.invalidateQueries("fetchProjects");
+  const { mutate, isLoading, data, isError, error } = useMutation({
+    mutationFn: ProjectAPI.mutateImportProject,
+    mutationKey: ["importProject"],
+    onSuccess: (data) => {
+      queryClient.invalidateQueries("fetchProjects");
 
-        if (data?.warnings.length === 0) {
-          navigateToProject(data?.data?.mode, data?.data?.id);
-        } else {
-          toggleWarningDialog();
-        }
-      },
+      if (data?.warnings.length === 0) {
+        navigateToProject(data?.data?.mode, data?.data?.id);
+      } else {
+        toggleWarningDialog();
+      }
     },
-  );
+  });
 
   const navigateToProject = (mode, project_id) => {
     const projectSubset = mode === "oracle" ? "reviews" : "simulations";

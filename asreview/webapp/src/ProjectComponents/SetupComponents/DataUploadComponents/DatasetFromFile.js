@@ -50,7 +50,8 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     isLoading: isCreatingProject,
     mutate: addDataset,
     reset: resetAddDataset,
-  } = useMutation(ProjectAPI.createProject, {
+  } = useMutation({
+    mutationFn: ProjectAPI.createProject,
     mutationKey: ["addDataset"],
     onSuccess: (data) => {
       setSetupProjectId(data.id);

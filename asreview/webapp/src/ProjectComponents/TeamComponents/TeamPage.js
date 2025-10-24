@@ -48,7 +48,8 @@ const TeamPage = () => {
     },
   );
 
-  const { mutate: removeInvitation } = useMutation(TeamAPI.deleteInvitation, {
+  const { mutate: removeInvitation } = useMutation({
+    mutationFn: TeamAPI.deleteInvitation,
     onSuccess: () => {
       queryClient.invalidateQueries(["fetchUsers", project_id]);
       queryClient.invalidateQueries(["fetchProjectInvitations"]);
@@ -64,25 +65,23 @@ const TeamPage = () => {
       });
     },
   });
-  const { mutate: removeCollaboration } = useMutation(
-    TeamAPI.deleteCollaboration,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["fetchUsers", project_id]);
-        queryClient.invalidateQueries(["fetchProjectInvitations"]);
-        setSnackbar({
-          show: true,
-          message: "Collaboration ended",
-        });
-      },
-      onError: () => {
-        setSnackbar({
-          show: true,
-          message: "Unable to end the collaboration",
-        });
-      },
+  const { mutate: removeCollaboration } = useMutation({
+    mutationFn: TeamAPI.deleteCollaboration,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["fetchUsers", project_id]);
+      queryClient.invalidateQueries(["fetchProjectInvitations"]);
+      setSnackbar({
+        show: true,
+        message: "Collaboration ended",
+      });
     },
-  );
+    onError: () => {
+      setSnackbar({
+        show: true,
+        message: "Unable to end the collaboration",
+      });
+    },
+  });
 
   const { data: currentUser, isSuccess: isSuccessInfo } = useQuery(
     ["fetchProjectInfo", { project_id }],

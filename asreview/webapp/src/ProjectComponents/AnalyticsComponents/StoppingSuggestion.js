@@ -62,19 +62,18 @@ const StoppingSuggestion = ({ project_id }) => {
     },
   );
 
-  const { mutate: updateStoppingRule } = useMutation(
-    ProjectAPI.mutateStopping,
-    {
-      onSuccess: (data) => {
-        queryClient.invalidateQueries([
-          "fetchStopping",
-          { project_id: project_id },
-        ]);
-        setIsThresholdSet(true);
-        handleCloseEdit();
-      },
+  const { mutate: updateStoppingRule } = useMutation({
+    mutationKey: ["updateStopping", { project_id }],
+    mutationFn: ProjectAPI.mutateStopping,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries([
+        "fetchStopping",
+        { project_id: project_id },
+      ]);
+      setIsThresholdSet(true);
+      handleCloseEdit();
     },
-  );
+  });
 
   React.useEffect(() => {
     if (data && data?.value && data?.params?.n) {

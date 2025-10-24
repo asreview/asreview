@@ -68,18 +68,16 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
     // error: exportProjectError,
     // isError: isExportProjectError,
     isFetching: isExportingProject,
-  } = useQuery(
-    ["fetchExportProject", { project_id: project.id }],
-    ProjectAPI.fetchExportProject,
-    {
-      enabled: exporting,
-      refetchOnWindowFocus: false,
-      onSettled: () => {
-        setExporting(false);
-        setAnchorEl(null);
-      },
+  } = useQuery({
+    queryKey: ["fetchExportProject", { project_id: project.id }],
+    queryFn: ProjectAPI.fetchExportProject,
+    enabled: exporting,
+    refetchOnWindowFocus: false,
+    onSettled: () => {
+      setExporting(false);
+      setAnchorEl(null);
     },
-  );
+  });
 
   const openProject = (path = "") => {
     if (review?.status === projectStatuses.SETUP) {
@@ -89,23 +87,21 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
     }
   };
 
-  const { mutate: handleClickUpdateStatus } = useMutation(
-    ProjectAPI.mutateReviewStatus,
-    {
-      onSuccess: (data) => {
-        queryClient.setQueryData(
-          ["fetchProjectStatus", { project_id: project.id }],
-          data,
-        );
-        queryClient.invalidateQueries([
-          "fetchProjectInfo",
-          { project_id: project.id },
-        ]);
-        queryClient.invalidateQueries("fetchProjects");
-        setAnchorEl(null);
-      },
+  const { mutate: handleClickUpdateStatus } = useMutation({
+    mutationFn: ProjectAPI.mutateReviewStatus,
+    onSuccess: (data) => {
+      queryClient.setQueryData(
+        ["fetchProjectStatus", { project_id: project.id }],
+        data,
+      );
+      queryClient.invalidateQueries([
+        "fetchProjectInfo",
+        { project_id: project.id },
+      ]);
+      queryClient.invalidateQueries("fetchProjects");
+      setAnchorEl(null);
     },
-  );
+  });
 
   const handleClickDelete = () => {
     setAnchorEl(null);

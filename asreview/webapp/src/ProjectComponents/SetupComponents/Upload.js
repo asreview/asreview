@@ -37,7 +37,9 @@ const Upload = ({ mode }) => {
   const [snackbarMessage, setSnackbarMessage] = React.useState(null);
   const [setupProjectId, setSetupProjectId] = React.useState(null);
 
-  useQuery(["fetchProjects", { subset: mode }], ProjectAPI.fetchProjects, {
+  useQuery({
+    queryKey: ["fetchProjects", { subset: mode }],
+    queryFn: ProjectAPI.fetchProjects,
     onSuccess: (data) => {
       if (data?.result.length === 0) {
         setUploadSource("file");

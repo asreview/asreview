@@ -74,7 +74,8 @@ const ProfilePage = (props) => {
   const shouldHideDeleteButton =
     window.oAuthData !== "false" && showFirstTimeMessage;
 
-  const { error, isError, mutate } = useMutation(AuthAPI.updateProfile, {
+  const { error, isError, mutate } = useMutation({
+    mutationFn: AuthAPI.updateProfile,
     onSuccess: (data) => {
       if (data.email_changed && data.user_id) {
         AuthAPI.signout().then(() => {
@@ -90,7 +91,8 @@ const ProfilePage = (props) => {
     },
   });
 
-  const { mutate: deleteAccount } = useMutation(AuthAPI.deleteAccount, {
+  const { mutate: deleteAccount } = useMutation({
+    mutationFn: AuthAPI.deleteAccount,
     onSuccess: () => {
       queryClient.invalidateQueries();
       navigate("/signin");
@@ -151,7 +153,9 @@ const ProfilePage = (props) => {
     validationSchema: SignupSchema,
   });
 
-  const { data, isFetched } = useQuery("fetchProfileData", AuthAPI.getProfile, {
+  const { data, isFetched } = useQuery({
+    queryKey: ["fetchProfileData"],
+    queryFn: AuthAPI.getProfile,
     onSuccess: (data) => {
       var email = data.message.email;
       var name = data.message.name;

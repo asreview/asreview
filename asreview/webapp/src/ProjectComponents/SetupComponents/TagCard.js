@@ -241,33 +241,29 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
     },
   );
 
-  const { mutate: createTagGroup, error: createError } = useMutation(
-    ProjectAPI.createTagGroup,
-    {
-      mutationKey: ["createTagGroup"],
-      onSuccess: () => {
-        queryClient.invalidateQueries(["fetchTagGroups", { project_id }]);
-        closeDialog();
-      },
-      onError: (error) => {
-        console.error("An error occurred while saving the tag group:", error);
-      },
+  const { mutate: createTagGroup, error: createError } = useMutation({
+    mutationFn: ProjectAPI.createTagGroup,
+    mutationKey: ["createTagGroup"],
+    onSuccess: () => {
+      queryClient.invalidateQueries(["fetchTagGroups", { project_id }]);
+      closeDialog();
     },
-  );
+    onError: (error) => {
+      console.error("An error occurred while saving the tag group:", error);
+    },
+  });
 
-  const { mutate: mutateTagGroup, error: mutateError } = useMutation(
-    ProjectAPI.mutateTagGroup,
-    {
-      mutationKey: ["mutateTagGroup"],
-      onSuccess: () => {
-        queryClient.invalidateQueries(["fetchTagGroups", { project_id }]);
-        closeDialog();
-      },
-      onError: (error) => {
-        console.error("An error occurred while saving the tag group:", error);
-      },
+  const { mutate: mutateTagGroup, error: mutateError } = useMutation({
+    mutationFn: ProjectAPI.mutateTagGroup,
+    mutationKey: ["mutateTagGroup"],
+    onSuccess: () => {
+      queryClient.invalidateQueries(["fetchTagGroups", { project_id }]);
+      closeDialog();
     },
-  );
+    onError: (error) => {
+      console.error("An error occurred while saving the tag group:", error);
+    },
+  });
 
   const handleGroupLabelChange = (e) => {
     setState((prev) => ({
@@ -495,13 +491,11 @@ const TagCard = () => {
   const [dialogOpen, toggleDialogOpen] = useToggle();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const { data, isLoading } = useQuery(
-    ["fetchTagGroups", { project_id: project_id }],
-    ProjectAPI.fetchTagGroups,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data, isLoading } = useQuery({
+    queryKey: ["fetchTagGroups", { project_id: project_id }],
+    queryFn: ProjectAPI.fetchTagGroups,
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <Card>

@@ -25,7 +25,8 @@ const DatasetFromURI = ({ mode, setSetupProjectId }) => {
     isLoading: isResolving,
     mutate: mutateResolve,
     error: errorResolve,
-  } = useMutation(ProjectAPI.resolveURI, {
+  } = useMutation({
+    mutationFn: ProjectAPI.resolveURI,
     mutationKey: ["resolveURI"],
     onSuccess: (data) => {
       if (data["files"] && data["files"].length === 1) {
@@ -40,7 +41,8 @@ const DatasetFromURI = ({ mode, setSetupProjectId }) => {
     error,
     isLoading,
     mutate: createProject,
-  } = useMutation(ProjectAPI.createProject, {
+  } = useMutation({
+    mutationFn: ProjectAPI.createProject,
     mutationKey: ["createProject"],
     onSuccess: (data) => {
       setSetupProjectId(data.id);

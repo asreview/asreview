@@ -17,15 +17,13 @@ const ProjectRenameDialog = ({ open, onClose, projectTitle, project_id }) => {
   const queryClient = useQueryClient();
   const [newTitle, setNewTitle] = React.useState(projectTitle);
 
-  const { error, isError, isLoading, mutate, reset } = useMutation(
-    ProjectAPI.mutateInfo,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries("fetchProjects");
-        onClose();
-      },
+  const { error, isError, isLoading, mutate, reset } = useMutation({
+    mutationFn: ProjectAPI.mutateInfo,
+    onSuccess: () => {
+      queryClient.invalidateQueries("fetchProjects");
+      onClose();
     },
-  );
+  });
 
   const onChangeTitle = (event) => {
     if (isError) {

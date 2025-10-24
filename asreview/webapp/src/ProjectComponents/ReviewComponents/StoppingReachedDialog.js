@@ -26,7 +26,8 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
+  const { mutate } = useMutation({
+    mutationFn: ProjectAPI.mutateReviewStatus,
     onSuccess: () => {
       queryClient.invalidateQueries(["fetchProjectStatus", { project_id }]);
       queryClient.invalidateQueries(["fetchProjectInfo", { project_id }]);
@@ -35,18 +36,16 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
     },
   });
 
-  const { mutate: updateStoppingRule } = useMutation(
-    ProjectAPI.mutateStopping,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([
-          "fetchStopping",
-          { project_id: project_id },
-        ]);
-        onClose();
-      },
+  const { mutate: updateStoppingRule } = useMutation({
+    mutationFn: ProjectAPI.mutateStopping,
+    onSuccess: () => {
+      queryClient.invalidateQueries([
+        "fetchStopping",
+        { project_id: project_id },
+      ]);
+      onClose();
     },
-  );
+  });
 
   const handleFinishProject = () => {
     mutate({

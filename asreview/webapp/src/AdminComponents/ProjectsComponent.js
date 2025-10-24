@@ -22,7 +22,9 @@ const ProjectsComponent = () => {
     isError,
     error,
     refetch,
-  } = useQuery(["fetchAdminProjects"], AdminAPI.fetchProjects, {
+  } = useQuery({
+    queryKey: ["fetchAdminProjects"],
+    queryFn: AdminAPI.fetchProjects,
     refetchOnWindowFocus: false,
     retry: 2,
   });

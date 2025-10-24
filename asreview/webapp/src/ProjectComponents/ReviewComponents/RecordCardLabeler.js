@@ -56,7 +56,8 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
 
   const [noteState, setNoteState] = React.useState(note);
 
-  const { isError, isLoading, mutate } = useMutation(ProjectAPI.mutateNote, {
+  const { isError, isLoading, mutate } = useMutation({
+    mutationFn: ProjectAPI.mutateNote,
     onSuccess: () => {
       queryClient.invalidateQueries(["fetchLabeledRecord", { project_id }]);
       queryClient.setQueryData(["fetchRecord", { project_id }], (data) => {
@@ -149,16 +150,14 @@ const RecordCardLabeler = ({
     tagValues ? tagValues : structuredClone(tagsForm),
   );
 
-  const { error, isError, isLoading, mutate, isSuccess } = useMutation(
-    ProjectAPI.mutateClassification,
-    {
-      onSuccess: () => {
-        if (onDecisionClose) {
-          onDecisionClose();
-        }
-      },
+  const { error, isError, isLoading, mutate, isSuccess } = useMutation({
+    mutationFn: ProjectAPI.mutateClassification,
+    onSuccess: () => {
+      if (onDecisionClose) {
+        onDecisionClose();
+      }
     },
-  );
+  });
 
   const handleTagValueChange = (isChecked, groupId, tagId) => {
     let groupI = tagValuesState.findIndex((group) => group.id === groupId);

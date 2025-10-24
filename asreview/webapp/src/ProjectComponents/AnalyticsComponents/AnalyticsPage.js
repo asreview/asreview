@@ -91,19 +91,17 @@ const AnalyticsPage = () => {
 
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
 
-  const { mutate: updateStatus } = useMutation(
-    (status) =>
+  const { mutate: updateStatus } = useMutation({
+    mutationFn: (status) =>
       ProjectAPI.mutateReviewStatus({
         project_id: project_id,
         status: status,
       }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["fetchProjectStatus", { project_id }]);
-        setOpenStatusDialog(false);
-      },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["fetchProjectStatus", { project_id }]);
+      setOpenStatusDialog(false);
     },
-  );
+  });
 
   const [openCompletionDialog, setOpenCompletionDialog] = useState(false);
 

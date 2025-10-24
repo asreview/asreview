@@ -215,13 +215,16 @@ const TrainingQueueComponent = () => {
     isLoading,
     error,
     refetch,
-  } = useQuery("trainingQueueStatus", () => AdminAPI.getTaskQueueStatus(), {
+  } = useQuery({
+    queryKey: ["trainingQueueStatus"],
+    queryFn: AdminAPI.getTaskQueueStatus,
     refetchInterval: 60000, // Auto-refresh every minute
     refetchOnWindowFocus: true,
   });
 
   // Mutation for resetting the training queue
-  const resetQueueMutation = useMutation(() => AdminAPI.resetTaskQueue(), {
+  const resetQueueMutation = useMutation({
+    mutationFn: AdminAPI.resetTaskQueue,
     onSuccess: (data) => {
       queryClient.invalidateQueries("trainingQueueStatus");
 

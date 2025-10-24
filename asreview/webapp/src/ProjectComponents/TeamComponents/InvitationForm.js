@@ -24,21 +24,19 @@ const InvitationForm = ({ project_id }) => {
     TeamAPI.fetchUsers,
   );
 
-  const { mutate, isLoading: isLoadingInvitation } = useMutation(
-    TeamAPI.inviteUser,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["fetchUsers", project_id]);
-        setSnackbarState({ open: true, message: "Invitation sent" });
-      },
-      onError: () => {
-        setSnackbarState({
-          open: true,
-          message: "Unable to invite the selected user",
-        });
-      },
+  const { mutate, isLoading: isLoadingInvitation } = useMutation({
+    mutationFn: TeamAPI.inviteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["fetchUsers", project_id]);
+      setSnackbarState({ open: true, message: "Invitation sent" });
     },
-  );
+    onError: () => {
+      setSnackbarState({
+        open: true,
+        message: "Unable to invite the selected user",
+      });
+    },
+  });
 
   return (
     <Card>

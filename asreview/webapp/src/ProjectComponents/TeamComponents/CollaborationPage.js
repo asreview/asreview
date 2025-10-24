@@ -23,7 +23,8 @@ const CollaborationPage = ({ project_id }) => {
   const [dialogOpen, toggleDialogOpen] = useToggle();
 
   const { data } = useQuery("user", AuthAPI.user);
-  const { mutate, isError } = useMutation(TeamAPI.deleteCollaboration, {
+  const { mutate, isError } = useMutation({
+    mutationFn: TeamAPI.deleteCollaboration,
     onSuccess: () => {
       queryClient.invalidateQueries(["fetchProjects"]);
       navigate("/reviews");

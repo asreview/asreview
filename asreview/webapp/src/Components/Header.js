@@ -34,7 +34,9 @@ const HeaderTeam = ({ project_id }) => {
 
   const [expandAvatars, setExpandAvatars] = useToggle(true);
 
-  const { data } = useQuery(["fetchUsers", project_id], TeamAPI.fetchUsers, {
+  const { data } = useQuery({
+    queryKey: ["fetchUsers", project_id],
+    queryFn: TeamAPI.fetchUsers,
     enabled: !!project_id,
   });
 

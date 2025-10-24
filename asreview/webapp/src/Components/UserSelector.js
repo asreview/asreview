@@ -15,26 +15,22 @@ const UserSelector = ({
   placeholder = "Type to search users...",
   ...autocompleteProps
 }) => {
-  const { data: projectUsers, isLoading: isLoadingProjectUsers } = useQuery(
-    ["fetchProjectUsers", projectId],
-    TeamAPI.fetchUsers,
-    {
-      enabled: Boolean(projectId && (excludeOwner || excludeMembers)),
-    },
-  );
+  const { data: projectUsers, isLoading: isLoadingProjectUsers } = useQuery({
+    queryKey: ["fetchProjectUsers", projectId],
+    queryFn: TeamAPI.fetchUsers,
+    enabled: Boolean(projectId && (excludeOwner || excludeMembers)),
+  });
 
-  const { data: allUsers, isLoading: isLoadingAllUsers } = useQuery(
-    ["fetchAdminUsers"],
-    () =>
+  const { data: allUsers, isLoading: isLoadingAllUsers } = useQuery({
+    queryKey: ["fetchAdminUsers"],
+    queryFn: () =>
       fetch(`${window.api_url}admin/users`, {
         credentials: "include",
       })
         .then((res) => res.json())
         .then((data) => data.users),
-    {
-      enabled: Boolean(projectId),
-    },
-  );
+    enabled: Boolean(projectId),
+  });
 
   const isLoading = isLoadingProjectUsers || isLoadingAllUsers;
 

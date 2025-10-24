@@ -26,7 +26,9 @@ import { feedbackURL, discussionsURL, documentationURL } from "globals.js";
 import { StyledDialog } from "StyledComponents/StyledDialog";
 
 const CommunityDialog = ({ onHelp, toggleHelp }) => {
-  const { data, error, isError } = useQuery("fetchFAQ", UtilsAPI.fetchFAQ, {
+  const { data, error, isError } = useQuery({
+    queryKey: ["fetchFAQ"],
+    queryFn: UtilsAPI.fetchFAQ,
     enabled: onHelp,
     retry: false,
     refetchOnWindowFocus: false,

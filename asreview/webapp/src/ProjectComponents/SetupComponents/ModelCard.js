@@ -98,7 +98,9 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
     data: learnerOptions,
     isLoading: isLoadingLearnerOptions,
     error: errorLearnerOptions,
-  } = useQuery("fetchLearners", ProjectAPI.fetchLearners, {
+  } = useQuery({
+    queryKey: ["fetchLearners"],
+    queryFn: ProjectAPI.fetchLearners,
     refetchOnWindowFocus: false,
   });
 
@@ -109,7 +111,8 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
     setSnackbarOpen(false);
   };
 
-  const { mutate } = useMutation(ProjectAPI.mutateLearner, {
+  const { mutate } = useMutation({
+    mutationFn: ProjectAPI.mutateLearner,
     onSuccess: (data, variables) => {
       queryClient.setQueryData(
         ["fetchLearner", { project_id: project_id }],
@@ -147,13 +150,11 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
     data: modelConfig,
     isLoading: isLoadingModelConfig,
     error: errorModelConfig,
-  } = useQuery(
-    ["fetchLearner", { project_id: project_id }],
-    ProjectAPI.fetchLearner,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  } = useQuery({
+    queryKey: ["fetchLearner", { project_id: project_id }],
+    queryFn: ProjectAPI.fetchLearner,
+    refetchOnWindowFocus: false,
+  });
 
   const isLoading = isLoadingLearnerOptions || isLoadingModelConfig;
   const error = errorLearnerOptions || errorModelConfig;

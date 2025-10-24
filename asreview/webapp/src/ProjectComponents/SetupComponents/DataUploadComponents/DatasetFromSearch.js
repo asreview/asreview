@@ -10,7 +10,8 @@ import { StyledInputSearch } from "StyledComponents/StyledInputSearch";
 const DatasetFromSearch = ({ mode, setDataset }) => {
   // const [localURI, setURI] = React.useState("");
 
-  const { error, isError } = useMutation(ProjectAPI.createProject, {
+  const { error, isError } = useMutation({
+    mutationFn: ProjectAPI.createProject,
     mutationKey: ["createProject"],
     onSuccess: (data) => {
       setDataset(data);
