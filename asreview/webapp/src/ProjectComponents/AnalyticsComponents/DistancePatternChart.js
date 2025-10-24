@@ -20,7 +20,7 @@ import { ProjectAPI } from "api";
 import { CardErrorHandler } from "Components";
 import { toJpeg, toPng, toSvg } from "html-to-image";
 import React from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import { projectModes } from "globals.js";
 

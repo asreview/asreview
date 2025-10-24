@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
 
 import {
@@ -9,7 +9,7 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   Popover,
   Skeleton,

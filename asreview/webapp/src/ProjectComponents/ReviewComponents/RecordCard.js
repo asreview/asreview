@@ -9,7 +9,7 @@ import {
   Collapse,
   Divider,
   Fade,
-  Grid2 as Grid,
+  Grid,
   Stack,
   Tooltip,
   Typography,

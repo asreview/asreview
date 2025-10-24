@@ -1,9 +1,9 @@
 import React from "react";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import {
   Box,
-  Grid2 as Grid,
+  Grid,
   Stack,
   Typography,
   IconButton,
@@ -33,15 +33,12 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
     { refetchOnWindowFocus: false },
   );
 
-  const { isError, isLoading, mutate, reset } = useMutation(
-    ProjectAPI.createProject,
-    {
-      mutationKey: ["addDataset"],
-      onSuccess: (data) => {
-        setSetupProjectId(data.id);
-      },
+  const { isError, isLoading, mutate, reset } = useMutation({
+    mutationFn: ProjectAPI.createProject,
+    onSuccess: (data) => {
+      setSetupProjectId(data.id);
     },
-  );
+  });
 
   const [selectedTab, setSelectedTab] = React.useState(0);
 

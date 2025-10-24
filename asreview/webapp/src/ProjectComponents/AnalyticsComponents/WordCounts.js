@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { ProjectAPI } from "api";
 import React from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 

@@ -18,7 +18,7 @@ import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
 import { useMediaQuery } from "@mui/material";
 import { ProjectAPI } from "api";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 const FlowChartStep = ({ value, label }) => {
   return (

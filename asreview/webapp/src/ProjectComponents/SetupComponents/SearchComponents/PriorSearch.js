@@ -1,7 +1,7 @@
 import { Search } from "@mui/icons-material";
 import { Alert, CircularProgress, Fade, Stack } from "@mui/material";
 import * as React from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";

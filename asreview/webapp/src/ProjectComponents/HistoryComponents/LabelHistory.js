@@ -15,7 +15,7 @@ import { FileDownloadOutlined } from "@mui/icons-material";
 import { useToggle } from "hooks/useToggle";
 import { useParams } from "react-router-dom";
 import { ExportDialog, Filter, LabeledRecord } from ".";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ProjectAPI } from "api";
 import { projectStatuses } from "globals.js";
 

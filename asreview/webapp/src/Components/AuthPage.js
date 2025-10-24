@@ -2,7 +2,7 @@ import {
   Box,
   Card,
   Fade,
-  Grid2 as Grid,
+  Grid,
   CardContent,
   Alert,
   Typography,

@@ -17,7 +17,7 @@ import {
   CardHeader,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 import BaseAPI from "api/AuthAPI";
@@ -60,7 +60,8 @@ const SignUpForm = () => {
     validationSchema: SignupSchema,
   });
 
-  const { error, isError, mutate, isLoading } = useMutation(BaseAPI.signup, {
+  const { error, isError, mutate, isLoading } = useMutation({
+    mutationFn: BaseAPI.signup,
     onSuccess: (data) => {
       // let email = formik.values.email;
       formik.setValues(initialValues, false);

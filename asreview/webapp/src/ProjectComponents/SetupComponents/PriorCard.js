@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import LibraryAddOutlinedIcon from "@mui/icons-material/LibraryAddOutlined";
 import NotInterestedOutlinedIcon from "@mui/icons-material/NotInterestedOutlined";
@@ -10,13 +10,13 @@ import {
   Card,
   CardContent,
   Divider,
+  Grid,
   IconButton,
   Popover,
   Skeleton,
   Stack,
   Typography,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2";
 import { LabelHistoryPrior } from "ProjectComponents/HistoryComponents";
 import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
@@ -35,13 +35,11 @@ const PriorCard = ({ mode = projectModes.ORACLE, editable = true }) => {
   // const [priorType, setPriorType] = React.useState("records");
   const priorType = "records";
 
-  const { data, isLoading } = useQuery(
-    ["fetchLabeledStats", { project_id: project_id }],
-    ProjectAPI.fetchLabeledStats,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data, isLoading } = useQuery({
+    queryKey: ["fetchLabeledStats", { project_id: project_id }],
+    queryFn: ProjectAPI.fetchLabeledStats,
+    refetchOnWindowFocus: false,
+  });
 
   const onClosePriorSearch = () => {
     queryClient.resetQueries("fetchLabeledStats");

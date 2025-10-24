@@ -11,7 +11,7 @@ import {
   Divider,
   FormControlLabel,
   FormGroup,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   ListItemIcon,
   ListItemText,
@@ -26,7 +26,7 @@ import {
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import React from "react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -56,7 +56,8 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
 
   const [noteState, setNoteState] = React.useState(note);
 
-  const { isError, isLoading, mutate } = useMutation(ProjectAPI.mutateNote, {
+  const { isError, isLoading, mutate } = useMutation({
+    mutationFn: ProjectAPI.mutateNote,
     onSuccess: () => {
       queryClient.invalidateQueries(["fetchLabeledRecord", { project_id }]);
       queryClient.setQueryData(["fetchRecord", { project_id }], (data) => {
@@ -149,16 +150,14 @@ const RecordCardLabeler = ({
     tagValues ? tagValues : structuredClone(tagsForm),
   );
 
-  const { error, isError, isLoading, mutate, isSuccess } = useMutation(
-    ProjectAPI.mutateClassification,
-    {
-      onSuccess: () => {
-        if (onDecisionClose) {
-          onDecisionClose();
-        }
-      },
+  const { error, isError, isLoading, mutate, isSuccess } = useMutation({
+    mutationFn: ProjectAPI.mutateClassification,
+    onSuccess: () => {
+      if (onDecisionClose) {
+        onDecisionClose();
+      }
     },
-  );
+  });
 
   const handleTagValueChange = (isChecked, groupId, tagId) => {
     let groupI = tagValuesState.findIndex((group) => group.id === groupId);
