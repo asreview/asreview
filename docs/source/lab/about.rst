@@ -124,7 +124,7 @@ encounter as you use ASReview LAB.
     A dataset is the collection of records (:term:`record`) that the :term:`user` reviews.
 
   ELAS
-    ELAS stands for “Electronic Learning Assistant”. It is the name of ASReview's
+    ELAS stands for "Electronic Learning Assistant". It is the name of ASReview's
     mascot. ELAS is used for storytelling and enhancing explainability.
 
   Extension
@@ -149,7 +149,7 @@ encounter as you use ASReview LAB.
     and focus of the screening process.
 
   Project
-    A project is created in ASReview LAB and can be a “review” or a “simulation”.
+    A project is created in ASReview LAB and can be a "review" or a "simulation".
     It contains the :term:`dataset`, :term:`Active learning model`, and the
     :term:`user` labels. A project can be exported to an ASReview file with
     extension ``.asreview``. The project can be imported back into ASReview LAB.
