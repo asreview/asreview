@@ -38,10 +38,12 @@ const UserCard = ({ user, onEdit, onDelete, isAdmin }) => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
+        cursor: "pointer",
         "&:hover": {
           filter: "brightness(0.96)",
         },
       }}
+      onDoubleClick={() => onEdit(user)}
     >
       <CardContent sx={{ flexGrow: 1, pb: 1 }}>
         <Stack spacing={2} alignItems="center">
