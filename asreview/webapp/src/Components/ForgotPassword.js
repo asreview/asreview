@@ -16,7 +16,8 @@ const ForgotPassword = ({ showNotification }) => {
   const navigate = useNavigate();
   const [email, setEmail] = React.useState("");
 
-  const { isLoading, mutate, reset } = useMutation(AuthAPI.forgotPassword, {
+  const { isLoading, mutate, reset } = useMutation({
+    mutationFn: AuthAPI.forgotPassword,
     onSuccess: (data) => {
       let userId = data.user_id;
       navigate(`/reset_password?user_id=${userId}`);

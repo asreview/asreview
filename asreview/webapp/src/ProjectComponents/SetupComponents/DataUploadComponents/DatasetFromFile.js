@@ -77,13 +77,11 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     [addDataset, mode, isCreatingProjectError, resetAddDataset],
   );
 
-  const { data } = useQuery(
-    ["fetchDatasetReaders", { project_id: project_id }],
-    ProjectAPI.fetchDatasetReaders,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data } = useQuery({
+    queryKey: ["fetchDatasetReaders", { project_id }],
+    queryFn: ProjectAPI.fetchDatasetReaders,
+    refetchOnWindowFocus: false,
+  });
 
   const acceptedFileTypes = data?.result
     ? data.result.reduce((acc, reader) => {

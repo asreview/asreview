@@ -27,11 +27,11 @@ import { EntryPointDataset } from ".";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
-  const { data } = useQuery(
-    ["fetchDatasets", { subset: subset }],
-    ProjectAPI.fetchDatasets,
-    { refetchOnWindowFocus: false },
-  );
+  const { data } = useQuery({
+    queryKey: ["fetchDatasets", { subset }],
+    queryFn: () => ProjectAPI.fetchDatasets({ subset }),
+    refetchOnWindowFocus: false,
+  });
 
   const { isError, isLoading, mutate, reset } = useMutation({
     mutationFn: ProjectAPI.createProject,

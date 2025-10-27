@@ -79,6 +79,7 @@ def create_app(**config_vars):
     with app.app_context():
         app.register_blueprint(projects.bp)
 
+    print(app.config.get("AUTHENTICATION", True))
     if app.config.get("AUTHENTICATION", True):
         # Login Manager
         login_manager = LoginManager(app)

@@ -30,8 +30,9 @@ const ReviewPage = () => {
     {
       refetchOnWindowFocus: false,
       retry: false,
-      refetchInterval: (data, query) => {
-        if (query.state.error || data?.status !== "setup") return false;
+      refetchInterval: (query) => {
+        if (query.state.error || query.state.data?.status !== "setup")
+          return false;
         return 4000;
       },
       refetchIntervalInBackground: true,

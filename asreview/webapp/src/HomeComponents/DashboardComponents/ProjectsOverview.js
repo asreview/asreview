@@ -21,10 +21,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 const ProjectsOverview = ({ mode }) => {
   const queryClient = useQueryClient();
 
-  const simulationOngoing = (data) => {
+  const simulationOngoing = (query) => {
     if (
       mode === projectModes.SIMULATION &&
-      data?.result.some(
+      query.state.data?.result.some(
         (project) => project.reviews[0]?.status === projectStatuses.REVIEW,
       )
     ) {
