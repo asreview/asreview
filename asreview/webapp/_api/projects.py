@@ -46,7 +46,6 @@ from asreview.data import CSVWriter
 from asreview.data import ExcelWriter
 from asreview.data import RISReader
 from asreview.data import TSVWriter
-from asreview.data.search import fuzzy_find
 from asreview.data.utils import convert_ris_list_columns_to_string
 from asreview.data.utils import duplicated
 from asreview.datasets import DatasetManager
@@ -291,10 +290,15 @@ def api_create_project():  # noqa: F401
                     labeled_indices
                 ].tolist()
 
+                if project.config.get("group_similar_records"):
+                    groups = project.data_store.get_groups()
+                else:
+                    groups = None
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
                     labels=labels,
                     user_id=None,
+                    groups=groups,
                 )
 
     except Exception as err:
@@ -518,21 +522,15 @@ def api_search_data(project):  # noqa: F401
     if not q:
         return jsonify({"result": []})
 
-    search_data = project.data_store[["title", "authors", "keywords"]]
-
     with open_state(project.project_path) as s:
         labeled_record_ids = s.get_results_table()["record_id"].to_list()
 
-    result_ids = fuzzy_find(
-        search_data,
-        q,
-        max_return=max_results,
-        exclude=labeled_record_ids,
+    records = project.data_store.search(
+        query=q, limit=max_results, exclude=labeled_record_ids
     )
 
     result = []
-    for result_id in result_ids:
-        record = project.data_store.get_records(result_id)
+    for record in records:
         record_d = asdict(record)
         record_d["state"] = None
         record_d["tags_form"] = read_tags_data(project)
@@ -1450,15 +1448,23 @@ def api_label_record(project, record_id):  # noqa: F401
         current_user.id if current_app.config.get("AUTHENTICATION", True) else None
     )
 
+    if project.config.get("group_similar_records"):
+        groups = project.data_store.get_groups(record_id=record_id)
+    else:
+        groups = None
+
     with open_state(project.project_path) as state:
         if request.method == "PUT":
-            state.update(record_id, label=label, tags=tags, user_id=user_id)
+            state.update(
+                record_id, label=label, tags=tags, user_id=user_id, groups=groups
+            )
         else:
             state.add_labeling_data(
                 record_ids=[record_id],
                 labels=[label],
                 tags=[tags],
                 user_id=user_id,
+                groups=groups,
             )
 
     if retrain_model:

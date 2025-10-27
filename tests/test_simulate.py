@@ -7,6 +7,27 @@ from asreview.models.queriers import TopDown
 from asreview.models.stoppers import IsFittable
 from asreview.simulation.cli import _cli_simulate
 from asreview.state.contextmanager import open_state
+from asreview.simulation.simulate import _assert_no_conflicts_in_groups
+
+
+@pytest.mark.parametrize(
+    "labels, groups, should_raise",
+    [
+        (["A", "A", "B"], [(1, 0), (1, 1), (2, 2)], False),
+        (["A", "B"], [(1, 0), (1, 1)], True),
+        (["X", "X", "Y", "Y"], [(1, 0), (1, 1), (2, 2), (2, 3)], False),
+        (["X", "X", "Y", "Z"], [(1, 0), (1, 1), (2, 2), (2, 3)], True),
+        ([], [], False),
+    ],
+)
+def test_assert_no_conflicts_in_groups(labels, groups, should_raise):
+    if should_raise:
+        with pytest.raises(
+            AssertionError, match=r"Group \d+ contains conflicting labels\."
+        ):
+            _assert_no_conflicts_in_groups(labels, groups)
+    else:
+        _assert_no_conflicts_in_groups(labels, groups)
 
 
 @pytest.mark.parametrize("balancer", ["balanced", None])

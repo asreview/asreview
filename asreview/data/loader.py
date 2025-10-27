@@ -3,6 +3,7 @@ from pathlib import Path
 
 from asreview.data.record import Record
 from asreview.data.store import DataStore
+from asreview.data.utils import identify_record_groups
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
 from asreview.utils import _get_filename_from_url
@@ -131,7 +132,14 @@ def load_records(name, dataset_id=None, **kwargs):
     raise FileNotFoundError(f"File, URL, or dataset does not exist: '{name}'")
 
 
-def load_dataset(name, dataset_id=None, data_store=None, record_cls=Record, **kwargs):
+def load_dataset(
+    name,
+    dataset_id=None,
+    data_store=None,
+    record_cls=Record,
+    group_similar_records=False,
+    **kwargs,
+):
     """Load dataset from file, URL, or plugin.
 
     Parameters
@@ -146,6 +154,8 @@ def load_dataset(name, dataset_id=None, data_store=None, record_cls=Record, **kw
         data store is created. By default None.
     record_cls : Type[asreview.data.record.Base], optional
         Record type to use for the dataset records, by default Record
+    group_similar_records : boolean, optional
+        Put similar records in groups.
     kwargs : dict, optional
         Keyword arguments passed to `load_records`.
 
@@ -163,4 +173,7 @@ def load_dataset(name, dataset_id=None, data_store=None, record_cls=Record, **kw
         name=name, dataset_id=dataset_id, record_cls=record_cls, **kwargs
     )
     data_store.add_records(records=records)
+    if group_similar_records:
+        groups = identify_record_groups(records)
+        data_store.set_groups(groups)
     return data_store

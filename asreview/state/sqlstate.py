@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import defaultdict
 import json
 import sqlite3
 import time
@@ -50,6 +51,76 @@ RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
 }
 
 CURRENT_STATE_VERSION = 2
+
+
+def _propagate_record_info(record_info, groups, return_only_new=False):
+    """Propagate record-level information across groups of records.
+
+    Each group defines a set of records that must share the same info. If one
+    record in a group has associated info, that info is propagated to all
+    other records in the group. If multiple records in the same group have
+    conflicting info, a ValueError is raised.
+
+    Parameters
+    ----------
+    record_info : list[tuple]
+        A list of tuples in the form ``(record_id, *info)``, where ``info`` is
+        any associated data for the record.
+    groups: list[tuple[int,int]] | None
+        A list of tuples in the form `(group_id, record_id)`, where `group_id`
+        identifies the group a record belongs to.
+
+    Returns
+    -------
+    list of tuple
+        A list of tuples in the form ``(record_id, *info)`` where the info has
+        been propagated to all records in the same group.
+
+    Raises
+    ------
+    ValueError
+        If records within the same group have conflicting info.
+    """
+    record_to_group = {}
+    group_to_records = defaultdict(list)
+    for group_id, record_id in groups:
+        record_to_group[record_id] = group_id
+        group_to_records[group_id].append(record_id)
+
+    group_to_info = defaultdict(set)
+    for record_id, *info in record_info:
+        group_id = record_to_group.get(record_id, record_id)
+        group_to_info[group_id].add(tuple(info))
+
+    multivalued_groups = [
+        {
+            "group_id": group_id,
+            "record_ids": group_to_records[group_id],
+            "info": info_set,
+        }
+        for group_id, info_set in group_to_info.items()
+        if len(info_set) > 1
+    ]
+    if multivalued_groups:
+        raise ValueError(
+            f"All records in the same group should have the same record info: {multivalued_groups}"
+        )
+
+    if return_only_new:
+        original_record_ids = set(record_id for record_id, *_ in record_info)
+    output = []
+    for group_id, info_set in group_to_info.items():
+        info = next(iter(info_set))
+        record_ids = group_to_records.get(group_id, [group_id])
+        if return_only_new:
+            output += [
+                (record_id, *info)
+                for record_id in record_ids
+                if record_id not in original_record_ids
+            ]
+        else:
+            output += [(record_id, *info) for record_id in record_ids]
+    return output
 
 
 class SQLiteState:
@@ -272,7 +343,9 @@ class SQLiteState:
             }
         ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
-    def add_labeling_data(self, record_ids, labels, tags=None, user_id=None):
+    def add_labeling_data(
+        self, record_ids, labels, tags=None, user_id=None, groups=None
+    ):
         """Add the data corresponding to a labeling action to the state file.
 
         Parameters
@@ -285,13 +358,11 @@ class SQLiteState:
             A dict of tags to save with the labeled records.
         user_id: int
             User id of the user who labeled the records.
+        groups: list[tuple[int,int]] | None
+            A list of tuples in the form `(group_id, record_id)`, where `group_id`
+            identifies the group a record belongs to. If there are other records in the
+            group of an added record, their data will be added as well.
         """
-
-        if tags is None:
-            tags = [None for _ in record_ids]
-
-        if len({len(record_ids), len(labels), len(tags)}) != 1:
-            raise ValueError("Input data should be of the same length.")
 
         if tags is None:
             tags = [None for _ in record_ids]
@@ -299,6 +370,13 @@ class SQLiteState:
             tags = [json.dumps(tags) for _ in record_ids]
         else:
             tags = [json.dumps(tag) for tag in tags]
+
+        if len({len(record_ids), len(labels), len(tags)}) != 1:
+            raise ValueError("Input data should be of the same length.")
+
+        record_data_list = list(zip(record_ids, labels, tags))
+        if groups:
+            record_data_list = _propagate_record_info(record_data_list, groups)
 
         labeling_time = time.time()
 
@@ -316,17 +394,17 @@ class SQLiteState:
             ),
             [
                 (
-                    int(record_ids[i]),
-                    int(labels[i]),
+                    int(record_data[0]),
+                    int(record_data[1]),
                     labeling_time,
-                    tags[i],
+                    record_data[2],
                     user_id,
                 )
-                for i in range(len(record_ids))
+                for record_data in record_data_list
             ],
         )
 
-        if cur.rowcount != len(record_ids):
+        if cur.rowcount != len(record_data_list):
             raise ValueError("Failed to insert or update labels for record.")
 
         con.commit()
@@ -543,20 +621,30 @@ class SQLiteState:
                 dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
             )
 
-    def update(self, record_id, label=None, tags=None, user_id=None):
-        """Change the label or tag of an already labeled record.
+    def update(self, record_ids, label=None, tags=None, user_id=None, groups=None):
+        """Change the label or tag of already labeled records.
 
         Parameters
         ----------
-        record_id: int
-            Id of the record whose label should be changed.
+        record_ids: int | list[int]
+            ID or list of IDs of the records whose label or tag should be changed.
         label: 0 / 1
-            New label of the record.
+            New label of the records.
         tags: list
-            Tags list to add to the record.
+            Tags list to add to the records.
+        groups: list[tuple[int,int]] | None
+            A list of tuples in the form `(group_id, record_id)`, where `group_id`
+            identifies the group a record belongs to. If there are other records in the
+            group of a deleted record, their data will be updated as well.
         """
+        if isinstance(record_ids, int):
+            record_ids = [record_ids]
 
-        cur = self._conn.cursor()
+        if groups:
+            records = [(record_id,) for record_id in record_ids]
+            record_ids = [
+                record[0] for record in _propagate_record_info(records, groups)
+            ]
 
         # Build dynamic SQL for updating only provided fields
         fields = []
@@ -570,19 +658,21 @@ class SQLiteState:
         if not fields:
             raise ValueError("At least one of label or tags must be provided.")
 
-        values.append(record_id)
+        insert_values = [(*values, record_id) for record_id in record_ids]
         sql = f"UPDATE results SET {', '.join(fields)} WHERE record_id = ?"
-        cur.execute(sql, tuple(values))
 
-        if cur.rowcount == 0:
-            raise ValueError(f"Record with id {record_id} not found.")
+        cur = self._conn.cursor()
+        cur.executemany(sql, insert_values)
 
-        cur.execute(
+        if cur.rowcount != len(record_ids):
+            raise ValueError("Failed to update data for record.")
+
+        cur.executemany(
             (
                 "INSERT INTO decision_changes (record_id, label, time, user_id) "
                 "VALUES (?, ?, ?, ?)"
             ),
-            (record_id, label, time.time(), user_id),
+            [(record_id, label, time.time(), user_id) for record_id in record_ids],
         )
 
         self._conn.commit()
@@ -609,23 +699,38 @@ class SQLiteState:
 
         self._conn.commit()
 
-    def delete_record_labeling_data(self, record_id):
-        """Delete the labeling data for the given record id.
+    def delete_record_labeling_data(self, record_ids, groups=None):
+        """Delete the labeling data for the given record IDs.
 
         Parameters
         ----------
-        record_id : str
-            Identifier of the record to delete.
-
+        record_ids : int | list[int]
+            Identifiers of the records to delete.
+        groups: list[tuple[int,int]] | None
+            A list of tuples in the form `(group_id, record_id)`, where `group_id`
+            identifies the group a record belongs to. If there are other records in the
+            group of a deleted record, their data will be deleted as well.
         """
+        if isinstance(record_ids, int):
+            record_ids = [record_ids]
+
+        if groups:
+            records = [(record_id,) for record_id in record_ids]
+            record_ids = [
+                record[0] for record in _propagate_record_info(records, groups)
+            ]
+
         current_time = time.time()
 
         cur = self._conn.cursor()
-        cur.execute("DELETE FROM results WHERE record_id=?", (record_id,))
+        cur.executemany(
+            "DELETE FROM results WHERE record_id=?",
+            [(record_id,) for record_id in record_ids],
+        )
 
-        cur.execute(
+        cur.executemany(
             ("INSERT INTO decision_changes (record_id, label, time) VALUES (?, ?, ?)"),
-            (record_id, None, current_time),
+            [(record_id, None, current_time) for record_id in record_ids],
         )
         self._conn.commit()
 

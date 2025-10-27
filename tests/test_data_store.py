@@ -14,6 +14,8 @@ from asreview.data.store import CURRENT_DATASTORE_VERSION
 from asreview.data.store import DataStore
 from asreview.project.api import PATH_DATA_STORE
 from asreview.utils import _is_url
+from asreview.data.utils import identify_groups
+from asreview.data.utils import identify_record_groups
 
 
 @pytest.fixture
@@ -88,11 +90,14 @@ def test_is_empty(store, records):
     assert not store.is_empty()
 
 
-def test_get_records(store_with_data):
+def test_get_records(store_with_data, records):
     row_number = 1
     record = store_with_data.get_records(row_number)
     assert isinstance(record, Record)
     assert record.record_id == row_number
+
+    all_records = store_with_data.get_records()
+    assert len(all_records) == len(records)
 
 
 def test_get_df(store_with_data):
@@ -124,6 +129,7 @@ def test_get_column(store_with_data, records):
 def test_custom_record(tmpdir):
     class CustomRecord(Base):
         __tablename__ = "custom"
+        __text_search_columns__ = ("foo",)
         foo: Mapped[str]
 
     fp = Path(tmpdir, PATH_DATA_STORE)
@@ -197,7 +203,7 @@ def test_duplicate_of(store):
     broken_duplicate_record = Record(
         dataset_id="foo", dataset_row=2, duplicate_of=non_existing_record_id
     )
-    with pytest.raises(IntegrityError):
+    with pytest.raises(ValueError):
         store.add_records([broken_duplicate_record])
 
     # Check that duplicate_of is set to null after duplicate is deleted.
@@ -263,3 +269,177 @@ def test_dataset_with_record_ids():
     store = load_dataset(fp)
     record_ids = store["record_id"]
     assert record_ids.to_list() == list(range(len(store)))
+
+
+def test_search(store):
+    record1 = Record(
+        dataset_row=0,
+        dataset_id="foo",
+        title="title alpha",
+        abstract="abstract beta",
+        authors=["A1", "A2"],
+        keywords=["foo", "bar"],
+    )
+    record2 = Record(
+        dataset_row=1,
+        dataset_id="foo",
+        title="title title title title gamma",
+        abstract="abstract delta",
+        authors=["A2", "A3"],
+        keywords=["bar", "baz"],
+    )
+    store.add_records([record1, record2])
+    assert store.search("alpha") == [record1]
+    assert store.search("title") == [record1, record2]
+    assert store.search("gamma") == [record2]
+    # Check bm25.
+    assert store.search("title", bm25_ranking=True) == [record2, record1]
+
+    # Check abstract.
+    assert store.search("beta") == [record1]
+    assert store.search("abstract") == [record1, record2]
+    assert store.search("delta") == [record2]
+
+    # Check authors.
+    assert store.search("A1") == [record1]
+    assert store.search("A2") == [record1, record2]
+    assert store.search("A3") == [record2]
+
+    # Check keywords.
+    assert store.search("foo") == [record1]
+    assert store.search("bar") == [record1, record2]
+    assert store.search("baz") == [record2]
+
+    # Check limit.
+    assert store.search("title", limit=1) == [record1]
+
+    assert store.search("title", exclude=[0, 3, 5]) == [record2]
+
+
+@pytest.mark.parametrize(
+    "groups, normalized_chain",
+    [
+        ([(0, 0)], {0: None}),
+        ([(0, 0), (0, 1)], {0: None, 1: 0}),
+        ([(0, 0), (0, 2), (1, 1)], {0: None, 1: None, 2: 0}),
+        ([(3, 0), (1, 1), (1, 2), (3, 3)], {0: 3, 1: None, 2: 1, 3: None}),
+    ],
+)
+def test_set_groups(store, groups, normalized_chain):
+    records = [Record(dataset_row=idx, dataset_id="foo") for idx in range(len(groups))]
+    store.add_records(records)
+    store.set_groups(groups)
+    stored_duplicate_chain = {
+        record.record_id: record.duplicate_of for record in store.get_records()
+    }
+    assert stored_duplicate_chain == normalized_chain
+
+
+@pytest.mark.parametrize(
+    "groups",
+    [
+        [(0, 0), (1, 1), (2, 2), (3, 3)],
+        [(0, 0), (0, 1), (2, 2), (3, 3)],
+        [(0, 0), (0, 2), (0, 3), (1, 1)],
+        [(0, 0), (0, 2), (1, 1), (1, 3)],
+        [(0, 0), (0, 1), (0, 2), (0, 3)],
+    ],
+)
+def test_get_groups(store, groups):
+    records = [Record(dataset_row=idx, dataset_id="foo") for idx in range(len(groups))]
+    store.add_records(records)
+    store.set_groups(groups)
+    stored_groups = store.get_groups()
+    assert stored_groups == groups
+
+    for group_id, record_id in groups:
+        group_members = set((g_id, r_id) for (g_id, r_id) in groups if g_id == group_id)
+        assert group_members == set(store.get_groups(record_id=record_id))
+
+
+@pytest.mark.parametrize(
+    "input_data,expected",
+    [
+        # No duplicates
+        (["a", "b", "c"], [(0, 0), (1, 1), (2, 2)]),
+        # Simple duplicate
+        (["a", "b", "a"], [(0, 0), (1, 1), (0, 2)]),
+        # Multiple duplicates of same element
+        (["x", "x", "x"], [(0, 0), (0, 1), (0, 2)]),
+        # Mix of unique and duplicate
+        (["a", "b", "a", "c", "b"], [(0, 0), (1, 1), (0, 2), (3, 3), (1, 4)]),
+        # Integers instead of strings
+        ([1, 2, 3, 1, 2], [(0, 0), (1, 1), (2, 2), (0, 3), (1, 4)]),
+        # Empty iterable
+        ([], []),
+    ],
+)
+def test_identify_groups(input_data, expected):
+    assert identify_groups(input_data) == expected
+
+
+@pytest.mark.parametrize(
+    "records, record_ids, feature_extractors, expected",
+    [
+        # Case 1: identical titles → grouped
+        (
+            [
+                Record("ds1", 1, title="A"),
+                Record("ds1", 2, title="A"),
+                Record("ds1", 3, title="B"),
+            ],
+            [0, 1, 2],
+            [lambda r: r.title],
+            [(0, 0), (0, 1), (2, 2)],
+        ),
+        # Case 2: use dataset_id and dataset_row → all unique
+        (
+            [
+                Record("ds1", 1, title="A"),
+                Record("ds1", 2, title="A"),
+                Record("ds1", 3, title="A"),
+            ],
+            [4, 2, 7],
+            [lambda r: r.dataset_id, lambda r: r.dataset_row],
+            # All unique → group id = record id
+            [(4, 4), (2, 2), (7, 7)],
+        ),
+        # Case 3: two different groups by DOI
+        (
+            [
+                Record("ds1", 1, doi="x"),
+                Record("ds1", 2, doi="y"),
+                Record("ds1", 3, doi="x"),
+            ],
+            [3, 4, 5],
+            [lambda r: r.doi],
+            # First and third same group
+            [(3, 3), (4, 4), (3, 5)],
+        ),
+    ],
+)
+def test_identify_record_groups(records, record_ids, feature_extractors, expected):
+    for record, record_id in zip(records, record_ids):
+        record.record_id = record_id
+    result = identify_record_groups(records, feature_extractors)
+    assert set(result) == set(expected)
+
+
+def test_load_dataset_grouped(tmpdir):
+    # Create a ris file that contains another dataset twice.
+    with open(Path("tests", "demo_data", "pubmed_zotero.ris")) as f:
+        file_text = f.read()
+    duplicate_fp = Path(tmpdir, "duplicate_test.ris")
+    # duplicate_fp = Path("tests", "demo_data", "duplicated_dataset.ris")
+    with open(duplicate_fp, "w") as f:
+        f.write(file_text + "\n\n" + file_text)
+
+    dataset = load_dataset(duplicate_fp, group_similar_records=True)
+    # The original dataset has 6 records, so this one has 12.
+    assert len(dataset) == 12
+    # There should be six groups, each containing the original record and the duplicated
+    # record six row lower.
+    groups = dataset.get_groups()
+    assert set(groups) == set((i, i) for i in range(6)).union(
+        set((i, i + 6) for i in range(6))
+    )

@@ -15,6 +15,12 @@ LIST_JOIN_CHAR = ";"
 RIS_LIST_COLUMNS = [TAG_KEY_MAPPING[list_type_tag] for list_type_tag in LIST_TYPE_TAGS]
 PANDAS_CSV_MAX_CELL_LIMIT = 131072
 
+# Default feature extractor for identifying groups of records.
+DEFAULT_EXTRACTORS = (
+    lambda record: record.title,
+    lambda record: record.abstract,
+)
+
 
 def duplicated(df, pid="doi"):
     """Return boolean Series denoting duplicate rows.
@@ -133,3 +139,62 @@ def standardize_included_label(value):
         return replacement_dict[value]
     else:
         return value
+
+
+def identify_groups(s):
+    """
+    Identify groups of duplicate values.
+
+    Parameters
+    ----------
+    s : Iterable[Hashable]
+        Iterable of items for which to identify the groups.
+
+    Returns
+    -------
+    list[tuple[int, int]]
+        A list where each element corresponds to an input element and is a tuple:
+        (first_occurrence_index, current_index).
+
+    Examples
+    --------
+    >>> s = ["a", "b", "a", "c", "b"]
+    >>> find_duplicate_groups(s)
+    [(0, 0), (1, 1), (0, 2), (3, 3), (1, 4)]
+    """
+    first_seen = {}
+    groups = []
+    for idx, item in enumerate(s):
+        groups.append((first_seen.setdefault(item, idx), idx))
+    return groups
+
+
+def identify_record_groups(records, feature_extractors=DEFAULT_EXTRACTORS):
+    """Identify groups of duplicate records.
+
+    Parameters
+    ----------
+    records : Iterable[Record]
+        Records in which to identify groups.
+    feature_extractors : Sequence[Callable[[Record], Hashable], optional
+        List of functions that extract a feature from a record.
+
+    Returns
+    -------
+    list[tuple[int, int]]
+        A list of tuples `(group_id, record_id)`, where two records get the same value
+        for `group_id` if they have identical features.
+    """
+    groups = identify_groups(
+        map(
+            lambda record: tuple(
+                feature_extractor(record) for feature_extractor in feature_extractors
+            ),
+            records,
+        )
+    )
+    index_to_id = [record.record_id for record in records]
+    return [
+        (index_to_id[group_id], index_to_id[record_id])
+        for (group_id, record_id) in groups
+    ]

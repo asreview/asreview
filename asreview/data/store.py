@@ -1,14 +1,90 @@
 import numpy as np
 import pandas as pd
 from sqlalchemy import NullPool
+from sqlalchemy import bindparam
 from sqlalchemy import create_engine
+from sqlalchemy import event
+from sqlalchemy import select
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.functions import coalesce
 
 from asreview.data.record import Base
 from asreview.data.record import Record
 
 CURRENT_DATASTORE_VERSION = 0
+
+
+def normalize_duplicate_chain(session, record: Record):
+    """Normalize the duplicate chain of a record.
+
+    We consider records to be in a group when they point to each other with the
+    `duplicate_of` column. We want to make it easy to query the groups by making sure
+    that all records in a group point to the same root record. We call the records
+    pointing to each other with the `duplicate_of` field the duplicate chain of the
+    record. So we want to avoid duplicate chains of length more than 2 and we want to
+    avoid circular duplicate chains.
+
+    For example, if `r1`, `r2` and `r3` are in a group we want to have:
+    ```
+    r1.duplicate_of = r3
+    r2.duplicate_of = r3
+    r3.duplicate_of = None
+    ```
+    and not
+    ```
+    r1.duplicate_of = r2
+    r2.duplicate_of = r3
+    r3.duplicate_of = None
+    ```
+    or even `r3.duplicate_of = r1`. We also avoid things like `r1.duplicate_of = r2` and
+    `r2.duplicate_of = 1` or even `r1.duplicate_of = r1`.
+
+    Parameters
+    ----------
+    session : sqlalchemy.Session
+        Database session.
+    record : Record
+        Record for which to normalize the duplicate chain.
+
+    Raises
+    ------
+    ValueError
+        If `record.duplicate_of` contains a non-existent record id.
+    """
+    current = record
+    record_chain = [current]
+
+    while current.duplicate_of is not None:
+        next_record = session.get(Record, current.duplicate_of)
+        if next_record is None:
+            raise ValueError(f"Invalid duplicate_of reference: {current.duplicate_of}")
+        if next_record in record_chain:
+            # cycle detected, set the record with the minimal record_id as root.
+            min_id = min(r.record_id for r in record_chain)
+            for r in record_chain:
+                r.duplicate_of = min_id if r.record_id != min_id else None
+            return
+        record_chain.append(next_record)
+        current = next_record
+
+    if len(record_chain) > 2:
+        root = record_chain[-1]
+        for r in record_chain[:-1]:
+            r.duplicate_of = root.record_id
+
+
+# Hook that ensures that record duplicate chains get normalized before flushing the
+# record to the database.
+@event.listens_for(Session, "before_flush")
+def flatten_duplicate_of(session, flush_context, instances):
+    record_mutations = [
+        obj for obj in session.new.union(session.dirty) if isinstance(obj, Base)
+    ]
+    if any(record.duplicate_of is not None for record in record_mutations):
+        for record in sorted(record_mutations, key=lambda record: record.record_id):
+            normalize_duplicate_chain(session, record)
 
 
 class DataStore:
@@ -94,7 +170,8 @@ class DataStore:
         If you are creating a new data store, you will need to call this method before
         adding data to the data store."""
         self.user_version = CURRENT_DATASTORE_VERSION
-        Base.metadata.create_all(self.engine)
+        self.record_cls._setup_sqlite_fts()
+        self.record_cls.metadata.create_all(self.engine)
 
     def add_records(self, records):
         """Add records to the data store.
@@ -103,6 +180,12 @@ class DataStore:
         ----------
         records : list[self.record_cls]
             List of records to add to the store.
+
+        Raises
+        ------
+        ValueError
+            If some `record.duplicate_of` points to a non-existing record_id. You should
+            instead use `DataStore.set_groups` to set values of `duplicate_of`.
         """
         # SQLite makes an autoincremented primary key column start at 1. We want it to
         # start at 0, so that the record_id is equal to the row number of the record in
@@ -115,6 +198,12 @@ class DataStore:
             session.add_all(records)
 
     def delete_record(self, record_id):
+        """Delete a record from the store.
+
+        WARNING: This method is purely here for completeness, it should not be used in
+        any production setting. Deleting records can lead to undefined behavior because
+        we make assumptions about the record_id in other parts of the code.
+        """
         with self.Session() as session, session.begin():
             record = session.get(self.record_cls, record_id)
             if record is None:
@@ -156,13 +245,13 @@ class DataStore:
         with self.Session() as session:
             return session.query(self.record_cls).first() is None
 
-    def get_records(self, record_id):
+    def get_records(self, record_id=None):
         """Get the records with the given record identifiers.
 
         Parameters
         ----------
-        record_id : int | list[int]
-            Record identifier or list record identifiers.
+        record_id : int | list[int] | None
+            Record identifier or list record identifiers. If None, get all records.
 
         Returns
         -------
@@ -172,7 +261,9 @@ class DataStore:
             record_id = record_id.item()
 
         with self.Session() as session:
-            if isinstance(record_id, int):
+            if record_id is None:
+                return session.query(self.record_cls).all()
+            elif isinstance(record_id, int):
                 return (
                     session.query(self.record_cls)
                     .filter(self.record_cls.record_id == record_id)
@@ -188,6 +279,74 @@ class DataStore:
                 record_id_to_position = {id: i for i, id in enumerate(record_id)}
                 return sorted(records, key=lambda r: record_id_to_position[r.record_id])
 
+    def set_groups(self, groups):
+        """Add record group information to the data store.
+
+        Parameters
+        ----------
+        groups : list[tuple[int,int]]
+            List of tuples (group_id, record_id). All record_ids in the data store
+            should be present. If multiple records are in the same group, the
+            value of `group_id` should be the record_id of one of the record in the
+            group. This data is added to the record as the `duplicate_of` attribute. The
+            data store will normalize these values: One record is chosen as the root,
+            satisfying `root.duplicate_of = None`. All other records in the group will
+            get `record.duplicate_of = root.record_id`.
+
+        Raises
+        ------
+        ValueError
+            If the `groups` does not contain all record_ids that are in the data store.
+        """
+        record_to_group = {
+            record_id: group_id if group_id != record_id else None
+            for (group_id, record_id) in groups
+        }
+        with self.Session() as session, session.begin():
+            records = session.scalars(select(Record)).all()
+            if set(record.record_id for record in records) != set(
+                record_to_group.keys()
+            ):
+                raise ValueError(
+                    "`groups` should be a list of tuples of the form `(group_id,"
+                    " record_id)` containing all record_ids in the data store."
+                )
+            for record in records:
+                record.duplicate_of = record_to_group[record.record_id]
+
+    def get_groups(self, record_id=None):
+        """Get the record groups.
+
+        Parameters
+        ----------
+        record_id : int | None
+            Get only the group containing the record with this record_id.
+
+        Returns
+        -------
+        list[tuple[int, int]]
+            List of tuples (group_id, record_id) ordered by group id. The tuples values
+            are also accessible by the attribute names (so `tuple.group_id` and
+            `tuple.record_id`).
+        """
+        # The group_id is equal to the value of `duplicate_of` is present, otherwise it
+        # is the `record_id`. This is true because we normalize the duplicate chains.
+        group_expr = coalesce(Record.duplicate_of, Record.record_id)
+        stmt = select(
+            group_expr.label("group_id"),
+            Record.record_id,
+        )
+        if record_id is not None:
+            # Get the records in the group of the record with the given record_id.
+            target_group_subq = (
+                select(group_expr)
+                .where(Record.record_id == record_id)
+                .scalar_subquery()
+            )
+            stmt = stmt.where(group_expr == target_group_subq)
+        with self.Session() as session:
+            return session.execute(stmt.order_by("group_id")).all()
+
     def get_df(self):
         """Get all data from the data store as a pandas DataFrmae.
 
@@ -201,3 +360,60 @@ class DataStore:
                 con,
                 dtype=self.pandas_dtype_mapping,
             )
+
+    def search(self, query, bm25_ranking=False, limit=None, exclude=None):
+        # I create the SQL command to execute as a string and not using sqlalchemy ORM
+        # because SQLite FTS5 is not supported through the ORM.
+        if not self.record_cls.__text_search_columns__:
+            raise NotImplementedError(
+                f"Record class {self.record_cls} has no searchable columns."
+            )
+        tablename = self.record_cls.__tablename__
+        fts_tablename = f"{tablename}_fts"
+        query = self.get_fts5_query_string(query)
+
+        if bm25_ranking:
+            bm25_weight_string = ", ".join(
+                str(weight) for weight in self.record_cls.__bm25_weights__
+            )
+            ranking_string = f", bm25({fts_tablename}, {bm25_weight_string}) AS score"
+            order_string = "ORDER BY score"
+        else:
+            ranking_string = ""
+            order_string = ""
+        stmt = (
+            f"SELECT r.*{ranking_string}"
+            f" FROM {fts_tablename}"
+            f" JOIN {tablename} r ON r.record_id = {fts_tablename}.rowid"
+            f" WHERE {fts_tablename} MATCH :query {order_string}"
+        )
+
+        params = [bindparam("query", value=query)]
+        if exclude:
+            stmt += " AND r.record_id NOT IN :exclude"
+            params.append(bindparam("exclude", value=exclude, expanding=True))
+        if limit is not None:
+            stmt += " LIMIT :limit"
+            params.append(bindparam("limit", value=int(limit)))
+        stmt = select(Record).from_statement(text(stmt).bindparams(*params))
+        with self.Session() as session:
+            records = session.execute(stmt).scalars().all()
+        return records
+
+    def get_fts5_query_string(self, query):
+        """Get a query string for use in SQLite fts5 search.
+
+        See https://sqlite.org/fts5.html section 3 for the full fts query syntax.
+
+        Parameters
+        ----------
+        query : str
+            Query string.
+
+        Returns
+        -------
+        str
+            Escaped query string for fts. The input is wrapped in double quotes and any
+            double qoute present in the query is replace by two.
+        """
+        return '"' + query.replace('"', '""') + '"'
