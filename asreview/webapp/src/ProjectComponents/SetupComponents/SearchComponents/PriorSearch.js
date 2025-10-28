@@ -22,7 +22,7 @@ const PriorSearch = () => {
       "fetchPriorSearch",
       { project_id: project_id, keyword: keyword },
     ],
-    queryFn: () => ProjectAPI.fetchPriorSearch({ project_id, keyword }),
+    queryFn: ProjectAPI.fetchPriorSearch,
     enabled: clickSearch,
     onSuccess: () => {
       if (clickSearch) {

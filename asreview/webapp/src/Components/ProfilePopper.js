@@ -79,7 +79,7 @@ const ProfilePopper = () => {
 
   const { data: invitations } = useQuery({
     queryKey: ["getProjectInvitations"],
-    queryFn: () => TeamAPI.getProjectInvitations(),
+    queryFn: TeamAPI.getProjectInvitations,
     refetchInterval: 30000,
   });
 
