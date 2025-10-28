@@ -45,7 +45,7 @@ export default function ReviewProgress({ project_id }) {
   });
 
   const data = progressQuery.data;
-  const isLoading = progressQuery.isLoading || genericDataQuery.isLoading;
+  const isPending = progressQuery.isPending || genericDataQuery.isPending;
 
   // Determine if priors actually exist based on the fetched data
   const includePrior = data
@@ -145,7 +145,7 @@ export default function ReviewProgress({ project_id }) {
             flexDirection="column"
             justifyContent="center"
           >
-            {isLoading ? (
+            {isPending ? (
               <Stack spacing={2}>
                 {Array.from({ length: 3 }).map((_, index) => (
                   <Skeleton
@@ -246,7 +246,7 @@ export default function ReviewProgress({ project_id }) {
             alignItems="center"
             justifyContent="center"
           >
-            {isLoading ? (
+            {isPending ? (
               <Box
                 width={180}
                 height={180}

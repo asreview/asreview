@@ -43,7 +43,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminAPI } from "api";
 
-const ResetQueueConfirmDialog = ({ open, onClose, onConfirm, isLoading }) => (
+const ResetQueueConfirmDialog = ({ open, onClose, onConfirm, isPending }) => (
   <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
     <DialogTitle>Reset Training Queue</DialogTitle>
     <DialogContent>
@@ -64,17 +64,17 @@ const ResetQueueConfirmDialog = ({ open, onClose, onConfirm, isLoading }) => (
       </Stack>
     </DialogContent>
     <DialogActions>
-      <Button onClick={onClose} disabled={isLoading}>
+      <Button onClick={onClose} disabled={isPending}>
         Cancel
       </Button>
       <Button
         onClick={onConfirm}
         variant="contained"
         color="error"
-        disabled={isLoading}
+        disabled={isPending}
         startIcon={<ClearAllIcon />}
       >
-        {isLoading ? "Resetting..." : "Remove tasks"}
+        {isPending ? "Resetting..." : "Remove tasks"}
       </Button>
     </DialogActions>
   </Dialog>
@@ -96,7 +96,7 @@ const ResetQueueButton = ({ resetQueueMutation }) => {
           color="error"
           startIcon={<ClearAllIcon />}
           onClick={() => setConfirmOpen(true)}
-          disabled={resetQueueMutation.isLoading}
+          disabled={resetQueueMutation.isPending}
         >
           Reset Queue
         </Button>
@@ -106,20 +106,20 @@ const ResetQueueButton = ({ resetQueueMutation }) => {
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleConfirm}
-        isLoading={resetQueueMutation.isLoading}
+        isPending={resetQueueMutation.isPending}
       />
     </>
   );
 };
 
-const TrainingQueueHeader = ({ refetch, isLoading, resetQueueMutation }) => (
+const TrainingQueueHeader = ({ refetch, isPending, resetQueueMutation }) => (
   <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
     <Typography variant="h5" component="h2">
       Training Queue Management
     </Typography>
     <Stack direction="row" spacing={1}>
       <Tooltip title="Refresh Status">
-        <IconButton onClick={() => refetch()} disabled={isLoading}>
+        <IconButton onClick={() => refetch()} disabled={isPending}>
           <RefreshIcon />
         </IconButton>
       </Tooltip>
@@ -212,7 +212,7 @@ const TrainingQueueComponent = () => {
   // Query for training queue status
   const {
     data: queueStatus,
-    isLoading,
+    isPending,
     error,
     refetch,
   } = useQuery({
@@ -420,7 +420,7 @@ const TrainingQueueComponent = () => {
       <Box sx={{ mt: 2 }}>
         <TrainingQueueHeader
           refetch={refetch}
-          isLoading={isLoading}
+          isPending={isPending}
           resetQueueMutation={resetQueueMutation}
         />
 
@@ -438,7 +438,7 @@ const TrainingQueueComponent = () => {
     <Box sx={{ mt: 2 }}>
       <TrainingQueueHeader
         refetch={refetch}
-        isLoading={isLoading}
+        isPending={isPending}
         resetQueueMutation={resetQueueMutation}
       />
 
@@ -453,7 +453,7 @@ const TrainingQueueComponent = () => {
                 <Box>
                   <Typography variant="h6">Training Queue Database</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {isLoading
+                    {isPending
                       ? "Loading..."
                       : `${queueStatus?.total_waiting || 0} waiting training tasks`}
                   </Typography>

@@ -109,6 +109,8 @@ const EntryPointDataset = ({
     }
   };
 
+  console.log(isAddingDataset);
+
   return (
     <>
       <Card onClick={toggleOpen} elevation={0} sx={{ height: "100%" }}>

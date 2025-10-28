@@ -49,7 +49,7 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
   });
 
   // Fetch updated project data
-  const { data: adminProjects, isLoading: projectsLoading } = useQuery({
+  const { data: adminProjects, isPending: projectsLoading } = useQuery({
     queryKey: ["fetchAdminProjects"],
     queryFn: AdminAPI.fetchProjects,
     enabled: Boolean(open),
@@ -70,7 +70,7 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
   // Fetch collaborators for this project
   const {
     data: collaborators,
-    isLoading: collaboratorsLoading,
+    isPending: collaboratorsLoading,
     isError: collaboratorsError,
   } = useQuery({
     queryKey: ["fetchProjectUsers", currentProject?.project_id],
@@ -308,7 +308,7 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
 
   if (!currentProject) return null;
 
-  const isLoading = projectsLoading || collaboratorsLoading;
+  const isPending = projectsLoading || collaboratorsLoading;
 
   return (
     <Dialog
@@ -327,7 +327,7 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
       </DialogTitle>
 
       <DialogContent>
-        {isLoading && (
+        {isPending && (
           <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
             <CircularProgress />
           </Box>
@@ -414,7 +414,7 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
             <SectionHeader icon={GroupOutlined} title="Team" />
             <TeamSection
               collaborators={collaborators}
-              isLoading={collaboratorsLoading}
+              isPending={collaboratorsLoading}
               isError={collaboratorsError}
               errorMessage="Unable to load project team. This may occur after ownership transfer if admin access has changed."
               projectId={currentProject.project_id}
@@ -439,9 +439,9 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
                   excludeOwner={false}
                   excludeMembers={false}
                   disabled={
-                    transferOwnershipMutation.isLoading ||
-                    addMemberMutation.isLoading ||
-                    inviteUserMutation.isLoading
+                    transferOwnershipMutation.isPending ||
+                    addMemberMutation.isPending ||
+                    inviteUserMutation.isPending
                   }
                 />
               </Grid>
@@ -457,12 +457,12 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
                         variant="contained"
                         color="primary"
                         onClick={handleUserAction}
-                        disabled={!selectedUser || addMemberMutation.isLoading}
+                        disabled={!selectedUser || addMemberMutation.isPending}
                         size="small"
                         startIcon={<PersonAddOutlined />}
                         sx={{ minWidth: "auto", flex: "1 1 auto" }}
                       >
-                        {addMemberMutation.isLoading
+                        {addMemberMutation.isPending
                           ? "Adding..."
                           : "Add Member"}
                       </Button>
@@ -470,11 +470,11 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
                         variant="outlined"
                         color="secondary"
                         onClick={handleInviteUser}
-                        disabled={!selectedUser || inviteUserMutation.isLoading}
+                        disabled={!selectedUser || inviteUserMutation.isPending}
                         size="small"
                         sx={{ minWidth: "auto", flex: "1 1 auto" }}
                       >
-                        {inviteUserMutation.isLoading
+                        {inviteUserMutation.isPending
                           ? "Inviting..."
                           : "Send Invite"}
                       </Button>
@@ -483,13 +483,13 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
                         color="warning"
                         onClick={handleTransferOwnership}
                         disabled={
-                          !selectedUser || transferOwnershipMutation.isLoading
+                          !selectedUser || transferOwnershipMutation.isPending
                         }
                         size="small"
                         startIcon={<SwapHorizOutlined />}
                         sx={{ minWidth: "auto", flex: "1 1 auto" }}
                       >
-                        {transferOwnershipMutation.isLoading
+                        {transferOwnershipMutation.isPending
                           ? "Transferring..."
                           : "Transfer Ownership"}
                       </Button>
@@ -501,13 +501,13 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
                       color="warning"
                       onClick={handleUserAction}
                       disabled={
-                        !selectedUser || transferOwnershipMutation.isLoading
+                        !selectedUser || transferOwnershipMutation.isPending
                       }
                       fullWidth
                       size="small"
                       startIcon={<SwapHorizOutlined />}
                     >
-                      {transferOwnershipMutation.isLoading
+                      {transferOwnershipMutation.isPending
                         ? "Transferring..."
                         : "Transfer Ownership"}
                     </Button>
@@ -559,10 +559,10 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
               color="error"
               startIcon={<DeleteOutlined />}
               onClick={handleDeleteProject}
-              disabled={deleteProjectMutation.isLoading}
+              disabled={deleteProjectMutation.isPending}
               sx={{ mb: 1 }}
             >
-              {deleteProjectMutation.isLoading
+              {deleteProjectMutation.isPending
                 ? "Deleting..."
                 : "Delete Project"}
             </Button>
@@ -661,7 +661,7 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
         <DialogActions>
           <Button
             onClick={handleCancelDelete}
-            disabled={deleteProjectMutation.isLoading}
+            disabled={deleteProjectMutation.isPending}
             variant="outlined"
           >
             Cancel
@@ -670,16 +670,16 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
             onClick={handleConfirmDelete}
             color="error"
             variant="contained"
-            disabled={deleteProjectMutation.isLoading}
+            disabled={deleteProjectMutation.isPending}
             startIcon={
-              deleteProjectMutation.isLoading ? (
+              deleteProjectMutation.isPending ? (
                 <CircularProgress size={16} />
               ) : (
                 <DeleteOutlined />
               )
             }
           >
-            {deleteProjectMutation.isLoading ? "Deleting..." : "Delete Project"}
+            {deleteProjectMutation.isPending ? "Deleting..." : "Delete Project"}
           </Button>
         </DialogActions>
       </Dialog>

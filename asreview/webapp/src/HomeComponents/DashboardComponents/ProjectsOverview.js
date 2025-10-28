@@ -52,7 +52,7 @@ const ProjectsOverview = ({ mode }) => {
 
   const {
     mutate: upgradeProjects,
-    isLoading: isUpgradingProjects,
+    isPending: isUpgradingProjects,
     error: upgradeError,
   } = useMutation({
     mutationFn: ProjectAPI.mutateUpgradeProjects,

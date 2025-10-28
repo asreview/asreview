@@ -72,7 +72,7 @@ const WordCounts = () => {
   const { project_id } = useParams();
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ["fetchWordCounts", { project_id }],
     queryFn: ProjectAPI.fetchWordCounts,
     refetchOnWindowFocus: false,
@@ -93,7 +93,7 @@ const WordCounts = () => {
             <StyledLightBulb fontSize="small" />
           </IconButton>
         </Box>
-        {isLoading ? (
+        {isPending ? (
           <Stack spacing={3}>
             {[...Array(2)].map((_, index) => (
               <Box key={index}>

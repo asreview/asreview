@@ -30,7 +30,7 @@ const DistancePatternChart = ({ project_id, showLast = false, mode }) => {
   const chartRef = React.useRef(null);
   const theme = useTheme();
 
-  const { data, error, isError, isLoading } = useQuery({
+  const { data, error, isError, isPending } = useQuery({
     queryKey: ["fetchGenericData", { project_id }],
     queryFn: ProjectAPI.fetchGenericData,
     refetchOnWindowFocus: false,
@@ -327,7 +327,7 @@ const DistancePatternChart = ({ project_id, showLast = false, mode }) => {
           isError={!!isError}
         />
 
-        {isLoading ? (
+        {isPending ? (
           <Skeleton variant="rectangular" height={400} />
         ) : relevantPositions.length > 1 ? (
           <Box height={400} width={1} ref={chartRef} sx={{ mt: -3 }}>

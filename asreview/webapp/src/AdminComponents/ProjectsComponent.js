@@ -18,7 +18,7 @@ const ProjectsComponent = () => {
   // Fetch projects from the API
   const {
     data: projectsData,
-    isLoading,
+    isPending,
     isError,
     error,
     refetch,
@@ -154,7 +154,7 @@ const ProjectsComponent = () => {
       </Box>
 
       {/* Loading State */}
-      {isLoading && <LoadingState message="Loading projects..." />}
+      {isPending && <LoadingState message="Loading projects..." />}
 
       {/* Error State */}
       {isError && (
@@ -166,7 +166,7 @@ const ProjectsComponent = () => {
       )}
 
       {/* Main Content - only show when not loading and no error */}
-      {!isLoading && !isError && (
+      {!isPending && !isError && (
         <Stack spacing={6}>
           {/* In Review Projects */}
           {categorizeProjects.review.length > 0 && (

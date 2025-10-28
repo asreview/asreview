@@ -47,7 +47,7 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
   const {
     error: createProjectError,
     isError: isCreatingProjectError,
-    isLoading: isCreatingProject,
+    isPending: isCreatingProject,
     mutate: addDataset,
     reset: resetAddDataset,
   } = useMutation({

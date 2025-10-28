@@ -15,13 +15,13 @@ const UserSelector = ({
   placeholder = "Type to search users...",
   ...autocompleteProps
 }) => {
-  const { data: projectUsers, isLoading: isLoadingProjectUsers } = useQuery({
+  const { data: projectUsers, isPending: isPendingProjectUsers } = useQuery({
     queryKey: ["fetchProjectUsers", projectId],
     queryFn: TeamAPI.fetchUsers,
     enabled: Boolean(projectId && (excludeOwner || excludeMembers)),
   });
 
-  const { data: allUsers, isLoading: isLoadingAllUsers } = useQuery({
+  const { data: allUsers, isPending: isPendingAllUsers } = useQuery({
     queryKey: ["fetchAdminUsers"],
     queryFn: () =>
       fetch(`${window.api_url}admin/users`, {
@@ -32,7 +32,7 @@ const UserSelector = ({
     enabled: Boolean(projectId),
   });
 
-  const isLoading = isLoadingProjectUsers || isLoadingAllUsers;
+  const isPending = isPendingProjectUsers || isPendingAllUsers;
 
   // Filter users based on exclusion criteria
   const filteredUsers = React.useMemo(() => {
@@ -67,8 +67,8 @@ const UserSelector = ({
       options={filteredUsers}
       getOptionLabel={(option) => getUserDisplayName(option)}
       isOptionEqualToValue={(option, value) => option?.id === value?.id}
-      loading={isLoading}
-      disabled={disabled || isLoading}
+      loading={isPending}
+      disabled={disabled || isPending}
       noOptionsText="No available users found"
       PaperComponent={({ children, ...props }) => (
         <div

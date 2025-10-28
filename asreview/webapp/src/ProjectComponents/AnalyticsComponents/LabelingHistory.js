@@ -100,7 +100,7 @@ const LabelingHistory = ({ genericDataQuery, progressQuery }) => {
     chunkSize = 15;
   }
 
-  if (genericDataQuery.isLoading || progressQuery.isLoading) {
+  if (genericDataQuery.isPending || progressQuery.isPending) {
     return <LoadingSkeleton chunkSize={chunkSize} />;
   }
 

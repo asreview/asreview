@@ -96,7 +96,7 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
 
   const {
     data: learnerOptions,
-    isLoading: isLoadingLearnerOptions,
+    isPending: isPendingLearnerOptions,
     error: errorLearnerOptions,
   } = useQuery({
     queryKey: ["fetchLearners"],
@@ -148,7 +148,7 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
 
   const {
     data: modelConfig,
-    isLoading: isLoadingModelConfig,
+    isPending: isPendingModelConfig,
     error: errorModelConfig,
   } = useQuery({
     queryKey: ["fetchLearner", { project_id: project_id }],
@@ -156,7 +156,7 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
     refetchOnWindowFocus: false,
   });
 
-  const isLoading = isLoadingLearnerOptions || isLoadingModelConfig;
+  const isPending = isPendingLearnerOptions || isPendingModelConfig;
   const error = errorLearnerOptions || errorModelConfig;
 
   const handlePopoverOpen = (event) => {
@@ -170,7 +170,7 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
   return (
     <Card sx={{ position: "relative" }}>
       <LoadingCardHeader
-        isLoading={isLoading}
+        isPending={isPending}
         title="AI"
         subheader={
           projectModes.SIMULATION === mode
@@ -205,7 +205,7 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
       </Box>
 
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <Skeleton variant="rectangular" height={56} />
         ) : (
           <>

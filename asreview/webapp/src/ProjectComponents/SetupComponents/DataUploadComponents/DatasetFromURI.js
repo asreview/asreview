@@ -22,7 +22,7 @@ const DatasetFromURI = ({ mode, setSetupProjectId }) => {
   const [selectedFile, setSelectedFile] = React.useState("");
 
   const {
-    isLoading: isResolving,
+    isPending: isResolving,
     mutate: mutateResolve,
     error: errorResolve,
   } = useMutation({
@@ -39,7 +39,7 @@ const DatasetFromURI = ({ mode, setSetupProjectId }) => {
 
   const {
     error,
-    isLoading,
+    isPending,
     mutate: createProject,
   } = useMutation({
     mutationFn: ProjectAPI.createProject,
@@ -63,10 +63,10 @@ const DatasetFromURI = ({ mode, setSetupProjectId }) => {
         <StyledInputSearch
           autoFocus
           endIcon={<ArrowForwardOutlined />}
-          disabled={isResolving || isLoading}
+          disabled={isResolving || isPending}
           placeholder="Type a URL or DOI of the dataset"
           value={localURI}
-          loading={isResolving || isLoading}
+          loading={isResolving || isPending}
           onChange={(event) => {
             setURI(event.target.value);
           }}
@@ -79,7 +79,7 @@ const DatasetFromURI = ({ mode, setSetupProjectId }) => {
           <>
             <FormControl
               sx={{ m: 1, minWidth: 120 }}
-              disabled={isLoading || data.length === 1}
+              disabled={isPending || data.length === 1}
             >
               <InputLabel id="select-file-label">Select dataset</InputLabel>
               <Select
@@ -100,7 +100,7 @@ const DatasetFromURI = ({ mode, setSetupProjectId }) => {
                 })}
               </Select>
             </FormControl>
-            <Button loading={isLoading} onClick={addFile}>
+            <Button loading={isPending} onClick={addFile}>
               Download
             </Button>
           </>

@@ -81,7 +81,7 @@ SectionStripe.displayName = "SectionStripe";
 
 const TeamSection = ({
   collaborators,
-  isLoading,
+  isPending,
   isError,
   errorMessage,
   projectId,
@@ -145,7 +145,7 @@ const TeamSection = ({
   };
 
   const isDeleting =
-    deleteMemberMutation.isLoading || deleteInvitationMutation.isLoading;
+    deleteMemberMutation.isPending || deleteInvitationMutation.isPending;
   // Memoize filtered users to prevent recalculation on each render
   const { activeMembers, pendingMembers } = React.useMemo(() => {
     if (!collaborators) return { activeMembers: [], pendingMembers: [] };
@@ -160,7 +160,7 @@ const TeamSection = ({
     };
   }, [collaborators]);
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
         <CircularProgress size={24} />

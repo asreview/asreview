@@ -16,7 +16,7 @@ const ForgotPassword = ({ showNotification }) => {
   const navigate = useNavigate();
   const [email, setEmail] = React.useState("");
 
-  const { isLoading, mutate, reset } = useMutation({
+  const { isPending, mutate, reset } = useMutation({
     mutationFn: AuthAPI.forgotPassword,
     onSuccess: (data) => {
       let userId = data.user_id;
@@ -72,7 +72,7 @@ const ForgotPassword = ({ showNotification }) => {
       <CardActions sx={{ p: 2 }}>
         {window.emailVerification && (
           <Button
-            disabled={isLoading}
+            disabled={isPending}
             variant="contained"
             color="primary"
             onClick={handleSubmit}

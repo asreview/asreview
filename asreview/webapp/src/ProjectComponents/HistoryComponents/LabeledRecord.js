@@ -29,7 +29,7 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
     isError,
     isFetched,
     isFetchingNextPage,
-    isLoading,
+    isPending,
   } = useInfiniteQuery({
     queryKey: [
       "fetchLabeledRecord",
@@ -57,13 +57,13 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
   return (
     <Box aria-label="labeled record">
       {isError && <InlineErrorHandler message={error?.message} />}
-      {/* {n_prior !== 0 && !isError && (isLoading || !mounted.current) && (
+      {/* {n_prior !== 0 && !isError && (isPending || !mounted.current) && (
         <Box className={classes.loading}>
           <CircularProgress />
         </Box>
       )} */}
-      {!isError && !(isLoading || !mounted.current) && isFetched && (
-        <Fade in={!isError && !(isLoading || !mounted.current) && isFetched}>
+      {!isError && !(isPending || !mounted.current) && isFetched && (
+        <Fade in={!isError && !(isPending || !mounted.current) && isFetched}>
           <Stack aria-label="labeled record card" spacing={5}>
             {isFetched &&
               data?.pages.map((page) =>

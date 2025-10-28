@@ -49,7 +49,7 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
+const ImportProjectCard = ({ mutate, isPending, isError, error }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
       mutate({
@@ -108,7 +108,7 @@ const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
         <input {...getInputProps()} />
 
         <ButtonBase
-          disabled={isLoading}
+          disabled={isPending}
           disableRipple
           onClick={open}
           sx={{
@@ -119,7 +119,7 @@ const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
         >
           <Stack spacing={2} justifyContent="center" direction={"column"}>
             <Box display="flex" justifyContent="center">
-              {isLoading ? (
+              {isPending ? (
                 <CircularProgress />
               ) : (
                 <Avatar>
@@ -155,7 +155,7 @@ const ImportProject = ({ ...buttonProps }) => {
   const [importSnackbar, toggleImportSnackbar] = useToggle();
   const [warningDialog, toggleWarningDialog] = useToggle();
 
-  const { mutate, isLoading, data, isError, error } = useMutation({
+  const { mutate, isPending, data, isError, error } = useMutation({
     mutationFn: ProjectAPI.mutateImportProject,
     mutationKey: ["importProject"],
     onSuccess: (data) => {
@@ -178,7 +178,7 @@ const ImportProject = ({ ...buttonProps }) => {
     <>
       <ImportProjectCard
         mutate={mutate}
-        isLoading={isLoading}
+        isPending={isPending}
         isError={isError}
         error={error}
       />

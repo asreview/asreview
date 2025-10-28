@@ -38,7 +38,7 @@ const UsersComponent = () => {
   // Fetch users from the API
   const {
     data: usersData,
-    isLoading,
+    isPending,
     isError,
     error,
     refetch,
@@ -86,7 +86,7 @@ const UsersComponent = () => {
   }, [usersData]);
 
   // Mutation for creating new users
-  const { mutate: createUser, isLoading: isCreatingUser } = useMutation({
+  const { mutate: createUser, isPending: isCreatingUser } = useMutation({
     mutationFn: AdminAPI.createUser,
     onSuccess: () => {
       refetch(); // Refresh the user list
@@ -100,7 +100,7 @@ const UsersComponent = () => {
   });
 
   // Mutation for updating users
-  const { mutate: updateUser, isLoading: isUpdatingUser } = useMutation({
+  const { mutate: updateUser, isPending: isUpdatingUser } = useMutation({
     mutationFn: ({ userId, userData }) => AdminAPI.updateUser(userId, userData),
     onSuccess: () => {
       refetch(); // Refresh the user list
@@ -114,7 +114,7 @@ const UsersComponent = () => {
   });
 
   // Mutation for deleting users
-  const { mutate: deleteUser, isLoading: isDeletingUser } = useMutation({
+  const { mutate: deleteUser, isPending: isDeletingUser } = useMutation({
     mutationFn: (userId) => AdminAPI.deleteUser(userId),
     onSuccess: () => {
       refetch(); // Refresh the user list
@@ -266,7 +266,7 @@ const UsersComponent = () => {
       </Box>
 
       {/* Loading State */}
-      {isLoading && (
+      {isPending && (
         <Box
           sx={{
             display: "flex",
@@ -296,7 +296,7 @@ const UsersComponent = () => {
       )}
 
       {/* Main Content - only show when not loading and no error */}
-      {!isLoading && !isError && (
+      {!isPending && !isError && (
         <>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs value={selectedTab} onChange={handleTabChange}>

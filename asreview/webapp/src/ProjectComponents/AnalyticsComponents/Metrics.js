@@ -93,7 +93,7 @@ export default function Metrics({ project_id }) {
     setAnchorEl(null);
   };
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ["fetchMetrics", { project_id }],
     queryFn: ProjectAPI.fetchMetrics,
     refetchOnWindowFocus: false,
@@ -129,7 +129,7 @@ export default function Metrics({ project_id }) {
               Loss
             </Typography>
             <Typography variant="h6" sx={{ mt: 0.5 }}>
-              {isLoading ? <Skeleton width={40} /> : data?.loss?.toFixed(3)}
+              {isPending ? <Skeleton width={40} /> : data?.loss?.toFixed(3)}
             </Typography>
           </Card>
           <Card
@@ -148,7 +148,7 @@ export default function Metrics({ project_id }) {
               NDCG
             </Typography>
             <Typography variant="h6" sx={{ mt: 0.5 }}>
-              {isLoading ? <Skeleton width={40} /> : data?.ndcg?.toFixed(3)}
+              {isPending ? <Skeleton width={40} /> : data?.ndcg?.toFixed(3)}
             </Typography>
           </Card>
         </Stack>

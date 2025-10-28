@@ -312,7 +312,7 @@ export default function ProgressDensityChart(props) {
         </Box>
 
         <Box height={400} width={1} ref={chartRef} sx={{ mt: -3 }}>
-          {props.genericDataQuery.isLoading ? (
+          {props.genericDataQuery.isPending ? (
             <Skeleton variant="rectangular" height="100%" width="100%" />
           ) : chartData && chartData.xAxis.length > 1 ? (
             <LineChart

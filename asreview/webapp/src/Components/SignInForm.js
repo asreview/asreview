@@ -34,7 +34,7 @@ const SignInForm = () => {
 
   const [showPassword, toggleShowPassword] = useToggle();
 
-  const { error, isError, isLoading, mutate, reset } = useMutation({
+  const { error, isError, isPending, mutate, reset } = useMutation({
     mutationFn: AuthAPI.signin,
     onSuccess: (data) => {
       if (data.logged_in) {
@@ -126,7 +126,7 @@ const SignInForm = () => {
               <CardActions sx={{ p: 2 }}>
                 <Button
                   id="sign-in"
-                  disabled={isLoading}
+                  disabled={isPending}
                   variant="contained"
                   color="primary"
                   onClick={handleSubmit}

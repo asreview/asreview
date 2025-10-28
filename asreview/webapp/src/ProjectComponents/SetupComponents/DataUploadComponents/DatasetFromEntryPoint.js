@@ -33,12 +33,14 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
     refetchOnWindowFocus: false,
   });
 
-  const { isError, isLoading, mutate, reset } = useMutation({
+  const { isError, isPending, mutate, reset } = useMutation({
     mutationFn: ProjectAPI.createProject,
     onSuccess: (data) => {
       setSetupProjectId(data.id);
     },
   });
+
+  console.log("isPending:", isPending);
 
   const [selectedTab, setSelectedTab] = React.useState(0);
 
@@ -225,7 +227,7 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
                       dataset={dataset}
                       dataset_id={group.group_id + ":" + dataset.dataset_id}
                       subset={subset}
-                      isAddingDataset={isLoading}
+                      isAddingDataset={isPending}
                       isAddingDatasetError={isError}
                       reset={reset}
                     />

@@ -60,7 +60,7 @@ const SignUpForm = () => {
     validationSchema: SignupSchema,
   });
 
-  const { error, isError, mutate, isLoading } = useMutation({
+  const { error, isError, mutate, isPending } = useMutation({
     mutationFn: BaseAPI.signup,
     onSuccess: (data) => {
       // let email = formik.values.email;
@@ -244,7 +244,7 @@ const SignUpForm = () => {
           variant="contained"
           color="primary"
           onClick={handleSubmit}
-          disabled={!(formik.isValid && formik.dirty) || isLoading}
+          disabled={!(formik.isValid && formik.dirty) || isPending}
         >
           Create
         </Button>

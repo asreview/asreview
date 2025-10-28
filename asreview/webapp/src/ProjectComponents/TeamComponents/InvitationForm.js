@@ -19,12 +19,12 @@ const InvitationForm = ({ project_id }) => {
     message: "",
   });
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ["fetchUsers", project_id],
     queryFn: TeamAPI.fetchUsers,
   });
 
-  const { mutate, isLoading: isLoadingInvitation } = useMutation({
+  const { mutate, isPending: isPendingInvitation } = useMutation({
     mutationFn: TeamAPI.inviteUser,
     onSuccess: () => {
       queryClient.invalidateQueries(["fetchUsers", project_id]);
@@ -87,7 +87,7 @@ const InvitationForm = ({ project_id }) => {
               renderInput={(params) => (
                 <TextField {...params} label="Select a user" />
               )}
-              loading={isLoading}
+              loading={isPending}
               noOptionsText="No users found"
             />
           </Grid>
@@ -107,9 +107,9 @@ const InvitationForm = ({ project_id }) => {
                 setFormState({ selectedUser: null, inputValue: "" });
               }}
               disabled={
-                isLoading || isLoadingInvitation || !formState.selectedUser
+                isPending || isPendingInvitation || !formState.selectedUser
               }
-              loading={isLoadingInvitation}
+              loading={isPendingInvitation}
             >
               Invite
             </Button>

@@ -44,7 +44,7 @@ const StoppingSuggestion = ({ project_id }) => {
     refetchOnWindowFocus: false,
   });
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ["fetchStopping", { project_id }],
     queryFn: ProjectAPI.fetchStopping,
     refetchOnWindowFocus: false,
@@ -180,7 +180,7 @@ const StoppingSuggestion = ({ project_id }) => {
           </IconButton>
         </Box>
 
-        {isLoading || isThresholdSet === null ? (
+        {isPending || isThresholdSet === null ? (
           <Grid container spacing={2} columns={2}>
             <Grid size={1}>
               <Stack spacing={2} pt={4}>

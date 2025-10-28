@@ -491,7 +491,7 @@ const TagCard = () => {
   const [dialogOpen, toggleDialogOpen] = useToggle();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ["fetchTagGroups", { project_id: project_id }],
     queryFn: ProjectAPI.fetchTagGroups,
     refetchOnWindowFocus: false,
@@ -502,7 +502,7 @@ const TagCard = () => {
       <LoadingCardHeader
         title="Labeling tags"
         subheader="Tags and tag groups are used to label records with additional information"
-        isLoading={isLoading}
+        isPending={isPending}
         action={
           <IconButton
             onClick={(event) => {
@@ -522,7 +522,7 @@ const TagCard = () => {
       />
 
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <Skeleton variant="rectangular" height={56} />
         ) : (
           <>
@@ -539,7 +539,7 @@ const TagCard = () => {
       </CardContent>
 
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <Skeleton variant="rectangular" width={100} height={36} />
         ) : (
           <>

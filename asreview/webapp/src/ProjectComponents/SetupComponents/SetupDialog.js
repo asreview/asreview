@@ -35,7 +35,7 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
     edit: false,
   });
 
-  const { isLoading, mutate } = useMutation({
+  const { isPending, mutate } = useMutation({
     mutationFn: ProjectAPI.mutateInfo,
     mutationKey: ["mutateInfo"],
     onSuccess: (data) => {
@@ -76,7 +76,7 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
                 name: e.target.value,
               });
             }}
-            disabled={isLoading}
+            disabled={isPending}
             sx={{ width: "50%" }}
             autoFocus
           />
@@ -85,7 +85,7 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
               onClick={() => {
                 mutate({ project_id: project_id, title: state.name });
               }}
-              loading={isLoading}
+              loading={isPending}
             >
               <Save />
             </IconButton>

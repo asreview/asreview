@@ -1,14 +1,14 @@
 import { CardHeader, Skeleton } from "@mui/material";
 
 export const LoadingCardHeader = ({
-  isLoading,
+  isPending,
   title,
   subheader,
   ...props
 }) => (
   <CardHeader
     {...props}
-    title={isLoading ? <Skeleton width={60} /> : title}
-    subheader={isLoading ? <Skeleton width="80%" /> : subheader}
+    title={isPending ? <Skeleton width={60} /> : title}
+    subheader={isPending ? <Skeleton width="80%" /> : subheader}
   />
 );

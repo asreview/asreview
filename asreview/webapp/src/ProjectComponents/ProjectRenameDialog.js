@@ -17,7 +17,7 @@ const ProjectRenameDialog = ({ open, onClose, projectTitle, project_id }) => {
   const queryClient = useQueryClient();
   const [newTitle, setNewTitle] = React.useState(projectTitle);
 
-  const { error, isError, isLoading, mutate, reset } = useMutation({
+  const { error, isError, isPending, mutate, reset } = useMutation({
     mutationFn: ProjectAPI.mutateInfo,
     onSuccess: () => {
       queryClient.invalidateQueries("fetchProjects");
@@ -65,7 +65,7 @@ const ProjectRenameDialog = ({ open, onClose, projectTitle, project_id }) => {
             label="New project name"
             value={newTitle}
             onChange={onChangeTitle}
-            disabled={isLoading}
+            disabled={isPending}
           />
         </Stack>
       </DialogContent>
@@ -73,7 +73,7 @@ const ProjectRenameDialog = ({ open, onClose, projectTitle, project_id }) => {
         <Button onClick={cancelRename}>Cancel</Button>
         <Button
           onClick={() => mutate({ project_id: project_id, title: newTitle })}
-          disabled={isLoading}
+          disabled={isPending}
         >
           Rename
         </Button>

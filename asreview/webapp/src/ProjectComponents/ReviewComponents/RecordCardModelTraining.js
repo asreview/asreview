@@ -44,7 +44,7 @@ const FlowChartArrow = () => <KeyboardArrowRightOutlinedIcon />;
 const ModelFlowChart = ({ record }) => {
   const mobile = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ["fetchLearners"],
     queryFn: ProjectAPI.fetchLearners,
     refetchOnWindowFocus: false,
@@ -69,22 +69,22 @@ const ModelFlowChart = ({ record }) => {
       sx={{ overflow: "auto" }}
     >
       <FlowChartStep
-        value={isLoading ? <Skeleton /> : record.state.training_set}
+        value={isPending ? <Skeleton /> : record.state.training_set}
         label={mobile ? "labels" : "labeled records"}
       />
       <FlowChartArrow />
       <FlowChartStep
-        value={isLoading ? <Skeleton /> : featureExtractionName}
+        value={isPending ? <Skeleton /> : featureExtractionName}
         label={"features"}
       />
       <FlowChartArrow />
       <FlowChartStep
-        value={isLoading ? <Skeleton /> : classifierName}
+        value={isPending ? <Skeleton /> : classifierName}
         label={"classification"}
       />
       <FlowChartArrow />
       <FlowChartStep
-        value={isLoading ? <Skeleton /> : queryStrategyName}
+        value={isPending ? <Skeleton /> : queryStrategyName}
         label={mobile ? "queried" : "record queried"}
       />
     </Stack>
