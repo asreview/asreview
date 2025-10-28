@@ -30,8 +30,8 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
     isFetched,
     isFetchingNextPage,
     isLoading,
-  } = useInfiniteQuery(
-    [
+  } = useInfiniteQuery({
+    queryKey: [
       "fetchLabeledRecord",
       {
         project_id: project_id,
@@ -39,11 +39,9 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
         filter: filterQuery.map((filter) => filter.value),
       },
     ],
-    ProjectAPI.fetchLabeledRecord,
-    {
-      getNextPageParam: (lastPage) => lastPage.next_page ?? false,
-    },
-  );
+    queryFn: ProjectAPI.fetchLabeledRecord,
+    getNextPageParam: (lastPage) => lastPage.next_page ?? false,
+  });
 
   /**
    * Check if this component is mounted

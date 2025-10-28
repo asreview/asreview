@@ -93,14 +93,11 @@ export default function Metrics({ project_id }) {
     setAnchorEl(null);
   };
 
-  const { data, isLoading } = useQuery(
-    ["fetchMetrics", { project_id }],
-    ({ queryKey }) =>
-      ProjectAPI.fetchMetrics({
-        queryKey,
-      }),
-    { refetchOnWindowFocus: false },
-  );
+  const { data, isLoading } = useQuery({
+    queryKey: ["fetchMetrics", { project_id }],
+    queryFn: ProjectAPI.fetchMetrics,
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <Card sx={{ position: "relative", bgcolor: "transparent" }}>

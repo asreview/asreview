@@ -22,7 +22,10 @@ const CollaborationPage = ({ project_id }) => {
 
   const [dialogOpen, toggleDialogOpen] = useToggle();
 
-  const { data } = useQuery("user", AuthAPI.user);
+  const { data } = useQuery({
+    queryKey: ["user"],
+    queryFn: AuthAPI.user,
+  });
   const { mutate, isError } = useMutation({
     mutationFn: TeamAPI.deleteCollaboration,
     onSuccess: () => {

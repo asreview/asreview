@@ -30,17 +30,17 @@ const DistancePatternChart = ({ project_id, showLast = false, mode }) => {
   const chartRef = React.useRef(null);
   const theme = useTheme();
 
-  const { data, error, isError, isLoading } = useQuery(
-    ["fetchGenericData", { project_id }],
-    ProjectAPI.fetchGenericData,
-    { refetchOnWindowFocus: false },
-  );
+  const { data, error, isError, isLoading } = useQuery({
+    queryKey: ["fetchGenericData", { project_id }],
+    queryFn: ProjectAPI.fetchGenericData,
+    refetchOnWindowFocus: false,
+  });
 
-  const { data: stoppingData } = useQuery(
-    ["fetchStopping", { project_id }],
-    ProjectAPI.fetchStopping,
-    { refetchOnWindowFocus: false },
-  );
+  const { data: stoppingData } = useQuery({
+    queryKey: ["fetchStopping", { project_id }],
+    queryFn: ProjectAPI.fetchStopping,
+    refetchOnWindowFocus: false,
+  });
 
   const relevantPositions = data
     ? data.reduce(

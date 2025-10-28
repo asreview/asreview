@@ -40,13 +40,11 @@ const TeamPage = () => {
   const [snackbar, setSnackbar] = React.useState({ show: false, message: "" });
   const [handleDelete, setHandleDelete] = React.useState(initDeleteData);
 
-  const { data, isSuccess } = useQuery(
-    ["fetchUsers", project_id],
-    TeamAPI.fetchUsers,
-    {
-      refetchInterval: 10000,
-    },
-  );
+  const { data, isSuccess } = useQuery({
+    queryKey: ["fetchUsers", project_id],
+    queryFn: TeamAPI.fetchUsers,
+    refetchInterval: 10000,
+  });
 
   const { mutate: removeInvitation } = useMutation({
     mutationFn: TeamAPI.deleteInvitation,
@@ -83,13 +81,11 @@ const TeamPage = () => {
     },
   });
 
-  const { data: currentUser, isSuccess: isSuccessInfo } = useQuery(
-    ["fetchProjectInfo", { project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data: currentUser, isSuccess: isSuccessInfo } = useQuery({
+    queryKey: ["fetchProjectInfo", { project_id }],
+    queryFn: ProjectAPI.fetchInfo,
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <Container maxWidth="md" sx={{ mb: 3 }}>

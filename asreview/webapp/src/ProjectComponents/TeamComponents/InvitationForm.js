@@ -19,10 +19,10 @@ const InvitationForm = ({ project_id }) => {
     message: "",
   });
 
-  const { data, isLoading } = useQuery(
-    ["fetchUsers", project_id],
-    TeamAPI.fetchUsers,
-  );
+  const { data, isLoading } = useQuery({
+    queryKey: ["fetchUsers", project_id],
+    queryFn: TeamAPI.fetchUsers,
+  });
 
   const { mutate, isLoading: isLoadingInvitation } = useMutation({
     mutationFn: TeamAPI.inviteUser,

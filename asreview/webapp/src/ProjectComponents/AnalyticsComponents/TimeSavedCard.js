@@ -149,11 +149,11 @@ const TimeSavedCard = ({ project_id }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [infoAnchorEl, setInfoAnchorEl] = useState(null);
 
-  const { data: progressData, error } = useQuery(
-    ["fetchProgress", { project_id }],
-    ProjectAPI.fetchProgress,
-    { refetchOnWindowFocus: false },
-  );
+  const { data: progressData, error } = useQuery({
+    queryKey: ["fetchProgress", { project_id }],
+    queryFn: ProjectAPI.fetchProgress,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
     if (!progressData) return;

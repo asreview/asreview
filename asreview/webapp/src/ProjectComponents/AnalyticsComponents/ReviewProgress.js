@@ -32,23 +32,17 @@ export default function ReviewProgress({ project_id }) {
     setAnchorEl(null);
   };
 
-  const progressQuery = useQuery(
-    ["fetchProgress", { project_id }],
-    ({ queryKey }) =>
-      ProjectAPI.fetchProgress({
-        queryKey,
-      }),
-    { refetchOnWindowFocus: false },
-  );
+  const progressQuery = useQuery({
+    queryKey: ["fetchProgress", { project_id }],
+    queryFn: ProjectAPI.fetchProgress,
+    refetchOnWindowFocus: false,
+  });
 
-  const genericDataQuery = useQuery(
-    ["fetchGenericData", { project_id }],
-    ({ queryKey }) =>
-      ProjectAPI.fetchGenericData({
-        queryKey,
-      }),
-    { refetchOnWindowFocus: false },
-  );
+  const genericDataQuery = useQuery({
+    queryKey: ["fetchGenericData", { project_id }],
+    queryFn: ProjectAPI.fetchGenericData,
+    refetchOnWindowFocus: false,
+  });
 
   const data = progressQuery.data;
   const isLoading = progressQuery.isLoading || genericDataQuery.isLoading;

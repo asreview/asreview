@@ -72,13 +72,11 @@ const WordCounts = () => {
   const { project_id } = useParams();
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
 
-  const { data, isLoading } = useQuery(
-    ["fetchWordCounts", { project_id }],
-    ProjectAPI.fetchWordCounts,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data, isLoading } = useQuery({
+    queryKey: ["fetchWordCounts", { project_id }],
+    queryFn: ProjectAPI.fetchWordCounts,
+    refetchOnWindowFocus: false,
+  });
 
   // Check if there are any words to display
   const hasRelevantWords = data?.relevant && data.relevant.length > 0;

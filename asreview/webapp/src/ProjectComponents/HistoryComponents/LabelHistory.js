@@ -32,13 +32,11 @@ const LabelHistory = ({
 
   const [open, toggleOpen] = useToggle();
 
-  const { data: projectStatusData } = useQuery(
-    ["fetchProjectStatus", { project_id }],
-    ProjectAPI.fetchProjectStatus,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data: projectStatusData } = useQuery({
+    queryKey: ["fetchProjectStatus", { project_id }],
+    queryFn: ProjectAPI.fetchProjectStatus,
+    refetchOnWindowFocus: false,
+  });
 
   const isFinished = projectStatusData?.status === projectStatuses.FINISHED;
 

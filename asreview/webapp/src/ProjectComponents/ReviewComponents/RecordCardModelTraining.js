@@ -44,13 +44,11 @@ const FlowChartArrow = () => <KeyboardArrowRightOutlinedIcon />;
 const ModelFlowChart = ({ record }) => {
   const mobile = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
-  const { data, isLoading } = useQuery(
-    ["fetchLearners"],
-    ProjectAPI.fetchLearners,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data, isLoading } = useQuery({
+    queryKey: ["fetchLearners"],
+    queryFn: ProjectAPI.fetchLearners,
+    refetchOnWindowFocus: false,
+  });
 
   const classifierName = data?.models?.classifiers.filter(
     (classifier) => classifier.name === record.state.classifier,

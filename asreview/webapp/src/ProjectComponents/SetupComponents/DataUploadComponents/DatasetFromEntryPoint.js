@@ -29,7 +29,7 @@ import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
   const { data } = useQuery({
     queryKey: ["fetchDatasets", { subset }],
-    queryFn: () => ProjectAPI.fetchDatasets({ subset }),
+    queryFn: ProjectAPI.fetchDatasets,
     refetchOnWindowFocus: false,
   });
 

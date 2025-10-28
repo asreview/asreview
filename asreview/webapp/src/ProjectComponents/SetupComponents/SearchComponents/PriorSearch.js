@@ -17,19 +17,20 @@ const PriorSearch = () => {
   const [keyword, setKeyword] = React.useState("");
   const [clickSearch, onClickSearch] = useToggle();
 
-  const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
-    ["fetchPriorSearch", { project_id: project_id, keyword: keyword }],
-    ProjectAPI.fetchPriorSearch,
-    {
-      enabled: clickSearch,
-      onSuccess: () => {
-        if (clickSearch) {
-          onClickSearch();
-        }
-      },
-      refetchOnWindowFocus: false,
+  const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery({
+    queryKey: [
+      "fetchPriorSearch",
+      { project_id: project_id, keyword: keyword },
+    ],
+    queryFn: () => ProjectAPI.fetchPriorSearch({ project_id, keyword }),
+    enabled: clickSearch,
+    onSuccess: () => {
+      if (clickSearch) {
+        onClickSearch();
+      }
     },
-  );
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <Fade in>

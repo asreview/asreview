@@ -38,29 +38,25 @@ const StoppingSuggestion = ({ project_id }) => {
   const [showStoppingDialog, setShowStoppingDialog] = React.useState(false);
   const [tabValue, setTabValue] = React.useState(0);
 
-  const { data: projectData } = useQuery(
-    ["fetchData", { project_id }],
-    ProjectAPI.fetchData,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data: projectData } = useQuery({
+    queryKey: ["fetchData", { project_id }],
+    queryFn: ProjectAPI.fetchData,
+    refetchOnWindowFocus: false,
+  });
 
-  const { data, isLoading } = useQuery(
-    ["fetchStopping", { project_id: project_id }],
-    ProjectAPI.fetchStopping,
-    {
-      refetchOnWindowFocus: false,
-      onSuccess: (data) => {
-        const hasThreshold = Boolean(data?.params?.n);
-        setIsThresholdSet(hasThreshold);
+  const { data, isLoading } = useQuery({
+    queryKey: ["fetchStopping", { project_id }],
+    queryFn: ProjectAPI.fetchStopping,
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      const hasThreshold = Boolean(data?.params?.n);
+      setIsThresholdSet(hasThreshold);
 
-        if (hasThreshold) {
-          setStoppingRuleThreshold(data.params.n);
-        }
-      },
+      if (hasThreshold) {
+        setStoppingRuleThreshold(data.params.n);
+      }
     },
-  );
+  });
 
   const { mutate: updateStoppingRule } = useMutation({
     mutationKey: ["updateStopping", { project_id }],

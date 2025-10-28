@@ -24,32 +24,28 @@ const ReviewPage = () => {
 
   const [tagValues, setTagValues] = React.useState({});
 
-  const { refetch, data, isSuccess, isError, error } = useQuery(
-    ["fetchRecord", { project_id }],
-    ProjectAPI.fetchRecord,
-    {
-      refetchOnWindowFocus: false,
-      retry: false,
-      refetchInterval: (query) => {
-        if (query.state.error || query.state.data?.status !== "setup")
-          return false;
-        return 4000;
-      },
-      refetchIntervalInBackground: true,
+  const { refetch, data, isSuccess, isError, error } = useQuery({
+    queryKey: ["fetchRecord", { project_id }],
+    queryFn: ProjectAPI.fetchRecord,
+    refetchOnWindowFocus: false,
+    retry: false,
+    refetchInterval: (query) => {
+      if (query.state.error || query.state.data?.status !== "setup")
+        return false;
+      return 4000;
     },
-  );
+    refetchIntervalInBackground: true,
+  });
 
   const [showStoppingDialog, setShowStoppingDialog] = React.useState(false);
   const [dismissedThresholdValue, setDismissedThresholdValue] =
     React.useState(null);
 
-  const { data: statusData } = useQuery(
-    ["fetchProjectStatus", { project_id }],
-    ProjectAPI.fetchProjectStatus,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data: statusData } = useQuery({
+    queryKey: ["fetchProjectStatus", { project_id }],
+    queryFn: ProjectAPI.fetchProjectStatus,
+    refetchOnWindowFocus: false,
+  });
 
   const handleCloseDialog = () => {
     setShowStoppingDialog(false);
@@ -58,7 +54,9 @@ const ReviewPage = () => {
     );
   };
 
-  useQuery(["fetchStopping", { project_id }], ProjectAPI.fetchStopping, {
+  useQuery({
+    queryKey: ["fetchStopping", { project_id }],
+    queryFn: ProjectAPI.fetchStopping,
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
       const hasThreshold = Boolean(data?.params?.n);

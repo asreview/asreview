@@ -70,7 +70,10 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
     });
 
     queryClient
-      .fetchQuery(["fetchStopping", { project_id }], ProjectAPI.fetchStopping)
+      .fetchQuery({
+        queryKey: ["fetchStopping", { project_id }],
+        queryFn: ProjectAPI.fetchStopping,
+      })
       .then((data) => {
         updateStoppingRule({
           project_id: project_id,

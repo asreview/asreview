@@ -14,9 +14,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 const InvitationsComponent = ({ onEmpty = null }) => {
   const queryClient = useQueryClient();
 
-  const { data: invitations } = useQuery(["getProjectInvitations"], () =>
-    TeamAPI.getProjectInvitations(),
-  );
+  const { data: invitations } = useQuery({
+    queryKey: ["getProjectInvitations"],
+    queryFn: TeamAPI.getProjectInvitations,
+  });
 
   const { mutate: handleAcceptance } = useMutation({
     mutationFn: TeamAPI.acceptInvitation,

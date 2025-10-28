@@ -35,13 +35,11 @@ const ExportDialog = ({ project_id, open, onClose }) => {
   const [exportEmail, setExportEmail] = React.useState(true);
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
 
-  const { data } = useQuery(
-    ["fetchDatasetWriter", { project_id }],
-    ProjectAPI.fetchDatasetWriter,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data } = useQuery({
+    queryKey: ["fetchDatasetWriter", { project_id }],
+    queryFn: ProjectAPI.fetchDatasetWriter,
+    refetchOnWindowFocus: false,
+  });
 
   const handleHelpPopoverOpen = (event) => {
     setAnchorElInfo(event.currentTarget);
