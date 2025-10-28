@@ -40,8 +40,6 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
     },
   });
 
-  console.log("isPending:", isPending);
-
   const [selectedTab, setSelectedTab] = React.useState(0);
 
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
