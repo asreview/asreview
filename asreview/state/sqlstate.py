@@ -515,6 +515,26 @@ class SQLiteState:
             self._conn,
         )["record_id"]
 
+    def get_unlabeled(self):
+        """Get the unlabeled records in ranking order.
+
+        Returns
+        -------
+        pd.Series
+            Series containing the record_ids of the unlabeled in the order of the last
+            available ranking. Will also return the pending records.
+        """
+        return pd.read_sql_query(
+            """SELECT record_id, last_ranking.ranking
+                FROM last_ranking
+                LEFT JOIN results
+                USING (record_id)
+                WHERE ( results.record_id is null OR results.label is null )
+                ORDER BY ranking
+                """,
+            self._conn,
+        )["record_id"]
+
     def get_pending(self, user_id=None):
         """Get pending records from the results table.
 
