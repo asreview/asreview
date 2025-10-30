@@ -1120,7 +1120,7 @@ def api_export_dataset(project):
 
     with open_state(project.project_path) as s:
         df_results = s.get_results_table().set_index("record_id")
-        df_pool = s.get_pool()
+        df_unlabeled = s.get_unlabeled()
 
     export_order = []
 
@@ -1128,7 +1128,7 @@ def api_export_dataset(project):
         export_order.extend(df_results[df_results["label"] == 1].index.to_list())
 
     if "not_seen" in collections:
-        export_order.extend(df_pool.to_list())
+        export_order.extend(df_unlabeled.to_list())
 
     if "irrelevant" in collections:
         export_order.extend(df_results[df_results["label"] == 0].index.to_list())
