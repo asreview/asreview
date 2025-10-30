@@ -1,8 +1,10 @@
 from typing import Optional
 
 import pandas as pd
+from sqlalchemy import DDL
 from sqlalchemy import ForeignKey
 from sqlalchemy import UniqueConstraint
+from sqlalchemy import event
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import MappedAsDataclass
@@ -39,6 +41,17 @@ class Base(DeclarativeBase, MappedAsDataclass):
         String: "object",
         JSON: "object",
     }
+
+    # Searching in the data store is enabled by the SQLite FTS5 extension
+    # (https://sqlite.org/fts5.html). You can configure for which columns this is
+    # enabled using the following parameters.
+    # Tuple of columns for which to enable search. They should all be columns containing
+    # strings or lists of strings.
+    __text_search_columns__ = tuple()
+    # Weights to use for the columns when using the BM25 algorithm to rank the search
+    # results (https://sqlite.org/fts5.html#the_bm25_function). This tuple should have
+    # the same length as `__text_search_columns__`.
+    __bm25_weights__ = tuple()
 
     # When storing a record, the database needs to know what datatype each field should
     # have. Some types have default values, like `int` for example, but other do not.
@@ -83,10 +96,59 @@ class Base(DeclarativeBase, MappedAsDataclass):
             for column in cls.__mapper__.columns
         }
 
+    @classmethod
+    def _setup_sqlite_fts(cls):
+        """Configures the database for use with SQLite FTS5.
+
+        For the text search the database needs to create a virtual table containing the
+        columns on which you can search. The data in this table should always be in sync
+        with the main record table. This method sets up the table and the triggers that
+        keep the virtual table in sync with the real table. This method should always be
+        called before calling `cls.metadata.create_all`.
+        """
+        if not cls.__text_search_columns__:
+            return
+        new_fields = [f"new.{col}" for col in cls.__text_search_columns__]
+        old_fields = [f"old.{col}" for col in cls.__text_search_columns__]
+        fields_string = ", ".join(cls.__text_search_columns__)
+        new_fields_string = ", ".join(new_fields)
+        old_fields_string = ", ".join(old_fields)
+        fts_table_name = f"{cls.__tablename__}_fts"
+
+        create_fts_table = DDL(f"""
+            CREATE VIRTUAL TABLE IF NOT EXISTS {fts_table_name} USING fts5({fields_string}, content={cls.__tablename__});
+        """)
+        insert_trigger = DDL(f"""
+            CREATE TRIGGER IF NOT EXISTS record_ai AFTER INSERT ON {cls.__tablename__} BEGIN
+                INSERT INTO {fts_table_name}(rowid, {fields_string}) VALUES (new.record_id, {new_fields_string});
+            END;
+        """)
+        delete_trigger = DDL(f"""
+            CREATE TRIGGER IF NOT EXISTS record_ad AFTER DELETE ON {cls.__tablename__} BEGIN
+                INSERT INTO {fts_table_name}({fts_table_name}, rowid, {fields_string}) VALUES('delete', old.record_id, {old_fields_string});
+            END;
+        """)
+        update_trigger = DDL(f"""
+            CREATE TRIGGER IF NOT EXISTS record_au AFTER UPDATE ON {cls.__tablename__} BEGIN
+                INSERT INTO {fts_table_name}({fts_table_name}, rowid, {fields_string}) VALUES('delete', old.record_id, {old_fields_string});
+                INSERT INTO {fts_table_name}(rowid, {fields_string}) VALUES (new.record_id, {new_fields_string});
+            END;
+        """)
+
+        event.listen(Base.metadata, "after_create", create_fts_table)
+        event.listen(Base.metadata, "after_create", insert_trigger)
+        event.listen(Base.metadata, "after_create", delete_trigger)
+        event.listen(Base.metadata, "after_create", update_trigger)
+
 
 class Record(Base):
     __tablename__ = "record"
     __table_args__ = (UniqueConstraint("dataset_row", "dataset_id"),)
+
+    # SQLite FTS parameters.
+    __text_search_columns__ = ["title", "abstract", "authors", "keywords"]
+    __bm25_weights__ = (1.0, 1.0, 0.0, 1.0)
+
     # We use dataset_row to locate the record in the original input file of the user.
     # For now I call this 'row', meaning that we will look in the input file by row
     # number. We might want to change this to locate the record by an external
