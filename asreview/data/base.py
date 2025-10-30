@@ -141,7 +141,9 @@ class BaseReader(ABC):
         records = []
         for idx, row in df[list(columns_present)].iterrows():
             try:
-                records.append(record_cls(dataset_row=idx, dataset_id=dataset_id, **row))
+                records.append(
+                    record_cls(dataset_row=idx, dataset_id=dataset_id, **row)
+                )
             except ValueError as e:
                 raise ValueError(f"Error when reading row {idx} of dataset: {e}") from e
         return records
