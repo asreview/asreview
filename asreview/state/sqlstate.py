@@ -501,7 +501,8 @@ class SQLiteState:
         -------
         pd.Series
             Series containing the record_ids of the unlabeled, not pending
-            records, in the order of the last available ranking.
+            records, in the order of the last available ranking. If the state does not
+            yet contain a last ranking, the return value will be an empty dataframe.
         """
 
         return pd.read_sql_query(
@@ -522,7 +523,8 @@ class SQLiteState:
         -------
         pd.Series
             Series containing the record_ids of the unlabeled in the order of the last
-            available ranking. Will also return the pending records.
+            available ranking. Will also return the pending records.  If the state does
+            not yet contain a last ranking, the return value will be an empty dataframe.
         """
         return pd.read_sql_query(
             """SELECT record_id, last_ranking.ranking
