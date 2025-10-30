@@ -140,3 +140,8 @@ class Record(Base):
                 f"included should be one of 0, 1, or None. Not '{included}'"
             )
         return included
+
+    @validates("year")
+    def validate_integer(self, key, value):
+        if not isinstance(value, int):
+            raise ValueError(f"'{key}' should be an integer, but is: {value}")
