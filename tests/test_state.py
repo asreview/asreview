@@ -465,3 +465,34 @@ def test_add_extra_column(tmpdir):
 
         assert isinstance(top_ranked, pd.Series)
         assert len(top_ranked) == 1
+
+
+def test_get_pool_unlabeled(tmpdir):
+    # Create a state with one labeled, one pending and one pool record.
+    project_path = Path(tmpdir, "test.asreview")
+    asr.Project.create(project_path)
+
+    ranking = [0, 1, 2]
+    classifier = "nb"
+    querier = "max"
+    balancer = "balanced"
+    feature_extractor = "tfidf"
+    training_set = 2
+
+    with asr.open_state(project_path) as state:
+        state.add_last_ranking(
+            ranking,
+            classifier,
+            querier,
+            balancer,
+            feature_extractor,
+            training_set,
+        )
+        state.query_top_ranked()["record_id"]
+        state.add_labeling_data([0], labels=[1])
+        state.query_top_ranked()["record_id"]
+
+        assert state.get_pool().to_list() == [2]
+        assert state.get_unlabeled().to_list() == [1, 2]
+        assert state.get_pending()["record_id"].to_list() == [1]
+        assert state.get_results_table()["record_id"].to_list() == [0]

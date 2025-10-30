@@ -1,6 +1,7 @@
 import json
 import time
-from io import BytesIO
+import csv
+from io import BytesIO, StringIO
 from pathlib import Path
 
 import pytest
@@ -385,6 +386,34 @@ def test_export_result(client, project, format):
 
     r = au.export_project_dataset(client, project, format)
     assert r.status_code == 200
+
+
+# Test that checks that no records are left out when exporting full dataset.
+# This checks https://github.com/asreview/asreview/issues/2347 is fixed.
+def test_export_all_records(client, project):
+    # Add a relevant, irrelevant and pending record.
+    au.label_random_project_data_record(client, project, 1)
+    au.label_random_project_data_record(client, project, 0)
+    au.get_project_current_document(client, project)
+
+    # Cast `project` to type `asreview.Project`. (In auth-mode it's the webapp database
+    # model instead.)
+    asr_project = asr.Project(project.project_path)
+    # Add a last ranking to the state, as if a model has been trained.
+    record_ids = asr_project.data_store["record_id"].to_list()
+    with asr.open_state(asr_project) as state:
+        state.add_last_ranking(record_ids, "nb", "max", "double", "tfidf", 2)
+
+    for collection, size in [
+        ("relevant", 1),
+        ("irrelevant", 1),
+        ("not_seen", len(record_ids) - 2),
+    ]:
+        r = au.export_project_dataset(client, project, "csv", collections=[collection])
+        assert r.status_code == 200
+        file_data = StringIO(r.data.decode("utf-8"))
+        csv_rows = list(csv.reader(file_data))
+        assert len(csv_rows) == size + 1
 
 
 # Test uploading a RIS file with many authors, exporting it and importing it again.
