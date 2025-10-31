@@ -1,9 +1,9 @@
 import React from "react";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import {
   Box,
-  Grid2 as Grid,
+  Grid,
   Stack,
   Typography,
   IconButton,
@@ -43,11 +43,13 @@ const UsersComponent = () => {
   // Fetch users from the API
   const {
     data: usersData,
-    isLoading,
+    isPending,
     isError,
     error,
     refetch,
-  } = useQuery(["fetchUsers"], AdminAPI.fetchUsers, {
+  } = useQuery({
+    queryKey: ["fetchUsers"],
+    queryFn: AdminAPI.fetchUsers,
     refetchOnWindowFocus: false,
     retry: 2,
   });
@@ -89,52 +91,46 @@ const UsersComponent = () => {
   }, [usersData]);
 
   // Mutation for creating new users
-  const { mutate: createUser, isLoading: isCreatingUser } = useMutation(
-    AdminAPI.createUser,
-    {
-      onSuccess: () => {
-        refetch(); // Refresh the user list
-        setUserFormDialogOpen(false);
-        setSelectedUser(null);
-      },
-      onError: (error) => {
-        console.error("Failed to create user:", error);
-        // You could add a toast notification here
-      },
+  const { mutate: createUser, isPending: isCreatingUser } = useMutation({
+    mutationFn: AdminAPI.createUser,
+    onSuccess: () => {
+      refetch(); // Refresh the user list
+      setUserFormDialogOpen(false);
+      setSelectedUser(null);
     },
-  );
+    onError: (error) => {
+      console.error("Failed to create user:", error);
+      // You could add a toast notification here
+    },
+  });
 
   // Mutation for updating users
-  const { mutate: updateUser, isLoading: isUpdatingUser } = useMutation(
-    ({ userId, userData }) => AdminAPI.updateUser(userId, userData),
-    {
-      onSuccess: () => {
-        refetch(); // Refresh the user list
-        setUserFormDialogOpen(false);
-        setSelectedUser(null);
-      },
-      onError: (error) => {
-        console.error("Failed to update user:", error);
-        // You could add a toast notification here
-      },
+  const { mutate: updateUser, isPending: isUpdatingUser } = useMutation({
+    mutationFn: ({ userId, userData }) => AdminAPI.updateUser(userId, userData),
+    onSuccess: () => {
+      refetch(); // Refresh the user list
+      setUserFormDialogOpen(false);
+      setSelectedUser(null);
     },
-  );
+    onError: (error) => {
+      console.error("Failed to update user:", error);
+      // You could add a toast notification here
+    },
+  });
 
   // Mutation for deleting users
-  const { mutate: deleteUser, isLoading: isDeletingUser } = useMutation(
-    (userId) => AdminAPI.deleteUser(userId),
-    {
-      onSuccess: () => {
-        refetch(); // Refresh the user list
-        setDeleteDialogOpen(false);
-        setUserToDelete(null);
-      },
-      onError: (error) => {
-        console.error("Failed to delete user:", error);
-        // You could add a toast notification here
-      },
+  const { mutate: deleteUser, isPending: isDeletingUser } = useMutation({
+    mutationFn: (userId) => AdminAPI.deleteUser(userId),
+    onSuccess: () => {
+      refetch(); // Refresh the user list
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
     },
-  );
+    onError: (error) => {
+      console.error("Failed to delete user:", error);
+      // You could add a toast notification here
+    },
+  });
 
   const handleHelpPopoverOpen = (event) => {
     setAnchorElInfo(event.currentTarget);
@@ -293,7 +289,7 @@ const UsersComponent = () => {
       </Box>
 
       {/* Loading State */}
-      {isLoading && (
+      {isPending && (
         <Box
           sx={{
             display: "flex",
@@ -323,7 +319,7 @@ const UsersComponent = () => {
       )}
 
       {/* Main Content - only show when not loading and no error */}
-      {!isLoading && !isError && (
+      {!isPending && !isError && (
         <>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs value={selectedTab} onChange={handleTabChange}>

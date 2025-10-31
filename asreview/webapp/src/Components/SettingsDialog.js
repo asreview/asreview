@@ -11,6 +11,7 @@ import {
   FormControlLabel,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Radio,
   RadioGroup,
@@ -148,16 +149,17 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
               REVIEW
             </Typography>
           </ListItem>
-          <ListItem
-            onClick={toggleFontSizeSetting}
-            button
-            sx={{ cursor: "pointer" }}
-          >
-            <ListItemText
-              id="change-text-size"
-              primary="Font size"
-              secondary={fontSizeOptions[fontSize]}
-            />
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={toggleFontSizeSetting}
+              sx={{ cursor: "pointer" }}
+            >
+              <ListItemText
+                id="change-text-size"
+                primary="Font size"
+                secondary={fontSizeOptions[fontSize]}
+              />
+            </ListItemButton>
           </ListItem>
           <ListItem
             secondaryAction={

@@ -1,5 +1,5 @@
 import React from "react";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogTitle,
@@ -11,7 +11,7 @@ import {
   Chip,
   CircularProgress,
   Alert,
-  Grid2 as Grid,
+  Grid,
   Snackbar,
   Stack,
   Divider,
@@ -49,14 +49,12 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
   });
 
   // Fetch updated project data
-  const { data: adminProjects, isLoading: projectsLoading } = useQuery(
-    ["fetchAdminProjects"],
-    AdminAPI.fetchProjects,
-    {
-      enabled: Boolean(open),
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data: adminProjects, isPending: projectsLoading } = useQuery({
+    queryKey: ["fetchAdminProjects"],
+    queryFn: AdminAPI.fetchProjects,
+    enabled: Boolean(open),
+    refetchOnWindowFocus: false,
+  });
 
   // Get the current project data (either fresh from query or fallback to prop)
   const currentProject = React.useMemo(() => {
@@ -72,144 +70,135 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
   // Fetch collaborators for this project
   const {
     data: collaborators,
-    isLoading: collaboratorsLoading,
+    isPending: collaboratorsLoading,
     isError: collaboratorsError,
-  } = useQuery(
-    ["fetchProjectUsers", currentProject?.project_id],
-    TeamAPI.fetchUsers,
-    {
-      enabled: Boolean(open && currentProject?.project_id),
-      refetchOnWindowFocus: false,
-      retry: 1,
-      onError: (error) => {
-        console.warn("Failed to fetch project collaborators:", error?.message);
-      },
+  } = useQuery({
+    queryKey: ["fetchProjectUsers", currentProject?.project_id],
+    queryFn: TeamAPI.fetchUsers,
+    enabled: Boolean(open && currentProject?.project_id),
+    refetchOnWindowFocus: false,
+    retry: 1,
+    onError: (error) => {
+      console.warn("Failed to fetch project collaborators:", error?.message);
     },
-  );
+  });
 
   // Ownership transfer mutation
-  const transferOwnershipMutation = useMutation(
-    ({ projectId, newOwnerId }) =>
+  const transferOwnershipMutation = useMutation({
+    mutationFn: ({ projectId, newOwnerId }) =>
       AdminAPI.transferProjectOwnership(projectId, newOwnerId),
-    {
-      onSuccess: (data) => {
-        setSnackbarState({
-          open: true,
-          message: `Project ownership transferred to ${data.project.new_owner.name}`,
-          severity: "success",
-        });
-        setSelectedUser(null);
-        // Invalidate all relevant queries to refresh project data
-        queryClient.invalidateQueries(["fetchAdminProjects"]);
-        queryClient.invalidateQueries([
-          "fetchProjectUsers",
-          currentProject?.project_id,
-        ]);
-        queryClient.invalidateQueries(["fetchProjects"]);
-        queryClient.invalidateQueries(["fetchAdminUsers"]);
-      },
-      onError: (error) => {
-        setSnackbarState({
-          open: true,
-          message: error?.message || "Failed to transfer project ownership",
-          severity: "error",
-        });
-      },
+    onSuccess: (data) => {
+      setSnackbarState({
+        open: true,
+        message: `Project ownership transferred to ${data.project.new_owner.name}`,
+        severity: "success",
+      });
+      setSelectedUser(null);
+      // Invalidate all relevant queries to refresh project data
+      queryClient.invalidateQueries(["fetchAdminProjects"]);
+      queryClient.invalidateQueries([
+        "fetchProjectUsers",
+        currentProject?.project_id,
+      ]);
+      queryClient.invalidateQueries(["fetchProjects"]);
+      queryClient.invalidateQueries(["fetchAdminUsers"]);
     },
-  );
+    onError: (error) => {
+      setSnackbarState({
+        open: true,
+        message: error?.message || "Failed to transfer project ownership",
+        severity: "error",
+      });
+    },
+  });
 
   // Add member mutation
-  const addMemberMutation = useMutation(
-    ({ projectId, userId }) => {
+  const addMemberMutation = useMutation({
+    mutationFn: ({ projectId, userId }) => {
       console.log("AdminAPI methods:", Object.getOwnPropertyNames(AdminAPI));
       console.log("addProjectMember function:", AdminAPI.addProjectMember);
       return AdminAPI.addProjectMember(projectId, userId);
     },
-    {
-      onSuccess: (data) => {
-        setSnackbarState({
-          open: true,
-          message: `${data.user.name || data.user.email} added as member successfully`,
-          severity: "success",
-        });
-        setSelectedUser(null);
-        // Invalidate queries to refresh data
-        queryClient.invalidateQueries(["fetchAdminProjects"]);
-        queryClient.invalidateQueries([
-          "fetchProjectUsers",
-          currentProject?.project_id,
-        ]);
-        queryClient.invalidateQueries(["fetchAdminUsers"]);
-      },
-      onError: (error) => {
-        setSnackbarState({
-          open: true,
-          message: error?.message || "Failed to add member",
-          severity: "error",
-        });
-      },
+    onSuccess: (data) => {
+      setSnackbarState({
+        open: true,
+        message: `${data.user.name || data.user.email} added as member successfully`,
+        severity: "success",
+      });
+      setSelectedUser(null);
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries(["fetchAdminProjects"]);
+      queryClient.invalidateQueries([
+        "fetchProjectUsers",
+        currentProject?.project_id,
+      ]);
+      queryClient.invalidateQueries(["fetchAdminUsers"]);
     },
-  );
+    onError: (error) => {
+      setSnackbarState({
+        open: true,
+        message: error?.message || "Failed to add member",
+        severity: "error",
+      });
+    },
+  });
 
   // Invite user mutation
-  const inviteUserMutation = useMutation(
-    ({ projectId, userId }) => TeamAPI.inviteUser({ projectId, userId }),
-    {
-      onSuccess: (data) => {
-        setSnackbarState({
-          open: true,
-          message: `Invitation sent to ${data.user.name || data.user.email} successfully`,
-          severity: "success",
-        });
-        setSelectedUser(null);
-        // Invalidate queries to refresh data
-        queryClient.invalidateQueries(["fetchAdminProjects"]);
-        queryClient.invalidateQueries([
-          "fetchProjectUsers",
-          currentProject?.project_id,
-        ]);
-        queryClient.invalidateQueries(["fetchAdminUsers"]);
-      },
-      onError: (error) => {
-        setSnackbarState({
-          open: true,
-          message: error?.message || "Failed to send invitation",
-          severity: "error",
-        });
-      },
+  const inviteUserMutation = useMutation({
+    mutationFn: ({ projectId, userId }) =>
+      TeamAPI.inviteUser({ projectId, userId }),
+    onSuccess: (data) => {
+      setSnackbarState({
+        open: true,
+        message: `Invitation sent to ${data.user.name || data.user.email} successfully`,
+        severity: "success",
+      });
+      setSelectedUser(null);
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries(["fetchAdminProjects"]);
+      queryClient.invalidateQueries([
+        "fetchProjectUsers",
+        currentProject?.project_id,
+      ]);
+      queryClient.invalidateQueries(["fetchAdminUsers"]);
     },
-  );
+    onError: (error) => {
+      setSnackbarState({
+        open: true,
+        message: error?.message || "Failed to send invitation",
+        severity: "error",
+      });
+    },
+  });
 
   // Delete project mutation
-  const deleteProjectMutation = useMutation(
-    ({ projectId }) =>
+  const deleteProjectMutation = useMutation({
+    mutationFn: ({ projectId }) =>
       ProjectAPI.mutateDeleteProject({ project_id: projectId }),
-    {
-      onSuccess: () => {
-        setSnackbarState({
-          open: true,
-          message: "Project deleted successfully",
-          severity: "success",
-        });
-        setDeleteConfirmDialog(false);
-        // Refresh project list and close modal
-        queryClient.invalidateQueries(["fetchAdminProjects"]);
-        queryClient.invalidateQueries(["fetchProjects"]);
-        // Close modal after a short delay to allow user to see success message
-        setTimeout(() => {
-          onClose();
-        }, 1500);
-      },
-      onError: (error) => {
-        setSnackbarState({
-          open: true,
-          message: error?.message || "Failed to delete project",
-          severity: "error",
-        });
-        setDeleteConfirmDialog(false);
-      },
+    onSuccess: () => {
+      setSnackbarState({
+        open: true,
+        message: "Project deleted successfully",
+        severity: "success",
+      });
+      setDeleteConfirmDialog(false);
+      // Refresh project list and close modal
+      queryClient.invalidateQueries(["fetchAdminProjects"]);
+      queryClient.invalidateQueries(["fetchProjects"]);
+      // Close modal after a short delay to allow user to see success message
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     },
-  );
+    onError: (error) => {
+      setSnackbarState({
+        open: true,
+        message: error?.message || "Failed to delete project",
+        severity: "error",
+      });
+      setDeleteConfirmDialog(false);
+    },
+  });
 
   // Determine the appropriate action based on user status
   const getUserAction = React.useMemo(() => {
@@ -319,7 +308,7 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
 
   if (!currentProject) return null;
 
-  const isLoading = projectsLoading || collaboratorsLoading;
+  const isPending = projectsLoading || collaboratorsLoading;
 
   return (
     <Dialog
@@ -338,7 +327,7 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
       </DialogTitle>
 
       <DialogContent>
-        {isLoading && (
+        {isPending && (
           <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
             <CircularProgress />
           </Box>
@@ -426,7 +415,7 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
             <SectionHeader icon={GroupOutlined} title="Team" />
             <TeamSection
               collaborators={collaborators}
-              isLoading={collaboratorsLoading}
+              isPending={collaboratorsLoading}
               isError={collaboratorsError}
               errorMessage="Unable to load project team. This may occur after ownership transfer if admin access has changed."
               projectId={currentProject.project_id}
@@ -452,9 +441,9 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
                   excludeOwner={false}
                   excludeMembers={false}
                   disabled={
-                    transferOwnershipMutation.isLoading ||
-                    addMemberMutation.isLoading ||
-                    inviteUserMutation.isLoading
+                    transferOwnershipMutation.isPending ||
+                    addMemberMutation.isPending ||
+                    inviteUserMutation.isPending
                   }
                 />
               </Grid>
@@ -470,12 +459,12 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
                         variant="contained"
                         color="primary"
                         onClick={handleUserAction}
-                        disabled={!selectedUser || addMemberMutation.isLoading}
+                        disabled={!selectedUser || addMemberMutation.isPending}
                         size="small"
                         startIcon={<PersonAddOutlined />}
                         sx={{ minWidth: "auto", flex: "1 1 auto" }}
                       >
-                        {addMemberMutation.isLoading
+                        {addMemberMutation.isPending
                           ? "Adding..."
                           : "Add Member"}
                       </Button>
@@ -483,11 +472,11 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
                         variant="outlined"
                         color="secondary"
                         onClick={handleInviteUser}
-                        disabled={!selectedUser || inviteUserMutation.isLoading}
+                        disabled={!selectedUser || inviteUserMutation.isPending}
                         size="small"
                         sx={{ minWidth: "auto", flex: "1 1 auto" }}
                       >
-                        {inviteUserMutation.isLoading
+                        {inviteUserMutation.isPending
                           ? "Inviting..."
                           : "Send Invite"}
                       </Button>
@@ -496,13 +485,13 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
                         color="warning"
                         onClick={handleTransferOwnership}
                         disabled={
-                          !selectedUser || transferOwnershipMutation.isLoading
+                          !selectedUser || transferOwnershipMutation.isPending
                         }
                         size="small"
                         startIcon={<SwapHorizOutlined />}
                         sx={{ minWidth: "auto", flex: "1 1 auto" }}
                       >
-                        {transferOwnershipMutation.isLoading
+                        {transferOwnershipMutation.isPending
                           ? "Transferring..."
                           : "Transfer Ownership"}
                       </Button>
@@ -514,13 +503,13 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
                       color="warning"
                       onClick={handleUserAction}
                       disabled={
-                        !selectedUser || transferOwnershipMutation.isLoading
+                        !selectedUser || transferOwnershipMutation.isPending
                       }
                       fullWidth
                       size="small"
                       startIcon={<SwapHorizOutlined />}
                     >
-                      {transferOwnershipMutation.isLoading
+                      {transferOwnershipMutation.isPending
                         ? "Transferring..."
                         : "Transfer Ownership"}
                     </Button>
@@ -572,10 +561,10 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
               color="error"
               startIcon={<DeleteOutlined />}
               onClick={handleDeleteProject}
-              disabled={deleteProjectMutation.isLoading}
+              disabled={deleteProjectMutation.isPending}
               sx={{ mb: 1 }}
             >
-              {deleteProjectMutation.isLoading
+              {deleteProjectMutation.isPending
                 ? "Deleting..."
                 : "Delete Project"}
             </Button>
@@ -674,7 +663,7 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
         <DialogActions>
           <Button
             onClick={handleCancelDelete}
-            disabled={deleteProjectMutation.isLoading}
+            disabled={deleteProjectMutation.isPending}
             variant="outlined"
           >
             Cancel
@@ -683,16 +672,16 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
             onClick={handleConfirmDelete}
             color="error"
             variant="contained"
-            disabled={deleteProjectMutation.isLoading}
+            disabled={deleteProjectMutation.isPending}
             startIcon={
-              deleteProjectMutation.isLoading ? (
+              deleteProjectMutation.isPending ? (
                 <CircularProgress size={16} />
               ) : (
                 <DeleteOutlined />
               )
             }
           >
-            {deleteProjectMutation.isLoading ? "Deleting..." : "Delete Project"}
+            {deleteProjectMutation.isPending ? "Deleting..." : "Delete Project"}
           </Button>
         </DialogActions>
       </Dialog>

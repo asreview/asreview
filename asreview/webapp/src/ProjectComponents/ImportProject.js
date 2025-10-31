@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useMediaQuery } from "@mui/material";
 
@@ -49,7 +49,7 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
+const ImportProjectCard = ({ mutate, isPending, isError, error }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
       mutate({
@@ -108,7 +108,7 @@ const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
         <input {...getInputProps()} />
 
         <ButtonBase
-          disabled={isLoading}
+          disabled={isPending}
           disableRipple
           onClick={open}
           sx={{
@@ -119,7 +119,7 @@ const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
         >
           <Stack spacing={2} justifyContent="center" direction={"column"}>
             <Box display="flex" justifyContent="center">
-              {isLoading ? (
+              {isPending ? (
                 <CircularProgress />
               ) : (
                 <Avatar>
@@ -155,21 +155,19 @@ const ImportProject = ({ ...buttonProps }) => {
   const [importSnackbar, toggleImportSnackbar] = useToggle();
   const [warningDialog, toggleWarningDialog] = useToggle();
 
-  const { mutate, isLoading, data, isError, error } = useMutation(
-    ProjectAPI.mutateImportProject,
-    {
-      mutationKey: ["importProject"],
-      onSuccess: (data) => {
-        queryClient.invalidateQueries("fetchProjects");
+  const { mutate, isPending, data, isError, error } = useMutation({
+    mutationFn: ProjectAPI.mutateImportProject,
+    mutationKey: ["importProject"],
+    onSuccess: (data) => {
+      queryClient.invalidateQueries("fetchProjects");
 
-        if (data?.warnings.length === 0) {
-          navigateToProject(data?.data?.mode, data?.data?.id);
-        } else {
-          toggleWarningDialog();
-        }
-      },
+      if (data?.warnings.length === 0) {
+        navigateToProject(data?.data?.mode, data?.data?.id);
+      } else {
+        toggleWarningDialog();
+      }
     },
-  );
+  });
 
   const navigateToProject = (mode, project_id) => {
     const projectSubset = mode === "oracle" ? "reviews" : "simulations";
@@ -180,7 +178,7 @@ const ImportProject = ({ ...buttonProps }) => {
     <>
       <ImportProjectCard
         mutate={mutate}
-        isLoading={isLoading}
+        isPending={isPending}
         isError={isError}
         error={error}
       />

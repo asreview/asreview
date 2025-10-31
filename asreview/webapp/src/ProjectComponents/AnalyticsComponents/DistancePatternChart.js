@@ -20,7 +20,7 @@ import { ProjectAPI } from "api";
 import { CardErrorHandler } from "Components";
 import { toJpeg, toPng, toSvg } from "html-to-image";
 import React from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import { projectModes } from "globals.js";
 
@@ -30,17 +30,17 @@ const DistancePatternChart = ({ project_id, showLast = false, mode }) => {
   const chartRef = React.useRef(null);
   const theme = useTheme();
 
-  const { data, error, isError, isLoading } = useQuery(
-    ["fetchGenericData", { project_id }],
-    ProjectAPI.fetchGenericData,
-    { refetchOnWindowFocus: false },
-  );
+  const { data, error, isError, isPending } = useQuery({
+    queryKey: ["fetchGenericData", { project_id }],
+    queryFn: ProjectAPI.fetchGenericData,
+    refetchOnWindowFocus: false,
+  });
 
-  const { data: stoppingData } = useQuery(
-    ["fetchStopping", { project_id }],
-    ProjectAPI.fetchStopping,
-    { refetchOnWindowFocus: false },
-  );
+  const { data: stoppingData } = useQuery({
+    queryKey: ["fetchStopping", { project_id }],
+    queryFn: ProjectAPI.fetchStopping,
+    refetchOnWindowFocus: false,
+  });
 
   const relevantPositions = data
     ? data.reduce(
@@ -327,7 +327,7 @@ const DistancePatternChart = ({ project_id, showLast = false, mode }) => {
           isError={!!isError}
         />
 
-        {isLoading ? (
+        {isPending ? (
           <Skeleton variant="rectangular" height={400} />
         ) : relevantPositions.length > 1 ? (
           <Box height={400} width={1} ref={chartRef} sx={{ mt: -3 }}>

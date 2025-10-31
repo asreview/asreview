@@ -1,5 +1,5 @@
 import { Stack, Alert } from "@mui/material";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 
@@ -10,7 +10,8 @@ import { StyledInputSearch } from "StyledComponents/StyledInputSearch";
 const DatasetFromSearch = ({ mode, setDataset }) => {
   // const [localURI, setURI] = React.useState("");
 
-  const { error, isError } = useMutation(ProjectAPI.createProject, {
+  const { error, isError } = useMutation({
+    mutationFn: ProjectAPI.createProject,
     mutationKey: ["createProject"],
     onSuccess: (data) => {
       setDataset(data);

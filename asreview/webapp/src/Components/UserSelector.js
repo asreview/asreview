@@ -1,6 +1,6 @@
 import React from "react";
 import { Autocomplete, TextField, Typography } from "@mui/material";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { TeamAPI } from "api";
 import { getUserDisplayName } from "utils/userUtils";
 
@@ -15,28 +15,24 @@ const UserSelector = ({
   placeholder = "Type to search users...",
   ...autocompleteProps
 }) => {
-  const { data: projectUsers, isLoading: isLoadingProjectUsers } = useQuery(
-    ["fetchProjectUsers", projectId],
-    TeamAPI.fetchUsers,
-    {
-      enabled: Boolean(projectId && (excludeOwner || excludeMembers)),
-    },
-  );
+  const { data: projectUsers, isPending: isPendingProjectUsers } = useQuery({
+    queryKey: ["fetchProjectUsers", projectId],
+    queryFn: TeamAPI.fetchUsers,
+    enabled: Boolean(projectId && (excludeOwner || excludeMembers)),
+  });
 
-  const { data: allUsers, isLoading: isLoadingAllUsers } = useQuery(
-    ["fetchAdminUsers"],
-    () =>
+  const { data: allUsers, isPending: isPendingAllUsers } = useQuery({
+    queryKey: ["fetchAdminUsers"],
+    queryFn: () =>
       fetch(`${window.api_url}admin/users`, {
         credentials: "include",
       })
         .then((res) => res.json())
         .then((data) => data.users),
-    {
-      enabled: Boolean(projectId),
-    },
-  );
+    enabled: Boolean(projectId),
+  });
 
-  const isLoading = isLoadingProjectUsers || isLoadingAllUsers;
+  const isPending = isPendingProjectUsers || isPendingAllUsers;
 
   // Filter users based on exclusion criteria
   const filteredUsers = React.useMemo(() => {
@@ -71,8 +67,8 @@ const UserSelector = ({
       options={filteredUsers}
       getOptionLabel={(option) => getUserDisplayName(option)}
       isOptionEqualToValue={(option, value) => option?.id === value?.id}
-      loading={isLoading}
-      disabled={disabled || isLoading}
+      loading={isPending}
+      disabled={disabled || isPending}
       noOptionsText="No available users found"
       PaperComponent={({ children, ...props }) => (
         <div

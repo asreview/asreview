@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   Card,
   CardContent,
-  Grid2 as Grid,
+  Grid,
   Paper,
   Skeleton,
   Stack,
@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
@@ -32,26 +32,20 @@ export default function ReviewProgress({ project_id }) {
     setAnchorEl(null);
   };
 
-  const progressQuery = useQuery(
-    ["fetchProgress", { project_id }],
-    ({ queryKey }) =>
-      ProjectAPI.fetchProgress({
-        queryKey,
-      }),
-    { refetchOnWindowFocus: false },
-  );
+  const progressQuery = useQuery({
+    queryKey: ["fetchProgress", { project_id }],
+    queryFn: ProjectAPI.fetchProgress,
+    refetchOnWindowFocus: false,
+  });
 
-  const genericDataQuery = useQuery(
-    ["fetchGenericData", { project_id }],
-    ({ queryKey }) =>
-      ProjectAPI.fetchGenericData({
-        queryKey,
-      }),
-    { refetchOnWindowFocus: false },
-  );
+  const genericDataQuery = useQuery({
+    queryKey: ["fetchGenericData", { project_id }],
+    queryFn: ProjectAPI.fetchGenericData,
+    refetchOnWindowFocus: false,
+  });
 
   const data = progressQuery.data;
-  const isLoading = progressQuery.isLoading || genericDataQuery.isLoading;
+  const isPending = progressQuery.isPending || genericDataQuery.isPending;
 
   // Determine if priors actually exist based on the fetched data
   const includePrior = data
@@ -151,7 +145,7 @@ export default function ReviewProgress({ project_id }) {
             flexDirection="column"
             justifyContent="center"
           >
-            {isLoading ? (
+            {isPending ? (
               <Stack spacing={2}>
                 {Array.from({ length: 3 }).map((_, index) => (
                   <Skeleton
@@ -252,7 +246,7 @@ export default function ReviewProgress({ project_id }) {
             alignItems="center"
             justifyContent="center"
           >
-            {isLoading ? (
+            {isPending ? (
               <Box
                 width={180}
                 height={180}

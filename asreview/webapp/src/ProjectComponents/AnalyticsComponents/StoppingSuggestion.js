@@ -6,7 +6,7 @@ import {
   Card,
   CardContent,
   Divider,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   LinearProgress,
   Paper,
@@ -21,7 +21,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { ProjectAPI } from "api";
 import React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import StoppingReachedDialog from "../ReviewComponents/StoppingReachedDialog";
 
@@ -38,43 +38,38 @@ const StoppingSuggestion = ({ project_id }) => {
   const [showStoppingDialog, setShowStoppingDialog] = React.useState(false);
   const [tabValue, setTabValue] = React.useState(0);
 
-  const { data: projectData } = useQuery(
-    ["fetchData", { project_id }],
-    ProjectAPI.fetchData,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data: projectData } = useQuery({
+    queryKey: ["fetchData", { project_id }],
+    queryFn: ProjectAPI.fetchData,
+    refetchOnWindowFocus: false,
+  });
 
-  const { data, isLoading } = useQuery(
-    ["fetchStopping", { project_id: project_id }],
-    ProjectAPI.fetchStopping,
-    {
-      refetchOnWindowFocus: false,
-      onSuccess: (data) => {
-        const hasThreshold = Boolean(data?.params?.n);
-        setIsThresholdSet(hasThreshold);
+  const { data, isPending } = useQuery({
+    queryKey: ["fetchStopping", { project_id }],
+    queryFn: ProjectAPI.fetchStopping,
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      const hasThreshold = Boolean(data?.params?.n);
+      setIsThresholdSet(hasThreshold);
 
-        if (hasThreshold) {
-          setStoppingRuleThreshold(data.params.n);
-        }
-      },
+      if (hasThreshold) {
+        setStoppingRuleThreshold(data.params.n);
+      }
     },
-  );
+  });
 
-  const { mutate: updateStoppingRule } = useMutation(
-    ProjectAPI.mutateStopping,
-    {
-      onSuccess: (data) => {
-        queryClient.invalidateQueries([
-          "fetchStopping",
-          { project_id: project_id },
-        ]);
-        setIsThresholdSet(true);
-        handleCloseEdit();
-      },
+  const { mutate: updateStoppingRule } = useMutation({
+    mutationKey: ["updateStopping", { project_id }],
+    mutationFn: ProjectAPI.mutateStopping,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries([
+        "fetchStopping",
+        { project_id: project_id },
+      ]);
+      setIsThresholdSet(true);
+      handleCloseEdit();
     },
-  );
+  });
 
   React.useEffect(() => {
     if (data && data?.value && data?.params?.n) {
@@ -185,7 +180,7 @@ const StoppingSuggestion = ({ project_id }) => {
           </IconButton>
         </Box>
 
-        {isLoading || isThresholdSet === null ? (
+        {isPending || isThresholdSet === null ? (
           <Grid container spacing={2} columns={2}>
             <Grid size={1}>
               <Stack spacing={2} pt={4}>

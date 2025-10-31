@@ -17,7 +17,7 @@ import {
   Article as ArticleIcon,
   FileDownloadOutlined as FileDownloadOutlinedIcon,
 } from "@mui/icons-material";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { ProjectAPI } from "api";
 import { projectStatuses } from "globals.js";
@@ -26,7 +26,8 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { mutate } = useMutation(ProjectAPI.mutateReviewStatus, {
+  const { mutate } = useMutation({
+    mutationFn: ProjectAPI.mutateReviewStatus,
     onSuccess: () => {
       queryClient.invalidateQueries(["fetchProjectStatus", { project_id }]);
       queryClient.invalidateQueries(["fetchProjectInfo", { project_id }]);
@@ -35,18 +36,16 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
     },
   });
 
-  const { mutate: updateStoppingRule } = useMutation(
-    ProjectAPI.mutateStopping,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([
-          "fetchStopping",
-          { project_id: project_id },
-        ]);
-        onClose();
-      },
+  const { mutate: updateStoppingRule } = useMutation({
+    mutationFn: ProjectAPI.mutateStopping,
+    onSuccess: () => {
+      queryClient.invalidateQueries([
+        "fetchStopping",
+        { project_id: project_id },
+      ]);
+      onClose();
     },
-  );
+  });
 
   const handleFinishProject = () => {
     mutate({
@@ -71,7 +70,10 @@ const StoppingReachedDialog = ({ open, onClose, project_id }) => {
     });
 
     queryClient
-      .fetchQuery(["fetchStopping", { project_id }], ProjectAPI.fetchStopping)
+      .fetchQuery({
+        queryKey: ["fetchStopping", { project_id }],
+        queryFn: ProjectAPI.fetchStopping,
+      })
       .then((data) => {
         updateStoppingRule({
           project_id: project_id,

@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import { ProjectAPI } from "api";
 import * as React from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { StyledDialog } from "StyledComponents/StyledDialog";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
@@ -35,13 +35,11 @@ const ExportDialog = ({ project_id, open, onClose }) => {
   const [exportEmail, setExportEmail] = React.useState(true);
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
 
-  const { data } = useQuery(
-    ["fetchDatasetWriter", { project_id }],
-    ProjectAPI.fetchDatasetWriter,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data } = useQuery({
+    queryKey: ["fetchDatasetWriter", { project_id }],
+    queryFn: ProjectAPI.fetchDatasetWriter,
+    refetchOnWindowFocus: false,
+  });
 
   const handleHelpPopoverOpen = (event) => {
     setAnchorElInfo(event.currentTarget);

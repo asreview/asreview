@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Grid2 as Grid,
+  Grid,
   SpeedDial,
   SpeedDialAction,
   Stack,
@@ -19,7 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import {
   EmailIcon,
@@ -56,54 +56,42 @@ const AnalyticsPage = () => {
   const { project_id } = useParams();
   const queryClient = useQueryClient();
 
-  const { data } = useQuery(
-    ["fetchInfo", { project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data } = useQuery({
+    queryKey: ["fetchInfo", { project_id }],
+    queryFn: ProjectAPI.fetchInfo,
+    refetchOnWindowFocus: false,
+  });
 
-  const progressQuery = useQuery(
-    ["fetchProgress", { project_id }],
-    ({ queryKey }) =>
-      ProjectAPI.fetchProgress({
-        queryKey,
-      }),
-    { refetchOnWindowFocus: false },
-  );
-  const genericDataQuery = useQuery(
-    ["fetchGenericData", { project_id }],
-    ({ queryKey }) =>
-      ProjectAPI.fetchGenericData({
-        queryKey,
-      }),
-    { refetchOnWindowFocus: false },
-  );
+  const progressQuery = useQuery({
+    queryKey: ["fetchProgress", { project_id }],
+    queryFn: ProjectAPI.fetchProgress,
+    refetchOnWindowFocus: false,
+  });
+  const genericDataQuery = useQuery({
+    queryKey: ["fetchGenericData", { project_id }],
+    queryFn: ProjectAPI.fetchGenericData,
+    refetchOnWindowFocus: false,
+  });
 
-  const { data: statusData } = useQuery(
-    ["fetchProjectStatus", { project_id }],
-    ProjectAPI.fetchProjectStatus,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data: statusData } = useQuery({
+    queryKey: ["fetchProjectStatus", { project_id }],
+    queryFn: ProjectAPI.fetchProjectStatus,
+    refetchOnWindowFocus: false,
+  });
 
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
 
-  const { mutate: updateStatus } = useMutation(
-    (status) =>
+  const { mutate: updateStatus } = useMutation({
+    mutationFn: (status) =>
       ProjectAPI.mutateReviewStatus({
         project_id: project_id,
         status: status,
       }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["fetchProjectStatus", { project_id }]);
-        setOpenStatusDialog(false);
-      },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["fetchProjectStatus", { project_id }]);
+      setOpenStatusDialog(false);
     },
-  );
+  });
 
   const [openCompletionDialog, setOpenCompletionDialog] = useState(false);
 

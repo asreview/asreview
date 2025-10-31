@@ -15,7 +15,7 @@ import { FileDownloadOutlined } from "@mui/icons-material";
 import { useToggle } from "hooks/useToggle";
 import { useParams } from "react-router-dom";
 import { ExportDialog, Filter, LabeledRecord } from ".";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ProjectAPI } from "api";
 import { projectStatuses } from "globals.js";
 
@@ -32,13 +32,11 @@ const LabelHistory = ({
 
   const [open, toggleOpen] = useToggle();
 
-  const { data: projectStatusData } = useQuery(
-    ["fetchProjectStatus", { project_id }],
-    ProjectAPI.fetchProjectStatus,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data: projectStatusData } = useQuery({
+    queryKey: ["fetchProjectStatus", { project_id }],
+    queryFn: ProjectAPI.fetchProjectStatus,
+    refetchOnWindowFocus: false,
+  });
 
   const isFinished = projectStatusData?.status === projectStatuses.FINISHED;
 

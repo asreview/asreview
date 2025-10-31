@@ -13,6 +13,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  Grid,
   IconButton,
   Popover,
   Skeleton,
@@ -26,13 +27,12 @@ import { useContext } from "react";
 import { LoadingCardHeader } from "StyledComponents/LoadingCardheader";
 
 import { ProjectAPI } from "api";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Add } from "@mui/icons-material";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import StyleIcon from "@mui/icons-material/Style";
-import Grid from "@mui/material/Grid2";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
@@ -241,33 +241,29 @@ const MutateGroupDialog = ({ project_id, open, onClose, group = null }) => {
     },
   );
 
-  const { mutate: createTagGroup, error: createError } = useMutation(
-    ProjectAPI.createTagGroup,
-    {
-      mutationKey: ["createTagGroup"],
-      onSuccess: () => {
-        queryClient.invalidateQueries(["fetchTagGroups", { project_id }]);
-        closeDialog();
-      },
-      onError: (error) => {
-        console.error("An error occurred while saving the tag group:", error);
-      },
+  const { mutate: createTagGroup, error: createError } = useMutation({
+    mutationFn: ProjectAPI.createTagGroup,
+    mutationKey: ["createTagGroup"],
+    onSuccess: () => {
+      queryClient.invalidateQueries(["fetchTagGroups", { project_id }]);
+      closeDialog();
     },
-  );
+    onError: (error) => {
+      console.error("An error occurred while saving the tag group:", error);
+    },
+  });
 
-  const { mutate: mutateTagGroup, error: mutateError } = useMutation(
-    ProjectAPI.mutateTagGroup,
-    {
-      mutationKey: ["mutateTagGroup"],
-      onSuccess: () => {
-        queryClient.invalidateQueries(["fetchTagGroups", { project_id }]);
-        closeDialog();
-      },
-      onError: (error) => {
-        console.error("An error occurred while saving the tag group:", error);
-      },
+  const { mutate: mutateTagGroup, error: mutateError } = useMutation({
+    mutationFn: ProjectAPI.mutateTagGroup,
+    mutationKey: ["mutateTagGroup"],
+    onSuccess: () => {
+      queryClient.invalidateQueries(["fetchTagGroups", { project_id }]);
+      closeDialog();
     },
-  );
+    onError: (error) => {
+      console.error("An error occurred while saving the tag group:", error);
+    },
+  });
 
   const handleGroupLabelChange = (e) => {
     setState((prev) => ({
@@ -495,20 +491,18 @@ const TagCard = () => {
   const [dialogOpen, toggleDialogOpen] = useToggle();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const { data, isLoading } = useQuery(
-    ["fetchTagGroups", { project_id: project_id }],
-    ProjectAPI.fetchTagGroups,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data, isPending } = useQuery({
+    queryKey: ["fetchTagGroups", { project_id: project_id }],
+    queryFn: ProjectAPI.fetchTagGroups,
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <Card>
       <LoadingCardHeader
         title="Labeling tags"
         subheader="Tags and tag groups are used to label records with additional information"
-        isLoading={isLoading}
+        isPending={isPending}
         action={
           <IconButton
             onClick={(event) => {
@@ -528,7 +522,7 @@ const TagCard = () => {
       />
 
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <Skeleton variant="rectangular" height={56} />
         ) : (
           <>
@@ -545,7 +539,7 @@ const TagCard = () => {
       </CardContent>
 
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <Skeleton variant="rectangular" width={100} height={36} />
         ) : (
           <>

@@ -1,9 +1,9 @@
 import React from "react";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import {
   Box,
-  Grid2 as Grid,
+  Grid,
   Stack,
   Typography,
   IconButton,
@@ -27,21 +27,18 @@ import { EntryPointDataset } from ".";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
-  const { data } = useQuery(
-    ["fetchDatasets", { subset: subset }],
-    ProjectAPI.fetchDatasets,
-    { refetchOnWindowFocus: false },
-  );
+  const { data } = useQuery({
+    queryKey: ["fetchDatasets", { subset }],
+    queryFn: ProjectAPI.fetchDatasets,
+    refetchOnWindowFocus: false,
+  });
 
-  const { isError, isLoading, mutate, reset } = useMutation(
-    ProjectAPI.createProject,
-    {
-      mutationKey: ["addDataset"],
-      onSuccess: (data) => {
-        setSetupProjectId(data.id);
-      },
+  const { isError, isPending, mutate, reset } = useMutation({
+    mutationFn: ProjectAPI.createProject,
+    onSuccess: (data) => {
+      setSetupProjectId(data.id);
     },
-  );
+  });
 
   const [selectedTab, setSelectedTab] = React.useState(0);
 
@@ -228,7 +225,7 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
                       dataset={dataset}
                       dataset_id={group.group_id + ":" + dataset.dataset_id}
                       subset={subset}
-                      isAddingDataset={isLoading}
+                      isAddingDataset={isPending}
                       isAddingDatasetError={isError}
                       reset={reset}
                     />

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { ProjectAPI } from "api";
 import React from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
@@ -72,13 +72,11 @@ const WordCounts = () => {
   const { project_id } = useParams();
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
 
-  const { data, isLoading } = useQuery(
-    ["fetchWordCounts", { project_id }],
-    ProjectAPI.fetchWordCounts,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data, isPending } = useQuery({
+    queryKey: ["fetchWordCounts", { project_id }],
+    queryFn: ProjectAPI.fetchWordCounts,
+    refetchOnWindowFocus: false,
+  });
 
   // Check if there are any words to display
   const hasRelevantWords = data?.relevant && data.relevant.length > 0;
@@ -95,7 +93,7 @@ const WordCounts = () => {
             <StyledLightBulb fontSize="small" />
           </IconButton>
         </Box>
-        {isLoading ? (
+        {isPending ? (
           <Stack spacing={3}>
             {[...Array(2)].map((_, index) => (
               <Box key={index}>

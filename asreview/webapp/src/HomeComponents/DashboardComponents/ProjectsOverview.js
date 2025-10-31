@@ -4,7 +4,7 @@ import {
   Button,
   Container,
   Divider,
-  Grid2 as Grid,
+  Grid,
   Stack,
   Typography,
 } from "@mui/material";
@@ -16,15 +16,15 @@ import { ProjectCard } from "HomeComponents/DashboardComponents";
 import { Upload } from "ProjectComponents/SetupComponents";
 import { DashboardPageHeader } from ".";
 
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const ProjectsOverview = ({ mode }) => {
   const queryClient = useQueryClient();
 
-  const simulationOngoing = (data) => {
+  const simulationOngoing = (query) => {
     if (
       mode === projectModes.SIMULATION &&
-      data?.result.some(
+      query.state.data?.result.some(
         (project) => project.reviews[0]?.status === projectStatuses.REVIEW,
       )
     ) {
@@ -33,14 +33,12 @@ const ProjectsOverview = ({ mode }) => {
     return false;
   };
 
-  const { data, isError, error, refetch } = useQuery(
-    ["fetchProjects", { subset: mode }],
-    ProjectAPI.fetchProjects,
-    {
-      refetchInterval: simulationOngoing,
-      refetchIntervalInBackground: true,
-    },
-  );
+  const { data, isError, error, refetch } = useQuery({
+    queryKey: ["fetchProjects", { subset: mode }],
+    queryFn: ProjectAPI.fetchProjects,
+    refetchInterval: simulationOngoing,
+    refetchIntervalInBackground: true,
+  });
 
   const inReviewProjects = data?.result.filter(
     (project) =>
@@ -54,9 +52,10 @@ const ProjectsOverview = ({ mode }) => {
 
   const {
     mutate: upgradeProjects,
-    isLoading: isUpgradingProjects,
+    isPending: isUpgradingProjects,
     error: upgradeError,
-  } = useMutation(ProjectAPI.mutateUpgradeProjects, {
+  } = useMutation({
+    mutationFn: ProjectAPI.mutateUpgradeProjects,
     onSuccess: () => {
       queryClient.invalidateQueries("fetchProjects");
     },

@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { ProjectAPI } from "api";
 import { useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
 function MetricsInfoPopover({ open, anchorEl, onClose }) {
@@ -93,14 +93,11 @@ export default function Metrics({ project_id }) {
     setAnchorEl(null);
   };
 
-  const { data, isLoading } = useQuery(
-    ["fetchMetrics", { project_id }],
-    ({ queryKey }) =>
-      ProjectAPI.fetchMetrics({
-        queryKey,
-      }),
-    { refetchOnWindowFocus: false },
-  );
+  const { data, isPending } = useQuery({
+    queryKey: ["fetchMetrics", { project_id }],
+    queryFn: ProjectAPI.fetchMetrics,
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <Card sx={{ position: "relative", bgcolor: "transparent" }}>
@@ -132,7 +129,7 @@ export default function Metrics({ project_id }) {
               Loss
             </Typography>
             <Typography variant="h6" sx={{ mt: 0.5 }}>
-              {isLoading ? <Skeleton width={40} /> : data?.loss?.toFixed(3)}
+              {isPending ? <Skeleton width={40} /> : data?.loss?.toFixed(3)}
             </Typography>
           </Card>
           <Card
@@ -151,7 +148,7 @@ export default function Metrics({ project_id }) {
               NDCG
             </Typography>
             <Typography variant="h6" sx={{ mt: 0.5 }}>
-              {isLoading ? <Skeleton width={40} /> : data?.ndcg?.toFixed(3)}
+              {isPending ? <Skeleton width={40} /> : data?.ndcg?.toFixed(3)}
             </Typography>
           </Card>
         </Stack>

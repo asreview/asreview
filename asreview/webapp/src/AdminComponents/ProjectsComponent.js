@@ -1,14 +1,7 @@
 import React from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
-import {
-  Box,
-  Stack,
-  Alert,
-  Grid2 as Grid,
-  Chip,
-  Typography,
-} from "@mui/material";
+import { Box, Stack, Alert, Grid, Chip, Typography } from "@mui/material";
 import { FolderOutlined } from "@mui/icons-material";
 
 import { AdminAPI } from "api";
@@ -30,11 +23,13 @@ const ProjectsComponent = () => {
   // Fetch projects from the API
   const {
     data: projectsData,
-    isLoading,
+    isPending,
     isError,
     error,
     refetch,
-  } = useQuery(["fetchAdminProjects"], AdminAPI.fetchProjects, {
+  } = useQuery({
+    queryKey: ["fetchAdminProjects"],
+    queryFn: AdminAPI.fetchProjects,
     refetchOnWindowFocus: false,
     retry: 2,
   });
@@ -183,7 +178,7 @@ const ProjectsComponent = () => {
       </Box>
 
       {/* Loading State */}
-      {isLoading && <LoadingState message="Loading projects..." />}
+      {isPending && <LoadingState message="Loading projects..." />}
 
       {/* Error State */}
       {isError && (
@@ -195,7 +190,7 @@ const ProjectsComponent = () => {
       )}
 
       {/* Main Content - only show when not loading and no error */}
-      {!isLoading && !isError && (
+      {!isPending && !isError && (
         <Stack spacing={6}>
           {/* In Review Projects */}
           {categorizeProjects.review.length > 0 && (
