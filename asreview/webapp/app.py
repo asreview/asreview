@@ -39,6 +39,7 @@ from asreview.webapp._api import auth
 from asreview.webapp._api import projects
 from asreview.webapp._api import team
 from asreview.webapp._authentication.decorators import login_remote_user
+from asreview.webapp._authentication.ldap_handler import LDAPHandler
 from asreview.webapp._authentication.models import User
 from asreview.webapp._authentication.oauth_handler import OAuthHandler
 from asreview.webapp._authentication.remote_user_handler import RemoteUserHandler
@@ -112,6 +113,7 @@ def create_app(**config_vars):
         external_auth_methods = {
             "OAUTH": OAuthHandler,
             "REMOTE_USER": RemoteUserHandler,
+            "LDAP": LDAPHandler,
         }
 
         configured_external_auth_methods = [
@@ -188,6 +190,9 @@ def create_app(**config_vars):
         else:
             oauth_params = str(False).lower()
 
+        # Check if LDAP authentication is configured
+        ldap_enabled = isinstance(app.config.get("LDAP", False), LDAPHandler)
+
         return render_template(
             "index.html",
             api_url=app.config.get("API_URL", "/"),
@@ -199,6 +204,7 @@ def create_app(**config_vars):
             ).lower(),
             email_verification=str(app.config.get("EMAIL_VERIFICATION", False)).lower(),
             oauth=oauth_params,
+            ldap_enabled=str(ldap_enabled).lower(),
             post_logout_url=str(app.config.get("POST_LOGOUT_URL", "/signin")).lower(),
         )
 

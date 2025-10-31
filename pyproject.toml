@@ -136,6 +136,7 @@ is_fittable = "asreview.models.stoppers:IsFittable"
 n_consecutive_irrelevant = "asreview.models.stoppers:NConsecutiveIrrelevant"
 
 [project.optional-dependencies]
+ldap = ["ldap3"]
 lint = ["ruff", "check-manifest"]
 test = [
     "coverage",
