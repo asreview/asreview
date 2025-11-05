@@ -53,9 +53,8 @@ def run_model(project):
             return
 
         # Check if there are at least one relevant (1) and one irrelevant (0) label
-        labels = s.get_results_table("label")["label"]
-        unique_labels = labels.dropna().unique()
-        if len(unique_labels) < 2 or 0 not in unique_labels or 1 not in unique_labels:
+        labels = s.get_results_table("label")["label"].dropna()
+        if 0 not in labels.values or 1 not in labels.values:
             return
 
         labeled = s.get_results_table(columns=["record_id", "label"])
