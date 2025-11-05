@@ -52,7 +52,10 @@ def run_model(project):
         if not s.exist_new_labeled_records:
             return
 
-        if s.get_results_table("label")["label"].value_counts().shape[0] < 2:
+        # Check if there are at least one relevant (1) and one irrelevant (0) label
+        labels = s.get_results_table("label")["label"]
+        unique_labels = labels.dropna().unique()
+        if len(unique_labels) < 2 or 0 not in unique_labels or 1 not in unique_labels:
             return
 
         labeled = s.get_results_table(columns=["record_id", "label"])
