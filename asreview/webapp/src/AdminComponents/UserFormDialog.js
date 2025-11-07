@@ -200,6 +200,18 @@ const UserFormDialog = ({
             </Alert>
           )}
 
+          {/* Show origin field in edit mode only (read-only) */}
+          {isEditMode && (
+            <TextField
+              label="Origin (authentication source, cannot be changed)"
+              value={detailedUser?.user?.origin || user?.origin || ""}
+              fullWidth
+              slotProps={{
+                readOnly: true,
+              }}
+            />
+          )}
+
           <TextField
             label="Email"
             type="email"
