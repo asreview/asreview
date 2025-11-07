@@ -163,12 +163,19 @@ def update_user(user_id):
                 ), 400
 
         # Sanitize inputs before calling update_profile
-        email = data["email"].strip() if "email" in data and data["email"] else user.email
+        email = (
+            data["email"].strip() if "email" in data and data["email"] else user.email
+        )
         name = data["name"].strip() if "name" in data else user.name
         affiliation = (
-            data["affiliation"].strip() if data["affiliation"]
-            else None # empty string will become None
-        ) if "affiliation" in data else user.affiliation
+            (
+                data["affiliation"].strip()
+                if data["affiliation"]
+                else None  # empty string will become None
+            )
+            if "affiliation" in data
+            else user.affiliation
+        )
 
         # Update profile fields using existing method (avoids identifier bug for OAuth users)
         user.update_profile(
@@ -176,7 +183,7 @@ def update_user(user_id):
             name=name,
             affiliation=affiliation,
             public=data.get("public", user.public),
-            reconfirm=False  # Admin updates shouldn't require email reconfirmation
+            reconfirm=False,  # Admin updates shouldn't require email reconfirmation
         )
 
         # Handle admin-only fields
