@@ -38,7 +38,7 @@ import en from "javascript-time-ago/locale/en";
 TimeAgo.addLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
-const ProjectDetailsModal = ({ open, onClose, project }) => {
+const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
   const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [deleteConfirmDialog, setDeleteConfirmDialog] = React.useState(false);
@@ -417,6 +417,7 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
             <ProjectOwnerSection
               project={currentProject}
               collaborators={collaborators}
+              onUserClick={onUserClick}
             />
           </Box>
 
@@ -429,6 +430,7 @@ const ProjectDetailsModal = ({ open, onClose, project }) => {
               isError={collaboratorsError}
               errorMessage="Unable to load project team. This may occur after ownership transfer if admin access has changed."
               projectId={currentProject.project_id}
+              onUserClick={onUserClick}
             />
           </Box>
 

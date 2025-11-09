@@ -15,12 +15,17 @@ import { AdminAPI } from "api";
 import { HelpPopover, LoadingState, ErrorState } from "Components";
 import ProjectCard from "./ProjectCard";
 import ProjectDetailsModal from "./ProjectDetailsModal";
+import { UserFormDialog } from "AdminComponents";
 import SectionHeader from "./SectionHeader";
 import { projectStatuses } from "globals.js";
 
 const ProjectsComponent = () => {
   const [selectedProject, setSelectedProject] = React.useState(null);
   const [detailsModalOpen, setDetailsModalOpen] = React.useState(false);
+
+  // User modal state
+  const [selectedUser, setSelectedUser] = React.useState(null);
+  const [userModalOpen, setUserModalOpen] = React.useState(false);
 
   // Fetch projects from the API
   const {
@@ -42,6 +47,25 @@ const ProjectsComponent = () => {
   const handleDetailsModalClose = () => {
     setDetailsModalOpen(false);
     setSelectedProject(null);
+  };
+
+  const handleUserClick = (user) => {
+    setSelectedUser(user);
+    setUserModalOpen(true);
+    // Close project modal when opening user modal
+    setDetailsModalOpen(false);
+  };
+
+  const handleProjectClickFromUser = (project) => {
+    setSelectedProject(project);
+    setDetailsModalOpen(true);
+    // Close user modal when opening project modal
+    setUserModalOpen(false);
+  };
+
+  const handleUserModalClose = () => {
+    setUserModalOpen(false);
+    setSelectedUser(null);
   };
 
   // Categorize projects by status
@@ -284,6 +308,18 @@ const ProjectsComponent = () => {
         open={detailsModalOpen}
         onClose={handleDetailsModalClose}
         project={selectedProject}
+        onUserClick={handleUserClick}
+      />
+
+      {/* User Form Dialog */}
+      <UserFormDialog
+        open={userModalOpen}
+        onClose={handleUserModalClose}
+        user={selectedUser}
+        mode="edit"
+        isSubmitting={false}
+        onSubmit={() => {}} // No-op since we're only viewing user details
+        onProjectClick={handleProjectClickFromUser}
       />
     </Box>
   );

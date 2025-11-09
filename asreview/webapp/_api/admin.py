@@ -29,6 +29,7 @@ from asreview.webapp._authentication.decorators import admin_required
 from asreview.webapp._authentication.models import Project
 from asreview.webapp._authentication.models import User
 from asreview.webapp.utils import asreview_path
+import asreview as asr
 from asreview.webapp._task_manager.models import ProjectQueueModel
 from asreview.webapp._task_manager.task_manager import (
     DEFAULT_TASK_MANAGER_HOST,
@@ -253,6 +254,55 @@ def get_user(user_id):
             "public": user.public,
             "role": user.role,
         }
+
+        # Add project information
+        user_projects = []
+
+        # Get projects where user is owner
+        for db_project in user.projects:
+            try:
+                project = asr.Project(Path(asreview_path()) / db_project.project_id)
+                project_info = {
+                    "id": db_project.id,
+                    "project_id": db_project.project_id,
+                    "name": project.config.get("name", "Unnamed Project"),
+                    "role": "owner",
+                }
+                user_projects.append(project_info)
+            except Exception as e:
+                logging.warning(f"Could not load project {db_project.project_id}: {e}")
+                user_projects.append(
+                    {
+                        "id": db_project.id,
+                        "project_id": db_project.project_id,
+                        "name": "Error Loading Project",
+                        "role": "owner",
+                    }
+                )
+
+        # Get projects where user is collaborator
+        for db_project in user.involved_in:
+            try:
+                project = asr.Project(Path(asreview_path()) / db_project.project_id)
+                project_info = {
+                    "id": db_project.id,
+                    "project_id": db_project.project_id,
+                    "name": project.config.get("name", "Unnamed Project"),
+                    "role": "collaborator",
+                }
+                user_projects.append(project_info)
+            except Exception as e:
+                logging.warning(f"Could not load project {db_project.project_id}: {e}")
+                user_projects.append(
+                    {
+                        "id": db_project.id,
+                        "project_id": db_project.project_id,
+                        "name": "Error Loading Project",
+                        "role": "collaborator",
+                    }
+                )
+
+        user_data["projects"] = user_projects
 
         return jsonify({"user": user_data}), 200
 
