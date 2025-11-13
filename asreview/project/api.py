@@ -23,6 +23,7 @@ import os
 import shutil
 import tempfile
 import time
+import traceback
 import warnings
 import zipfile
 from dataclasses import asdict
@@ -678,6 +679,7 @@ class Project:
                     "message": f"{err_type}: {err}",
                     "type": f"{err_type}",
                     "time": int(time.time()),
+                    "traceback": traceback.format_exc(),
                 },
                 f,
             )

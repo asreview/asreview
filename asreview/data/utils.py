@@ -117,6 +117,26 @@ def convert_value_to_list(value):
         )
 
 
+def convert_value_to_int(value):
+    if pd.api.types.is_integer(value):
+        return int(value)
+    elif pd.isna(value):
+        return None
+    elif pd.api.types.is_number(value) and int(value) == value:
+        return int(value)
+    elif isinstance(value, str):
+        try:
+            return int(value)
+        except ValueError as e:
+            raise ValueError(
+                f"value should be an integer but is a string. Value: {value}"
+            ) from e
+    else:
+        raise ValueError(
+            f"value should be an integer. Value: {value}; type: {type(value)}"
+        )
+
+
 def standardize_included_label(value):
     replacement_dict = {
         "": None,
