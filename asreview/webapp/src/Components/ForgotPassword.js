@@ -7,7 +7,7 @@ import {
   TextField,
 } from "@mui/material";
 import * as React from "react";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 import AuthAPI from "api/AuthAPI";
@@ -16,7 +16,8 @@ const ForgotPassword = ({ showNotification }) => {
   const navigate = useNavigate();
   const [email, setEmail] = React.useState("");
 
-  const { isLoading, mutate, reset } = useMutation(AuthAPI.forgotPassword, {
+  const { isPending, mutate, reset } = useMutation({
+    mutationFn: AuthAPI.forgotPassword,
     onSuccess: (data) => {
       let userId = data.user_id;
       navigate(`/reset_password?user_id=${userId}`);
@@ -68,11 +69,10 @@ const ForgotPassword = ({ showNotification }) => {
           )}
         </Stack>
       </CardContent>
-
       <CardActions sx={{ p: 2 }}>
         {window.emailVerification && (
           <Button
-            disabled={isLoading}
+            disabled={isPending}
             variant="contained"
             color="primary"
             onClick={handleSubmit}

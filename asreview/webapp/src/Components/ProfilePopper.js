@@ -24,7 +24,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
@@ -40,7 +40,8 @@ import { useToggle } from "hooks/useToggle";
 const SignOutItem = () => {
   const queryClient = useQueryClient();
 
-  const { mutate: handleSignOut } = useMutation(AuthAPI.signout, {
+  const { mutate: handleSignOut } = useMutation({
+    mutationFn: AuthAPI.signout,
     onSuccess: () => {
       queryClient.invalidateQueries();
       window.location.replace(window.postLogoutUrl);
@@ -67,20 +68,20 @@ const ProfilePopper = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
 
-  const { data } = useQuery("user", AuthAPI.user, {
+  const { data } = useQuery({
+    queryKey: ["user"],
+    queryFn: AuthAPI.user,
     retry: false,
     onError: (response) => {
       response.code === 401 && navigate("/signin");
     },
   });
 
-  const { data: invitations } = useQuery(
-    ["getProjectInvitations"],
-    () => TeamAPI.getProjectInvitations(),
-    {
-      refetchInterval: 30000,
-    },
-  );
+  const { data: invitations } = useQuery({
+    queryKey: ["getProjectInvitations"],
+    queryFn: TeamAPI.getProjectInvitations,
+    refetchInterval: 30000,
+  });
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);

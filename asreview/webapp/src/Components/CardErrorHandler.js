@@ -1,5 +1,5 @@
 import React from "react";
-import { useQueryClient } from "react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Backdrop, Button, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 

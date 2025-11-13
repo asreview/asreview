@@ -1,16 +1,10 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Grid2 as Grid,
-} from "@mui/material";
+import { Button, Card, CardContent, CardHeader, Grid } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import Snackbar from "@mui/material/Snackbar";
 import TextField from "@mui/material/TextField";
 import { TeamAPI } from "api";
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const InvitationForm = ({ project_id }) => {
   const queryClient = useQueryClient();
@@ -25,26 +19,24 @@ const InvitationForm = ({ project_id }) => {
     message: "",
   });
 
-  const { data, isLoading } = useQuery(
-    ["fetchUsers", project_id],
-    TeamAPI.fetchUsers,
-  );
+  const { data, isPending } = useQuery({
+    queryKey: ["fetchUsers", project_id],
+    queryFn: TeamAPI.fetchUsers,
+  });
 
-  const { mutate, isLoading: isLoadingInvitation } = useMutation(
-    TeamAPI.inviteUser,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["fetchUsers", project_id]);
-        setSnackbarState({ open: true, message: "Invitation sent" });
-      },
-      onError: () => {
-        setSnackbarState({
-          open: true,
-          message: "Unable to invite the selected user",
-        });
-      },
+  const { mutate, isPending: isPendingInvitation } = useMutation({
+    mutationFn: TeamAPI.inviteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["fetchUsers", project_id]);
+      setSnackbarState({ open: true, message: "Invitation sent" });
     },
-  );
+    onError: () => {
+      setSnackbarState({
+        open: true,
+        message: "Unable to invite the selected user",
+      });
+    },
+  });
 
   return (
     <Card>
@@ -95,7 +87,7 @@ const InvitationForm = ({ project_id }) => {
               renderInput={(params) => (
                 <TextField {...params} label="Select a user" />
               )}
-              loading={isLoading}
+              loading={isPending}
               noOptionsText="No users found"
             />
           </Grid>
@@ -115,9 +107,9 @@ const InvitationForm = ({ project_id }) => {
                 setFormState({ selectedUser: null, inputValue: "" });
               }}
               disabled={
-                isLoading || isLoadingInvitation || !formState.selectedUser
+                isPending || isPendingInvitation || !formState.selectedUser
               }
-              loading={isLoadingInvitation}
+              loading={isPendingInvitation}
             >
               Invite
             </Button>

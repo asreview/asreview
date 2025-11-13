@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import * as React from "react";
 
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -35,7 +35,8 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
     edit: false,
   });
 
-  const { isLoading, mutate } = useMutation(ProjectAPI.mutateInfo, {
+  const { isPending, mutate } = useMutation({
+    mutationFn: ProjectAPI.mutateInfo,
     mutationKey: ["mutateInfo"],
     onSuccess: (data) => {
       setState({
@@ -75,7 +76,7 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
                 name: e.target.value,
               });
             }}
-            disabled={isLoading}
+            disabled={isPending}
             sx={{ width: "50%" }}
             autoFocus
           />
@@ -84,7 +85,7 @@ const DialogProjectName = ({ project_id, dataset_name }) => {
               onClick={() => {
                 mutate({ project_id: project_id, title: state.name });
               }}
-              loading={isLoading}
+              loading={isPending}
             >
               <Save />
             </IconButton>
@@ -106,16 +107,15 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
   const [feedbackBar, setFeedbackBar] = React.useState(null);
   const [simulationStarted, setSimulationStarted] = React.useState(false);
 
-  const { data } = useQuery(
-    ["fetchProject", { project_id: project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      enabled: open,
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data } = useQuery({
+    queryKey: ["fetchProject", { project_id: project_id }],
+    queryFn: ProjectAPI.fetchInfo,
+    enabled: open,
+    refetchOnWindowFocus: false,
+  });
 
-  const { mutate: setStatus } = useMutation(ProjectAPI.mutateReviewStatus, {
+  const { mutate: setStatus } = useMutation({
+    mutationFn: ProjectAPI.mutateReviewStatus,
     mutationKey: ["mutateReviewStatus"],
     onSuccess: () => {
       if (mode === projectModes.SIMULATION) {

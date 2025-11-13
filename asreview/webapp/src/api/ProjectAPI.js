@@ -266,7 +266,7 @@ class ProjectAPI {
     });
   }
 
-  static fetchLabeledRecord({ pageParam = 1, queryKey }) {
+  static fetchLabeledRecord({ queryKey, pageParam = 1 }) {
     const { project_id, subset, filter } = queryKey[1];
 
     const url = api_url + `projects/${project_id}/labeled`;

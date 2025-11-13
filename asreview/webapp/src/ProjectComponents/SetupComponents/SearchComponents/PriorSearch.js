@@ -1,7 +1,7 @@
 import { Search } from "@mui/icons-material";
 import { Alert, CircularProgress, Fade, Stack } from "@mui/material";
 import * as React from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { ProjectAPI } from "api";
 import { useToggle } from "hooks/useToggle";
@@ -17,19 +17,20 @@ const PriorSearch = () => {
   const [keyword, setKeyword] = React.useState("");
   const [clickSearch, onClickSearch] = useToggle();
 
-  const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
-    ["fetchPriorSearch", { project_id: project_id, keyword: keyword }],
-    ProjectAPI.fetchPriorSearch,
-    {
-      enabled: clickSearch,
-      onSuccess: () => {
-        if (clickSearch) {
-          onClickSearch();
-        }
-      },
-      refetchOnWindowFocus: false,
+  const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery({
+    queryKey: [
+      "fetchPriorSearch",
+      { project_id: project_id, keyword: keyword },
+    ],
+    queryFn: ProjectAPI.fetchPriorSearch,
+    enabled: clickSearch,
+    onSuccess: () => {
+      if (clickSearch) {
+        onClickSearch();
+      }
     },
-  );
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <Fade in>

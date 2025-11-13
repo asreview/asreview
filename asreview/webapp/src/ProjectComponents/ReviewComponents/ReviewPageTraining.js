@@ -1,6 +1,5 @@
 import * as React from "react";
-import ReactLoading from "react-loading";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { ProjectAPI } from "api";
 
 import {
@@ -13,8 +12,10 @@ import {
   DialogContentText,
   DialogActions,
   Fade,
+  CircularProgress,
+  Box,
 } from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
 import { useToggle } from "hooks/useToggle";
 import ElasPad from "images/ElasPad.svg";
@@ -53,19 +54,15 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const FinishSetup = ({ project_id, refetch }) => {
-  const theme = useTheme();
-
   const [openSkipTraining, toggleSkipTraining] = useToggle();
 
   // mutate and start new training
-  const { mutate: startTraining, isLoading: isTraining } = useMutation(
-    ProjectAPI.mutateTraining,
-    {
-      onSuccess: () => {
-        refetch();
-      },
+  const { mutate: startTraining, isPending: isTraining } = useMutation({
+    mutationFn: ProjectAPI.mutateTraining,
+    onSuccess: () => {
+      refetch();
     },
-  );
+  });
 
   const skipTraining = (method) => {
     if (method === "random") {
@@ -90,12 +87,9 @@ const FinishSetup = ({ project_id, refetch }) => {
           <Typography className={classes.textTitle} variant="h5">
             Warming up the AI!
           </Typography>
-          <ReactLoading
-            type="bubbles"
-            color={theme.palette.primary.main}
-            height={60}
-            width={60}
-          />
+          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+            <CircularProgress size={60} />
+          </Box>
           <Button onClick={toggleSkipTraining} disabled={isTraining}>
             I can't wait
           </Button>

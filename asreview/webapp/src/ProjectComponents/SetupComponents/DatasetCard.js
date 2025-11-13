@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
 
 import {
@@ -9,7 +9,7 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   Popover,
   Skeleton,
@@ -28,13 +28,11 @@ const DatasetCard = ({
 }) => {
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
 
-  const { data, isFetching: isFetchingData } = useQuery(
-    ["fetchData", { project_id: project_id }],
-    ProjectAPI.fetchData,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data, isFetching: isFetchingData } = useQuery({
+    queryKey: ["fetchData", { project_id }],
+    queryFn: ProjectAPI.fetchData,
+    refetchOnWindowFocus: false,
+  });
 
   const handlePopoverOpen = (event) => {
     setAnchorElInfo(event.currentTarget);

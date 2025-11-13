@@ -11,7 +11,7 @@ import {
   Divider,
   FormControlLabel,
   FormGroup,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   ListItemIcon,
   ListItemText,
@@ -26,7 +26,7 @@ import {
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import React from "react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -56,7 +56,8 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
 
   const [noteState, setNoteState] = React.useState(note);
 
-  const { isError, isLoading, mutate } = useMutation(ProjectAPI.mutateNote, {
+  const { isError, isPending, mutate } = useMutation({
+    mutationFn: ProjectAPI.mutateNote,
     onSuccess: () => {
       queryClient.invalidateQueries(["fetchLabeledRecord", { project_id }]);
       queryClient.setQueryData(["fetchRecord", { project_id }], (data) => {
@@ -101,7 +102,7 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
           rows={4}
           value={noteState ? noteState : ""}
           error={isError}
-          disabled={isLoading}
+          disabled={isPending}
         />
       </DialogContent>
       <DialogActions>
@@ -117,7 +118,7 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
             });
           }}
           color="primary"
-          disabled={isLoading || noteState === note}
+          disabled={isPending || noteState === note}
         >
           Save
         </Button>
@@ -149,16 +150,14 @@ const RecordCardLabeler = ({
     tagValues ? tagValues : structuredClone(tagsForm),
   );
 
-  const { error, isError, isLoading, mutate, isSuccess } = useMutation(
-    ProjectAPI.mutateClassification,
-    {
-      onSuccess: () => {
-        if (onDecisionClose) {
-          onDecisionClose();
-        }
-      },
+  const { error, isError, isPending, mutate, isSuccess } = useMutation({
+    mutationFn: ProjectAPI.mutateClassification,
+    onSuccess: () => {
+      if (onDecisionClose) {
+        onDecisionClose();
+      }
     },
-  );
+  });
 
   const handleTagValueChange = (isChecked, groupId, tagId) => {
     let groupI = tagValuesState.findIndex((group) => group.id === groupId);
@@ -186,11 +185,11 @@ const RecordCardLabeler = ({
   const [anchorEl, setAnchorEl] = React.useState(null);
   const openMenu = Boolean(anchorEl);
 
-  useHotkeys("r", () => hotkeys && !isLoading && !isSuccess && makeDecision(1));
-  useHotkeys("i", () => hotkeys && !isLoading && !isSuccess && makeDecision(0));
+  useHotkeys("r", () => hotkeys && !isPending && !isSuccess && makeDecision(1));
+  useHotkeys("i", () => hotkeys && !isPending && !isSuccess && makeDecision(0));
   useHotkeys(
     "n",
-    () => hotkeys && !isLoading && !isSuccess && toggleShowNotesDialog(),
+    () => hotkeys && !isPending && !isSuccess && toggleShowNotesDialog(),
     { keyup: true },
   );
 
@@ -248,7 +247,7 @@ const RecordCardLabeler = ({
                                 disabled={
                                   !editState ||
                                   !changeDecision ||
-                                  isLoading ||
+                                  isPending ||
                                   isSuccess
                                 }
                               />
@@ -353,7 +352,7 @@ const RecordCardLabeler = ({
                   onClick={() => makeDecision(1)}
                   variant="contained"
                   startIcon={<LibraryAddOutlinedIcon />}
-                  disabled={isLoading || isSuccess}
+                  disabled={isPending || isSuccess}
                   sx={(theme) => ({
                     color: theme.palette.getContrastText(
                       theme.palette.tertiary.main,
@@ -374,7 +373,7 @@ const RecordCardLabeler = ({
                   id="irrelevant"
                   onClick={() => makeDecision(0)}
                   startIcon={<NotInterestedOutlinedIcon />}
-                  disabled={isLoading || isSuccess}
+                  disabled={isPending || isSuccess}
                   variant="contained"
                   color="grey.600"
                 >
@@ -422,7 +421,7 @@ const RecordCardLabeler = ({
                 <IconButton
                   onClick={toggleShowNotesDialog}
                   aria-label="add note"
-                  disabled={isLoading || isSuccess}
+                  disabled={isPending || isSuccess}
                   sx={(theme) => ({
                     // color: theme.palette.getContrastText(
                     //   theme.palette.secondary.dark,

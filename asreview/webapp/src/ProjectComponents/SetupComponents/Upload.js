@@ -28,7 +28,7 @@ import {
   DatasetFromURI,
 } from "ProjectComponents/SetupComponents/DataUploadComponents";
 
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 const Upload = ({ mode }) => {
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
@@ -37,7 +37,9 @@ const Upload = ({ mode }) => {
   const [snackbarMessage, setSnackbarMessage] = React.useState(null);
   const [setupProjectId, setSetupProjectId] = React.useState(null);
 
-  useQuery(["fetchProjects", { subset: mode }], ProjectAPI.fetchProjects, {
+  useQuery({
+    queryKey: ["fetchProjects", { subset: mode }],
+    queryFn: ProjectAPI.fetchProjects,
     onSuccess: (data) => {
       if (data?.result.length === 0) {
         setUploadSource("file");

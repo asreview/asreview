@@ -5,7 +5,7 @@ import {
   Card,
   CardContent,
   Chip,
-  Grid2,
+  Grid,
   IconButton,
   Paper,
   Stack,
@@ -40,10 +40,10 @@ import {
   ExpandMore as ExpandMoreIcon,
   Help as HelpIcon,
 } from "@mui/icons-material";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminAPI } from "api";
 
-const ResetQueueConfirmDialog = ({ open, onClose, onConfirm, isLoading }) => (
+const ResetQueueConfirmDialog = ({ open, onClose, onConfirm, isPending }) => (
   <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
     <DialogTitle>Reset Training Queue</DialogTitle>
     <DialogContent>
@@ -64,17 +64,17 @@ const ResetQueueConfirmDialog = ({ open, onClose, onConfirm, isLoading }) => (
       </Stack>
     </DialogContent>
     <DialogActions>
-      <Button onClick={onClose} disabled={isLoading}>
+      <Button onClick={onClose} disabled={isPending}>
         Cancel
       </Button>
       <Button
         onClick={onConfirm}
         variant="contained"
         color="error"
-        disabled={isLoading}
+        disabled={isPending}
         startIcon={<ClearAllIcon />}
       >
-        {isLoading ? "Resetting..." : "Remove tasks"}
+        {isPending ? "Resetting..." : "Remove tasks"}
       </Button>
     </DialogActions>
   </Dialog>
@@ -96,7 +96,7 @@ const ResetQueueButton = ({ resetQueueMutation }) => {
           color="error"
           startIcon={<ClearAllIcon />}
           onClick={() => setConfirmOpen(true)}
-          disabled={resetQueueMutation.isLoading}
+          disabled={resetQueueMutation.isPending}
         >
           Reset Queue
         </Button>
@@ -106,20 +106,20 @@ const ResetQueueButton = ({ resetQueueMutation }) => {
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleConfirm}
-        isLoading={resetQueueMutation.isLoading}
+        isPending={resetQueueMutation.isPending}
       />
     </>
   );
 };
 
-const TrainingQueueHeader = ({ refetch, isLoading, resetQueueMutation }) => (
+const TrainingQueueHeader = ({ refetch, isPending, resetQueueMutation }) => (
   <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
     <Typography variant="h5" component="h2">
       Training Queue Management
     </Typography>
     <Stack direction="row" spacing={1}>
       <Tooltip title="Refresh Status">
-        <IconButton onClick={() => refetch()} disabled={isLoading}>
+        <IconButton onClick={() => refetch()} disabled={isPending}>
           <RefreshIcon />
         </IconButton>
       </Tooltip>
@@ -212,16 +212,19 @@ const TrainingQueueComponent = () => {
   // Query for training queue status
   const {
     data: queueStatus,
-    isLoading,
+    isPending,
     error,
     refetch,
-  } = useQuery("trainingQueueStatus", () => AdminAPI.getTaskQueueStatus(), {
+  } = useQuery({
+    queryKey: ["trainingQueueStatus"],
+    queryFn: AdminAPI.getTaskQueueStatus,
     refetchInterval: 60000, // Auto-refresh every minute
     refetchOnWindowFocus: true,
   });
 
   // Mutation for resetting the training queue
-  const resetQueueMutation = useMutation(() => AdminAPI.resetTaskQueue(), {
+  const resetQueueMutation = useMutation({
+    mutationFn: AdminAPI.resetTaskQueue,
     onSuccess: (data) => {
       queryClient.invalidateQueries("trainingQueueStatus");
 
@@ -417,7 +420,7 @@ const TrainingQueueComponent = () => {
       <Box sx={{ mt: 2 }}>
         <TrainingQueueHeader
           refetch={refetch}
-          isLoading={isLoading}
+          isPending={isPending}
           resetQueueMutation={resetQueueMutation}
         />
 
@@ -435,14 +438,14 @@ const TrainingQueueComponent = () => {
     <Box sx={{ mt: 2 }}>
       <TrainingQueueHeader
         refetch={refetch}
-        isLoading={isLoading}
+        isPending={isPending}
         resetQueueMutation={resetQueueMutation}
       />
 
       {/* Status Cards */}
-      <Grid2 container spacing={3} sx={{ mb: 3 }}>
+      <Grid container spacing={3} sx={{ mb: 3 }}>
         {/* Database Status */}
-        <Grid2 size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -450,7 +453,7 @@ const TrainingQueueComponent = () => {
                 <Box>
                   <Typography variant="h6">Training Queue Database</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {isLoading
+                    {isPending
                       ? "Loading..."
                       : `${queueStatus?.total_waiting || 0} waiting training tasks`}
                   </Typography>
@@ -464,10 +467,10 @@ const TrainingQueueComponent = () => {
               </Stack>
             </CardContent>
           </Card>
-        </Grid2>
+        </Grid>
 
         {/* Task Manager Status */}
-        <Grid2 size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
@@ -500,8 +503,8 @@ const TrainingQueueComponent = () => {
               </Stack>
             </CardContent>
           </Card>
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
 
       {/* Currently Training Projects - Show First */}
       {queueStatus?.running_projects &&

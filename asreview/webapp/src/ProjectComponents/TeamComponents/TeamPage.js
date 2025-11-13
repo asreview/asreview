@@ -23,7 +23,7 @@ import {
 import { InitialsAvatar } from "StyledComponents/InitialsAvatar";
 import { ProjectAPI, TeamAPI } from "api";
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 
 const initDeleteData = {
@@ -40,15 +40,14 @@ const TeamPage = () => {
   const [snackbar, setSnackbar] = React.useState({ show: false, message: "" });
   const [handleDelete, setHandleDelete] = React.useState(initDeleteData);
 
-  const { data, isSuccess } = useQuery(
-    ["fetchUsers", project_id],
-    TeamAPI.fetchUsers,
-    {
-      refetchInterval: 10000,
-    },
-  );
+  const { data, isSuccess } = useQuery({
+    queryKey: ["fetchUsers", project_id],
+    queryFn: TeamAPI.fetchUsers,
+    refetchInterval: 10000,
+  });
 
-  const { mutate: removeInvitation } = useMutation(TeamAPI.deleteInvitation, {
+  const { mutate: removeInvitation } = useMutation({
+    mutationFn: TeamAPI.deleteInvitation,
     onSuccess: () => {
       queryClient.invalidateQueries(["fetchUsers", project_id]);
       queryClient.invalidateQueries(["fetchProjectInvitations"]);
@@ -64,33 +63,29 @@ const TeamPage = () => {
       });
     },
   });
-  const { mutate: removeCollaboration } = useMutation(
-    TeamAPI.deleteCollaboration,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["fetchUsers", project_id]);
-        queryClient.invalidateQueries(["fetchProjectInvitations"]);
-        setSnackbar({
-          show: true,
-          message: "Collaboration ended",
-        });
-      },
-      onError: () => {
-        setSnackbar({
-          show: true,
-          message: "Unable to end the collaboration",
-        });
-      },
+  const { mutate: removeCollaboration } = useMutation({
+    mutationFn: TeamAPI.deleteCollaboration,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["fetchUsers", project_id]);
+      queryClient.invalidateQueries(["fetchProjectInvitations"]);
+      setSnackbar({
+        show: true,
+        message: "Collaboration ended",
+      });
     },
-  );
+    onError: () => {
+      setSnackbar({
+        show: true,
+        message: "Unable to end the collaboration",
+      });
+    },
+  });
 
-  const { data: currentUser, isSuccess: isSuccessInfo } = useQuery(
-    ["fetchProjectInfo", { project_id }],
-    ProjectAPI.fetchInfo,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data: currentUser, isSuccess: isSuccessInfo } = useQuery({
+    queryKey: ["fetchProjectInfo", { project_id }],
+    queryFn: ProjectAPI.fetchInfo,
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <Container maxWidth="md" sx={{ mb: 3 }}>

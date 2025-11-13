@@ -2,7 +2,7 @@ import { Box, ButtonBase, Fade, Stack, Typography } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import React from "react";
 import { InView } from "react-intersection-observer";
-import { useInfiniteQuery } from "react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { InlineErrorHandler } from "Components";
 import { RecordCard } from "ProjectComponents/ReviewComponents";
@@ -29,9 +29,9 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
     isError,
     isFetched,
     isFetchingNextPage,
-    isLoading,
-  } = useInfiniteQuery(
-    [
+    isPending,
+  } = useInfiniteQuery({
+    queryKey: [
       "fetchLabeledRecord",
       {
         project_id: project_id,
@@ -39,11 +39,10 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
         filter: filterQuery.map((filter) => filter.value),
       },
     ],
-    ProjectAPI.fetchLabeledRecord,
-    {
-      getNextPageParam: (lastPage) => lastPage.next_page ?? false,
-    },
-  );
+    queryFn: ProjectAPI.fetchLabeledRecord,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.next_page ?? undefined,
+  });
 
   /**
    * Check if this component is mounted
@@ -59,13 +58,13 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
   return (
     <Box aria-label="labeled record">
       {isError && <InlineErrorHandler message={error?.message} />}
-      {/* {n_prior !== 0 && !isError && (isLoading || !mounted.current) && (
+      {/* {n_prior !== 0 && !isError && (isPending || !mounted.current) && (
         <Box className={classes.loading}>
           <CircularProgress />
         </Box>
       )} */}
-      {!isError && !(isLoading || !mounted.current) && isFetched && (
-        <Fade in={!isError && !(isLoading || !mounted.current) && isFetched}>
+      {!isError && !(isPending || !mounted.current) && isFetched && (
+        <Fade in={!isError && !(isPending || !mounted.current) && isFetched}>
           <Stack aria-label="labeled record card" spacing={5}>
             {isFetched &&
               data?.pages.map((page) =>

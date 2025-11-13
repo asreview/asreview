@@ -1,5 +1,5 @@
 import React from "react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -26,15 +26,13 @@ const ProjectDeleteDialog = ({
 
   const [deleteInput, setDeleteInput] = React.useState("");
 
-  const { error, isError, isLoading, mutate, reset } = useMutation(
-    ProjectAPI.mutateDeleteProject,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries("fetchProjects");
-        onClose();
-      },
+  const { error, isError, isPending, mutate, reset } = useMutation({
+    mutationFn: ProjectAPI.mutateDeleteProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries("fetchProjects");
+      onClose();
     },
-  );
+  });
 
   const onChangeTitle = (event) => {
     if (isError) {
@@ -94,7 +92,7 @@ const ProjectDeleteDialog = ({
         <Button onClick={cancelDelete}>Cancel</Button>
         <Button
           onClick={() => mutate({ project_id: project_id })}
-          disabled={deleteInput !== projectTitle || isLoading}
+          disabled={deleteInput !== projectTitle || isPending}
         >
           Delete Forever
         </Button>

@@ -18,7 +18,7 @@ import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
 import { useMediaQuery } from "@mui/material";
 import { ProjectAPI } from "api";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 const FlowChartStep = ({ value, label }) => {
   return (
@@ -44,13 +44,11 @@ const FlowChartArrow = () => <KeyboardArrowRightOutlinedIcon />;
 const ModelFlowChart = ({ record }) => {
   const mobile = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
-  const { data, isLoading } = useQuery(
-    ["fetchLearners"],
-    ProjectAPI.fetchLearners,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data, isPending } = useQuery({
+    queryKey: ["fetchLearners"],
+    queryFn: ProjectAPI.fetchLearners,
+    refetchOnWindowFocus: false,
+  });
 
   const classifierName = data?.models?.classifiers.filter(
     (classifier) => classifier.name === record.state.classifier,
@@ -71,22 +69,22 @@ const ModelFlowChart = ({ record }) => {
       sx={{ overflow: "auto" }}
     >
       <FlowChartStep
-        value={isLoading ? <Skeleton /> : record.state.training_set}
+        value={isPending ? <Skeleton /> : record.state.training_set}
         label={mobile ? "labels" : "labeled records"}
       />
       <FlowChartArrow />
       <FlowChartStep
-        value={isLoading ? <Skeleton /> : featureExtractionName}
+        value={isPending ? <Skeleton /> : featureExtractionName}
         label={"features"}
       />
       <FlowChartArrow />
       <FlowChartStep
-        value={isLoading ? <Skeleton /> : classifierName}
+        value={isPending ? <Skeleton /> : classifierName}
         label={"classification"}
       />
       <FlowChartArrow />
       <FlowChartStep
-        value={isLoading ? <Skeleton /> : queryStrategyName}
+        value={isPending ? <Skeleton /> : queryStrategyName}
         label={mobile ? "queried" : "record queried"}
       />
     </Stack>

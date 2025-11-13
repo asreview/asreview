@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { FileUpload } from "@mui/icons-material";
 import {
@@ -47,10 +47,11 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
   const {
     error: createProjectError,
     isError: isCreatingProjectError,
-    isLoading: isCreatingProject,
+    isPending: isCreatingProject,
     mutate: addDataset,
     reset: resetAddDataset,
-  } = useMutation(ProjectAPI.createProject, {
+  } = useMutation({
+    mutationFn: ProjectAPI.createProject,
     mutationKey: ["addDataset"],
     onSuccess: (data) => {
       setSetupProjectId(data.id);
@@ -76,13 +77,11 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
     [addDataset, mode, isCreatingProjectError, resetAddDataset],
   );
 
-  const { data } = useQuery(
-    ["fetchDatasetReaders", { project_id: project_id }],
-    ProjectAPI.fetchDatasetReaders,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { data } = useQuery({
+    queryKey: ["fetchDatasetReaders", { project_id }],
+    queryFn: ProjectAPI.fetchDatasetReaders,
+    refetchOnWindowFocus: false,
+  });
 
   const acceptedFileTypes = data?.result
     ? data.result.reduce((acc, reader) => {

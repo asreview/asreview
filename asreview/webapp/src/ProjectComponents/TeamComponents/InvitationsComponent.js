@@ -9,16 +9,18 @@ import {
 } from "@mui/material";
 import { TeamAPI } from "api";
 import { formatDate, projectModes } from "globals.js";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const InvitationsComponent = ({ onEmpty = null }) => {
   const queryClient = useQueryClient();
 
-  const { data: invitations } = useQuery(["getProjectInvitations"], () =>
-    TeamAPI.getProjectInvitations(),
-  );
+  const { data: invitations } = useQuery({
+    queryKey: ["getProjectInvitations"],
+    queryFn: TeamAPI.getProjectInvitations,
+  });
 
-  const { mutate: handleAcceptance } = useMutation(TeamAPI.acceptInvitation, {
+  const { mutate: handleAcceptance } = useMutation({
+    mutationFn: TeamAPI.acceptInvitation,
     onSuccess: (data) => {
       queryClient.invalidateQueries("fetchProjects");
 
@@ -41,7 +43,8 @@ const InvitationsComponent = ({ onEmpty = null }) => {
     },
   });
 
-  const { mutate: handleRejection } = useMutation(TeamAPI.rejectInvitation, {
+  const { mutate: handleRejection } = useMutation({
+    mutationFn: TeamAPI.rejectInvitation,
     onSuccess: (data) => {
       queryClient.invalidateQueries("getProjectInvitations");
 

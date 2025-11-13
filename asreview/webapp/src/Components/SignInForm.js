@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { ForgotPassword } from "Components";
 import * as React from "react";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import { InlineErrorHandler, SignInOAuth } from ".";
 
@@ -34,27 +34,25 @@ const SignInForm = () => {
 
   const [showPassword, toggleShowPassword] = useToggle();
 
-  const { error, isError, isLoading, mutate, reset } = useMutation(
-    AuthAPI.signin,
-    {
-      onSuccess: (data) => {
-        if (data.logged_in) {
-          setEmail("");
-          setPassword("");
-          if (from === "/") {
-            navigate("/reviews");
-          } else {
-            navigate(from, { replace: true });
-          }
+  const { error, isError, isPending, mutate, reset } = useMutation({
+    mutationFn: AuthAPI.signin,
+    onSuccess: (data) => {
+      if (data.logged_in) {
+        setEmail("");
+        setPassword("");
+        if (from === "/") {
+          navigate("/reviews");
         } else {
-          console.error("Backend could not log you in.");
+          navigate(from, { replace: true });
         }
-      },
-      onError: (data) => {
-        console.error("Signin error", data);
-      },
+      } else {
+        console.error("Backend could not log you in.");
+      }
     },
-  );
+    onError: (data) => {
+      console.error("Signin error", data);
+    },
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -128,7 +126,7 @@ const SignInForm = () => {
               <CardActions sx={{ p: 2 }}>
                 <Button
                   id="sign-in"
-                  disabled={isLoading}
+                  disabled={isPending}
                   variant="contained"
                   color="primary"
                   onClick={handleSubmit}

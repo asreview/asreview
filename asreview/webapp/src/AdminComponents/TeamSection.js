@@ -1,5 +1,5 @@
 import React from "react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Box,
   Stack,
@@ -83,7 +83,7 @@ SectionStripe.displayName = "SectionStripe";
 
 const TeamSection = ({
   collaborators,
-  isLoading,
+  isPending,
   isError,
   errorMessage,
   projectId,
@@ -96,40 +96,38 @@ const TeamSection = ({
   });
 
   // Delete member mutation
-  const deleteMemberMutation = useMutation(
-    ({ projectId, userId }) =>
-      TeamAPI.deleteCollaboration({ projectId, userId }),
-    {
-      onSuccess: (data) => {
-        // Refresh project users data
-        queryClient.invalidateQueries(["fetchProjectUsers", projectId]);
-        queryClient.invalidateQueries(["fetchAdminProjects"]);
-        setDeleteConfirmDialog({ open: false, user: null });
-      },
-      onError: (error) => {
-        console.error("Failed to remove member:", error);
-        setDeleteConfirmDialog({ open: false, user: null });
-      },
-    },
-  );
 
-  // Delete invitation mutation
-  const deleteInvitationMutation = useMutation(
-    ({ projectId, userId }) => TeamAPI.deleteInvitation({ projectId, userId }),
-    {
-      onSuccess: (data) => {
-        // Refresh project users data
-        queryClient.invalidateQueries(["fetchProjectUsers", projectId]);
-        queryClient.invalidateQueries(["fetchAdminProjects"]);
-        setDeleteConfirmDialog({ open: false, user: null });
-      },
-      onError: (error) => {
-        console.error("Failed to cancel invitation:", error);
-        setDeleteConfirmDialog({ open: false, user: null });
-      },
+  const deleteMemberMutation = useMutation({
+    mutationFn: async ({ projectId, userId }) => {
+      return await TeamAPI.deleteCollaboration({ projectId, userId });
     },
-  );
+    onSuccess: (data) => {
+      // Refresh project users data
+      queryClient.invalidateQueries(["fetchProjectUsers", projectId]);
+      queryClient.invalidateQueries(["fetchAdminProjects"]);
+      setDeleteConfirmDialog({ open: false, user: null });
+    },
+    onError: (error) => {
+      console.error("Failed to remove member:", error);
+      setDeleteConfirmDialog({ open: false, user: null });
+    },
+  });
 
+  const deleteInvitationMutation = useMutation({
+    mutationFn: async ({ projectId, userId }) => {
+      return await TeamAPI.deleteInvitation({ projectId, userId });
+    },
+    onSuccess: (data) => {
+      // Refresh project users data
+      queryClient.invalidateQueries(["fetchProjectUsers", projectId]);
+      queryClient.invalidateQueries(["fetchAdminProjects"]);
+      setDeleteConfirmDialog({ open: false, user: null });
+    },
+    onError: (error) => {
+      console.error("Failed to cancel invitation:", error);
+      setDeleteConfirmDialog({ open: false, user: null });
+    },
+  });
   const handleDeleteUser = (user) => {
     setDeleteConfirmDialog({ open: true, user });
   };
@@ -150,7 +148,7 @@ const TeamSection = ({
   };
 
   const isDeleting =
-    deleteMemberMutation.isLoading || deleteInvitationMutation.isLoading;
+    deleteMemberMutation.isPending || deleteInvitationMutation.isPending;
   // Memoize filtered users to prevent recalculation on each render
   const { activeMembers, pendingMembers } = React.useMemo(() => {
     if (!collaborators) return { activeMembers: [], pendingMembers: [] };
@@ -165,7 +163,7 @@ const TeamSection = ({
     };
   }, [collaborators]);
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
         <CircularProgress size={24} />

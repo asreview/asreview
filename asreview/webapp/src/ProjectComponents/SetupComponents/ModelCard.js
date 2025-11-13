@@ -14,7 +14,7 @@ import {
   Divider,
   FormControl,
   FormHelperText,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   InputLabel,
   ListSubheader,
@@ -27,7 +27,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ProjectAPI } from "api";
 import { ProjectContext } from "context/ProjectContext";
@@ -96,9 +96,11 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
 
   const {
     data: learnerOptions,
-    isLoading: isLoadingLearnerOptions,
+    isPending: isPendingLearnerOptions,
     error: errorLearnerOptions,
-  } = useQuery("fetchLearners", ProjectAPI.fetchLearners, {
+  } = useQuery({
+    queryKey: ["fetchLearners"],
+    queryFn: ProjectAPI.fetchLearners,
     refetchOnWindowFocus: false,
   });
 
@@ -109,7 +111,8 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
     setSnackbarOpen(false);
   };
 
-  const { mutate } = useMutation(ProjectAPI.mutateLearner, {
+  const { mutate } = useMutation({
+    mutationFn: ProjectAPI.mutateLearner,
     onSuccess: (data, variables) => {
       queryClient.setQueryData(
         ["fetchLearner", { project_id: project_id }],
@@ -145,17 +148,15 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
 
   const {
     data: modelConfig,
-    isLoading: isLoadingModelConfig,
+    isPending: isPendingModelConfig,
     error: errorModelConfig,
-  } = useQuery(
-    ["fetchLearner", { project_id: project_id }],
-    ProjectAPI.fetchLearner,
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  } = useQuery({
+    queryKey: ["fetchLearner", { project_id: project_id }],
+    queryFn: ProjectAPI.fetchLearner,
+    refetchOnWindowFocus: false,
+  });
 
-  const isLoading = isLoadingLearnerOptions || isLoadingModelConfig;
+  const isPending = isPendingLearnerOptions || isPendingModelConfig;
   const error = errorLearnerOptions || errorModelConfig;
 
   const handlePopoverOpen = (event) => {
@@ -169,7 +170,7 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
   return (
     <Card sx={{ position: "relative" }}>
       <LoadingCardHeader
-        isLoading={isLoading}
+        isPending={isPending}
         title="AI"
         subheader={
           projectModes.SIMULATION === mode
@@ -204,7 +205,7 @@ const ModelCard = ({ mode = null, trainNewModel = false, editable = true }) => {
       </Box>
 
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <Skeleton variant="rectangular" height={56} />
         ) : (
           <>
