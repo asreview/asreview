@@ -35,9 +35,7 @@ const App = () => {
     noSsr: true,
   });
 
-  const { isAdmin } = false; //useAuth();
-
-  console.log("App render, isAdmin:", isAdmin);
+  const { isAdmin } = useAuth();
 
   return (
     <>
