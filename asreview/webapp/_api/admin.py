@@ -153,24 +153,7 @@ def update_user(user_id):
 
         data = request.get_json()
 
-        # Update fields if provided
-        if "email" in data:
-            user.email = data["email"].strip() if data["email"] else None
-            user.identifier = user.email
-        if "name" in data:
-            user.name = data["name"].strip()
-        if "affiliation" in data:
-            user.affiliation = (
-                data["affiliation"].strip() if data["affiliation"] else None
-            )
-        if "confirmed" in data:
-            user.confirmed = data["confirmed"]
-        if "public" in data:
-            user.public = data["public"]
-        if "role" in data:
-            user.role = data["role"]
-
-        # Handle password update
+        # Handle password separately for admin privilege
         if "password" in data and data["password"]:
             if user.origin == "asreview":
                 user.hashed_password = User.create_password_hash(data["password"])
@@ -178,6 +161,36 @@ def update_user(user_id):
                 return jsonify(
                     {"message": "Cannot set password for non-asreview users"}
                 ), 400
+
+        # Sanitize inputs before calling update_profile
+        email = (
+            data["email"].strip() if "email" in data and data["email"] else user.email
+        )
+        name = data["name"].strip() if "name" in data else user.name
+        affiliation = (
+            (
+                data["affiliation"].strip()
+                if data["affiliation"]
+                else None  # empty string will become None
+            )
+            if "affiliation" in data
+            else user.affiliation
+        )
+
+        # Update profile fields using existing method (avoids identifier bug for OAuth users)
+        user.update_profile(
+            email=email,
+            name=name,
+            affiliation=affiliation,
+            public=data.get("public", user.public),
+            reconfirm=False,  # Admin updates shouldn't require email reconfirmation
+        )
+
+        # Handle admin-only fields
+        if "role" in data:
+            user.role = data["role"]
+        if "confirmed" in data:
+            user.confirmed = data["confirmed"]
 
         DB.session.commit()
 
