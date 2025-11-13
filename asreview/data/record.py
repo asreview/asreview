@@ -12,6 +12,8 @@ from sqlalchemy.types import JSON
 from sqlalchemy.types import Integer
 from sqlalchemy.types import String
 
+from asreview.data.utils import convert_value_to_int
+
 
 class Base(DeclarativeBase, MappedAsDataclass):
     """Base class for records.
@@ -142,6 +144,5 @@ class Record(Base):
         return included
 
     @validates("year")
-    def validate_integer(self, key, value):
-        if not isinstance(value, int):
-            raise ValueError(f"'{key}' should be an integer, but is: {value}")
+    def validate_optional_integer(self, key, value):
+        return convert_value_to_int(value)

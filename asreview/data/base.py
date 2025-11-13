@@ -1,10 +1,11 @@
 from abc import ABC
 from abc import abstractmethod
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from asreview.data.record import Record
+from asreview.data.utils import convert_value_to_int
 from asreview.data.utils import convert_value_to_list
 from asreview.data.utils import standardize_included_label
 
@@ -54,6 +55,7 @@ class BaseReader(ABC):
         "authors": [convert_value_to_list],
         "keywords": [convert_value_to_list],
         "included": [standardize_included_label],
+        "year": [convert_value_to_int],
     }
 
     # Fill missing values with this value. It should be a tuple with one entry which is
