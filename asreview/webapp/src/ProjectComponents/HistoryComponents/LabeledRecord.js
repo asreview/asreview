@@ -21,6 +21,8 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
     },
   );
 
+  console.log("label:", label);
+
   const {
     data,
     error,
@@ -40,8 +42,11 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
       },
     ],
     queryFn: ProjectAPI.fetchLabeledRecord,
-    getNextPageParam: (lastPage) => lastPage.next_page ?? false,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.next_page ?? undefined,
   });
+
+  console.log("hasNextPage:", hasNextPage);
 
   /**
    * Check if this component is mounted

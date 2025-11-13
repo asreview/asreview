@@ -1,5 +1,4 @@
 import * as React from "react";
-import ReactLoading from "react-loading";
 import { useMutation } from "@tanstack/react-query";
 import { ProjectAPI } from "api";
 
@@ -13,6 +12,8 @@ import {
   DialogContentText,
   DialogActions,
   Fade,
+  CircularProgress,
+  Box,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
@@ -88,12 +89,9 @@ const FinishSetup = ({ project_id, refetch }) => {
           <Typography className={classes.textTitle} variant="h5">
             Warming up the AI!
           </Typography>
-          <ReactLoading
-            type="bubbles"
-            color={theme.palette.primary.main}
-            height={60}
-            width={60}
-          />
+          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+            <CircularProgress size={60} />
+          </Box>
           <Button onClick={toggleSkipTraining} disabled={isTraining}>
             I can't wait
           </Button>

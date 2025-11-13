@@ -15,9 +15,6 @@ import { FileDownloadOutlined } from "@mui/icons-material";
 import { useToggle } from "hooks/useToggle";
 import { useParams } from "react-router-dom";
 import { ExportDialog, Filter, LabeledRecord } from ".";
-import { useQuery } from "@tanstack/react-query";
-import { ProjectAPI } from "api";
-import { projectStatuses } from "globals.js";
 
 const LabelHistory = ({
   mode = "oracle",
@@ -32,18 +29,14 @@ const LabelHistory = ({
 
   const [open, toggleOpen] = useToggle();
 
-  const { data: projectStatusData } = useQuery({
-    queryKey: ["fetchProjectStatus", { project_id }],
-    queryFn: ProjectAPI.fetchProjectStatus,
-    refetchOnWindowFocus: false,
-  });
-
-  const isFinished = projectStatusData?.status === projectStatuses.FINISHED;
+  // project status/isFinished logic removed - always show the "not finished" UI
 
   const [label, setLabel] = React.useState("relevant");
   const [state, setState] = React.useState(filterQuery);
 
   const showMobileFilterRow = mobileScreen && showFilter;
+
+  console.log("label history render:", { label, state });
 
   return (
     <>
@@ -110,26 +103,15 @@ const LabelHistory = ({
           {showExport && (!mobileScreen || !showMobileFilterRow) && (
             <Box sx={{ ml: mobileScreen ? 0 : 2 }}>
               {mobileScreen ? (
-                <IconButton
-                  onClick={toggleOpen}
-                  color={isFinished ? "primary.contrastText" : "inherit"}
-                  sx={
-                    isFinished
-                      ? {
-                          bgcolor: "primary.main",
-                          "&:hover": { bgcolor: "primary.dark" },
-                        }
-                      : {}
-                  }
-                >
+                <IconButton onClick={toggleOpen} color="inherit">
                   <FileDownloadOutlined />
                 </IconButton>
               ) : (
                 <Button
                   onClick={toggleOpen}
                   startIcon={<FileDownloadOutlined />}
-                  variant={isFinished ? "contained" : "text"}
-                  color={isFinished ? "primary" : "inherit"}
+                  variant="text"
+                  color="inherit"
                 >
                   Export
                 </Button>
@@ -152,18 +134,7 @@ const LabelHistory = ({
                 <Filter filterQuery={state} setFilterQuery={setState} />
               </Box>
               {showExport && (
-                <IconButton
-                  onClick={toggleOpen}
-                  color={isFinished ? "primary.contrastText" : "inherit"}
-                  sx={
-                    isFinished
-                      ? {
-                          bgcolor: "primary.main",
-                          "&:hover": { bgcolor: "primary.dark" },
-                        }
-                      : {}
-                  }
-                >
+                <IconButton onClick={toggleOpen} color="inherit">
                   <FileDownloadOutlined />
                 </IconButton>
               )}
