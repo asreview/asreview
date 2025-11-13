@@ -15,7 +15,7 @@ import {
   CircularProgress,
   Box,
 } from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
 import { useToggle } from "hooks/useToggle";
 import ElasPad from "images/ElasPad.svg";
@@ -54,8 +54,6 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const FinishSetup = ({ project_id, refetch }) => {
-  const theme = useTheme();
-
   const [openSkipTraining, toggleSkipTraining] = useToggle();
 
   // mutate and start new training
