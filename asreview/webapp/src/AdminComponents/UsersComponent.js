@@ -12,11 +12,15 @@ import {
   Tabs,
   Tab,
   CircularProgress,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import {
   AdminPanelSettingsOutlined,
   PersonOutlined,
   Add,
+  Search,
+  Clear,
 } from "@mui/icons-material";
 
 import { AdminAPI } from "api";
@@ -36,6 +40,10 @@ const UsersComponent = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [userToDelete, setUserToDelete] = React.useState(null);
 
+  // Search state
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = React.useState("");
+
   // Project modal state
   const [selectedProject, setSelectedProject] = React.useState(null);
   const [projectModalOpen, setProjectModalOpen] = React.useState(false);
@@ -52,7 +60,7 @@ const UsersComponent = () => {
     retry: 2,
   });
 
-  // Process the users data into categories
+  // Process the users data into categories with filtering
   const processUsersData = React.useMemo(() => {
     if (!usersData?.users) {
       return [];
@@ -61,12 +69,33 @@ const UsersComponent = () => {
     const sortByName = (users) =>
       users.sort((a, b) => a.name.localeCompare(b.name));
 
-    const allUsers = sortByName([...usersData.users]);
+    // Filter users based on search term (only if search has 3+ characters)
+    const filterUsers = (users) => {
+      if (debouncedSearchTerm.length < 3) {
+        return users;
+      }
+      return users.filter((user) => {
+        const searchableText = [
+          user.name,
+          user.email,
+          user.identifier,
+          user.affiliation,
+          user.origin,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return searchableText.includes(debouncedSearchTerm.toLowerCase());
+      });
+    };
+
+    const filteredUsers = filterUsers(usersData.users);
+    const allUsers = sortByName([...filteredUsers]);
     const adminUsers = sortByName(
-      usersData.users.filter((user) => user.role === "admin"),
+      filteredUsers.filter((user) => user.role === "admin"),
     );
     const memberUsers = sortByName(
-      usersData.users.filter((user) => user.role === "member"),
+      filteredUsers.filter((user) => user.role === "member"),
     );
 
     return [
@@ -86,7 +115,16 @@ const UsersComponent = () => {
         users: memberUsers,
       },
     ];
-  }, [usersData]);
+  }, [usersData, debouncedSearchTerm]);
+
+  // Debounce search term
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // Mutation for creating new users
   const { mutate: createUser, isLoading: isCreatingUser } = useMutation(
@@ -201,6 +239,14 @@ const UsersComponent = () => {
     setSelectedProject(null);
   };
 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+  };
+
   const handleUserClickFromProject = (user) => {
     setSelectedUser(user);
     setDialogMode("edit");
@@ -290,6 +336,42 @@ const UsersComponent = () => {
             </Stack>
           </Box>
         </Popover>
+      </Box>
+
+      {/* Search Field */}
+      <Box sx={{ mb: 3 }}>
+        <TextField
+          placeholder="Search users by name, email, identifier, affiliation, or origin (min 3 characters)"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          fullWidth
+          variant="outlined"
+          size="small"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search />
+              </InputAdornment>
+            ),
+            endAdornment: searchTerm && (
+              <InputAdornment position="end">
+                <IconButton
+                  size="small"
+                  onClick={handleClearSearch}
+                  edge="end"
+                  aria-label="clear search"
+                >
+                  <Clear />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+        {debouncedSearchTerm.length > 0 && debouncedSearchTerm.length < 3 && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Enter at least 3 characters to filter users
+          </Typography>
+        )}
       </Box>
 
       {/* Loading State */}
