@@ -205,17 +205,22 @@ const ProfilePage = (props) => {
     return (
       <>
         <Stack direction="column" spacing={2}>
-          <Typography variant="h6">Change email & password</Typography>
+          <Typography variant="h6">Email & password</Typography>
           <FormControl>
             <TextField
-              required={true}
+              required={false}
               id="email"
               label="Email"
               size="small"
               fullWidth
               value={formik.values.email}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
+              slotProps={{
+                readOnly: true,
+                formHelperText: {
+                  sx: { textAlign: "right" },
+                },
+              }}
+              helperText="Contact an ASReview administrator to change your email address."
             />
             {formik.touched.email && formik.errors.email ? (
               <FHT error={true}>{formik.errors.email}</FHT>
