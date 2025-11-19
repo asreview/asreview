@@ -16,6 +16,7 @@ import {
   SignInForm,
   SignUpForm,
 } from "Components";
+import { renderMarkdown } from "utils/markdownParser";
 
 const AuthPage = ({
   signIn = false,
@@ -51,7 +52,7 @@ const AuthPage = ({
                 window.loginInfo.length > 0 && (
                   <CardContent>
                     <Alert severity="info" color="secondary">
-                      {window.loginInfo}
+                      {renderMarkdown(window.loginInfo)}
                     </Alert>
                   </CardContent>
                 )}
