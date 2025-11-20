@@ -18,7 +18,6 @@ from pathlib import Path
 import asreview as asr
 from asreview.models.queriers import TopDown
 from asreview.models.stoppers import IsFittable
-from asreview.project.api import open_state
 from asreview.simulation.simulate import Simulate
 from asreview.webapp.utils import get_project_path
 
@@ -48,7 +47,7 @@ def run_task(project_id, simulation=False):
 
 
 def run_model(project):
-    with open_state(project) as s:
+    with project.open_state() as s:
         if not s.exist_new_labeled_records:
             return
 
@@ -82,7 +81,7 @@ def run_model(project):
 
         ranked_record_ids = cycle.rank(fm)
 
-        with open_state(project) as state:
+        with project.open_state() as state:
             state.add_last_ranking(
                 ranked_record_ids,
                 cycle_data.classifier if cycle_data.classifier is not None else None,
@@ -102,7 +101,7 @@ def run_model(project):
 
 
 def run_simulation(project):
-    with open_state(project) as state:
+    with project.open_state() as state:
         priors = state.get_priors()["record_id"].tolist()
 
     cycles = [

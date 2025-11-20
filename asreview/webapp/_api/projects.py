@@ -59,7 +59,6 @@ from asreview.models import AI_MODEL_CONFIGURATIONS
 from asreview.models import get_ai_config
 from asreview.models.stoppers import NConsecutiveIrrelevant
 from asreview.project.api import PROJECT_MODE_SIMULATE
-from asreview.project.api import open_state
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.migrate import migrate_project_v1_v2
@@ -111,7 +110,7 @@ def _fill_last_ranking(project, ranking):
         ranked_record_ids = record_ids.sample(frac=1)
     elif ranking == "top_down":
         ranked_record_ids = record_ids
-    with open_state(project.project_path) as state:
+    with project.open_state() as state:
         state.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
 
 
@@ -279,11 +278,7 @@ def api_create_project():  # noqa: F401
         n_labeled = project.data_store["included"].notnull().sum()
 
         if n_labeled > 0 and n_labeled < len(project.data_store):
-            if project.config.get("group_similar_records"):
-                groups = project.data_store.get_groups()
-            else:
-                groups = None
-            with open_state(project.project_path, groups=groups) as state:
+            with project.open_state() as state:
                 labeled_indices = np.where(
                     (project.data_store["included"] == 1)
                     | (project.data_store["included"] == 0)
@@ -519,7 +514,7 @@ def api_search_data(project):  # noqa: F401
     if not q:
         return jsonify({"result": []})
 
-    with open_state(project.project_path) as s:
+    with project.open_state() as s:
         labeled_record_ids = s.get_results_table()["record_id"].to_list()
 
     records = project.data_store.search(
@@ -548,7 +543,7 @@ def api_get_labeled(project):  # noqa: F401
     filters = request.args.getlist("filter", type=str)
     latest_first = request.args.get("latest_first", default=1, type=int)
 
-    with open_state(project.project_path) as s:
+    with project.open_state() as s:
         if "is_prior" in filters:
             state_data = s.get_priors()
         else:
@@ -644,7 +639,7 @@ def api_get_labeled_stats(project):  # noqa: F401
     include_priors = request.args.get("priors", True, type=bool)
 
     try:
-        with open_state(project.project_path) as s:
+        with project.open_state() as s:
             data = s.get_results_table(["label", "querier"])
             data_prior = data[data["querier"].isnull()]
 
@@ -752,7 +747,7 @@ def api_get_wordcounts(project):  # noqa: F401
 
     df_data = project.data_store[["record_id", "abstract"]]
 
-    with open_state(project.project_path) as s:
+    with project.open_state() as s:
         results = s.get_results_table(columns=["record_id", "label"])
 
     df_data_labels = df_data.merge(results, on="record_id", how="inner")
@@ -860,7 +855,7 @@ def api_update_review_status(project, review_id):
     if current_status == "setup" and status == "review":
         is_simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
 
-        with open_state(project) as s:
+        with project.open_state() as s:
             labels = s.get_results_table()["label"].to_list()
 
         if not (pk := 0 in labels and 1 in labels) and not is_simulation:
@@ -1113,7 +1108,7 @@ def api_export_dataset(project):
     export_email = request.args.get("export_email", default=1, type=int)
     collections = request.args.getlist("collections", type=str)
 
-    with open_state(project.project_path) as s:
+    with project.open_state() as s:
         df_results = s.get_results_table().set_index("record_id")
         df_pool = s.get_pool()
 
@@ -1253,7 +1248,7 @@ def api_get_progress_info(project):  # noqa: F401
     include_priors = request.args.get("priors", True, type=bool)
 
     try:
-        with open_state(project.project_path) as s:
+        with project.open_state() as s:
             labels = s.get_results_table(priors=include_priors)["label"]
             labels_without_priors = s.get_results_table(priors=False)["label"]
 
@@ -1306,7 +1301,7 @@ def api_get_metrics(project):
 
     n_records = len(project.data_store)
 
-    with open_state(project.project_path) as s:
+    with project.open_state() as s:
         labels_no_priors = s.get_results_table(priors=False)["label"]
         n_priors = len(s.get_priors())
 
@@ -1343,7 +1338,7 @@ def api_get_stopper(project):  # noqa: F401
     if stopper is None:
         return jsonify({"name": None, "params": None})
 
-    with open_state(project.project_path) as s:
+    with project.open_state() as s:
         results = s.get_results_table(priors=False)
         labels = results["label"]
 
@@ -1401,7 +1396,7 @@ def api_get_progress_data(project):  # Consolidated endpoint
 
     include_priors = request.args.get("priors", False, type=bool)
 
-    with open_state(project.project_path) as s:
+    with project.open_state() as s:
         labels = s.get_results_table("label", priors=include_priors)
         labels_with_priors = s.get_results_table("label", priors=True)
 
@@ -1445,12 +1440,7 @@ def api_label_record(project, record_id):  # noqa: F401
         current_user.id if current_app.config.get("AUTHENTICATION", True) else None
     )
 
-    if project.config.get("group_similar_records"):
-        groups = project.data_store.get_groups(record_id=record_id)
-    else:
-        groups = None
-
-    with open_state(project.project_path, groups=groups) as state:
+    with project.open_state() as state:
         if request.method == "PUT":
             state.update(record_id, label=label, tags=tags, user_id=user_id)
         else:
@@ -1464,7 +1454,7 @@ def api_label_record(project, record_id):  # noqa: F401
     if request.method == "POST":
         return jsonify({"success": True})
     else:
-        with open_state(project.project_path) as state:
+        with project.open_state() as state:
             record = state.get_results_record(record_id)
 
         item = asdict(project.data_store.get_records(record_id))
@@ -1483,7 +1473,7 @@ def api_update_note(project, record_id):  # noqa: F401
     note = request.form.get("note", type=str)
     note = note if note != "" else None
 
-    with open_state(project.project_path) as state:
+    with project.open_state() as state:
         state.update_note(record_id, note)
 
     return jsonify({"success": True})
@@ -1502,7 +1492,7 @@ def api_get_record(project):  # noqa: F401
     if project.config["reviews"][0]["status"] == "finished":
         return jsonify({"result": None, "status": "finished"})
 
-    with open_state(project.project_path) as state:
+    with project.open_state() as state:
         pending = state.get_pending(user_id=user_id)
 
         if pending.empty:

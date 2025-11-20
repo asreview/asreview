@@ -322,6 +322,21 @@ class Project:
         self.config = config
         return config
 
+    @contextmanager
+    def open_state(self):
+        """Get the state object of the project.
+
+        Yields
+        ------
+        Generator[SQLiteState, Any, None]
+        """
+        if self.config.get("group_similar_records"):
+            groups = self.data_store.get_groups()
+        else:
+            groups = None
+        with open_state(self, groups=groups) as state:
+            yield state
+
     def add_dataset(self, fp, dataset_id=None, file_writer=None):
         """Add a dataset to the project file.
 
