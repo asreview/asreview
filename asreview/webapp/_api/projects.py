@@ -279,7 +279,11 @@ def api_create_project():  # noqa: F401
         n_labeled = project.data_store["included"].notnull().sum()
 
         if n_labeled > 0 and n_labeled < len(project.data_store):
-            with open_state(project.project_path) as state:
+            if project.config.get("group_similar_records"):
+                groups = project.data_store.get_groups()
+            else:
+                groups = None
+            with open_state(project.project_path, groups=groups) as state:
                 labeled_indices = np.where(
                     (project.data_store["included"] == 1)
                     | (project.data_store["included"] == 0)
@@ -290,15 +294,8 @@ def api_create_project():  # noqa: F401
                     labeled_indices
                 ].tolist()
 
-                if project.config.get("group_similar_records"):
-                    groups = project.data_store.get_groups()
-                else:
-                    groups = None
                 state.add_labeling_data(
-                    record_ids=labeled_record_ids,
-                    labels=labels,
-                    user_id=None,
-                    groups=groups,
+                    record_ids=labeled_record_ids, labels=labels, user_id=None
                 )
 
     except Exception as err:
@@ -1453,18 +1450,12 @@ def api_label_record(project, record_id):  # noqa: F401
     else:
         groups = None
 
-    with open_state(project.project_path) as state:
+    with open_state(project.project_path, groups=groups) as state:
         if request.method == "PUT":
-            state.update(
-                record_id, label=label, tags=tags, user_id=user_id, groups=groups
-            )
+            state.update(record_id, label=label, tags=tags, user_id=user_id)
         else:
             state.add_labeling_data(
-                record_ids=[record_id],
-                labels=[label],
-                tags=[tags],
-                user_id=user_id,
-                groups=groups,
+                record_ids=[record_id], labels=[label], tags=[tags], user_id=user_id
             )
 
     if retrain_model:

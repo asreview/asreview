@@ -144,8 +144,20 @@ class SQLiteState:
         a model ranking was added to the state?
     """
 
-    def __init__(self, fp):
+    def __init__(self, fp, groups=None):
+        """
+        Parameters
+        ----------
+        fp : Path | str
+            File path to the SQLite database file.
+        groups: list[tuple[int,int]] | None
+            A list of tuples in the form `(group_id, record_id)`, where `group_id`
+            identifies the group a record belongs to. If this is provided, grouped
+            records are treated the same: if one record is added, updated or deleted the
+            other records in the group get changed as well.
+        """
         self.fp = fp
+        self.groups = groups
 
     @property
     def _conn(self):
@@ -343,9 +355,7 @@ class SQLiteState:
             }
         ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
 
-    def add_labeling_data(
-        self, record_ids, labels, tags=None, user_id=None, groups=None
-    ):
+    def add_labeling_data(self, record_ids, labels, tags=None, user_id=None):
         """Add the data corresponding to a labeling action to the state file.
 
         Parameters
@@ -358,10 +368,6 @@ class SQLiteState:
             A dict of tags to save with the labeled records.
         user_id: int
             User id of the user who labeled the records.
-        groups: list[tuple[int,int]] | None
-            A list of tuples in the form `(group_id, record_id)`, where `group_id`
-            identifies the group a record belongs to. If there are other records in the
-            group of an added record, their data will be added as well.
         """
 
         if tags is None:
@@ -375,8 +381,8 @@ class SQLiteState:
             raise ValueError("Input data should be of the same length.")
 
         record_data_list = list(zip(record_ids, labels, tags))
-        if groups:
-            record_data_list = _propagate_record_info(record_data_list, groups)
+        if self.groups:
+            record_data_list = _propagate_record_info(record_data_list, self.groups)
 
         labeling_time = time.time()
 
@@ -621,7 +627,7 @@ class SQLiteState:
                 dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
             )
 
-    def update(self, record_ids, label=None, tags=None, user_id=None, groups=None):
+    def update(self, record_ids, label=None, tags=None, user_id=None):
         """Change the label or tag of already labeled records.
 
         Parameters
@@ -632,18 +638,14 @@ class SQLiteState:
             New label of the records.
         tags: list
             Tags list to add to the records.
-        groups: list[tuple[int,int]] | None
-            A list of tuples in the form `(group_id, record_id)`, where `group_id`
-            identifies the group a record belongs to. If there are other records in the
-            group of a deleted record, their data will be updated as well.
         """
         if isinstance(record_ids, int):
             record_ids = [record_ids]
 
-        if groups:
+        if self.groups:
             records = [(record_id,) for record_id in record_ids]
             record_ids = [
-                record[0] for record in _propagate_record_info(records, groups)
+                record[0] for record in _propagate_record_info(records, self.groups)
             ]
 
         # Build dynamic SQL for updating only provided fields
@@ -699,25 +701,21 @@ class SQLiteState:
 
         self._conn.commit()
 
-    def delete_record_labeling_data(self, record_ids, groups=None):
+    def delete_record_labeling_data(self, record_ids):
         """Delete the labeling data for the given record IDs.
 
         Parameters
         ----------
         record_ids : int | list[int]
             Identifiers of the records to delete.
-        groups: list[tuple[int,int]] | None
-            A list of tuples in the form `(group_id, record_id)`, where `group_id`
-            identifies the group a record belongs to. If there are other records in the
-            group of a deleted record, their data will be deleted as well.
         """
         if isinstance(record_ids, int):
             record_ids = [record_ids]
 
-        if groups:
+        if self.groups:
             records = [(record_id,) for record_id in record_ids]
             record_ids = [
-                record[0] for record in _propagate_record_info(records, groups)
+                record[0] for record in _propagate_record_info(records, self.groups)
             ]
 
         current_time = time.time()

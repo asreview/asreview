@@ -37,7 +37,9 @@ def _get_state_path(project, review_id=None, create_new=True):
 
 
 @contextmanager
-def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=False):
+def open_state(
+    asreview_obj, review_id=None, create_new=True, check_integrety=False, groups=None
+):
     """Initialize a state class instance from a project folder.
 
     Parameters
@@ -51,6 +53,9 @@ def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=Fa
         If True, a new state file is created.
     check_integrety: bool
         If True, the integrity of the state file is checked. Default is False.
+    groups: list[tuple[int,int]] | None
+        A list of tuples in the form `(group_id, record_id)`, where `group_id`
+        identifies the group a record belongs to.
 
     Returns
     -------
@@ -86,10 +91,10 @@ def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=Fa
     try:
         if create_new and not fp_state.is_file():
             fp_state.parent.mkdir(parents=True, exist_ok=True)
-            state = SQLiteState(fp_state)
+            state = SQLiteState(fp_state, groups=groups)
             state.create_tables()
         else:
-            state = SQLiteState(fp_state)
+            state = SQLiteState(fp_state, groups=groups)
 
         if check_integrety:
             state._is_valid_state()
