@@ -6,14 +6,9 @@ Thank you for joining ASReview. You are almost ready!
 You have changed your email address.
 {% endif %}
 
-Below you find a 6-digits code. Use it to confirm your email address.
-Please note that the code will expire in 20 minutes.
+  Below you find a 6-digits verification code. Use it to confirm your account.
+  Please note that the code will expire in 20 minutes.
 
 {{ token }}
 
-After confirmation you will be redirected to the signin page. Use your account
-credentials and start using ASReview.
-
-Regards,
-
-The ASReview Team
+{{ footer_txt }}
