@@ -23,7 +23,6 @@ import numpy as np
 from sklearn.utils import check_random_state
 
 from asreview import load_dataset
-from asreview.data.utils import identify_record_groups
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
@@ -148,11 +147,9 @@ def _cli_simulate(argv):
             project_mode="simulate",
             project_name=Path(args.output).stem,
         )
+        project.update_config(group_similar_records=args.group_similar_records)
         project.add_dataset(args.dataset, dataset_id=filename)
         data_store = project.data_store
-        if args.group_similar_records:
-            groups = identify_record_groups(data_store.get_records())
-            data_store.set_groups(groups)
     else:
         data_store = load_dataset(
             args.dataset,
