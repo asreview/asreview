@@ -7,6 +7,7 @@ import {
   Alert,
   Typography,
 } from "@mui/material";
+import ReactMarkdown from "react-markdown";
 
 import {
   ConfirmAccount,
@@ -50,8 +51,26 @@ const AuthPage = ({
               {typeof window.loginInfo === "string" &&
                 window.loginInfo.length > 0 && (
                   <CardContent>
-                    <Alert severity="info" color="secondary">
-                      {window.loginInfo}
+                    <Alert
+                      severity="info"
+                      color="secondary"
+                      sx={{
+                        alignItems: "flex-start",
+                        "& .MuiAlert-icon": {
+                          marginTop: "0px",
+                        },
+                        "& .MuiAlert-message": {
+                          paddingTop: "2px",
+                          "& > *:first-child": {
+                            marginTop: "6px",
+                          },
+                          "& > *:last-child": {
+                            marginBottom: 0,
+                          },
+                        },
+                      }}
+                    >
+                      <ReactMarkdown>{window.loginInfo}</ReactMarkdown>
                     </Alert>
                   </CardContent>
                 )}
