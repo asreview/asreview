@@ -8,8 +8,11 @@ import {
   Grid2 as Grid,
   Chip,
   Typography,
+  TextField,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
-import { FolderOutlined } from "@mui/icons-material";
+import { FolderOutlined, Search, Clear } from "@mui/icons-material";
 
 import { AdminAPI } from "api";
 import { HelpPopover, LoadingState, ErrorState } from "Components";
@@ -26,6 +29,10 @@ const ProjectsComponent = () => {
   // User modal state
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [userModalOpen, setUserModalOpen] = React.useState(false);
+
+  // Search state
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = React.useState("");
 
   // Fetch projects from the API
   const {
@@ -68,7 +75,7 @@ const ProjectsComponent = () => {
     setSelectedUser(null);
   };
 
-  // Categorize projects by status
+  // Categorize projects by status with filtering
   const categorizeProjects = React.useMemo(() => {
     if (!projectsData?.projects) {
       return {
@@ -82,23 +89,52 @@ const ProjectsComponent = () => {
     const sortByName = (projects) =>
       projects.sort((a, b) => a.name.localeCompare(b.name));
 
+    // Filter projects based on search term (only if search has 3+ characters)
+    const filterProjects = (projects) => {
+      if (debouncedSearchTerm.length < 3) {
+        return projects;
+      }
+      return projects.filter((project) =>
+        (project.name || "")
+          .toLowerCase()
+          .includes(debouncedSearchTerm.toLowerCase()),
+      );
+    };
+
+    const filteredProjects = filterProjects(projectsData.projects);
+
     const setup = sortByName(
-      projectsData.projects.filter((p) => p.status === projectStatuses.SETUP),
+      filteredProjects.filter((p) => p.status === projectStatuses.SETUP),
     );
     const review = sortByName(
-      projectsData.projects.filter((p) => p.status === projectStatuses.REVIEW),
+      filteredProjects.filter((p) => p.status === projectStatuses.REVIEW),
     );
     const finished = sortByName(
-      projectsData.projects.filter(
-        (p) => p.status === projectStatuses.FINISHED,
-      ),
+      filteredProjects.filter((p) => p.status === projectStatuses.FINISHED),
     );
     const error = sortByName(
-      projectsData.projects.filter((p) => p.status === "error"),
+      filteredProjects.filter((p) => p.status === "error"),
     );
 
     return { setup, review, finished, error };
-  }, [projectsData]);
+  }, [projectsData, debouncedSearchTerm]);
+
+  // Debounce search term
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+  };
 
   return (
     <Box>
@@ -180,6 +216,42 @@ const ProjectsComponent = () => {
             </Box>
           </Stack>
         </HelpPopover>
+      </Box>
+
+      {/* Search Field */}
+      <Box sx={{ mb: 3 }}>
+        <TextField
+          placeholder="Search projects by name (min 3 characters)"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          fullWidth
+          variant="outlined"
+          size="small"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search />
+              </InputAdornment>
+            ),
+            endAdornment: searchTerm && (
+              <InputAdornment position="end">
+                <IconButton
+                  size="small"
+                  onClick={handleClearSearch}
+                  edge="end"
+                  aria-label="clear search"
+                >
+                  <Clear />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+        {debouncedSearchTerm.length > 0 && debouncedSearchTerm.length < 3 && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Enter at least 3 characters to filter projects
+          </Typography>
+        )}
       </Box>
 
       {/* Loading State */}
