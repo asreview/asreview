@@ -220,7 +220,7 @@ const ProfilePage = (props) => {
                   sx: { textAlign: "right" },
                 },
               }}
-              helperText="Contact an ASReview administrator to change your email address."
+              helperText="Contact your ASReview LAB administrator to change your email address"
             />
             {formik.touched.email && formik.errors.email ? (
               <FHT error={true}>{formik.errors.email}</FHT>
