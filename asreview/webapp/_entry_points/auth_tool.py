@@ -131,6 +131,32 @@ authenticated setup.
         default=None,
         help=DB_URI_HELP,
     )
+    # DELETE USERS
+    delete_users_par = sub_parser.add_parser(
+        "delete-users",
+        help="Delete user accounts interactively or based on confirmation status.",
+    )
+
+    delete_users_par.add_argument(
+        "-d",
+        "--db-uri",
+        type=str,
+        default=None,
+        help=DB_URI_HELP,
+    )
+
+    delete_users_par.add_argument(
+        "--unconfirmed",
+        action="store_true",
+        help="Delete users that haven't been confirmed after the required time.",
+    )
+
+    delete_users_par.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Force deletion without confirmation.",
+    )
 
     return parser
 
@@ -232,6 +258,8 @@ class AuthTool:
             self.list_projects()
         elif "link-projects" in argv:
             self.link_projects()
+        elif "delete-users" in argv:
+            self.delete_users()
 
     def create_database(self):
         engine = create_engine(self.uri)
@@ -423,3 +451,53 @@ class AuthTool:
                 insert_project(self.session, project)
         else:
             self._generate_project_links()
+
+    def delete_users(self):
+        """Delete user accounts based on the workflow."""
+        users_to_delete = []
+
+        query = self.session.query(User)
+
+        if self.args.unconfirmed:
+            query = query.filter(User.confirmed.is_(False), User.has_expired_token)
+            if query.count() > 0:
+                print(
+                    f"Found {query.count()} unconfirmed user accounts with expired tokens."
+                )
+        else:
+            if query.count() > 0:
+                print(f"Found {query.count()} user accounts eligible for deletion.")
+
+        users_to_delete = query.all()
+
+        if not users_to_delete:
+            print("No users to delete.")
+            return
+
+        print("\nAvailable users:")
+        for user in users_to_delete:
+            self._print_user(user)
+
+        if not self.args.force:
+            confirm = input(
+                f"Are you sure you want to delete {len(users_to_delete)} user accounts? [y/N]: "
+            )
+            if confirm.lower() != "y":
+                print("Deletion canceled.")
+                return
+
+        for user in users_to_delete:
+            if not self.args.unconfirmed:
+                # Interactive confirmation for each user
+                confirm = input(
+                    f"Are you sure you want to delete {user.email}? [y/N]: "
+                )
+                if confirm.lower() != "y":
+                    print(f"Skipping deletion of {user.email}.")
+                    continue
+
+            self.session.delete(user)
+            print(f"User {user.email} deleted.")
+
+        self.session.commit()
+        print(f"{len(users_to_delete)} user accounts deleted.")
