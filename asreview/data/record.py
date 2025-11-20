@@ -12,6 +12,8 @@ from sqlalchemy.types import JSON
 from sqlalchemy.types import Integer
 from sqlalchemy.types import String
 
+from asreview.data.utils import convert_value_to_int
+
 
 class Base(DeclarativeBase, MappedAsDataclass):
     """Base class for records.
@@ -140,3 +142,7 @@ class Record(Base):
                 f"included should be one of 0, 1, or None. Not '{included}'"
             )
         return included
+
+    @validates("year")
+    def validate_optional_integer(self, key, value):
+        return convert_value_to_int(value)

@@ -263,3 +263,9 @@ def test_dataset_with_record_ids():
     store = load_dataset(fp)
     record_ids = store["record_id"]
     assert record_ids.to_list() == list(range(len(store)))
+
+
+def test_load_faulty_year_dataset():
+    # The dataset contains one record with the value '10 15' as publication year.
+    with pytest.raises(ValueError):
+        load_dataset(Path("tests", "demo_data", "faulty_year.ris"))
