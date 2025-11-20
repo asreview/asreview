@@ -6,6 +6,7 @@ export const useAuth = () => {
     queryKey: ["user"],
     queryFn: AuthAPI.user,
     retry: false,
+    enabled: window.authentication === true, // Only fetch when authentication is enabled
   });
 
   return {

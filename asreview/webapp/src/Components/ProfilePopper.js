@@ -72,6 +72,7 @@ const ProfilePopper = () => {
     queryKey: ["user"],
     queryFn: AuthAPI.user,
     retry: false,
+    enabled: window.authentication === true,
     onError: (response) => {
       response.code === 401 && navigate("/signin");
     },
@@ -81,6 +82,7 @@ const ProfilePopper = () => {
     queryKey: ["getProjectInvitations"],
     queryFn: TeamAPI.getProjectInvitations,
     refetchInterval: 30000,
+    enabled: window.authentication === true,
   });
 
   const handleClick = (event) => {

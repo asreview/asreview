@@ -36,8 +36,6 @@ const LabelHistory = ({
 
   const showMobileFilterRow = mobileScreen && showFilter;
 
-  console.log("label history render:", { label, state });
-
   return (
     <>
       <Container maxWidth="md">
