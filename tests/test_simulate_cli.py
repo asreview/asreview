@@ -2,6 +2,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
+import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
@@ -231,3 +232,23 @@ def test_cycle_config(tmpdir, demo_data_path, tmp_project):
     assert all(results["querier"][10:] == "max")
 
     # todo save and test for params in simulation
+
+
+def test_grouped_records(tmp_path, demo_data, tmp_project):
+    data_path = tmp_path / "duplicate_data.csv"
+    duplicate_demo_data = pd.concat([demo_data, demo_data])
+    duplicate_demo_data.to_csv(data_path, index=False)
+
+    argv = f"{data_path} -o {tmp_project} --group-similar-records".split()
+    _cli_simulate(argv)
+
+    with asr.open_state(tmp_project) as s:
+        results = s.get_results_table()
+
+    # Every record is duplicated exactly once. So after every labeling action, the data
+    # of a single duplicate record is added to the state file as well.
+    normal_records = results.iloc[::2]
+    duplicate_records = results.iloc[1::2]
+
+    assert duplicate_records["querier"].isna().all()
+    assert normal_records["label"].to_list() == duplicate_records["label"].to_list()
