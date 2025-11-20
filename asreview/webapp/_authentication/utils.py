@@ -23,10 +23,7 @@ def get_email_footer_config(app):
     Returns a list of footer paragraphs and processed footer data for templates.
     """
 
-    default_footer = {
-        "paragraph_1": "Regards,",
-        "paragraph_2": "The ASReview Team"
-    }
+    default_footer = {"paragraph_1": "Regards,", "paragraph_2": "The ASReview Team"}
 
     # Get email_footer section from config
     email_footer_config = app.config.get("EMAIL_FOOTER", default_footer)
@@ -47,10 +44,7 @@ def get_email_footer_config(app):
     # Create text footer
     txt_footer = "\n\n".join(paragraphs)
 
-    return {
-        "html_footer": html_footer,
-        "txt_footer": txt_footer
-    }
+    return {"html_footer": html_footer, "txt_footer": txt_footer}
 
 
 def perform_login_user(user, app):
@@ -80,14 +74,14 @@ def send_forgot_password_email(user, cur_app):
                 f.read(),
                 name=name,
                 token=user.token,
-                footer_html=footer_config["html_footer"]
+                footer_html=footer_config["html_footer"],
             )
         with open(root_path / "templates" / "emails" / "forgot_password.txt") as f:
             txt_text = render_template_string(
                 f.read(),
                 name=name,
                 token=user.token,
-                footer_txt=footer_config["txt_footer"]
+                footer_txt=footer_config["txt_footer"],
             )
         # create message
         msg = Message("ASReview: forgot password", recipients=[user.email])
@@ -115,7 +109,7 @@ def send_confirm_account_email(user, cur_app, email_type="create"):
                 name=name,
                 token=user.token,
                 email_type=email_type,
-                footer_html=footer_config["html_footer"]
+                footer_html=footer_config["html_footer"],
             )
         with open(root_path / "templates" / "emails" / "confirm_account.txt") as f:
             txt_text = render_template_string(
@@ -123,7 +117,7 @@ def send_confirm_account_email(user, cur_app, email_type="create"):
                 name=name,
                 token=user.token,
                 email_type=email_type,
-                footer_txt=footer_config["txt_footer"]
+                footer_txt=footer_config["txt_footer"],
             )
         # create message
         msg = Message("ASReview: please confirm your account", recipients=[user.email])
