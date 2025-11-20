@@ -41,10 +41,14 @@ const SignInForm = () => {
         if (data.logged_in) {
           setEmail("");
           setPassword("");
-          if (from === "/") {
-            navigate("/reviews");
+          if (Boolean(data?.account_created)) {
+            navigate("/profile?first_time=true");
           } else {
-            navigate(from, { replace: true });
+            if (from === "/") {
+              navigate("/reviews");
+            } else {
+              navigate(from, { replace: true });
+            }
           }
         } else {
           console.error("Backend could not log you in.");
@@ -135,7 +139,7 @@ const SignInForm = () => {
                 >
                   Sign in
                 </Button>
-                {window.allowAccountCreation && (
+                {window.allowAccountCreation && !window.ldapEnabled && (
                   <Button
                     id="create-profile"
                     onClick={() => navigate("/signup")}
@@ -144,7 +148,7 @@ const SignInForm = () => {
                     Create profile
                   </Button>
                 )}
-                {window.emailVerification && (
+                {window.emailVerification && !window.ldapEnabled && (
                   <Button
                     id="forgot-password"
                     onClick={() => navigate("/forgot_password")}
@@ -157,9 +161,9 @@ const SignInForm = () => {
             </>
           )}
 
-          {window.oAuthData && Object.keys(window.oAuthData).length > 0 && (
-            <SignInOAuth oAuthData={window.oAuthData} />
-          )}
+          {window.oAuthData &&
+            Object.keys(window.oAuthData).length > 0 &&
+            !window.ldapEnabled && <SignInOAuth oAuthData={window.oAuthData} />}
         </>
       )}
       {forgotPassword && (

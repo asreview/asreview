@@ -34,6 +34,12 @@ from asreview.webapp._authentication.models import Project
 from asreview.webapp._authentication.models import User
 from asreview.webapp._authentication.oauth_handler import OAuthHandler
 from asreview.webapp._authentication.utils import has_email_configuration
+
+# Optional LDAP support
+try:
+    from asreview.webapp._authentication.ldap_handler import LDAPHandler
+except ImportError:
+    LDAPHandler = None
 from asreview.webapp._authentication.utils import perform_login_user
 from asreview.webapp._authentication.utils import send_confirm_account_email
 from asreview.webapp._authentication.utils import send_forgot_password_email
@@ -493,6 +499,58 @@ def oauth_callback():
     status, message = result
     response = jsonify(message)
     return response, status
+
+
+@bp.route("/ldap_signin", methods=["POST"])
+def ldap_signin():
+    if LDAPHandler is None:
+        return jsonify(
+            {
+                "message": "LDAP authentication requires the 'ldap3' package. "
+                "Install it with: pip install asreview[ldap]"
+            }
+        ), 400
+
+    email = request.form.get("email").strip()
+    password = request.form.get("password", "")
+
+    ldap_handler = current_app.config.get("LDAP", False)
+    if not isinstance(ldap_handler, LDAPHandler):
+        return jsonify({"message": "LDAP authentication not configured"}), 400
+
+    # Authenticate with LDAP
+    user_info = ldap_handler.authenticate_user(email, password)
+    if not user_info:
+        return jsonify({"message": "Invalid LDAP credentials"}), 401
+
+    identifier, email, name, affiliation = user_info
+
+    # Find or create user in database
+    user = User.query.filter(User.identifier == identifier).one_or_none()
+    account_created = False
+
+    if user is None:
+        # Create new user
+        user = User(
+            identifier=identifier,
+            origin="ldap",
+            email=email,
+            name=name,
+            affiliation=affiliation,
+            confirmed=True,
+            public=True,
+        )
+        DB.session.add(user)
+        DB.session.commit()
+        account_created = True
+
+    # Log in the user
+    if perform_login_user(user, current_app):
+        payload = _signed_in_payload(user)
+        payload["account_created"] = account_created
+        return jsonify(payload), 200
+    else:
+        return jsonify({"message": "Authentication succeeded but login failed"}), 500
 
 
 @bp.route("/delete_account", methods=["DELETE"])
