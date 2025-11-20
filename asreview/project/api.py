@@ -25,6 +25,7 @@ import tempfile
 import time
 import warnings
 import zipfile
+from contextlib import contextmanager
 from dataclasses import asdict
 from pathlib import Path
 from urllib.request import urlretrieve
@@ -105,6 +106,92 @@ def is_project(project, raise_on_old_version=True):
         )
 
     return (project_dir / PATH_PROJECT_CONFIG).exists()
+
+
+def _get_state_path(project, review_id=None, create_new=True):
+    if review_id is None:
+        if len(project.reviews) == 0:
+            if not create_new:
+                raise FileNotFoundError("State does not exist in the project")
+            d_review = project.add_review()
+            review_id = d_review["id"]
+        else:
+            review_id = project.reviews[0]["id"]
+
+    return Path(project.project_path, "reviews", review_id, "results.db")
+
+
+@contextmanager
+def open_state(
+    asreview_obj, review_id=None, create_new=True, check_integrety=False, groups=None
+):
+    """Initialize a state class instance from a project folder.
+
+    Parameters
+    ----------
+    asreview_obj: str/pathlike/Project
+        Filepath to the (unzipped) project folder or Project object.
+    review_id: str
+        Identifier of the review from which the state will be instantiated.
+        If none is given, the first review in the reviews folder will be taken.
+    create_new: bool
+        If True, a new state file is created.
+    check_integrety: bool
+        If True, the integrity of the state file is checked. Default is False.
+    groups: list[tuple[int,int]] | None
+        A list of tuples in the form `(group_id, record_id)`, where `group_id`
+        identifies the group a record belongs to.
+
+    Returns
+    -------
+    SQLiteState
+    """
+
+    if isinstance(asreview_obj, Project):
+        fp_state = _get_state_path(
+            asreview_obj, review_id=review_id, create_new=create_new
+        )
+    elif (
+        isinstance(asreview_obj, (Path, str))
+        and Path(asreview_obj).is_file()
+        and zipfile.is_zipfile(asreview_obj)
+        and Path(asreview_obj).suffix == ".asreview"
+    ):
+        tmpdir = tempfile.TemporaryDirectory()
+        project = Project.load(asreview_obj, tmpdir.name)
+        fp_state = _get_state_path(project, review_id=review_id, create_new=create_new)
+    elif (
+        isinstance(asreview_obj, (Path, str))
+        and Path(asreview_obj).is_dir()
+        and is_project(asreview_obj)
+    ):
+        fp_state = _get_state_path(
+            Project(asreview_obj), review_id=review_id, create_new=create_new
+        )
+    elif isinstance(asreview_obj, (Path, str)) and Path(asreview_obj).suffix == ".db":
+        fp_state = Path(asreview_obj)
+    else:
+        raise ProjectNotFoundError(f"{asreview_obj} is not a valid input for state")
+
+    try:
+        if create_new and not fp_state.is_file():
+            fp_state.parent.mkdir(parents=True, exist_ok=True)
+            state = SQLiteState(fp_state, groups=groups)
+            state.create_tables()
+        else:
+            state = SQLiteState(fp_state, groups=groups)
+
+        if check_integrety:
+            state._is_valid_state()
+
+        yield state
+
+    finally:
+        try:
+            state.close()
+        except AttributeError:
+            # file seems to be closed, do nothing
+            pass
 
 
 class Project:

@@ -18,8 +18,8 @@ from pathlib import Path
 import asreview as asr
 from asreview.models.queriers import TopDown
 from asreview.models.stoppers import IsFittable
+from asreview.project.api import open_state
 from asreview.simulation.simulate import Simulate
-from asreview.state.contextmanager import open_state
 from asreview.webapp.utils import get_project_path
 
 

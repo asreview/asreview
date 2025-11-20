@@ -37,10 +37,10 @@ from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
 from asreview.project.api import Project
 from asreview.project.api import is_project
+from asreview.project.api import open_state
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.simulation.simulate import Simulate
-from asreview.state.contextmanager import open_state
 from asreview.state.sqlstate import SQLiteState
 
 try:

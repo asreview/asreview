@@ -5,8 +5,8 @@ import asreview as asr
 from asreview.models.queriers import Random
 from asreview.models.queriers import TopDown
 from asreview.models.stoppers import IsFittable
+from asreview.project.api import open_state
 from asreview.simulation.cli import _cli_simulate
-from asreview.state.contextmanager import open_state
 from asreview.simulation.simulate import _assert_no_conflicts_in_groups
 
 

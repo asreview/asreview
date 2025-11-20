@@ -59,10 +59,10 @@ from asreview.models import AI_MODEL_CONFIGURATIONS
 from asreview.models import get_ai_config
 from asreview.models.stoppers import NConsecutiveIrrelevant
 from asreview.project.api import PROJECT_MODE_SIMULATE
+from asreview.project.api import open_state
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.migrate import migrate_project_v1_v2
-from asreview.state.contextmanager import open_state
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp._api.utils import add_id_to_tags

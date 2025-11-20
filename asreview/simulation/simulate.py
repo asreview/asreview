@@ -24,7 +24,7 @@ from asreview.metrics import loss
 from asreview.metrics import ndcg
 from asreview.models.stoppers import LastRelevant
 from asreview.models.stoppers import NLabeled
-from asreview.state.contextmanager import open_state
+from asreview.project.api import open_state
 from asreview.state.sqlstate import _propagate_record_info
 
 
