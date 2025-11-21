@@ -21,20 +21,54 @@ import asreview.webapp.tests.utils.crud as crud
 
 
 # ###################
+# HELPER FUNCTIONS
+# ###################
+
+
+def create_admin_user_and_signin(client_auth, user_index=1, signin_immediately=True):
+    """Helper function to create an admin user and optionally sign them in immediately"""
+    admin_user = get_user(user_index)
+    au.signup_user(client_auth, admin_user)
+
+    # Set user as admin
+    user_obj = crud.get_user_by_identifier(admin_user.identifier)
+    user_obj.role = "admin"
+    DB.session.commit()
+
+    if signin_immediately:
+        # signin Admin (remember that signing up means signing in now).
+        au.signin_user(client_auth, user_obj)
+
+    return admin_user, user_obj
+
+
+def signin_admin_user(client_auth, user_obj):
+    """Helper function to sign in admin user after setting up other test data"""
+    # signin Admin (remember that signing up means signing in now).
+    au.signin_user(client_auth, user_obj)
+
+
+def create_admin_with_test_projects(client_auth):
+    """Helper function to create test users/projects and an admin user"""
+    # Create test users with real projects
+    test_data = _create_test_users_with_projects(client_auth)
+
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 3)
+
+    return {**test_data, "admin_user": admin_user, "admin_user_obj": admin_user_obj}
+
+
+# ###################
 # ADMIN GET USERS
 # ###################
 
 
 def test_get_users_as_admin(client_auth):
     """Test that admin can retrieve all users"""
-    # Create admin user
-    admin_user = get_user(1)
-    au.signup_user(client_auth, admin_user)
-
-    # Set user as admin and sign in
-    user = crud.get_user_by_identifier(admin_user.identifier)
-    user.role = "admin"
-    DB.session.commit()
+    # Create admin user (don't sign in yet)
+    admin_user, user = create_admin_user_and_signin(
+        client_auth, 1, signin_immediately=False)
 
     # Create a few regular users
     regular_user_1 = get_user(2)
@@ -44,7 +78,7 @@ def test_get_users_as_admin(client_auth):
 
     # signin Admin (remember that signing up means
     # signing in now).
-    au.signin_user(client_auth, user)
+    signin_admin_user(client_auth, user)
 
     # Test get all users
     response = client_auth.get("/admin/users")
@@ -95,15 +129,9 @@ def test_get_users_without_login_unauthorized(client_auth):
 
 def test_create_user_as_admin(client_auth):
     """Test that admin can create new users"""
-    # Create admin user
-    admin_user = get_user(1)
-    au.signup_user(client_auth, admin_user)
-
-    # Set user as admin and sign in
-    user = crud.get_user_by_identifier(admin_user.identifier)
-    user.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(
+        client_auth, 1, signin_immediately=True)
 
     # Create new user via API
     new_user_data = {
@@ -135,15 +163,8 @@ def test_create_user_as_admin(client_auth):
 
 def test_create_user_as_admin_with_admin_role(client_auth):
     """Test that admin can create other admin users"""
-    # Create admin user
-    admin_user = get_user(1)
-    au.signup_user(client_auth, admin_user)
-
-    # Set user as admin and sign in
-    user = crud.get_user_by_identifier(admin_user.identifier)
-    user.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Create new admin user via API
     new_admin_data = {
@@ -169,15 +190,8 @@ def test_create_user_as_admin_with_admin_role(client_auth):
 
 def test_create_user_duplicate_identifier(client_auth):
     """Test creating user with duplicate identifier fails"""
-    # Create admin user
-    admin_user = get_user(1)
-    au.signup_user(client_auth, admin_user)
-
-    # Set user as admin and sign in
-    user = crud.get_user_by_identifier(admin_user.identifier)
-    user.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try to create user with same identifier as admin
     duplicate_user_data = {
@@ -229,20 +243,17 @@ def test_create_user_as_non_admin_forbidden(client_auth):
 
 def test_update_user_as_admin(client_auth):
     """Test that admin can update users"""
-    # Create admin user
-    admin_user = get_user(1)
-    au.signup_user(client_auth, admin_user)
+    # Create admin user (don't sign in yet)
+    admin_user, admin_user_obj = create_admin_user_and_signin(
+        client_auth, 1, signin_immediately=False)
 
     # Create regular user to update
     regular_user = get_user(2)
     au.signup_user(client_auth, regular_user)
     regular_user_obj = crud.get_user_by_identifier(regular_user.identifier)
 
-    # Set user as admin and sign in
-    user = crud.get_user_by_identifier(admin_user.identifier)
-    user.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
+    # Sign in admin after creating other users
+    signin_admin_user(client_auth, admin_user_obj)
 
     # Update user data
     update_data = {
@@ -272,15 +283,8 @@ def test_update_user_as_admin(client_auth):
 
 def test_update_nonexistent_user(client_auth):
     """Test updating non-existent user returns 404"""
-    # Create admin user
-    admin_user = get_user(1)
-    au.signup_user(client_auth, admin_user)
-
-    # Set user as admin and sign in
-    user = crud.get_user_by_identifier(admin_user.identifier)
-    user.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try to update non-existent user
     update_data = {"name": "Updated Name"}
@@ -330,20 +334,17 @@ def test_update_user_as_non_admin_forbidden(client_auth):
 
 def test_delete_user_as_admin(client_auth):
     """Test that admin can delete users"""
-    # Create admin user
-    admin_user = get_user(1)
-    au.signup_user(client_auth, admin_user)
+    # Create admin user (don't sign in yet)
+    admin_user, admin_user_obj = create_admin_user_and_signin(
+        client_auth, 1, signin_immediately=False)
 
     # Create regular user to delete
     regular_user = get_user(2)
     au.signup_user(client_auth, regular_user)
     regular_user_obj = crud.get_user_by_identifier(regular_user.identifier)
 
-    # Set user as admin and sign in
-    admin_user = crud.get_user_by_identifier(admin_user.identifier)
-    admin_user.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
+    # Sign in admin after creating other users
+    signin_admin_user(client_auth, admin_user_obj)
 
     # verify we have 2 users
     assert len(crud.list_users()) == 2
@@ -359,20 +360,14 @@ def test_delete_user_as_admin(client_auth):
     # Verify user was deleted from database
     all_users = crud.list_users()
     assert len(all_users) == 1
-    assert all_users[0].id == admin_user.id
+    assert all_users[0].id == admin_user_obj.id
 
 
 def test_delete_nonexistent_user(client_auth):
     """Test deleting non-existent user returns 404"""
-    # Create admin user
-    admin_user = get_user(1)
-    au.signup_user(client_auth, admin_user)
-
-    # Set user as admin and sign in
-    user = crud.get_user_by_identifier(admin_user.identifier)
-    user.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(
+        client_auth, 1, signin_immediately=True)
 
     # Try to delete non-existent user
     response = client_auth.delete("/admin/users/99999")
@@ -404,26 +399,224 @@ def test_delete_user_as_non_admin_forbidden(client_auth):
 
 
 # ###################
-# ADMIN GET SINGLE USER
+# ADMIN BATCH DELETE USERS
 # ###################
 
 
-def test_get_single_user_as_admin(client_auth):
-    """Test that admin can retrieve a specific user"""
-    # Create admin user
-    admin_user = get_user(1)
-    au.signup_user(client_auth, admin_user)
+def test_batch_delete_users_as_admin(client_auth):
+    """Test that admin can delete multiple users"""
+    # Create admin user (don't sign in yet)
+    admin_user, admin_user_obj = create_admin_user_and_signin(
+        client_auth, 1, signin_immediately=False)
+
+    # Create regular users to delete
+    regular_user1 = get_user(2)
+    regular_user2 = get_user(3)
+    regular_user3 = get_user(4)
+    au.signup_user(client_auth, regular_user1)
+    au.signup_user(client_auth, regular_user2)
+    au.signup_user(client_auth, regular_user3)
+
+    # Get user objects
+    regular_user1_obj = crud.get_user_by_identifier(regular_user1.identifier)
+    regular_user2_obj = crud.get_user_by_identifier(regular_user2.identifier)
+    regular_user3_obj = crud.get_user_by_identifier(regular_user3.identifier)
+
+    # Sign in admin after creating other users
+    signin_admin_user(client_auth, admin_user_obj)
+
+    # Verify we have 4 users initially
+    assert len(crud.list_users()) == 4
+
+    # Batch delete users
+    delete_data = {
+        "user_ids": [regular_user1_obj.id, regular_user2_obj.id, regular_user3_obj.id]
+    }
+    response = client_auth.post(
+        "/admin/users/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["message"] == "Successfully deleted 3 users"
+    assert len(data["deleted_users"]) == 3
+
+    # Check that all deleted users are in the response
+    deleted_identifiers = [user["identifier"] for user in data["deleted_users"]]
+    assert regular_user1.identifier in deleted_identifiers
+    assert regular_user2.identifier in deleted_identifiers
+    assert regular_user3.identifier in deleted_identifiers
+
+    # Verify users were deleted from database
+    remaining_users = crud.list_users()
+    assert len(remaining_users) == 1
+    assert remaining_users[0].id == admin_user_obj.id
+
+
+def test_batch_delete_users_empty_list(client_auth):
+    """Test batch delete with empty user_ids list"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(
+        client_auth, 1, signin_immediately=True)
+
+    # Try batch delete with empty list
+    delete_data = {"user_ids": []}
+    response = client_auth.post(
+        "/admin/users/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["message"] == "No user IDs provided"
+
+
+def test_batch_delete_users_invalid_data_type(client_auth):
+    """Test batch delete with invalid data type for user_ids"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    # Try batch delete with non-list user_ids
+    delete_data = {"user_ids": "not_a_list"}
+    response = client_auth.post(
+        "/admin/users/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["message"] == "user_ids must be a list"
+
+
+def test_batch_delete_users_nonexistent_ids(client_auth):
+    """Test batch delete with non-existent user IDs"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    # Try to delete non-existent users
+    delete_data = {"user_ids": [99999, 99998, 99997]}
+    response = client_auth.post(
+        "/admin/users/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 404
+    data = response.get_json()
+    assert data["message"] == "No users found with provided IDs"
+
+
+def test_batch_delete_users_partial_nonexistent(client_auth):
+    """Test batch delete with mix of existing and non-existent user IDs"""
+    # Create admin user (don't sign in yet)
+    admin_user, admin_user_obj = create_admin_user_and_signin(
+        client_auth, 1, signin_immediately=False)
 
     # Create regular user
     regular_user = get_user(2)
     au.signup_user(client_auth, regular_user)
     regular_user_obj = crud.get_user_by_identifier(regular_user.identifier)
 
-    # Set user as admin and sign in
-    user = crud.get_user_by_identifier(admin_user.identifier)
-    user.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
+    # Sign in admin after creating other users
+    signin_admin_user(client_auth, admin_user_obj)
+
+    # Try to delete mix of existing and non-existent users
+    delete_data = {"user_ids": [regular_user_obj.id, 99999]}
+    response = client_auth.post(
+        "/admin/users/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    # Should succeed and delete only the existing user
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["message"] == "Successfully deleted 1 user"
+    assert len(data["deleted_users"]) == 1
+    assert data["deleted_users"][0]["identifier"] == regular_user.identifier
+
+
+def test_batch_delete_users_as_non_admin_forbidden(client_auth):
+    """Test that non-admin users cannot batch delete users"""
+    # Create regular users
+    user1 = get_user(1)
+    user2 = get_user(2)
+    au.signup_user(client_auth, user1)
+    au.signup_user(client_auth, user2)
+
+    user2_obj = crud.get_user_by_identifier(user2.identifier)
+
+    # Sign in as first user (non-admin)
+    au.signin_user(client_auth, user1)
+
+    # Try to batch delete users as non-admin
+    delete_data = {"user_ids": [user2_obj.id]}
+    response = client_auth.post(
+        "/admin/users/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 403
+    data = response.get_json()
+    assert data["message"] == "Admin access required."
+
+
+def test_batch_delete_users_without_login_unauthorized(client_auth):
+    """Test that unauthenticated users cannot batch delete users"""
+    # Try to batch delete without authentication
+    delete_data = {"user_ids": [1, 2]}
+    response = client_auth.post(
+        "/admin/users/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 401
+    data = response.get_json()
+    assert data["message"] == "Login required."
+
+
+def test_batch_delete_users_missing_data(client_auth):
+    """Test batch delete without providing user_ids"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    # Try batch delete without user_ids
+    delete_data = {}
+    response = client_auth.post(
+        "/admin/users/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["message"] == "No user IDs provided"
+
+
+# ###################
+# ADMIN GET SINGLE USER
+# ###################
+
+
+def test_get_single_user_as_admin(client_auth):
+    """Test that admin can retrieve a specific user"""
+    # Create admin user (don't sign in yet)
+    admin_user, admin_user_obj = create_admin_user_and_signin(
+        client_auth, 1, signin_immediately=False)
+
+    # Create regular user
+    regular_user = get_user(2)
+    au.signup_user(client_auth, regular_user)
+    regular_user_obj = crud.get_user_by_identifier(regular_user.identifier)
+
+    # Sign in admin after creating other users
+    signin_admin_user(client_auth, admin_user_obj)
 
     # Get specific user
     response = client_auth.get(f"/admin/users/{regular_user_obj.id}")
@@ -438,15 +631,8 @@ def test_get_single_user_as_admin(client_auth):
 
 def test_get_single_nonexistent_user(client_auth):
     """Test getting non-existent user returns 404"""
-    # Create admin user
-    admin_user = get_user(1)
-    au.signup_user(client_auth, admin_user)
-
-    # Set user as admin and sign in
-    user = crud.get_user_by_identifier(admin_user.identifier)
-    user.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try to get non-existent user
     response = client_auth.get("/admin/users/99999")
@@ -527,15 +713,8 @@ def test_get_projects_as_admin(client_auth):
     # Create test users with real projects
     _create_test_users_with_projects(client_auth)
 
-    # Create admin user
-    admin_user = get_user(3)  # Use user 3 since 1 and 2 are already used
-    au.signup_user(client_auth, admin_user)
-
-    # Set user as admin and sign in
-    user = crud.get_user_by_identifier(admin_user.identifier)
-    user.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 3)
 
     # Test get all projects
     response = client_auth.get("/admin/projects")
@@ -777,13 +956,8 @@ def test_transfer_ownership_nonexistent_project(client_auth):
     au.signup_user(client_auth, regular_user)
     regular_user_obj = crud.get_user_by_identifier(regular_user.identifier)
 
-    # Create admin user
-    admin_user = get_user(1)
-    au.signup_user(client_auth, admin_user)
-    admin_user_obj = crud.get_user_by_identifier(admin_user.identifier)
-    admin_user_obj.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try to transfer ownership of non-existent project
     transfer_data = {"new_owner_id": regular_user_obj.id}
@@ -1064,13 +1238,8 @@ def test_add_member_nonexistent_project_fails(client_auth):
     au.signup_user(client_auth, regular_user)
     regular_user_obj = crud.get_user_by_identifier(regular_user.identifier)
 
-    # Create admin user
-    admin_user = get_user(1)
-    au.signup_user(client_auth, admin_user)
-    admin_user_obj = crud.get_user_by_identifier(admin_user.identifier)
-    admin_user_obj.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try to add member to non-existent project
     add_member_data = {"user_id": regular_user_obj.id}
@@ -1216,3 +1385,204 @@ def test_add_member_invalid_json_fails(client_auth):
 
     # Flask route should return 500 status code
     assert response.status_code == 500
+
+
+# ###################
+# ADMIN BATCH DELETE PROJECTS
+# ###################
+
+
+def test_batch_delete_projects_as_admin(client_auth):
+    """Test that admin can delete multiple projects"""
+    # Create test users and projects
+    test_data = _create_test_users_with_projects(client_auth)
+    project1 = test_data["project1"]
+    project2 = test_data["project2"]
+
+    # Create admin user
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 3)
+
+    # Get project objects
+    project1_obj = crud.get_project_by_project_id(project1["id"])
+    project2_obj = crud.get_project_by_project_id(project2["id"])
+
+    # Batch delete projects
+    delete_data = {
+        "project_ids": [project1_obj.id, project2_obj.id]
+    }
+    response = client_auth.post(
+        "/admin/projects/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["message"] == "Successfully deleted 2 projects"
+    assert data["deleted_count"] == 2
+
+    # Verify projects are deleted from database
+    remaining_projects = crud.list_projects()
+    project_ids = [p.id for p in remaining_projects]
+    assert project1_obj.id not in project_ids
+    assert project2_obj.id not in project_ids
+
+
+def test_batch_delete_projects_empty_list(client_auth):
+    """Test batch delete with empty project_ids list"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    # Try batch delete with empty list
+    delete_data = {"project_ids": []}
+    response = client_auth.post(
+        "/admin/projects/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["message"] == "No project IDs provided"
+
+
+def test_batch_delete_projects_nonexistent_ids(client_auth):
+    """Test batch delete with non-existent project IDs"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    # Try to delete non-existent projects
+    delete_data = {"project_ids": [99999, 99998, 99997]}
+    response = client_auth.post(
+        "/admin/projects/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 404
+    data = response.get_json()
+    assert "Some projects not found" in data["message"]
+    assert data["missing"] == [99999, 99998, 99997]
+    assert data["found"] == []
+
+
+def test_batch_delete_projects_partial_nonexistent(client_auth):
+    """Test batch delete with mix of existing and non-existent project IDs"""
+    # Create test users and projects
+    test_data = _create_test_users_with_projects(client_auth)
+    project1 = test_data["project1"]
+
+    # Create admin user
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 3)
+
+    # Get project object
+    project1_obj = crud.get_project_by_project_id(project1["id"])
+
+    # Try to delete mix of existing and non-existent projects
+    delete_data = {"project_ids": [project1_obj.id, 99999]}
+    response = client_auth.post(
+        "/admin/projects/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    # Should return 404 because not all projects exist
+    assert response.status_code == 404
+    data = response.get_json()
+    assert "Some projects not found" in data["message"]
+    assert 99999 in data["missing"]
+    assert project1_obj.id in data["found"]
+
+    # Verify original project still exists
+    existing_project = crud.get_project_by_project_id(project1["id"])
+    assert existing_project is not None
+
+
+def test_batch_delete_projects_as_non_admin_forbidden(client_auth):
+    """Test that non-admin users cannot batch delete projects"""
+    # Create test users and projects
+    test_data = _create_test_users_with_projects(client_auth)
+    project1 = test_data["project1"]
+    user1 = test_data["user1"]
+
+    # Sign in as first user (non-admin)
+    au.signin_user(client_auth, user1)
+
+    # Get project object
+    project1_obj = crud.get_project_by_project_id(project1["id"])
+
+    # Try to batch delete projects as non-admin
+    delete_data = {"project_ids": [project1_obj.id]}
+    response = client_auth.post(
+        "/admin/projects/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 403
+    data = response.get_json()
+    assert data["message"] == "Admin access required."
+
+
+def test_batch_delete_projects_without_login_unauthorized(client_auth):
+    """Test that unauthenticated users cannot batch delete projects"""
+    # Try to batch delete without authentication
+    delete_data = {"project_ids": [1, 2]}
+    response = client_auth.post(
+        "/admin/projects/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 401
+    data = response.get_json()
+    assert data["message"] == "Login required."
+
+
+def test_batch_delete_projects_missing_data(client_auth):
+    """Test batch delete without providing project_ids"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    # Try batch delete without project_ids
+    delete_data = {}
+    response = client_auth.post(
+        "/admin/projects/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["message"] == "No project IDs provided"
+
+
+def test_batch_delete_projects_single_project(client_auth):
+    """Test batch delete with single project"""
+    # Create test users and projects
+    test_data = _create_test_users_with_projects(client_auth)
+    project1 = test_data["project1"]
+
+    # Create admin user
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 3)
+
+    # Get project object
+    project1_obj = crud.get_project_by_project_id(project1["id"])
+
+    # Batch delete single project
+    delete_data = {"project_ids": [project1_obj.id]}
+    response = client_auth.post(
+        "/admin/projects/batch-delete",
+        data=json.dumps(delete_data),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["message"] == "Successfully deleted 1 projects"
+    assert data["deleted_count"] == 1
+
+    # Verify project is deleted
+    remaining_projects = crud.list_projects()
+    project_ids = [p.id for p in remaining_projects]
+    assert project1_obj.id not in project_ids

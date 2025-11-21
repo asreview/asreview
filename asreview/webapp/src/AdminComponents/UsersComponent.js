@@ -14,6 +14,10 @@ import {
   CircularProgress,
   TextField,
   InputAdornment,
+  Checkbox,
+  FormControlLabel,
+  Button,
+  Toolbar,
 } from "@mui/material";
 import {
   AdminPanelSettingsOutlined,
@@ -21,11 +25,13 @@ import {
   Add,
   Search,
   Clear,
+  Delete,
 } from "@mui/icons-material";
 
 import { AdminAPI } from "api";
 import { InlineErrorHandler } from "Components";
 import { UserFormDialog } from "AdminComponents";
+import { useAuth } from "hooks/useAuth";
 import UserCard from "./UserCard";
 import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
 import ProjectDetailsModal from "./ProjectDetailsModal";
@@ -47,6 +53,14 @@ const UsersComponent = () => {
   // Project modal state
   const [selectedProject, setSelectedProject] = React.useState(null);
   const [projectModalOpen, setProjectModalOpen] = React.useState(false);
+
+  // Batch selection state
+  const [selectedUsers, setSelectedUsers] = React.useState([]);
+  const [batchDeleteDialogOpen, setBatchDeleteDialogOpen] =
+    React.useState(false);
+
+  // Get current user for exclusion from selection
+  const { user: currentUser } = useAuth();
 
   // Fetch users from the API
   const {
@@ -97,6 +111,9 @@ const UsersComponent = () => {
     const memberUsers = sortByName(
       filteredUsers.filter((user) => user.role === "member"),
     );
+    const pendingUsers = sortByName(
+      filteredUsers.filter((user) => !user.confirmed),
+    );
 
     return [
       {
@@ -113,6 +130,11 @@ const UsersComponent = () => {
         group_id: "members",
         description: "Members",
         users: memberUsers,
+      },
+      {
+        group_id: "pending",
+        description: "Pending",
+        users: pendingUsers,
       },
     ];
   }, [usersData, debouncedSearchTerm]);
@@ -169,6 +191,22 @@ const UsersComponent = () => {
       },
       onError: (error) => {
         console.error("Failed to delete user:", error);
+        // You could add a toast notification here
+      },
+    },
+  );
+
+  // Mutation for batch deleting users
+  const { mutate: batchDeleteUsers, isLoading: isDeletingBatch } = useMutation(
+    (userIds) => AdminAPI.batchDeleteUsers(userIds),
+    {
+      onSuccess: () => {
+        refetch(); // Refresh the user list
+        setBatchDeleteDialogOpen(false);
+        setSelectedUsers([]);
+      },
+      onError: (error) => {
+        console.error("Failed to batch delete users:", error);
         // You could add a toast notification here
       },
     },
@@ -255,6 +293,58 @@ const UsersComponent = () => {
     setProjectModalOpen(false);
   };
 
+  // Batch selection handlers
+  const handleUserSelect = (userId, isSelected) => {
+    setSelectedUsers((prevSelected) => {
+      if (isSelected) {
+        return [...prevSelected, userId];
+      } else {
+        return prevSelected.filter((id) => id !== userId);
+      }
+    });
+  };
+
+  const handleSelectAll = (users) => {
+    // Filter out current user from selection
+    const selectableUsers = users.filter((user) => user.id !== currentUser?.id);
+    const allSelectableIds = selectableUsers.map((user) => user.id);
+    const allSelected = allSelectableIds.every((id) =>
+      selectedUsers.includes(id),
+    );
+
+    if (allSelected) {
+      // Deselect all
+      setSelectedUsers((prevSelected) =>
+        prevSelected.filter((id) => !allSelectableIds.includes(id)),
+      );
+    } else {
+      // Select all selectable users
+      setSelectedUsers((prevSelected) => {
+        const newSelection = [...prevSelected];
+        allSelectableIds.forEach((id) => {
+          if (!newSelection.includes(id)) {
+            newSelection.push(id);
+          }
+        });
+        return newSelection;
+      });
+    }
+  };
+
+  const handleBatchDelete = () => {
+    setBatchDeleteDialogOpen(true);
+  };
+
+  const handleConfirmBatchDelete = () => {
+    if (selectedUsers.length > 0) {
+      batchDeleteUsers(selectedUsers);
+    }
+  };
+
+  const handleCloseBatchDeleteDialog = () => {
+    setBatchDeleteDialogOpen(false);
+  };
+
   const openInfo = Boolean(anchorElInfo);
   const userGroups = processUsersData;
 
@@ -294,15 +384,16 @@ const UsersComponent = () => {
               </Typography>
               <Typography variant="body2" sx={{ textAlign: "justify" }}>
                 Manage user accounts, roles, and permissions across the ASReview
-                system. View all users, edit their details, and control access
-                levels.
+                system. View all users, edit their details, control access
+                levels and delete user accounts.
               </Typography>
               <Alert severity="info">
                 <Typography variant="body2">
                   Only administrators can edit user accounts and change roles.
                   {window.oAuthData
-                    ? " User creation is handled through OAuth authentication."
-                    : " Use the + button to manually create new users."}
+                    ? " User creation is handled through OAuth authentication. "
+                    : " Use the + button to manually create new users. "}
+                  Select multiple user accounts to delete in a single batch.
                 </Typography>
               </Alert>
               <Box>
@@ -374,6 +465,42 @@ const UsersComponent = () => {
         )}
       </Box>
 
+      {/* Batch Selection Toolbar */}
+      {selectedUsers.length > 0 && (
+        <Toolbar
+          sx={{
+            pl: { sm: 2 },
+            pr: { xs: 1, sm: 1 },
+            bgcolor: "primary.light",
+            borderRadius: 1,
+            mb: 2,
+            minHeight: "auto !important",
+            py: 1,
+          }}
+        >
+          <Typography
+            sx={{ flex: "1 1 100%" }}
+            color="primary.contrastText"
+            variant="subtitle1"
+            component="div"
+          >
+            {selectedUsers.length} user{selectedUsers.length > 1 ? "s" : ""}{" "}
+            selected
+          </Typography>
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<Delete />}
+            onClick={handleBatchDelete}
+            disabled={isDeletingBatch}
+            size="small"
+            sx={{ whiteSpace: "nowrap", px: 3, py: 1 }}
+          >
+            Delete Selected
+          </Button>
+        </Toolbar>
+      )}
+
       {/* Loading State */}
       {isLoading && (
         <Box
@@ -408,24 +535,63 @@ const UsersComponent = () => {
       {!isLoading && !isError && (
         <>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <Tabs value={selectedTab} onChange={handleTabChange}>
-              {userGroups.map((group, index) => (
-                <Tab
-                  key={group.group_id}
-                  label={`${group.description} (${group.users.length})`}
-                  id={`users-tab-${index}`}
-                />
-              ))}
-              {!window.oAuthData && (
-                <Tab
-                  key="add-user-button-tab"
-                  icon={<Add fontSize="small" />}
-                  sx={{ p: 1, minWidth: "auto" }}
-                  value={userGroups.length}
-                  aria-label="Add new user"
-                />
-              )}
-            </Tabs>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Tabs value={selectedTab} onChange={handleTabChange}>
+                {userGroups.map((group, index) => (
+                  <Tab
+                    key={group.group_id}
+                    label={`${group.description} (${group.users.length})`}
+                    id={`users-tab-${index}`}
+                  />
+                ))}
+                {!window.oAuthData && (
+                  <Tab
+                    key="add-user-button-tab"
+                    icon={<Add fontSize="small" />}
+                    sx={{ p: 1, minWidth: "auto" }}
+                    value={userGroups.length}
+                    aria-label="Add new user"
+                  />
+                )}
+              </Tabs>
+              {userGroups[selectedTab] &&
+                (() => {
+                  const selectableUsers = userGroups[selectedTab].users.filter(
+                    (u) => u.id !== currentUser?.id,
+                  );
+                  const allSelected =
+                    selectableUsers.length > 0 &&
+                    selectableUsers.every((user) =>
+                      selectedUsers.includes(user.id),
+                    );
+
+                  return (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          indeterminate={
+                            selectedUsers.length > 0 &&
+                            selectedUsers.length < selectableUsers.length
+                          }
+                          checked={allSelected}
+                          onChange={() =>
+                            handleSelectAll(userGroups[selectedTab].users)
+                          }
+                          disabled={selectableUsers.length === 0}
+                        />
+                      }
+                      label={allSelected ? "Deselect All" : "Select All"}
+                      sx={{ mr: 2 }}
+                    />
+                  );
+                })()}
+            </Box>
           </Box>
 
           <Box sx={{ pt: 3 }}>
@@ -445,6 +611,10 @@ const UsersComponent = () => {
                           onEdit={handleEditUser}
                           onDelete={handleDeleteUser}
                           isAdmin={true} // TODO: Get from actual auth context
+                          isSelected={selectedUsers.includes(user.id)}
+                          onSelect={handleUserSelect}
+                          isCurrentUser={user.id === currentUser?.id}
+                          showCheckbox={true}
                         />
                       </Grid>
                     ))}
@@ -494,6 +664,20 @@ const UsersComponent = () => {
         onConfirm={handleConfirmDelete}
         user={userToDelete}
         isDeleting={isDeletingUser}
+      />
+
+      {/* Batch Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        open={batchDeleteDialogOpen}
+        onClose={handleCloseBatchDeleteDialog}
+        onConfirm={handleConfirmBatchDelete}
+        users={selectedUsers
+          .map((id) =>
+            userGroups.flatMap((g) => g.users).find((u) => u.id === id),
+          )
+          .filter(Boolean)}
+        isDeleting={isDeletingBatch}
+        isBatch={true}
       />
 
       {/* Project Details Modal */}

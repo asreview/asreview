@@ -1,5 +1,5 @@
 import React from "react";
-import { useQuery } from "react-query";
+import { useQuery, useMutation } from "react-query";
 
 import {
   Box,
@@ -11,14 +11,19 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  Checkbox,
+  FormControlLabel,
+  Button,
+  Toolbar,
 } from "@mui/material";
-import { FolderOutlined, Search, Clear } from "@mui/icons-material";
+import { FolderOutlined, Search, Clear, Delete } from "@mui/icons-material";
 
 import { AdminAPI } from "api";
 import { HelpPopover, LoadingState, ErrorState } from "Components";
 import ProjectCard from "./ProjectCard";
 import ProjectDetailsModal from "./ProjectDetailsModal";
 import { UserFormDialog } from "AdminComponents";
+import ProjectDeleteConfirmationDialog from "./ProjectDeleteConfirmationDialog";
 import SectionHeader from "./SectionHeader";
 import { projectStatuses } from "globals.js";
 
@@ -34,6 +39,11 @@ const ProjectsComponent = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = React.useState("");
 
+  // Batch selection state
+  const [selectedProjects, setSelectedProjects] = React.useState([]);
+  const [batchDeleteDialogOpen, setBatchDeleteDialogOpen] =
+    React.useState(false);
+
   // Fetch projects from the API
   const {
     data: projectsData,
@@ -45,6 +55,19 @@ const ProjectsComponent = () => {
     refetchOnWindowFocus: false,
     retry: 2,
   });
+
+  // Mutation for batch deleting projects
+  const { mutate: batchDeleteProjects, isLoading: isDeletingBatch } =
+    useMutation((projectIds) => AdminAPI.batchDeleteProjects(projectIds), {
+      onSuccess: () => {
+        refetch(); // Refresh the project list
+        setBatchDeleteDialogOpen(false);
+        setSelectedProjects([]);
+      },
+      onError: (error) => {
+        console.error("Failed to batch delete projects:", error);
+      },
+    });
 
   const handleProjectClick = (project) => {
     setSelectedProject(project);
@@ -136,6 +159,52 @@ const ProjectsComponent = () => {
     setSearchTerm("");
   };
 
+  // Batch selection handlers
+  const handleProjectSelect = (projectId, isSelected) => {
+    setSelectedProjects((prevSelected) => {
+      if (isSelected) {
+        return [...prevSelected, projectId];
+      } else {
+        return prevSelected.filter((id) => id !== projectId);
+      }
+    });
+  };
+
+  const handleSelectAll = () => {
+    const allProjects = [
+      ...categorizeProjects.review,
+      ...categorizeProjects.finished,
+      ...categorizeProjects.setup,
+      ...categorizeProjects.error,
+    ];
+    const allProjectIds = allProjects.map((project) => project.id);
+    const allSelected =
+      allProjectIds.length > 0 &&
+      allProjectIds.every((id) => selectedProjects.includes(id));
+
+    if (allSelected) {
+      // Deselect all projects
+      setSelectedProjects([]);
+    } else {
+      // Select all projects
+      setSelectedProjects(allProjectIds);
+    }
+  };
+
+  const handleBatchDelete = () => {
+    setBatchDeleteDialogOpen(true);
+  };
+
+  const handleConfirmBatchDelete = () => {
+    if (selectedProjects.length > 0) {
+      batchDeleteProjects(selectedProjects);
+    }
+  };
+
+  const handleCloseBatchDeleteDialog = () => {
+    setBatchDeleteDialogOpen(false);
+  };
+
   return (
     <Box>
       <Box
@@ -156,7 +225,9 @@ const ProjectsComponent = () => {
             </Typography>
             <Typography variant="body2" sx={{ textAlign: "justify" }}>
               View and monitor all projects across the ASReview system. This
-              includes projects from all users, regardless of ownership.
+              includes projects from all users, regardless of ownership. Use the
+              "Select All Projects" checkbox to select all projects for batch
+              deletion, or select individual projects using their checkboxes.
             </Typography>
             <Alert severity="info">
               <Typography variant="body2">
@@ -254,6 +325,85 @@ const ProjectsComponent = () => {
         )}
       </Box>
 
+      {/* Batch Selection Toolbar */}
+      {selectedProjects.length > 0 && (
+        <Toolbar
+          sx={{
+            pl: { sm: 2 },
+            pr: { xs: 1, sm: 1 },
+            bgcolor: "primary.light",
+            borderRadius: 1,
+            mb: 1,
+            minHeight: "auto !important",
+            py: 1,
+          }}
+        >
+          <Typography
+            sx={{ flex: "1 1 100%" }}
+            color="primary.contrastText"
+            variant="subtitle1"
+            component="div"
+          >
+            {selectedProjects.length} project
+            {selectedProjects.length > 1 ? "s" : ""} selected
+          </Typography>
+          <Button
+            onClick={handleBatchDelete}
+            variant="contained"
+            color="error"
+            startIcon={<Delete />}
+            disabled={isDeletingBatch}
+            size="small"
+            sx={{ whiteSpace: "nowrap", px: 3, py: 1 }}
+          >
+            Delete Selected
+          </Button>
+        </Toolbar>
+      )}
+
+      {/* Global Select All */}
+      {categorizeProjects && (
+        <Box sx={{ mb: 2, display: "flex", justifyContent: "flex-end" }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={
+                  selectedProjects.length > 0 &&
+                  [
+                    ...categorizeProjects.review,
+                    ...categorizeProjects.finished,
+                    ...categorizeProjects.setup,
+                    ...categorizeProjects.error,
+                  ].every((project) => selectedProjects.includes(project.id))
+                }
+                indeterminate={
+                  selectedProjects.length > 0 &&
+                  ![
+                    ...categorizeProjects.review,
+                    ...categorizeProjects.finished,
+                    ...categorizeProjects.setup,
+                    ...categorizeProjects.error,
+                  ].every((project) => selectedProjects.includes(project.id))
+                }
+                onChange={handleSelectAll}
+                size="small"
+              />
+            }
+            label={
+              selectedProjects.length > 0 &&
+              [
+                ...categorizeProjects.review,
+                ...categorizeProjects.finished,
+                ...categorizeProjects.setup,
+                ...categorizeProjects.error,
+              ].every((project) => selectedProjects.includes(project.id))
+                ? "Deselect All Projects"
+                : "Select All Projects"
+            }
+          />
+        </Box>
+      )}
+
       {/* Loading State */}
       {isLoading && <LoadingState message="Loading projects..." />}
 
@@ -283,6 +433,9 @@ const ProjectsComponent = () => {
                     project={project}
                     key={project.project_id}
                     onClick={handleProjectClick}
+                    isSelected={selectedProjects.includes(project.id)}
+                    onSelect={handleProjectSelect}
+                    showCheckbox={true}
                   />
                 ))}
               </Grid>
@@ -303,6 +456,9 @@ const ProjectsComponent = () => {
                     project={project}
                     key={project.project_id}
                     onClick={handleProjectClick}
+                    isSelected={selectedProjects.includes(project.id)}
+                    onSelect={handleProjectSelect}
+                    showCheckbox={true}
                   />
                 ))}
               </Grid>
@@ -323,6 +479,9 @@ const ProjectsComponent = () => {
                     project={project}
                     key={project.project_id}
                     onClick={handleProjectClick}
+                    isSelected={selectedProjects.includes(project.id)}
+                    onSelect={handleProjectSelect}
+                    showCheckbox={true}
                   />
                 ))}
               </Grid>
@@ -343,6 +502,9 @@ const ProjectsComponent = () => {
                     project={project}
                     key={project.project_id}
                     onClick={handleProjectClick}
+                    isSelected={selectedProjects.includes(project.id)}
+                    onSelect={handleProjectSelect}
+                    showCheckbox={true}
                   />
                 ))}
               </Grid>
@@ -392,6 +554,25 @@ const ProjectsComponent = () => {
         isSubmitting={false}
         onSubmit={() => {}} // No-op since we're only viewing user details
         onProjectClick={handleProjectClickFromUser}
+      />
+
+      {/* Batch Delete Confirmation Dialog */}
+      <ProjectDeleteConfirmationDialog
+        open={batchDeleteDialogOpen}
+        onClose={handleCloseBatchDeleteDialog}
+        onConfirm={handleConfirmBatchDelete}
+        projects={selectedProjects
+          .map((id) =>
+            [
+              ...categorizeProjects.review,
+              ...categorizeProjects.finished,
+              ...categorizeProjects.setup,
+              ...categorizeProjects.error,
+            ].find((p) => p.id === id),
+          )
+          .filter(Boolean)}
+        isDeleting={isDeletingBatch}
+        isBatch={true}
       />
     </Box>
   );
