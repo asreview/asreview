@@ -68,7 +68,8 @@ def test_get_users_as_admin(client_auth):
     """Test that admin can retrieve all users"""
     # Create admin user (don't sign in yet)
     admin_user, user = create_admin_user_and_signin(
-        client_auth, 1, signin_immediately=False)
+        client_auth, 1, signin_immediately=False
+    )
 
     # Create a few regular users
     regular_user_1 = get_user(2)
@@ -131,7 +132,8 @@ def test_create_user_as_admin(client_auth):
     """Test that admin can create new users"""
     # Create admin user and sign in
     admin_user, admin_user_obj = create_admin_user_and_signin(
-        client_auth, 1, signin_immediately=True)
+        client_auth, 1, signin_immediately=True
+    )
 
     # Create new user via API
     new_user_data = {
@@ -245,7 +247,8 @@ def test_update_user_as_admin(client_auth):
     """Test that admin can update users"""
     # Create admin user (don't sign in yet)
     admin_user, admin_user_obj = create_admin_user_and_signin(
-        client_auth, 1, signin_immediately=False)
+        client_auth, 1, signin_immediately=False
+    )
 
     # Create regular user to update
     regular_user = get_user(2)
@@ -336,7 +339,8 @@ def test_delete_user_as_admin(client_auth):
     """Test that admin can delete users"""
     # Create admin user (don't sign in yet)
     admin_user, admin_user_obj = create_admin_user_and_signin(
-        client_auth, 1, signin_immediately=False)
+        client_auth, 1, signin_immediately=False
+    )
 
     # Create regular user to delete
     regular_user = get_user(2)
@@ -367,7 +371,8 @@ def test_delete_nonexistent_user(client_auth):
     """Test deleting non-existent user returns 404"""
     # Create admin user and sign in
     admin_user, admin_user_obj = create_admin_user_and_signin(
-        client_auth, 1, signin_immediately=True)
+        client_auth, 1, signin_immediately=True
+    )
 
     # Try to delete non-existent user
     response = client_auth.delete("/admin/users/99999")
@@ -407,7 +412,8 @@ def test_batch_delete_users_as_admin(client_auth):
     """Test that admin can delete multiple users"""
     # Create admin user (don't sign in yet)
     admin_user, admin_user_obj = create_admin_user_and_signin(
-        client_auth, 1, signin_immediately=False)
+        client_auth, 1, signin_immediately=False
+    )
 
     # Create regular users to delete
     regular_user1 = get_user(2)
@@ -435,7 +441,7 @@ def test_batch_delete_users_as_admin(client_auth):
     response = client_auth.post(
         "/admin/users/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 200
@@ -459,14 +465,15 @@ def test_batch_delete_users_empty_list(client_auth):
     """Test batch delete with empty user_ids list"""
     # Create admin user and sign in
     admin_user, admin_user_obj = create_admin_user_and_signin(
-        client_auth, 1, signin_immediately=True)
+        client_auth, 1, signin_immediately=True
+    )
 
     # Try batch delete with empty list
     delete_data = {"user_ids": []}
     response = client_auth.post(
         "/admin/users/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 400
@@ -484,7 +491,7 @@ def test_batch_delete_users_invalid_data_type(client_auth):
     response = client_auth.post(
         "/admin/users/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 400
@@ -502,7 +509,7 @@ def test_batch_delete_users_nonexistent_ids(client_auth):
     response = client_auth.post(
         "/admin/users/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 404
@@ -514,7 +521,8 @@ def test_batch_delete_users_partial_nonexistent(client_auth):
     """Test batch delete with mix of existing and non-existent user IDs"""
     # Create admin user (don't sign in yet)
     admin_user, admin_user_obj = create_admin_user_and_signin(
-        client_auth, 1, signin_immediately=False)
+        client_auth, 1, signin_immediately=False
+    )
 
     # Create regular user
     regular_user = get_user(2)
@@ -529,7 +537,7 @@ def test_batch_delete_users_partial_nonexistent(client_auth):
     response = client_auth.post(
         "/admin/users/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     # Should succeed and delete only the existing user
@@ -558,7 +566,7 @@ def test_batch_delete_users_as_non_admin_forbidden(client_auth):
     response = client_auth.post(
         "/admin/users/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 403
@@ -573,7 +581,7 @@ def test_batch_delete_users_without_login_unauthorized(client_auth):
     response = client_auth.post(
         "/admin/users/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 401
@@ -591,7 +599,7 @@ def test_batch_delete_users_missing_data(client_auth):
     response = client_auth.post(
         "/admin/users/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 400
@@ -608,7 +616,8 @@ def test_get_single_user_as_admin(client_auth):
     """Test that admin can retrieve a specific user"""
     # Create admin user (don't sign in yet)
     admin_user, admin_user_obj = create_admin_user_and_signin(
-        client_auth, 1, signin_immediately=False)
+        client_auth, 1, signin_immediately=False
+    )
 
     # Create regular user
     regular_user = get_user(2)
@@ -1407,13 +1416,11 @@ def test_batch_delete_projects_as_admin(client_auth):
     project2_obj = crud.get_project_by_project_id(project2["id"])
 
     # Batch delete projects
-    delete_data = {
-        "project_ids": [project1_obj.id, project2_obj.id]
-    }
+    delete_data = {"project_ids": [project1_obj.id, project2_obj.id]}
     response = client_auth.post(
         "/admin/projects/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 200
@@ -1438,7 +1445,7 @@ def test_batch_delete_projects_empty_list(client_auth):
     response = client_auth.post(
         "/admin/projects/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 400
@@ -1456,7 +1463,7 @@ def test_batch_delete_projects_nonexistent_ids(client_auth):
     response = client_auth.post(
         "/admin/projects/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 404
@@ -1483,7 +1490,7 @@ def test_batch_delete_projects_partial_nonexistent(client_auth):
     response = client_auth.post(
         "/admin/projects/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     # Should return 404 because not all projects exist
@@ -1516,7 +1523,7 @@ def test_batch_delete_projects_as_non_admin_forbidden(client_auth):
     response = client_auth.post(
         "/admin/projects/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 403
@@ -1531,7 +1538,7 @@ def test_batch_delete_projects_without_login_unauthorized(client_auth):
     response = client_auth.post(
         "/admin/projects/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 401
@@ -1549,7 +1556,7 @@ def test_batch_delete_projects_missing_data(client_auth):
     response = client_auth.post(
         "/admin/projects/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 400
@@ -1574,7 +1581,7 @@ def test_batch_delete_projects_single_project(client_auth):
     response = client_auth.post(
         "/admin/projects/batch-delete",
         data=json.dumps(delete_data),
-        content_type="application/json"
+        content_type="application/json",
     )
 
     assert response.status_code == 200

@@ -263,9 +263,11 @@ def batch_delete_users():
             return jsonify({"message": "user_ids must be a list"}), 400
 
         # Get users to delete
-        users_to_delete = DB.session.execute(
-            select(User).where(User.id.in_(user_ids))
-        ).scalars().all()
+        users_to_delete = (
+            DB.session.execute(select(User).where(User.id.in_(user_ids)))
+            .scalars()
+            .all()
+        )
 
         if not users_to_delete:
             return jsonify({"message": "No users found with provided IDs"}), 404
@@ -273,12 +275,14 @@ def batch_delete_users():
         # Store user info for response
         deleted_users = []
         for user in users_to_delete:
-            deleted_users.append({
-                "id": user.id,
-                "identifier": user.identifier,
-                "email": user.email,
-                "name": user.name,
-            })
+            deleted_users.append(
+                {
+                    "id": user.id,
+                    "identifier": user.identifier,
+                    "email": user.email,
+                    "name": user.name,
+                }
+            )
 
         # Delete users
         for user in users_to_delete:
@@ -286,10 +290,12 @@ def batch_delete_users():
 
         DB.session.commit()
 
-        return jsonify({
-            "message": f"Successfully deleted {len(deleted_users)} user{'s' if len(deleted_users) > 1 else ''}",
-            "deleted_users": deleted_users
-        }), 200
+        return jsonify(
+            {
+                "message": f"Successfully deleted {len(deleted_users)} user{'s' if len(deleted_users) > 1 else ''}",
+                "deleted_users": deleted_users,
+            }
+        ), 200
 
     except SQLAlchemyError as e:
         DB.session.rollback()
@@ -537,10 +543,13 @@ def batch_delete_projects():
         for project_path in project_paths:
             try:
                 import shutil
+
                 shutil.rmtree(project_path)
                 deleted_directories += 1
             except Exception as e:
-                logging.warning(f"Failed to delete project directory {project_path}: {e}")
+                logging.warning(
+                    f"Failed to delete project directory {project_path}: {e}"
+                )
 
         return (
             jsonify(
