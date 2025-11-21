@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { getStatusColor, getStatusLabel } from "utils/projectStatus";
 
-const ProjectDeleteConfirmationDialog = ({
+const DeleteProjectConfirmationDialog = ({
   open,
   onClose,
   onConfirm,
@@ -132,4 +132,4 @@ const ProjectDeleteConfirmationDialog = ({
   );
 };
 
-export default ProjectDeleteConfirmationDialog;
+export default DeleteProjectConfirmationDialog;

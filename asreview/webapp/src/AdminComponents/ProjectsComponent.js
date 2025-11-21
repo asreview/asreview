@@ -23,7 +23,7 @@ import { HelpPopover, LoadingState, ErrorState } from "Components";
 import ProjectCard from "./ProjectCard";
 import ProjectDetailsModal from "./ProjectDetailsModal";
 import { UserFormDialog } from "AdminComponents";
-import ProjectDeleteConfirmationDialog from "./ProjectDeleteConfirmationDialog";
+import DeleteProjectConfirmationDialog from "./DeleteProjectConfirmationDialog";
 import SectionHeader from "./SectionHeader";
 import { projectStatuses } from "globals.js";
 
@@ -557,7 +557,7 @@ const ProjectsComponent = () => {
       />
 
       {/* Batch Delete Confirmation Dialog */}
-      <ProjectDeleteConfirmationDialog
+      <DeleteProjectConfirmationDialog
         open={batchDeleteDialogOpen}
         onClose={handleCloseBatchDeleteDialog}
         onConfirm={handleConfirmBatchDelete}

@@ -33,7 +33,7 @@ import { InlineErrorHandler } from "Components";
 import { UserFormDialog } from "AdminComponents";
 import { useAuth } from "hooks/useAuth";
 import UserCard from "./UserCard";
-import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
+import DeleteUserConfirmationDialog from "./DeleteUserConfirmationDialog";
 import ProjectDetailsModal from "./ProjectDetailsModal";
 import { StyledLightBulb } from "StyledComponents/StyledLightBulb";
 
@@ -658,7 +658,7 @@ const UsersComponent = () => {
       />
 
       {/* Delete Confirmation Dialog */}
-      <DeleteConfirmationDialog
+      <DeleteUserConfirmationDialog
         open={deleteDialogOpen}
         onClose={handleCloseDeleteDialog}
         onConfirm={handleConfirmDelete}
@@ -667,7 +667,7 @@ const UsersComponent = () => {
       />
 
       {/* Batch Delete Confirmation Dialog */}
-      <DeleteConfirmationDialog
+      <DeleteUserConfirmationDialog
         open={batchDeleteDialogOpen}
         onClose={handleCloseBatchDeleteDialog}
         onConfirm={handleConfirmBatchDelete}
