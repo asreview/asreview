@@ -11,6 +11,7 @@ import {
   Avatar,
   Divider,
   Tooltip,
+  Checkbox,
 } from "@mui/material";
 import {
   AdminPanelSettingsOutlined,
@@ -20,7 +21,16 @@ import {
 
 import UserActionsMenu from "./UserActionsMenu";
 
-const UserCard = ({ user, onEdit, onDelete, isAdmin }) => {
+const UserCard = ({
+  user,
+  onEdit,
+  onDelete,
+  isAdmin,
+  isSelected,
+  onSelect,
+  isCurrentUser,
+  showCheckbox,
+}) => {
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(null);
   const menuOpen = Boolean(menuAnchorEl);
 
@@ -30,6 +40,11 @@ const UserCard = ({ user, onEdit, onDelete, isAdmin }) => {
 
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
+  };
+
+  const handleCheckboxChange = (event) => {
+    event.stopPropagation();
+    onSelect(user.id, event.target.checked);
   };
 
   return (
@@ -42,11 +57,46 @@ const UserCard = ({ user, onEdit, onDelete, isAdmin }) => {
         "&:hover": {
           filter: "brightness(0.96)",
         },
+        position: "relative",
       }}
       onDoubleClick={() => onEdit(user)}
     >
-      <CardContent sx={{ flexGrow: 1, pb: 1 }}>
+      {/* Selection Checkbox */}
+      {showCheckbox && !isCurrentUser && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 8,
+            left: 8,
+            zIndex: 1,
+          }}
+        >
+          <Checkbox
+            checked={isSelected}
+            onChange={handleCheckboxChange}
+            size="small"
+            sx={{
+              color: "primary.main",
+              "&.Mui-checked": {
+                color: "primary.main",
+              },
+            }}
+          />
+        </Box>
+      )}
+      <CardContent
+        sx={{ flexGrow: 1, pb: 1, pt: showCheckbox && !isCurrentUser ? 3 : 2 }}
+      >
         <Stack spacing={2} alignItems="center">
+          {isCurrentUser && (
+            <Chip
+              label="You"
+              size="small"
+              color="info"
+              variant="filled"
+              sx={{ alignSelf: "center", mb: 1 }}
+            />
+          )}
           <Avatar
             sx={{
               width: 48,

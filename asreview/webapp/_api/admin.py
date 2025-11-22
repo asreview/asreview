@@ -19,6 +19,7 @@ from pathlib import Path
 from flask import Blueprint
 from flask import jsonify
 from flask import request
+from sqlalchemy import delete
 from sqlalchemy import or_
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -247,6 +248,63 @@ def delete_user(user_id):
         return jsonify({"message": f"Database error: {str(e)}"}), 500
 
 
+@bp.route("/users/batch-delete", methods=["POST"])
+@admin_required
+def batch_delete_users():
+    """Delete multiple users (admin only)"""
+    try:
+        data = request.get_json()
+        user_ids = data.get("user_ids", [])
+
+        if not user_ids:
+            return jsonify({"message": "No user IDs provided"}), 400
+
+        if not isinstance(user_ids, list):
+            return jsonify({"message": "user_ids must be a list"}), 400
+
+        # Get users to delete
+        users_to_delete = (
+            DB.session.execute(select(User).where(User.id.in_(user_ids)))
+            .scalars()
+            .all()
+        )
+
+        if not users_to_delete:
+            return jsonify({"message": "No users found with provided IDs"}), 404
+
+        # Store user info for response
+        deleted_users = []
+        for user in users_to_delete:
+            deleted_users.append(
+                {
+                    "id": user.id,
+                    "identifier": user.identifier,
+                    "email": user.email,
+                    "name": user.name,
+                }
+            )
+
+        # Delete users
+        for user in users_to_delete:
+            DB.session.delete(user)
+
+        DB.session.commit()
+
+        return jsonify(
+            {
+                "message": f"Successfully deleted {len(deleted_users)} user{'s' if len(deleted_users) > 1 else ''}",
+                "deleted_users": deleted_users,
+            }
+        ), 200
+
+    except SQLAlchemyError as e:
+        DB.session.rollback()
+        return jsonify({"message": f"Database error: {str(e)}"}), 500
+    except Exception as e:
+        DB.session.rollback()
+        return jsonify({"message": f"Error: {str(e)}"}), 500
+
+
 @bp.route("/users/<int:user_id>", methods=["GET"])
 @admin_required
 def get_user(user_id):
@@ -437,6 +495,80 @@ def get_all_projects():
     except Exception as e:
         logging.error(f"Error retrieving projects: {e}")
         return jsonify({"message": f"Error retrieving projects: {str(e)}"}), 500
+
+
+@bp.route("/projects/batch-delete", methods=["POST"])
+@admin_required
+def batch_delete_projects():
+    """Delete multiple projects by IDs (admin only)"""
+    try:
+        data = request.get_json()
+        project_ids = data.get("project_ids", [])
+
+        if not project_ids:
+            return jsonify({"message": "No project IDs provided"}), 400
+
+        # Verify all projects exist and get their project_ids for filesystem cleanup
+        stmt = select(Project).where(Project.id.in_(project_ids))
+        projects = DB.session.execute(stmt).scalars().all()
+
+        if len(projects) != len(project_ids):
+            found_ids = [p.id for p in projects]
+            missing_ids = [pid for pid in project_ids if pid not in found_ids]
+            return (
+                jsonify(
+                    {
+                        "message": f"Some projects not found: {missing_ids}",
+                        "found": found_ids,
+                        "missing": missing_ids,
+                    }
+                ),
+                404,
+            )
+
+        # Store project paths for filesystem cleanup
+        project_paths = []
+        for project in projects:
+            project_path = Path(asreview_path()) / project.project_id
+            if project_path.exists():
+                project_paths.append(project_path)
+
+        # Delete from database
+        delete_stmt = delete(Project).where(Project.id.in_(project_ids))
+        result = DB.session.execute(delete_stmt)
+        DB.session.commit()
+
+        # Clean up project directories from filesystem
+        deleted_directories = 0
+        for project_path in project_paths:
+            try:
+                import shutil
+
+                shutil.rmtree(project_path)
+                deleted_directories += 1
+            except Exception as e:
+                logging.warning(
+                    f"Failed to delete project directory {project_path}: {e}"
+                )
+
+        return (
+            jsonify(
+                {
+                    "message": f"Successfully deleted {result.rowcount} projects",
+                    "deleted_count": result.rowcount,
+                    "deleted_directories": deleted_directories,
+                }
+            ),
+            200,
+        )
+
+    except SQLAlchemyError as e:
+        DB.session.rollback()
+        return jsonify({"message": f"Database error: {str(e)}"}), 500
+    except Exception as e:
+        DB.session.rollback()
+        logging.error(f"Error batch deleting projects: {e}")
+        return jsonify({"message": f"Error deleting projects: {str(e)}"}), 500
 
 
 @bp.route("/projects/<int:project_id>/transfer-ownership", methods=["POST"])

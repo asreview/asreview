@@ -98,12 +98,56 @@ class AdminAPI {
     });
   }
 
+  // Batch delete users
+  static batchDeleteUsers(userIds) {
+    const url = admin_url + "users/batch-delete";
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: { user_ids: userIds },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   // Get all projects
   static fetchProjects() {
     const url = admin_url + "projects";
     return new Promise((resolve, reject) => {
       axios
         .get(url, { withCredentials: true })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  // Batch delete projects
+  static batchDeleteProjects(projectIds) {
+    const url = admin_url + "projects/batch-delete";
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: { project_ids: projectIds },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      })
         .then((result) => {
           resolve(result["data"]);
         })
