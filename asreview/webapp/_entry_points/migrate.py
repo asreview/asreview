@@ -101,6 +101,9 @@ class MigrationTool:
             self._migrate_new_user_fields(engine, user_columns)
             self._migrate_new_project_fields(engine, project_columns)
 
+            # Cleanup obsolete tables
+            self._cleanup_obsolete_tables(engine, inspector)
+
             print("Migration done...")
 
         if self.args.projects:
@@ -281,3 +284,20 @@ class MigrationTool:
                 qry = f"UPDATE projects SET created_at = '{current_timestamp}' WHERE id = {db_id};"
                 with engine.begin() as conn:
                     conn.execute(text(qry))
+
+    def _cleanup_obsolete_tables(self, engine, inspector):
+        """Remove obsolete tables that are no longer used."""
+
+        # Get list of existing tables
+        existing_tables = inspector.get_table_names()
+
+        # Drop collaboration_invitations table if it exists
+        if "collaboration_invitations" in existing_tables:
+            try:
+                print("Removing obsolete 'collaboration_invitations' table...")
+                qry = "DROP TABLE IF EXISTS collaboration_invitations;"
+                with engine.begin() as conn:
+                    conn.execute(text(qry))
+                print("Table 'collaboration_invitations' removed successfully.")
+            except Exception as e:
+                print(f"Failed to drop collaboration_invitations table: {e}")

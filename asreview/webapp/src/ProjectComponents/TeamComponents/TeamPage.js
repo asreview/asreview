@@ -48,28 +48,11 @@ const TeamPage = () => {
     },
   );
 
-  const { mutate: removeInvitation } = useMutation(TeamAPI.deleteInvitation, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(["fetchUsers", project_id]);
-      queryClient.invalidateQueries(["fetchProjectInvitations"]);
-      setSnackbar({
-        show: true,
-        message: "Invitation removed",
-      });
-    },
-    onError: () => {
-      setSnackbar({
-        show: true,
-        message: "Unable to remove the invitation",
-      });
-    },
-  });
   const { mutate: removeCollaboration } = useMutation(
     TeamAPI.deleteCollaboration,
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["fetchUsers", project_id]);
-        queryClient.invalidateQueries(["fetchProjectInvitations"]);
         setSnackbar({
           show: true,
           message: "Collaboration ended",
@@ -101,13 +84,9 @@ const TeamPage = () => {
           <List>
             {isSuccess &&
               data
-                .filter((user) => user.member || user.pending)
+                .filter((user) => user.member)
                 .map((user) => {
-                  const postfix = user.pending
-                    ? "(pending)"
-                    : user.owner
-                      ? "(project owner)"
-                      : "";
+                  const postfix = user.owner ? "(project owner)" : "";
                   return (
                     <ListItem
                       key={user.id}
@@ -119,21 +98,12 @@ const TeamPage = () => {
                               setHandleDelete({
                                 openDialog: true,
                                 userId: user.id,
-                                text: user.pending
-                                  ? "Do you really want to delete this invitation?"
-                                  : "Do you really want to remove this member?",
+                                text: "Do you really want to remove this member?",
                                 function: () => {
-                                  if (user.pending) {
-                                    removeInvitation({
-                                      projectId: project_id,
-                                      userId: user.id,
-                                    });
-                                  } else if (user.member) {
-                                    removeCollaboration({
-                                      projectId: project_id,
-                                      userId: user.id,
-                                    });
-                                  }
+                                  removeCollaboration({
+                                    projectId: project_id,
+                                    userId: user.id,
+                                  });
                                 },
                               })
                             }

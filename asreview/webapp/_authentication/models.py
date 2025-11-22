@@ -64,12 +64,6 @@ class User(UserMixin, DB.Model):
         "Project", secondary="collaborations", back_populates="collaborators"
     )
 
-    pending_invitations = relationship(
-        "Project",
-        secondary="collaboration_invitations",
-        back_populates="pending_invitations",
-    )
-
     @validates("identifier")
     def validate_identifier(self, _key, identifier):
         if not bool(identifier):
@@ -277,11 +271,6 @@ class Project(DB.Model):
     collaborators = relationship(
         "User", secondary="collaborations", back_populates="involved_in"
     )
-    pending_invitations = relationship(
-        "User",
-        secondary="collaboration_invitations",
-        back_populates="pending_invitations",
-    )
 
     @property
     def project_path(self):
@@ -295,28 +284,6 @@ class Project(DB.Model):
 
     def __repr__(self):
         return f"<Project id: {self.project_id}, owner_id: {self.owner_id}>"
-
-
-class CollaborationInvitation(DB.Model):
-    """Colleboration invitations"""
-
-    __tablename__ = "collaboration_invitations"
-    id = Column(Integer, primary_key=True)
-    project_id = Column(
-        Integer, ForeignKey("projects.id", ondelete="cascade"), nullable=False
-    )
-    user_id = Column(
-        Integer, ForeignKey("users.id", ondelete="cascade"), nullable=False
-    )
-    # make sure we have unique records in this table
-    __table_args__ = (
-        UniqueConstraint("project_id", "user_id", name="unique_records_invitations"),
-    )
-
-    def __repr__(self):
-        pid = self.project_id
-        uid = self.user_id
-        return f"<CollaborationInvitation project:{pid} user:{uid}>"
 
 
 def create_database_and_tables(engine):
