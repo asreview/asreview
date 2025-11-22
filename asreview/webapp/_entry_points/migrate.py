@@ -2,6 +2,8 @@ __all__ = ["MigrationTool"]
 
 import argparse
 import os
+from datetime import datetime
+from pathlib import Path
 
 from sqlalchemy import create_engine
 from sqlalchemy import inspect
@@ -51,6 +53,14 @@ latest stable version of ASReview
         help=DB_URI_HELP,
     )
 
+    parser.add_argument(
+        "--set-existing-users-terms-accepted",
+        type=str,
+        choices=["true", "false"],
+        default=None,
+        help="Override default terms acceptance for existing users (true/false). If not specified, defaults to true.",
+    )
+
     return parser
 
 
@@ -84,26 +94,12 @@ class MigrationTool:
             # Get current columns in "users" table
             user_columns = [col["name"] for col in inspector.get_columns("users")]
 
-            if "role" not in user_columns:
-                df_role = "member"
+            # Get current columns in "projects" table
+            project_columns = [col["name"] for col in inspector.get_columns("projects")]
 
-                # Add role column
-                try:
-                    print("Adding column 'role' in the Users table...")
-                    qry = f"ALTER TABLE users ADD COLUMN role VARCHAR(10) DEFAULT '{df_role}';"
-                    with engine.begin() as conn:
-                        conn.execute(text(qry))
-                except Exception as e:
-                    print(f"Unable to add column 'role': {e}")
-
-                # Add default values in existing rows
-                try:
-                    print("Populating default roles...")
-                    qry = f"UPDATE users SET role = '{df_role}' WHERE role IS NULL;"
-                    with engine.begin() as conn:
-                        conn.execute(text(qry))
-                except Exception as e:
-                    print(f"Failed to populate roles: {e}")
+            # Migration for user and project fields
+            self._migrate_new_user_fields(engine, user_columns)
+            self._migrate_new_project_fields(engine, project_columns)
 
             print("Migration done...")
 
@@ -138,3 +134,136 @@ class MigrationTool:
                     print(
                         f"Project {project.project_path} is in an unknown format or very old version."
                     )
+
+    def _migrate_new_user_fields(self, engine, user_columns):
+        """Migrate user field."""
+
+        # Migration for role column (existing logic)
+        if "role" not in user_columns:
+            df_role = "member"
+
+            # Add role column
+            try:
+                print("Adding column 'role' in the Users table...")
+                qry = f"ALTER TABLE users ADD COLUMN role VARCHAR(10) DEFAULT '{df_role}';"
+                with engine.begin() as conn:
+                    conn.execute(text(qry))
+            except Exception as e:
+                print(f"Unable to add column 'role': {e}")
+
+            # Add default values in existing rows
+            try:
+                print("Populating default roles...")
+                qry = f"UPDATE users SET role = '{df_role}' WHERE role IS NULL;"
+                with engine.begin() as conn:
+                    conn.execute(text(qry))
+            except Exception as e:
+                print(f"Failed to populate roles: {e}")
+
+        current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Add created_at column to users table
+        if "created_at" not in user_columns:
+            try:
+                print("Adding column 'created_at' to users table...")
+                qry = "ALTER TABLE users ADD COLUMN created_at DATETIME;"
+                with engine.begin() as conn:
+                    conn.execute(text(qry))
+
+                # Populate with current timestamp for existing users
+                print("Setting created_at timestamp for existing users...")
+                qry = f"UPDATE users SET created_at = '{current_timestamp}' WHERE created_at IS NULL;"
+                with engine.begin() as conn:
+                    conn.execute(text(qry))
+            except Exception as e:
+                print(f"Failed to add/populate created_at for users: {e}")
+
+        # Add terms_accepted column to users table
+        if "terms_accepted" not in user_columns:
+            # Determine terms_accepted value for existing users
+            if self.args.set_existing_users_terms_accepted is not None:
+                terms_accepted_value = self.args.set_existing_users_terms_accepted.lower() == "true"
+            else:
+                terms_accepted_value = True  # Default to True for existing users
+
+            try:
+                print("Adding column 'terms_accepted' to users table...")
+                qry = f"ALTER TABLE users ADD COLUMN terms_accepted BOOLEAN DEFAULT FALSE;"
+                with engine.begin() as conn:
+                    conn.execute(text(qry))
+
+                # Set terms_accepted for existing users based on flag
+                print(f"Setting terms_accepted to {terms_accepted_value} for existing users...")
+                qry = f"UPDATE users SET terms_accepted = {int(terms_accepted_value)} " \
+                    + "WHERE created_at IS NOT NULL;"
+                with engine.begin() as conn:
+                    conn.execute(text(qry))
+            except Exception as e:
+                print(f"Failed to add/populate terms_accepted for users: {e}")
+
+    def _migrate_new_project_fields(self, engine, project_columns):
+        """Migrate new project fields."""
+
+        # Add created_at column to projects table
+        if "created_at" not in project_columns:
+            try:
+                print("Adding column 'created_at' to projects table...")
+                qry = "ALTER TABLE projects ADD COLUMN created_at DATETIME;"
+                with engine.begin() as conn:
+                    conn.execute(text(qry))
+
+                # Populate with inferred timestamps for existing projects
+                print("Inferring created_at timestamps for existing projects...")
+                self._populate_project_timestamps(engine)
+            except Exception as e:
+                print(f"Failed to add/populate created_at for projects: {e}")
+
+        # Add token column to projects table
+        if "token" not in project_columns:
+            try:
+                print("Adding column 'token' to projects table...")
+                qry = "ALTER TABLE projects ADD COLUMN token VARCHAR(128);"
+                with engine.begin() as conn:
+                    conn.execute(text(qry))
+                print("Token column added...")
+            except Exception as e:
+                print(f"Failed to add token column to projects: {e}")
+
+    def _populate_project_timestamps(self, engine):
+        """Populate project created_at timestamps by inferring from filesystem."""
+
+        # Get all projects from database
+        with engine.begin() as conn:
+            result = conn.execute(text("SELECT id, project_id FROM projects WHERE created_at IS NULL"))
+            projects = result.fetchall()
+
+        current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        for project_row in projects:
+            project_id = project_row[1]  # project_id column
+            db_id = project_row[0]       # id column (primary key)
+
+            # Try to get creation time from filesystem
+            try:
+                project_path = Path(asreview_path()) / project_id
+                if project_path.exists():
+                    # Get creation time (or modification time as fallback)
+                    creation_time = datetime.fromtimestamp(project_path.stat().st_ctime)
+                    timestamp_str = creation_time.strftime('%Y-%m-%d %H:%M:%S')
+                    print(f"  Project {project_id}: using filesystem timestamp {timestamp_str}")
+                else:
+                    # Project folder doesn't exist, use current timestamp
+                    timestamp_str = current_timestamp
+                    print(f"  Project {project_id}: folder not found, using current timestamp")
+
+                # Update the project with the timestamp
+                qry = f"UPDATE projects SET created_at = '{timestamp_str}' WHERE id = {db_id};"
+                with engine.begin() as conn:
+                    conn.execute(text(qry))
+
+            except Exception as e:
+                # If anything fails, use current timestamp
+                print(f"  Project {project_id}: error accessing filesystem ({e}), using current timestamp")
+                qry = f"UPDATE projects SET created_at = '{current_timestamp}' WHERE id = {db_id};"
+                with engine.begin() as conn:
+                    conn.execute(text(qry))
