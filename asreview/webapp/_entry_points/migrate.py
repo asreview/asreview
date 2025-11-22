@@ -160,7 +160,7 @@ class MigrationTool:
             except Exception as e:
                 print(f"Failed to populate roles: {e}")
 
-        current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Add created_at column to users table
         if "created_at" not in user_columns:
@@ -182,7 +182,9 @@ class MigrationTool:
         if "terms_accepted" not in user_columns:
             # Determine terms_accepted value for existing users
             if self.args.set_existing_users_terms_accepted is not None:
-                terms_accepted_value = self.args.set_existing_users_terms_accepted.lower() == "true"
+                terms_accepted_value = (
+                    self.args.set_existing_users_terms_accepted.lower() == "true"
+                )
             else:
                 terms_accepted_value = True  # Default to True for existing users
 
@@ -193,9 +195,13 @@ class MigrationTool:
                     conn.execute(text(qry))
 
                 # Set terms_accepted for existing users based on flag
-                print(f"Setting terms_accepted to {terms_accepted_value} for existing users...")
-                qry = f"UPDATE users SET terms_accepted = {int(terms_accepted_value)} " \
+                print(
+                    f"Setting terms_accepted to {terms_accepted_value} for existing users..."
+                )
+                qry = (
+                    f"UPDATE users SET terms_accepted = {int(terms_accepted_value)} "
                     + "WHERE created_at IS NOT NULL;"
+                )
                 with engine.begin() as conn:
                     conn.execute(text(qry))
             except Exception as e:
@@ -234,14 +240,16 @@ class MigrationTool:
 
         # Get all projects from database
         with engine.begin() as conn:
-            result = conn.execute(text("SELECT id, project_id FROM projects WHERE created_at IS NULL"))
+            result = conn.execute(
+                text("SELECT id, project_id FROM projects WHERE created_at IS NULL")
+            )
             projects = result.fetchall()
 
-        current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         for project_row in projects:
             project_id = project_row[1]  # project_id column
-            db_id = project_row[0]       # id column (primary key)
+            db_id = project_row[0]  # id column (primary key)
 
             # Try to get creation time from filesystem
             try:
@@ -249,12 +257,16 @@ class MigrationTool:
                 if project_path.exists():
                     # Get creation time (or modification time as fallback)
                     creation_time = datetime.fromtimestamp(project_path.stat().st_ctime)
-                    timestamp_str = creation_time.strftime('%Y-%m-%d %H:%M:%S')
-                    print(f"  Project {project_id}: using filesystem timestamp {timestamp_str}")
+                    timestamp_str = creation_time.strftime("%Y-%m-%d %H:%M:%S")
+                    print(
+                        f"  Project {project_id}: using filesystem timestamp {timestamp_str}"
+                    )
                 else:
                     # Project folder doesn't exist, use current timestamp
                     timestamp_str = current_timestamp
-                    print(f"  Project {project_id}: folder not found, using current timestamp")
+                    print(
+                        f"  Project {project_id}: folder not found, using current timestamp"
+                    )
 
                 # Update the project with the timestamp
                 qry = f"UPDATE projects SET created_at = '{timestamp_str}' WHERE id = {db_id};"
@@ -263,7 +275,9 @@ class MigrationTool:
 
             except Exception as e:
                 # If anything fails, use current timestamp
-                print(f"  Project {project_id}: error accessing filesystem ({e}), using current timestamp")
+                print(
+                    f"  Project {project_id}: error accessing filesystem ({e}), using current timestamp"
+                )
                 qry = f"UPDATE projects SET created_at = '{current_timestamp}' WHERE id = {db_id};"
                 with engine.begin() as conn:
                     conn.execute(text(qry))
