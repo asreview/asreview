@@ -7,19 +7,12 @@
 {% endif %}
 
 <p>
-  Below you find a 6-digits code. Use it to confirm your email address. Please
-  note that the code will expire in 20 minutes.
+  Below you find a 6-digits verification code. Use it to confirm your account.
+  Please note that the code will expire in 20 minutes.
 </p>
 
 <h2 style="margin: 0; text-align: center; font-size: 24px; color: #333">
   {{ token }}
 </h2>
 
-<p>
-  After confirmation you will be redirected to the signin page. Use your account
-  credentials and start using ASReview.
-</p>
-
-<p>Regards,</p>
-
-<p>The ASReview Team</p>
+{{ footer_html|safe }}
