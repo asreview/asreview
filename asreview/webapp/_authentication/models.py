@@ -25,6 +25,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
 from werkzeug.security import check_password_hash
@@ -54,6 +55,8 @@ class User(UserMixin, DB.Model):
     token = Column(String(150))
     token_created_at = Column(DateTime)
     role = Column(String(10), default="member")
+    created_at = Column(DateTime, default=func.now())
+    terms_accepted = Column(Boolean, default=False)
 
     projects = relationship("Project", back_populates="owner", cascade="all, delete")
 
@@ -266,6 +269,8 @@ class Project(DB.Model):
     project_id = Column(String(250), nullable=False, unique=True)
     owner_id = Column(Integer, ForeignKey(User.id), nullable=False)
     owner = relationship("User", back_populates="projects")
+    created_at = Column(DateTime, default=func.now())
+    token = Column(String(128))
 
     # do not delete cascade: we don't want to
     # lose users, only collaborations
