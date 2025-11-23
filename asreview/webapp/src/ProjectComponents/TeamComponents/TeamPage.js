@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import {
   CollaborationPage,
-  InvitationForm,
+  InvitationLink,
 } from "ProjectComponents/TeamComponents";
 import { InitialsAvatar } from "StyledComponents/InitialsAvatar";
 import { ProjectAPI, TeamAPI } from "api";
@@ -77,7 +77,7 @@ const TeamPage = () => {
 
   return (
     <Container maxWidth="md" sx={{ mb: 3 }}>
-      {currentUser?.roles?.owner && <InvitationForm project_id={project_id} />}
+      {currentUser?.roles?.owner && <InvitationLink project_id={project_id} />}
       <Card sx={{ mt: 3 }}>
         <CardHeader title="Team" />
         <CardContent>

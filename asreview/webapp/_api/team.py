@@ -124,5 +124,3 @@ def end_collaboration(project_id, user_id):
                 500,
             )
     return response
-
-

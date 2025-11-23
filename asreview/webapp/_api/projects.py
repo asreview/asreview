@@ -12,9 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
+import hashlib
+import hmac
 import json
 import logging
 import math
+import secrets
 import shutil
 import socket
 import tempfile
@@ -38,6 +42,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.utils import compute_sample_weight
 from sqlalchemy import and_
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
@@ -152,6 +157,29 @@ def _run_model(project):
             run_simulation(project)
         else:
             run_model(project)
+
+
+def generate_invitation_token(project):
+    """Generate an encoded invitation token from a project.
+
+    Args:
+        project: Project object with project_id and token
+
+    Returns:
+        Encoded invitation token string (to be appended to /join/)
+    """
+    # Create payload: project_id + token
+    payload = f"{project.project_id}:{project.token}"
+    payload_bytes = payload.encode('utf-8')
+
+    # Create HMAC signature
+    secret_key = current_app.config.get('SECRET_KEY', '').encode('utf-8')
+    signature = hmac.new(secret_key, payload_bytes, hashlib.sha256).digest()
+
+    # Encode: payload + signature
+    encoded = base64.urlsafe_b64encode(payload_bytes + b"." + signature).decode('utf-8')
+
+    return encoded
 
 
 # error handlers
@@ -1611,3 +1639,106 @@ def api_resolve_uri():  # noqa: F401
                 raise ValueError("Can't retrieve files for this DOI.")
             else:
                 raise ValueError("Can't retrieve files for this URL.")
+
+
+@bp.route("/projects/<project_id>/invitation-link", methods=["GET"])
+@login_required
+def get_invitation_link(project_id):
+    """Get existing invitation link for project (owner or admin only)."""
+    response = jsonify({"message": "Request can not made by current user."}), 404
+
+    # Get project
+    project = Project.query.filter(Project.project_id == project_id).one_or_none()
+
+    # Check if project exists and user is owner or admin
+    if project and (project.owner == current_user or current_user.is_admin):
+        # Check if token exists
+        if project.token:
+            encoded_token = generate_invitation_token(project)
+
+            response = (
+                jsonify({
+                    "encoded_token": encoded_token,
+                    "token": project.token
+                }),
+                200,
+            )
+        else:
+            # No token exists yet
+            response = (
+                jsonify({
+                    "encoded_token": None
+                }),
+                200,
+            )
+
+    return response
+
+
+@bp.route("/projects/<project_id>/invitation-link/generate", methods=["POST"])
+@login_required
+def generate_project_invitation_link(project_id):
+    """Generate or regenerate invitation link for project (owner or admin only)."""
+    response = jsonify({"message": "Request can not made by current user."}), 404
+
+    # Get project
+    project = Project.query.filter(Project.project_id == project_id).one_or_none()
+
+    # Check if project exists and user is owner or admin
+    if project and (project.owner == current_user or current_user.is_admin):
+        try:
+            # Always generate a new token (for both initial generation and regeneration)
+            project.token = secrets.token_urlsafe(32)
+            DB.session.commit()
+
+            # Generate encoded invitation token
+            encoded_token = generate_invitation_token(project)
+
+            response = (
+                jsonify({
+                    "message": "Invitation link generated successfully",
+                    "encoded_token": encoded_token,
+                    "token": project.token
+                }),
+                200,
+            )
+        except SQLAlchemyError as e:
+            DB.session.rollback()
+            response = (
+                jsonify({"message": f"Error generating invitation link: {str(e)}"}),
+                500,
+            )
+
+    return response
+
+
+@bp.route("/projects/<project_id>/invitation-link", methods=["DELETE"])
+@login_required
+def revoke_project_invitation_link(project_id):
+    """Revoke invitation link for project (owner or admin only)."""
+    response = jsonify({"message": "Request can not made by current user."}), 404
+
+    # Get project
+    project = Project.query.filter(Project.project_id == project_id).one_or_none()
+
+    # Check if project exists and user is owner or admin
+    if project and (project.owner == current_user or current_user.is_admin):
+        try:
+            # Clear the token to revoke the invitation link
+            project.token = None
+            DB.session.commit()
+
+            response = (
+                jsonify({
+                    "message": "Invitation link revoked successfully"
+                }),
+                200,
+            )
+        except SQLAlchemyError as e:
+            DB.session.rollback()
+            response = (
+                jsonify({"message": f"Error revoking invitation link: {str(e)}"}),
+                500,
+            )
+
+    return response

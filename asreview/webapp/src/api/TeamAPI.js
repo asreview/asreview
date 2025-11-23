@@ -40,6 +40,61 @@ class TeamAPI {
       });
     }
   }
+
+  static fetchInvitationLink({ queryKey }) {
+    const projectId = queryKey[1];
+    if (projectId !== null) {
+      const url = api_url + `projects/${projectId}/invitation-link`;
+      return new Promise((resolve, reject) => {
+        axios
+          .get(url, { withCredentials: true })
+          .then((result) => {
+            resolve(result["data"]);
+          })
+          .catch((error) => {
+            reject(axiosErrorHandler(error));
+          });
+      });
+    }
+  }
+
+  static generateInvitationLink(projectId) {
+    if (projectId !== null) {
+      const url = api_url + `projects/${projectId}/invitation-link/generate`;
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "post",
+          url: url,
+          withCredentials: true,
+        })
+          .then((result) => {
+            resolve(result["data"]);
+          })
+          .catch((error) => {
+            reject(axiosErrorHandler(error));
+          });
+      });
+    }
+  }
+
+  static revokeInvitationLink(projectId) {
+    if (projectId !== null) {
+      const url = api_url + `projects/${projectId}/invitation-link`;
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "delete",
+          url: url,
+          withCredentials: true,
+        })
+          .then((result) => {
+            resolve(result["data"]);
+          })
+          .catch((error) => {
+            reject(axiosErrorHandler(error));
+          });
+      });
+    }
+  }
 }
 
 export default TeamAPI;
