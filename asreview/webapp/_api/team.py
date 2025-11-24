@@ -1,5 +1,11 @@
+import base64
+import hashlib
+import hmac
+
 from flask import Blueprint
+from flask import current_app
 from flask import jsonify
+from flask import request
 from flask_login import current_user
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -8,10 +14,84 @@ from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import login_required
 from asreview.webapp._authentication.models import Project
 from asreview.webapp._authentication.models import User
+from asreview.webapp.utils import get_project_path
 
 bp = Blueprint("team", __name__, url_prefix="/api")
 
 REQUESTER_FRAUD = {"message": "Request can not made by current user."}
+
+
+def validate_invitation_token(encoded_token):
+    """
+    Validate and decode an invitation token.
+
+    Returns tuple of (project, error_response).
+    If validation succeeds, returns (project, None).
+    If validation fails, returns (None, (json_response, status_code)).
+    """
+    if not encoded_token:
+        return None, (jsonify({"message": "No invitation token provided."}), 400)
+
+    try:
+        # Decode the base64-encoded token
+        decoded = base64.urlsafe_b64decode(encoded_token.encode("utf-8"))
+
+        # Split payload and signature
+        if b"." not in decoded:
+            return None, (
+                jsonify({"message": "Invalid invitation token format."}),
+                400,
+            )
+
+        payload_bytes, signature = decoded.rsplit(b".", 1)
+
+        # Verify HMAC signature
+        secret_key = current_app.config.get("SECRET_KEY", "").encode("utf-8")
+        expected_signature = hmac.new(
+            secret_key, payload_bytes, hashlib.sha256
+        ).digest()
+
+        if not hmac.compare_digest(signature, expected_signature):
+            return None, (
+                jsonify({"message": "Invalid invitation token signature."}),
+                400,
+            )
+
+        # Extract project_id and token from payload
+        payload = payload_bytes.decode("utf-8")
+        if ":" not in payload:
+            return None, (
+                jsonify({"message": "Invalid invitation token format."}),
+                400,
+            )
+
+        project_id, token = payload.split(":", 1)
+
+        # Find the project
+        project = Project.query.filter(
+            Project.project_id == project_id
+        ).one_or_none()
+
+        if not project:
+            return None, (jsonify({"message": "Project not found."}), 404)
+
+        # Verify the token matches the project's token
+        if not project.token or project.token != token:
+            return None, (
+                jsonify(
+                    {
+                        "message": "This invitation link is no longer valid. It may have been revoked or regenerated."
+                    }
+                ),
+                400,
+            )
+
+        return project, None
+
+    except (ValueError, base64.binascii.Error):
+        return None, (jsonify({"message": "Invalid invitation token format."}), 400)
+    except Exception as e:
+        return None, (jsonify({"message": f"Error: {str(e)}"}), 500)
 
 
 def get_user_project_properties(user, project, current_user):
@@ -124,3 +204,100 @@ def end_collaboration(project_id, user_id):
                 500,
             )
     return response
+
+
+@bp.route("/team/join/preview", methods=["POST"])
+@login_required
+def preview_invitation():
+    """Get project details from invitation token without joining."""
+    data = request.get_json()
+    encoded_token = data.get("encoded_token")
+
+    # Validate the invitation token
+    project, error_response = validate_invitation_token(encoded_token)
+    if error_response:
+        return error_response
+
+    # Get project name
+    project_path = get_project_path(project.project_id)
+    asr_project = asr.Project(project_path, project_id=project.project_id)
+    project_name = asr_project.config.get("name", project.project_id)
+
+    return (
+        jsonify(
+            {
+                "project_id": project.project_id,
+                "project_name": project_name,
+                "owner_name": project.owner.name if project.owner else "Unknown",
+                "is_owner": current_user.id == project.owner_id,
+                "is_member": current_user in project.collaborators,
+            }
+        ),
+        200,
+    )
+
+
+@bp.route("/team/join", methods=["POST"])
+@login_required
+def join_project():
+    """Join a project using an invitation token."""
+    data = request.get_json()
+    encoded_token = data.get("encoded_token")
+
+    # Validate the invitation token
+    project, error_response = validate_invitation_token(encoded_token)
+    if error_response:
+        return error_response
+
+    try:
+        # Load ASReview project to get project name
+        project_path = get_project_path(project.project_id)
+        asr_project = asr.Project(project_path, project_id=project.project_id)
+        project_name = asr_project.config.get("name", project.project_id)
+
+        # Check if user is already the owner
+        if current_user.id == project.owner_id:
+            return (
+                jsonify(
+                    {
+                        "message": "You are already the owner of this project.",
+                        "already_member": True,
+                        "project_id": project.project_id,
+                        "project_name": project_name,
+                    }
+                ),
+                200,
+            )
+
+        # Check if user is already a member
+        if current_user in project.collaborators:
+            return (
+                jsonify(
+                    {
+                        "message": "You are already a member of this project.",
+                        "already_member": True,
+                        "project_id": project.project_id,
+                        "project_name": project_name,
+                    }
+                ),
+                200,
+            )
+
+        # Add user to collaborators
+        project.collaborators.append(current_user)
+        DB.session.commit()
+
+        return (
+            jsonify(
+                {
+                    "message": "Successfully joined the project.",
+                    "project_id": project.project_id,
+                    "project_name": project_name,
+                }
+            ),
+            200,
+        )
+
+    except SQLAlchemyError as e:
+        DB.session.rollback()
+        return jsonify({"message": f"Error joining project: {str(e)}"}), 500

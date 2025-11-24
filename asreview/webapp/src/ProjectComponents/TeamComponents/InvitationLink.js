@@ -22,7 +22,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import QRCode from "react-qr-code";
 import { TeamAPI } from "api";
 
-const InvitationLink = ({ project_id }) => {
+const InvitationLink = ({ project_id, variant = "card" }) => {
   const [copySuccess, setCopySuccess] = React.useState(false);
   const qrCodeRef = React.useRef(null);
   const queryClient = useQueryClient();
@@ -104,93 +104,97 @@ const InvitationLink = ({ project_id }) => {
     }
   };
 
+  const content = (
+    <Stack spacing={2}>
+      {!invitationLink ? (
+        <Button
+          variant="contained"
+          startIcon={isLoading ? <CircularProgress size={20} /> : <LinkIcon />}
+          onClick={() => generateLink()}
+          disabled={isLoading}
+        >
+          {isLoading ? "Generating..." : "Generate Invitation Link"}
+        </Button>
+      ) : (
+        <>
+          <TextField
+            fullWidth
+            value={invitationLink}
+            InputProps={{
+              readOnly: true,
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleCopyLink} edge="end">
+                    <ContentCopy />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            label="Invitation Link"
+          />
+          {copySuccess && (
+            <Alert severity="success">Link copied to clipboard!</Alert>
+          )}
+          <Box
+            ref={qrCodeRef}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              padding: 2,
+              backgroundColor: "white",
+              borderRadius: 1,
+              border: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <QRCode value={invitationLink} size={300} />
+          </Box>
+          <Button
+            variant="contained"
+            startIcon={<Download />}
+            onClick={handleDownloadQR}
+            fullWidth
+          >
+            Download QR Code
+          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              startIcon={<LinkIcon />}
+              onClick={() => generateLink()}
+              fullWidth
+            >
+              Regenerate Link
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={
+                isRevoking ? <CircularProgress size={20} /> : <LinkOff />
+              }
+              onClick={() => revokeLink()}
+              disabled={isRevoking}
+              fullWidth
+            >
+              {isRevoking ? "Revoking..." : "Revoke Link"}
+            </Button>
+          </Stack>
+        </>
+      )}
+    </Stack>
+  );
+
+  if (variant === "inline") {
+    return content;
+  }
+
   return (
     <Card>
       <CardHeader
         title="Invite team members"
         subheader="Send this link or show this QR code to the people you want to add to your project team."
       />
-      <CardContent>
-        <Stack spacing={2}>
-          {!invitationLink ? (
-            <Button
-              variant="contained"
-              startIcon={
-                isLoading ? <CircularProgress size={20} /> : <LinkIcon />
-              }
-              onClick={() => generateLink()}
-              disabled={isLoading}
-            >
-              {isLoading ? "Generating..." : "Generate Invitation Link"}
-            </Button>
-          ) : (
-            <>
-              <TextField
-                fullWidth
-                value={invitationLink}
-                InputProps={{
-                  readOnly: true,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={handleCopyLink} edge="end">
-                        <ContentCopy />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-                label="Invitation Link"
-              />
-              {copySuccess && (
-                <Alert severity="success">Link copied to clipboard!</Alert>
-              )}
-              <Box
-                ref={qrCodeRef}
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  padding: 2,
-                  backgroundColor: "white",
-                  borderRadius: 1,
-                  border: "1px solid",
-                  borderColor: "divider",
-                }}
-              >
-                <QRCode value={invitationLink} size={300} />
-              </Box>
-              <Button
-                variant="contained"
-                startIcon={<Download />}
-                onClick={handleDownloadQR}
-                fullWidth
-              >
-                Download QR Code
-              </Button>
-              <Stack direction="row" spacing={1}>
-                <Button
-                  variant="outlined"
-                  startIcon={<LinkIcon />}
-                  onClick={() => generateLink()}
-                  fullWidth
-                >
-                  Regenerate Link
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  startIcon={
-                    isRevoking ? <CircularProgress size={20} /> : <LinkOff />
-                  }
-                  onClick={() => revokeLink()}
-                  disabled={isRevoking}
-                  fullWidth
-                >
-                  {isRevoking ? "Revoking..." : "Revoke Link"}
-                </Button>
-              </Stack>
-            </>
-          )}
-        </Stack>
-      </CardContent>
+      <CardContent>{content}</CardContent>
     </Card>
   );
 };

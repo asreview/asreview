@@ -95,6 +95,28 @@ class TeamAPI {
       });
     }
   }
+
+  static previewInvitation(encodedToken) {
+    if (encodedToken !== null) {
+      const url = api_url + `team/join/preview`;
+      return axios.post(
+        url,
+        { encoded_token: encodedToken },
+        { withCredentials: true },
+      );
+    }
+  }
+
+  static joinProject(encodedToken) {
+    if (encodedToken !== null) {
+      const url = api_url + `team/join`;
+      return axios.post(
+        url,
+        { encoded_token: encodedToken },
+        { withCredentials: true },
+      );
+    }
+  }
 }
 
 export default TeamAPI;

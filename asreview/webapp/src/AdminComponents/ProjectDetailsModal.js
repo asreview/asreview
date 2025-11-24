@@ -23,6 +23,7 @@ import {
   SwapHorizOutlined,
   DeleteOutlined,
   PersonAddOutlined,
+  Link as LinkIcon,
 } from "@mui/icons-material";
 
 import { TeamAPI, AdminAPI, ProjectAPI } from "api";
@@ -31,6 +32,7 @@ import { getStatusColor, getStatusLabel } from "utils/projectStatus";
 import SectionHeader from "./SectionHeader";
 import ProjectOwnerSection from "./ProjectOwnerSection";
 import TeamSection from "./TeamSection";
+import InvitationLink from "../ProjectComponents/TeamComponents/InvitationLink";
 
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
@@ -151,35 +153,6 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
     },
   );
 
-  // Invite user mutation
-  const inviteUserMutation = useMutation(
-    ({ projectId, userId }) => TeamAPI.inviteUser({ projectId, userId }),
-    {
-      onSuccess: (data) => {
-        setSnackbarState({
-          open: true,
-          message: `Invitation sent to ${data.user.name || data.user.email} successfully`,
-          severity: "success",
-        });
-        setSelectedUser(null);
-        // Invalidate queries to refresh data
-        queryClient.invalidateQueries(["fetchAdminProjects"]);
-        queryClient.invalidateQueries([
-          "fetchProjectUsers",
-          currentProject?.project_id,
-        ]);
-        queryClient.invalidateQueries(["fetchAdminUsers"]);
-      },
-      onError: (error) => {
-        setSnackbarState({
-          open: true,
-          message: error?.message || "Failed to send invitation",
-          severity: "error",
-        });
-      },
-    },
-  );
-
   // Delete project mutation
   const deleteProjectMutation = useMutation(
     ({ projectId }) =>
@@ -218,11 +191,10 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
     const userInProject = collaborators.find((u) => u.id === selectedUser.id);
 
     if (!userInProject) {
-      // User not involved in project - can be added as member, invited, or transfer ownership
+      // User not involved in project - can be added as member or transfer ownership
       return {
         type: "multiple_options",
         canAddDirectly: true,
-        canInvite: true,
         canTransfer: true,
         label: "Multiple Actions",
       };
@@ -233,14 +205,6 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
       return {
         type: "none",
         label: "Already Project Owner",
-      };
-    }
-
-    if (userInProject.pending) {
-      // User has pending invitation - can only transfer ownership
-      return {
-        type: "transfer_only",
-        label: "Transfer Ownership",
       };
     }
 
@@ -255,7 +219,6 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
     return {
       type: "multiple_options",
       canAddDirectly: true,
-      canInvite: true,
       canTransfer: true,
       label: "Multiple Actions",
     };
@@ -287,15 +250,6 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
     transferOwnershipMutation.mutate({
       projectId: currentProject.id,
       newOwnerId: selectedUser.id,
-    });
-  };
-
-  const handleInviteUser = () => {
-    if (!selectedUser || !currentProject) return;
-
-    inviteUserMutation.mutate({
-      projectId: currentProject.project_id,
-      userId: selectedUser.id,
     });
   };
 
@@ -434,12 +388,23 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
             />
           </Box>
 
+          {/* Invitation Link Section */}
+          <Box>
+            <SectionHeader icon={LinkIcon} title="Invitation Link" />
+            <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+              Generate and manage invitation links for this project.
+            </Typography>
+            <InvitationLink
+              project_id={currentProject.project_id}
+              variant="inline"
+            />
+          </Box>
+
           {/* User Management Section */}
           <Box>
             <SectionHeader icon={PersonAddOutlined} title="User Management" />
             <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-              Add members, send invitations, or transfer project ownership.
-              Available actions depend on the selected user's current status.
+              Add members or transfer project ownership.
             </Typography>
             <Grid container spacing={2} alignItems="flex-end">
               <Grid size={6}>
@@ -453,8 +418,7 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
                   excludeMembers={false}
                   disabled={
                     transferOwnershipMutation.isLoading ||
-                    addMemberMutation.isLoading ||
-                    inviteUserMutation.isLoading
+                    addMemberMutation.isLoading
                   }
                 />
               </Grid>
@@ -471,7 +435,6 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
                         color="primary"
                         onClick={handleUserAction}
                         disabled={!selectedUser || addMemberMutation.isLoading}
-                        size="small"
                         startIcon={<PersonAddOutlined />}
                         sx={{ minWidth: "auto", flex: "1 1 auto" }}
                       >
@@ -480,25 +443,12 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
                           : "Add Member"}
                       </Button>
                       <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={handleInviteUser}
-                        disabled={!selectedUser || inviteUserMutation.isLoading}
-                        size="small"
-                        sx={{ minWidth: "auto", flex: "1 1 auto" }}
-                      >
-                        {inviteUserMutation.isLoading
-                          ? "Inviting..."
-                          : "Send Invite"}
-                      </Button>
-                      <Button
                         variant="contained"
                         color="warning"
                         onClick={handleTransferOwnership}
                         disabled={
                           !selectedUser || transferOwnershipMutation.isLoading
                         }
-                        size="small"
                         startIcon={<SwapHorizOutlined />}
                         sx={{ minWidth: "auto", flex: "1 1 auto" }}
                       >
@@ -545,7 +495,7 @@ const ProjectDetailsModal = ({ open, onClose, project, onUserClick }) => {
                 sx={{ mt: 1, fontStyle: "italic" }}
               >
                 {getUserAction.type === "multiple_options" &&
-                  "Add Member: Grants immediate access. Send Invite: User must accept invitation. Transfer Ownership: User becomes project owner."}
+                  "Add Member: Grants immediate access. Transfer Ownership: User becomes project owner."}
                 {getUserAction.type === "transfer_only" &&
                   "This user will become the new project owner with full control."}
                 {getUserAction.type === "none" &&

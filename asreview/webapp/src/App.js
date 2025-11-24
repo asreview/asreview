@@ -1,5 +1,5 @@
 import { CssBaseline, useMediaQuery } from "@mui/material";
-import { AuthPage, ProjectDrawerItems } from "Components";
+import { AuthPage, JoinProject, ProjectDrawerItems } from "Components";
 import {
   ProfilePage,
   ProjectsOverview,
@@ -165,6 +165,10 @@ const App = () => {
             )}
             <Route path="customize" element={<DetailsPage />} />
           </Route>
+          {/* Join project invitation route */}
+          {window.authentication && (
+            <Route path="/join/:encoded_token" element={<JoinProject />} />
+          )}
           <Route path="*" element={<RouteNotFound />} />
         </Routes>
       </div>

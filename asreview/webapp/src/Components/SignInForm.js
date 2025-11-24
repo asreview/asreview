@@ -23,11 +23,14 @@ import { useToggle } from "hooks/useToggle";
 
 const SignInForm = () => {
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+  const navigate = useNavigate();
+
+  // Check for returnUrl query parameter first, then fall back to location state
+  const searchParams = new URLSearchParams(location.search);
+  const returnUrl = searchParams.get("returnUrl");
+  const from = returnUrl || location.state?.from?.pathname || "/";
 
   const [forgotPassword, toggleForgotPassword] = useToggle();
-
-  const navigate = useNavigate();
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
