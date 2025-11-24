@@ -1,5 +1,3 @@
-import pytest
-
 import asreview.webapp.tests.utils.api_utils as au
 from asreview.webapp import DB
 from asreview.webapp._authentication.models import Project
@@ -119,7 +117,7 @@ def test_join_project_with_revoked_token(setup_auth):
         content_type="application/json",
     )
     assert r_join.status_code == 400
-    assert "no longer valid" in r_join.json["message"].lower()
+    assert "is not valid" in r_join.json["message"].lower()
 
 
 def test_join_project_with_regenerated_token(setup_auth):
@@ -144,7 +142,7 @@ def test_join_project_with_regenerated_token(setup_auth):
         content_type="application/json",
     )
     assert r_join_old.status_code == 400
-    assert "no longer valid" in r_join_old.json["message"].lower()
+    assert "is not valid" in r_join_old.json["message"].lower()
 
     # Join with new token should work
     r_join_new = client.post(
