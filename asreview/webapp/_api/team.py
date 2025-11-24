@@ -76,11 +76,7 @@ def validate_invitation_token(encoded_token):
         # Verify the token matches the project's token
         if not project.token or project.token != token:
             return None, (
-                jsonify(
-                    {
-                        "message": "This invitation link is not valid."
-                    }
-                ),
+                jsonify({"message": "This invitation link is not valid."}),
                 400,
             )
 

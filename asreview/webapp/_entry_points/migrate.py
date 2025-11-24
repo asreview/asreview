@@ -92,7 +92,9 @@ class MigrationTool:
 
         self.args = Args()
         if set_existing_users_terms_accepted is not None:
-            self.args.set_existing_users_terms_accepted = "true" if set_existing_users_terms_accepted else "false"
+            self.args.set_existing_users_terms_accepted = (
+                "true" if set_existing_users_terms_accepted else "false"
+            )
 
         print("Running database migration...")
         print(f"Database URI: {self.uri}")
@@ -366,12 +368,20 @@ class MigrationTool:
         if "collaboration_invitations" in existing_tables:
             if interactive:
                 # Interactive mode: prompt user for confirmation
-                print("\nWARNING: The 'collaboration_invitations' table is obsolete and should be removed.")
-                print("This table may contain pending invitation records that will be lost.")
-                print("The new invitation system uses shareable links instead of user-by-user invitations.")
+                print(
+                    "\nWARNING: The 'collaboration_invitations' table is obsolete and should be removed."
+                )
+                print(
+                    "This table may contain pending invitation records that will be lost."
+                )
+                print(
+                    "The new invitation system uses shareable links instead of user-by-user invitations."
+                )
 
                 confirm = (
-                    input("\nDo you want to remove the 'collaboration_invitations' table? (y/n): ")
+                    input(
+                        "\nDo you want to remove the 'collaboration_invitations' table? (y/n): "
+                    )
                     .strip()
                     .lower()
                 )
@@ -390,6 +400,8 @@ class MigrationTool:
                     print(f"Failed to drop collaboration_invitations table: {e}")
             else:
                 # Non-interactive mode: just log a warning
-                print("\nWARNING: Obsolete table 'collaboration_invitations' detected in database.")
+                print(
+                    "\nWARNING: Obsolete table 'collaboration_invitations' detected in database."
+                )
                 print("This table is no longer used by the application.")
                 print("To remove it, run: asreview migrate --db\n")
