@@ -25,7 +25,7 @@ def test_database_exists_after_starting_auth_app(auth_app):
 
 # checks if all tables were created
 @pytest.mark.parametrize(
-    "table", ["collaboration_invitations", "collaborations", "projects", "users"]
+    "table", ["collaborations", "projects", "users"]
 )
 def test_if_db_table_exists(auth_app, table):
     engine = create_engine(f"sqlite:///{get_db_path()}")

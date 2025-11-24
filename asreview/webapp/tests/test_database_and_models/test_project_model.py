@@ -55,23 +55,6 @@ def test_not_delete_user_after_deletion_project(user):
     assert crud.count_projects() == 0
 
 
-# deleting a project will remove invitations
-def test_project_removal_invitations(user):
-    project = crud.create_project(DB, user, Project(project_id="my-project"))
-    user2 = crud.create_user(DB, user=2)
-    assert crud.count_users() == 2
-    assert crud.count_projects() == 1
-    assert crud.count_invitations() == 0
-    # invite
-    project.pending_invitations.append(user2)
-    DB.session.commit()
-    assert crud.count_invitations() == 1
-    DB.session.delete(project)
-    DB.session.commit()
-    assert crud.count_projects() == 0
-    assert crud.count_invitations() == 0
-
-
 # deleting a project will remove collaboration links
 def test_project_removal_collaborations(user):
     project = crud.create_project(DB, user, Project(project_id="my-project"))
@@ -123,21 +106,6 @@ def test_project_path(user):
     # get project
     project = crud.last_project()
     assert project.project_path == Path(asreview_path() / project_id)
-
-
-# test pending invites
-def test_pending_invites(user):
-    project = crud.create_project(DB, user, Project(project_id="my-project"))
-    user2 = crud.create_user(DB, user=2)
-    assert crud.count_users() == 2
-    assert crud.count_projects() == 1
-    # invite
-    project.pending_invitations.append(user2)
-    DB.session.commit()
-    # fresh object
-    project = crud.last_project()
-    # asserts
-    assert user2 in project.pending_invitations
 
 
 # test collaboration
