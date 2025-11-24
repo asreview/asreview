@@ -660,14 +660,14 @@ def test_generate_invitation_link(client_auth, project):
     returned_token = data["token"]
 
     # Decode the base64 encoded token
-    decoded_bytes = base64.urlsafe_b64decode(encoded_token.encode('utf-8'))
+    decoded_bytes = base64.urlsafe_b64decode(encoded_token.encode("utf-8"))
 
     # Split payload and signature (separated by b".")
     assert b"." in decoded_bytes
     payload_bytes, signature = decoded_bytes.rsplit(b".", 1)
 
     # Decode payload to string
-    payload = payload_bytes.decode('utf-8')
+    payload = payload_bytes.decode("utf-8")
 
     # Verify payload format: project_id:token
     assert ":" in payload
@@ -678,7 +678,7 @@ def test_generate_invitation_link(client_auth, project):
     assert decoded_token == returned_token
 
     # Verify the HMAC signature
-    secret_key = current_app.config.get('SECRET_KEY', '').encode('utf-8')
+    secret_key = current_app.config.get("SECRET_KEY", "").encode("utf-8")
     expected_signature = hmac.new(secret_key, payload_bytes, hashlib.sha256).digest()
     assert signature == expected_signature
 
@@ -687,13 +687,17 @@ def test_generate_invitation_link_regenerates_token(client_auth, project):
     """Test that regenerating creates a new token and invalidates old link"""
 
     # Generate first link
-    r1 = client_auth.post(f"/api/projects/{project.project_id}/invitation-link/generate")
+    r1 = client_auth.post(
+        f"/api/projects/{project.project_id}/invitation-link/generate"
+    )
     assert r1.status_code == 200
     token1 = r1.json["token"]
     encoded_token1 = r1.json["encoded_token"]
 
     # Regenerate link
-    r2 = client_auth.post(f"/api/projects/{project.project_id}/invitation-link/generate")
+    r2 = client_auth.post(
+        f"/api/projects/{project.project_id}/invitation-link/generate"
+    )
     assert r2.status_code == 200
     token2 = r2.json["token"]
     encoded_token2 = r2.json["encoded_token"]
@@ -712,7 +716,9 @@ def test_fetch_invitation_link(client_auth, project):
     assert r.json["encoded_token"] is None
 
     # Generate invitation link
-    r_gen = client_auth.post(f"/api/projects/{project.project_id}/invitation-link/generate")
+    r_gen = client_auth.post(
+        f"/api/projects/{project.project_id}/invitation-link/generate"
+    )
     assert r_gen.status_code == 200
     generated_token = r_gen.json["encoded_token"]
 
@@ -727,7 +733,9 @@ def test_revoke_invitation_link(client_auth, project):
     """Test revoking invitation link"""
 
     # Generate invitation link first
-    r_gen = client_auth.post(f"/api/projects/{project.project_id}/invitation-link/generate")
+    r_gen = client_auth.post(
+        f"/api/projects/{project.project_id}/invitation-link/generate"
+    )
     assert r_gen.status_code == 200
     assert r_gen.json["encoded_token"] is not None
 

@@ -170,14 +170,14 @@ def generate_invitation_token(project):
     """
     # Create payload: project_id + token
     payload = f"{project.project_id}:{project.token}"
-    payload_bytes = payload.encode('utf-8')
+    payload_bytes = payload.encode("utf-8")
 
     # Create HMAC signature
-    secret_key = current_app.config.get('SECRET_KEY', '').encode('utf-8')
+    secret_key = current_app.config.get("SECRET_KEY", "").encode("utf-8")
     signature = hmac.new(secret_key, payload_bytes, hashlib.sha256).digest()
 
     # Encode: payload + signature
-    encoded = base64.urlsafe_b64encode(payload_bytes + b"." + signature).decode('utf-8')
+    encoded = base64.urlsafe_b64encode(payload_bytes + b"." + signature).decode("utf-8")
 
     return encoded
 
@@ -1657,18 +1657,13 @@ def get_invitation_link(project_id):
             encoded_token = generate_invitation_token(project)
 
             response = (
-                jsonify({
-                    "encoded_token": encoded_token,
-                    "token": project.token
-                }),
+                jsonify({"encoded_token": encoded_token, "token": project.token}),
                 200,
             )
         else:
             # No token exists yet
             response = (
-                jsonify({
-                    "encoded_token": None
-                }),
+                jsonify({"encoded_token": None}),
                 200,
             )
 
@@ -1695,11 +1690,13 @@ def generate_project_invitation_link(project_id):
             encoded_token = generate_invitation_token(project)
 
             response = (
-                jsonify({
-                    "message": "Invitation link generated successfully",
-                    "encoded_token": encoded_token,
-                    "token": project.token
-                }),
+                jsonify(
+                    {
+                        "message": "Invitation link generated successfully",
+                        "encoded_token": encoded_token,
+                        "token": project.token,
+                    }
+                ),
                 200,
             )
         except SQLAlchemyError as e:
@@ -1729,9 +1726,7 @@ def revoke_project_invitation_link(project_id):
             DB.session.commit()
 
             response = (
-                jsonify({
-                    "message": "Invitation link revoked successfully"
-                }),
+                jsonify({"message": "Invitation link revoked successfully"}),
                 200,
             )
         except SQLAlchemyError as e:
