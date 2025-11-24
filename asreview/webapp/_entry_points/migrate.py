@@ -65,6 +65,37 @@ latest stable version of ASReview
 
 
 class MigrationTool:
+    def _run_db_migration(self, interactive=False):
+        """
+        Core database migration logic.
+
+        Parameters
+        ----------
+        interactive : bool
+            If True, prompt user for destructive operations.
+            If False, only warn about obsolete tables.
+        """
+        Session = sessionmaker()
+        engine = create_engine(self.uri)
+        Session.configure(bind=engine)
+        self.session = Session()
+
+        # Inspect the current database schema
+        inspector = inspect(engine)
+
+        # Get current columns in "users" table
+        user_columns = [col["name"] for col in inspector.get_columns("users")]
+
+        # Get current columns in "projects" table
+        project_columns = [col["name"] for col in inspector.get_columns("projects")]
+
+        # Migration for user and project fields
+        self._migrate_new_user_fields(engine, user_columns)
+        self._migrate_new_project_fields(engine, project_columns)
+
+        # Check for obsolete tables
+        self._cleanup_obsolete_tables(engine, inspector, interactive=interactive)
+
     def migrate_database(self, db_uri=None, set_existing_users_terms_accepted=None):
         """
         Run database migration programmatically without command-line arguments.
@@ -98,27 +129,7 @@ class MigrationTool:
         print(f"Database URI: {self.uri}")
 
         try:
-            Session = sessionmaker()
-            engine = create_engine(self.uri)
-            Session.configure(bind=engine)
-            self.session = Session()
-
-            # Inspect the current database schema
-            inspector = inspect(engine)
-
-            # Get current columns in "users" table
-            user_columns = [col["name"] for col in inspector.get_columns("users")]
-
-            # Get current columns in "projects" table
-            project_columns = [col["name"] for col in inspector.get_columns("projects")]
-
-            # Migration for user and project fields
-            self._migrate_new_user_fields(engine, user_columns)
-            self._migrate_new_project_fields(engine, project_columns)
-
-            # Check for obsolete tables (warn only, don't drop)
-            self._cleanup_obsolete_tables(engine, inspector, interactive=False)
-
+            self._run_db_migration(interactive=False)
             print("Database migration completed successfully.")
             return True
         except Exception as e:
@@ -143,27 +154,7 @@ class MigrationTool:
         print(f"Found database URI: {self.uri}")
 
         if self.args.db:
-            Session = sessionmaker()
-            engine = create_engine(self.uri)
-            Session.configure(bind=engine)
-            self.session = Session()
-
-            # Inspect the current database schema
-            inspector = inspect(engine)
-
-            # Get current columns in "users" table
-            user_columns = [col["name"] for col in inspector.get_columns("users")]
-
-            # Get current columns in "projects" table
-            project_columns = [col["name"] for col in inspector.get_columns("projects")]
-
-            # Migration for user and project fields
-            self._migrate_new_user_fields(engine, user_columns)
-            self._migrate_new_project_fields(engine, project_columns)
-
-            # Cleanup obsolete tables (interactive mode - prompt user)
-            self._cleanup_obsolete_tables(engine, inspector, interactive=True)
-
+            self._run_db_migration(interactive=True)
             print("Migration done...")
 
         if self.args.projects:
