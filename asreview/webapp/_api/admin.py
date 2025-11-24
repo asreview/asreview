@@ -113,6 +113,7 @@ def create_user():
             password=password,
             confirmed=confirmed,
             public=public,
+            terms_accepted=True,  # Admin-created accounts auto-accept terms
         )
         user.role = role
 

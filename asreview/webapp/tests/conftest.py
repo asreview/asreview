@@ -66,6 +66,10 @@ def _get_app(app_type="auth-basic", path=None):
         config_path = str(
             base_dir / "auth_with_oauth_and_allowed_account_creation.toml"
         )
+    elif app_type == "auth-with-terms-enabled":
+        config_path = str(base_dir / "auth_with_terms_enabled.toml")
+    elif app_type == "auth-with-terms-custom":
+        config_path = str(base_dir / "auth_with_terms_custom.toml")
     else:
         raise ValueError(f"Unknown config {app_type}")
     # create app
@@ -150,6 +154,28 @@ def client_auth_verified(asreview_path_fixture):
     creation allowed, user accounts needs account
     verification."""
     app = _get_app("auth-verified", path=asreview_path_fixture)
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
+
+
+@pytest.fixture
+def client_auth_with_terms(asreview_path_fixture):
+    """Flask client for authenticated app with terms of agreement enabled."""
+    app = _get_app("auth-with-terms-enabled", path=asreview_path_fixture)
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
+
+
+@pytest.fixture
+def client_auth_with_terms_custom(asreview_path_fixture):
+    """Flask client for authenticated app with custom terms of agreement text."""
+    app = _get_app("auth-with-terms-custom", path=asreview_path_fixture)
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)

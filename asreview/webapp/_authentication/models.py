@@ -115,6 +115,7 @@ class User(UserMixin, DB.Model):
         password=None,
         confirmed=False,
         public=True,
+        terms_accepted=False,
     ):
         self.identifier = identifier
         self.origin = origin
@@ -125,6 +126,7 @@ class User(UserMixin, DB.Model):
             self.hashed_password = User.create_password_hash(password)
         self.confirmed = confirmed
         self.public = public
+        self.terms_accepted = terms_accepted
 
     def update_profile(
         self,

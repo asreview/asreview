@@ -190,7 +190,7 @@ class MigrationTool:
 
             try:
                 print("Adding column 'terms_accepted' to users table...")
-                qry = f"ALTER TABLE users ADD COLUMN terms_accepted BOOLEAN DEFAULT FALSE;"
+                qry = "ALTER TABLE users ADD COLUMN terms_accepted BOOLEAN DEFAULT FALSE;"
                 with engine.begin() as conn:
                     conn.execute(text(qry))
 

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Button,
   CardActions,
@@ -15,10 +16,12 @@ import {
   OutlinedInput,
   InputLabel,
   CardHeader,
+  Box,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 
 import BaseAPI from "api/AuthAPI";
 import { useFormik } from "formik";
@@ -28,15 +31,26 @@ import * as Yup from "yup";
 import { InlineErrorHandler } from ".";
 
 // VALIDATION SCHEMA
-const SignupSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  name: Yup.string().required("Full name is required"),
-  affiliation: Yup.string(),
-  password: passwordValidation(Yup.string()).required("Password is required"),
-  confirmPassword: Yup.string()
-    .required("Password confirmation is required")
-    .oneOf([Yup.ref("password"), null], "Passwords must match"),
-});
+const getSignupSchema = () => {
+  const schema = {
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    name: Yup.string().required("Full name is required"),
+    affiliation: Yup.string(),
+    password: passwordValidation(Yup.string()).required("Password is required"),
+    confirmPassword: Yup.string()
+      .required("Password confirmation is required")
+      .oneOf([Yup.ref("password"), null], "Passwords must match"),
+  };
+
+  // Add terms validation if feature is enabled
+  if (window.termsOfAgreement) {
+    schema.termsAccepted = Yup.boolean()
+      .oneOf([true], "You must accept the terms of agreement")
+      .required("You must accept the terms of agreement");
+  }
+
+  return Yup.object().shape(schema);
+};
 
 const SignUpForm = () => {
   // Pass the useFormik() hook initial form values, a validate function that will be called when
@@ -45,6 +59,7 @@ const SignUpForm = () => {
   const navigate = useNavigate();
 
   const [showPassword, toggleShowPassword] = useToggle(false);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const initialValues = {
     email: "",
@@ -53,11 +68,12 @@ const SignUpForm = () => {
     password: "",
     confirmPassword: "",
     publicAccount: true,
+    termsAccepted: false,
   };
 
   const formik = useFormik({
     initialValues: initialValues,
-    validationSchema: SignupSchema,
+    validationSchema: getSignupSchema(),
   });
 
   const { error, isError, mutate, isLoading } = useMutation(BaseAPI.signup, {
@@ -76,8 +92,23 @@ const SignUpForm = () => {
     },
   });
 
-  const handleSubmit = () => {
-    if (formik.isValid) {
+  const handleSubmit = async () => {
+    // Mark that submit was attempted
+    setSubmitAttempted(true);
+
+    // Validate form and mark all fields as touched to show errors
+    const errors = await formik.validateForm();
+    formik.setTouched({
+      email: true,
+      name: true,
+      affiliation: true,
+      password: true,
+      confirmPassword: true,
+      termsAccepted: true,
+    });
+
+    // Only submit if valid
+    if (Object.keys(errors).length === 0) {
       mutate(formik.values);
     }
   };
@@ -234,6 +265,36 @@ const SignUpForm = () => {
             {formik.touched.affiliation && formik.errors.affiliation ? (
               <FHT error={true}>{formik.errors.affiliation}</FHT>
             ) : null}
+
+            {window.termsOfAgreement && (
+              <FormControl
+                error={
+                  formik.touched.termsAccepted &&
+                  Boolean(formik.errors.termsAccepted)
+                }
+              >
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      id="termsAccepted"
+                      name="termsAccepted"
+                      checked={formik.values.termsAccepted}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Box>
+                      <ReactMarkdown>{window.termsText}</ReactMarkdown>
+                    </Box>
+                  }
+                />
+                {submitAttempted && formik.errors.termsAccepted && (
+                  <FHT error={true}>{formik.errors.termsAccepted}</FHT>
+                )}
+              </FormControl>
+            )}
           </Stack>
         </Stack>
       </CardContent>
@@ -241,9 +302,9 @@ const SignUpForm = () => {
         <Button
           id="create-profile"
           variant="contained"
-          color="primary"
+          color={formik.isValid ? "primary" : "inherit"}
           onClick={handleSubmit}
-          disabled={!(formik.isValid && formik.dirty) || isLoading}
+          disabled={isLoading}
         >
           Create
         </Button>
