@@ -80,7 +80,7 @@ def validate_invitation_token(encoded_token):
             return None, (
                 jsonify(
                     {
-                        "message": "This invitation link is no longer valid. It may have been revoked or regenerated."
+                        "message": "This invitation link is not valid."
                     }
                 ),
                 400,
