@@ -364,6 +364,7 @@ def test_projects_of_user(setup_teardown):
     projects = crud.list_projects()
     assert set(user.projects) == set(projects)
 
+
 # test collaborations
 def test_collaboration(setup_teardown):
     user1, _ = crud.create_user1_with_2_projects(DB)
