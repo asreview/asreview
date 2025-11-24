@@ -116,10 +116,14 @@ def signup():
         terms_config = current_app.config.get("TERMS_OF_AGREEMENT", False)
         if terms_config:
             # Feature enabled: validate checkbox was checked
-            terms_accepted = request.form.get("terms_accepted", "false").lower() == "true"
+            terms_accepted = (
+                request.form.get("terms_accepted", "false").lower() == "true"
+            )
             if not terms_accepted:
                 return jsonify(
-                    {"message": "You must accept the terms of agreement to create an account."}
+                    {
+                        "message": "You must accept the terms of agreement to create an account."
+                    }
                 ), 400
         else:
             # Feature disabled: default to True (no terms to accept)

@@ -877,15 +877,17 @@ def test_admin_creates_user_without_terms_feature(client_auth):
     user2 = get_user(2)
     r = client_auth.post(
         "/admin/users",
-        data=json.dumps({
-            "email": user2.email,
-            "name": user2.name,
-            "affiliation": user2.affiliation,
-            "password": user2.password,
-            "confirmed": True,
-            "public": True,
-            "role": "member",
-        }),
+        data=json.dumps(
+            {
+                "email": user2.email,
+                "name": user2.name,
+                "affiliation": user2.affiliation,
+                "password": user2.password,
+                "confirmed": True,
+                "public": True,
+                "role": "member",
+            }
+        ),
         content_type="application/json",
     )
 
@@ -926,15 +928,17 @@ def test_admin_creates_user_with_terms_enabled(client_auth_with_terms):
     user2 = get_user(2)
     r = client_auth_with_terms.post(
         "/admin/users",
-        data=json.dumps({
-            "email": user2.email,
-            "name": user2.name,
-            "affiliation": user2.affiliation,
-            "password": user2.password,
-            "confirmed": True,
-            "public": True,
-            "role": "member",
-        }),
+        data=json.dumps(
+            {
+                "email": user2.email,
+                "name": user2.name,
+                "affiliation": user2.affiliation,
+                "password": user2.password,
+                "confirmed": True,
+                "public": True,
+                "role": "member",
+            }
+        ),
         content_type="application/json",
     )
 
@@ -975,15 +979,17 @@ def test_admin_creates_user_with_custom_terms(client_auth_with_terms_custom):
     user2 = get_user(2)
     r = client_auth_with_terms_custom.post(
         "/admin/users",
-        data=json.dumps({
-            "email": user2.email,
-            "name": user2.name,
-            "affiliation": user2.affiliation,
-            "password": user2.password,
-            "confirmed": True,
-            "public": True,
-            "role": "member",
-        }),
+        data=json.dumps(
+            {
+                "email": user2.email,
+                "name": user2.name,
+                "affiliation": user2.affiliation,
+                "password": user2.password,
+                "confirmed": True,
+                "public": True,
+                "role": "member",
+            }
+        ),
         content_type="application/json",
     )
 
