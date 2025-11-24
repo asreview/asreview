@@ -68,9 +68,7 @@ def validate_invitation_token(encoded_token):
         project_id, token = payload.split(":", 1)
 
         # Find the project
-        project = Project.query.filter(
-            Project.project_id == project_id
-        ).one_or_none()
+        project = Project.query.filter(Project.project_id == project_id).one_or_none()
 
         if not project:
             return None, (jsonify({"message": "Project not found."}), 404)
