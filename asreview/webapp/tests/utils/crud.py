@@ -1,6 +1,5 @@
 import asreview.webapp.tests.utils.config_parser as cp
 from asreview.webapp._authentication.models import Collaboration
-from asreview.webapp._authentication.models import CollaborationInvitation
 from asreview.webapp._authentication.models import Project
 from asreview.webapp._authentication.models import User
 
@@ -57,11 +56,6 @@ def delete_collaborations(DB):
     DB.session.commit()
 
 
-def delete_invitations(DB):
-    DB.session.query(CollaborationInvitation).delete()
-    DB.session.commit()
-
-
 def delete_projects(DB):
     DB.session.query(Project).delete()
     DB.session.commit()
@@ -99,33 +93,6 @@ def count_projects():
 
 def last_project():
     return Project.query.order_by(Project.id.desc()).first()
-
-
-def create_invitation(DB, project, user):
-    try:
-        inv = CollaborationInvitation(project_id=project.id, user_id=user.id)
-        DB.session.add(inv)
-        DB.session.commit()
-    except Exception as exception:
-        DB.session.rollback()
-        DB.session.flush()
-        raise exception
-
-
-def list_invitations():
-    return CollaborationInvitation.query.all()
-
-
-def last_invitation():
-    return CollaborationInvitation.query.order_by(
-        CollaborationInvitation.id.desc()
-    ).first()
-
-
-def count_invitations():
-    return len(
-        CollaborationInvitation.query.with_entities(CollaborationInvitation.id).all()
-    )
 
 
 def create_collaboration(DB, project, user):

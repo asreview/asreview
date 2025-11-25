@@ -42,6 +42,7 @@ from asreview.webapp._authentication.decorators import login_remote_user
 from asreview.webapp._authentication.models import User
 from asreview.webapp._authentication.oauth_handler import OAuthHandler
 from asreview.webapp._authentication.remote_user_handler import RemoteUserHandler
+from asreview.webapp._entry_points.migrate import MigrationTool
 from asreview.webapp.utils import asreview_path
 
 
@@ -106,6 +107,16 @@ def create_app(**config_vars):
         with app.app_context():
             # create tables in case they don't exist
             DB.create_all()
+
+            # Run database migrations to ensure schema is up to date
+            try:
+                migration_tool = MigrationTool()
+                migration_tool.migrate_database(
+                    db_uri=app.config.get("SQLALCHEMY_DATABASE_URI")
+                )
+            except Exception as e:
+                logging.warning(f"Database migration encountered an issue: {e}")
+                logging.warning("Continuing with server startup...")
 
         # authentication methods that use non-local users.
         # these methods are mutually exclusive.

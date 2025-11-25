@@ -3,20 +3,6 @@ import { api_url } from "globals.js";
 import axios from "axios";
 
 class TeamAPI {
-  static getProjectInvitations() {
-    const url = api_url + `invitations`;
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url, { withCredentials: true })
-        .then((result) => {
-          resolve(result["data"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static fetchUsers({ queryKey }) {
     const projectId = queryKey[1];
     if (projectId !== null) {
@@ -24,86 +10,6 @@ class TeamAPI {
       return new Promise((resolve, reject) => {
         axios
           .get(url, { withCredentials: true })
-          .then((result) => {
-            resolve(result["data"]);
-          })
-          .catch((error) => {
-            reject(axiosErrorHandler(error));
-          });
-      });
-    }
-  }
-
-  static inviteUser(params) {
-    const projectId = params.projectId;
-    const userId = params.userId;
-    if (projectId !== null && userId !== null) {
-      const url = api_url + `invitations/projects/${projectId}/users/${userId}`;
-      return new Promise((resolve, reject) => {
-        axios({
-          method: "post",
-          url: url,
-          withCredentials: true,
-        })
-          .then((result) => {
-            resolve(result["data"]);
-          })
-          .catch((error) => {
-            reject(axiosErrorHandler(error));
-          });
-      });
-    }
-  }
-
-  static deleteInvitation(params) {
-    const projectId = params.projectId;
-    const userId = params.userId;
-    if (projectId !== null && userId !== null) {
-      const url = api_url + `invitations/projects/${projectId}/users/${userId}`;
-      return new Promise((resolve, reject) => {
-        axios({
-          method: "delete",
-          url: url,
-          withCredentials: true,
-        })
-          .then((result) => {
-            resolve(result["data"]);
-          })
-          .catch((error) => {
-            reject(axiosErrorHandler(error));
-          });
-      });
-    }
-  }
-
-  static rejectInvitation(projectId) {
-    if (projectId !== null) {
-      const url = api_url + `invitations/projects/${projectId}/reject`;
-      return new Promise((resolve, reject) => {
-        axios({
-          method: "delete",
-          url: url,
-          withCredentials: true,
-        })
-          .then((result) => {
-            resolve(result["data"]);
-          })
-          .catch((error) => {
-            reject(axiosErrorHandler(error));
-          });
-      });
-    }
-  }
-
-  static acceptInvitation(projectId) {
-    if (projectId !== null) {
-      const url = api_url + `invitations/projects/${projectId}/accept`;
-      return new Promise((resolve, reject) => {
-        axios({
-          method: "post",
-          url: url,
-          withCredentials: true,
-        })
           .then((result) => {
             resolve(result["data"]);
           })
@@ -132,6 +38,83 @@ class TeamAPI {
             reject(axiosErrorHandler(error));
           });
       });
+    }
+  }
+
+  static fetchInvitationLink({ queryKey }) {
+    const projectId = queryKey[1];
+    if (projectId !== null) {
+      const url = api_url + `projects/${projectId}/invitation-link`;
+      return new Promise((resolve, reject) => {
+        axios
+          .get(url, { withCredentials: true })
+          .then((result) => {
+            resolve(result["data"]);
+          })
+          .catch((error) => {
+            reject(axiosErrorHandler(error));
+          });
+      });
+    }
+  }
+
+  static generateInvitationLink(projectId) {
+    if (projectId !== null) {
+      const url = api_url + `projects/${projectId}/invitation-link/generate`;
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "post",
+          url: url,
+          withCredentials: true,
+        })
+          .then((result) => {
+            resolve(result["data"]);
+          })
+          .catch((error) => {
+            reject(axiosErrorHandler(error));
+          });
+      });
+    }
+  }
+
+  static revokeInvitationLink(projectId) {
+    if (projectId !== null) {
+      const url = api_url + `projects/${projectId}/invitation-link`;
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "delete",
+          url: url,
+          withCredentials: true,
+        })
+          .then((result) => {
+            resolve(result["data"]);
+          })
+          .catch((error) => {
+            reject(axiosErrorHandler(error));
+          });
+      });
+    }
+  }
+
+  static previewInvitation(encodedToken) {
+    if (encodedToken !== null) {
+      const url = api_url + `team/join/preview`;
+      return axios.post(
+        url,
+        { encoded_token: encodedToken },
+        { withCredentials: true },
+      );
+    }
+  }
+
+  static joinProject(encodedToken) {
+    if (encodedToken !== null) {
+      const url = api_url + `team/join`;
+      return axios.post(
+        url,
+        { encoded_token: encodedToken },
+        { withCredentials: true },
+      );
     }
   }
 }

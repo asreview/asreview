@@ -100,35 +100,8 @@ def delete_account(client: FlaskClient):
 # ########################
 
 
-def invite(client, project, user):
-    url = f"/api/invitations/projects/{get_project_id(project)}/users/{user.id}"
-    return client.post(url)
-
-
-def list_invitations(client):
-    return client.get("/api/invitations")
-
-
 def list_collaborators(client, project):
     return client.get(f"/api/projects/{get_project_id(project)}/users")
-
-
-def accept_invitation(client, project):
-    return client.post(
-        f"/api/invitations/projects/{get_project_id(project)}/accept", data={}
-    )
-
-
-def reject_invitation(client, project):
-    return client.delete(
-        f"/api/invitations/projects/{get_project_id(project)}/reject", data={}
-    )
-
-
-def delete_invitation(client, project, user):
-    return client.delete(
-        f"/api/invitations/projects/{get_project_id(project)}/users/{user.id}", data={}
-    )
 
 
 def delete_collaboration(client, project, user):

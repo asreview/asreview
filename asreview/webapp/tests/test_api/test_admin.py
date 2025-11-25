@@ -793,7 +793,6 @@ def test_transfer_ownership_to_non_member(client_auth):
     # Verify initial state - user1 is owner, user2 is not collaborator
     assert project1_obj.owner_id == crud.get_user_by_identifier(user1.identifier).id
     assert user2_obj not in project1_obj.collaborators
-    assert user2_obj not in project1_obj.pending_invitations
 
     # Transfer ownership from user1 to user2
     transfer_data = {"new_owner_id": user2_obj.id}
@@ -867,60 +866,6 @@ def test_transfer_ownership_to_existing_collaborator(client_auth):
     assert (
         user2_obj not in project1_obj.collaborators
     )  # New owner removed from collaborators
-    assert (
-        user1_obj not in project1_obj.collaborators
-    )  # Old owner not added as collaborator
-
-
-def test_transfer_ownership_to_user_with_pending_invitation(client_auth):
-    """Test transferring project ownership to a user with a pending invitation"""
-    # Create test users and projects
-    test_data = _create_test_users_with_projects(client_auth)
-    user1 = test_data["user1"]
-    user2 = test_data["user2"]
-    project1 = test_data["project1"]
-
-    # Create admin user
-    admin_user = get_user(3)
-    au.signup_user(client_auth, admin_user)
-    admin_user_obj = crud.get_user_by_identifier(admin_user.identifier)
-    admin_user_obj.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
-
-    # Get project and user objects
-    project1_obj = crud.get_project_by_project_id(project1["id"])
-    user1_obj = crud.get_user_by_identifier(user1.identifier)
-    user2_obj = crud.get_user_by_identifier(user2.identifier)
-
-    # Add user2 as a pending invitation to project1
-    crud.create_invitation(DB, project1_obj, user2_obj)
-
-    # Verify initial state - user1 is owner, user2 has pending invitation
-    assert project1_obj.owner_id == user1_obj.id
-    assert user2_obj in project1_obj.pending_invitations
-    assert user2_obj not in project1_obj.collaborators
-
-    # Transfer ownership from user1 to user2 (who has pending invitation)
-    transfer_data = {"new_owner_id": user2_obj.id}
-    response = client_auth.post(
-        f"/admin/projects/{project1_obj.id}/transfer-ownership",
-        data=json.dumps(transfer_data),
-        content_type="application/json",
-    )
-
-    assert response.status_code == 200
-    data = response.get_json()
-    assert data["message"] == "Project ownership transferred successfully"
-    assert data["project"]["new_owner"]["id"] == user2_obj.id
-
-    # Verify final state - user2 is owner and removed from pending invitations, user1 is completely removed
-    DB.session.refresh(project1_obj)
-    assert project1_obj.owner_id == user2_obj.id
-    assert (
-        user2_obj not in project1_obj.pending_invitations
-    )  # New owner removed from pending invitations
-    assert user2_obj not in project1_obj.collaborators  # New owner not in collaborators
     assert (
         user1_obj not in project1_obj.collaborators
     )  # Old owner not added as collaborator
@@ -1114,7 +1059,6 @@ def test_add_member_to_project_as_admin(client_auth):
     # Verify initial state - user1 is owner, user2 is not involved
     assert project1_obj.owner_id == user1_obj.id
     assert user2_obj not in project1_obj.collaborators
-    assert user2_obj not in project1_obj.pending_invitations
 
     # Add user2 as member to project1
     add_member_data = {"user_id": user2_obj.id}
@@ -1130,12 +1074,10 @@ def test_add_member_to_project_as_admin(client_auth):
     assert data["user"]["id"] == user2_obj.id
     assert data["user"]["member"] is True
     assert data["user"]["owner"] is False
-    assert data["user"]["pending"] is False
 
     # Verify final state - user2 is now a collaborator
     DB.session.refresh(project1_obj)
     assert user2_obj in project1_obj.collaborators
-    assert user2_obj not in project1_obj.pending_invitations
 
 
 def test_add_member_to_project_already_owner_fails(client_auth):
@@ -1203,41 +1145,6 @@ def test_add_member_to_project_already_member_fails(client_auth):
     assert response.status_code == 400
     data = response.get_json()
     assert data["message"] == "User is already a member"
-
-
-def test_add_member_to_project_with_pending_invitation_fails(client_auth):
-    """Test that trying to add user with pending invitation fails"""
-    # Create test users and projects
-    test_data = _create_test_users_with_projects(client_auth)
-    user2 = test_data["user2"]
-    project1 = test_data["project1"]
-
-    # Create admin user
-    admin_user = get_user(3)
-    au.signup_user(client_auth, admin_user)
-    admin_user_obj = crud.get_user_by_identifier(admin_user.identifier)
-    admin_user_obj.role = "admin"
-    DB.session.commit()
-    au.signin_user(client_auth, admin_user)
-
-    # Get project and user objects
-    project1_obj = crud.get_project_by_project_id(project1["id"])
-    user2_obj = crud.get_user_by_identifier(user2.identifier)
-
-    # Add user2 as pending invitation first
-    crud.create_invitation(DB, project1_obj, user2_obj)
-
-    # Try to add user2 as member directly (should fail)
-    add_member_data = {"user_id": user2_obj.id}
-    response = client_auth.post(
-        f"/admin/projects/{project1_obj.id}/add-member",
-        data=json.dumps(add_member_data),
-        content_type="application/json",
-    )
-
-    assert response.status_code == 400
-    data = response.get_json()
-    assert data["message"] == "User already has a pending invitation"
 
 
 def test_add_member_nonexistent_project_fails(client_auth):

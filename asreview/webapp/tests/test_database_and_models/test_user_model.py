@@ -365,21 +365,6 @@ def test_projects_of_user(setup_teardown):
     assert set(user.projects) == set(projects)
 
 
-# test pending invitations
-def test_pending_invitations(setup_teardown):
-    user1, _ = crud.create_user1_with_2_projects(DB)
-    user2 = crud.create_user(DB, user=2)
-    assert crud.count_users() == 2
-    assert crud.count_projects() == 2
-    user1 = crud.get_user_by_id(user1.id)
-    project = user1.projects[0]
-    project.pending_invitations.append(user2)
-    DB.session.commit()
-    # fresh object
-    user2 = crud.get_user_by_id(user2.id)
-    assert project in user2.pending_invitations
-
-
 # test collaborations
 def test_collaboration(setup_teardown):
     user1, _ = crud.create_user1_with_2_projects(DB)

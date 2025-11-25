@@ -1,5 +1,4 @@
 import { Menu } from "@mui/icons-material";
-import AddIcon from "@mui/icons-material/Add";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import {
@@ -15,7 +14,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useQuery } from "react-query";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 import { ProfilePopper } from "Components";
 import { TeamAPI } from "api";
@@ -28,7 +27,6 @@ import { ElasIcon } from "icons";
 import ElasGameDialog from "./ElasGame";
 
 const HeaderTeam = ({ project_id }) => {
-  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -39,10 +37,6 @@ const HeaderTeam = ({ project_id }) => {
   });
 
   const users = data?.filter((user) => user.member && !user.me);
-
-  const handleAddUser = () => {
-    navigate(`/reviews/${project_id}/team`);
-  };
 
   return (
     <>
@@ -81,22 +75,6 @@ const HeaderTeam = ({ project_id }) => {
               </Tooltip>
             ))}
           </AvatarGroup>
-
-          <Tooltip title="Add team member" arrow>
-            <IconButton
-              onClick={handleAddUser}
-              size="small"
-              sx={{
-                ml: 0.5,
-                "& .MuiSvgIcon-root": {
-                  fontSize: "1.2rem",
-                  fontWeight: "bold",
-                },
-              }}
-            >
-              <AddIcon />
-            </IconButton>
-          </Tooltip>
         </Box>
       </Collapse>
     </>

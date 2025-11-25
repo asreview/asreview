@@ -1,5 +1,11 @@
+import base64
+import hashlib
+import hmac
+
 from flask import Blueprint
+from flask import current_app
 from flask import jsonify
+from flask import request
 from flask_login import current_user
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -8,35 +14,99 @@ from asreview.webapp import DB
 from asreview.webapp._authentication.decorators import login_required
 from asreview.webapp._authentication.models import Project
 from asreview.webapp._authentication.models import User
+from asreview.webapp.utils import get_project_path
 
 bp = Blueprint("team", __name__, url_prefix="/api")
 
 REQUESTER_FRAUD = {"message": "Request can not made by current user."}
 
 
+def validate_invitation_token(encoded_token):
+    """
+    Validate and decode an invitation token.
+
+    Returns tuple of (project, error_response).
+    If validation succeeds, returns (project, None).
+    If validation fails, returns (None, (json_response, status_code)).
+    """
+    if not encoded_token:
+        return None, (jsonify({"message": "No invitation token provided."}), 400)
+
+    try:
+        # Decode the base64-encoded token
+        decoded = base64.urlsafe_b64decode(encoded_token.encode("utf-8"))
+
+        # Split payload and signature
+        if b"." not in decoded:
+            return None, (
+                jsonify({"message": "Invalid invitation token format."}),
+                400,
+            )
+
+        payload_bytes, signature = decoded.rsplit(b".", 1)
+
+        # Verify HMAC signature
+        secret_key = current_app.config.get("SECRET_KEY", "").encode("utf-8")
+        expected_signature = hmac.new(
+            secret_key, payload_bytes, hashlib.sha256
+        ).digest()
+
+        if not hmac.compare_digest(signature, expected_signature):
+            return None, (
+                jsonify({"message": "Invalid invitation token signature."}),
+                400,
+            )
+
+        # Extract project_id and token from payload
+        payload = payload_bytes.decode("utf-8")
+        if ":" not in payload:
+            return None, (
+                jsonify({"message": "Invalid invitation token format."}),
+                400,
+            )
+
+        project_id, token = payload.split(":", 1)
+
+        # Find the project
+        project = Project.query.filter(Project.project_id == project_id).one_or_none()
+
+        if not project:
+            return None, (jsonify({"message": "Project not found."}), 404)
+
+        # Verify the token matches the project's token
+        if not project.token or project.token != token:
+            return None, (
+                jsonify({"message": "This invitation link is not valid."}),
+                400,
+            )
+
+        return project, None
+
+    except (ValueError, base64.binascii.Error):
+        return None, (jsonify({"message": "Invalid invitation token format."}), 400)
+    except Exception as e:
+        return None, (jsonify({"message": f"Error: {str(e)}"}), 500)
+
+
 def get_user_project_properties(user, project, current_user):
     """Retrieve user properties in relation to a project and current user."""
     result = user.summarize()
 
-    pending = user in project.pending_invitations
     owner = user.id == project.owner_id
     member = user in project.collaborators or owner
     me = user.id == current_user.id
 
-    selectable = not (pending or member or owner)
     deletable = (
         (current_user.id == project.owner_id or current_user.is_admin)
-        and (member or pending)
+        and member
         and not me
     )
 
     return dict(
         result,
         me=me,
-        pending=pending,
         owner=owner,
         member=member,
-        selectable=selectable,
         deletable=deletable,
     )
 
@@ -44,7 +114,7 @@ def get_user_project_properties(user, project, current_user):
 @bp.route("/projects/<project_id>/users", methods=["GET"])
 @login_required
 def users(project_id):
-    """Returns all users involved in a project."""
+    """Returns users involved in a project (owner and members)."""
     project = Project.query.filter(Project.project_id == project_id).one_or_none()
 
     # Deny if user is member and this person is not somehow involved in the project
@@ -55,10 +125,20 @@ def users(project_id):
     ):
         return jsonify(REQUESTER_FRAUD), 404
 
+    # Get only users involved in the project
+    involved_users = set()
+
+    # Add project owner
+    if project.owner:
+        involved_users.add(project.owner)
+
+    # Add collaborators (members)
+    involved_users.update(project.collaborators)
+
     users = sorted(
         [
             get_user_project_properties(user, project, current_user)
-            for user in User.query.filter(User.public).order_by("name").all()
+            for user in involved_users
         ],
         key=lambda u: (-u["owner"], u["name"].lower()),
     )
@@ -120,163 +200,98 @@ def end_collaboration(project_id, user_id):
     return response
 
 
-@bp.route("/invitations", methods=["GET"])
+@bp.route("/team/join/preview", methods=["POST"])
 @login_required
-def pending_invitations():
-    """Returns pending invitations for current user."""
-    invitations = []
-    for p in current_user.pending_invitations:
-        # get path of project
-        path = p.project_path
-        # get object to get name
-        asreview_object = asr.Project(path)
-        # append info
-        invitations.append(
+def preview_invitation():
+    """Get project details from invitation token without joining."""
+    data = request.get_json()
+    encoded_token = data.get("encoded_token")
+
+    # Validate the invitation token
+    project, error_response = validate_invitation_token(encoded_token)
+    if error_response:
+        return error_response
+
+    # Get project name
+    project_path = get_project_path(project.project_id)
+    asr_project = asr.Project(project_path, project_id=project.project_id)
+    project_name = asr_project.config.get("name", project.project_id)
+
+    return (
+        jsonify(
             {
-                "id": p.id,
-                "project_id": p.project_id,
-                "owner_id": p.owner_id,
-                "owner_name": p.owner.get_name(),
-                "owner_affiliation": p.owner.affiliation,
-                "name": asreview_object.config["name"],
-                "created_at_unix": asreview_object.config["created_at_unix"],
-                "mode": asreview_object.config["mode"],
+                "project_id": project.project_id,
+                "project_name": project_name,
+                "owner_name": project.owner.name if project.owner else "Unknown",
+                "is_owner": current_user.id == project.owner_id,
+                "is_member": current_user in project.collaborators,
             }
-        )
-    return jsonify({"invited_for_projects": invitations}), 200
+        ),
+        200,
+    )
 
 
-@bp.route("/invitations/projects/<project_id>/users/<user_id>", methods=["POST"])
+@bp.route("/team/join", methods=["POST"])
 @login_required
-def invite(project_id, user_id):
-    """Project owner or admin invites a user to collaborate on a project"""
-    response = jsonify(REQUESTER_FRAUD), 404
-    # get project
-    project = Project.query.filter(Project.project_id == project_id).one_or_none()
-    # check if project is from current user or if current user is admin
-    if project and (project.owner == current_user or current_user.is_admin):
-        user = DB.session.get(User, user_id)
+def join_project():
+    """Join a project using an invitation token."""
+    data = request.get_json()
+    encoded_token = data.get("encoded_token")
 
-        # Check if user is already invited to avoid unique constraint violation
-        if user in project.pending_invitations:
-            response = (
-                jsonify({"message": f'User "{user.identifier}" not invited.'}),
-                404,
+    # Validate the invitation token
+    project, error_response = validate_invitation_token(encoded_token)
+    if error_response:
+        return error_response
+
+    try:
+        # Load ASReview project to get project name
+        project_path = get_project_path(project.project_id)
+        asr_project = asr.Project(project_path, project_id=project.project_id)
+        project_name = asr_project.config.get("name", project.project_id)
+
+        # Check if user is already the owner
+        if current_user.id == project.owner_id:
+            return (
+                jsonify(
+                    {
+                        "message": "You are already the owner of this project.",
+                        "already_member": True,
+                        "project_id": project.project_id,
+                        "project_name": project_name,
+                    }
+                ),
+                200,
             )
-        else:
-            # Store user identifier before DB operation to avoid session rollback issues
-            user_identifier = user.identifier
-            project.pending_invitations.append(user)
-            try:
-                DB.session.commit()
-                response = (
-                    jsonify(
-                        {
-                            "message": "Invitation is successfully created.",
-                            "user": get_user_project_properties(
-                                user, project, current_user
-                            ),
-                        }
-                    ),
-                    200,
-                )
-            except SQLAlchemyError:
-                DB.session.rollback()
-                response = (
-                    jsonify({"message": f'User "{user_identifier}" not invited.'}),
-                    404,
-                )
-    return response
 
+        # Check if user is already a member
+        if current_user in project.collaborators:
+            return (
+                jsonify(
+                    {
+                        "message": "You are already a member of this project.",
+                        "already_member": True,
+                        "project_id": project.project_id,
+                        "project_name": project_name,
+                    }
+                ),
+                200,
+            )
 
-@bp.route("/invitations/projects/<project_id>/accept", methods=["POST"])
-@login_required
-def accept_invitation(project_id):
-    """Invited person accepts an invitation."""
-
-    # get project
-    project = Project.query.filter(Project.project_id == project_id).one_or_none()
-    # if user is current user, try to add this user to project
-    if project and current_user in project.pending_invitations:
-        # remove invitation
-        project.pending_invitations.remove(current_user)
-        # add as collaborator
+        # Add user to collaborators
         project.collaborators.append(current_user)
-        try:
-            DB.session.commit()
-            return jsonify(
+        DB.session.commit()
+
+        return (
+            jsonify(
                 {
-                    "id": project.id,
+                    "message": "Successfully joined the project.",
                     "project_id": project.project_id,
-                    "owner_id": project.owner_id,
+                    "project_name": project_name,
                 }
-            ), 200
-        except SQLAlchemyError:
-            return jsonify({"message": "Error accepting invitation."}), 404
-    return jsonify(REQUESTER_FRAUD), 404
+            ),
+            200,
+        )
 
-
-@bp.route("/invitations/projects/<project_id>/reject", methods=["DELETE"])
-@login_required
-def reject_invitation(project_id):
-    """Invited person rejects an invitation."""
-
-    # get project
-    project = Project.query.filter(Project.project_id == project_id).one_or_none()
-    # if current_user is indeed invited
-    if project and current_user in project.pending_invitations:
-        # remove invitation
-        project.pending_invitations.remove(current_user)
-        try:
-            DB.session.commit()
-            return jsonify(
-                {
-                    "id": project.id,
-                    "project_id": project.project_id,
-                    "owner_id": project.owner_id,
-                }
-            ), 200
-        except SQLAlchemyError:
-            return jsonify({"message": "Error rejecting invitation."}), 404
-
-    return jsonify(REQUESTER_FRAUD), 404
-
-
-@bp.route("/invitations/projects/<project_id>/users/<user_id>", methods=["DELETE"])
-@login_required
-def delete_invitation(project_id, user_id):
-    """Project owner or admin removes an invitation"""
-    response = jsonify(REQUESTER_FRAUD), 404
-    # get project
-    project = Project.query.filter(Project.project_id == project_id).one_or_none()
-    # check if project is from current user or if current user is admin
-    if project and (project.owner == current_user or current_user.is_admin):
-        # get user
-        user = DB.session.get(User, user_id)
-
-        if not user:
-            return jsonify({"message": "User not found."}), 404
-
-        try:
-            if user in project.pending_invitations:
-                project.pending_invitations.remove(user)
-                DB.session.commit()
-                response = (
-                    jsonify(
-                        {
-                            "message": "Invitation cancelled successfully.",
-                            "user": get_user_project_properties(
-                                user, project, current_user
-                            ),
-                        }
-                    ),
-                    200,
-                )
-            else:
-                response = (
-                    jsonify({"message": "User does not have a pending invitation."}),
-                    400,
-                )
-        except SQLAlchemyError as e:
-            response = jsonify({"message": f"Error deleting invitation: {str(e)}"}), 500
-    return response
+    except SQLAlchemyError as e:
+        DB.session.rollback()
+        return jsonify({"message": f"Error joining project: {str(e)}"}), 500

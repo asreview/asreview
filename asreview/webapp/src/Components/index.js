@@ -9,6 +9,7 @@ export { default as HelpPrivacyTermsButton } from "./HelpPrivacyTermsButton";
 export { default as HelpPopover } from "./HelpPopover";
 export { default as InlineErrorHandler } from "./InlineErrorHandler";
 export { default as InteractionButtons } from "./InteractionButtons";
+export { default as JoinProject } from "./JoinProject";
 export { default as LandingDrawerItems } from "./LandingDrawerItems";
 export { default as OpenInNewIconStyled } from "./OpenInNewIconStyled";
 export { default as OTPFormField } from "./OTPFormField";

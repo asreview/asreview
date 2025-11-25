@@ -13,7 +13,7 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
-import { PersonOutlined, HourglassEmpty } from "@mui/icons-material";
+import { PersonOutlined } from "@mui/icons-material";
 import { TeamAPI } from "api";
 import UserListItem from "./UserListItem";
 
@@ -21,7 +21,6 @@ import UserListItem from "./UserListItem";
 const UserList = React.memo(
   ({
     users,
-    showPendingChip = false,
     emptyMessage,
     showDeleteButton = false,
     onDelete,
@@ -46,7 +45,6 @@ const UserList = React.memo(
           <UserListItem
             key={user.id}
             user={user}
-            showPendingChip={showPendingChip}
             showDeleteButton={showDeleteButton}
             onDelete={onDelete}
             disableDelete={isDeleting}
@@ -113,23 +111,6 @@ const TeamSection = ({
     },
   );
 
-  // Delete invitation mutation
-  const deleteInvitationMutation = useMutation(
-    ({ projectId, userId }) => TeamAPI.deleteInvitation({ projectId, userId }),
-    {
-      onSuccess: (data) => {
-        // Refresh project users data
-        queryClient.invalidateQueries(["fetchProjectUsers", projectId]);
-        queryClient.invalidateQueries(["fetchAdminProjects"]);
-        setDeleteConfirmDialog({ open: false, user: null });
-      },
-      onError: (error) => {
-        console.error("Failed to cancel invitation:", error);
-        setDeleteConfirmDialog({ open: false, user: null });
-      },
-    },
-  );
-
   const handleDeleteUser = (user) => {
     setDeleteConfirmDialog({ open: true, user });
   };
@@ -138,31 +119,19 @@ const TeamSection = ({
     const { user } = deleteConfirmDialog;
     if (!user || !projectId) return;
 
-    if (user.pending) {
-      deleteInvitationMutation.mutate({ projectId, userId: user.id });
-    } else {
-      deleteMemberMutation.mutate({ projectId, userId: user.id });
-    }
+    deleteMemberMutation.mutate({ projectId, userId: user.id });
   };
 
   const handleCancelDelete = () => {
     setDeleteConfirmDialog({ open: false, user: null });
   };
 
-  const isDeleting =
-    deleteMemberMutation.isLoading || deleteInvitationMutation.isLoading;
-  // Memoize filtered users to prevent recalculation on each render
-  const { activeMembers, pendingMembers } = React.useMemo(() => {
-    if (!collaborators) return { activeMembers: [], pendingMembers: [] };
+  const isDeleting = deleteMemberMutation.isLoading;
 
-    return {
-      activeMembers: collaborators.filter(
-        (user) => user.member && !user.owner && !user.pending,
-      ),
-      pendingMembers: collaborators.filter(
-        (user) => user.pending && !user.owner,
-      ),
-    };
+  // Memoize filtered users to prevent recalculation on each render
+  const activeMembers = React.useMemo(() => {
+    if (!collaborators) return [];
+    return collaborators.filter((user) => user.member && !user.owner);
   }, [collaborators]);
 
   if (isLoading) {
@@ -206,24 +175,6 @@ const TeamSection = ({
         />
       </Box>
 
-      {/* Pending Members Section */}
-      <Box>
-        <SectionStripe
-          icon={HourglassEmpty}
-          title="Pending Invitations"
-          count={pendingMembers.length}
-        />
-        <UserList
-          users={pendingMembers}
-          showPendingChip={true}
-          emptyMessage="No pending invitations"
-          showDeleteButton={true}
-          onDelete={handleDeleteUser}
-          isDeleting={isDeleting}
-          onUserClick={onUserClick}
-        />
-      </Box>
-
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteConfirmDialog.open}
@@ -231,29 +182,20 @@ const TeamSection = ({
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>
-          {deleteConfirmDialog.user?.pending
-            ? "Cancel Invitation"
-            : "Remove Member"}
-        </DialogTitle>
+        <DialogTitle>Remove Member</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to{" "}
-            {deleteConfirmDialog.user?.pending
-              ? "cancel the invitation for"
-              : "remove"}{" "}
+            Are you sure you want to remove{" "}
             <strong>
               {deleteConfirmDialog.user?.name ||
                 deleteConfirmDialog.user?.email}
-            </strong>
-            {deleteConfirmDialog.user?.pending ? "?" : " from this project?"}
+            </strong>{" "}
+            from this project?
           </Typography>
-          {!deleteConfirmDialog.user?.pending && (
-            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-              This action cannot be undone. The user will lose access to this
-              project.
-            </Typography>
-          )}
+          <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+            This action cannot be undone. The user will lose access to this
+            project.
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelDelete} disabled={isDeleting}>
@@ -268,12 +210,8 @@ const TeamSection = ({
             {isDeleting ? (
               <>
                 <CircularProgress size={16} sx={{ mr: 1 }} />
-                {deleteConfirmDialog.user?.pending
-                  ? "Cancelling..."
-                  : "Removing..."}
+                Removing...
               </>
-            ) : deleteConfirmDialog.user?.pending ? (
-              "Cancel Invitation"
             ) : (
               "Remove Member"
             )}

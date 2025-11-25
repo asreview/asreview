@@ -605,10 +605,6 @@ def transfer_project_ownership(project_id):
         if new_owner in project.collaborators:
             project.collaborators.remove(new_owner)
 
-        # Remove new owner from pending invitations if they have one
-        if new_owner in project.pending_invitations:
-            project.pending_invitations.remove(new_owner)
-
         # Transfer ownership
         project.owner_id = new_owner_id
 
@@ -616,9 +612,6 @@ def transfer_project_ownership(project_id):
         if old_owner and old_owner in project.collaborators:
             project.collaborators.remove(old_owner)
 
-        # Remove old owner from pending invitations if they had one
-        if old_owner and old_owner in project.pending_invitations:
-            project.pending_invitations.remove(old_owner)
         DB.session.commit()
 
         return jsonify(
@@ -679,10 +672,6 @@ def add_project_member(project_id):
         # Check if user is already a collaborator
         if user in project.collaborators:
             return jsonify({"message": "User is already a member"}), 400
-
-        # Check if user has a pending invitation
-        if user in project.pending_invitations:
-            return jsonify({"message": "User already has a pending invitation"}), 400
 
         # Add user as collaborator
         project.collaborators.append(user)

@@ -65,6 +65,79 @@ latest stable version of ASReview
 
 
 class MigrationTool:
+    def _run_db_migration(self, interactive=False):
+        """
+        Core database migration logic.
+
+        Parameters
+        ----------
+        interactive : bool
+            If True, prompt user for destructive operations.
+            If False, only warn about obsolete tables.
+        """
+        Session = sessionmaker()
+        engine = create_engine(self.uri)
+        Session.configure(bind=engine)
+        self.session = Session()
+
+        # Inspect the current database schema
+        inspector = inspect(engine)
+
+        # Get current columns in "users" table
+        user_columns = [col["name"] for col in inspector.get_columns("users")]
+
+        # Get current columns in "projects" table
+        project_columns = [col["name"] for col in inspector.get_columns("projects")]
+
+        # Migration for user and project fields
+        self._migrate_new_user_fields(engine, user_columns)
+        self._migrate_new_project_fields(engine, project_columns)
+
+        # Check for obsolete tables
+        self._cleanup_obsolete_tables(engine, inspector, interactive=interactive)
+
+    def migrate_database(self, db_uri=None, set_existing_users_terms_accepted=None):
+        """
+        Run database migration programmatically without command-line arguments.
+        This is used for automatic migration on server startup.
+
+        Parameters
+        ----------
+        db_uri : str, optional
+            Database URI. If not provided, uses environment variables or default.
+        set_existing_users_terms_accepted : bool, optional
+            Override default terms acceptance for existing users.
+        """
+        # Determine DB URI
+        self.uri = (
+            db_uri
+            or os.environ.get("SQLALCHEMY_DATABASE_URI")
+            or os.environ.get("ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI")
+            or DEFAULT_DATABASE_URI
+        )
+
+        # Create a minimal args object for compatibility with existing methods
+        class Args:
+            def __init__(self):
+                self.set_existing_users_terms_accepted = None
+
+        self.args = Args()
+        if set_existing_users_terms_accepted is not None:
+            self.args.set_existing_users_terms_accepted = (
+                "true" if set_existing_users_terms_accepted else "false"
+            )
+
+        print("Running database migration...")
+        print(f"Database URI: {self.uri}")
+
+        try:
+            self._run_db_migration(interactive=False)
+            print("Database migration completed successfully.")
+            return True
+        except Exception as e:
+            print(f"Database migration failed: {e}")
+            return False
+
     def execute(self, argv):
         parser = auth_parser()
         args = parser.parse_args(argv)
@@ -83,24 +156,7 @@ class MigrationTool:
         print(f"Found database URI: {self.uri}")
 
         if self.args.db:
-            Session = sessionmaker()
-            engine = create_engine(self.uri)
-            Session.configure(bind=engine)
-            self.session = Session()
-
-            # Inspect the current database schema
-            inspector = inspect(engine)
-
-            # Get current columns in "users" table
-            user_columns = [col["name"] for col in inspector.get_columns("users")]
-
-            # Get current columns in "projects" table
-            project_columns = [col["name"] for col in inspector.get_columns("projects")]
-
-            # Migration for user and project fields
-            self._migrate_new_user_fields(engine, user_columns)
-            self._migrate_new_project_fields(engine, project_columns)
-
+            self._run_db_migration(interactive=True)
             print("Migration done...")
 
         if self.args.projects:
@@ -190,7 +246,9 @@ class MigrationTool:
 
             try:
                 print("Adding column 'terms_accepted' to users table...")
-                qry = f"ALTER TABLE users ADD COLUMN terms_accepted BOOLEAN DEFAULT FALSE;"
+                qry = (
+                    "ALTER TABLE users ADD COLUMN terms_accepted BOOLEAN DEFAULT FALSE;"
+                )
                 with engine.begin() as conn:
                     conn.execute(text(qry))
 
@@ -281,3 +339,62 @@ class MigrationTool:
                 qry = f"UPDATE projects SET created_at = '{current_timestamp}' WHERE id = {db_id};"
                 with engine.begin() as conn:
                     conn.execute(text(qry))
+
+    def _cleanup_obsolete_tables(self, engine, inspector, interactive=True):
+        """
+        Check for and optionally remove obsolete tables.
+
+        Parameters
+        ----------
+        engine : sqlalchemy.engine.Engine
+            Database engine.
+        inspector : sqlalchemy.engine.reflection.Inspector
+            Database inspector.
+        interactive : bool, optional
+            If True, prompt user for confirmation before dropping tables.
+            If False, only log a warning without dropping. Default is True.
+        """
+        # Get list of existing tables
+        existing_tables = inspector.get_table_names()
+
+        # Check for collaboration_invitations table
+        if "collaboration_invitations" in existing_tables:
+            if interactive:
+                # Interactive mode: prompt user for confirmation
+                print(
+                    "\nWARNING: The 'collaboration_invitations' table is obsolete and should be removed."
+                )
+                print(
+                    "This table may contain pending invitation records that will be lost."
+                )
+                print(
+                    "The new invitation system uses shareable links instead of user-by-user invitations."
+                )
+
+                confirm = (
+                    input(
+                        "\nDo you want to remove the 'collaboration_invitations' table? (y/n): "
+                    )
+                    .strip()
+                    .lower()
+                )
+
+                if confirm != "y":
+                    print("Skipping removal of 'collaboration_invitations' table.")
+                    return
+
+                try:
+                    print("Removing obsolete 'collaboration_invitations' table...")
+                    qry = "DROP TABLE IF EXISTS collaboration_invitations;"
+                    with engine.begin() as conn:
+                        conn.execute(text(qry))
+                    print("Table 'collaboration_invitations' removed successfully.")
+                except Exception as e:
+                    print(f"Failed to drop collaboration_invitations table: {e}")
+            else:
+                # Non-interactive mode: just log a warning
+                print(
+                    "\nWARNING: Obsolete table 'collaboration_invitations' detected in database."
+                )
+                print("This table is no longer used by the application.")
+                print("To remove it, run: asreview migrate --db\n")
