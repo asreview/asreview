@@ -63,12 +63,15 @@ def test_join_project_as_owner(setup_auth):
     """Test that the project owner cannot join their own project"""
     client, user1, user2, user3, project = setup_auth
 
+    # Ensure user1 (owner) is signed in
+    au.signin_user(client, get_user(1))
+
     # Generate invitation link as project owner (user1)
     r_gen = client.post(f"/api/projects/{project.project_id}/invitation-link/generate")
     assert r_gen.status_code == 200
     encoded_token = r_gen.json["encoded_token"]
 
-    # Try to join as owner (user1 is still signed in)
+    # Try to join as owner (user1 is signed in)
     r_join = client.post(
         "/api/team/join",
         json={"encoded_token": encoded_token},
