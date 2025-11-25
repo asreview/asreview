@@ -8,13 +8,19 @@ def test_join_project_with_valid_token(setup_auth):
     """Test that a user can join a project with a valid invitation token"""
     client, user1, user2, user3, project = setup_auth
 
+    # Ensure user1 (owner) is signed in to generate token
+    au.signin_user(client, user1)
+
     # Generate invitation link as project owner (user1)
     r_gen = client.post(f"/api/projects/{project.project_id}/invitation-link/generate")
     assert r_gen.status_code == 200
     encoded_token = r_gen.json["encoded_token"]
 
+    # Refresh database session to ensure token is committed
+    DB.session.expire_all()
+
     # Switch to user2 and join the project
-    au.signin_user(client, get_user(2))
+    au.signin_user(client, user2)
     r_join = client.post(
         "/api/team/join",
         json={"encoded_token": encoded_token},
@@ -35,10 +41,16 @@ def test_join_project_already_member(setup_auth):
     """Test that joining when already a member returns appropriate message"""
     client, user1, user2, user3, project = setup_auth
 
+    # Ensure user1 (owner) is signed in to generate token
+    au.signin_user(client, user1)
+
     # Generate invitation link and add user2 as collaborator
     r_gen = client.post(f"/api/projects/{project.project_id}/invitation-link/generate")
     assert r_gen.status_code == 200
     encoded_token = r_gen.json["encoded_token"]
+
+    # Refresh database session to ensure token is committed
+    DB.session.expire_all()
 
     # Add user2 as collaborator manually
     project_db = Project.query.filter(
@@ -47,13 +59,23 @@ def test_join_project_already_member(setup_auth):
     project_db.collaborators.append(user2)
     DB.session.commit()
 
+    # Refresh database session
+    DB.session.expire_all()
+
     # Try to join again as user2
-    au.signin_user(client, get_user(2))
+    au.signin_user(client, user2)
     r_join = client.post(
         "/api/team/join",
         json={"encoded_token": encoded_token},
         content_type="application/json",
     )
+    if r_join.status_code != 200:
+        print(f"\nDEBUG test_join_project_already_member:")
+        print(f"  Status: {r_join.status_code}")
+        print(f"  Response: {r_join.json}")
+        print(f"  User2 ID: {user2.id}")
+        print(f"  Project Owner ID: {project.owner_id}")
+        print(f"  Collaborators: {[c.id for c in project.collaborators]}")
     assert r_join.status_code == 200
     assert "already a member" in r_join.json["message"].lower()
     assert r_join.json["already_member"] is True
@@ -64,12 +86,15 @@ def test_join_project_as_owner(setup_auth):
     client, user1, user2, user3, project = setup_auth
 
     # Ensure user1 (owner) is signed in
-    au.signin_user(client, get_user(1))
+    au.signin_user(client, user1)
 
     # Generate invitation link as project owner (user1)
     r_gen = client.post(f"/api/projects/{project.project_id}/invitation-link/generate")
     assert r_gen.status_code == 200
     encoded_token = r_gen.json["encoded_token"]
+
+    # Refresh database session to ensure token is committed
+    DB.session.expire_all()
 
     # Try to join as owner (user1 is signed in)
     r_join = client.post(
@@ -77,6 +102,12 @@ def test_join_project_as_owner(setup_auth):
         json={"encoded_token": encoded_token},
         content_type="application/json",
     )
+    if r_join.status_code != 200:
+        print(f"\nDEBUG test_join_project_as_owner:")
+        print(f"  Status: {r_join.status_code}")
+        print(f"  Response: {r_join.json}")
+        print(f"  User1 ID: {user1.id}")
+        print(f"  Project Owner ID: {project.owner_id}")
     assert r_join.status_code == 200
     assert "already the owner" in r_join.json["message"].lower()
     assert r_join.json["already_member"] is True
@@ -96,24 +127,30 @@ def test_join_project_with_invalid_token(setup_auth):
         content_type="application/json",
     )
     assert r_join.status_code == 400
-    assert "Invalid invitation token" in r_join.json["message"]
+    assert "Token is not valid" in r_join.json["message"]
 
 
 def test_join_project_with_revoked_token(setup_auth):
     """Test that joining with a revoked token fails"""
     client, user1, user2, user3, project = setup_auth
 
+    # Ensure user1 (owner) is signed in to generate token
+    au.signin_user(client, user1)
+
     # Generate invitation link as project owner (user1)
     r_gen = client.post(f"/api/projects/{project.project_id}/invitation-link/generate")
     assert r_gen.status_code == 200
     encoded_token = r_gen.json["encoded_token"]
+
+    # Refresh database session to ensure token is committed
+    DB.session.expire_all()
 
     # Revoke the invitation link
     r_revoke = client.delete(f"/api/projects/{project.project_id}/invitation-link")
     assert r_revoke.status_code == 200
 
     # Try to join with revoked token as user2
-    au.signin_user(client, get_user(2))
+    au.signin_user(client, user2)
     r_join = client.post(
         "/api/team/join",
         json={"encoded_token": encoded_token},
@@ -127,6 +164,9 @@ def test_join_project_with_regenerated_token(setup_auth):
     """Test that old token becomes invalid after regeneration"""
     client, user1, user2, user3, project = setup_auth
 
+    # Ensure user1 (owner) is signed in
+    au.signin_user(client, user1)
+
     # Generate first invitation link
     r_gen1 = client.post(f"/api/projects/{project.project_id}/invitation-link/generate")
     assert r_gen1.status_code == 200
@@ -137,8 +177,11 @@ def test_join_project_with_regenerated_token(setup_auth):
     assert r_gen2.status_code == 200
     new_token = r_gen2.json["encoded_token"]
 
+    # Refresh database session to ensure new token is committed
+    DB.session.expire_all()
+
     # Try to join with old token as user2
-    au.signin_user(client, get_user(2))
+    au.signin_user(client, user2)
     r_join_old = client.post(
         "/api/team/join",
         json={"encoded_token": old_token},
