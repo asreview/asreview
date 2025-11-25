@@ -190,9 +190,9 @@ def create_app(**config_vars):
 
         # Handle terms of agreement config
         terms_config = app.config.get("TERMS_OF_AGREEMENT", False)
-        if terms_config is True or \
-            (isinstance(terms_config, str) and not terms_config.strip()):
-            
+        if terms_config is True or (
+            isinstance(terms_config, str) and not terms_config.strip()
+        ):
             terms_of_agreement = "true"
             terms_text = "I agree to the terms of service"
         elif isinstance(terms_config, str):
