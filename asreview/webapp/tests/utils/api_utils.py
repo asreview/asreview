@@ -42,7 +42,9 @@ def signin_user(client, user):
     )
 
 
-def oauth_callback(client, identifier, email, name, provider="github", terms_accepted=None):
+def oauth_callback(
+    client, identifier, email, name, provider="github", terms_accepted=None
+):
     """Simulates an OAuth callback through the api"""
     data = {
         "code": "mock_code_12345",

@@ -1134,9 +1134,7 @@ def test_oauth_callback_with_custom_terms_accepted(
     assert db_user.terms_accepted is True
 
 
-def test_oauth_callback_existing_user_with_terms(
-    client_oauth_with_terms, monkeypatch
-):
+def test_oauth_callback_existing_user_with_terms(client_oauth_with_terms, monkeypatch):
     """Test OAuth callback for existing user when terms enabled - should login successfully"""
     user = get_user(1)
 
