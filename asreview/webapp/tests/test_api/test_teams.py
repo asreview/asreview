@@ -69,13 +69,6 @@ def test_join_project_already_member(setup_auth):
         json={"encoded_token": encoded_token},
         content_type="application/json",
     )
-    if r_join.status_code != 200:
-        print(f"\nDEBUG test_join_project_already_member:")
-        print(f"  Status: {r_join.status_code}")
-        print(f"  Response: {r_join.json}")
-        print(f"  User2 ID: {user2.id}")
-        print(f"  Project Owner ID: {project.owner_id}")
-        print(f"  Collaborators: {[c.id for c in project.collaborators]}")
     assert r_join.status_code == 200
     assert "already a member" in r_join.json["message"].lower()
     assert r_join.json["already_member"] is True
@@ -102,12 +95,6 @@ def test_join_project_as_owner(setup_auth):
         json={"encoded_token": encoded_token},
         content_type="application/json",
     )
-    if r_join.status_code != 200:
-        print(f"\nDEBUG test_join_project_as_owner:")
-        print(f"  Status: {r_join.status_code}")
-        print(f"  Response: {r_join.json}")
-        print(f"  User1 ID: {user1.id}")
-        print(f"  Project Owner ID: {project.owner_id}")
     assert r_join.status_code == 200
     assert "already the owner" in r_join.json["message"].lower()
     assert r_join.json["already_member"] is True
