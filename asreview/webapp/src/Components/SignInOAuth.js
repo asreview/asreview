@@ -8,7 +8,7 @@ import { Orcid } from "icons";
 import * as React from "react";
 import OauthPopup from "react-oauth-popup";
 import { useNavigate } from "react-router-dom";
-import { InlineErrorHandler } from ".";
+import { InlineErrorHandler, OAuthTermsDialog } from ".";
 
 const POPUP_HEIGHT = 700;
 const POPUP_WIDTH = 600;
@@ -26,8 +26,10 @@ const SignInOAuth = ({ oAuthData }) => {
   const navigate = useNavigate();
 
   const [errorMessage, setErrorMessage] = React.useState("");
+  const [showTermsDialog, setShowTermsDialog] = React.useState(false);
+  const [pendingAuth, setPendingAuth] = React.useState(null);
 
-  const handleSignin = (code, provider) => {
+  const completeSignin = (code, provider, termsAccepted = false) => {
     let message = "";
 
     const payload = {
@@ -35,6 +37,11 @@ const SignInOAuth = ({ oAuthData }) => {
       code: code,
       redirect_uri: redirect_uri,
     };
+
+    // Add terms_accepted to payload if terms are required
+    if (window.termsOfAgreement && termsAccepted) {
+      payload.terms_accepted = "true";
+    }
 
     AuthAPI.oAuthCallback(payload)
       .then((data) => {
@@ -53,6 +60,32 @@ const SignInOAuth = ({ oAuthData }) => {
       .catch((err) => {
         setErrorMessage(err.message);
       });
+  };
+
+  const handleSignin = (code, provider) => {
+    // Check if terms of agreement are required
+    if (window.termsOfAgreement) {
+      // Store auth data and show terms dialog
+      setPendingAuth({ code, provider });
+      setShowTermsDialog(true);
+    } else {
+      // No terms required, proceed directly
+      completeSignin(code, provider, false);
+    }
+  };
+
+  const handleTermsAccept = () => {
+    setShowTermsDialog(false);
+    if (pendingAuth) {
+      completeSignin(pendingAuth.code, pendingAuth.provider, true);
+      setPendingAuth(null);
+    }
+  };
+
+  const handleTermsCancel = () => {
+    setShowTermsDialog(false);
+    setPendingAuth(null);
+    setErrorMessage("You must accept the terms of agreement to continue");
   };
 
   const getIcon = (service) => {
@@ -133,6 +166,11 @@ const SignInOAuth = ({ oAuthData }) => {
         })}
       </Stack>
       {Boolean(errorMessage) && <InlineErrorHandler message={errorMessage} />}
+      <OAuthTermsDialog
+        open={showTermsDialog}
+        onAccept={handleTermsAccept}
+        onCancel={handleTermsCancel}
+      />
     </>
   );
 };

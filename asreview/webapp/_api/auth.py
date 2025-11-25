@@ -465,6 +465,17 @@ def oauth_callback():
         created_account = False
         # if not create user
         if user is None:
+            # Check if terms of agreement are required
+            terms_required = current_app.config.get("TERMS_OF_AGREEMENT", False)
+
+            if terms_required:
+                terms_accepted = request.form.get("terms_accepted", "false") == "true"
+                if not terms_accepted:
+                    message = "Terms of agreement must be accepted to create an account"
+                    return jsonify({"message": message}), 400
+            else:
+                terms_accepted = True
+
             try:
                 origin = provider
                 confirmed = True
@@ -476,6 +487,7 @@ def oauth_callback():
                     name=name,
                     confirmed=confirmed,
                     public=public,
+                    terms_accepted=terms_accepted,
                 )
                 DB.session.add(user)
                 DB.session.commit()
