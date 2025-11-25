@@ -199,6 +199,20 @@ def create_app(**config_vars):
         else:
             oauth_params = str(False).lower()
 
+        # Handle terms of agreement config
+        terms_config = app.config.get("TERMS_OF_AGREEMENT", False)
+        if terms_config is True or (
+            isinstance(terms_config, str) and not terms_config.strip()
+        ):
+            terms_of_agreement = "true"
+            terms_text = "I agree to the terms of service"
+        elif isinstance(terms_config, str):
+            terms_of_agreement = "true"
+            terms_text = terms_config
+        else:
+            terms_of_agreement = "false"
+            terms_text = ""
+
         return render_template(
             "index.html",
             api_url=app.config.get("API_URL", "/"),
@@ -211,6 +225,8 @@ def create_app(**config_vars):
             email_verification=str(app.config.get("EMAIL_VERIFICATION", False)).lower(),
             oauth=oauth_params,
             post_logout_url=str(app.config.get("POST_LOGOUT_URL", "/signin")).lower(),
+            terms_of_agreement=terms_of_agreement,
+            terms_text=terms_text,
         )
 
     @app.route("/", methods=["GET"])

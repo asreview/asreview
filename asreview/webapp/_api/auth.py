@@ -112,6 +112,23 @@ def signup():
         password = request.form.get("password")
         public = bool(int(request.form.get("public", "1")))
 
+        # Handle terms of agreement
+        terms_config = current_app.config.get("TERMS_OF_AGREEMENT", False)
+        if terms_config:
+            # Feature enabled: validate checkbox was checked
+            terms_accepted = (
+                request.form.get("terms_accepted", "false").lower() == "true"
+            )
+            if not terms_accepted:
+                return jsonify(
+                    {
+                        "message": "You must accept the terms of agreement to create an account."
+                    }
+                ), 400
+        else:
+            # Feature disabled: default to True (no terms to accept)
+            terms_accepted = True
+
         # check if email already exists
         user = _select_user_by_email(email)
 
@@ -139,6 +156,7 @@ def signup():
                     password=password,
                     confirmed=confirmed,
                     public=public,
+                    terms_accepted=terms_accepted,
                 )
                 # if this is an un-confirmed account, set token
                 if not confirmed:

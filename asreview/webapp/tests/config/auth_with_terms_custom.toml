@@ -1,0 +1,7 @@
+TESTING = true
+DEBUG = true
+SECRET_KEY = "my_very_secret_key"
+SECURITY_PASSWORD_SALT = "my_salt"
+AUTHENTICATION = true
+ALLOW_ACCOUNT_CREATION = true
+TERMS_OF_AGREEMENT = "I agree to the [Terms of Service](https://example.com/terms) and [Privacy Policy](https://example.com/privacy)"

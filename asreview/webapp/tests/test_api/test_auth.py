@@ -750,3 +750,251 @@ def test_delete_account_logs_out_user(client_auth):
     # verify user is logged out
     r = au.user(client_auth)
     assert r.status_code == 401
+
+
+# ###################
+# TERMS OF AGREEMENT
+# ###################
+
+
+def test_signup_without_terms_feature(client_auth):
+    """Test signup when terms feature is disabled - should default to terms_accepted=True"""
+    # get user data
+    user = get_user(1)
+    # signup without terms_accepted field
+    r = au.signup_user(client_auth, user)
+    # check if we get a 201 status
+    assert r.status_code == 201
+    # verify user was created with terms_accepted=True
+    db_user = crud.get_user_by_identifier(user.identifier)
+    assert db_user.terms_accepted is True
+
+
+def test_signup_with_terms_not_accepted(client_auth_with_terms):
+    """Test signup with terms enabled but checkbox not checked - should fail"""
+    # get user data
+    user = get_user(1)
+    # signup without checking terms
+    r = client_auth_with_terms.post(
+        "/auth/signup",
+        data={
+            "identifier": user.email,
+            "email": user.email,
+            "name": user.name,
+            "password": user.password,
+            "affiliation": user.affiliation,
+            "origin": "asreview",
+            "terms_accepted": "false",
+        },
+    )
+    # should return 400 error
+    assert r.status_code == 400
+    assert "You must accept the terms of agreement" in r.json["message"]
+    # verify user was not created
+    assert crud.count_users() == 0
+
+
+def test_signup_with_terms_accepted(client_auth_with_terms):
+    """Test signup with terms enabled and checkbox checked - should succeed"""
+    # get user data
+    user = get_user(1)
+    # signup with terms accepted
+    r = client_auth_with_terms.post(
+        "/auth/signup",
+        data={
+            "identifier": user.email,
+            "email": user.email,
+            "name": user.name,
+            "password": user.password,
+            "affiliation": user.affiliation,
+            "origin": "asreview",
+            "terms_accepted": "true",
+        },
+    )
+    # should succeed
+    assert r.status_code == 201
+    # verify user was created with terms_accepted=True
+    db_user = crud.get_user_by_identifier(user.identifier)
+    assert db_user.terms_accepted is True
+
+
+def test_signup_with_custom_terms_text(client_auth_with_terms_custom):
+    """Test signup with custom markdown terms text - should succeed when accepted"""
+    # get user data
+    user = get_user(1)
+    # signup with terms accepted
+    r = client_auth_with_terms_custom.post(
+        "/auth/signup",
+        data={
+            "identifier": user.email,
+            "email": user.email,
+            "name": user.name,
+            "password": user.password,
+            "affiliation": user.affiliation,
+            "origin": "asreview",
+            "terms_accepted": "true",
+        },
+    )
+    # should succeed
+    assert r.status_code == 201
+    # verify user was created with terms_accepted=True
+    db_user = crud.get_user_by_identifier(user.identifier)
+    assert db_user.terms_accepted is True
+
+
+def test_signup_with_custom_terms_not_accepted(client_auth_with_terms_custom):
+    """Test signup with custom terms but not accepted - should fail"""
+    # get user data
+    user = get_user(1)
+    # signup without checking terms
+    r = client_auth_with_terms_custom.post(
+        "/auth/signup",
+        data={
+            "identifier": user.email,
+            "email": user.email,
+            "name": user.name,
+            "password": user.password,
+            "affiliation": user.affiliation,
+            "origin": "asreview",
+            "terms_accepted": "false",
+        },
+    )
+    # should return 400 error
+    assert r.status_code == 400
+    assert "You must accept the terms of agreement" in r.json["message"]
+    # verify user was not created
+    assert crud.count_users() == 0
+
+
+def test_admin_creates_user_without_terms_feature(client_auth):
+    """Test admin creating user when terms feature is disabled - should set terms_accepted=True"""
+    # create and signin admin user
+    admin = au.create_and_signin_user(client_auth)
+    admin.role = "admin"
+    crud.update_user(DB, admin, "role", "admin")
+
+    # admin creates a new user
+    user2 = get_user(2)
+    r = client_auth.post(
+        "/admin/users",
+        data=json.dumps(
+            {
+                "email": user2.email,
+                "name": user2.name,
+                "affiliation": user2.affiliation,
+                "password": user2.password,
+                "confirmed": True,
+                "public": True,
+                "role": "member",
+            }
+        ),
+        content_type="application/json",
+    )
+
+    # should succeed
+    assert r.status_code == 201
+    # verify user was created with terms_accepted=True
+    db_user = crud.get_user_by_identifier(user2.email)
+    assert db_user.terms_accepted is True
+
+
+def test_admin_creates_user_with_terms_enabled(client_auth_with_terms):
+    """Test admin creating user when terms feature is enabled - should auto-accept terms"""
+    # create admin user with terms accepted
+    admin = get_user(1)
+    r = client_auth_with_terms.post(
+        "/auth/signup",
+        data={
+            "identifier": admin.email,
+            "email": admin.email,
+            "name": admin.name,
+            "password": admin.password,
+            "affiliation": admin.affiliation,
+            "origin": "asreview",
+            "terms_accepted": "true",
+        },
+    )
+    assert r.status_code == 201
+
+    # set as admin
+    admin_db = crud.get_user_by_identifier(admin.identifier)
+    admin_db.role = "admin"
+    crud.update_user(DB, admin_db, "role", "admin")
+
+    # signin admin
+    au.signin_user(client_auth_with_terms, admin)
+
+    # admin creates a new user (no terms_accepted field needed)
+    user2 = get_user(2)
+    r = client_auth_with_terms.post(
+        "/admin/users",
+        data=json.dumps(
+            {
+                "email": user2.email,
+                "name": user2.name,
+                "affiliation": user2.affiliation,
+                "password": user2.password,
+                "confirmed": True,
+                "public": True,
+                "role": "member",
+            }
+        ),
+        content_type="application/json",
+    )
+
+    # should succeed
+    assert r.status_code == 201
+    # verify user was created with terms_accepted=True (auto-accepted by admin)
+    db_user = crud.get_user_by_identifier(user2.email)
+    assert db_user.terms_accepted is True
+
+
+def test_admin_creates_user_with_custom_terms(client_auth_with_terms_custom):
+    """Test admin creating user with custom terms enabled - should auto-accept terms"""
+    # create admin user with terms accepted
+    admin = get_user(1)
+    r = client_auth_with_terms_custom.post(
+        "/auth/signup",
+        data={
+            "identifier": admin.email,
+            "email": admin.email,
+            "name": admin.name,
+            "password": admin.password,
+            "affiliation": admin.affiliation,
+            "origin": "asreview",
+            "terms_accepted": "true",
+        },
+    )
+    assert r.status_code == 201
+
+    # set as admin
+    admin_db = crud.get_user_by_identifier(admin.identifier)
+    admin_db.role = "admin"
+    crud.update_user(DB, admin_db, "role", "admin")
+
+    # signin admin
+    au.signin_user(client_auth_with_terms_custom, admin)
+
+    # admin creates a new user (no terms_accepted field needed)
+    user2 = get_user(2)
+    r = client_auth_with_terms_custom.post(
+        "/admin/users",
+        data=json.dumps(
+            {
+                "email": user2.email,
+                "name": user2.name,
+                "affiliation": user2.affiliation,
+                "password": user2.password,
+                "confirmed": True,
+                "public": True,
+                "role": "member",
+            }
+        ),
+        content_type="application/json",
+    )
+
+    # should succeed
+    assert r.status_code == 201
+    # verify user was created with terms_accepted=True (auto-accepted by admin)
+    db_user = crud.get_user_by_identifier(user2.email)
+    assert db_user.terms_accepted is True

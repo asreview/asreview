@@ -10,6 +10,10 @@ class AuthAPI {
     body.set("affiliation", variables.affiliation);
     body.set("email", variables.email);
     body.set("public", variables.publicAccount === true ? 1 : 0);
+    body.set(
+      "terms_accepted",
+      variables.termsAccepted === true ? "true" : "false",
+    );
 
     const url = auth_url + `signup`;
     let axiosParams = {
