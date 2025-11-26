@@ -144,6 +144,114 @@ def create_user():
         return jsonify({"message": f"Database error: {str(e)}"}), 500
 
 
+@bp.route("/users/bulk-import", methods=["POST"])
+@admin_required
+def bulk_import_users():
+    """Bulk import users from CSV data (admin only)"""
+    try:
+        data = request.get_json()
+        users_data = data.get("users", [])
+
+        if not users_data:
+            return jsonify({"message": "No user data provided"}), 400
+
+        if not isinstance(users_data, list):
+            return jsonify({"message": "users must be a list"}), 400
+
+        success = []
+        failed = []
+
+        for user_data in users_data:
+            try:
+                # Required fields
+                name = user_data.get("name", "").strip()
+                email = user_data.get("email", "").strip() if user_data.get("email") else None
+                password = user_data.get("password")
+
+                if not name or not email or not password:
+                    failed.append({
+                        "name": name,
+                        "email": email,
+                        "error": "Name, email, and password are required"
+                    })
+                    continue
+
+                # Optional fields
+                affiliation = (
+                    user_data.get("affiliation", "").strip()
+                    if user_data.get("affiliation")
+                    else None
+                )
+                role = user_data.get("role", "member")
+
+                # Check if user already exists
+                existing_user = User.query.filter(
+                    or_(User.identifier == email, User.email == email)
+                ).first()
+
+                if existing_user:
+                    failed.append({
+                        "name": name,
+                        "email": email,
+                        "error": "User with this email already exists"
+                    })
+                    continue
+
+                # Create new user
+                user = User(
+                    identifier=email,
+                    email=email,
+                    name=name,
+                    origin="asreview",
+                    affiliation=affiliation,
+                    password=password,
+                    confirmed=True,  # Admin-created accounts are auto-confirmed
+                    public=True,     # Admin-created accounts are public by default
+                    terms_accepted=True,  # Admin-created accounts auto-accept terms
+                )
+                user.role = role
+
+                DB.session.add(user)
+                DB.session.flush()  # Get the ID without committing
+
+                success.append({
+                    "id": user.id,
+                    "name": user.name,
+                    "email": user.email,
+                    "role": user.role,
+                })
+
+            except ValueError as e:
+                failed.append({
+                    "name": user_data.get("name", ""),
+                    "email": user_data.get("email", ""),
+                    "error": f"Validation error: {str(e)}"
+                })
+            except Exception as e:
+                failed.append({
+                    "name": user_data.get("name", ""),
+                    "email": user_data.get("email", ""),
+                    "error": f"Error: {str(e)}"
+                })
+
+        # Commit all successful user creations
+        if success:
+            DB.session.commit()
+
+        return jsonify({
+            "message": f"Imported {len(success)} users, {len(failed)} failed",
+            "success": success,
+            "failed": failed,
+        }), 201 if success else 400
+
+    except SQLAlchemyError as e:
+        DB.session.rollback()
+        return jsonify({"message": f"Database error: {str(e)}"}), 500
+    except Exception as e:
+        DB.session.rollback()
+        return jsonify({"message": f"Error: {str(e)}"}), 500
+
+
 @bp.route("/users/<int:user_id>", methods=["PUT"])
 @admin_required
 def update_user(user_id):

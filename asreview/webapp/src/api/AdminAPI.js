@@ -58,6 +58,28 @@ class AdminAPI {
     });
   }
 
+  // Bulk import users from CSV
+  static bulkImportUsers(usersData) {
+    const url = admin_url + "users/bulk-import";
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: { users: usersData },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      })
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   // Update an existing user
   static updateUser(userId, userData) {
     const url = admin_url + `users/${userId}`;

@@ -34,6 +34,7 @@ import {
 
 import { useToggle } from "hooks/useToggle";
 import { AdminAPI } from "api";
+import { passwordRequirements } from "globals.js";
 
 const UserFormDialog = ({
   open,
@@ -272,14 +273,16 @@ const UserFormDialog = ({
                 autoComplete={isEditMode ? "new-password" : "new-password"}
                 required={!isEditMode}
               />
-              {(errors.password || (isEditMode && !errors.password)) && (
+              {(errors.password || isEditMode || !isEditMode) && (
                 <Typography
                   variant="caption"
                   color={errors.password ? "error" : "text.secondary"}
                   sx={{ mt: 0.5, ml: 1.5 }}
                 >
                   {errors.password ||
-                    (isEditMode ? "Leave empty to keep current password" : "")}
+                    (isEditMode
+                      ? "Leave empty to keep current password"
+                      : passwordRequirements)}
                 </Typography>
               )}
             </FormControl>
