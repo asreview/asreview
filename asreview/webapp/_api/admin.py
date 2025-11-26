@@ -165,15 +165,21 @@ def bulk_import_users():
             try:
                 # Required fields
                 name = user_data.get("name", "").strip()
-                email = user_data.get("email", "").strip() if user_data.get("email") else None
+                email = (
+                    user_data.get("email", "").strip()
+                    if user_data.get("email")
+                    else None
+                )
                 password = user_data.get("password")
 
                 if not name or not email or not password:
-                    failed.append({
-                        "name": name,
-                        "email": email,
-                        "error": "Name, email, and password are required"
-                    })
+                    failed.append(
+                        {
+                            "name": name,
+                            "email": email,
+                            "error": "Name, email, and password are required",
+                        }
+                    )
                     continue
 
                 # Optional fields
@@ -190,11 +196,13 @@ def bulk_import_users():
                 ).first()
 
                 if existing_user:
-                    failed.append({
-                        "name": name,
-                        "email": email,
-                        "error": "User with this email already exists"
-                    })
+                    failed.append(
+                        {
+                            "name": name,
+                            "email": email,
+                            "error": "User with this email already exists",
+                        }
+                    )
                     continue
 
                 # Create new user
@@ -206,7 +214,7 @@ def bulk_import_users():
                     affiliation=affiliation,
                     password=password,
                     confirmed=True,  # Admin-created accounts are auto-confirmed
-                    public=True,     # Admin-created accounts are public by default
+                    public=True,  # Admin-created accounts are public by default
                     terms_accepted=True,  # Admin-created accounts auto-accept terms
                 )
                 user.role = role
@@ -214,35 +222,43 @@ def bulk_import_users():
                 DB.session.add(user)
                 DB.session.flush()  # Get the ID without committing
 
-                success.append({
-                    "id": user.id,
-                    "name": user.name,
-                    "email": user.email,
-                    "role": user.role,
-                })
+                success.append(
+                    {
+                        "id": user.id,
+                        "name": user.name,
+                        "email": user.email,
+                        "role": user.role,
+                    }
+                )
 
             except ValueError as e:
-                failed.append({
-                    "name": user_data.get("name", ""),
-                    "email": user_data.get("email", ""),
-                    "error": f"Validation error: {str(e)}"
-                })
+                failed.append(
+                    {
+                        "name": user_data.get("name", ""),
+                        "email": user_data.get("email", ""),
+                        "error": f"Validation error: {str(e)}",
+                    }
+                )
             except Exception as e:
-                failed.append({
-                    "name": user_data.get("name", ""),
-                    "email": user_data.get("email", ""),
-                    "error": f"Error: {str(e)}"
-                })
+                failed.append(
+                    {
+                        "name": user_data.get("name", ""),
+                        "email": user_data.get("email", ""),
+                        "error": f"Error: {str(e)}",
+                    }
+                )
 
         # Commit all successful user creations
         if success:
             DB.session.commit()
 
-        return jsonify({
-            "message": f"Imported {len(success)} users, {len(failed)} failed",
-            "success": success,
-            "failed": failed,
-        }), 201 if success else 400
+        return jsonify(
+            {
+                "message": f"Imported {len(success)} users, {len(failed)} failed",
+                "success": success,
+                "failed": failed,
+            }
+        ), 201 if success else 400
 
     except SQLAlchemyError as e:
         DB.session.rollback()
