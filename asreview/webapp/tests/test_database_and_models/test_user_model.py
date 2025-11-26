@@ -226,7 +226,6 @@ def test_update_user_record(setup_teardown):
     new_name = "New Name"
     new_affiliation = "New Affiliation"
     new_password = "NewPassword@123"
-    new_public = False
 
     user.update_profile(
         email=new_email,
@@ -234,7 +233,6 @@ def test_update_user_record(setup_teardown):
         affiliation=new_affiliation,
         old_password=user.password,
         new_password=new_password,
-        public=new_public,
     )
     DB.session.commit()
 
@@ -247,7 +245,6 @@ def test_update_user_record(setup_teardown):
     assert updated_user.email == new_email
     assert updated_user.affiliation == new_affiliation
     assert updated_user.hashed_password != old_hashed_password
-    assert updated_user.public == new_public
 
 
 # verify reset password

@@ -9,7 +9,6 @@ class AuthAPI {
     body.set("name", variables.name);
     body.set("affiliation", variables.affiliation);
     body.set("email", variables.email);
-    body.set("public", variables.publicAccount === true ? 1 : 0);
     body.set(
       "terms_accepted",
       variables.termsAccepted === true ? "true" : "false",
@@ -133,7 +132,6 @@ class AuthAPI {
     if (variables.name) body.set("name", variables.name);
     if (variables.affiliation) body.set("affiliation", variables.affiliation);
     if (variables.email) body.set("email", variables.email);
-    body.set("public", variables.publicAccount === true ? 1 : 0);
 
     const url = auth_url + `update_profile`;
     return new Promise((resolve, reject) => {

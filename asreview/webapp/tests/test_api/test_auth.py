@@ -498,13 +498,12 @@ def test_reset_password_with_stale_token(client_auth_verified):
 # test updating normal attributes from user profile
 def test_update_user_profile_simple_attributes(client_auth):
     # create and signin user
-    user = au.create_and_signin_user(client_auth)
+    au.create_and_signin_user(client_auth)
     # prep data
     data = {
         "email": "new_email@asreview.nl",
         "name": "new_name",
         "affiliation": "new_affiliation",
-        "public": int(not user.public),
     }
     # call update
     r = au.update_user(client_auth, data)
@@ -524,7 +523,6 @@ def test_correctly_update_password(client_auth):
         "email": user.email,
         "name": user.name,
         "affiliation": user.affiliation,
-        "public": int(user.public),
         "old_password": user.password,
         "new_password": new_password,
     }
@@ -552,7 +550,6 @@ def test_incorrectly_update_password_wrong_old_password(client_auth):
         "email": user.email,
         "name": user.name,
         "affiliation": user.affiliation,
-        "public": int(user.public),
         "old_password": user.password + "WRONG",  # wrong old password
         "new_password": new_password,
     }
@@ -574,7 +571,6 @@ def test_incorrectly_update_password_wrong_new_password(client_auth):
         "email": user.email,
         "name": user.name,
         "affiliation": user.affiliation,
-        "public": int(user.public),
         "old_password": user.password,
         "new_password": new_password,
     }
@@ -605,7 +601,6 @@ def test_update_user_with_wrong_values(client_auth, attribute_data):
         "email": user.email,
         "name": user.name,
         "affiliation": user.affiliation,
-        "public": int(user.public),
     }
     # manipulate attribute
     user_data[attr] = wrong_value
@@ -884,7 +879,6 @@ def test_admin_creates_user_without_terms_feature(client_auth):
                 "affiliation": user2.affiliation,
                 "password": user2.password,
                 "confirmed": True,
-                "public": True,
                 "role": "member",
             }
         ),
@@ -935,7 +929,6 @@ def test_admin_creates_user_with_terms_enabled(client_auth_with_terms):
                 "affiliation": user2.affiliation,
                 "password": user2.password,
                 "confirmed": True,
-                "public": True,
                 "role": "member",
             }
         ),
@@ -986,7 +979,6 @@ def test_admin_creates_user_with_custom_terms(client_auth_with_terms_custom):
                 "affiliation": user2.affiliation,
                 "password": user2.password,
                 "confirmed": True,
-                "public": True,
                 "role": "member",
             }
         ),

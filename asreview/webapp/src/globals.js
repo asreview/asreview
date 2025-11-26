@@ -44,6 +44,14 @@ export const checkIfSimulationFinishedDuration = 6000;
 
 export const fontSizeOptions = ["Small", "Default", "Large", "Largest"];
 
+export const emailValidation = (yup_string) => {
+  // Email regex that matches backend validation
+  return yup_string.matches(
+    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b/,
+    "Invalid email address",
+  );
+};
+
 export const passwordValidation = (yup_string) => {
   // error messages
   const getCharacterValidationError = (str) => {

@@ -63,7 +63,6 @@ def get_users():
                 "name": user.name,
                 "affiliation": user.affiliation,
                 "confirmed": user.confirmed,
-                "public": user.public,
                 "role": user.role,
             }
             user_list.append(user_data)
@@ -90,7 +89,6 @@ def create_user():
         )
         password = data.get("password")
         confirmed = data.get("confirmed", True)
-        public = data.get("public", True)
         role = data.get("role", "member")
 
         # Check if user already exists
@@ -112,7 +110,6 @@ def create_user():
             affiliation=affiliation,
             password=password,
             confirmed=confirmed,
-            public=public,
             terms_accepted=True,  # Admin-created accounts auto-accept terms
         )
         user.role = role
@@ -184,7 +181,6 @@ def update_user(user_id):
             email=email,
             name=name,
             affiliation=affiliation,
-            public=data.get("public", user.public),
             reconfirm=False,  # Admin updates shouldn't require email reconfirmation
         )
 
@@ -323,7 +319,6 @@ def get_user(user_id):
             "name": user.name,
             "affiliation": user.affiliation,
             "confirmed": user.confirmed,
-            "public": user.public,
             "role": user.role,
         }
 
