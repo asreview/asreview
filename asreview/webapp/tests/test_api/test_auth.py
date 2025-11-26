@@ -498,7 +498,7 @@ def test_reset_password_with_stale_token(client_auth_verified):
 # test updating normal attributes from user profile
 def test_update_user_profile_simple_attributes(client_auth):
     # create and signin user
-    user = au.create_and_signin_user(client_auth)
+    au.create_and_signin_user(client_auth)
     # prep data
     data = {
         "email": "new_email@asreview.nl",
