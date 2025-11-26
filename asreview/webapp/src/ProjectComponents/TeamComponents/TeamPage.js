@@ -91,7 +91,8 @@ const TeamPage = () => {
                     <ListItem
                       key={user.id}
                       secondaryAction={
-                        user.deletable && (
+                        user.deletable &&
+                        currentUser?.roles?.owner && (
                           <IconButton
                             edge="end"
                             onClick={() =>

@@ -211,7 +211,6 @@ def bulk_import_users():
                     affiliation=affiliation,
                     password=password,
                     confirmed=True,  # Admin-created accounts are auto-confirmed
-                    public=True,  # Admin-created accounts are public by default
                     terms_accepted=True,  # Admin-created accounts auto-accept terms
                 )
                 user.role = role
