@@ -214,28 +214,6 @@ const SignUpForm = () => {
             {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
               <FHT error={true}>{formik.errors.confirmPassword}</FHT>
             ) : null}
-            <FormControl>
-              {false && (
-                <>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        color="primary"
-                        id="publicAccount"
-                        defaultChecked={formik.values.publicAccount}
-                        value={formik.values.publicAccount}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                      />
-                    }
-                    label="Make this account public"
-                  />
-                  <FHT>
-                    Making this account public allows you to collaborate.
-                  </FHT>
-                </>
-              )}
-            </FormControl>
             {isError && <InlineErrorHandler message={error.message} />}
             <Divider />
             <TextField

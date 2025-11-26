@@ -64,7 +64,6 @@ const UserFormDialog = ({
     password: "",
     role: "member",
     confirmed: true,
-    public: true,
   });
 
   const [errors, setErrors] = React.useState({});
@@ -82,7 +81,6 @@ const UserFormDialog = ({
         password: "", // Never pre-fill password
         role: userData.role || "member",
         confirmed: userData.confirmed ?? true,
-        public: userData.public ?? true,
       });
     } else {
       // Reset to defaults for create mode
@@ -93,7 +91,6 @@ const UserFormDialog = ({
         password: "",
         role: "member",
         confirmed: true,
-        public: true,
       });
     }
     setErrors({});
@@ -163,7 +160,6 @@ const UserFormDialog = ({
       password: "",
       role: "member",
       confirmed: true,
-      public: true,
     });
     setErrors({});
     onClose();
@@ -316,16 +312,6 @@ const UserFormDialog = ({
                 />
               }
               label="Confirmed"
-            />
-
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={formData.public}
-                  onChange={handleChange("public")}
-                />
-              }
-              label="Public"
             />
           </Stack>
 
