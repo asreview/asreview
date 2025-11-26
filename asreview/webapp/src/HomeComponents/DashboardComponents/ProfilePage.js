@@ -26,13 +26,16 @@ import { useToggle } from "hooks/useToggle";
 
 import { AuthAPI } from "api";
 import { useFormik } from "formik";
-import { passwordRequirements, passwordValidation } from "globals.js";
+import {
+  emailValidation,
+  passwordRequirements,
+  passwordValidation,
+} from "globals.js";
 import * as Yup from "yup";
 
 // VALIDATION SCHEMA
 const SignupSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("Invalid email")
+  email: emailValidation(Yup.string())
     .nullable()
     .when("$window.allowAccountCreation", {
       is: true,
