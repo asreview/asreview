@@ -1,6 +1,5 @@
 import {
   Button,
-  Checkbox,
   Container,
   Dialog,
   DialogActions,
@@ -9,7 +8,6 @@ import {
   DialogTitle,
   FormHelperText as FHT,
   FormControl,
-  FormControlLabel,
   Stack,
   TextField,
   Typography,
@@ -28,13 +26,16 @@ import { useToggle } from "hooks/useToggle";
 
 import { AuthAPI } from "api";
 import { useFormik } from "formik";
-import { passwordRequirements, passwordValidation } from "globals.js";
+import {
+  emailValidation,
+  passwordRequirements,
+  passwordValidation,
+} from "globals.js";
 import * as Yup from "yup";
 
 // VALIDATION SCHEMA
 const SignupSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("Invalid email")
+  email: emailValidation(Yup.string())
     .nullable()
     .when("$window.allowAccountCreation", {
       is: true,
@@ -60,7 +61,6 @@ const ProfilePage = (props) => {
   const [initEmail, setInitEmail] = React.useState(null);
   const [initName, setInitName] = React.useState(null);
   const [initAffiliation, setInitAffiliation] = React.useState(null);
-  const [initPublic, setInitPublic] = React.useState(true);
 
   const [showPassword, toggleShowPassword] = useToggle();
   const [loadingSaveButton, setLoadingSaveButton] = React.useState(true);
@@ -129,7 +129,6 @@ const ProfilePage = (props) => {
       name: initName,
       email: initEmail,
       affiliation: initAffiliation,
-      publicAccount: initPublic,
       oldPassword: "",
       newPassword: "",
       confirmPassword: "",
@@ -143,7 +142,6 @@ const ProfilePage = (props) => {
     oldPassword: "",
     newPassword: "",
     confirmPassword: "",
-    publicAccount: true,
   };
 
   const formik = useFormik({
@@ -156,19 +154,16 @@ const ProfilePage = (props) => {
       var email = data.message.email;
       var name = data.message.name;
       var affiliation = data.message.affiliation || "";
-      var publicAcc = data.message.public || true;
 
       setInitEmail(email);
       setInitName(name);
       setInitAffiliation(affiliation);
-      setInitPublic(publicAcc);
 
       formik.setValues(
         {
           name: name,
           email: email,
           affiliation: affiliation,
-          publicAccount: publicAcc,
         },
         true,
       );
@@ -378,24 +373,6 @@ const ProfilePage = (props) => {
             ) : null}
             {showPasswordFields && renderPasswordFields(formik)}
 
-            {false && (
-              <>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      color="primary"
-                      id="publicAccount"
-                      defaultChecked={formik.values.publicAccount}
-                      value={formik.values.publicAccount}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                  }
-                  label="Make this account public"
-                />
-                <FHT>Making this account public allows you to collaborate.</FHT>
-              </>
-            )}
             {isError && (
               <FHT>
                 <InlineErrorHandler message={error.message} />

@@ -1,5 +1,6 @@
 import React from "react";
 import { useQuery } from "react-query";
+import * as Yup from "yup";
 
 import {
   Stack,
@@ -19,7 +20,6 @@ import {
   Alert,
   IconButton,
   InputAdornment,
-  OutlinedInput,
   Box,
   CircularProgress,
   Chip,
@@ -34,7 +34,36 @@ import {
 
 import { useToggle } from "hooks/useToggle";
 import { AdminAPI } from "api";
-import { passwordRequirements } from "globals.js";
+import { emailValidation, passwordValidation } from "globals.js";
+
+// Validation schema for creating a new user
+const createUserSchema = Yup.object().shape({
+  email: emailValidation(Yup.string()).required("Email is required"),
+  name: Yup.string().required("Name is required"),
+  affiliation: Yup.string(),
+  password: passwordValidation(Yup.string()).required("Password is required"),
+  role: Yup.string().oneOf(["admin", "member"]),
+  confirmed: Yup.boolean(),
+});
+
+// Validation schema for editing a user (password optional)
+const editUserSchema = Yup.object().shape({
+  email: emailValidation(Yup.string()).required("Email is required"),
+  name: Yup.string().required("Name is required"),
+  affiliation: Yup.string(),
+  password: Yup.string().test(
+    "password-optional",
+    "Password does not meet requirements",
+    function (value) {
+      // If password is empty, it's valid (optional in edit mode)
+      if (!value || value.trim() === "") return true;
+      // If password is provided, validate it
+      return passwordValidation(Yup.string()).isValidSync(value);
+    },
+  ),
+  role: Yup.string().oneOf(["admin", "member"]),
+  confirmed: Yup.boolean(),
+});
 
 const UserFormDialog = ({
   open,
@@ -65,7 +94,6 @@ const UserFormDialog = ({
     password: "",
     role: "member",
     confirmed: true,
-    public: true,
   });
 
   const [errors, setErrors] = React.useState({});
@@ -83,7 +111,6 @@ const UserFormDialog = ({
         password: "", // Never pre-fill password
         role: userData.role || "member",
         confirmed: userData.confirmed ?? true,
-        public: userData.public ?? true,
       });
     } else {
       // Reset to defaults for create mode
@@ -94,7 +121,6 @@ const UserFormDialog = ({
         password: "",
         role: "member",
         confirmed: true,
-        public: true,
       });
     }
     setErrors({});
@@ -113,34 +139,24 @@ const UserFormDialog = ({
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    const schema = isEditMode ? editUserSchema : createUserSchema;
 
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-
-    // Password validation - always required for new users, optional for edit
-    if (!isEditMode && !formData.password.trim()) {
-      newErrors.password = "Password is required for new users";
+    try {
+      schema.validateSync(formData, { abortEarly: false });
+      setErrors({});
+      return true;
+    } catch (err) {
+      if (err instanceof Yup.ValidationError) {
+        const newErrors = {};
+        err.inner.forEach((error) => {
+          if (error.path) {
+            newErrors[error.path] = error.message;
+          }
+        });
+        setErrors(newErrors);
+      }
+      return false;
     }
-    // For edit mode, password is optional (only validate if provided)
-    if (
-      isEditMode &&
-      formData.password.trim() &&
-      formData.password.length < 8
-    ) {
-      newErrors.password = "Password must be at least 8 characters long";
-    }
-    // For new users, validate password length if provided
-    if (
-      !isEditMode &&
-      formData.password.trim() &&
-      formData.password.length < 8
-    ) {
-      newErrors.password = "Password must be at least 8 characters long";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = () => {
@@ -164,7 +180,6 @@ const UserFormDialog = ({
       password: "",
       role: "member",
       confirmed: true,
-      public: true,
     });
     setErrors({});
     onClose();
@@ -243,49 +258,34 @@ const UserFormDialog = ({
 
           {/* Only show password field for non-OAuth users or when creating new users */}
           {(!window.oAuthData || !isEditMode) && (
-            <FormControl variant="outlined" fullWidth error={!!errors.password}>
-              <InputLabel htmlFor="password">
-                {isEditMode ? "New Password (optional)" : "Password"}
-              </InputLabel>
-              <OutlinedInput
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={formData.password}
-                onChange={handleChange("password")}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label={
-                        showPassword
-                          ? "hide the password"
-                          : "display the password"
-                      }
-                      onClick={toggleShowPassword}
-                      onMouseDown={(event) => event.preventDefault()}
-                      onMouseUp={(event) => event.preventDefault()}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-                label={isEditMode ? "New Password (optional)" : "Password"}
-                autoComplete={isEditMode ? "new-password" : "new-password"}
-                required={!isEditMode}
-              />
-              {(errors.password || isEditMode || !isEditMode) && (
-                <Typography
-                  variant="caption"
-                  color={errors.password ? "error" : "text.secondary"}
-                  sx={{ mt: 0.5, ml: 1.5 }}
-                >
-                  {errors.password ||
-                    (isEditMode
-                      ? "Leave empty to keep current password"
-                      : passwordRequirements)}
-                </Typography>
-              )}
-            </FormControl>
+            <TextField
+              label={isEditMode ? "New Password (optional)" : "Password"}
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={handleChange("password")}
+              error={!!errors.password}
+              helperText={
+                errors.password ||
+                (isEditMode ? "Leave empty to keep current password" : "")
+              }
+              fullWidth
+              required={!isEditMode}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={toggleShowPassword}
+                        edge="end"
+                        size="small"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
           )}
 
           {/* Show info message when password field is hidden for OAuth users */}
@@ -319,16 +319,6 @@ const UserFormDialog = ({
                 />
               }
               label="Confirmed"
-            />
-
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={formData.public}
-                  onChange={handleChange("public")}
-                />
-              }
-              label="Public"
             />
           </Stack>
 

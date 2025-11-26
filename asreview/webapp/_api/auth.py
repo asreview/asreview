@@ -110,7 +110,6 @@ def signup():
         name = request.form.get("name", "").strip()
         affiliation = request.form.get("affiliation", "").strip()
         password = request.form.get("password")
-        public = bool(int(request.form.get("public", "1")))
 
         # Handle terms of agreement
         terms_config = current_app.config.get("TERMS_OF_AGREEMENT", False)
@@ -155,7 +154,6 @@ def signup():
                     affiliation=affiliation,
                     password=password,
                     confirmed=confirmed,
-                    public=public,
                     terms_accepted=terms_accepted,
                 )
                 # if this is an un-confirmed account, set token
@@ -261,7 +259,6 @@ def get_profile():
                 "origin": user.origin,
                 "name": user.name,
                 "affiliation": user.affiliation,
-                "public": user.public,
             },
         )
     else:
@@ -367,7 +364,6 @@ def update_profile():
         affiliation = request.form.get("affiliation", None)
         old_password = request.form.get("old_password", None)
         new_password = request.form.get("new_password", None)
-        public = bool(int(request.form.get("public", "1")))
         reconfirm = (
             email != old_email
             and user.origin == "asreview"
@@ -376,7 +372,7 @@ def update_profile():
 
         try:
             user = user.update_profile(
-                email, name, affiliation, old_password, new_password, public, reconfirm
+                email, name, affiliation, old_password, new_password, reconfirm
             )
             DB.session.commit()
             if reconfirm:
@@ -465,17 +461,27 @@ def oauth_callback():
         created_account = False
         # if not create user
         if user is None:
+            # Check if terms of agreement are required
+            terms_required = current_app.config.get("TERMS_OF_AGREEMENT", False)
+
+            if terms_required:
+                terms_accepted = request.form.get("terms_accepted", "false") == "true"
+                if not terms_accepted:
+                    message = "Terms of agreement must be accepted to create an account"
+                    return jsonify({"message": message}), 400
+            else:
+                terms_accepted = True
+
             try:
                 origin = provider
                 confirmed = True
-                public = True
                 user = User(
                     identifier=identifier,
                     origin=origin,
                     email=email,
                     name=name,
                     confirmed=confirmed,
-                    public=public,
+                    terms_accepted=terms_accepted,
                 )
                 DB.session.add(user)
                 DB.session.commit()

@@ -25,7 +25,11 @@ import ReactMarkdown from "react-markdown";
 
 import BaseAPI from "api/AuthAPI";
 import { useFormik } from "formik";
-import { passwordRequirements, passwordValidation } from "globals.js";
+import {
+  emailValidation,
+  passwordRequirements,
+  passwordValidation,
+} from "globals.js";
 import { useToggle } from "hooks/useToggle";
 import * as Yup from "yup";
 import { InlineErrorHandler } from ".";
@@ -33,7 +37,7 @@ import { InlineErrorHandler } from ".";
 // VALIDATION SCHEMA
 const getSignupSchema = () => {
   const schema = {
-    email: Yup.string().email("Invalid email").required("Email is required"),
+    email: emailValidation(Yup.string()).required("Email is required"),
     name: Yup.string().required("Full name is required"),
     affiliation: Yup.string(),
     password: passwordValidation(Yup.string()).required("Password is required"),
@@ -214,28 +218,6 @@ const SignUpForm = () => {
             {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
               <FHT error={true}>{formik.errors.confirmPassword}</FHT>
             ) : null}
-            <FormControl>
-              {false && (
-                <>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        color="primary"
-                        id="publicAccount"
-                        defaultChecked={formik.values.publicAccount}
-                        value={formik.values.publicAccount}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                      />
-                    }
-                    label="Make this account public"
-                  />
-                  <FHT>
-                    Making this account public allows you to collaborate.
-                  </FHT>
-                </>
-              )}
-            </FormControl>
             {isError && <InlineErrorHandler message={error.message} />}
             <Divider />
             <TextField

@@ -174,7 +174,6 @@ def login_remote_user(f):
                             user = User(
                                 **user_info,
                                 origin="remote",
-                                public=True,
                                 confirmed=True,
                             )
                             DB.session.add(user)

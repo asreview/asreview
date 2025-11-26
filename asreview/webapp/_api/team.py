@@ -36,14 +36,24 @@ def validate_invitation_token(encoded_token):
         # Decode the base64-encoded token
         decoded = base64.urlsafe_b64decode(encoded_token.encode("utf-8"))
 
-        # Split payload and signature
-        if b"." not in decoded:
+        # Split payload and signature based on position
+        # SHA256 signature is always 32 bytes at the end, preceded by a 1-byte separator
+        if len(decoded) < 34:  # At least 1 byte payload + separator + 32 byte signature
             return None, (
-                jsonify({"message": "Invalid invitation token format."}),
+                jsonify({"message": "Token is not valid."}),
                 400,
             )
 
-        payload_bytes, signature = decoded.rsplit(b".", 1)
+        signature = decoded[-32:]
+        separator = decoded[-33:-32]
+        payload_bytes = decoded[:-33]
+
+        # Verify separator is a dot
+        if separator != b".":
+            return None, (
+                jsonify({"message": "Token is not valid."}),
+                400,
+            )
 
         # Verify HMAC signature
         secret_key = current_app.config.get("SECRET_KEY", "").encode("utf-8")
@@ -53,7 +63,7 @@ def validate_invitation_token(encoded_token):
 
         if not hmac.compare_digest(signature, expected_signature):
             return None, (
-                jsonify({"message": "Invalid invitation token signature."}),
+                jsonify({"message": "Token is not valid."}),
                 400,
             )
 
@@ -61,7 +71,7 @@ def validate_invitation_token(encoded_token):
         payload = payload_bytes.decode("utf-8")
         if ":" not in payload:
             return None, (
-                jsonify({"message": "Invalid invitation token format."}),
+                jsonify({"message": "Token is not valid."}),
                 400,
             )
 
@@ -83,7 +93,7 @@ def validate_invitation_token(encoded_token):
         return project, None
 
     except (ValueError, base64.binascii.Error):
-        return None, (jsonify({"message": "Invalid invitation token format."}), 400)
+        return None, (jsonify({"message": "Token is not valid."}), 400)
     except Exception as e:
         return None, (jsonify({"message": f"Error: {str(e)}"}), 500)
 

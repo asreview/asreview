@@ -93,6 +93,9 @@ class MigrationTool:
         self._migrate_new_user_fields(engine, user_columns)
         self._migrate_new_project_fields(engine, project_columns)
 
+        # Remove obsolete user fields
+        self._remove_obsolete_user_fields(engine, user_columns)
+
         # Check for obsolete tables
         self._cleanup_obsolete_tables(engine, inspector, interactive=interactive)
 
@@ -222,7 +225,11 @@ class MigrationTool:
         if "created_at" not in user_columns:
             try:
                 print("Adding column 'created_at' to users table...")
-                qry = "ALTER TABLE users ADD COLUMN created_at DATETIME;"
+                # PostgreSQL uses TIMESTAMP, other databases use DATETIME
+                datetime_type = (
+                    "TIMESTAMP" if engine.dialect.name == "postgresql" else "DATETIME"
+                )
+                qry = f"ALTER TABLE users ADD COLUMN created_at {datetime_type};"
                 with engine.begin() as conn:
                     conn.execute(text(qry))
 
@@ -272,7 +279,11 @@ class MigrationTool:
         if "created_at" not in project_columns:
             try:
                 print("Adding column 'created_at' to projects table...")
-                qry = "ALTER TABLE projects ADD COLUMN created_at DATETIME;"
+                # PostgreSQL uses TIMESTAMP, other databases use DATETIME
+                datetime_type = (
+                    "TIMESTAMP" if engine.dialect.name == "postgresql" else "DATETIME"
+                )
+                qry = f"ALTER TABLE projects ADD COLUMN created_at {datetime_type};"
                 with engine.begin() as conn:
                     conn.execute(text(qry))
 
@@ -292,6 +303,24 @@ class MigrationTool:
                 print("Token column added...")
             except Exception as e:
                 print(f"Failed to add token column to projects: {e}")
+
+    def _remove_obsolete_user_fields(self, engine, user_columns):
+        """Remove obsolete user fields."""
+
+        # Remove obsolete 'public' column from users table
+        if "public" in user_columns:
+            try:
+                print("Removing obsolete 'public' column from users table...")
+                qry = "ALTER TABLE users DROP COLUMN public;"
+                with engine.begin() as conn:
+                    conn.execute(text(qry))
+                print("Column 'public' removed successfully.")
+            except Exception as e:
+                print(f"Failed to remove 'public' column: {e}")
+                print(
+                    "Note: SQLite doesn't support DROP COLUMN in older versions. "
+                    "You may need to manually migrate the database."
+                )
 
     def _populate_project_timestamps(self, engine):
         """Populate project created_at timestamps by inferring from filesystem."""

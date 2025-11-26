@@ -51,7 +51,6 @@ class User(UserMixin, DB.Model):
     affiliation = Column(String(100))
     hashed_password = Column(String(500))
     confirmed = Column(Boolean)
-    public = Column(Boolean)
     token = Column(String(150))
     token_created_at = Column(DateTime)
     role = Column(String(10), default="member")
@@ -108,7 +107,6 @@ class User(UserMixin, DB.Model):
         affiliation=None,
         password=None,
         confirmed=False,
-        public=True,
         terms_accepted=False,
     ):
         self.identifier = identifier
@@ -119,7 +117,6 @@ class User(UserMixin, DB.Model):
         if self.origin == "asreview":
             self.hashed_password = User.create_password_hash(password)
         self.confirmed = confirmed
-        self.public = public
         self.terms_accepted = terms_accepted
 
     def update_profile(
@@ -129,7 +126,6 @@ class User(UserMixin, DB.Model):
         affiliation,
         old_password=None,
         new_password=None,
-        public=True,
         reconfirm=True,
     ):
         # if there is a request to update the password, and the origin
@@ -152,7 +148,6 @@ class User(UserMixin, DB.Model):
         self.email = email
         self.name = name
         self.affiliation = affiliation
-        self.public = public
 
         return self
 
