@@ -223,7 +223,9 @@ class MigrationTool:
             try:
                 print("Adding column 'created_at' to users table...")
                 # PostgreSQL uses TIMESTAMP, other databases use DATETIME
-                datetime_type = "TIMESTAMP" if engine.dialect.name == "postgresql" else "DATETIME"
+                datetime_type = (
+                    "TIMESTAMP" if engine.dialect.name == "postgresql" else "DATETIME"
+                )
                 qry = f"ALTER TABLE users ADD COLUMN created_at {datetime_type};"
                 with engine.begin() as conn:
                     conn.execute(text(qry))
@@ -275,7 +277,9 @@ class MigrationTool:
             try:
                 print("Adding column 'created_at' to projects table...")
                 # PostgreSQL uses TIMESTAMP, other databases use DATETIME
-                datetime_type = "TIMESTAMP" if engine.dialect.name == "postgresql" else "DATETIME"
+                datetime_type = (
+                    "TIMESTAMP" if engine.dialect.name == "postgresql" else "DATETIME"
+                )
                 qry = f"ALTER TABLE projects ADD COLUMN created_at {datetime_type};"
                 with engine.begin() as conn:
                     conn.execute(text(qry))
