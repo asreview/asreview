@@ -1556,7 +1556,6 @@ def test_bulk_import_users_success(client_auth):
     assert user1.affiliation == "University A"
     assert user1.role == "member"
     assert user1.confirmed is True
-    assert user1.public is True
     assert user1.terms_accepted is True
 
     user2 = crud.get_user_by_identifier("user2@example.com")
@@ -1776,7 +1775,7 @@ def test_bulk_import_users_defaults(client_auth):
             "name": "Test User",
             "email": "test@example.com",
             "password": "Password123",
-            # No role, confirmed, public specified - should use defaults
+            # No role, confirmed specified - should use defaults
         }
     ]
 
@@ -1795,6 +1794,5 @@ def test_bulk_import_users_defaults(client_auth):
     assert user is not None
     assert user.role == "member"  # Default role
     assert user.confirmed is True  # Admin-created accounts auto-confirmed
-    assert user.public is True  # Default public
     assert user.terms_accepted is True  # Admin-created accounts auto-accept terms
     assert user.origin == "asreview"
