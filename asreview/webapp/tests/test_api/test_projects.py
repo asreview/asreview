@@ -662,9 +662,14 @@ def test_generate_invitation_link(client_auth, project):
     # Decode the base64 encoded token
     decoded_bytes = base64.urlsafe_b64decode(encoded_token.encode("utf-8"))
 
-    # Split payload and signature (separated by b".")
-    assert b"." in decoded_bytes
-    payload_bytes, signature = decoded_bytes.rsplit(b".", 1)
+    # Split payload and signature based on position
+    # SHA256 signature is always 32 bytes at the end, preceded by a 1-byte separator
+    signature = decoded_bytes[-32:]
+    separator = decoded_bytes[-33:-32]
+    payload_bytes = decoded_bytes[:-33]
+
+    # Verify separator is a dot
+    assert separator == b"."
 
     # Decode payload to string
     payload = payload_bytes.decode("utf-8")
