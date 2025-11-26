@@ -70,6 +70,10 @@ def _get_app(app_type="auth-basic", path=None):
         config_path = str(base_dir / "auth_with_terms_enabled.toml")
     elif app_type == "auth-with-terms-custom":
         config_path = str(base_dir / "auth_with_terms_custom.toml")
+    elif app_type == "oauth-with-terms":
+        config_path = str(base_dir / "auth_with_oauth_and_terms.toml")
+    elif app_type == "oauth-with-terms-custom":
+        config_path = str(base_dir / "auth_with_oauth_and_terms_custom.toml")
     else:
         raise ValueError(f"Unknown config {app_type}")
     # create app
@@ -234,6 +238,28 @@ def client_oauth_with_account_creation(asreview_path_fixture):
     creation has been configured."""
     app = _get_app("oauth-with-allowed-account-creation", path=asreview_path_fixture)
 
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
+
+
+@pytest.fixture
+def client_oauth_with_terms(asreview_path_fixture):
+    """Flask client for OAuth authenticated app with terms of agreement enabled."""
+    app = _get_app("oauth-with-terms", path=asreview_path_fixture)
+    with app.app_context():
+        yield app.test_client()
+        crud.delete_everything(DB)
+        close_all_sessions()
+        DB.engine.raw_connection().close()
+
+
+@pytest.fixture
+def client_oauth_with_terms_custom(asreview_path_fixture):
+    """Flask client for OAuth authenticated app with custom terms of agreement text."""
+    app = _get_app("oauth-with-terms-custom", path=asreview_path_fixture)
     with app.app_context():
         yield app.test_client()
         crud.delete_everything(DB)

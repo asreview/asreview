@@ -39,7 +39,7 @@ def validate_invitation_token(encoded_token):
         # Split payload and signature
         if b"." not in decoded:
             return None, (
-                jsonify({"message": "Invalid invitation token format."}),
+                jsonify({"message": "Token is not valid."}),
                 400,
             )
 
@@ -53,7 +53,7 @@ def validate_invitation_token(encoded_token):
 
         if not hmac.compare_digest(signature, expected_signature):
             return None, (
-                jsonify({"message": "Invalid invitation token signature."}),
+                jsonify({"message": "Token is not valid."}),
                 400,
             )
 
@@ -61,7 +61,7 @@ def validate_invitation_token(encoded_token):
         payload = payload_bytes.decode("utf-8")
         if ":" not in payload:
             return None, (
-                jsonify({"message": "Invalid invitation token format."}),
+                jsonify({"message": "Token is not valid."}),
                 400,
             )
 
@@ -83,7 +83,7 @@ def validate_invitation_token(encoded_token):
         return project, None
 
     except (ValueError, base64.binascii.Error):
-        return None, (jsonify({"message": "Invalid invitation token format."}), 400)
+        return None, (jsonify({"message": "Token is not valid."}), 400)
     except Exception as e:
         return None, (jsonify({"message": f"Error: {str(e)}"}), 500)
 

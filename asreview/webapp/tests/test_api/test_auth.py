@@ -998,3 +998,183 @@ def test_admin_creates_user_with_custom_terms(client_auth_with_terms_custom):
     # verify user was created with terms_accepted=True (auto-accepted by admin)
     db_user = crud.get_user_by_identifier(user2.email)
     assert db_user.terms_accepted is True
+
+
+# ###################
+# OAUTH WITH TERMS OF AGREEMENT
+# ###################
+
+
+def test_oauth_callback_without_terms_feature(client_oauth, monkeypatch):
+    """Test OAuth callback when terms feature is disabled - should default to terms_accepted=True"""
+    user = get_user(1)
+
+    # Mock the OAuth handler's get_user_credentials method
+    def mock_get_user_credentials(self, provider, code, redirect_uri):
+        return (user.identifier, user.email, user.name)
+
+    monkeypatch.setattr(
+        "asreview.webapp._authentication.oauth_handler.OAuthHandler.get_user_credentials",
+        mock_get_user_credentials,
+    )
+
+    # Call OAuth callback without terms_accepted field
+    r = au.oauth_callback(
+        client_oauth, user.identifier, user.email, user.name, provider="github"
+    )
+
+    # Should succeed
+    assert r.status_code == 200
+    assert r.json["logged_in"] is True
+    assert r.json["account_created"] is True
+
+    # Verify user was created with terms_accepted=True (default when terms not required)
+    db_user = crud.get_user_by_identifier(user.identifier)
+    assert db_user.terms_accepted is True
+    assert db_user.origin == "github"
+
+
+def test_oauth_callback_with_terms_not_accepted(client_oauth_with_terms, monkeypatch):
+    """Test OAuth callback with terms enabled but checkbox not checked - should fail"""
+    user = get_user(1)
+
+    # Mock the OAuth handler's get_user_credentials method
+    def mock_get_user_credentials(self, provider, code, redirect_uri):
+        return (user.identifier, user.email, user.name)
+
+    monkeypatch.setattr(
+        "asreview.webapp._authentication.oauth_handler.OAuthHandler.get_user_credentials",
+        mock_get_user_credentials,
+    )
+
+    # Call OAuth callback with terms_accepted=false
+    r = au.oauth_callback(
+        client_oauth_with_terms,
+        user.identifier,
+        user.email,
+        user.name,
+        provider="github",
+        terms_accepted=False,
+    )
+
+    # Should return 400 error
+    assert r.status_code == 400
+    assert "Terms of agreement must be accepted" in r.json["message"]
+
+    # Verify user was not created
+    assert crud.count_users() == 0
+
+
+def test_oauth_callback_with_terms_accepted(client_oauth_with_terms, monkeypatch):
+    """Test OAuth callback with terms enabled and checkbox checked - should succeed"""
+    user = get_user(1)
+
+    # Mock the OAuth handler's get_user_credentials method
+    def mock_get_user_credentials(self, provider, code, redirect_uri):
+        return (user.identifier, user.email, user.name)
+
+    monkeypatch.setattr(
+        "asreview.webapp._authentication.oauth_handler.OAuthHandler.get_user_credentials",
+        mock_get_user_credentials,
+    )
+
+    # Call OAuth callback with terms_accepted=true
+    r = au.oauth_callback(
+        client_oauth_with_terms,
+        user.identifier,
+        user.email,
+        user.name,
+        provider="github",
+        terms_accepted=True,
+    )
+
+    # Should succeed
+    assert r.status_code == 200
+    assert r.json["logged_in"] is True
+    assert r.json["account_created"] is True
+
+    # Verify user was created with terms_accepted=True
+    db_user = crud.get_user_by_identifier(user.identifier)
+    assert db_user.terms_accepted is True
+    assert db_user.origin == "github"
+
+
+def test_oauth_callback_with_custom_terms_accepted(
+    client_oauth_with_terms_custom, monkeypatch
+):
+    """Test OAuth callback with custom terms text and checkbox checked - should succeed"""
+    user = get_user(1)
+
+    # Mock the OAuth handler's get_user_credentials method
+    def mock_get_user_credentials(self, provider, code, redirect_uri):
+        return (user.identifier, user.email, user.name)
+
+    monkeypatch.setattr(
+        "asreview.webapp._authentication.oauth_handler.OAuthHandler.get_user_credentials",
+        mock_get_user_credentials,
+    )
+
+    # Call OAuth callback with terms_accepted=true
+    r = au.oauth_callback(
+        client_oauth_with_terms_custom,
+        user.identifier,
+        user.email,
+        user.name,
+        provider="github",
+        terms_accepted=True,
+    )
+
+    # Should succeed
+    assert r.status_code == 200
+    assert r.json["logged_in"] is True
+    assert r.json["account_created"] is True
+
+    # Verify user was created with terms_accepted=True
+    db_user = crud.get_user_by_identifier(user.identifier)
+    assert db_user.terms_accepted is True
+
+
+def test_oauth_callback_existing_user_with_terms(client_oauth_with_terms, monkeypatch):
+    """Test OAuth callback for existing user when terms enabled - should login successfully"""
+    user = get_user(1)
+
+    # Mock the OAuth handler's get_user_credentials method
+    def mock_get_user_credentials(self, provider, code, redirect_uri):
+        return (user.identifier, user.email, user.name)
+
+    monkeypatch.setattr(
+        "asreview.webapp._authentication.oauth_handler.OAuthHandler.get_user_credentials",
+        mock_get_user_credentials,
+    )
+
+    # First, create the user with terms accepted
+    r = au.oauth_callback(
+        client_oauth_with_terms,
+        user.identifier,
+        user.email,
+        user.name,
+        provider="github",
+        terms_accepted=True,
+    )
+    assert r.status_code == 200
+    assert r.json["account_created"] is True
+
+    # Verify user was created
+    assert crud.count_users() == 1
+
+    # Now, try to login again (existing user, no terms_accepted field)
+    r = au.oauth_callback(
+        client_oauth_with_terms,
+        user.identifier,
+        user.email,
+        user.name,
+        provider="github",
+    )
+
+    # Should login successfully without checking terms (existing user)
+    assert r.status_code == 200
+    assert r.json["logged_in"] is True
+    assert r.json["account_created"] is False  # Not a new account
+
+    # Should still be only one user
+    assert crud.count_users() == 1

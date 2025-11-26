@@ -42,6 +42,23 @@ def signin_user(client, user):
     )
 
 
+def oauth_callback(
+    client, identifier, email, name, provider="github", terms_accepted=None
+):
+    """Simulates an OAuth callback through the api"""
+    data = {
+        "code": "mock_code_12345",
+        "provider": provider,
+        "redirect_uri": "http://localhost:3000/oauth_callback",
+    }
+    if terms_accepted is not None:
+        data["terms_accepted"] = "true" if terms_accepted else "false"
+
+    # Mock the OAuth handler to return user credentials
+    # This simulates what would happen after successful OAuth authentication
+    return client.post("/auth/oauth_callback", data=data)
+
+
 def signup_user(client, user):
     """Signs up a user through the api"""
     return client.post(
