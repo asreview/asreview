@@ -222,7 +222,9 @@ class MigrationTool:
         if "created_at" not in user_columns:
             try:
                 print("Adding column 'created_at' to users table...")
-                qry = "ALTER TABLE users ADD COLUMN created_at DATETIME;"
+                # PostgreSQL uses TIMESTAMP, other databases use DATETIME
+                datetime_type = "TIMESTAMP" if engine.dialect.name == "postgresql" else "DATETIME"
+                qry = f"ALTER TABLE users ADD COLUMN created_at {datetime_type};"
                 with engine.begin() as conn:
                     conn.execute(text(qry))
 
@@ -272,7 +274,9 @@ class MigrationTool:
         if "created_at" not in project_columns:
             try:
                 print("Adding column 'created_at' to projects table...")
-                qry = "ALTER TABLE projects ADD COLUMN created_at DATETIME;"
+                # PostgreSQL uses TIMESTAMP, other databases use DATETIME
+                datetime_type = "TIMESTAMP" if engine.dialect.name == "postgresql" else "DATETIME"
+                qry = f"ALTER TABLE projects ADD COLUMN created_at {datetime_type};"
                 with engine.begin() as conn:
                     conn.execute(text(qry))
 
