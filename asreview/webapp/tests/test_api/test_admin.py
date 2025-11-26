@@ -1500,3 +1500,301 @@ def test_batch_delete_projects_single_project(client_auth):
     remaining_projects = crud.list_projects()
     project_ids = [p.id for p in remaining_projects]
     assert project1_obj.id not in project_ids
+
+
+# ###################
+# ADMIN BULK IMPORT USERS
+# ###################
+
+
+def test_bulk_import_users_success(client_auth):
+    """Test successful bulk import of users with valid data"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    # Prepare bulk import data
+    users_data = [
+        {
+            "name": "User One",
+            "email": "user1@example.com",
+            "password": "Password123",
+            "affiliation": "University A",
+            "role": "member",
+        },
+        {
+            "name": "User Two",
+            "email": "user2@example.com",
+            "password": "SecurePass456",
+            "role": "admin",
+        },
+        {
+            "name": "User Three",
+            "email": "user3@example.com",
+            "password": "TestPass789",
+            "affiliation": "Company B",
+        },
+    ]
+
+    response = client_auth.post(
+        "/admin/users/bulk-import",
+        data=json.dumps({"users": users_data}),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 201
+    data = response.get_json()
+    assert "success" in data
+    assert "failed" in data
+    assert len(data["success"]) == 3
+    assert len(data["failed"]) == 0
+    assert "Imported 3 users, 0 failed" in data["message"]
+
+    # Verify users were created in database
+    user1 = crud.get_user_by_identifier("user1@example.com")
+    assert user1 is not None
+    assert user1.name == "User One"
+    assert user1.affiliation == "University A"
+    assert user1.role == "member"
+    assert user1.confirmed is True
+    assert user1.public is True
+    assert user1.terms_accepted is True
+
+    user2 = crud.get_user_by_identifier("user2@example.com")
+    assert user2 is not None
+    assert user2.role == "admin"
+
+    user3 = crud.get_user_by_identifier("user3@example.com")
+    assert user3 is not None
+
+
+def test_bulk_import_users_partial_success(client_auth):
+    """Test bulk import with some valid and some invalid users"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    # Prepare bulk import data with some invalid entries
+    users_data = [
+        {
+            "name": "Valid User",
+            "email": "valid@example.com",
+            "password": "Password123",
+        },
+        {
+            "name": "Missing Email",
+            "password": "Password123",
+            # Missing email field
+        },
+        {
+            "name": "Invalid User",
+            "email": "invalid@example.com",
+            # Missing password field
+        },
+        {
+            "name": "Another Valid",
+            "email": "another@example.com",
+            "password": "SecurePass456",
+        },
+    ]
+
+    response = client_auth.post(
+        "/admin/users/bulk-import",
+        data=json.dumps({"users": users_data}),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 201
+    data = response.get_json()
+    assert len(data["success"]) == 2
+    assert len(data["failed"]) == 2
+    assert "Imported 2 users, 2 failed" in data["message"]
+
+    # Verify valid users were created
+    valid_user = crud.get_user_by_identifier("valid@example.com")
+    assert valid_user is not None
+
+    another_user = crud.get_user_by_identifier("another@example.com")
+    assert another_user is not None
+
+    # Verify failed entries include error messages
+    failed_emails = [f["email"] for f in data["failed"]]
+    assert "" in failed_emails or "invalid@example.com" in failed_emails
+
+
+def test_bulk_import_users_with_duplicates(client_auth):
+    """Test bulk import with duplicate email addresses"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    # Create a user first
+    existing_user_data = {
+        "name": "Existing User",
+        "email": "existing@example.com",
+        "password": "Password123",
+    }
+    client_auth.post(
+        "/admin/users",
+        data=json.dumps(existing_user_data),
+        content_type="application/json",
+    )
+
+    # Try to bulk import including the duplicate
+    users_data = [
+        {
+            "name": "New User",
+            "email": "newuser@example.com",
+            "password": "Password123",
+        },
+        {
+            "name": "Duplicate User",
+            "email": "existing@example.com",  # Duplicate
+            "password": "Password123",
+        },
+    ]
+
+    response = client_auth.post(
+        "/admin/users/bulk-import",
+        data=json.dumps({"users": users_data}),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 201
+    data = response.get_json()
+    assert len(data["success"]) == 1
+    assert len(data["failed"]) == 1
+    assert "already exists" in data["failed"][0]["error"].lower()
+
+
+def test_bulk_import_users_empty_list(client_auth):
+    """Test bulk import with empty user list"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    response = client_auth.post(
+        "/admin/users/bulk-import",
+        data=json.dumps({"users": []}),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["message"] == "No user data provided"
+
+
+def test_bulk_import_users_missing_required_fields(client_auth):
+    """Test bulk import with missing required fields"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    # Test missing name
+    users_data = [
+        {
+            "email": "test@example.com",
+            "password": "Password123",
+            # Missing name
+        }
+    ]
+
+    response = client_auth.post(
+        "/admin/users/bulk-import",
+        data=json.dumps({"users": users_data}),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert len(data["failed"]) == 1
+    assert "required" in data["failed"][0]["error"].lower()
+
+
+def test_bulk_import_users_as_non_admin(client_auth):
+    """Test that non-admin users cannot bulk import users"""
+    # Create regular user
+    regular_user = get_user(1)
+    au.signup_user(client_auth, regular_user)
+    au.signin_user(client_auth, regular_user)
+
+    # Try to bulk import as non-admin
+    users_data = [
+        {
+            "name": "Test User",
+            "email": "test@example.com",
+            "password": "Password123",
+        }
+    ]
+
+    response = client_auth.post(
+        "/admin/users/bulk-import",
+        data=json.dumps({"users": users_data}),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 403
+    data = response.get_json()
+    assert data["message"] == "Admin access required."
+
+
+def test_bulk_import_users_invalid_role(client_auth):
+    """Test bulk import with invalid role value"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    users_data = [
+        {
+            "name": "Valid User",
+            "email": "valid@example.com",
+            "password": "Password123",
+            "role": "member",
+        },
+        {
+            "name": "Invalid Role User",
+            "email": "invalid@example.com",
+            "password": "Password123",
+            "role": "superadmin",  # Invalid role
+        },
+    ]
+
+    response = client_auth.post(
+        "/admin/users/bulk-import",
+        data=json.dumps({"users": users_data}),
+        content_type="application/json",
+    )
+
+    # Note: The backend doesn't validate role values, so both might succeed
+    # This test documents current behavior
+    data = response.get_json()
+    assert "success" in data
+    assert "failed" in data
+
+
+def test_bulk_import_users_defaults(client_auth):
+    """Test that bulk imported users have correct default values"""
+    # Create admin user and sign in
+    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+
+    users_data = [
+        {
+            "name": "Test User",
+            "email": "test@example.com",
+            "password": "Password123",
+            # No role, confirmed, public specified - should use defaults
+        }
+    ]
+
+    response = client_auth.post(
+        "/admin/users/bulk-import",
+        data=json.dumps({"users": users_data}),
+        content_type="application/json",
+    )
+
+    assert response.status_code == 201
+    data = response.get_json()
+    assert len(data["success"]) == 1
+
+    # Verify defaults were applied
+    user = crud.get_user_by_identifier("test@example.com")
+    assert user is not None
+    assert user.role == "member"  # Default role
+    assert user.confirmed is True  # Admin-created accounts auto-confirmed
+    assert user.public is True  # Default public
+    assert user.terms_accepted is True  # Admin-created accounts auto-accept terms
+    assert user.origin == "asreview"

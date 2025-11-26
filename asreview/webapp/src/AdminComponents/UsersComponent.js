@@ -26,11 +26,12 @@ import {
   Search,
   Clear,
   Delete,
+  ArrowUpward,
 } from "@mui/icons-material";
 
 import { AdminAPI } from "api";
 import { InlineErrorHandler } from "Components";
-import { UserFormDialog } from "AdminComponents";
+import { UserFormDialog, CSVImportDialog } from "AdminComponents";
 import { useAuth } from "hooks/useAuth";
 import UserCard from "./UserCard";
 import DeleteUserConfirmationDialog from "./DeleteUserConfirmationDialog";
@@ -41,6 +42,7 @@ const UsersComponent = () => {
   const [selectedTab, setSelectedTab] = React.useState(0);
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
   const [userFormDialogOpen, setUserFormDialogOpen] = React.useState(false);
+  const [csvImportDialogOpen, setCSVImportDialogOpen] = React.useState(false);
   const [dialogMode, setDialogMode] = React.useState("create"); // "create" or "edit"
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
@@ -212,6 +214,21 @@ const UsersComponent = () => {
     },
   );
 
+  // Mutation for bulk importing users
+  const { mutate: bulkImportUsers, isLoading: isImportingUsers } = useMutation(
+    (usersData) => AdminAPI.bulkImportUsers(usersData),
+    {
+      onSuccess: (data) => {
+        refetch(); // Refresh the user list
+        return data; // Return results to the dialog
+      },
+      onError: (error) => {
+        console.error("Failed to import users:", error);
+        throw error; // Propagate error to the dialog
+      },
+    },
+  );
+
   const handleHelpPopoverOpen = (event) => {
     setAnchorElInfo(event.currentTarget);
   };
@@ -221,14 +238,8 @@ const UsersComponent = () => {
   };
 
   const handleTabChange = (event, newValue) => {
-    // If the user clicked the "+" tab (only available when OAuth is disabled), open the create dialog
-    if (!window.oAuthData && newValue === userGroups.length) {
-      setDialogMode("create");
-      setSelectedUser(null);
-      setUserFormDialogOpen(true);
-    } else {
-      setSelectedTab(newValue);
-    }
+    // Action tabs are handled via onClick, so just change to the selected tab
+    setSelectedTab(newValue);
   };
 
   const handleFormSubmit = (userData) => {
@@ -343,6 +354,23 @@ const UsersComponent = () => {
 
   const handleCloseBatchDeleteDialog = () => {
     setBatchDeleteDialogOpen(false);
+  };
+
+  const handleOpenCSVImportDialog = () => {
+    setCSVImportDialogOpen(true);
+  };
+
+  const handleCloseCSVImportDialog = () => {
+    setCSVImportDialogOpen(false);
+  };
+
+  const handleCSVImport = async (usersData) => {
+    return new Promise((resolve, reject) => {
+      bulkImportUsers(usersData, {
+        onSuccess: (data) => resolve(data),
+        onError: (error) => reject(error),
+      });
+    });
   };
 
   const openInfo = Boolean(anchorElInfo);
@@ -551,13 +579,32 @@ const UsersComponent = () => {
                   />
                 ))}
                 {!window.oAuthData && (
-                  <Tab
-                    key="add-user-button-tab"
-                    icon={<Add fontSize="small" />}
-                    sx={{ p: 1, minWidth: "auto" }}
-                    value={userGroups.length}
-                    aria-label="Add new user"
-                  />
+                  <>
+                    <Tab
+                      key="add-user-button-tab"
+                      icon={<Add fontSize="small" />}
+                      sx={{ p: 1, minWidth: "auto" }}
+                      value={userGroups.length}
+                      aria-label="Add new user"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDialogMode("create");
+                        setSelectedUser(null);
+                        setUserFormDialogOpen(true);
+                      }}
+                    />
+                    <Tab
+                      key="csv-import-button-tab"
+                      icon={<ArrowUpward fontSize="small" />}
+                      sx={{ p: 1, minWidth: "auto" }}
+                      value={userGroups.length + 1}
+                      aria-label="Import users from CSV"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenCSVImportDialog();
+                      }}
+                    />
+                  </>
                 )}
               </Tabs>
               {userGroups[selectedTab] &&
@@ -686,6 +733,14 @@ const UsersComponent = () => {
         onClose={handleProjectModalClose}
         project={selectedProject}
         onUserClick={handleUserClickFromProject}
+      />
+
+      {/* CSV Import Dialog */}
+      <CSVImportDialog
+        open={csvImportDialogOpen}
+        onClose={handleCloseCSVImportDialog}
+        onImport={handleCSVImport}
+        isImporting={isImportingUsers}
       />
     </Box>
   );
