@@ -1,4 +1,8 @@
-import { LogoutOutlined, PersonOutlined } from "@mui/icons-material";
+import {
+  LogoutOutlined,
+  ManageAccountsOutlined,
+  PersonOutlined,
+} from "@mui/icons-material";
 import {
   Box,
   ClickAwayListener,
@@ -21,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { TypographySubtitle1Medium } from "StyledComponents/StyledTypography";
 
 import { AuthAPI } from "api";
+import { useAuth } from "hooks/useAuth";
 
 import { InitialsAvatar } from "StyledComponents/InitialsAvatar";
 
@@ -48,6 +53,7 @@ const SignOutItem = () => {
 
 const ProfilePopper = () => {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
@@ -67,6 +73,11 @@ const ProfilePopper = () => {
   const handleProfile = () => {
     setOpen(false);
     navigate("/profile");
+  };
+
+  const handleAdmin = () => {
+    setOpen(false);
+    navigate("/admin");
   };
 
   return (
@@ -112,6 +123,16 @@ const ProfilePopper = () => {
                     <Typography variant="body2">Profile</Typography>
                   </ListItemText>
                 </MenuItem>
+                {window.authentication && isAdmin && (
+                  <MenuItem onClick={handleAdmin}>
+                    <ListItemIcon>
+                      <ManageAccountsOutlined fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText disableTypography>
+                      <Typography variant="body2">Admin</Typography>
+                    </ListItemText>
+                  </MenuItem>
+                )}
                 <SignOutItem />
               </MenuList>
             </Paper>
