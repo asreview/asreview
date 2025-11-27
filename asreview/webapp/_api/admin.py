@@ -157,6 +157,7 @@ def bulk_import_users():
 
         success = []
         failed = []
+        has_validation_errors = False
 
         for user_data in users_data:
             try:
@@ -170,6 +171,7 @@ def bulk_import_users():
                 password = user_data.get("password")
 
                 if not name or not email or not password:
+                    has_validation_errors = True
                     failed.append(
                         {
                             "name": name,
@@ -228,6 +230,7 @@ def bulk_import_users():
                 )
 
             except ValueError as e:
+                has_validation_errors = True
                 failed.append(
                     {
                         "name": user_data.get("name", ""),
@@ -236,6 +239,7 @@ def bulk_import_users():
                     }
                 )
             except Exception as e:
+                has_validation_errors = True
                 failed.append(
                     {
                         "name": user_data.get("name", ""),
@@ -248,13 +252,24 @@ def bulk_import_users():
         if success:
             DB.session.commit()
 
+        # Determine appropriate status code:
+        # - 201: At least one user created
+        # - 400: No users created and there were validation errors
+        # - 200: No users created but no validation errors (e.g., all duplicates)
+        if success:
+            status_code = 201
+        elif has_validation_errors:
+            status_code = 400
+        else:
+            status_code = 200
+
         return jsonify(
             {
                 "message": f"Imported {len(success)} users, {len(failed)} failed",
                 "success": success,
                 "failed": failed,
             }
-        ), 201 if success else 400
+        ), status_code
 
     except SQLAlchemyError as e:
         DB.session.rollback()

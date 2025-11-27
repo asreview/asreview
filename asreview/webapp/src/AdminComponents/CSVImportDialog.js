@@ -141,11 +141,19 @@ const CSVImportDialog = ({ open, onClose, onImport, isImporting }) => {
   const handleImport = async () => {
     if (!parsedData) return;
 
+    // Clear any previous errors
+    setErrors([]);
+
     try {
       const results = await onImport(parsedData);
       setImportResults(results);
     } catch (error) {
-      setErrors([error.message || "Failed to import users"]);
+      // Extract error message from various possible locations
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to import users";
+      setErrors([errorMessage]);
     }
   };
 
@@ -309,12 +317,18 @@ const CSVImportDialog = ({ open, onClose, onImport, isImporting }) => {
           <Button
             onClick={handleImport}
             variant="contained"
-            disabled={!parsedData || isImporting}
-            startIcon={isImporting ? <CircularProgress size={16} /> : null}
+            disabled={!parsedData || isImporting || errors.length > 0}
+            startIcon={
+              isImporting && errors.length === 0 ? (
+                <CircularProgress size={16} />
+              ) : null
+            }
           >
-            {isImporting
+            {isImporting && errors.length === 0
               ? "Importing..."
-              : `Import ${parsedData?.length || 0} Users`}
+              : errors.length > 0
+                ? "Fix Errors to Import"
+                : `Import ${parsedData?.length || 0} Users`}
           </Button>
         )}
       </DialogActions>
