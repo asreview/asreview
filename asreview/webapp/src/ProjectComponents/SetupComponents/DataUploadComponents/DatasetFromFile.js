@@ -17,6 +17,8 @@ import {
 
 import { ProjectAPI } from "api";
 import { projectModes } from "globals.js";
+import { useUploadProgress } from "hooks/useUploadProgress";
+import UploadProgressBar from "Components/UploadProgressBar";
 
 const baseStyle = {
   alignItems: "center",
@@ -43,6 +45,11 @@ const rejectStyle = {
 
 const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+  const {
+    progress: uploadProgress,
+    onUploadProgress,
+    resetProgress,
+  } = useUploadProgress();
 
   const {
     error: createProjectError,
@@ -53,7 +60,11 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
   } = useMutation(ProjectAPI.createProject, {
     mutationKey: ["addDataset"],
     onSuccess: (data) => {
+      resetProgress();
       setSetupProjectId(data.id);
+    },
+    onError: () => {
+      resetProgress();
     },
   });
 
@@ -68,12 +79,21 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
         resetAddDataset();
       }
 
+      resetProgress();
       addDataset({
         mode: mode,
         file: acceptedFiles[0],
+        onUploadProgress: onUploadProgress,
       });
     },
-    [addDataset, mode, isCreatingProjectError, resetAddDataset],
+    [
+      addDataset,
+      mode,
+      isCreatingProjectError,
+      resetAddDataset,
+      resetProgress,
+      onUploadProgress,
+    ],
   );
 
   const { data } = useQuery(
@@ -178,6 +198,11 @@ const DatasetFromFile = ({ project_id, mode, setSetupProjectId }) => {
             <Typography fontSize="1rem">
               Accepted files: {acceptedExtensions}
             </Typography>
+
+            <UploadProgressBar
+              progress={uploadProgress}
+              show={isCreatingProject && uploadProgress > 0}
+            />
 
             {isCreatingProjectError && (
               <Box>

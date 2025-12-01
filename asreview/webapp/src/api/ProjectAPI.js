@@ -63,13 +63,20 @@ class ProjectAPI {
       body.append("benchmark", variables.benchmark);
     }
 
+    const config = {
+      method: "post",
+      url: api_url + `projects/create`,
+      data: body,
+      withCredentials: true,
+    };
+
+    // Add upload progress callback if provided
+    if (variables.onUploadProgress) {
+      config.onUploadProgress = variables.onUploadProgress;
+    }
+
     return new Promise((resolve, reject) => {
-      axios({
-        method: "post",
-        url: api_url + `projects/create`,
-        data: body,
-        withCredentials: true,
-      })
+      axios(config)
         .then((result) => {
           resolve(result["data"]);
         })
@@ -418,14 +425,20 @@ class ProjectAPI {
     let body = new FormData();
     body.append("file", variables.file);
 
-    const url = api_url + `projects/import`;
+    const config = {
+      method: "post",
+      url: api_url + `projects/import`,
+      data: body,
+      withCredentials: true,
+    };
+
+    // Add upload progress callback if provided
+    if (variables.onUploadProgress) {
+      config.onUploadProgress = variables.onUploadProgress;
+    }
+
     return new Promise((resolve, reject) => {
-      axios({
-        method: "post",
-        url: url,
-        data: body,
-        withCredentials: true,
-      })
+      axios(config)
         .then((result) => {
           resolve(result["data"]);
         })
