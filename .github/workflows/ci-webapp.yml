@@ -13,9 +13,13 @@ jobs:
           cache: "npm"
           cache-dependency-path: "asreview/webapp/package-lock.json"
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd asreview/webapp
+          npm install
       - name: Run Prettier
-        run: npm run format
+        run: |
+          cd asreview/webapp
+          npm run format
   ruff:
     runs-on: ubuntu-latest
     steps:
