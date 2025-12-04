@@ -4,15 +4,16 @@ jobs:
   prettier:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          fetch-depth: 0
-      - name: Prettify code
-        uses: creyD/prettier_action@v4.3
-        with:
-          prettier_options: --write **/*.{js,jsx,css,html}
-          only_changed: True
+          node-version: '16'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Prettier
+        run: npm run format
   ruff:
     runs-on: ubuntu-latest
     steps:

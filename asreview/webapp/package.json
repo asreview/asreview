@@ -33,7 +33,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "prepare": "cd ../.. && husky asreview/webapp/.husky"
+    "prepare": "cd ../.. && husky asreview/webapp/.husky",
+    "format": "prettier --write ."
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -55,7 +56,7 @@
     "husky": "^9.1.5",
     "lint-staged": "^15.2.10",
     "node-fetch": ">=3.3.2",
-    "prettier": "^3.7.4"
+    "prettier": "3.3.3"
   },
   "lint-staged": {
     "*": "prettier --write --ignore-unknown"
