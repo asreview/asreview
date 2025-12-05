@@ -24,6 +24,8 @@ import { useMediaQuery } from "@mui/material";
 import { ProjectAPI } from "api";
 
 import { useToggle } from "hooks/useToggle";
+import { useUploadProgress } from "hooks/useUploadProgress";
+import UploadProgressBar from "Components/UploadProgressBar";
 import { useNavigate } from "react-router-dom";
 
 const baseStyle = {
@@ -49,14 +51,22 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
+const ImportProjectCard = ({
+  mutate,
+  isLoading,
+  isError,
+  error,
+  uploadProgress,
+  onUploadProgress,
+}) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
       mutate({
         file: acceptedFiles[0],
+        onUploadProgress: onUploadProgress,
       });
     },
-    [mutate],
+    [mutate, onUploadProgress],
   );
 
   const {
@@ -134,6 +144,11 @@ const ImportProjectCard = ({ mutate, isLoading, isError, error }) => {
             </Typography>
             <Typography fontSize="1rem">Accepted files: .asreview</Typography>
 
+            <UploadProgressBar
+              progress={uploadProgress}
+              show={isLoading && uploadProgress > 0}
+            />
+
             {isError && (
               <Box>
                 <Alert severity="error" sx={{ mx: 3 }}>
@@ -154,12 +169,18 @@ const ImportProject = ({ ...buttonProps }) => {
 
   const [importSnackbar, toggleImportSnackbar] = useToggle();
   const [warningDialog, toggleWarningDialog] = useToggle();
+  const {
+    progress: uploadProgress,
+    onUploadProgress,
+    resetProgress,
+  } = useUploadProgress();
 
   const { mutate, isLoading, data, isError, error } = useMutation(
     ProjectAPI.mutateImportProject,
     {
       mutationKey: ["importProject"],
       onSuccess: (data) => {
+        resetProgress();
         queryClient.invalidateQueries("fetchProjects");
 
         if (data?.warnings.length === 0) {
@@ -167,6 +188,9 @@ const ImportProject = ({ ...buttonProps }) => {
         } else {
           toggleWarningDialog();
         }
+      },
+      onError: () => {
+        resetProgress();
       },
     },
   );
@@ -183,6 +207,8 @@ const ImportProject = ({ ...buttonProps }) => {
         isLoading={isLoading}
         isError={isError}
         error={error}
+        uploadProgress={uploadProgress}
+        onUploadProgress={onUploadProgress}
       />
 
       <Snackbar
