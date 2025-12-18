@@ -19,7 +19,6 @@ __all__ = [
 
 import functools
 import json
-import os
 import shutil
 import tempfile
 import time
@@ -62,6 +61,7 @@ PROJECT_MODE_SIMULATE = "simulate"
 PATH_PROJECT_CONFIG = "project.json"
 PATH_PROJECT_CONFIG_LOCK = "project.json.lock"
 PATH_FEATURE_MATRICES = "feature_matrices"
+PATH_MODEL_CONFIG = "settings_metadata.json"
 PATH_DATA_STORE = "data_store.db"
 
 
@@ -113,6 +113,7 @@ class Project:
     def __init__(self, project_path, project_id=None):
         self.project_path = Path(project_path)
         self.project_id = project_id
+        self.model_config_path = Path(project_path, PATH_MODEL_CONFIG)
 
     @functools.cached_property
     def data_store(self):
@@ -159,7 +160,6 @@ class Project:
             project_path.mkdir(parents=True, exist_ok=True)
             Path(project_path, "data").mkdir(exist_ok=True)
             Path(project_path, PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
-            Path(project_path, "reviews").mkdir(exist_ok=True)
             data_store = DataStore(Path(project_path, PATH_DATA_STORE))
             data_store.create_tables()
 
@@ -169,7 +169,7 @@ class Project:
                 "mode": project_mode,
                 "name": project_name,
                 "created_at_unix": int(time.time()),
-                "reviews": [],
+                "review": {},
                 "feature_matrices": [],
                 "tags": project_tags,
             }
@@ -391,15 +391,11 @@ class Project:
             raise ValueError("Unsupported file extension")
 
     @property
-    def reviews(self):
-        try:
-            return self.config["reviews"]
-        except Exception:
-            return []
+    def review(self):
+        return self.config.get("review")
 
     def add_review(
         self,
-        review_id=None,
         cycle=None,
         reviewer=None,
         status="setup",
@@ -408,8 +404,6 @@ class Project:
 
         Parameters
         ----------
-        review_id: str
-            The review_id uuid4.
         cycle:
             An active learning cycle object to add to the review. This object is used
             to store the configuration of the active learning cycle to file.
@@ -420,18 +414,8 @@ class Project:
             'finished'.
 
         """
-
-        if review_id is not None and any(
-            [x["id"] == review_id for x in self.config["reviews"]]
-        ):
-            raise ValueError(f"Review with id {review_id} already exists.")
-
-        if review_id is None:
-            review_id = uuid4().hex
-
-        Path(self.project_path, "reviews", review_id).mkdir(exist_ok=True, parents=True)
-
-        config = self.config
+        if self.review is not None:
+            raise ValueError("Review already exists.")
 
         if cycle is not None:
             if isinstance(cycle, ActiveLearningCycle):
@@ -441,13 +425,10 @@ class Project:
             else:
                 raise ValueError("Invalid cycle type.")
 
-            with open(
-                Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
-                "w",
-            ) as f:
+            with open(self.model_config_path, "w") as f:
                 json.dump({"current_value": asdict(cycle_meta)}, f)
 
-        fp_state = Path(self.project_path, "reviews", review_id, "results.db")
+        fp_state = Path(self.project_path, "results.db")
 
         if reviewer is None:
             state = SQLiteState(fp_state)
@@ -456,44 +437,20 @@ class Project:
         else:
             reviewer.to_sql(fp_state)
 
-        review_config = {
-            "id": review_id,
-            "status": status,
-        }
+        self.update_config(review={"id": uuid4().hex, "status": status})
+        return self.config
 
-        # add container for reviews
-        if "reviews" not in config:
-            config["reviews"] = []
-
-        config["reviews"].append(review_config)
-
-        self.config = config
-        return config
-
-    def update_review(self, review_id=None, cycle=None, state=None, **kwargs):
+    def update_review(self, cycle=None, state=None, **kwargs):
         """Update review metadata.
 
         Parameters
         ----------
-        review_id: str
-            The review_id uuid4. Default None, which is the
-            first added review.
         status: str
             The status of the review. One of 'setup', 'running',
             'finished'.
         """
-
-        # read the file with project info
-        config = self.config
-
-        if review_id is None:
-            review_index = 0
-            review_id = config["reviews"][0]["id"]
-        else:
-            review_index = [x["id"] for x in self.config["reviews"]].index(review_id)
-
         if state is not None:
-            fp_state = Path(self.project_path, "reviews", review_id, "results.db")
+            fp_state = Path(self.project_path, "results.db")
             state.to_sql(fp_state)
 
         if cycle is not None:
@@ -505,18 +462,14 @@ class Project:
                 raise ValueError("Invalid cycle type.")
 
             with open(
-                Path(self.project_path, "reviews", review_id, "settings_metadata.json"),
+                self.model_config_path,
                 "w",
             ) as f:
                 json.dump({"current_value": asdict(cycle_meta)}, f)
 
-        review_config = config["reviews"][review_index]
+        review_config = self.config["review"]
         review_config.update(kwargs)
-
-        config["reviews"][review_index] = review_config
-
-        # update the file with project info
-        self.config = config
+        self.update_config(review=review_config)
 
     def delete_review(self, remove_folders=False):
         try:
@@ -529,29 +482,17 @@ class Project:
         except Exception:
             print("Failed to remove feature matrices.")
 
+        self.model_config_path.unlink(missing_ok=True)
         try:
-            path_review = Path(self.project_path, "reviews")
-            shutil.rmtree(path_review)
-            if not remove_folders:
-                Path(self.project_path, "reviews").mkdir(exist_ok=True)
+            Path(self.project_path, "results.db").unlink()
         except Exception:
             print("Failed to remove sql database.")
 
-        # update the config
-        self.update_config(**{"reviews": [], "feature_matrices": []})
+        self.update_config(review=None, feature_matrices=[])
 
-    def mark_review_finished(self, review_id=None):
-        """Mark a review in the project as finished.
-
-        If no review_id is given, mark the first review as finished.
-
-        Parameters
-        ----------
-        review_id: str
-            Identifier of the review to mark as finished.
-        """
-
-        self.update_review(review_id=review_id, status="finished")
+    def mark_review_finished(self):
+        """Mark the review in the project as finished."""
+        self.update_review(status="finished")
 
     def export(self, export_fp):
         if Path(export_fp).suffix != ".asreview":
@@ -616,13 +557,7 @@ class Project:
                 raise ValueError("Not possible to import (old) project file.")
 
             if reset_model_if_not_found:
-                cycle_fp = Path(
-                    tmpdir,
-                    "reviews",
-                    project_config["reviews"][0]["id"],
-                    "settings_metadata.json",
-                )
-
+                cycle_fp = Path(tmpdir, PATH_MODEL_CONFIG)
                 with open(cycle_fp) as f:
                     cycle = json.load(f)["current_value"]
 
@@ -654,26 +589,18 @@ class Project:
 
         return cls(Path(project_path, project_config["id"]))
 
-    def get_review_error(self, review_id=None):
-        if review_id is None:
-            review_id = self.config["reviews"][0]["id"]
-
-        error_path = Path(self.project_path, "reviews", review_id, "error.json")
+    def get_review_error(self):
+        error_path = Path(self.project_path, "error.json")
         if error_path.exists():
             with open(error_path, "r") as f:
                 return json.load(f)
         else:
             raise ValueError("No error found.")
 
-    def set_review_error(self, err, review_id=None):
-        if review_id is None:
-            review_id = self.config["reviews"][0]["id"]
-
+    def set_review_error(self, err):
         err_type = type(err).__name__
 
-        with open(
-            Path(self.project_path, "reviews", review_id, "error.json"), "w"
-        ) as f:
+        with open(Path(self.project_path, "error.json"), "w") as f:
             json.dump(
                 {
                     "message": f"{err_type}: {err}",
@@ -684,13 +611,5 @@ class Project:
                 f,
             )
 
-    def remove_review_error(self, review_id=None):
-        if review_id is None:
-            review_id = self.config["reviews"][0]["id"]
-
-        error_path = self.project_path / "reviews" / review_id / "error.json"
-        if error_path.exists():
-            try:
-                os.remove(error_path)
-            except Exception as err:
-                raise ValueError(f"Failed to clear the error. {err}")
+    def remove_review_error(self):
+        Path(self.project_path, "error.json").unlink(missing_ok=True)

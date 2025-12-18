@@ -41,7 +41,7 @@ def test_project_migration_1_to_2(tmpdir):
         Path(
             project.project_path,
             "reviews",
-            project.reviews[0]["id"],
+            project.review["id"],
             "settings_metadata.json",
         )
     ) as f:

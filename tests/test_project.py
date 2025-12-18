@@ -8,18 +8,8 @@ from asreview.models.classifiers import SVM
 def test_project_load(asreview_test_project, tmpdir):
     project = asr.Project.load(asreview_test_project, tmpdir)
 
-    assert Path(
-        project.project_path,
-        "reviews",
-        project.reviews[0]["id"],
-        "results.db",
-    ).exists()
-    assert Path(
-        project.project_path,
-        "reviews",
-        project.reviews[0]["id"],
-        "settings_metadata.json",
-    ).exists()
+    assert Path(project.project_path, "results.db").exists()
+    assert Path(project.model_config_path).exists()
 
     assert Path(
         project.project_path,
@@ -34,14 +24,7 @@ def test_project_load_unknown_classifier(tmpdir):
 
     project = asr.Project.load(test_state_fp, tmpdir, reset_model_if_not_found=True)
 
-    cycle_fp = Path(
-        project.project_path,
-        "reviews",
-        project.reviews[0]["id"],
-        "settings_metadata.json",
-    )
-
-    with open(cycle_fp) as f:
+    with open(project.model_config_path) as f:
         data = json.load(f)
 
         cycle = asr.ActiveLearningCycle.from_meta(

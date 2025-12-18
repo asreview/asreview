@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import json
-from pathlib import Path
 
 import asreview as asr
 from asreview.models.queriers import TopDown
@@ -24,14 +23,7 @@ from asreview.webapp.utils import get_project_path
 
 
 def _read_cycle_data(project):
-    fp_cycle_metadata = Path(
-        project.project_path,
-        "reviews",
-        project.reviews[0]["id"],
-        "settings_metadata.json",
-    )
-
-    with open(fp_cycle_metadata, "r") as f:
+    with open(project.model_config_path, "r") as f:
         return asr.ActiveLearningCycleData(**json.load(f)["current_value"])
 
 

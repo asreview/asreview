@@ -11,7 +11,7 @@ def read_tags_data(project):
     tags_path = Path(
         project.project_path,
         "reviews",
-        project.reviews[0]["id"],
+        project.review["id"],
         "tags.json",
     )
     try:

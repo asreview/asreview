@@ -30,12 +30,10 @@ SCHEMA = {
             "description": "",
             "authors": "",
             "created_at_unix": 1648205610,
-            "reviews": [
-                {
-                    "id": "4793de70a8d44eb4baa68bac2853c91a",
-                    "status": "review",
-                }
-            ],
+            "review": {
+                "id": "4793de70a8d44eb4baa68bac2853c91a",
+                "status": "review",
+            },
             "feature_matrices": [
                 {"id": "tfidf", "filename": "tfidf_feature_matrix.npz"}
             ],
@@ -101,60 +99,38 @@ SCHEMA = {
             "default": 0,
             "examples": [1648205610],
         },
-        "reviews": {
-            "$id": "#/properties/reviews",
-            "type": "array",
-            "title": "The reviews schema",
-            "description": "The list of reviews in the project. Multiple reviews per project are possible, however this is limited to 1 at the moment.",
+        "review": {
+            "$id": "#/properties/review",
+            "type": "object",
+            "title": "The review schema",
+            "description": "The review in the project. Only a single review is allowed.",
             "default": [],
             "examples": [
-                [
-                    {
-                        "id": "4793de70a8d44eb4baa68bac2853c91a",
-                        "status": "review",
-                    }
-                ]
+                {
+                    "id": "4793de70a8d44eb4baa68bac2853c91a",
+                    "status": "review",
+                }
             ],
-            "additionalItems": True,
-            "items": {
-                "$id": "#/properties/reviews/items",
-                "anyOf": [
-                    {
-                        "$id": "#/properties/reviews/items/anyOf/0",
-                        "type": "object",
-                        "title": "The first anyOf schema",
-                        "description": "An explanation about the purpose of this instance.",
-                        "default": {},
-                        "examples": [
-                            {
-                                "id": "4793de70a8d44eb4baa68bac2853c91a",
-                                "status": "review",
-                            }
-                        ],
-                        "required": ["id", "status"],
-                        "properties": {
-                            "id": {
-                                "$id": "#/properties/reviews/items/anyOf/0/properties/id",
-                                "type": "string",
-                                "title": "The id of the review.",
-                                "description": "A unique UUID4 identifier of the review.",
-                                "default": "",
-                                "examples": ["4793de70a8d44eb4baa68bac2853c91a"],
-                            },
-                            "status": {
-                                "$id": "#/properties/reviews/items/anyOf/0/properties/status",
-                                "type": ["string", "null"],
-                                "title": "The status of the review.",
-                                "description": "The status of the review. Options are setup, review, finished.",
-                                "enum": ["setup", "review", "finished"],
-                                "default": "setup",
-                                "examples": ["review"],
-                            },
-                        },
-                        "additionalProperties": False,
-                    }
-                ],
+            "properties": {
+                "id": {
+                    "$id": "#/properties/reviews/items/anyOf/0/properties/id",
+                    "type": "string",
+                    "title": "The id of the review.",
+                    "description": "A unique UUID4 identifier of the review.",
+                    "default": "",
+                    "examples": ["4793de70a8d44eb4baa68bac2853c91a"],
+                },
+                "status": {
+                    "$id": "#/properties/reviews/items/anyOf/0/properties/status",
+                    "type": ["string", "null"],
+                    "title": "The status of the review.",
+                    "description": "The status of the review. Options are setup, review, finished.",
+                    "enum": ["setup", "review", "finished"],
+                    "default": "setup",
+                    "examples": ["review"],
+                },
             },
+            "additionalProperties": False,
         },
         "feature_matrices": {
             "$id": "#/properties/feature_matrices",

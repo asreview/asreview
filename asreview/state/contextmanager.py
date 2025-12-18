@@ -23,30 +23,23 @@ from asreview.project.exceptions import ProjectNotFoundError
 from asreview.state.sqlstate import SQLiteState
 
 
-def _get_state_path(project, review_id=None, create_new=True):
-    if review_id is None:
-        if len(project.reviews) == 0:
-            if not create_new:
-                raise FileNotFoundError("State does not exist in the project")
-            d_review = project.add_review()
-            review_id = d_review["id"]
-        else:
-            review_id = project.reviews[0]["id"]
+def _get_state_path(project, create_new=True):
+    if project.review is None:
+        if not create_new:
+            raise FileNotFoundError("State does not exist in the project")
+        project.add_review()
 
-    return Path(project.project_path, "reviews", review_id, "results.db")
+    return Path(project.project_path, "results.db")
 
 
 @contextmanager
-def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=False):
+def open_state(asreview_obj, create_new=True, check_integrety=False):
     """Initialize a state class instance from a project folder.
 
     Parameters
     ----------
     asreview_obj: str/pathlike/Project
         Filepath to the (unzipped) project folder or Project object.
-    review_id: str
-        Identifier of the review from which the state will be instantiated.
-        If none is given, the first review in the reviews folder will be taken.
     create_new: bool
         If True, a new state file is created.
     check_integrety: bool
@@ -58,9 +51,7 @@ def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=Fa
     """
 
     if isinstance(asreview_obj, Project):
-        fp_state = _get_state_path(
-            asreview_obj, review_id=review_id, create_new=create_new
-        )
+        fp_state = _get_state_path(asreview_obj, create_new=create_new)
     elif (
         isinstance(asreview_obj, (Path, str))
         and Path(asreview_obj).is_file()
@@ -69,15 +60,13 @@ def open_state(asreview_obj, review_id=None, create_new=True, check_integrety=Fa
     ):
         tmpdir = tempfile.TemporaryDirectory()
         project = Project.load(asreview_obj, tmpdir.name)
-        fp_state = _get_state_path(project, review_id=review_id, create_new=create_new)
+        fp_state = _get_state_path(project, create_new=create_new)
     elif (
         isinstance(asreview_obj, (Path, str))
         and Path(asreview_obj).is_dir()
         and is_project(asreview_obj)
     ):
-        fp_state = _get_state_path(
-            Project(asreview_obj), review_id=review_id, create_new=create_new
-        )
+        fp_state = _get_state_path(Project(asreview_obj), create_new=create_new)
     elif isinstance(asreview_obj, (Path, str)) and Path(asreview_obj).suffix == ".db":
         fp_state = Path(asreview_obj)
     else:

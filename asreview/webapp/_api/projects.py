@@ -291,15 +291,7 @@ def api_create_project():  # noqa: F401
 
         project.add_review()
 
-        with open(
-            Path(
-                project.project_path,
-                "reviews",
-                project.reviews[0]["id"],
-                "settings_metadata.json",
-            ),
-            "w",
-        ) as f:
+        with open(project.model_config_path, "w") as f:
             model = get_ai_config()
             json.dump(
                 {"name": model["name"], "current_value": asdict(model["value"])}, f
@@ -736,14 +728,7 @@ def api_list_learners():
 def api_get_learner(project):  # noqa: F401
     """Get the latest learner used in the project"""
 
-    with open(
-        Path(
-            project.project_path,
-            "reviews",
-            project.reviews[0]["id"],
-            "settings_metadata.json",
-        )
-    ) as f:
+    with open(project.model_config_path) as f:
         return jsonify(json.load(f))
 
 
@@ -761,14 +746,7 @@ def api_set_learner(project):  # noqa: F401
     else:
         current_value = asdict(get_ai_config(name)["value"])
 
-    fp = Path(
-        project.project_path,
-        "reviews",
-        project.reviews[0]["id"],
-        "settings_metadata.json",
-    )
-
-    with open(fp, "w") as f:
+    with open(project.model_config_path, "w") as f:
         settings = {"name": name, "current_value": current_value}
         json.dump(settings, f)
 
@@ -841,34 +819,22 @@ def api_train(project):  # noqa: F401
 def api_get_status(project):  # noqa: F401
     """Check the status of the review"""
 
-    return jsonify({"status": project.reviews[0]["status"]})
+    return jsonify({"status": project.review["status"]})
 
 
-@bp.route("/projects/<project_id>/reviews", methods=["GET"])
+@bp.route("/projects/<project_id>/review", methods=["GET"])
 @login_required
 @project_authorization
-def api_get_reviews(project):  # noqa: F401
+def api_get_review(project):  # noqa: F401
     """Check the status of the review"""
 
-    return jsonify({"data": project.config["reviews"]})
+    return jsonify({"data": project.config["review"]})
 
 
-@bp.route("/projects/<project_id>/reviews/<int:review_id>", methods=["GET"])
+@bp.route("/projects/<project_id>/review", methods=["PUT"])
 @login_required
 @project_authorization
-def api_get_review(project, review_id):  # noqa: F401
-    """Check the status of the review"""
-
-    data = project.config["reviews"][review_id]
-    data["mode"] = project.config["mode"]
-
-    return jsonify({"data": data})
-
-
-@bp.route("/projects/<project_id>/reviews/<int:review_id>", methods=["PUT"])
-@login_required
-@project_authorization
-def api_update_review_status(project, review_id):
+def api_update_review_status(project):
     """Update the status of the review.
 
     The following status updates are allowed for
@@ -888,7 +854,7 @@ def api_update_review_status(project, review_id):
     status = request.form.get("status", type=str)
     trigger_model = request.form.get("trigger_model", type=bool, default=False)
 
-    current_status = project.config["reviews"][review_id]["status"]
+    current_status = project.config["review"]["status"]
 
     if current_status == "setup" and status == "review":
         is_simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
@@ -950,14 +916,7 @@ def api_import_project():
         logging.exception(err)
         raise ValueError("Failed to import project.") from err
 
-    fp_al_cycle = Path(
-        project.project_path,
-        "reviews",
-        project.config["reviews"][0]["id"],
-        "settings_metadata.json",
-    )
-
-    with open(fp_al_cycle, "r") as f:
+    with open(project.model_config_path, "r") as f:
         current_cycle = json.load(f)["current_value"]
 
     try:
@@ -993,7 +952,7 @@ def get_tag_groups(project):
     tags_path = Path(
         project.project_path,
         "reviews",
-        project.reviews[0]["id"],
+        project.review["id"],
         "tags.json",
     )
 
@@ -1014,7 +973,7 @@ def create_tag_group(project):
     tags_path = Path(
         project.project_path,
         "reviews",
-        project.reviews[0]["id"],
+        project.review["id"],
         "tags.json",
     )
 
@@ -1062,7 +1021,7 @@ def update_tag_group(project, group_id):
     tags_path = Path(
         project.project_path,
         "reviews",
-        project.reviews[0]["id"],
+        project.review["id"],
         "tags.json",
     )
 
@@ -1360,15 +1319,7 @@ def api_get_metrics(project):
 @project_authorization
 def api_get_stopper(project):  # noqa: F401
     """Get stopper of a project"""
-
-    fp_al_cycle = Path(
-        project.project_path,
-        "reviews",
-        project.reviews[0]["id"],
-        "settings_metadata.json",
-    )
-
-    with open(fp_al_cycle, "r") as f:
+    with open(project.model_config_path, "r") as f:
         cycle = ActiveLearningCycleData(**json.load(f).get("current_value", {}))
 
     stopper = ActiveLearningCycle.from_meta(cycle).stopper
@@ -1406,21 +1357,13 @@ def api_get_stopper(project):  # noqa: F401
 @project_authorization
 def api_mutate_stopper(project):  # noqa: F401
     """Mutate stopper of a project"""
-
-    fp_al_cycle = Path(
-        project.project_path,
-        "reviews",
-        project.reviews[0]["id"],
-        "settings_metadata.json",
-    )
-
-    with open(fp_al_cycle, "r") as f:
+    with open(project.model_config_path, "r") as f:
         data = json.load(f)
 
     data["current_value"]["stopper"] = NConsecutiveIrrelevant.name
     data["current_value"]["stopper_param"] = {"n": request.form.get("n", 50, type=int)}
 
-    with open(fp_al_cycle, "w") as f:
+    with open(project.model_config_path, "w") as f:
         json.dump(data, f)
 
     return api_get_stopper(project.project_id)

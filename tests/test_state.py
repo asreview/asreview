@@ -109,13 +109,8 @@ def test_print_state(asreview_test_project):
 
 def test_al_cycle_state(asreview_test_project, tmpdir):
     project = asr.Project.load(asreview_test_project, tmpdir)
-    review_id = project.reviews[0]["id"]
 
-    cycle_fp = Path(
-        project.project_path, "reviews", review_id, "settings_metadata.json"
-    )
-
-    with open(cycle_fp) as f:
+    with open(project.model_config_path) as f:
         data = json.load(f)
 
         cycle = asr.ActiveLearningCycle.from_meta(
@@ -134,14 +129,7 @@ def test_create_new_state_file(tmpdir):
         state._is_valid_state()
 
     with pytest.raises(FileNotFoundError):
-        asr.ActiveLearningCycle.from_file(
-            Path(
-                project.project_path,
-                "reviews",
-                project.reviews[0]["id"],
-                "settings_metadata.json",
-            )
-        )
+        asr.ActiveLearningCycle.from_file(Path(project.model_config_path))
 
 
 def test_get_results_type(asreview_test_project):
