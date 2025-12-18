@@ -64,10 +64,12 @@ from asreview.metrics import ndcg
 from asreview.models import AI_MODEL_CONFIGURATIONS
 from asreview.models import get_ai_config
 from asreview.models.stoppers import NConsecutiveIrrelevant
+from asreview.project.api import PROJECT_VERSION
 from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
-from asreview.project.migrate import migrate_project_v1_v2
+from asreview.project.migration import detect_version
+from asreview.project.migration import migrate_project
 from asreview.state.contextmanager import open_state
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
@@ -226,8 +228,7 @@ def api_get_projects(projects):  # noqa: F401
     for project, db_project in projects:
         try:
             project_config = project.config
-
-            if project_config.get("version", "").startswith("1."):
+            if detect_version(project.config) < PROJECT_VERSION:
                 project_upgrade_count += 1
                 continue
 
@@ -360,13 +361,14 @@ def api_upgrade_projects(projects):
 
     for project, _ in projects:
         try:
-            if project.config.get("version", "").startswith("1."):
-                migrate_project_v1_v2(project.project_path)
-            elif project.config.get("version", "").startswith("2."):
+            project_file_version = detect_version(project.config)
+            if project_file_version:
+                migrate_project(project.project_path, 1, 2)
+            elif project_file_version == 2:
                 pass
             else:
                 raise ValueError(
-                    f"Project version {project.config.get('version', '')} not supported."
+                    f"Project version {project_file_version} not supported."
                 )
         except Exception as err:
             errors.append(str(err))
@@ -901,11 +903,12 @@ def api_import_project():
         except KeyError as err:
             raise ValueError("Invalid ASReview project file") from err
 
-    if project_config["version"].startswith("1."):
+    project_file_version = detect_version(project_config)
+    if project_file_version < PROJECT_VERSION:
         warnings.append(
-            "This project was created in an older version of ASReview LAB (version 1)."
-            " The active learning model has been reset to the default model and"
-            " can be changed in the project settings."
+            "This project was created in an older version of ASReview LAB (version"
+            f" {project_file_version}). The active learning model has been reset to the"
+            " default model and can be changed in the project settings."
         )
 
     try:
@@ -922,7 +925,7 @@ def api_import_project():
     try:
         ActiveLearningCycle.from_meta(ActiveLearningCycleData(**current_cycle))
     except ValueError as err:
-        with open(fp_al_cycle, "w") as f:
+        with open(project.model_config_path, "w") as f:
             model = get_ai_config()
             json.dump(
                 {"name": model["name"], "current_value": asdict(model["value"])}, f

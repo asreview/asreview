@@ -24,6 +24,7 @@ SCHEMA = {
     "examples": [
         {
             "version": "1.0",
+            "project_file_version": 3,
             "id": "example",
             "mode": "oracle",
             "name": "example",
@@ -40,7 +41,7 @@ SCHEMA = {
             "dataset_path": "example.ris",
         }
     ],
-    "required": ["version", "id", "mode", "name"],
+    "required": ["version", "project_file_version", "id", "mode", "name"],
     "properties": {
         "version": {
             "$id": "#/properties/version",
@@ -49,6 +50,14 @@ SCHEMA = {
             "description": "The version of ASReview on initiation of the project.",
             "default": "",
             "examples": ["1.0"],
+        },
+        "project_file_version": {
+            "$id": "#/properties/project_file_version",
+            "type": "integer",
+            "title": "The project file version schema",
+            "description": "The version number of the ASReview project file format.",
+            "default": 1,
+            "examples": [1]
         },
         "id": {
             "$id": "#/properties/id",

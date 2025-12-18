@@ -41,7 +41,7 @@ from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
-from asreview.project.migrate import migrate_project_v1_v2
+from asreview.project.migration import migrate_project
 from asreview.models import get_ai_config
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
@@ -54,6 +54,8 @@ try:
     from asreview._version import __version__
 except ImportError:
     __version__ = "0.0.0"
+
+PROJECT_VERSION = 3
 
 # project types
 PROJECT_MODE_SIMULATE = "simulate"
@@ -548,7 +550,7 @@ class Project:
 
             # if migration is needed, do it here
             if project_config.get("version", "").startswith("1."):
-                migrate_project_v1_v2(tmpdir)
+                migrate_project(tmpdir, 1, 2)
 
             with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
                 project_config = json.load(f)

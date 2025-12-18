@@ -6,6 +6,7 @@ import pandas
 
 import asreview as asr
 from asreview.project.schema import SCHEMA
+from asreview.project.migration import detect_version
 
 
 def test_project_migration_1_to_2(tmpdir):
@@ -22,7 +23,7 @@ def test_project_migration_1_to_2(tmpdir):
 
     project = asr.Project.load(open(asreview_v1_file, "rb"), tmpdir, safe_import=True)
 
-    assert project.config["version"].startswith("2.")
+    assert detect_version(project.config) == 2
     jsonschema.validate(instance=project.config, schema=SCHEMA)
 
     # test state
@@ -41,7 +42,7 @@ def test_project_migration_1_to_2(tmpdir):
         Path(
             project.project_path,
             "reviews",
-            project.review["id"],
+            project.config["reviews"][0]["id"],
             "settings_metadata.json",
         )
     ) as f:
@@ -51,3 +52,9 @@ def test_project_migration_1_to_2(tmpdir):
     cycle = asr.ActiveLearningCycle.from_meta(cycle_data)
 
     assert isinstance(cycle.classifier.name, str)
+
+
+def test_project_migration_2_to_3(tmpdir, asreview_test_project):
+    project = asr.Project.load(
+        open(asreview_test_project, "rb"), tmpdir, safe_import=True
+    )

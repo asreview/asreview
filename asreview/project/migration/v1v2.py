@@ -4,16 +4,12 @@ import sqlite3
 from dataclasses import asdict
 from pathlib import Path
 from uuid import uuid4
-import tempfile
-import shutil
-import logging
 
 import pandas
 
-from asreview.data.store import DataStore
-
-from asreview.data.loader import _from_file
 from asreview._version import __version__
+from asreview.data.loader import _from_file
+from asreview.data.store import DataStore
 from asreview.models.models import get_ai_config
 from asreview.state.sqlstate import SQLiteState
 
@@ -23,6 +19,7 @@ def _project_config_converter_v1_v2(project_json):
     # This is a helper function for the main migration function.
 
     project_json["version"] = __version__
+    project_json["project_file_version"] = 2
     project_json.pop("datetimeCreated", None)
     project_json.pop("description", None)
     project_json.pop("authors", None)
@@ -140,7 +137,7 @@ def _project_model_settings_converter_v1_v2(fp_cycle_metadata):
         )
 
 
-def _migrate_project_v1_v2(folder):
+def _migrate(folder):
     """Migrate a project from version 1 to version 2.
 
     Parameters
@@ -185,86 +182,3 @@ def _migrate_project_v1_v2(folder):
         _project_model_settings_converter_v1_v2(
             Path(folder, "reviews", review["id"], "settings_metadata.json"),
         )
-
-
-def is_setup_without_reviews(folder):
-    """Check if the project is a setup project without data or reviews.
-
-    Parameters
-    ----------
-    folder: str
-        The folder of the project to check
-
-    Returns
-    -------
-    bool
-        True if the project is a setup without data, False otherwise.
-    """
-
-    if not Path(folder, "project.json").exists():
-        raise FileNotFoundError(
-            f"Project file {Path(folder, 'project.json')} does not exist."
-        )
-
-    with open(Path(folder, "project.json")) as f:
-        config = json.load(f)
-
-    if len(config.get("reviews", [])) == 0:
-        return True
-
-    return False
-
-
-def migrate_project_v1_v2(folder):
-    """Migrate a project from version 1 to version 2.
-
-    Parameters
-    ----------
-    folder: str
-        The folder of the project to migrate
-
-    Returns
-    -------
-    None
-    """
-
-    if not Path(folder).exists():
-        raise FileNotFoundError(f"Project folder {folder} does not exist.")
-
-    if not Path(folder, "project.json").exists():
-        raise FileNotFoundError(
-            f"Project file {Path(folder, 'project.json')} does not exist."
-        )
-
-    try:
-        if is_setup_without_reviews(folder):
-            shutil.rmtree(folder)
-            return
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            shutil.copytree(
-                folder,
-                Path(tmpdir) / "tmp_project",
-                ignore=shutil.ignore_patterns("*.lock"),
-            )
-
-            shutil.copytree(
-                folder,
-                Path(tmpdir) / "tmp_project" / "legacy_v1",
-                ignore=shutil.ignore_patterns("*.lock"),
-            )
-
-            logging.info(f"Upgrading project {folder} from v1 to v2.")
-            _migrate_project_v1_v2(Path(tmpdir) / "tmp_project")
-
-            shutil.rmtree(folder)
-            shutil.copytree(Path(tmpdir) / "tmp_project", folder)
-    except Exception as e:
-        logging.exception(f"Failed to migrate project {folder} from v1 to v2: {e}")
-
-        # try to get the project id from the project.json file
-        with open(Path(folder, "project.json")) as f:
-            project_config = json.load(f)
-            project_id = project_config.get("id", "unknown")
-
-        raise Exception(f"Failed to upgrade project {project_id}.") from e
