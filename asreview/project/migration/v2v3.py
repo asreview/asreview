@@ -22,12 +22,13 @@ def _migrate(project):
         Path to the root of the project (unzipped).
     """
     # In project.json, move the `reviews` attribute to `review`.
-    with open(Path(project, "project.json")) as f:
+    config_fp = Path(project, "project.json")
+    with open(config_fp) as f:
         project_config = json.load(f)
     project_config["project_file_version"] = 3
     review_config = project_config.pop("reviews", None)
     project_config["review"] = review_config or None
-    with open("project.json", "w") as f:
+    with open(config_fp, "w") as f:
         json.dump(project_config, f)
 
     # Move the review state database and settings json to the project root.
