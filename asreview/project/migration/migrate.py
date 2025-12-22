@@ -75,7 +75,7 @@ def migrate_project(folder, src_version, dst_version):
             current_version += 1
         except Exception as e:
             logging.exception(
-                f"Failed to migrate project {folder} from {current_version} to v{current_version + 1}: {e}"
+                f"Failed to migrate project {folder} from {current_version} to v{current_version + 1}:\n{e}"
             )
             raise Exception(f"Failed to upgrade project {project_id}.") from e
 

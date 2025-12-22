@@ -41,7 +41,7 @@ from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
-from asreview.project.migration import migrate_project
+from asreview.project.migration import detect_version, migrate_project
 from asreview.models import get_ai_config
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
@@ -549,14 +549,9 @@ class Project:
                 project_config = json.load(f)
 
             # if migration is needed, do it here
-            if project_config.get("version", "").startswith("1."):
-                migrate_project(tmpdir, 1, 2)
-
-            with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
-                project_config = json.load(f)
-
-            if not project_config["version"].startswith("2."):
-                raise ValueError("Not possible to import (old) project file.")
+            current_version = detect_version(project_config)
+            if current_version < PROJECT_VERSION:
+                migrate_project(tmpdir, current_version, PROJECT_VERSION)
 
             if reset_model_if_not_found:
                 cycle_fp = Path(tmpdir, PATH_MODEL_CONFIG)
