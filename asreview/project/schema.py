@@ -32,13 +32,23 @@ SCHEMA = {
             "authors": "",
             "created_at_unix": 1648205610,
             "review": {
-                "id": "4793de70a8d44eb4baa68bac2853c91a",
                 "status": "review",
+                "model": {"name": "example_model", "current_value": {}},
             },
             "feature_matrices": [
                 {"id": "tfidf", "filename": "tfidf_feature_matrix.npz"}
             ],
             "dataset_path": "example.ris",
+            "tags": [
+                {
+                    "label": "Foo",
+                    "export": "foo",
+                    "values": [
+                        {"label": "Bar", "export": "bar", "id": 0},
+                    ],
+                    "id": 0,
+                }
+            ],
         }
     ],
     "required": ["version", "project_file_version", "id", "mode", "name"],
@@ -57,7 +67,7 @@ SCHEMA = {
             "title": "The project file version schema",
             "description": "The version number of the ASReview project file format.",
             "default": 1,
-            "examples": [1]
+            "examples": [1],
         },
         "id": {
             "$id": "#/properties/id",
@@ -113,30 +123,47 @@ SCHEMA = {
             "type": "object",
             "title": "The review schema",
             "description": "The review in the project. Only a single review is allowed.",
-            "default": [],
+            "default": {},
             "examples": [
                 {
-                    "id": "4793de70a8d44eb4baa68bac2853c91a",
                     "status": "review",
+                    "model": {"name": "example_model", "current_value": {}},
                 }
             ],
+            "required": ["status", "model"],
             "properties": {
-                "id": {
-                    "$id": "#/properties/reviews/items/anyOf/0/properties/id",
-                    "type": "string",
-                    "title": "The id of the review.",
-                    "description": "A unique UUID4 identifier of the review.",
-                    "default": "",
-                    "examples": ["4793de70a8d44eb4baa68bac2853c91a"],
-                },
                 "status": {
-                    "$id": "#/properties/reviews/items/anyOf/0/properties/status",
-                    "type": ["string", "null"],
+                    "$id": "#/properties/review/properties/status",
+                    "type": "string",
                     "title": "The status of the review.",
                     "description": "The status of the review. Options are setup, review, finished.",
                     "enum": ["setup", "review", "finished"],
                     "default": "setup",
                     "examples": ["review"],
+                },
+                "model": {
+                    "$id": "#/properties/review/properties/model",
+                    "type": "object",
+                    "title": "The model schema",
+                    "description": "The model configuration for the review.",
+                    "default": {},
+                    "properties": {
+                        "name": {
+                            "$id": "#/properties/review/properties/model/properties/name",
+                            "type": "string",
+                            "title": "The model name",
+                            "description": "The name of the model.",
+                            "examples": ["example_model"],
+                        },
+                        "current_value": {
+                            "$id": "#/properties/review/properties/model/properties/current_value",
+                            "type": "object",
+                            "title": "The current value schema",
+                            "description": "The current value of the model.",
+                            "default": {},
+                        },
+                    },
+                    "additionalProperties": False,
                 },
             },
             "additionalProperties": False,
@@ -184,6 +211,11 @@ SCHEMA = {
                     }
                 ],
             },
+        },
+        "tags": {
+            "$id": "#/properties/tags",
+            "title": "The tags schema",
+            "description": "Optional tags for the project with no type restrictions.",
         },
         "datasets": {
             "$id": "#/properties/datasets",

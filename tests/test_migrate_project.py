@@ -1,29 +1,26 @@
-import json
+import shutil
 from pathlib import Path
 
 import jsonschema
 import pandas
+import pytest
 
 import asreview as asr
-from asreview.project.schema import SCHEMA
 from asreview.project.migration import detect_version
+from asreview.project.schema import SCHEMA
 
 
-def test_project_migration_1_to_2(tmpdir):
-    asreview_v1_file = Path(
-        "asreview",
-        "webapp",
-        "tests",
-        "asreview-project-file-archive",
-        "v1.5",
-        "asreview-project-v1-5-startreview.asreview",
-    )
+@pytest.fixture
+def asreview_v2_project(tmpdir):
+    """Fixture to set up a test project for ASReview."""
+    test_state_fp = Path("tests", "asreview_files", "asreview-demo-project-v2.asreview")
+    tmp_project_path = Path(tmpdir, "asreview-demo-project-v2.asreview")
+    shutil.copy(test_state_fp, tmp_project_path)
+    return tmp_project_path
 
-    assert asreview_v1_file.exists()
 
-    project = asr.Project.load(open(asreview_v1_file, "rb"), tmpdir, safe_import=True)
-
-    assert detect_version(project.config) == 2
+def assert_valid_project(project):
+    assert detect_version(project.config) == 3
     jsonschema.validate(instance=project.config, schema=SCHEMA)
 
     # test state
@@ -37,24 +34,30 @@ def test_project_migration_1_to_2(tmpdir):
     assert isinstance(data["title"], pandas.Series)
     assert isinstance(data["included"], pandas.Series)
 
-    # test model settings
-    with open(
-        Path(
-            project.project_path,
-            "reviews",
-            project.config["reviews"][0]["id"],
-            "settings_metadata.json",
-        )
-    ) as f:
-        data = json.load(f)
-
-    cycle_data = asr.ActiveLearningCycleData(**data["current_value"])
+    cycle_data = asr.ActiveLearningCycleData(
+        **project.config["review"]["model"]["current_value"]
+    )
     cycle = asr.ActiveLearningCycle.from_meta(cycle_data)
 
     assert isinstance(cycle.classifier.name, str)
 
 
-def test_project_migration_2_to_3(tmpdir, asreview_test_project):
-    project = asr.Project.load(
-        open(asreview_test_project, "rb"), tmpdir, safe_import=True
+def test_project_migration_1_to_3(tmpdir):
+    asreview_v1_file = Path(
+        "asreview",
+        "webapp",
+        "tests",
+        "asreview-project-file-archive",
+        "v1.5",
+        "asreview-project-v1-5-startreview.asreview",
     )
+    assert asreview_v1_file.exists()
+    project = asr.Project.load(open(asreview_v1_file, "rb"), tmpdir, safe_import=True)
+    assert_valid_project(project)
+
+
+def test_project_migration_2_to_3(tmpdir, asreview_v2_project):
+    project = asr.Project.load(
+        open(asreview_v2_project, "rb"), tmpdir, safe_import=True
+    )
+    assert_valid_project(project)

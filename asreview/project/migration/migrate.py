@@ -64,7 +64,7 @@ def migrate_project(folder, src_version, dst_version):
         project_config = json.load(f)
         project_id = project_config.get("id", "unknown")
 
-    if _is_empty(folder):
+    if src_version <= 2 and _is_empty_v1_or_v2(folder):
         shutil.rmtree(folder)
         return
 
@@ -110,13 +110,13 @@ def _migrate_project_one_version(folder, current_version):
         shutil.copytree(Path(tmpdir) / "tmp_project", folder)
 
 
-def _is_empty(folder):
-    """Check if the project is a setup project without data or reviews.
+def _is_empty_v1_or_v2(folder):
+    """Check if a v1 or v2 project is a setup project without data or reviews.
 
     Parameters
     ----------
     folder: str
-        The folder of the project to check
+        The folder of the project to check. The project should from v1 or v2.
 
     Returns
     -------

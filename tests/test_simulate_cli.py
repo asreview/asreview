@@ -24,7 +24,7 @@ def test_simulate_review_finished(tmpdir, demo_data_path, tmp_project):
 
     Path(tmpdir, "test").mkdir(parents=True)
     project = asr.Project.load(tmp_project, Path(tmpdir, "test"))
-    assert project.config["reviews"][0]["status"] == "finished"
+    assert project.config["review"]["status"] == "finished"
 
 
 def test_prior_idx(tmp_project, demo_data_path):

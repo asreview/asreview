@@ -950,12 +950,7 @@ def api_import_project():
 @login_required
 @project_authorization
 def get_tag_groups(project):
-    tags_path = Path(
-        project.project_path,
-        "reviews",
-        project.review["id"],
-        "tags.json",
-    )
+    tags_path = Path(project.project_path, "tags.json")
 
     try:
         with open(tags_path, "r") as f:
@@ -971,12 +966,7 @@ def get_tag_groups(project):
 @login_required
 @project_authorization
 def create_tag_group(project):
-    tags_path = Path(
-        project.project_path,
-        "reviews",
-        project.review["id"],
-        "tags.json",
-    )
+    tags_path = Path(project.project_path, "tags.json")
 
     new_tag_group = json.loads(request.form.get("group", "[]"))
 
@@ -1019,12 +1009,7 @@ def create_tag_group(project):
 @project_authorization
 def update_tag_group(project, group_id):
     """Update a single tag group by its ID."""
-    tags_path = Path(
-        project.project_path,
-        "reviews",
-        project.review["id"],
-        "tags.json",
-    )
+    tags_path = Path(project.project_path, "tags.json")
 
     updated_tag_group = json.loads(request.form.get("group", "[]"))
 
@@ -1474,7 +1459,7 @@ def api_get_record(project):  # noqa: F401
         current_user.id if current_app.config.get("AUTHENTICATION", True) else None
     )
 
-    if project.config["reviews"][0]["status"] == "finished":
+    if project.config["review"]["status"] == "finished":
         return jsonify({"result": None, "status": "finished"})
 
     with open_state(project.project_path) as state:

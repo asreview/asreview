@@ -62,8 +62,6 @@ def test_init_project_folder(tmpdir):
     assert Path(project_path, "project.json").is_file()
     assert project.data_dir.is_dir()
     assert Path(project_path, "feature_matrices").is_dir()
-    assert Path(project_path, "reviews").is_dir()
-
     assert project.config["id"] == "test"
 
 

@@ -8,12 +8,7 @@ from asreview import extensions
 
 def read_tags_data(project):
     """Read tags data from the tags.json file."""
-    tags_path = Path(
-        project.project_path,
-        "reviews",
-        project.review["id"],
-        "tags.json",
-    )
+    tags_path = Path(project.project_path, "tags.json")
     try:
         with open(tags_path, "r") as f:
             return json.load(f)

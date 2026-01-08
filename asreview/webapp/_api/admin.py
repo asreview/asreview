@@ -568,14 +568,9 @@ def get_all_projects():
                         )
 
                         # Determine status from project.json
-                        reviews = project_config.get("reviews", [])
-                        if reviews:
-                            # Use the status from the first review
-                            project_data["status"] = reviews[0].get("status", "setup")
-                        else:
-                            # No reviews in config, set to setup status
-                            project_data["status"] = "setup"
-
+                        project_data["status"] = project_config.get("review", {}).get(
+                            "status", "setup"
+                        )
                     except (json.JSONDecodeError, IOError) as e:
                         logging.warning(
                             f"Could not read project.json for {db_project.project_id}: {e}"
