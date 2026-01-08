@@ -56,46 +56,33 @@ except ImportError:
     __version__ = "0.0.0"
 
 
-def is_project(project, raise_on_old_version=True):
+def is_project(project_dir):
     """
     Check if the given path is a valid ASReview project.
 
     Parameters
     ----------
-    project : str or Project
-        The path to the project directory or a Project instance.
-    raise_on_old_version : bool, optional
-        If True, raise an error for projects with old versions. Default is True.
+    project_dir : str | Path
+        The path to the project directory.
 
     Returns
     -------
     bool
         True if the path is a valid ASReview project, False otherwise.
-
-    Raises
-    ------
-    ProjectNotFoundError
-        If the project directory does not exist or is not found.
-    ProjectError
-        If the path is not a directory or the project is of an older version.
     """
-    project_instance = project if isinstance(project, Project) else Project(project)
-    project_dir = Path(project_instance.project_path).resolve()
-
+    project_dir = Path(project_dir)
     if not project_dir.exists():
-        raise ProjectNotFoundError("Project not found")
+        return False
     if not project_dir.is_dir():
-        raise ProjectError(f"'{project_instance.project_path}' is not a directory")
-
-    if raise_on_old_version and (
-        not (project_dir / "reviews").exists()
-        or project_instance.config.get("version", "").startswith(("1", "0"))
-    ):
-        raise ProjectNotFoundError(
-            "Project is not compatible with ASReview LAB 2. Please upgrade the project."
-        )
-
-    return (project_dir / Project.PATH_CONFIG).exists()
+        return False
+    project_config_fp = Path(project_dir, Project.PATH_CONFIG)
+    if not project_config_fp.exists():
+        return False
+    with open(project_config_fp) as f:
+        project_config = json.load(f)
+    if detect_version(project_config) != Project.VERSION:
+        return False
+    return True
 
 
 class Project:

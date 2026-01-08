@@ -61,11 +61,9 @@ def open_state(asreview_obj, create_new=True, check_integrety=False):
         tmpdir = tempfile.TemporaryDirectory()
         project = Project.load(asreview_obj, tmpdir.name)
         fp_state = _get_state_path(project, create_new=create_new)
-    elif (
-        isinstance(asreview_obj, (Path, str))
-        and Path(asreview_obj).is_dir()
-        and is_project(asreview_obj)
-    ):
+    elif isinstance(asreview_obj, (Path, str)):
+        if not is_project(asreview_obj):
+            raise ProjectNotFoundError(f"{asreview_obj} is not a valid project")
         fp_state = _get_state_path(Project(asreview_obj), create_new=create_new)
     elif isinstance(asreview_obj, (Path, str)) and Path(asreview_obj).suffix == ".db":
         fp_state = Path(asreview_obj)

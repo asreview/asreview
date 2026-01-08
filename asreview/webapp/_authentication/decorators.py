@@ -99,7 +99,7 @@ def project_authorization(f):
     def decorated_function(project_id, *args, **kwargs):
         if not current_app.config.get("AUTHENTICATION", True):
             project_path = get_project_path(project_id)
-            if not is_project(project_path, raise_on_old_version=True):
+            if not is_project(project_path):
                 raise ProjectNotFoundError(f"Project '{project_id}' not found")
             project = asr.Project(project_path, project_id=project_id)
             return f(project, *args, **kwargs)
@@ -117,7 +117,7 @@ def project_authorization(f):
             return jsonify({"message": "no permission"}), 403
 
         project_path = get_project_path(project_id)
-        if not is_project(project_path, raise_on_old_version=True):
+        if not is_project(project_path):
             raise ProjectNotFoundError(f"Project '{project_id}' not found")
         project = asr.Project(project_path, project_id=project_id)
 
