@@ -289,12 +289,8 @@ def api_create_project():  # noqa: F401
             return jsonify(message="No file or dataset found to import."), 400
 
         project.add_review()
-
-        with open(project.model_config_path, "w") as f:
-            model = get_ai_config()
-            json.dump(
-                {"name": model["name"], "current_value": asdict(model["value"])}, f
-            )
+        model = get_ai_config()
+        project.update_review(model_name=model["name"], model=model["value"])
 
         n_labeled = project.data_store["included"].notnull().sum()
 
@@ -727,9 +723,7 @@ def api_list_learners():
 @project_authorization
 def api_get_learner(project):  # noqa: F401
     """Get the latest learner used in the project"""
-
-    with open(project.model_config_path) as f:
-        return jsonify(json.load(f))
+    return project.get_model_config()
 
 
 @bp.route("/projects/<project_id>/learner", methods=["POST", "PUT"])
@@ -745,11 +739,7 @@ def api_set_learner(project):  # noqa: F401
         current_value = {k: v for k, v in current_value.items() if v != ""}
     else:
         current_value = asdict(get_ai_config(name)["value"])
-
-    with open(project.model_config_path, "w") as f:
-        settings = {"name": name, "current_value": current_value}
-        json.dump(settings, f)
-
+    project.update_review(model=current_value, model_name=name)
     project.remove_review_error()
 
     return jsonify(settings)
@@ -917,18 +907,13 @@ def api_import_project():
         logging.exception(err)
         raise ValueError("Failed to import project.") from err
 
-    with open(project.model_config_path, "r") as f:
-        current_cycle = json.load(f)["current_value"]
-
     try:
-        ActiveLearningCycle.from_meta(ActiveLearningCycleData(**current_cycle))
+        ActiveLearningCycle.from_meta(
+            ActiveLearningCycleData(**project.get_model_config())
+        )
     except ValueError as err:
-        with open(project.model_config_path, "w") as f:
-            model = get_ai_config()
-            json.dump(
-                {"name": model["name"], "current_value": asdict(model["value"])}, f
-            )
-
+        model = get_ai_config()
+        project.update_review(model_name=model["name"], model=model["value"])
         warnings.append(
             str(err) + " It might be removed from this version of ASReview LAB or you "
             "need to install an extension to use this model component."
@@ -1305,9 +1290,7 @@ def api_get_metrics(project):
 @project_authorization
 def api_get_stopper(project):  # noqa: F401
     """Get stopper of a project"""
-    with open(project.model_config_path, "r") as f:
-        cycle = ActiveLearningCycleData(**json.load(f).get("current_value", {}))
-
+    cycle = ActiveLearningCycleData(**project.get_model_config())
     stopper = ActiveLearningCycle.from_meta(cycle).stopper
 
     if stopper is None:
@@ -1343,14 +1326,11 @@ def api_get_stopper(project):  # noqa: F401
 @project_authorization
 def api_mutate_stopper(project):  # noqa: F401
     """Mutate stopper of a project"""
-    with open(project.model_config_path, "r") as f:
-        data = json.load(f)
 
-    data["current_value"]["stopper"] = NConsecutiveIrrelevant.name
-    data["current_value"]["stopper_param"] = {"n": request.form.get("n", 50, type=int)}
-
-    with open(project.model_config_path, "w") as f:
-        json.dump(data, f)
+    model_config = project.get_model_config()
+    model_config["stopper"] = NConsecutiveIrrelevant.name
+    model_config["stopper_param"] = {"n": request.form.get("n", 50, type=int)}
+    project.update_review(model=model_config)
 
     return api_get_stopper(project.project_id)
 

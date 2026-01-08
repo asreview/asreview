@@ -168,9 +168,9 @@ class Project:
                 "mode": project_mode,
                 "name": project_name,
                 "created_at_unix": int(time.time()),
-                "review": {},
                 "feature_matrices": [],
                 "tags": project_tags,
+                "project_file_version": cls.VERSION,
             }
 
             jsonschema.validate(instance=config, schema=SCHEMA)
@@ -416,17 +416,7 @@ class Project:
         if self.review is not None:
             raise ValueError("Review already exists.")
 
-        if cycle is not None:
-            if isinstance(cycle, ActiveLearningCycle):
-                cycle_meta = cycle.to_meta()
-            elif isinstance(cycle, ActiveLearningCycleData):
-                cycle_meta = cycle
-            else:
-                raise ValueError("Invalid cycle type.")
-
-            with open(self.model_config_path, "w") as f:
-                json.dump({"current_value": asdict(cycle_meta)}, f)
-
+        self.update_review(model=cycle, status=status)
         fp_state = Path(self.project_path, "results.db")
 
         if reviewer is None:
@@ -436,38 +426,28 @@ class Project:
         else:
             reviewer.to_sql(fp_state)
 
-        self.update_config(review={"id": uuid4().hex, "status": status})
         return self.config
 
-    def update_review(self, cycle=None, state=None, **kwargs):
-        """Update review metadata.
-
-        Parameters
-        ----------
-        status: str
-            The status of the review. One of 'setup', 'running',
-            'finished'.
-        """
-        if state is not None:
-            fp_state = Path(self.project_path, "results.db")
-            state.to_sql(fp_state)
-
-        if cycle is not None:
-            if isinstance(cycle, ActiveLearningCycle):
-                cycle_meta = cycle.to_meta()
-            elif isinstance(cycle, ActiveLearningCycleData):
-                cycle_meta = cycle
-            else:
-                raise ValueError("Invalid cycle type.")
-
-            with open(
-                self.model_config_path,
-                "w",
-            ) as f:
-                json.dump({"current_value": asdict(cycle_meta)}, f)
-
-        review_config = self.config["review"]
-        review_config.update(kwargs)
+    def update_review(self, status=None, model_name=None, model=None):
+        """Update review metadata."""
+        review_config = self.config.get("review", {"status": "setup", "model": {}})
+        if status is not None:
+            review_config["status"] = status
+        if model is not None:
+            if not isinstance(
+                model, (ActiveLearningCycle, ActiveLearningCycleData, dict)
+            ):
+                raise ValueError(
+                    "model should be of type 'dict', 'ActiveLearningCycle' or "
+                    "'ActiveLearningCycleData'"
+                )
+            if isinstance(model, ActiveLearningCycle):
+                model = model.to_meta()
+            if isinstance(model, ActiveLearningCycleData):
+                model = asdict(model)
+            review_config["model"]["current_value"] = model
+        if model_name is not None:
+            review_config["model"]["name"] = model_name
         self.update_config(review=review_config)
 
     def delete_review(self, remove_folders=False):
@@ -481,7 +461,6 @@ class Project:
         except Exception:
             print("Failed to remove feature matrices.")
 
-        self.model_config_path.unlink(missing_ok=True)
         try:
             Path(self.project_path, "results.db").unlink()
         except Exception:
@@ -489,9 +468,16 @@ class Project:
 
         self.update_config(review=None, feature_matrices=[])
 
-    def mark_review_finished(self):
-        """Mark the review in the project as finished."""
-        self.update_review(status="finished")
+    def get_model_config(self):
+        """Get the current model configuration of the review.
+
+        Returns
+        -------
+        dict | None
+            Dictionary containing the model configuration. Returns None if there is no
+            review yet in the project.
+        """
+        return self.config.get("review", {}).get("model", {}).get("current_value")
 
     def export(self, export_fp):
         if Path(export_fp).suffix != ".asreview":
@@ -556,7 +542,11 @@ class Project:
             if reset_model_if_not_found:
                 try:
                     ActiveLearningCycle.from_meta(
-                        ActiveLearningCycleData(**project_config["review"]["model"])
+                        ActiveLearningCycleData(
+                            **project_config.get("review", {})
+                            .get("model", {})
+                            .get("current_value")
+                        )
                     )
                 except ValueError as err:
                     warnings.warn(err)

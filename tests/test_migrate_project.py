@@ -35,7 +35,7 @@ def assert_valid_project(project):
     assert isinstance(data["included"], pandas.Series)
 
     cycle_data = asr.ActiveLearningCycleData(
-        **project.config["review"]["model"]["current_value"]
+        **project.get_model_config()
     )
     cycle = asr.ActiveLearningCycle.from_meta(cycle_data)
 

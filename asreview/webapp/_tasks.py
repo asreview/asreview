@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
+from pathlib import Path
 
 import asreview as asr
 from asreview.models.queriers import TopDown
@@ -23,8 +23,7 @@ from asreview.webapp.utils import get_project_path
 
 
 def _read_cycle_data(project):
-    with open(project.model_config_path, "r") as f:
-        return asr.ActiveLearningCycleData(**json.load(f)["current_value"])
+    return asr.ActiveLearningCycleData(**project.get_model_config())
 
 
 def run_task(project_id, simulation=False):
@@ -118,4 +117,5 @@ def run_simulation(project):
         project.set_review_error(err)
         raise err
 
-    project.update_review(state=sim, status="finished")
+    project.update_review(status="finished")
+    sim.to_sql(Path(project.project_path, "results.db"))

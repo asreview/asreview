@@ -1,13 +1,12 @@
 from pathlib import Path
-import json
 
 import pandas as pd
 import pytest
 from scipy.sparse import csr_matrix
 
 import asreview as asr
-from asreview.project.exceptions import ProjectNotFoundError
 from asreview.models.balancers import Balanced
+from asreview.project.exceptions import ProjectNotFoundError
 
 TEST_LABELS = [1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
 TEST_RECORD_IDS = [
@@ -107,16 +106,11 @@ def test_print_state(asreview_test_project):
 
 def test_al_cycle_state(asreview_test_project, tmpdir):
     project = asr.Project.load(asreview_test_project, tmpdir)
+    cycle = asr.ActiveLearningCycle.from_meta(
+        asr.ActiveLearningCycleData(**project.get_model_config())
+    )
 
-    with open(project.model_config_path) as f:
-        data = json.load(f)
-
-        cycle = asr.ActiveLearningCycle.from_meta(
-            asr.ActiveLearningCycleData(**data["current_value"])
-        )
-
-    assert data["name"].startswith("elas_u")
-
+    assert project.config["review"]["model"]["name"].startswith("elas_u")
     assert isinstance(cycle.balancer, Balanced)
 
 
@@ -125,9 +119,6 @@ def test_create_new_state_file(tmpdir):
 
     with asr.open_state(project) as state:
         state._is_valid_state()
-
-    with pytest.raises(FileNotFoundError):
-        asr.ActiveLearningCycle.from_file(Path(project.model_config_path))
 
 
 def test_get_results_type(asreview_test_project):
