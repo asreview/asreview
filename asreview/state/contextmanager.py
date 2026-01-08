@@ -23,69 +23,84 @@ from asreview.project.exceptions import ProjectNotFoundError
 from asreview.state.sqlstate import SQLiteState
 
 
-def _get_state_path(project, create_new=True):
-    if project.review is None:
-        if not create_new:
-            raise FileNotFoundError("State does not exist in the project")
-        project.add_review()
-
+def _get_state_path(asreview_obj):
+    if isinstance(asreview_obj, Path) and asreview_obj.suffix == ".db":
+        return asreview_obj
+    elif isinstance(asreview_obj, Project):
+        project = asreview_obj
+    elif isinstance(asreview_obj, Path) and is_project(asreview_obj):
+        project = Project(asreview_obj)
+    else:
+        raise ProjectNotFoundError(
+            f"{asreview_obj} should be a project or the path to a project."
+        )
     return Path(project.project_path, "results.db")
 
 
-@contextmanager
-def open_state(asreview_obj, create_new=True, check_integrety=False):
-    """Initialize a state class instance from a project folder.
-
-    Parameters
-    ----------
-    asreview_obj: str/pathlike/Project
-        Filepath to the (unzipped) project folder or Project object.
-    create_new: bool
-        If True, a new state file is created.
-    check_integrety: bool
-        If True, the integrity of the state file is checked. Default is False.
-
-    Returns
-    -------
-    SQLiteState
-    """
-
-    if isinstance(asreview_obj, Project):
-        fp_state = _get_state_path(asreview_obj, create_new=create_new)
-    elif (
-        isinstance(asreview_obj, (Path, str))
-        and Path(asreview_obj).is_file()
-        and zipfile.is_zipfile(asreview_obj)
-        and Path(asreview_obj).suffix == ".asreview"
-    ):
-        tmpdir = tempfile.TemporaryDirectory()
-        project = Project.load(asreview_obj, tmpdir.name)
-        fp_state = _get_state_path(project, create_new=create_new)
-    elif isinstance(asreview_obj, (Path, str)):
-        if not is_project(asreview_obj):
-            raise ProjectNotFoundError(f"{asreview_obj} is not a valid project")
-        fp_state = _get_state_path(Project(asreview_obj), create_new=create_new)
-    elif isinstance(asreview_obj, (Path, str)) and Path(asreview_obj).suffix == ".db":
-        fp_state = Path(asreview_obj)
-    else:
-        raise ProjectNotFoundError(f"{asreview_obj} is not a valid input for state")
-
-    try:
-        if create_new and not fp_state.is_file():
+def _get_state(fp_state, create_new):
+    if not fp_state.is_file():
+        if create_new:
             fp_state.parent.mkdir(parents=True, exist_ok=True)
             state = SQLiteState(fp_state)
             state.create_tables()
         else:
-            state = SQLiteState(fp_state)
+            raise FileNotFoundError(f"No state file found at {fp_state}")
+    else:
+        state = SQLiteState(fp_state)
+    return state
 
-        if check_integrety:
-            state._is_valid_state()
 
-        yield state
+@contextmanager
+def open_state(asreview_obj, create_new=True):
+    """Initialize a state class instance from a project folder.
 
-    finally:
+    Parameters
+    ----------
+    asreview_obj: str | Path | Project
+        This can be one of:
+            - a project instance
+            - the path to a state file
+            - the path to a zipped project folder
+            - the path to a project folder
+    create_new: bool
+        If True, a new state file is created.
+
+    Yields
+    -------
+    SQLiteState
+    """
+    if isinstance(asreview_obj, str):
+        asreview_obj = Path(asreview_obj)
+
+    state = None
+    if (
+        isinstance(asreview_obj, Path)
+        and asreview_obj.is_file()
+        and zipfile.is_zipfile(asreview_obj)
+        and asreview_obj.suffix == ".asreview"
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            try:
+                project = Project.load(asreview_obj, tmpdir)
+                state = _get_state(
+                    Path(project.project_path, "results.db"), create_new=create_new
+                )
+                yield state
+            finally:
+                if state is not None:
+                    try:
+                        state.close()
+                    except AttributeError:
+                        # file seems to be closed, do nothing
+                        pass
+    else:
         try:
-            state.close()
-        except AttributeError:
-            # file seems to be closed, do nothing
-            pass
+            state = _get_state(_get_state_path(asreview_obj), create_new=create_new)
+            yield state
+        finally:
+            if state is not None:
+                try:
+                    state.close()
+                except AttributeError:
+                    # file seems to be closed, do nothing
+                    pass
