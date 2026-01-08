@@ -64,8 +64,6 @@ from asreview.metrics import ndcg
 from asreview.models import AI_MODEL_CONFIGURATIONS
 from asreview.models import get_ai_config
 from asreview.models.stoppers import NConsecutiveIrrelevant
-from asreview.project.api import PROJECT_VERSION
-from asreview.project.api import PROJECT_MODE_SIMULATE
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.migration import detect_version
@@ -127,7 +125,7 @@ def _run_model(project):
     # if there is a socket, it means we would like to delegate
     # training / simulation to the queue manager,
     # otherwise run training / simulation directly
-    simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
+    simulation = project.config["mode"] == asr.Project.MODE_SIMULATE
 
     if not current_app.testing:
         try:
@@ -228,7 +226,7 @@ def api_get_projects(projects):  # noqa: F401
     for project, db_project in projects:
         try:
             project_config = project.config
-            if detect_version(project.config) < PROJECT_VERSION:
+            if detect_version(project.config) < asr.Project.VERSION:
                 project_upgrade_count += 1
                 continue
 
@@ -859,7 +857,7 @@ def api_update_review_status(project):
     current_status = project.config["review"]["status"]
 
     if current_status == "setup" and status == "review":
-        is_simulation = project.config["mode"] == PROJECT_MODE_SIMULATE
+        is_simulation = project.config["mode"] == asr.Project.MODE_SIMULATE
 
         with open_state(project) as s:
             labels = s.get_results_table()["label"].to_list()
@@ -904,7 +902,7 @@ def api_import_project():
             raise ValueError("Invalid ASReview project file") from err
 
     project_file_version = detect_version(project_config)
-    if project_file_version < PROJECT_VERSION:
+    if project_file_version < asr.Project.VERSION:
         warnings.append(
             "This project was created in an older version of ASReview LAB (version"
             f" {project_file_version}). The active learning model has been reset to the"
@@ -1261,7 +1259,7 @@ def api_get_progress_info(project):  # noqa: F401
         n_records = 0
 
     if (
-        project.config.get("mode") == PROJECT_MODE_SIMULATE
+        project.config.get("mode") == asr.Project.MODE_SIMULATE
         and project.data_store["included"].sum() == labels.sum()
     ):
         return jsonify(
@@ -1296,7 +1294,7 @@ def api_get_progress_info(project):  # noqa: F401
 def api_get_metrics(project):
     """Get metrics of the sysrev"""
 
-    if project.config.get("mode") != PROJECT_MODE_SIMULATE:
+    if project.config.get("mode") != asr.Project.MODE_SIMULATE:
         return jsonify("Metrics are only available for simulation projects"), 404
 
     n_records = len(project.data_store)
@@ -1385,7 +1383,7 @@ def api_get_progress_data(project):  # Consolidated endpoint
         labels_with_priors = s.get_results_table("label", priors=True)
 
     if (
-        project.config.get("mode") == PROJECT_MODE_SIMULATE
+        project.config.get("mode") == asr.Project.MODE_SIMULATE
         and project.data_store["included"].sum() == labels_with_priors["label"].sum()
     ):
         labels = pd.DataFrame(

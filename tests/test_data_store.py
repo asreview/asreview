@@ -12,7 +12,7 @@ from asreview.data.record import Base
 from asreview.data.record import Record
 from asreview.data.store import CURRENT_DATASTORE_VERSION
 from asreview.data.store import DataStore
-from asreview.project.api import PATH_DATA_STORE
+from asreview.project.api import Project
 
 
 @pytest.fixture
@@ -23,7 +23,7 @@ def records():
 
 @pytest.fixture
 def store(tmpdir):
-    fp = tmpdir / PATH_DATA_STORE
+    fp = tmpdir / Project.PATH_DATA_STORE
     store = DataStore(fp)
     store.create_tables()
     return store
@@ -36,7 +36,7 @@ def store_with_data(store, records):
 
 
 def test_create_tables(tmpdir):
-    fp = tmpdir / PATH_DATA_STORE
+    fp = tmpdir / Project.PATH_DATA_STORE
     store = DataStore(fp)
     store.create_tables()
     assert store.user_version == CURRENT_DATASTORE_VERSION
@@ -125,13 +125,13 @@ def test_custom_record(tmpdir):
         __tablename__ = "custom"
         foo: Mapped[str]
 
-    fp = Path(tmpdir, PATH_DATA_STORE)
+    fp = Path(tmpdir, Project.PATH_DATA_STORE)
     data_store = DataStore(fp, CustomRecord)
     data_store.create_tables()
 
 
 def test_close_store(tmpdir):
-    fp = Path(tmpdir, PATH_DATA_STORE)
+    fp = Path(tmpdir, Project.PATH_DATA_STORE)
     data_store = DataStore(fp)
     data_store.create_tables()
     fp.unlink()
