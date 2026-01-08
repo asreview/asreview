@@ -108,13 +108,11 @@ class Project:
     PATH_CONFIG = "project.json"
     PATH_CONFIG_LOCK = "project.json.lock"
     PATH_FEATURE_MATRICES = "feature_matrices"
-    PATH_MODEL_CONFIG = "settings_metadata.json"
     PATH_DATA_STORE = "data_store.db"
 
     def __init__(self, project_path, project_id=None):
         self.project_path = Path(project_path)
         self.project_id = project_id
-        self.model_config_path = Path(project_path, self.PATH_MODEL_CONFIG)
 
     @functools.cached_property
     def data_store(self):
@@ -551,28 +549,22 @@ class Project:
             current_version = detect_version(project_config)
             if current_version < cls.VERSION:
                 migrate_project(tmpdir, current_version, cls.VERSION)
+                # Migration may have updated project_config, so we reload it.
                 with open(Path(tmpdir, cls.PATH_CONFIG)) as f:
                     project_config = json.load(f)
 
             if reset_model_if_not_found:
-                cycle_fp = Path(tmpdir, cls.PATH_MODEL_CONFIG)
-                with open(cycle_fp) as f:
-                    cycle = json.load(f)["current_value"]
-
                 try:
-                    ActiveLearningCycle.from_meta(ActiveLearningCycleData(**cycle))
+                    ActiveLearningCycle.from_meta(
+                        ActiveLearningCycleData(**project_config["review"]["model"])
+                    )
                 except ValueError as err:
                     warnings.warn(err)
-
-                    with open(cycle_fp, "w") as f:
-                        model = get_ai_config()
-                        json.dump(
-                            {
-                                "name": model["name"],
-                                "current_value": asdict(model["value"]),
-                            },
-                            f,
-                        )
+                    model = get_ai_config()
+                    project_config["review"]["model"] = {
+                        "name": model["name"],
+                        "current_value": asdict(model["value"]),
+                    }
 
             if safe_import:
                 # assign a new id to the project.
