@@ -552,6 +552,8 @@ class Project:
             current_version = detect_version(project_config)
             if current_version < PROJECT_VERSION:
                 migrate_project(tmpdir, current_version, PROJECT_VERSION)
+                with open(Path(tmpdir, PATH_PROJECT_CONFIG)) as f:
+                    project_config = json.load(f)
 
             if reset_model_if_not_found:
                 cycle_fp = Path(tmpdir, PATH_MODEL_CONFIG)
