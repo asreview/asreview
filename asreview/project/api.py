@@ -543,12 +543,13 @@ class Project:
 
             if reset_model_if_not_found:
                 try:
+                    model_config = (
+                        project_config.get("review", {})
+                        .get("model", {})
+                        .get("current_value")
+                    )
                     ActiveLearningCycle.from_meta(
-                        ActiveLearningCycleData(
-                            **project_config.get("review", {})
-                            .get("model", {})
-                            .get("current_value")
-                        )
+                        ActiveLearningCycleData(**model_config)
                     )
                 except ValueError as err:
                     warnings.warn(err)
@@ -557,18 +558,16 @@ class Project:
                         "name": model["name"],
                         "current_value": asdict(model["value"]),
                     }
+                    with open(Path(tmpdir, cls.PATH_CONFIG), "w") as f:
+                        json.dump(project_config, f)
 
             if safe_import:
                 # assign a new id to the project.
                 project_config["id"] = uuid4().hex
-                with open(Path(tmpdir, cls.PATH_CONFIG), "r+") as f:
-                    # write to file
-                    f.seek(0)
+                with open(Path(tmpdir, cls.PATH_CONFIG), "w") as f:
                     json.dump(project_config, f)
-                    f.truncate()
 
             shutil.copytree(tmpdir, Path(project_path, project_config["id"]))
-
         return cls(Path(project_path, project_config["id"]))
 
     def get_review_error(self):
