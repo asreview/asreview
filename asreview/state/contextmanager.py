@@ -34,7 +34,7 @@ def _get_state_path(asreview_obj):
         raise ProjectNotFoundError(
             f"{asreview_obj} should be a project or the path to a project."
         )
-    return Path(project.project_path, "results.db")
+    return project.db_path
 
 
 def _get_state(fp_state, create_new):
@@ -82,9 +82,7 @@ def open_state(asreview_obj, create_new=True):
         with tempfile.TemporaryDirectory() as tmpdir:
             try:
                 project = Project.load(asreview_obj, tmpdir)
-                state = _get_state(
-                    Path(project.project_path, "results.db"), create_new=create_new
-                )
+                state = _get_state(project.db_path, create_new=create_new)
                 yield state
             finally:
                 if state is not None:

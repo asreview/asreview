@@ -118,4 +118,4 @@ def run_simulation(project):
         raise err
 
     project.update_review(status="finished")
-    sim.to_sql(Path(project.project_path, "results.db"))
+    sim.to_sql(project.db_path)
