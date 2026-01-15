@@ -109,18 +109,21 @@ class Project:
     PATH_CONFIG_LOCK = "project.json.lock"
     PATH_FEATURE_MATRICES = "feature_matrices"
     PATH_DATA_STORE = "data_store.db"
+    PATH_DATA_DIR = "data"
+    PATH_DB = "results.db"
+    PATH_ERROR = "error.json"
 
     def __init__(self, project_path, project_id=None):
         self.project_path = Path(project_path)
         self.project_id = project_id
+        self.data_dir = Path(self.project_path, self.PATH_DATA_DIR)
+        self.db_path = Path(self.project_path, self.PATH_DB)
+        self.data_store_path = Path(self.project_path, self.PATH_DATA_STORE)
+        self.error_path = Path(self.project_path, self.PATH_ERROR)
 
     @functools.cached_property
     def data_store(self):
         return DataStore(Path(self.project_path, self.PATH_DATA_STORE))
-
-    @property
-    def data_dir(self):
-        return self.project_path / "data"
 
     @property
     def input_data_fp(self):
@@ -417,14 +420,13 @@ class Project:
             raise ValueError("Review already exists.")
 
         self.update_review(model=cycle, status=status)
-        fp_state = Path(self.project_path, "results.db")
 
         if reviewer is None:
-            state = SQLiteState(fp_state)
+            state = SQLiteState(self.db_path)
             state.create_tables()
             state.close()
         else:
-            reviewer.to_sql(fp_state)
+            reviewer.to_sql(self.db_path)
 
         return self.config
 
@@ -462,7 +464,7 @@ class Project:
             print("Failed to remove feature matrices.")
 
         try:
-            Path(self.project_path, "results.db").unlink()
+            self.db_path.unlink()
         except Exception:
             print("Failed to remove sql database.")
 
@@ -570,9 +572,8 @@ class Project:
         return cls(Path(project_path, project_config["id"]))
 
     def get_review_error(self):
-        error_path = Path(self.project_path, "error.json")
-        if error_path.exists():
-            with open(error_path, "r") as f:
+        if self.error_path.exists():
+            with open(self.error_path, "r") as f:
                 return json.load(f)
         else:
             raise ValueError("No error found.")
@@ -580,7 +581,7 @@ class Project:
     def set_review_error(self, err):
         err_type = type(err).__name__
 
-        with open(Path(self.project_path, "error.json"), "w") as f:
+        with open(self.error_path, "w") as f:
             json.dump(
                 {
                     "message": f"{err_type}: {err}",
@@ -592,4 +593,4 @@ class Project:
             )
 
     def remove_review_error(self):
-        Path(self.project_path, "error.json").unlink(missing_ok=True)
+        self.error_path.unlink(missing_ok=True)
