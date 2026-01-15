@@ -723,7 +723,7 @@ def api_list_learners():
 @project_authorization
 def api_get_learner(project):  # noqa: F401
     """Get the latest learner used in the project"""
-    return project.get_model_config()
+    return project.review["model"]
 
 
 @bp.route("/projects/<project_id>/learner", methods=["POST", "PUT"])
@@ -742,7 +742,7 @@ def api_set_learner(project):  # noqa: F401
     project.update_review(model=current_value, model_name=name)
     project.remove_review_error()
 
-    return jsonify(settings)
+    return jsonify({"name": name, "current_value": current_value})
 
 
 @bp.route("/projects/<project_id>/wordcounts", methods=["GET"])
