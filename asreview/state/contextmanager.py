@@ -38,15 +38,25 @@ def _get_state_path(asreview_obj):
 
 
 def _get_state(fp_state, create_new):
+    # There are three options: there is a valid state at the location, there is a
+    # database at the location but it's not a valid state (it came from the data store),
+    # or there is nothing at the location.
     if not fp_state.is_file():
         if create_new:
             fp_state.parent.mkdir(parents=True, exist_ok=True)
-            state = SQLiteState(fp_state)
-            state.create_tables()
         else:
             raise FileNotFoundError(f"No state file found at {fp_state}")
-    else:
-        state = SQLiteState(fp_state)
+
+    # Now we know that if there is no file, we are allowed to create a new file.
+    state = SQLiteState(fp_state)
+    try:
+        state._is_valid_state()
+    except ValueError as e:
+        if create_new:
+            state.create_tables()
+        else:
+            raise e
+
     return state
 
 

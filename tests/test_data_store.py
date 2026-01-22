@@ -24,7 +24,7 @@ def records():
 
 @pytest.fixture
 def store(tmpdir):
-    fp = tmpdir / Project.PATH_DATA_STORE
+    fp = tmpdir / Project.PATH_DB
     store = DataStore(fp)
     store.create_tables()
     return store
@@ -37,7 +37,7 @@ def store_with_data(store, records):
 
 
 def test_create_tables(tmpdir):
-    fp = tmpdir / Project.PATH_DATA_STORE
+    fp = tmpdir / Project.PATH_DB
     store = DataStore(fp)
     store.create_tables()
     assert store.user_version == CURRENT_DATASTORE_VERSION
@@ -126,13 +126,13 @@ def test_custom_record(tmpdir):
         __tablename__ = "custom"
         foo: Mapped[str]
 
-    fp = Path(tmpdir, Project.PATH_DATA_STORE)
+    fp = Path(tmpdir, Project.PATH_DB)
     data_store = DataStore(fp, CustomRecord)
     data_store.create_tables()
 
 
 def test_close_store(tmpdir):
-    fp = Path(tmpdir, Project.PATH_DATA_STORE)
+    fp = Path(tmpdir, Project.PATH_DB)
     data_store = DataStore(fp)
     data_store.create_tables()
     fp.unlink()

@@ -1,5 +1,6 @@
 import json
 import shutil
+import sqlite3
 from pathlib import Path
 
 
@@ -9,6 +10,7 @@ def _migrate(project):
     From version 2 to version 3 the changes to the project file are:
 
     - ./reviews/<review_id>/results.db is moved to ./results.db
+    - ./data_store.db is merged into ./results.db
     - ./reviews/<review_id>/settings_metadata.json is moved to ./settings_meta_data.json
     - ./reviews is deleted.
     In project.json:
@@ -52,3 +54,24 @@ def _migrate(project):
 
     with open(config_fp, "w") as f:
         json.dump(project_config, f)
+
+    _copy_store_to_results(project)
+    Path(project, "data_store.db").unlink()
+
+
+def _copy_store_to_results(project):
+    conn = sqlite3.connect(Path(project, "results.db"))
+    cur = conn.cursor()
+    data_store_fp = Path(project, "data_store.db")
+    cur.execute(f"ATTACH '{str(data_store_fp)}' AS data_store")
+    cur.execute("""
+        CREATE TABLE record AS 
+        SELECT * FROM data_store.record WHERE 0
+    """)
+    cur.execute("""
+        INSERT INTO record 
+        SELECT * FROM data_store.record
+    """)
+    conn.commit()
+    cur.execute("DETACH DATABASE data_store")
+    conn.close()
