@@ -9,7 +9,6 @@ def test_project_load(asreview_test_project, tmpdir):
 
     assert project.db_path.exists()
     assert Path(project.project_path, project.PATH_CONFIG).exists()
-    assert project.data_store_path.exists()
 
 
 def test_project_load_unknown_classifier(tmpdir):

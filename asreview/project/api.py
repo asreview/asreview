@@ -108,7 +108,6 @@ class Project:
     PATH_CONFIG = "project.json"
     PATH_CONFIG_LOCK = "project.json.lock"
     PATH_FEATURE_MATRICES = "feature_matrices"
-    PATH_DATA_STORE = "data_store.db"
     PATH_DATA_DIR = "data"
     PATH_DB = "results.db"
     PATH_ERROR = "error.json"
@@ -118,12 +117,11 @@ class Project:
         self.project_id = project_id
         self.data_dir = Path(self.project_path, self.PATH_DATA_DIR)
         self.db_path = Path(self.project_path, self.PATH_DB)
-        self.data_store_path = Path(self.project_path, self.PATH_DATA_STORE)
         self.error_path = Path(self.project_path, self.PATH_ERROR)
 
     @functools.cached_property
     def data_store(self):
-        return DataStore(Path(self.project_path, self.PATH_DATA_STORE))
+        return DataStore(self.db_path)
 
     @property
     def input_data_fp(self):
@@ -162,7 +160,7 @@ class Project:
             project_path.mkdir(parents=True, exist_ok=True)
             Path(project_path, "data").mkdir(exist_ok=True)
             Path(project_path, cls.PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
-            data_store = DataStore(Path(project_path, cls.PATH_DATA_STORE))
+            data_store = DataStore(Path(project_path, cls.PATH_DB))
             data_store.create_tables()
 
             config = {
