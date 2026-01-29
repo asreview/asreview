@@ -20,11 +20,11 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from asreview.database.contextmanager import open_state
 from asreview.metrics import loss
 from asreview.metrics import ndcg
 from asreview.models.stoppers import LastRelevant
 from asreview.models.stoppers import NLabeled
-from asreview.state.contextmanager import open_state
 
 
 def _get_name_from_estimator(estimator):

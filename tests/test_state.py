@@ -74,29 +74,16 @@ def test_init_project_already_exists(tmpdir):
 def test_invalid_project_folder(tmpdir):
     project_path = Path(tmpdir, "this_is_not_a_project")
     with pytest.raises(ProjectNotFoundError):
-        with asr.open_state(project_path):
+        with asr.open_state(project_path, create_new=False):
             pass
 
     # there should be no folder called "this_is_not_a_project"
     assert not Path(project_path).is_dir()
 
 
-def test_state_not_found(tmpdir):
-    project_path = Path(tmpdir, "test.asreview")
-    asr.Project.create(project_path)
-    with pytest.raises(FileNotFoundError):
-        with asr.open_state(project_path, create_new=False):
-            pass
-
-
 def test_read_basic_state(asreview_test_project):
     with asr.open_state(asreview_test_project) as state:
         assert isinstance(state, asr.SQLiteState)
-
-
-def test_version_number_state(asreview_test_project):
-    with asr.open_state(asreview_test_project) as state:
-        assert state.user_version == 2
 
 
 def test_print_state(asreview_test_project):

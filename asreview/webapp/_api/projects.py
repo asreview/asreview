@@ -54,6 +54,7 @@ from asreview.data import TSVWriter
 from asreview.data.search import fuzzy_find
 from asreview.data.utils import convert_ris_list_columns_to_string
 from asreview.data.utils import duplicated
+from asreview.database.contextmanager import open_state
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
@@ -68,7 +69,6 @@ from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.migration import detect_version
 from asreview.project.migration import migrate_project
-from asreview.state.contextmanager import open_state
 from asreview.utils import _get_filename_from_url
 from asreview.webapp import DB
 from asreview.webapp._api.utils import add_id_to_tags

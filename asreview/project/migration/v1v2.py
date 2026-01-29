@@ -9,9 +9,9 @@ import pandas
 
 from asreview._version import __version__
 from asreview.data.loader import _from_file
-from asreview.data.store import DataStore
+from asreview.database.store import DataStore
 from asreview.models.models import get_ai_config
-from asreview.state.sqlstate import SQLiteState
+from asreview.database.sqlstate import SQLiteState
 
 
 def _project_config_converter_v1_v2(project_json):
