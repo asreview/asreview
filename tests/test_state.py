@@ -1,3 +1,4 @@
+import sqlite3
 from pathlib import Path
 
 import pandas as pd
@@ -52,6 +53,52 @@ TEST_NOTES = [
 TEST_N_PRIORS = 0
 
 TEST_POOL_START = [157, 301, 536, 567, 416, 171, 659, 335, 329, 428]
+
+
+def test_state_manual_close(tmpdir):
+    """Test that calling close() explicitly works."""
+    fp = Path(tmpdir, "test.db")
+    state = asr.SQLiteState(fp)
+    state.create_tables()
+    conn = state._conn
+    state.close()
+    with pytest.raises(
+        sqlite3.ProgrammingError, match="Cannot operate on a closed database"
+    ):
+        conn.execute("SELECT 1")
+
+
+def test_state_close_before_conn_created(tmpdir):
+    fp = Path(tmpdir, "test.db")
+    state = asr.SQLiteState(fp)
+    state.close()    
+
+
+def test_state_closes_connection_on_exit(tmpdir):
+    """Test that state closes the SQLite connection when exiting context."""
+    fp = Path(tmpdir, "test.db")
+    with asr.SQLiteState(fp) as state:
+        state.create_tables()
+        conn = state._conn
+    with pytest.raises(
+        sqlite3.ProgrammingError, match="Cannot operate on a closed database"
+    ):
+        conn.execute("SELECT 1")
+
+
+def test_state_closes_on_exception(tmpdir):
+    """Test that Database closes connection even when exception occurs."""
+    fp = Path(tmpdir, "test.db")
+
+    with pytest.raises(ValueError):
+        with asr.SQLiteState(fp) as state:
+            state.create_tables()
+            conn = state._conn
+            raise ValueError("Something went wrong")
+    with pytest.raises(
+        sqlite3.ProgrammingError, match="Cannot operate on a closed database"
+    ):
+        conn.execute("SELECT 1")
 
 
 def test_init_project_folder(tmpdir):
