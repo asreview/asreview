@@ -15,6 +15,7 @@
 import json
 import sqlite3
 import time
+from functools import cached_property
 
 import pandas as pd
 
@@ -74,7 +75,13 @@ class SQLiteState:
     def __init__(self, fp):
         self.fp = fp
 
-    @property
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    @cached_property
     def _conn(self):
         """Get a connection to the SQLite database.
 
@@ -83,11 +90,12 @@ class SQLiteState:
         sqlite3.Connection
             Connection to the SQLite database.
         """
-        if hasattr(self, "_conn_cache"):
-            return self._conn_cache
+        return sqlite3.connect(str(self.fp))
 
-        self._conn_cache = sqlite3.connect(str(self.fp))
-        return self._conn_cache
+    def close(self):
+        if "_conn" in self.__dict__:
+            self._conn.close()
+            del self.__dict__["_conn"]
 
     def create_tables(self):
         """Create the files for storing a new state."""
@@ -159,9 +167,6 @@ class SQLiteState:
                 f"The results table does not contain the columns "
                 f"{' '.join(missing_columns)}."
             )
-
-    def close(self):
-        self._conn.close()
 
     @property
     def exist_new_labeled_records(self):
