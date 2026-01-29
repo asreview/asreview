@@ -29,7 +29,7 @@ def assert_valid_project(project):
         state.get_last_ranking_table()
         state.get_decision_changes()
 
-    data = project.data_store
+    data = project.db.input
 
     assert isinstance(data["title"], pandas.Series)
     assert isinstance(data["included"], pandas.Series)

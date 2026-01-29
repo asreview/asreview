@@ -119,12 +119,8 @@ class Project:
         self.error_path = Path(self.project_path, self.PATH_ERROR)
 
     @functools.cached_property
-    def database(self):
+    def db(self):
         return Database(self.db_path)
-
-    @functools.cached_property
-    def data_store(self):
-        return self.database.input
 
     @property
     def input_data_fp(self):
@@ -293,7 +289,7 @@ class Project:
                 "got records with missing labels"
             )
 
-        self.data_store.add_records(records=records)
+        self.db.input.add_records(records=records)
 
         # This config update assumes that the project only has one dataset.
         self.update_config(
