@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from asreview.data.record import Record
 from asreview.database.sqlstate import SQLiteState
 from asreview.database.store import DataStore
@@ -18,12 +20,17 @@ class Database:
 
     def __init__(self, fp, record_cls=Record):
         self.fp = fp
+        self.record_cls = record_cls
         self.input = DataStore(fp, record_cls=record_cls)
         self.results = SQLiteState(fp)
 
+    @cached_property
+    def input(self):
+        return DataStore(self.fp, record_cls=self._record_cls)
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.results.close()
 

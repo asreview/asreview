@@ -46,10 +46,10 @@ def _set_log_verbosity(verbose):
         logging.getLogger().setLevel(logging.DEBUG)
 
 
-def _convert_id_to_idx(data_obj, record_id):
+def _convert_id_to_idx(db, record_id):
     """Convert record_id to row number."""
 
-    inv_record_id = dict(zip(data_obj["record_id"].tolist(), range(len(data_obj))))
+    inv_record_id = dict(zip(db.input["record_id"].tolist(), range(len(db.input))))
 
     result = []
     for i in record_id:
@@ -148,13 +148,13 @@ def _cli_simulate(argv):
             project_name=Path(args.output).stem,
         )
         project.add_dataset(args.dataset, dataset_id=filename)
-        data_store = project.data_store
+        db = project.db
     else:
-        data_store = load_dataset(args.dataset, dataset_id=filename)
+        db = load_dataset(args.dataset, dataset_id=filename)
 
     prior_idx = args.prior_idx
     if args.prior_record_id is not None and len(args.prior_record_id) > 0:
-        prior_idx = _convert_id_to_idx(data_store, args.prior_record_id)
+        prior_idx = _convert_id_to_idx(db, args.prior_record_id)
 
     stopper = LastRelevant() if args.n_stop is None else NLabeled(args.n_stop)
 
@@ -180,8 +180,8 @@ def _cli_simulate(argv):
     ]
 
     sim = Simulate(
-        data_store.get_df(),
-        data_store["included"],
+        db.input.get_df(),
+        db.input["included"],
         cycles,
         stopper=stopper,
     )
@@ -189,7 +189,7 @@ def _cli_simulate(argv):
     # select or sample prior knowledge and then label it
     if len(prior_idx) > 0:
         print("Selected prior knowledge via --prior-idx:\n")
-        for record in data_store.get_records(prior_idx):
+        for record in db.input.get_records(prior_idx):
             _print_record(record)
 
         sim.label(prior_idx)
@@ -197,7 +197,7 @@ def _cli_simulate(argv):
     if args.n_prior_included > 0:
         r = check_random_state(args.prior_seed)
 
-        included_idx = np.where(data_store["included"] == 1)[0]
+        included_idx = np.where(db.input["included"] == 1)[0]
         if len(included_idx) < args.n_prior_included:
             raise ValueError(
                 f"Number of included priors requested ({args.n_prior_included})"
@@ -209,7 +209,7 @@ def _cli_simulate(argv):
     if args.n_prior_excluded > 0:
         r = check_random_state(args.prior_seed)
 
-        excluded_idx = np.where(data_store["included"] == 0)[0]
+        excluded_idx = np.where(db.input["included"] == 0)[0]
         if len(excluded_idx) < args.n_prior_excluded:
             raise ValueError(
                 f"Number of excluded priors requested ({args.n_prior_excluded})"

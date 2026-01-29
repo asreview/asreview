@@ -214,9 +214,9 @@ def test_load_dataset_no_abstracts(tmpdir):
         }
     )
     df.to_csv(test_fp, index=False)
-    ds = load_dataset(test_fp, dataset_id="foo")
+    db = load_dataset(test_fp, dataset_id="foo")
 
-    assert ds.get_df()["abstract"].replace("", None).isnull().all()
+    assert db.input.get_df()["abstract"].replace("", None).isnull().all()
 
 
 @pytest.mark.parametrize(
@@ -250,15 +250,15 @@ def test_load_dataset(file_name, n_lines):
         fp = file_name
     else:
         fp = Path("tests", "demo_data", file_name)
-    store = load_dataset(fp, dataset_id=file_name)
-    assert len(store) == n_lines
+    db = load_dataset(fp, dataset_id=file_name)
+    assert len(db.input) == n_lines
 
 
 def test_dataset_with_record_ids():
     fp = Path("tests", "demo_data", "record_id.csv")
-    store = load_dataset(fp)
-    record_ids = store["record_id"]
-    assert record_ids.to_list() == list(range(len(store)))
+    db = load_dataset(fp)
+    record_ids = db.input["record_id"]
+    assert record_ids.to_list() == list(range(len(db.input)))
 
 
 def test_load_faulty_year_dataset():

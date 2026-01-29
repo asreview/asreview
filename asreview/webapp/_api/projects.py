@@ -112,7 +112,7 @@ def _fill_last_ranking(project, ranking):
     if ranking not in ["random", "top_down"]:
         raise ValueError(f"Unknown ranking type: {ranking}")
 
-    record_ids = project.data_store["record_id"]
+    record_ids = project.db.input["record_id"]
     if ranking == "random":
         ranked_record_ids = record_ids.sample(frac=1)
     elif ranking == "top_down":
@@ -292,19 +292,14 @@ def api_create_project():  # noqa: F401
         model = get_ai_config()
         project.update_review(model_name=model["name"], model=model["value"])
 
-        n_labeled = project.data_store["included"].notnull().sum()
+        included = project.db.input["included"]
+        n_labeled = included.notnull().sum()
 
-        if n_labeled > 0 and n_labeled < len(project.data_store):
+        if n_labeled > 0 and n_labeled < len(project.db.input):
             with open_state(project.project_path) as state:
-                labeled_indices = np.where(
-                    (project.data_store["included"] == 1)
-                    | (project.data_store["included"] == 0)
-                )[0]
-
-                labels = project.data_store["included"][labeled_indices].tolist()
-                labeled_record_ids = project.data_store["record_id"][
-                    labeled_indices
-                ].tolist()
+                labeled_indices = np.where((included == 1) | (included == 0))[0]
+                labels = included[labeled_indices].tolist()
+                labeled_record_ids = included[labeled_indices].tolist()
 
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
@@ -453,7 +448,7 @@ def api_demo_data_project():  # noqa: F401
 def api_get_project_data(project):  # noqa: F401
     """"""
 
-    data = project.data_store[["included", "title", "abstract", "doi", "url"]].replace(
+    data = project.db.input[["included", "title", "abstract", "doi", "url"]].replace(
         "", None
     )
 
@@ -534,7 +529,7 @@ def api_search_data(project):  # noqa: F401
     if not q:
         return jsonify({"result": []})
 
-    search_data = project.data_store[["title", "authors", "keywords"]]
+    search_data = project.db.input[["title", "authors", "keywords"]]
 
     with open_state(project.project_path) as s:
         labeled_record_ids = s.get_results_table()["record_id"].to_list()
@@ -548,7 +543,7 @@ def api_search_data(project):  # noqa: F401
 
     result = []
     for result_id in result_ids:
-        record = project.data_store.get_records(result_id)
+        record = project.db.input.get_records(result_id)
         record_d = asdict(record)
         record_d["state"] = None
         record_d["tags_form"] = read_tags_data(project)
@@ -630,7 +625,7 @@ def api_get_labeled(project):  # noqa: F401
             for i, u in users.items()
         }
 
-    records = project.data_store.get_records(state_data["record_id"].to_list())
+    records = project.db.input.get_records(state_data["record_id"].to_list())
     result = []
     for (_, state), record in zip(state_data.iterrows(), records):
         record_d = asdict(record)
@@ -751,7 +746,7 @@ def api_set_learner(project):  # noqa: F401
 def api_get_wordcounts(project):  # noqa: F401
     """Get the word counts used in the project"""
 
-    df_data = project.data_store[["record_id", "abstract"]]
+    df_data = project.db.input[["record_id", "abstract"]]
 
     with open_state(project.project_path) as s:
         results = s.get_results_table(columns=["record_id", "label"])
@@ -1220,7 +1215,7 @@ def api_get_progress_info(project):  # noqa: F401
             labels = s.get_results_table(priors=include_priors)["label"]
             labels_without_priors = s.get_results_table(priors=False)["label"]
 
-        n_records = len(project.data_store)
+        n_records = len(project.db.input)
         n_priors = len(labels) - len(labels_without_priors)
 
     except (FileNotFoundError, ValueError, ProjectError):
@@ -1230,7 +1225,7 @@ def api_get_progress_info(project):  # noqa: F401
 
     if (
         project.config.get("mode") == asr.Project.MODE_SIMULATE
-        and project.data_store["included"].sum() == labels.sum()
+        and project.db.input["included"].sum() == labels.sum()
     ):
         return jsonify(
             {
@@ -1267,7 +1262,7 @@ def api_get_metrics(project):
     if project.config.get("mode") != asr.Project.MODE_SIMULATE:
         return jsonify("Metrics are only available for simulation projects"), 404
 
-    n_records = len(project.data_store)
+    n_records = len(project.db.input)
 
     with open_state(project.project_path) as s:
         labels_no_priors = s.get_results_table(priors=False)["label"]
@@ -1309,7 +1304,7 @@ def api_get_stopper(project):  # noqa: F401
     else:
         n_since_last_relevant = 0
 
-    data = project.data_store[["record_id"]]
+    data = project.db.input[["record_id"]]
 
     return jsonify(
         {
@@ -1349,12 +1344,12 @@ def api_get_progress_data(project):  # Consolidated endpoint
 
     if (
         project.config.get("mode") == asr.Project.MODE_SIMULATE
-        and project.data_store["included"].sum() == labels_with_priors["label"].sum()
+        and project.db.input["included"].sum() == labels_with_priors["label"].sum()
     ):
         labels = pd.DataFrame(
             {
                 "label": labels["label"].to_list()
-                + np.zeros(len(project.data_store) - len(labels)).tolist(),
+                + np.zeros(len(project.db.input) - len(labels)).tolist(),
             }
         )
 
@@ -1407,7 +1402,7 @@ def api_label_record(project, record_id):  # noqa: F401
         with open_state(project.project_path) as state:
             record = state.get_results_record(record_id)
 
-        item = asdict(project.data_store.get_records(record_id))
+        item = asdict(project.db.input.get_records(record_id))
         item["state"] = record.iloc[0].to_dict()
         item["tags_form"] = read_tags_data(project)
         item["state"]["user"] = None
@@ -1457,7 +1452,7 @@ def api_get_record(project):  # noqa: F401
                 else:
                     return jsonify({"result": None, "status": "setup"})
 
-    item = asdict(project.data_store.get_records(pending["record_id"].iloc[0]))
+    item = asdict(project.db.input.get_records(pending["record_id"].iloc[0]))
     item["state"] = pending.iloc[0].to_dict()
     item["tags_form"] = read_tags_data(project)
     item["state"]["user"] = None

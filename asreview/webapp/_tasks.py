@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
-
 import asreview as asr
 from asreview.database.contextmanager import open_state
 from asreview.models.queriers import TopDown
@@ -59,11 +57,11 @@ def run_model(project):
                 )
             except ValueError:
                 cycle = asr.ActiveLearningCycle.from_meta(cycle_data)
-                fm = cycle.transform(project.data_store.get_df())
+                fm = cycle.transform(project.db.input.get_df())
                 project.add_feature_matrix(fm, cycle.feature_extractor.name)
         else:
             cycle = asr.ActiveLearningCycle.from_meta(cycle_data)
-            fm = project.data_store.get_df().values
+            fm = project.db.input.get_df().values
 
         if cycle.classifier is not None:
             cycle.fit(
@@ -105,8 +103,8 @@ def run_simulation(project):
     ]
 
     sim = Simulate(
-        project.data_store.get_df(),
-        project.data_store["included"],
+        project.db.input.get_df(),
+        project.db.input["included"],
         cycles,
         print_progress=False,
     )

@@ -5,7 +5,6 @@ import pandas as pd
 from pytest import mark
 
 import asreview as asr
-from asreview import load_dataset
 from asreview.data.search import fuzzy_find
 from asreview.data.utils import duplicated
 from asreview.datasets import DatasetManager
@@ -31,8 +30,8 @@ def exists(url):
 )
 def test_fuzzy_finder(keywords, record_id):
     fp = Path("tests", "demo_data", "embase.csv")
-    dataset = load_dataset(fp)
-    assert fuzzy_find(dataset, keywords)[0] == record_id
+    db = asr.load_dataset(fp)
+    assert fuzzy_find(db.input, keywords)[0] == record_id
 
 
 @mark.internet_required
@@ -50,13 +49,13 @@ def test_datasets(data_name):
 
 @mark.xfail(reason="Deduplication will be reimplemented.")
 def test_duplicate_count():
-    data = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
+    db = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
-    assert int(data.df.duplicated("doi").sum()) == 2
+    assert int(db.input.df.duplicated("doi").sum()) == 2
 
 
 def test_deduplication():
-    d_dups = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
+    db_dups = asr.load_dataset(Path("tests", "demo_data", "duplicate_records.csv"))
 
     s_dups_bool = pd.Series(
         [
@@ -77,7 +76,9 @@ def test_deduplication():
         ]
     )
 
-    pd.testing.assert_series_equal(duplicated(d_dups), s_dups_bool, check_index=False)
+    pd.testing.assert_series_equal(
+        duplicated(db_dups.input), s_dups_bool, check_index=False
+    )
 
 
 def test_duplicated():

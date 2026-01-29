@@ -82,7 +82,6 @@ def open_state(asreview_obj, create_new=True):
     if isinstance(asreview_obj, str):
         asreview_obj = Path(asreview_obj)
 
-    state = None
     if (
         isinstance(asreview_obj, Path)
         and asreview_obj.is_file()
