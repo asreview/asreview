@@ -10,8 +10,7 @@ from asreview.data.loader import load_dataset
 from asreview.data.loader import load_records
 from asreview.data.record import Base
 from asreview.data.record import Record
-from asreview.data.store import CURRENT_DATASTORE_VERSION
-from asreview.data.store import DataStore
+from asreview.database.store import DataStore
 from asreview.project.api import Project
 from asreview.utils import _is_url
 
@@ -40,9 +39,6 @@ def test_create_tables(tmpdir):
     fp = tmpdir / Project.PATH_DB
     store = DataStore(fp)
     store.create_tables()
-    assert store.user_version == CURRENT_DATASTORE_VERSION
-    store.user_version = 42
-    assert store.user_version == 42
     con = sqlite3.connect(fp)
     tables = (
         con.cursor()

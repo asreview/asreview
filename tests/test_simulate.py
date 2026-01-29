@@ -6,7 +6,6 @@ from asreview.models.queriers import Random
 from asreview.models.queriers import TopDown
 from asreview.models.stoppers import IsFittable
 from asreview.simulation.cli import _cli_simulate
-from asreview.state.contextmanager import open_state
 
 
 @pytest.mark.parametrize("balancer", ["balanced", None])
@@ -236,7 +235,7 @@ def test_simulate_cli_vs_api(demo_data, demo_data_path, tmp_project):
         f" -e {feature_extractor} --prior-idx 0 9 --seed 535"
     ).split()
     _cli_simulate(argv)
-    with open_state(tmp_project) as state:
+    with asr.open_state(tmp_project) as state:
         cli_dataframe = state.get_results_table(columns=used_columns)
 
     for col in ["record_id", "label"]:

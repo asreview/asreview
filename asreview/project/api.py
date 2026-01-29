@@ -37,7 +37,6 @@ from filelock import FileLock
 
 from asreview.data.loader import _from_file
 from asreview.data.loader import _get_reader
-from asreview.data.store import DataStore
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
@@ -46,7 +45,7 @@ from asreview.models import get_ai_config
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.project.schema import SCHEMA
-from asreview.state.sqlstate import SQLiteState
+from asreview.database.database import Database
 from asreview.utils import _get_filename_from_url
 from asreview.utils import _is_url
 
@@ -120,8 +119,12 @@ class Project:
         self.error_path = Path(self.project_path, self.PATH_ERROR)
 
     @functools.cached_property
+    def database(self):
+        return Database(self.db_path)
+
+    @functools.cached_property
     def data_store(self):
-        return DataStore(self.db_path)
+        return self.database.input
 
     @property
     def input_data_fp(self):
@@ -160,8 +163,8 @@ class Project:
             project_path.mkdir(parents=True, exist_ok=True)
             Path(project_path, "data").mkdir(exist_ok=True)
             Path(project_path, cls.PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
-            data_store = DataStore(Path(project_path, cls.PATH_DB))
-            data_store.create_tables()
+            database = Database(Path(project_path, cls.PATH_DB))
+            database.create_tables()
 
             config = {
                 "version": __version__,
@@ -419,11 +422,7 @@ class Project:
 
         self.update_review(model=cycle, status=status)
 
-        if reviewer is None:
-            state = SQLiteState(self.db_path)
-            state.create_tables()
-            state.close()
-        else:
+        if reviewer is not None:
             reviewer.to_sql(self.db_path)
 
         return self.config
@@ -449,24 +448,6 @@ class Project:
         if model_name is not None:
             review_config["model"]["name"] = model_name
         self.update_config(review=review_config)
-
-    def delete_review(self, remove_folders=False):
-        try:
-            # remove the folder tree
-            shutil.rmtree(Path(self.project_path, self.PATH_FEATURE_MATRICES))
-
-            # recreate folder structure if True
-            if not remove_folders:
-                Path(self.project_path, self.PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
-        except Exception:
-            print("Failed to remove feature matrices.")
-
-        try:
-            self.db_path.unlink()
-        except Exception:
-            print("Failed to remove sql database.")
-
-        self.update_config(review=None, feature_matrices=[])
 
     def get_model_config(self):
         """Get the current model configuration of the review.
