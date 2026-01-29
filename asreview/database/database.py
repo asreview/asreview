@@ -21,6 +21,15 @@ class Database:
         self.input = DataStore(fp, record_cls=record_cls)
         self.results = SQLiteState(fp)
 
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.results.close()
+
+    def close(self):
+        self.results.close()
+
     @property
     def user_version(self):
         """Version number of the state."""
