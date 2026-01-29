@@ -54,7 +54,6 @@ from asreview.data import TSVWriter
 from asreview.data.search import fuzzy_find
 from asreview.data.utils import convert_ris_list_columns_to_string
 from asreview.data.utils import duplicated
-from asreview.database.contextmanager import open_state
 from asreview.datasets import DatasetManager
 from asreview.extensions import extensions
 from asreview.extensions import load_extension
@@ -117,7 +116,7 @@ def _fill_last_ranking(project, ranking):
         ranked_record_ids = record_ids.sample(frac=1)
     elif ranking == "top_down":
         ranked_record_ids = record_ids
-    with open_state(project.project_path) as state:
+    with project.db.results as state:
         state.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
 
 
@@ -296,7 +295,7 @@ def api_create_project():  # noqa: F401
         n_labeled = included.notnull().sum()
 
         if n_labeled > 0 and n_labeled < len(project.db.input):
-            with open_state(project.project_path) as state:
+            with project.db.results as state:
                 labeled_indices = np.where((included == 1) | (included == 0))[0]
                 labels = included[labeled_indices].tolist()
                 labeled_record_ids = included[labeled_indices].tolist()
@@ -531,7 +530,7 @@ def api_search_data(project):  # noqa: F401
 
     search_data = project.db.input[["title", "authors", "keywords"]]
 
-    with open_state(project.project_path) as s:
+    with project.db.results as s:
         labeled_record_ids = s.get_results_table()["record_id"].to_list()
 
     result_ids = fuzzy_find(
@@ -564,7 +563,7 @@ def api_get_labeled(project):  # noqa: F401
     filters = request.args.getlist("filter", type=str)
     latest_first = request.args.get("latest_first", default=1, type=int)
 
-    with open_state(project.project_path) as s:
+    with project.db.results as s:
         if "is_prior" in filters:
             state_data = s.get_priors()
         else:
@@ -660,7 +659,7 @@ def api_get_labeled_stats(project):  # noqa: F401
     include_priors = request.args.get("priors", True, type=bool)
 
     try:
-        with open_state(project.project_path) as s:
+        with project.db.results as s:
             data = s.get_results_table(["label", "querier"])
             data_prior = data[data["querier"].isnull()]
 
@@ -748,7 +747,7 @@ def api_get_wordcounts(project):  # noqa: F401
 
     df_data = project.db.input[["record_id", "abstract"]]
 
-    with open_state(project.project_path) as s:
+    with project.db.results as s:
         results = s.get_results_table(columns=["record_id", "label"])
 
     df_data_labels = df_data.merge(results, on="record_id", how="inner")
@@ -844,7 +843,7 @@ def api_update_review_status(project):
     if current_status == "setup" and status == "review":
         is_simulation = project.config["mode"] == asr.Project.MODE_SIMULATE
 
-        with open_state(project) as s:
+        with project.db.results as s:
             labels = s.get_results_table()["label"].to_list()
 
         if not (pk := 0 in labels and 1 in labels) and not is_simulation:
@@ -1071,7 +1070,7 @@ def api_export_dataset(project):
     export_email = request.args.get("export_email", default=1, type=int)
     collections = request.args.getlist("collections", type=str)
 
-    with open_state(project.project_path) as s:
+    with project.db.results as s:
         df_results = s.get_results_table().set_index("record_id")
         df_unlabeled = s.get_unlabeled()
 
@@ -1211,7 +1210,7 @@ def api_get_progress_info(project):  # noqa: F401
     include_priors = request.args.get("priors", True, type=bool)
 
     try:
-        with open_state(project.project_path) as s:
+        with project.db.results as s:
             labels = s.get_results_table(priors=include_priors)["label"]
             labels_without_priors = s.get_results_table(priors=False)["label"]
 
@@ -1264,7 +1263,7 @@ def api_get_metrics(project):
 
     n_records = len(project.db.input)
 
-    with open_state(project.project_path) as s:
+    with project.db.results as s:
         labels_no_priors = s.get_results_table(priors=False)["label"]
         n_priors = len(s.get_priors())
 
@@ -1291,7 +1290,7 @@ def api_get_stopper(project):  # noqa: F401
     if stopper is None:
         return jsonify({"name": None, "params": None})
 
-    with open_state(project.project_path) as s:
+    with project.db.results as s:
         results = s.get_results_table(priors=False)
         labels = results["label"]
 
@@ -1338,7 +1337,7 @@ def api_get_progress_data(project):  # Consolidated endpoint
 
     include_priors = request.args.get("priors", False, type=bool)
 
-    with open_state(project.project_path) as s:
+    with project.db.results as s:
         labels = s.get_results_table("label", priors=include_priors)
         labels_with_priors = s.get_results_table("label", priors=True)
 
@@ -1382,7 +1381,7 @@ def api_label_record(project, record_id):  # noqa: F401
         current_user.id if current_app.config.get("AUTHENTICATION", True) else None
     )
 
-    with open_state(project.project_path) as state:
+    with project.db.results as state:
         if request.method == "PUT":
             state.update(record_id, label=label, tags=tags, user_id=user_id)
         else:
@@ -1399,7 +1398,7 @@ def api_label_record(project, record_id):  # noqa: F401
     if request.method == "POST":
         return jsonify({"success": True})
     else:
-        with open_state(project.project_path) as state:
+        with project.db.results as state:
             record = state.get_results_record(record_id)
 
         item = asdict(project.db.input.get_records(record_id))
@@ -1418,7 +1417,7 @@ def api_update_note(project, record_id):  # noqa: F401
     note = request.form.get("note", type=str)
     note = note if note != "" else None
 
-    with open_state(project.project_path) as state:
+    with project.db.results as state:
         state.update_note(record_id, note)
 
     return jsonify({"success": True})
@@ -1437,7 +1436,7 @@ def api_get_record(project):  # noqa: F401
     if project.config["review"]["status"] == "finished":
         return jsonify({"result": None, "status": "finished"})
 
-    with open_state(project.project_path) as state:
+    with project.db.results as state:
         pending = state.get_pending(user_id=user_id)
 
         if pending.empty:
