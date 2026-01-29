@@ -24,7 +24,7 @@ def assert_valid_project(project):
     jsonschema.validate(instance=project.config, schema=SCHEMA)
 
     # test state
-    with asr.open_state(project) as state:
+    with project.db.results as state:
         state.get_results_table()
         state.get_last_ranking_table()
         state.get_decision_changes()

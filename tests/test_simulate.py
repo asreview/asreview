@@ -202,7 +202,7 @@ def test_simulate_labels_input_prior(demo_data):
     assert sim._results.shape[0] < 60
 
 
-def test_simulate_cli_vs_api(demo_data, demo_data_path, tmp_project):
+def test_simulate_cli_vs_api(demo_data, demo_data_path, tmp_project, tmpdir):
     querier, classifier, balancer, feature_extractor = (
         "max",
         "svm",
@@ -235,7 +235,7 @@ def test_simulate_cli_vs_api(demo_data, demo_data_path, tmp_project):
         f" -e {feature_extractor} --prior-idx 0 9 --seed 535"
     ).split()
     _cli_simulate(argv)
-    with asr.open_state(tmp_project) as state:
+    with asr.Project.load(tmp_project, tmpdir).db.results as state:
         cli_dataframe = state.get_results_table(columns=used_columns)
 
     for col in ["record_id", "label"]:

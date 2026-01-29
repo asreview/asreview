@@ -27,11 +27,11 @@ def test_simulate_review_finished(tmpdir, demo_data_path, tmp_project):
     assert project.config["review"]["status"] == "finished"
 
 
-def test_prior_idx(tmp_project, demo_data_path):
+def test_prior_idx(tmp_project, demo_data_path, tmpdir):
     argv = f"{demo_data_path} -o {tmp_project} --prior-idx 0 9".split()
     _cli_simulate(argv)
 
-    with asr.open_state(tmp_project) as state:
+    with asr.Project.load(tmp_project, tmpdir).db.results as state:
         results_table = state.get_results_table()
 
     assert results_table["record_id"].head(2).to_list() == [0, 9]
@@ -39,11 +39,11 @@ def test_prior_idx(tmp_project, demo_data_path):
     assert results_table["querier"][2:].notnull().all()
 
 
-def test_prior_record_ids(tmp_project, demo_data_path):
+def test_prior_record_ids(tmp_project, demo_data_path, tmpdir):
     argv = f"{demo_data_path} -o {tmp_project} --prior-record-id 0 9".split()
     _cli_simulate(argv)
 
-    with asr.open_state(tmp_project) as state:
+    with asr.Project.load(tmp_project, tmpdir).db.results as state:
         results_table = state.get_results_table()
 
     assert results_table["record_id"].head(2).to_list() == [0, 9]
@@ -51,37 +51,26 @@ def test_prior_record_ids(tmp_project, demo_data_path):
     assert results_table["querier"][2:].notnull().all()
 
 
-def test_n_prior_included(tmp_project, demo_data_path):
+def test_n_prior_included(tmp_project, demo_data_path, tmpdir):
     argv = f"{demo_data_path} -o {tmp_project} --n-prior-included 2 --prior-seed 535".split()
     _cli_simulate(argv)
 
-    with asr.open_state(tmp_project) as state:
+    with asr.Project.load(tmp_project, tmpdir).db.results as state:
         result = state.get_results_table(["label", "querier"])
 
     prior_included = result["label"] & (result["querier"].isnull())
     assert sum(prior_included) >= 2
 
 
-def test_n_prior_excluded(tmp_project, demo_data_path):
+def test_n_prior_excluded(tmp_project, demo_data_path, tmpdir):
     argv = f"{demo_data_path} -o {tmp_project} --n-prior-excluded 2 --prior-seed 535".split()
     _cli_simulate(argv)
 
-    with asr.open_state(tmp_project) as state:
+    with asr.Project.load(tmp_project, tmpdir).db.results as state:
         result = state.get_results_table(["label", "querier"])
 
     prior_excluded = ~result["label"] & (result["querier"].isnull())
     assert sum(prior_excluded) >= 2
-
-
-@pytest.mark.skip(reason="Not implemented yet.")
-def test_seed(tmp_project, demo_data_path):
-    argv = f"{demo_data_path} -o {tmp_project} --seed 535".split()
-    _cli_simulate(argv)
-
-    with open(tmp_project, "r") as f:
-        settings_metadata = json.load(f)
-
-    assert settings_metadata["random_seed"] == 535
 
 
 def test_no_seed(tmpdir, demo_data_path):
@@ -93,7 +82,7 @@ def test_no_seed(tmpdir, demo_data_path):
             f"--n-prior-excluded 1 --n-prior-included 1 --n-stop 4".split()
         )
         _cli_simulate(argv)
-        with asr.open_state(project_fp) as s:
+        with asr.Project.load(project_fp, tmpdir).db.results as s:
             priors = s.get_priors()
 
     assert len(priors) == 2
@@ -117,10 +106,10 @@ def test_model_and_prior_seed(tmpdir, seed, demo_data_path):
     )
 
     # open the state file and extract the priors
-    with asr.open_state(project1_fp) as s1:
+    with asr.Project.load(project1_fp, tmpdir).db.results as s1:
         record_table1 = s1.get_results_table().drop("time", axis=1)
 
-    with asr.open_state(project2_fp) as s2:
+    with asr.Project.load(project2_fp, tmpdir).db.results as s2:
         record_table2 = s2.get_results_table().drop("time", axis=1)
 
     assert_frame_equal(record_table1, record_table2)
@@ -133,7 +122,7 @@ def test_models(model, tmpdir, demo_data_path, tmp_project):
         + "-e tfidf -q max -b balanced".split()
     )
 
-    with asr.open_state(tmp_project) as state:
+    with asr.Project.load(tmp_project, tmpdir).db.results as state:
         results = state.get_results_table()
 
     assert all(results["classifier"][10:] == model)
@@ -142,11 +131,11 @@ def test_models(model, tmpdir, demo_data_path, tmp_project):
     assert all(results["querier"][10:] == "max")
 
 
-def test_no_balancing(tmp_project, demo_data_path):
+def test_no_balancing(tmp_project, demo_data_path, tmpdir):
     argv = f"{demo_data_path} -o {tmp_project} -c nb -q max -e tfidf".split()
     _cli_simulate(argv)
 
-    with asr.open_state(tmp_project) as state:
+    with asr.Project.load(tmp_project, tmpdir).db.results as state:
         results_balance_strategies = state.get_results_table()["balancer"]
         last_ranking_balance_strategies = state.get_last_ranking_table()["balancer"]
 
@@ -154,29 +143,29 @@ def test_no_balancing(tmp_project, demo_data_path):
     assert last_ranking_balance_strategies.isnull().all()
 
 
-def test_number_records_found(tmp_project, demo_data_path):
+def test_number_records_found(tmp_project, demo_data_path, tmpdir):
     _cli_simulate(
         f"{demo_data_path} -o {tmp_project} --n-stop 15"
         " --prior-idx 0 9 --seed 535".split()
     )
 
-    with asr.open_state(tmp_project) as s:
+    with asr.Project.load(tmp_project, tmpdir).db.results as s:
         assert s.get_results_table("label")["label"].sum() == 9
         assert s.get_results_table("label").shape[0] == 15
         assert s.get_results_table().shape[0] == 15
         assert s.get_results_table()["label"].head(2).sum() == 1
 
 
-def test_n_stop_min(tmp_project, demo_data_path):
+def test_n_stop_min(tmp_project, demo_data_path, tmpdir):
     argv = f"{demo_data_path} -o {tmp_project} --prior-idx 0 9 --seed 535".split()
     _cli_simulate(argv)
 
-    with asr.open_state(tmp_project) as s:
+    with asr.Project.load(tmp_project, tmpdir).db.results as s:
         assert s.get_results_table("label")["label"].sum() == 10
         assert len(s.get_results_table("label")) == 51
 
 
-def test_n_stop_all(tmp_project):
+def test_n_stop_all(tmp_project, tmpdir):
     argv = (
         "synergy:Sep_2021",
         "-o",
@@ -191,7 +180,7 @@ def test_n_stop_all(tmp_project):
     )
     _cli_simulate(argv)
 
-    with asr.open_state(tmp_project) as s:
+    with asr.Project.load(tmp_project, tmpdir).db.results as s:
         assert s.get_results_table("label")["label"].sum() == 40
         assert len(s.get_results_table("label")) == 271
 
@@ -222,7 +211,7 @@ def test_cycle_config(tmpdir, demo_data_path, tmp_project):
 
     _cli_simulate(f"{demo_data_path} -o {tmp_project} --config-file {fp_cycle}".split())
 
-    with asr.open_state(tmp_project) as state:
+    with asr.Project.load(tmp_project, tmpdir).db.results as state:
         results = state.get_results_table()
 
     assert all(results["classifier"][10:] == "nb")
