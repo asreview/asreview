@@ -8,10 +8,11 @@ from uuid import uuid4
 import pandas
 
 from asreview._version import __version__
-from asreview.data.loader import _from_file
-from asreview.database.store import DataStore
+from asreview.data.loader import _get_reader
 from asreview.models.models import get_ai_config
-from asreview.database.sqlstate import SQLiteState
+from asreview.project.migration.legacy_v2.record import Record as RecordV2
+from asreview.project.migration.legacy_v2.sqlstate import SQLiteState
+from asreview.project.migration.legacy_v2.store import DataStore
 
 
 def _project_config_converter_v1_v2(project_json):
@@ -45,7 +46,8 @@ def _project_data_converter_v1_v2(project_config, project_folder):
     fp_data = Path(project_folder, "data", project_config["dataset_path"])
 
     dataset_id = uuid4().hex
-    records = _from_file(fp_data, dataset_id=dataset_id)
+    reader = _get_reader(fp_data)
+    records = reader.read_records(fp_data, dataset_id=dataset_id, record_cls=RecordV2)
 
     data_store = DataStore(Path(project_folder, "data_store.db"))
     data_store.create_tables()
