@@ -90,25 +90,9 @@ def open_state(asreview_obj, create_new=True):
         and asreview_obj.suffix == ".asreview"
     ):
         with tempfile.TemporaryDirectory() as tmpdir:
-            try:
-                project = Project.load(asreview_obj, tmpdir)
-                state = _get_state(project.db_path, create_new=create_new)
+            project = Project.load(asreview_obj, tmpdir)
+            with _get_state(project.db_path, create_new=create_new) as state:
                 yield state
-            finally:
-                if state is not None:
-                    try:
-                        state.close()
-                    except AttributeError:
-                        # file seems to be closed, do nothing
-                        pass
     else:
-        try:
-            state = _get_state(_get_state_path(asreview_obj), create_new=create_new)
+        with _get_state(_get_state_path(asreview_obj), create_new=create_new) as state:
             yield state
-        finally:
-            if state is not None:
-                try:
-                    state.close()
-                except AttributeError:
-                    # file seems to be closed, do nothing
-                    pass
