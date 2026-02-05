@@ -31,8 +31,8 @@ def test_prior_idx(tmp_project, demo_data_path, tmpdir):
     argv = f"{demo_data_path} -o {tmp_project} --prior-idx 0 9".split()
     _cli_simulate(argv)
 
-    with asr.Project.load(tmp_project, tmpdir).db.results as state:
-        results_table = state.get_results_table()
+    with asr.Project.load(tmp_project, tmpdir).db as db:
+        results_table = db.results.get_results_table()
 
     assert results_table["record_id"].head(2).to_list() == [0, 9]
     assert results_table["querier"][:1].isnull().all()
@@ -43,8 +43,8 @@ def test_prior_record_ids(tmp_project, demo_data_path, tmpdir):
     argv = f"{demo_data_path} -o {tmp_project} --prior-record-id 0 9".split()
     _cli_simulate(argv)
 
-    with asr.Project.load(tmp_project, tmpdir).db.results as state:
-        results_table = state.get_results_table()
+    with asr.Project.load(tmp_project, tmpdir).db as db:
+        results_table = db.results.get_results_table()
 
     assert results_table["record_id"].head(2).to_list() == [0, 9]
     assert results_table["querier"][:1].isnull().all()
@@ -55,8 +55,8 @@ def test_n_prior_included(tmp_project, demo_data_path, tmpdir):
     argv = f"{demo_data_path} -o {tmp_project} --n-prior-included 2 --prior-seed 535".split()
     _cli_simulate(argv)
 
-    with asr.Project.load(tmp_project, tmpdir).db.results as state:
-        result = state.get_results_table(["label", "querier"])
+    with asr.Project.load(tmp_project, tmpdir).db as db:
+        result = db.results.get_results_table(["label", "querier"])
 
     prior_included = result["label"] & (result["querier"].isnull())
     assert sum(prior_included) >= 2
@@ -66,8 +66,8 @@ def test_n_prior_excluded(tmp_project, demo_data_path, tmpdir):
     argv = f"{demo_data_path} -o {tmp_project} --n-prior-excluded 2 --prior-seed 535".split()
     _cli_simulate(argv)
 
-    with asr.Project.load(tmp_project, tmpdir).db.results as state:
-        result = state.get_results_table(["label", "querier"])
+    with asr.Project.load(tmp_project, tmpdir).db as db:
+        result = db.results.get_results_table(["label", "querier"])
 
     prior_excluded = ~result["label"] & (result["querier"].isnull())
     assert sum(prior_excluded) >= 2
@@ -105,12 +105,12 @@ def test_model_and_prior_seed(tmpdir, seed, demo_data_path):
         f" --n-prior-excluded 1 --n-prior-included 1".split()
     )
 
-    # open the state file and extract the priors
-    with asr.Project.load(project1_fp, tmpdir).db.results as s1:
-        record_table1 = s1.get_results_table().drop("time", axis=1)
+    # open the results database and extract the priors
+    with asr.Project.load(project1_fp, tmpdir).db as db1:
+        record_table1 = db1.results.get_results_table().drop("time", axis=1)
 
-    with asr.Project.load(project2_fp, tmpdir).db.results as s2:
-        record_table2 = s2.get_results_table().drop("time", axis=1)
+    with asr.Project.load(project2_fp, tmpdir).db as db2:
+        record_table2 = db2.results.get_results_table().drop("time", axis=1)
 
     assert_frame_equal(record_table1, record_table2)
 
@@ -122,8 +122,8 @@ def test_models(model, tmpdir, demo_data_path, tmp_project):
         + "-e tfidf -q max -b balanced".split()
     )
 
-    with asr.Project.load(tmp_project, tmpdir).db.results as state:
-        results = state.get_results_table()
+    with asr.Project.load(tmp_project, tmpdir).db as db:
+        results = db.results.get_results_table()
 
     assert all(results["classifier"][10:] == model)
     assert all(results["balancer"][10:] == "balanced")
@@ -135,9 +135,9 @@ def test_no_balancing(tmp_project, demo_data_path, tmpdir):
     argv = f"{demo_data_path} -o {tmp_project} -c nb -q max -e tfidf".split()
     _cli_simulate(argv)
 
-    with asr.Project.load(tmp_project, tmpdir).db.results as state:
-        results_balance_strategies = state.get_results_table()["balancer"]
-        last_ranking_balance_strategies = state.get_last_ranking_table()["balancer"]
+    with asr.Project.load(tmp_project, tmpdir).db as db:
+        results_balance_strategies = db.results.get_results_table()["balancer"]
+        last_ranking_balance_strategies = db.results.get_last_ranking_table()["balancer"]
 
     assert results_balance_strategies.isnull().all()
     assert last_ranking_balance_strategies.isnull().all()
@@ -211,8 +211,8 @@ def test_cycle_config(tmpdir, demo_data_path, tmp_project):
 
     _cli_simulate(f"{demo_data_path} -o {tmp_project} --config-file {fp_cycle}".split())
 
-    with asr.Project.load(tmp_project, tmpdir).db.results as state:
-        results = state.get_results_table()
+    with asr.Project.load(tmp_project, tmpdir).db as db:
+        results = db.results.get_results_table()
 
     assert all(results["classifier"][10:] == "nb")
     assert all(results["balancer"][10:] == "balanced")

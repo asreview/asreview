@@ -235,8 +235,8 @@ def test_simulate_cli_vs_api(demo_data, demo_data_path, tmp_project, tmpdir):
         f" -e {feature_extractor} --prior-idx 0 9 --seed 535"
     ).split()
     _cli_simulate(argv)
-    with asr.Project.load(tmp_project, tmpdir).db.results as state:
-        cli_dataframe = state.get_results_table(columns=used_columns)
+    with asr.Project.load(tmp_project, tmpdir).db as db:
+        cli_dataframe = db.results.get_results_table(columns=used_columns)
 
     for col in ["record_id", "label"]:
         assert (api_dataframe[col] == cli_dataframe[col]).all()

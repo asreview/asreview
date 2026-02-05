@@ -103,4 +103,4 @@ class Database:
                 f"Database version {self.user_version} is not supported. "
                 "See migration guide."
             )
-        self.results._is_valid_state()
+        self.results._is_valid()

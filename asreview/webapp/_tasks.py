@@ -70,8 +70,8 @@ def run_model(project):
 
         ranked_record_ids = cycle.rank(fm)
 
-        with project.db.results as state:
-            state.add_last_ranking(
+        with project.db as db:
+            db.results.add_last_ranking(
                 ranked_record_ids,
                 cycle_data.classifier if cycle_data.classifier is not None else None,
                 cycle_data.querier,
@@ -90,8 +90,8 @@ def run_model(project):
 
 
 def run_simulation(project):
-    with project.db.results as state:
-        priors = state.get_priors()["record_id"].tolist()
+    with project.db as db:
+        priors = db.results.get_priors()["record_id"].tolist()
 
     cycles = [
         asr.ActiveLearningCycle(

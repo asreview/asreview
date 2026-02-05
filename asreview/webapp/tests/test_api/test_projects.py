@@ -399,10 +399,10 @@ def test_export_all_records(client, project):
     # Cast `project` to type `asreview.Project`. (In auth-mode it's the webapp database
     # model instead.)
     asr_project = asr.Project(project.project_path)
-    # Add a last ranking to the state, as if a model has been trained.
+    # Add a last ranking to the results, as if a model has been trained.
     record_ids = asr_project.db.input["record_id"].to_list()
-    with asr_project.db.results as state:
-        state.add_last_ranking(record_ids, "nb", "max", "double", "tfidf", 2)
+    with asr_project.db as db:
+        db.results.add_last_ranking(record_ids, "nb", "max", "double", "tfidf", 2)
 
     for collection, size in [
         ("relevant", 1),
