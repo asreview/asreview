@@ -5,6 +5,23 @@ import asreview as asr
 from asreview.models.classifiers import SVM
 
 
+def test_init_project_folder(tmpdir):
+    project_path = Path(tmpdir, "test.asreview")
+    project = asr.Project.create(project_path)
+
+    assert Path(project_path, project.PATH_CONFIG).is_file()
+    assert project.data_dir.is_dir()
+    assert Path(project_path, project.PATH_FEATURE_MATRICES).is_dir()
+    assert project.config["id"] == "test"
+
+
+def test_init_project_already_exists(tmpdir):
+    project_path = Path(tmpdir, "test.asreview")
+    asr.Project.create(project_path)
+    with pytest.raises(ValueError):
+        asr.Project.create(project_path)
+
+
 def test_project_load(asreview_test_project_path, tmpdir):
     project = asr.Project.load(asreview_test_project_path, tmpdir)
 
