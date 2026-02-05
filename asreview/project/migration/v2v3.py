@@ -32,7 +32,7 @@ def _migrate(project):
     old_review_config = project_config.pop("reviews", [{}])[0]
     review_config["status"] = old_review_config.get("status", "setup")
 
-    # Move the review state database to the project root and add the review settings to
+    # Move the results database to the project root and add the review settings to
     # the project config.
     if old_review_config and "id" in old_review_config:
         review_dir = Path(project, "reviews", old_review_config["id"])

@@ -23,16 +23,12 @@ def assert_valid_project(project):
     assert detect_version(project.config) == 3
     jsonschema.validate(instance=project.config, schema=SCHEMA)
 
-    # test state
-    with project.db.results as state:
-        state.get_results_table()
-        state.get_last_ranking_table()
-        state.get_decision_changes()
-
-    data = project.db.input
-
-    assert isinstance(data["title"], pandas.Series)
-    assert isinstance(data["included"], pandas.Series)
+    with project.db as db:
+        db.results.get_results_table()
+        db.results.get_last_ranking_table()
+        db.results.get_decision_changes()
+        assert isinstance(db.input["title"], pandas.Series)
+        assert isinstance(db.input["included"], pandas.Series)
 
     cycle_data = asr.ActiveLearningCycleData(
         **project.get_model_config()

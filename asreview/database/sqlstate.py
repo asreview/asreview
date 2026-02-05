@@ -50,8 +50,6 @@ RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
     "time": "Float64",
 }
 
-CURRENT_STATE_VERSION = 2
-
 
 class SQLiteState:
     """Class for managing the state of the review process.
@@ -139,7 +137,7 @@ class SQLiteState:
 
         self._conn.commit()
 
-    def _is_valid_state(self):
+    def _is_valid(self):
         cur = self._conn.cursor()
         column_names = cur.execute("PRAGMA table_info(results)").fetchall()
         table_names = cur.execute(

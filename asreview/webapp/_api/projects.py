@@ -116,8 +116,8 @@ def _fill_last_ranking(project, ranking):
         ranked_record_ids = record_ids.sample(frac=1)
     elif ranking == "top_down":
         ranked_record_ids = record_ids
-    with project.db.results as state:
-        state.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
+    with project.db as db:
+        db.results.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
 
 
 def _run_model(project):
@@ -295,12 +295,12 @@ def api_create_project():  # noqa: F401
         n_labeled = included.notnull().sum()
 
         if n_labeled > 0 and n_labeled < len(project.db.input):
-            with project.db.results as state:
+            with project.db as db:
                 labeled_indices = np.where((included == 1) | (included == 0))[0]
                 labels = included[labeled_indices].tolist()
                 labeled_record_ids = included[labeled_indices].tolist()
 
-                state.add_labeling_data(
+                db.results.add_labeling_data(
                     record_ids=labeled_record_ids,
                     labels=labels,
                     user_id=None,
@@ -563,11 +563,11 @@ def api_get_labeled(project):  # noqa: F401
     filters = request.args.getlist("filter", type=str)
     latest_first = request.args.get("latest_first", default=1, type=int)
 
-    with project.db.results as s:
+    with project.db as db:
         if "is_prior" in filters:
-            state_data = s.get_priors()
+            state_data = db.results.get_priors()
         else:
-            state_data = s.get_results_table()
+            state_data = db.results.get_results_table()
 
     if subset == "relevant":
         state_data = state_data[state_data["label"] == 1]
@@ -1187,20 +1187,6 @@ def export_project(project):
     )
 
 
-def _get_labels(state_obj, priors=False):
-    # get the number of records
-    n_records = state_obj.n_records
-
-    # get the labels
-    labels = state_obj.get_labels(priors=priors).to_list()
-
-    # if less labels than records, fill with 0
-    if len(labels) < n_records:
-        labels += [0] * (n_records - len(labels))
-
-    return pd.Series(labels)
-
-
 @bp.route("/projects/<project_id>/progress", methods=["GET"])
 @login_required
 @project_authorization
@@ -1381,11 +1367,11 @@ def api_label_record(project, record_id):  # noqa: F401
         current_user.id if current_app.config.get("AUTHENTICATION", True) else None
     )
 
-    with project.db.results as state:
+    with project.db as db:
         if request.method == "PUT":
-            state.update(record_id, label=label, tags=tags, user_id=user_id)
+            db.results.update(record_id, label=label, tags=tags, user_id=user_id)
         else:
-            state.add_labeling_data(
+            db.results.add_labeling_data(
                 record_ids=[record_id],
                 labels=[label],
                 tags=[tags],
@@ -1398,10 +1384,9 @@ def api_label_record(project, record_id):  # noqa: F401
     if request.method == "POST":
         return jsonify({"success": True})
     else:
-        with project.db.results as state:
-            record = state.get_results_record(record_id)
-
-        item = asdict(project.db.input.get_records(record_id))
+        with project.db as db:
+            record = db.results.get_results_record(record_id)
+            item = asdict(db.input.get_records(record_id))
         item["state"] = record.iloc[0].to_dict()
         item["tags_form"] = read_tags_data(project)
         item["state"]["user"] = None
@@ -1417,8 +1402,8 @@ def api_update_note(project, record_id):  # noqa: F401
     note = request.form.get("note", type=str)
     note = note if note != "" else None
 
-    with project.db.results as state:
-        state.update_note(record_id, note)
+    with project.db as db:
+        db.results.update_note(record_id, note)
 
     return jsonify({"success": True})
 
@@ -1436,22 +1421,23 @@ def api_get_record(project):  # noqa: F401
     if project.config["review"]["status"] == "finished":
         return jsonify({"result": None, "status": "finished"})
 
-    with project.db.results as state:
-        pending = state.get_pending(user_id=user_id)
+    with project.db as db:
+        pending = db.results.get_pending(user_id=user_id)
 
         if pending.empty:
             try:
-                pending = state.query_top_ranked(user_id=user_id)
+                pending = db.results.query_top_ranked(user_id=user_id)
             except ValueError:
-                ranking = state.get_last_ranking_table()
-                pool = state.get_pool()
+                ranking = db.results.get_last_ranking_table()
+                pool = db.results.get_pool()
 
                 if not ranking.empty and pool.empty:
                     return jsonify({"result": None, "status": "review"})
                 else:
                     return jsonify({"result": None, "status": "setup"})
 
-    item = asdict(project.db.input.get_records(pending["record_id"].iloc[0]))
+        item = asdict(db.input.get_records(pending["record_id"].iloc[0]))
+
     item["state"] = pending.iloc[0].to_dict()
     item["tags_form"] = read_tags_data(project)
     item["state"]["user"] = None

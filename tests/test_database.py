@@ -9,7 +9,7 @@ from asreview.database.sqlstate import REQUIRED_TABLES
 from asreview.data.record import Record
 
 
-def test_state_manual_close(tmpdir):
+def test_results_manual_close(tmpdir):
     """Test that calling close() explicitly works."""
     fp = Path(tmpdir, "test.db")
     db = asr.Database(fp)
@@ -22,14 +22,14 @@ def test_state_manual_close(tmpdir):
         conn.execute("SELECT 1")
 
 
-def test_state_close_before_conn_created(tmpdir):
+def test_results_close_before_conn_created(tmpdir):
     fp = Path(tmpdir, "test.db")
     db = asr.Database(fp)
     db.close()
 
 
-def test_state_closes_connection_on_exit(tmpdir):
-    """Test that state closes the SQLite connection when exiting context."""
+def test_results_closes_connection_on_exit(tmpdir):
+    """Test that results closes the SQLite connection when exiting context."""
     fp = Path(tmpdir, "test.db")
     with asr.Database(fp) as db:
         db.create_tables()
@@ -40,7 +40,7 @@ def test_state_closes_connection_on_exit(tmpdir):
         conn.execute("SELECT 1")
 
 
-def test_state_closes_on_exception(tmpdir):
+def test_results_closes_on_exception(tmpdir):
     """Test that Database closes connection even when exception occurs."""
     fp = Path(tmpdir, "test.db")
 
