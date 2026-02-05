@@ -137,7 +137,9 @@ def test_no_balancing(tmp_project, demo_data_path, tmpdir):
 
     with asr.Project.load(tmp_project, tmpdir).db as db:
         results_balance_strategies = db.results.get_results_table()["balancer"]
-        last_ranking_balance_strategies = db.results.get_last_ranking_table()["balancer"]
+        last_ranking_balance_strategies = db.results.get_last_ranking_table()[
+            "balancer"
+        ]
 
     assert results_balance_strategies.isnull().all()
     assert last_ranking_balance_strategies.isnull().all()
