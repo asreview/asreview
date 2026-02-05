@@ -55,6 +55,10 @@ def open_db(fp, read_only=False):
 class Database:
     """Database containing the input data and results.
 
+    Database contains two parts: the input and the results. For more information on the
+    input, see `asreview.database.store.py`. For more information on the results, see
+    `asreview.database.sqlstate.py`.
+
     Attributes
     ----------
     user_version: str
@@ -62,6 +66,19 @@ class Database:
     """
 
     def __init__(self, fp, record_cls=Record, read_only=False):
+        """_summary_
+
+        Parameters
+        ----------
+        fp : str | Path
+            Path of the database file.
+        record_cls : type[asreview.data.record.Base], optional
+            Type to use for the input records, see `DataStore` for more information.
+        read_only : bool, optional
+            Whether to open the database in read only mode. If the database is opened in
+            read only mode and an attempt to write to the database is made, an
+            `sqlite3.OperationalError` will be raised.
+        """
         if fp == ":memory:" and read_only:
             raise ValueError("Can't open an in-memory database in read only mode")
         self.fp = fp

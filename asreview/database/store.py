@@ -59,6 +59,10 @@ class DataStore:
             The record class to use. The record class specifies which fields each record
             can have, field validation and more properties of the database. See
             `asreview.data.record`. By default uses `asreview.data.record.Record`.
+        read_only : bool, optional
+            Whether to open the database in read only mode. If the database is opened in
+            read only mode and an attempt to write to the database is made, an
+            `sqlite3.OperationalError` will be raised.
         """
         if fp == ":memory:" and read_only:
             raise ValueError("Can't open an in-memory database in read only mode")
