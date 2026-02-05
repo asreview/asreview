@@ -4,6 +4,8 @@ import shutil
 import pandas as pd
 import pytest
 
+from asreview import Project
+
 
 @pytest.fixture
 def demo_data(render_data=False):
@@ -66,9 +68,15 @@ def tmp_project(tmpdir):
 
 
 @pytest.fixture
-def asreview_test_project(tmpdir):
+def asreview_test_project_path(tmpdir):
     """Fixture to set up a test project for ASReview."""
     test_state_fp = Path("tests", "asreview_files", "asreview-demo-project.asreview")
     tmp_project_path = Path(tmpdir, "asreview-demo-project.asreview")
     shutil.copy(test_state_fp, tmp_project_path)
     return tmp_project_path
+
+
+@pytest.fixture
+def asreview_test_project(asreview_test_project_path, tmpdir):
+    unzip_path = Path(tmpdir, "unzipped_project")
+    return Project.load(asreview_test_project_path, unzip_path)

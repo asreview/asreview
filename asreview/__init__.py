@@ -29,7 +29,7 @@ from sqlalchemy.engine import Engine
 
 from asreview.data.loader import load_dataset
 from asreview.data.record import Record
-from asreview.database.contextmanager import open_state
+from asreview.database.database import open_db
 from asreview.database.database import Database
 from asreview.database.sqlstate import SQLiteState
 from asreview.database.store import DataStore
@@ -69,7 +69,7 @@ __all__ = [
     # functions
     "is_project",
     "load_dataset",
-    "open_state",
+    "open_db",
     "extensions",
     "get_extension",
     "load_extension",

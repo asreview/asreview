@@ -20,23 +20,11 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from asreview.database.database import Database
+from asreview.database.database import open_db
 from asreview.metrics import loss
 from asreview.metrics import ndcg
 from asreview.models.stoppers import LastRelevant
 from asreview.models.stoppers import NLabeled
-
-
-def _get_db(fp):
-    if not fp.is_file():
-        fp.parent.mkdir(parents=True, exist_ok=True)
-
-    db = Database(fp)
-    try:
-        db._is_valid()
-    except ValueError:
-        db.create_tables()
-    return db
 
 
 def _get_name_from_estimator(estimator):
@@ -296,5 +284,5 @@ class Simulate:
             The path to the sqlite file to write the results to. If there is no database
             yet at the location a new database will be created.
         """
-        with _get_db(fp) as db:
+        with open_db(fp) as db:
             db.results._replace_results_from_df(self._results)
