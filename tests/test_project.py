@@ -1,3 +1,4 @@
+import pytest
 from pathlib import Path
 
 import asreview as asr
@@ -18,7 +19,10 @@ def test_project_load_unknown_classifier(tmpdir):
         "tests", "asreview_files", "asreview-demo-project-invalid-classifier.asreview"
     )
 
-    project = asr.Project.load(test_state_fp, tmpdir, reset_model_if_not_found=True)
+    with pytest.warns(
+        UserWarning, match="'idontknow' not found in group models.classifiers"
+    ):
+        project = asr.Project.load(test_state_fp, tmpdir, reset_model_if_not_found=True)
     cycle = asr.ActiveLearningCycle.from_meta(
         asr.ActiveLearningCycleData(**project.get_model_config())
     )
