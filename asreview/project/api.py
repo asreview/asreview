@@ -527,7 +527,7 @@ class Project:
                         ActiveLearningCycleData(**model_config)
                     )
                 except ValueError as err:
-                    warnings.warn(err)
+                    warnings.warn(str(err))
                     model = get_ai_config()
                     project_config["review"]["model"] = {
                         "name": model["name"],
