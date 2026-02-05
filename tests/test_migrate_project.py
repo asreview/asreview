@@ -30,9 +30,7 @@ def assert_valid_project(project):
         assert isinstance(db.input["title"], pandas.Series)
         assert isinstance(db.input["included"], pandas.Series)
 
-    cycle_data = asr.ActiveLearningCycleData(
-        **project.get_model_config()
-    )
+    cycle_data = asr.ActiveLearningCycleData(**project.get_model_config())
     cycle = asr.ActiveLearningCycle.from_meta(cycle_data)
 
     assert isinstance(cycle.classifier.name, str)
