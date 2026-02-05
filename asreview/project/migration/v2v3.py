@@ -58,6 +58,8 @@ def _migrate(project):
     _copy_store_to_results(project)
     Path(project, "data_store.db").unlink()
 
+    _update_database_version(project)
+
 
 def _copy_store_to_results(project):
     conn = sqlite3.connect(Path(project, "results.db"))
@@ -74,4 +76,12 @@ def _copy_store_to_results(project):
     """)
     conn.commit()
     cur.execute("DETACH DATABASE data_store")
+    conn.close()
+
+
+def _update_database_version(project):
+    conn = sqlite3.connect(Path(project, "results.db"))
+    cur = conn.cursor()
+    cur.execute("PRAGMA user_version = 3")
+    conn.commit()
     conn.close()

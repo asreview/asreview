@@ -4,11 +4,13 @@ import asreview as asr
 from asreview.models.classifiers import SVM
 
 
-def test_project_load(asreview_test_project, tmpdir):
-    project = asr.Project.load(asreview_test_project, tmpdir)
+def test_project_load(asreview_test_project_path, tmpdir):
+    project = asr.Project.load(asreview_test_project_path, tmpdir)
 
     assert project.db_path.exists()
     assert Path(project.project_path, project.PATH_CONFIG).exists()
+    assert isinstance(project.db, asr.Database)
+    project.db._is_valid()
 
 
 def test_project_load_unknown_classifier(tmpdir):
