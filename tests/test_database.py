@@ -93,3 +93,37 @@ def test_create_tables(tmpdir):
     table_names = set(tup[0] for tup in table_names)
     assert set(REQUIRED_TABLES).issubset(set(table_names))
     assert Record.__tablename__ in table_names
+
+
+def test_in_memory():
+    with asr.Database(":memory:") as db:
+        db.create_tables()
+        assert db.input.is_empty()
+        db.input.add_records(
+            [
+                Record(dataset_row=0, dataset_id="foo"),
+                Record(dataset_row=1, dataset_id="foo"),
+            ]
+        )
+        assert len(db.input) == 2
+        db.results.add_labeling_data([1, 2, 3], [0, 1, 0])
+        assert len(db.results.get_results_table()) == 3
+
+
+def test_open_db_missing_file_ro(tmpdir):
+    project_path = Path(tmpdir, "dir", "test.db")
+    with pytest.raises(FileNotFoundError):
+        with asr.open_db(project_path, read_only=True):
+            pass
+
+    assert not project_path.exists()
+    assert not project_path.parent.exists()
+
+
+def test_open_db_missing_file_rw(tmpdir):
+    project_path = Path(tmpdir, "dir", "test.db")
+    with asr.open_db(project_path) as db:
+        db._is_valid()
+
+    assert project_path.parent.is_dir()
+    assert project_path.is_file()

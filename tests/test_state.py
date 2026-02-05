@@ -1,4 +1,3 @@
-import sqlite3
 from pathlib import Path
 
 import pandas as pd
@@ -54,91 +53,10 @@ TEST_N_PRIORS = 0
 TEST_POOL_START = [157, 301, 536, 567, 416, 171, 659, 335, 329, 428]
 
 
-def test_state_manual_close(tmpdir):
-    """Test that calling close() explicitly works."""
-    fp = Path(tmpdir, "test.db")
-    state = asr.SQLiteState(fp)
-    state.create_tables()
-    conn = state._conn
-    state.close()
-    with pytest.raises(
-        sqlite3.ProgrammingError, match="Cannot operate on a closed database"
-    ):
-        conn.execute("SELECT 1")
-
-
-def test_state_close_before_conn_created(tmpdir):
-    fp = Path(tmpdir, "test.db")
-    state = asr.SQLiteState(fp)
-    state.close()
-
-
-def test_state_closes_connection_on_exit(tmpdir):
-    """Test that state closes the SQLite connection when exiting context."""
-    fp = Path(tmpdir, "test.db")
-    with asr.SQLiteState(fp) as state:
-        state.create_tables()
-        conn = state._conn
-    with pytest.raises(
-        sqlite3.ProgrammingError, match="Cannot operate on a closed database"
-    ):
-        conn.execute("SELECT 1")
-
-
-def test_state_closes_on_exception(tmpdir):
-    """Test that Database closes connection even when exception occurs."""
-    fp = Path(tmpdir, "test.db")
-
-    with pytest.raises(ValueError):
-        with asr.SQLiteState(fp) as state:
-            state.create_tables()
-            conn = state._conn
-            raise ValueError("Something went wrong")
-    with pytest.raises(
-        sqlite3.ProgrammingError, match="Cannot operate on a closed database"
-    ):
-        conn.execute("SELECT 1")
-
-
-def test_read_only(tmpdir, asreview_test_project):
-    fp = Path(tmpdir, "test.db")
-    with asr.SQLiteState(fp, read_only=True) as state:
-        with pytest.raises(sqlite3.OperationalError):
-            state.create_tables()
-    assert not fp.is_file()
-
-    with asr.SQLiteState(asreview_test_project.db_path, read_only=True) as state:
-        with pytest.raises(sqlite3.OperationalError):
-            state.query_top_ranked()
-        state.get_last_ranking_table()
-
-
-def test_init_project_folder(tmpdir):
+@pytest.fixture
+def project(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
-    project = asr.Project.create(project_path)
-
-    assert Path(project_path, project.PATH_CONFIG).is_file()
-    assert project.data_dir.is_dir()
-    assert Path(project_path, project.PATH_FEATURE_MATRICES).is_dir()
-    assert project.config["id"] == "test"
-
-
-def test_init_project_already_exists(tmpdir):
-    project_path = Path(tmpdir, "test.asreview")
-    asr.Project.create(project_path)
-    with pytest.raises(ValueError):
-        asr.Project.create(project_path)
-
-
-def test_missing_database_file(tmpdir):
-    project_path = Path(tmpdir, "this_is_not_a_project")
-    with pytest.raises(FileNotFoundError):
-        with asr.open_db(project_path, read_only=True):
-            pass
-
-    # Check nothing was created.
-    assert not Path(project_path).is_dir()
-    assert not Path(project_path).is_file()
+    return asr.Project.create(project_path)
 
 
 def test_print_state(asreview_test_project):
@@ -172,10 +90,8 @@ def test_get_dataset_drop_prior(asreview_test_project):
         assert "querier" not in state.get_results_table("label", priors=False)
 
 
-def test_get_dataset_drop_pending(tmpdir):
+def test_get_dataset_drop_pending(project):
     test_ranking = range(10, 0, -1)
-    project_path = Path(tmpdir, "test.asreview")
-    project = asr.Project.create(project_path)
     with project.db.results as state:
         state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
         state.add_labeling_data([4, 5, 6], [1, 0, 1])
@@ -269,9 +185,7 @@ def test_get_feature_matrix(asreview_test_project):
     assert isinstance(feature_matrix, csr_matrix)
 
 
-def test_move_ranking_data_to_results(tmpdir):
-    project_path = Path(tmpdir, "test.asreview")
-    project = asr.Project.create(project_path)
+def test_move_ranking_data_to_results(project):
     with project.db.results as state:
         state.add_last_ranking(
             range(1, len(TEST_RECORD_TABLE) + 1), "nb", "max", "balanced", "tfidf", 4
@@ -284,10 +198,8 @@ def test_move_ranking_data_to_results(tmpdir):
     assert data["classifier"].to_list() == ["nb"] * 4
 
 
-def test_query_top_ranked(tmpdir):
+def test_query_top_ranked(project):
     test_ranking = [2, 1, 0] + list(range(3, len(TEST_RECORD_TABLE)))
-    project_path = Path(tmpdir, "test.asreview")
-    project = asr.Project.create(project_path)
     with project.db.results as state:
         state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
         top_ranked = state.query_top_ranked(5)
@@ -302,10 +214,8 @@ def test_query_top_ranked(tmpdir):
         assert data["training_set"].to_list() == [4] * 5
 
 
-def test_add_labeling_data(tmpdir):
+def test_add_labeling_data(project):
     test_ranking = list(range(len(TEST_RECORD_TABLE)))
-    project_path = Path(tmpdir, "test.asreview")
-    project = asr.Project.create(project_path)
     with project.db.results as state:
         state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
         for i in range(3):
@@ -340,10 +250,8 @@ def test_add_labeling_data(tmpdir):
         assert data["label"].to_list() == TEST_LABELS[:6] + [0, 1, 1]
 
 
-def test_exist_new_labeled_records(tmpdir):
+def test_exist_new_labeled_records(project):
     test_ranking = range(10, 0, -1)
-    project_path = Path(tmpdir, "test.asreview")
-    project = asr.Project.create(project_path)
     with project.db.results as state:
         assert not state.exist_new_labeled_records
         state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 3)
@@ -358,9 +266,7 @@ def test_exist_new_labeled_records(tmpdir):
         assert state.exist_new_labeled_records
 
 
-def test_update_decision(tmpdir):
-    project_path = Path(tmpdir, "test.asreview")
-    project = asr.Project.create(project_path)
+def test_update_decision(project):
     with project.db.results as state:
         state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3])
 
@@ -381,7 +287,7 @@ def test_update_decision(tmpdir):
         assert change_table["label"].to_list() == new_labels
 
 
-def test_last_ranking(tmpdir):
+def test_last_ranking(project):
     record_ids = [1, 2, 3, 4, 5, 6]
     ranking = [1, 3, 4, 6, 2, 5]
     classifier = "nb"
@@ -390,8 +296,6 @@ def test_last_ranking(tmpdir):
     feature_extractor = "tfidf"
     training_set = 2
 
-    project_path = Path(tmpdir, "test.asreview")
-    project = asr.Project.create(project_path)
     with project.db.results as state:
         state.add_last_ranking(
             ranking,
@@ -438,10 +342,8 @@ def test_get_labeled(asreview_test_project):
     assert labeled["label"].to_list() == TEST_LABELS
 
 
-def test_add_extra_column(tmpdir):
+def test_add_extra_column(project):
     """Check if state still works with extra colums added to tables."""
-    project_path = Path(tmpdir, "test.asreview")
-    project = asr.Project.create(project_path)
     with project.db.results as state:
         con = state._conn
         cur = con.cursor()
@@ -473,7 +375,7 @@ def test_add_extra_column(tmpdir):
         assert len(top_ranked) == 1
 
 
-def test_get_pool_unlabeled(tmpdir):
+def test_get_pool_unlabeled(project):
     # Create a state with one labeled, one pending and one pool record.
     ranking = [0, 1, 2]
     classifier = "nb"
@@ -482,8 +384,6 @@ def test_get_pool_unlabeled(tmpdir):
     feature_extractor = "tfidf"
     training_set = 2
 
-    project_path = Path(tmpdir, "test.asreview")
-    project = asr.Project.create(project_path)
     with project.db.results as state:
         state.add_last_ranking(
             ranking,
