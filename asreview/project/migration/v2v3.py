@@ -67,11 +67,11 @@ def _copy_store_to_results(project):
     data_store_fp = Path(project, "data_store.db")
     cur.execute(f"ATTACH '{str(data_store_fp)}' AS data_store")
     cur.execute("""
-        CREATE TABLE record AS 
+        CREATE TABLE record AS
         SELECT * FROM data_store.record WHERE 0
     """)
     cur.execute("""
-        INSERT INTO record 
+        INSERT INTO record
         SELECT * FROM data_store.record
     """)
     conn.commit()
