@@ -70,8 +70,11 @@ class SQLiteState:
         a model ranking was added to the state?
     """
 
-    def __init__(self, fp):
+    def __init__(self, fp, read_only=False):
+        if fp == ":memory:" and read_only:
+            raise ValueError("Can't open an in-memory database in read only mode")
         self.fp = fp
+        self.read_only = read_only
 
     def __enter__(self):
         return self
@@ -88,7 +91,12 @@ class SQLiteState:
         sqlite3.Connection
             Connection to the SQLite database.
         """
-        return sqlite3.connect(str(self.fp))
+        url = self.fp
+        use_uri = False
+        if self.read_only:
+            url = f"file:{url}?mode=ro"
+            use_uri = True
+        return sqlite3.connect(url, uri=use_uri)
 
     def close(self):
         if "_conn" in self.__dict__:

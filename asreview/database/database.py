@@ -58,11 +58,14 @@ class Database:
         Return the version number of the database.
     """
 
-    def __init__(self, fp, record_cls=Record):
+    def __init__(self, fp, record_cls=Record, read_only=False):
+        if fp == ":memory:" and read_only:
+            raise ValueError("Can't open an in-memory database in read only mode")
         self.fp = fp
         self.record_cls = record_cls
-        self.input = DataStore(fp, record_cls=record_cls)
-        self.results = SQLiteState(fp)
+        self.read_only = read_only
+        self.input = DataStore(fp, record_cls=record_cls, read_only=read_only)
+        self.results = SQLiteState(fp, read_only=read_only)
 
     @cached_property
     def input(self):

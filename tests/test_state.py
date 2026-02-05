@@ -100,6 +100,19 @@ def test_state_closes_on_exception(tmpdir):
         conn.execute("SELECT 1")
 
 
+def test_read_only(tmpdir, asreview_test_project):
+    fp = Path(tmpdir, "test.db")
+    with asr.SQLiteState(fp, read_only=True) as state:
+        with pytest.raises(sqlite3.OperationalError):
+            state.create_tables()
+    assert not fp.is_file()
+
+    with asr.SQLiteState(asreview_test_project.db_path, read_only=True) as state:
+        with pytest.raises(sqlite3.OperationalError):
+            state.query_top_ranked()
+        state.get_last_ranking_table()
+
+
 def test_init_project_folder(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     project = asr.Project.create(project_path)
