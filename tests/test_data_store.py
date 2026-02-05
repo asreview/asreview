@@ -60,6 +60,19 @@ def test_in_memory():
     assert len(store) == 2
 
 
+def test_read_only(tmpdir, asreview_test_project, records):
+    fp = Path(tmpdir, "test.db")
+    store = DataStore(fp, read_only=True)
+    with pytest.raises(sqlite3.OperationalError):
+        store.create_tables()
+    assert not fp.is_file()
+
+    store = DataStore(asreview_test_project.db_path, read_only=True)
+    with pytest.raises(sqlite3.OperationalError):
+        store.add_records(records)
+    store.get_records([0, 1])
+
+
 def test_add_dataset(store, records):
     store.add_records(records)
     con = sqlite3.connect(store.fp)

@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 import asreview as asr
+from asreview.data.loader import load_records
 from asreview.database.database import CURRENT_DATABASE_VERSION
 from asreview.database.sqlstate import REQUIRED_TABLES
 from asreview.data.record import Record
@@ -53,6 +54,27 @@ def test_results_closes_on_exception(tmpdir):
         sqlite3.ProgrammingError, match="Cannot operate on a closed database"
     ):
         conn.execute("SELECT 1")
+
+
+def test_read_only(tmpdir, asreview_test_project):
+    fp = Path(tmpdir, "test.db")
+    with asr.Database(fp, read_only=True) as db:
+        with pytest.raises(sqlite3.OperationalError):
+            db.create_tables()
+        with pytest.raises(sqlite3.OperationalError):
+            db.user_version = 16843
+    assert not fp.is_file()
+
+    data_fp = Path("tests", "demo_data", "generic.csv")
+    records = load_records(data_fp, dataset_id="foo")
+    with asr.Database(asreview_test_project.db_path, read_only=True) as db:
+        with pytest.raises(sqlite3.OperationalError):
+            db.results.query_top_ranked()
+        with pytest.raises(sqlite3.OperationalError):
+            db.input.add_records(records)
+        db.results.get_last_ranking_table()
+        db.input.get_records([0, 1])
+        db.user_version
 
 
 def test_create_tables(tmpdir):

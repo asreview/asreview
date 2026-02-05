@@ -1,14 +1,35 @@
+import functools
+
 import numpy as np
 import pandas as pd
 from sqlalchemy import NullPool
 from sqlalchemy import create_engine
-from sqlalchemy import text
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
 
 from asreview.data.record import Base
 from asreview.data.record import Record
 
 CURRENT_DATASTORE_VERSION = 0
+
+
+def unwrap_operational_errors(func):
+    """Decorator to unwrap SQLAlchemy OperationalError to sqlite3.OperationalError.
+
+    When in read only mode, SQLAlchemy will raise sqlalchemy.exc.OperationalError if you
+    try to write to the database. This is a wrapper around the original
+    sqlite3.OperationalError. Since we are combining both sqlite3 and sqlalchemy in the
+    Database object, we unpack the sqlalchemy errors so that all readonly errors are of
+    the same type."""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except OperationalError as e:
+            raise e.orig from e
+
+    return wrapper
 
 
 class DataStore:
@@ -26,7 +47,7 @@ class DataStore:
     DataStore uses an SQLite database in the backend and SQLAlchemy ORM to interact with
     the database."""
 
-    def __init__(self, fp, record_cls=Record):
+    def __init__(self, fp, record_cls=Record, read_only=False):
         """Initialize the data store.
 
         Parameters
@@ -39,6 +60,9 @@ class DataStore:
             can have, field validation and more properties of the database. See
             `asreview.data.record`. By default uses `asreview.data.record.Record`.
         """
+        if fp == ":memory:" and read_only:
+            raise ValueError("Can't open an in-memory database in read only mode")
+
         self.fp = fp
         # If the sqlite database is in memory, we should use the default
         # SingleThreadPool poolclass, because any poolclass with multiple threads will
@@ -46,14 +70,21 @@ class DataStore:
         if fp == ":memory:":
             poolclass = None
         else:
+            # I'm using NullPool here, indicating that the engine should not use a
+            # connection pool, but just create and dispose of a connection every time a
+            # request comes. This makes it very easy dispose of the engine, but is less
+            # efficient. I was getting errors when running tests that try to clean up
+            # behind them, and this solves those errors. We can change this back to a
+            # connection pool at some later moment by properly looking at how to close
+            # everything.
             poolclass = NullPool
-        # I'm using NullPool here, indicating that the engine should use a connection
-        # pool, but just create and dispose of a connection every time a request comes.
-        # This makes it very easy dispose of the engine, but is less efficient.
-        # I was getting errors when running tests that try to clean up behind them,
-        # and this solves those errors. We can change this back to a connection pool at
-        # some later moment by properly looking at how to close everything.
-        self.engine = create_engine(f"sqlite:///{self.fp}", poolclass=poolclass)
+
+        if read_only:
+            url = f"sqlite:///file:{self.fp}?mode=ro&uri=true"
+        else:
+            url = f"sqlite:///{self.fp}"
+        self.engine = create_engine(url=url, poolclass=poolclass)
+
         # I put expire_on_commit=False, so that after you put records in the database,
         # you can still use them in your code without having access to the database.
         # The downside is that if you use the record after committing it to the database
@@ -73,6 +104,7 @@ class DataStore:
         """Mapping {column name: pandas data type}"""
         return self._pandas_dtype_mapping
 
+    @unwrap_operational_errors
     def create_tables(self):
         """Initialize the tables containing the data.
 
@@ -80,6 +112,7 @@ class DataStore:
         adding data to the data store."""
         Base.metadata.create_all(self.engine)
 
+    @unwrap_operational_errors
     def add_records(self, records):
         """Add records to the data store.
 
@@ -98,6 +131,7 @@ class DataStore:
         with self.Session() as session, session.begin():
             session.add_all(records)
 
+    @unwrap_operational_errors
     def delete_record(self, record_id):
         with self.Session() as session, session.begin():
             record = session.get(self.record_cls, record_id)
