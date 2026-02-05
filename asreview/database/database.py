@@ -39,12 +39,15 @@ def open_db(fp, read_only=False):
             )
         fp.parent.mkdir(parents=True, exist_ok=True)
 
-    db = Database(fp)
+    db = Database(fp, read_only=read_only)
     try:
         db._is_valid()
     except ValueError as e:
         if read_only:
-            raise ValueError(f"There is no valid database as {fp}") from e
+            raise ValueError(
+                f"There is no valid database at {fp} and the database is opened in"
+                " read-only mode"
+            ) from e
         db.create_tables()
     return db
 
