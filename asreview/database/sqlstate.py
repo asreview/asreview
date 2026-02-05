@@ -58,11 +58,6 @@ class SQLiteState:
     of the review process, the ranking of the last model, and the changes in
     the decisions.
 
-    Parameters
-    ----------
-    fp: str, Path
-        Path to the SQLite database file.
-
     Attributes
     ----------
     exist_new_labeled_records: bool
@@ -71,6 +66,17 @@ class SQLiteState:
     """
 
     def __init__(self, fp, read_only=False):
+        """
+        Parameters
+        ----------
+        fp : str | Path
+            Location of the database file. If `fp == ":memory:"`, the database will be
+            in memory.
+        read_only : bool, optional
+            Whether to open the database in read only mode. If the database is opened in
+            read only mode and an attempt to write to the database is made, an
+            `sqlite3.OperationalError` will be raised.
+        """
         if fp == ":memory:" and read_only:
             raise ValueError("Can't open an in-memory database in read only mode")
         self.fp = fp
