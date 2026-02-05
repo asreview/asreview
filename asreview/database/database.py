@@ -9,6 +9,46 @@ __all__ = ["Database"]
 CURRENT_DATABASE_VERSION = 3
 
 
+def open_db(fp, read_only=False):
+    """Open a database.
+
+    Parameters
+    ----------
+    fp : path-like
+        File path to the database
+    read_only : bool, optional
+        Whether to create a new database if one doesn't exist yet and whether the opened
+        database will be in read only mode or not.
+
+    Returns
+    -------
+    Database
+        ASReview database.
+
+    Raises
+    ------
+    FileNotFoundError
+        If `read_only` and there is no file at `fp`.
+    ValueError
+        If `read_only` and there is no valid database at `fp`.
+    """
+    if not fp.is_file():
+        if read_only:
+            raise FileNotFoundError(
+                f"File path {fp} is not a file and 'read_only' is 'True'"
+            )
+        fp.parent.mkdir(parents=True, exist_ok=True)
+
+    db = Database(fp)
+    try:
+        db._is_valid()
+    except ValueError as e:
+        if read_only:
+            raise ValueError(f"There is no valid database as {fp}") from e
+        db.create_tables()
+    return db
+
+
 class Database:
     """Database containing the input data and results.
 
