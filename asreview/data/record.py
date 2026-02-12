@@ -1,6 +1,7 @@
 from typing import Optional
 
 import pandas as pd
+from sqlalchemy import CheckConstraint
 from sqlalchemy import ForeignKey
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase
@@ -88,7 +89,13 @@ class Base(DeclarativeBase, MappedAsDataclass):
 
 class Record(Base):
     __tablename__ = "record"
-    __table_args__ = (UniqueConstraint("dataset_row", "dataset_id"),)
+    __table_args__ = (
+        UniqueConstraint("dataset_row", "dataset_id"),
+        CheckConstraint(
+            "duplicate_of IS NULL OR duplicate_of != record_id",
+            name="no_self_duplicate",
+        ),
+    )
     # We use dataset_row to locate the record in the original input file of the user.
     # For now I call this 'row', meaning that we will look in the input file by row
     # number. We might want to change this to locate the record by an external

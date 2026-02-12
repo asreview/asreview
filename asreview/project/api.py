@@ -37,15 +37,17 @@ from filelock import FileLock
 
 from asreview.data.loader import _from_file
 from asreview.data.loader import _get_reader
+from asreview.data.utils import identify_record_groups
+from asreview.database.database import Database
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
-from asreview.project.migration import detect_version, migrate_project
 from asreview.models import get_ai_config
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
+from asreview.project.migration import detect_version
+from asreview.project.migration import migrate_project
 from asreview.project.schema import SCHEMA
-from asreview.database.database import Database
 from asreview.utils import _get_filename_from_url
 from asreview.utils import _is_url
 
@@ -290,6 +292,8 @@ class Project:
             )
 
         self.db.input.add_records(records=records)
+        groups = identify_record_groups(records)
+        self.db.input.set_groups(groups)
 
         # This config update assumes that the project only has one dataset.
         self.update_config(

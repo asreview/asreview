@@ -6,6 +6,7 @@ from scipy.sparse import csr_matrix
 
 import asreview as asr
 from asreview.models.balancers import Balanced
+from asreview.database.sqlstate import _propagate_record_info
 
 TEST_LABELS = [1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
 TEST_RECORD_IDS = [
@@ -401,3 +402,67 @@ def test_get_pool_unlabeled(project):
         assert state.get_unlabeled().to_list() == [1, 2]
         assert state.get_pending()["record_id"].to_list() == [1]
         assert state.get_results_table()["record_id"].to_list() == [0]
+
+
+@pytest.mark.parametrize(
+    "record_info, groups, expected, raises",
+    [
+        # Single group, single record
+        ([(1, 1, "cat")], [(10, 1)], [(1, 1, "cat")], None),
+        # Single group, label propagates to all records
+        (
+            [(1, 1, "cat")],
+            [(10, 1), (10, 2), (10, 3)],
+            [(1, 1, "cat"), (2, 1, "cat"), (3, 1, "cat")],
+            None,
+        ),
+        # Two groups, labels propagate separately
+        (
+            [(1, 1, "cat"), (3, 0, "dog")],
+            [(10, 1), (10, 2), (20, 3), (20, 4)],
+            [(1, 1, "cat"), (2, 1, "cat"), (3, 0, "dog"), (4, 0, "dog")],
+            None,
+        ),
+        # Group with no label should not appear in output
+        ([(1, 1)], [(10, 1), (10, 2), (20, 3), (20, 4)], [(1, 1), (2, 1)], None),
+        # Conflicting info in same group should raise ValueError
+        ([(1, 1), (2, 0)], [(10, 1), (10, 2)], None, ValueError),
+        # Records without group info are treated as being in a singleton group.
+        (
+            [(1, "cat"), (2, "dog")],
+            [(10, 1), (10, 3)],
+            [(1, "cat"), (2, "dog"), (3, "cat")],
+            None,
+        ),
+    ],
+)
+def test_propagate_record_info(record_info, groups, expected, raises):
+    if raises:
+        with pytest.raises(raises):
+            _propagate_record_info(record_info, groups)
+    else:
+        result = _propagate_record_info(record_info, groups)
+        # Convert to set for order-independent comparison
+        assert set(result) == set(expected)
+
+
+@pytest.mark.parametrize(
+    "record_info, groups, expected",
+    [
+        ([(1, 1, "cat")], [(10, 1)], []),
+        (
+            [(1, 1, "cat")],
+            [(10, 1), (10, 2), (10, 3)],
+            [(2, 1, "cat"), (3, 1, "cat")],
+        ),
+        (
+            [(1, 1, "cat"), (3, 0, "dog")],
+            [(10, 1), (10, 2), (20, 3), (20, 4)],
+            [(2, 1, "cat"), (4, 0, "dog")],
+        ),
+    ],
+)
+def test_propage_only_new(record_info, groups, expected):
+    result = _propagate_record_info(record_info, groups, return_only_new=True)
+    # Convert to set for order-independent comparison
+    assert set(result) == set(expected)

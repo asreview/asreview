@@ -106,6 +106,7 @@ def run_simulation(project):
         project.db.input["included"],
         cycles,
         print_progress=False,
+        groups=project.db.input.get_groups(),
     )
     try:
         sim.label(priors)

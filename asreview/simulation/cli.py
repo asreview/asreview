@@ -179,11 +179,10 @@ def _cli_simulate(argv):
         ActiveLearningCycle.from_meta(cycle_meta),
     ]
 
+    groups = db.input.get_groups() if args.group_similar_records else None
+
     sim = Simulate(
-        db.input.get_df(),
-        db.input["included"],
-        cycles,
-        stopper=stopper,
+        db.input.get_df(), db.input["included"], cycles, stopper=stopper, groups=groups
     )
 
     # select or sample prior knowledge and then label it
@@ -340,6 +339,11 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         type=int,
         help="The number of label actions to simulate. If not set, simulation stops "
         "after last relevant was found. Use -1 to simulate all label actions. Default: None.",
+    )
+    parser.add_argument(
+        "--group-similar-records",
+        action="store_true",
+        help="Put identical records in groups and label these records at the same time.",
     )
 
     # configuration file

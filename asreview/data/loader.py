@@ -2,6 +2,7 @@ from io import StringIO
 from pathlib import Path
 
 from asreview.data.record import Record
+from asreview.data.utils import identify_record_groups
 from asreview.database.database import Database
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
@@ -163,4 +164,6 @@ def load_dataset(name, dataset_id=None, db=None, record_cls=Record, **kwargs):
         name=name, dataset_id=dataset_id, record_cls=record_cls, **kwargs
     )
     db.input.add_records(records=records)
+    groups = identify_record_groups(records)
+    db.input.set_groups(groups)
     return db
