@@ -63,6 +63,7 @@ class Base(DeclarativeBase, MappedAsDataclass):
         return mapped_column(
             Integer,
             ForeignKey(f"{cls.__tablename__}.record_id", ondelete="SET NULL"),
+            init=False,
             default=None,
         )
 
