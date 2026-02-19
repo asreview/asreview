@@ -3,6 +3,9 @@ import shutil
 import sqlite3
 from pathlib import Path
 
+from sqlalchemy import create_engine
+from asreview.data.record import Base
+
 
 def _migrate(project):
     """Migrate an valid project file from version 2 to version 3.
@@ -62,21 +65,24 @@ def _migrate(project):
 
 
 def _copy_store_to_results(project):
+    engine = create_engine(f"sqlite:///{str(Path(project, 'results.db'))}")
+    Base.metadata.create_all(engine)
+    engine.dispose()
     conn = sqlite3.connect(Path(project, "results.db"))
-    cur = conn.cursor()
-    data_store_fp = Path(project, "data_store.db")
-    cur.execute(f"ATTACH '{str(data_store_fp)}' AS data_store")
-    cur.execute("""
-        CREATE TABLE record AS 
-        SELECT * FROM data_store.record WHERE 0
-    """)
-    cur.execute("""
-        INSERT INTO record 
-        SELECT * FROM data_store.record
-    """)
-    conn.commit()
-    cur.execute("DETACH DATABASE data_store")
-    conn.close()
+    try:
+        cur = conn.cursor()
+        data_store_fp = Path(project, "data_store.db")
+        cur.execute(f"ATTACH '{str(data_store_fp)}' AS data_store")
+        cur.execute("""
+            INSERT INTO record(dataset_row, dataset_id, duplicate_of, title, abstract,
+                    authors, keywords, year, doi, url, included, record_id)
+            SELECT dataset_row, dataset_id, duplicate_of, title, abstract, authors,
+                    keywords, year, doi, url, included, record_id FROM data_store.record
+        """)
+        conn.commit()
+        cur.execute("DETACH DATABASE data_store")
+    finally:
+        conn.close()
 
 
 def _update_database_version(project):
