@@ -259,14 +259,14 @@ def test_load_faulty_year_dataset():
 @pytest.mark.parametrize(
     "groups, normalized_chain",
     [
-        ([(0, 0)], {0: None}),
-        ([(0, 0), (0, 1)], {0: None, 1: 0}),
-        ([(0, 0), (0, 2), (1, 1)], {0: None, 1: None, 2: 0}),
+        ([(0, 0)], {0: None, 1: None, 2: None, 3: None}),
+        ([(0, 0), (0, 1)], {0: None, 1: 0, 2: None, 3: None}),
+        ([(0, 0), (0, 2), (1, 1)], {0: None, 1: None, 2: 0, 3: None}),
         ([(3, 0), (1, 1), (1, 2), (3, 3)], {0: 3, 1: None, 2: 1, 3: None}),
     ],
 )
 def test_set_groups(store, groups, normalized_chain):
-    records = [Record(dataset_row=idx, dataset_id="foo") for idx in range(len(groups))]
+    records = [Record(dataset_row=idx, dataset_id="foo") for idx in range(4)]
     store.add_records(records)
     store.set_groups(groups)
     stored_duplicate_chain = {
@@ -294,6 +294,26 @@ def test_get_groups(store, groups):
 
     for group_id, record_id in groups:
         group_members = set((g_id, r_id) for (g_id, r_id) in groups if g_id == group_id)
+        assert group_members == set(store.get_groups(record_id=record_id))
+
+
+@pytest.mark.parametrize(
+    "groups, result",
+    [
+        ([], [(0, 0), (1, 1), (2, 2), (3, 3)]),
+        ([(0, 0), (0, 1)], [(0, 0), (0, 1), (2, 2), (3, 3)]),
+        ([(0, 0), (0, 2), (0, 3)], [(0, 0), (0, 2), (0, 3), (1, 1)]),
+    ],
+)
+def test_get_groups_partial_data(store, groups, result):
+    records = [Record(dataset_row=idx, dataset_id="foo") for idx in range(4)]
+    store.add_records(records)
+    store.set_groups(groups)
+    stored_groups = store.get_groups()
+    assert stored_groups == result
+
+    for group_id, record_id in result:
+        group_members = set((g_id, r_id) for (g_id, r_id) in result if g_id == group_id)
         assert group_members == set(store.get_groups(record_id=record_id))
 
 
