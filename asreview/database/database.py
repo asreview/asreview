@@ -10,6 +10,14 @@ __all__ = ["Database"]
 
 CURRENT_DATABASE_VERSION = 3
 
+MODEL_COLUMNS = [
+    "classifier",
+    "querier",
+    "balancer",
+    "feature_extractor",
+    "training_set",
+]
+
 
 def open_db(fp, read_only=False):
     """Open a database.
@@ -136,18 +144,11 @@ class Database:
         labeling_time = time.time()
         con = self.results._conn
         cur = con.cursor()
-        model_columns = [
-            "classifier",
-            "querier",
-            "balancer",
-            "feature_extractor",
-            "training_set",
-        ]
-        model_string = ", ".join(model_columns)
+        model_string = ", ".join(MODEL_COLUMNS)
         target_result_string = ", ".join(
-            f"target_result.{col}" for col in model_columns
+            f"target_result.{col}" for col in MODEL_COLUMNS
         )
-        upsert_columns = ["label", "time", "tags", "user_id"] + model_columns
+        upsert_columns = ["label", "time", "tags", "user_id"] + MODEL_COLUMNS
         upsert_string = ", ".join(f"{col} = excluded.{col}" for col in upsert_columns)
         record_table = self.input.record_cls.__tablename__
 
@@ -180,5 +181,35 @@ class Database:
                 "tags": tags,
                 "user_id": user_id,
             },
+        )
+        con.commit()
+
+    def query_top_ranked(self, user_id=None):
+        model_string = ", ".join(MODEL_COLUMNS)
+        top_record_string = ", ".join(f"top_record.{col}" for col in MODEL_COLUMNS)
+        con = self.results._conn
+        cur = con.cursor()
+        cur.execute(
+            f"""INSERT INTO results (record_id, user_id, {model_string})
+            WITH top_record AS (
+                SELECT last_ranking.*
+                FROM last_ranking
+                LEFT JOIN results USING (record_id)
+                WHERE results.record_id IS NULL
+                ORDER BY ranking
+                LIMIT 1
+            ), group_records AS (
+                SELECT record.record_id
+                FROM record
+                WHERE group_id = (
+                    SELECT group_id
+                    FROM record
+                    WHERE record.record_id = (SELECT record_id FROM top_record)
+                )
+            )
+            SELECT group_records.record_id, :user_id, {top_record_string}
+            FROM group_records
+            CROSS JOIN top_record;""",
+            {"user_id": user_id},
         )
         con.commit()

@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+import time
 
 import pandas as pd
 import pytest
@@ -9,6 +10,17 @@ from asreview.data.loader import load_records
 from asreview.database.database import CURRENT_DATABASE_VERSION
 from asreview.database.sqlstate import REQUIRED_TABLES
 from asreview.data.record import Record
+
+
+def assert_state(db, state, columns):
+    pd.testing.assert_frame_equal(
+        db.results.get_results_table(columns=columns, pending=True),
+        pd.DataFrame(
+            state,
+            columns=columns,
+        ),
+        check_dtype=False,
+    )
 
 
 @pytest.fixture
@@ -176,135 +188,110 @@ def test_label_record(db):
         ),
     )
     con.commit()
+    state = [
+        [0, None, None, None, "c0", "q0", "b0", "f0", 40],
+        [5, None, None, None, "c5", "q5", "b5", "f5", 45],
+    ]
+    columns = [
+        "record_id",
+        "label",
+        "tags",
+        "user_id",
+        "classifier",
+        "querier",
+        "balancer",
+        "feature_extractor",
+        "training_set",
+    ]
 
     # record_id 0 is grouped and in the table. The existing record is updated, the new
     # records are added with model information of the existing.
     db.label_record(0, 1, "foo", 2)
-    pd.testing.assert_frame_equal(
-        db.results.get_results_table(
-            columns=[
-                "record_id",
-                "label",
-                "tags",
-                "user_id",
-                "classifier",
-                "querier",
-                "balancer",
-                "feature_extractor",
-                "training_set",
-            ],
-            pending=True,
-        ),
-        pd.DataFrame(
-            {
-                "record_id": [0, 5, 1, 2],
-                "label": [1, None, 1, 1],
-                "tags": ["foo", None, "foo", "foo"],
-                "user_id": [2, None, 2, 2],
-                "classifier": ["c0", "c5", "c0", "c0"],
-                "querier": ["q0", "q5", "q0", "q0"],
-                "balancer": ["b0", "b5", "b0", "b0"],
-                "feature_extractor": ["f0", "f5", "f0", "f0"],
-                "training_set": [40, 45, 40, 40],
-            }
-        ),
-        check_dtype=False,
-    )
+    state[0] = [0, 1, "foo", 2, "c0", "q0", "b0", "f0", 40]
+    state.append([1, 1, "foo", 2, "c0", "q0", "b0", "f0", 40])
+    state.append([2, 1, "foo", 2, "c0", "q0", "b0", "f0", 40])
+    assert_state(db, state, columns)
+
     # record_id 3 is grouped but not in the table. The records are added without model
     # information.
     db.label_record(3, 0)
-    pd.testing.assert_frame_equal(
-        db.results.get_results_table(
-            columns=[
-                "record_id",
-                "label",
-                "tags",
-                "user_id",
-                "classifier",
-                "querier",
-                "balancer",
-                "feature_extractor",
-                "training_set",
-            ],
-            pending=True,
-        ),
-        pd.DataFrame(
-            {
-                "record_id": [0, 5, 1, 2, 3, 4],
-                "label": [1, None, 1, 1, 0, 0],
-                "tags": ["foo", None, "foo", "foo", None, None],
-                "user_id": [2, None, 2, 2, None, None],
-                "classifier": ["c0", "c5", "c0", "c0", None, None],
-                "querier": ["q0", "q5", "q0", "q0", None, None],
-                "balancer": ["b0", "b5", "b0", "b0", None, None],
-                "feature_extractor": ["f0", "f5", "f0", "f0", None, None],
-                "training_set": [40, 45, 40, 40, None, None],
-            }
-        ),
-        check_dtype=False,
-    )
+    state.append([3, 0, None, None, None, None, None, None, None])
+    state.append([4, 0, None, None, None, None, None, None, None])
+    assert_state(db, state, columns)
 
     # record_id 5 is not in a group, but in the table already, so is updated.
     db.label_record(5, 0)
-    pd.testing.assert_frame_equal(
-        db.results.get_results_table(
-            columns=[
-                "record_id",
-                "label",
-                "tags",
-                "user_id",
-                "classifier",
-                "querier",
-                "balancer",
-                "feature_extractor",
-                "training_set",
-            ],
-            pending=True,
-        ),
-        pd.DataFrame(
-            {
-                "record_id": [0, 5, 1, 2, 3, 4],
-                "label": [1, 0, 1, 1, 0, 0],
-                "tags": ["foo", None, "foo", "foo", None, None],
-                "user_id": [2, None, 2, 2, None, None],
-                "classifier": ["c0", "c5", "c0", "c0", None, None],
-                "querier": ["q0", "q5", "q0", "q0", None, None],
-                "balancer": ["b0", "b5", "b0", "b0", None, None],
-                "feature_extractor": ["f0", "f5", "f0", "f0", None, None],
-                "training_set": [40, 45, 40, 40, None, None],
-            }
-        ),
-        check_dtype=False,
-    )
+    state[1] = [5, 0, None, None, "c5", "q5", "b5", "f5", 45]
+    assert_state(db, state, columns)
+
     # record_id 6 is not grouped and not in the table. It's added without model info.
     db.label_record(6, 1, "tag", 3)
-    pd.testing.assert_frame_equal(
-        db.results.get_results_table(
-            columns=[
-                "record_id",
-                "label",
-                "tags",
-                "user_id",
-                "classifier",
-                "querier",
-                "balancer",
-                "feature_extractor",
-                "training_set",
-            ],
-            pending=True,
+    state.append([6, 1, "tag", 3, None, None, None, None, None])
+    assert_state(db, state, columns)
+
+
+def test_query_top_ranked(db):
+    records = [
+        Record(0, "foo"),
+        Record(1, "foo"),
+        Record(2, "foo"),
+        Record(3, "foo"),
+        Record(4, "foo"),
+        Record(5, "foo"),
+    ]
+    db.input.add_records(records)
+    groups = [(0, 0), (0, 1), (3, 3), (3, 4)]
+    db.input.set_groups(groups)
+    con = db.results._conn
+    cur = con.cursor()
+    current_time = time.time()
+    cur.executemany(
+        """INSERT INTO last_ranking(record_id, classifier, querier, balancer,
+        feature_extractor, training_set, time) VALUES (?, 'nb',
+        'max', 'balanced', 'tfidf', 42, ?)""",
+        (
+            (5, current_time),
+            (0, current_time),
+            (2, current_time),
+            (1, current_time),
+            (4, current_time),
+            (3, current_time),
         ),
-        pd.DataFrame(
-            {
-                "record_id": [0, 5, 1, 2, 3, 4, 6],
-                "label": [1, 0, 1, 1, 0, 0, 1],
-                "tags": ["foo", None, "foo", "foo", None, None, "tag"],
-                "user_id": [2, None, 2, 2, None, None, 3],
-                "classifier": ["c0", "c5", "c0", "c0", None, None, None],
-                "querier": ["q0", "q5", "q0", "q0", None, None, None],
-                "balancer": ["b0", "b5", "b0", "b0", None, None, None],
-                "feature_extractor": ["f0", "f5", "f0", "f0", None, None, None],
-                "training_set": [40, 45, 40, 40, None, None, None],
-            }
-        ),
-        check_dtype=False,
     )
+    con.commit()
+
+    columns = [
+        "record_id",
+        "label",
+        "user_id",
+        "classifier",
+        "querier",
+        "balancer",
+        "feature_extractor",
+        "training_set",
+    ]
+    state = []
+
+    # record_id 5 is the top ranked and is not grouped.
+    db.query_top_ranked()
+    state.append([5, None, None, "nb", "max", "balanced", "tfidf", 42])
+    assert_state(db, state, columns)
+
+    # record_id 0 is the top ranked not in results. It's grouped with record_id 1.
+    db.query_top_ranked(2)
+    state.append([0, None, 2, "nb", "max", "balanced", "tfidf", 42])
+    state.append([1, None, 2, "nb", "max", "balanced", "tfidf", 42])
+    assert_state(db, state, columns)
+
+    # record_id 2 is the top ranked not in results. It's not grouped.
+    db.query_top_ranked()
+    state.append([2, None, None, "nb", "max", "balanced", "tfidf", 42])
+    assert_state(db, state, columns)
+
+    # record_id 4 is the top ranked not in results. It's grouped with record_id 3.
+    # The grouped records end up in the results table in the same order as they are in
+    # the records table, to 3 comes before 4.
+    db.query_top_ranked(3)
+    state.append([3, None, 3, "nb", "max", "balanced", "tfidf", 42])
+    state.append([4, None, 3, "nb", "max", "balanced", "tfidf", 42])
+    assert_state(db, state, columns)
