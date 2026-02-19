@@ -1,3 +1,4 @@
+from collections import defaultdict
 import functools
 
 import numpy as np
@@ -201,8 +202,7 @@ class DataStore:
         Raises
         ------
         ValueError
-            If some `record.duplicate_of` points to a non-existing record_id. You should
-            instead use `DataStore.set_groups` to set values of `duplicate_of`.
+            If some `record.duplicate_of` points to a non-existing record_id.
         """
         # SQLite makes an autoincremented primary key column start at 1. We want it to
         # start at 0, so that the record_id is equal to the row number of the record in
@@ -303,17 +303,20 @@ class DataStore:
         Parameters
         ----------
         groups : list[tuple[int,int]]
-            List of tuples (group_id, record_id). If multiple records are in the same
-            group, the value of `group_id` should be the record_id of one of the record
-            in the group. This data is added to the record as the `duplicate_of`
-            attribute. The data store will normalize these values: One record is chosen
-            as the root, satisfying `root.duplicate_of = None`. All other records in the
-            group will get `record.duplicate_of = root.record_id`.
+            List of tuples (group_id, record_id). This data is added to the record as
+            the `duplicate_of` attribute. The data store will normalize these values:
+            One record is chosen as the root, satisfying `root.duplicate_of = None`. All
+            other records in the group will get `record.duplicate_of = root.record_id`.
         """
-        record_to_group = {
-            record_id: group_id if group_id != record_id else None
-            for (group_id, record_id) in groups
-        }
+        group_to_records = defaultdict(set)
+        for group_id, record_id in groups:
+            group_to_records[group_id].add(record_id)
+        record_to_group = {}
+        for group in group_to_records.values():
+            group_id = min(group)
+            for record_id in group:
+                record_to_group[record_id] = group_id
+
         with self.Session() as session, session.begin():
             records = session.scalars(
                 select(Record).where(Record.record_id.in_(record_to_group))

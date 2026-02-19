@@ -262,7 +262,7 @@ def test_load_faulty_year_dataset():
         ([(0, 0)], {0: None, 1: None, 2: None, 3: None}),
         ([(0, 0), (0, 1)], {0: None, 1: 0, 2: None, 3: None}),
         ([(0, 0), (0, 2), (1, 1)], {0: None, 1: None, 2: 0, 3: None}),
-        ([(3, 0), (1, 1), (1, 2), (3, 3)], {0: 3, 1: None, 2: 1, 3: None}),
+        ([(3, 0), (1, 1), (1, 2), (3, 3)], {0: None, 1: None, 2: 1, 3: 0}),
     ],
 )
 def test_set_groups(store, groups, normalized_chain):
