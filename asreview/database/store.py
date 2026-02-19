@@ -8,7 +8,6 @@ from sqlalchemy import event
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql.functions import coalesce
 
 from asreview.data.record import Base
 from asreview.data.record import Record
@@ -337,21 +336,18 @@ class DataStore:
             are also accessible by the attribute names (so `tuple.group_id` and
             `tuple.record_id`).
         """
-        # The group_id is equal to the value of `duplicate_of` if present, otherwise it
-        # is the `record_id`. This is true because we normalize the duplicate chains.
-        group_expr = coalesce(Record.duplicate_of, Record.record_id)
         stmt = select(
-            group_expr.label("group_id"),
+            Record.group_id,
             Record.record_id,
         )
         if record_id is not None:
             # Get the records in the group of the record with the given record_id.
             target_group_subq = (
-                select(group_expr)
+                select(Record.group_id)
                 .where(Record.record_id == record_id)
                 .scalar_subquery()
             )
-            stmt = stmt.where(group_expr == target_group_subq)
+            stmt = stmt.where(Record.group_id == target_group_subq)
         with self.Session() as session:
             return session.execute(stmt.order_by("group_id")).all()
 

@@ -1,10 +1,10 @@
 from typing import Optional
 
 import pandas as pd
-from sqlalchemy import CheckConstraint
+from sqlalchemy import CheckConstraint, Computed, Index
 from sqlalchemy import ForeignKey
 from sqlalchemy import UniqueConstraint
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, declared_attr
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import MappedAsDataclass
 from sqlalchemy.orm import mapped_column
@@ -55,6 +55,35 @@ class Base(DeclarativeBase, MappedAsDataclass):
     # refactoring in the frontend as well, so I'll skip that for now.
     record_id: Mapped[int] = mapped_column(init=False, primary_key=True)
 
+    # The following column depends on the table name of the concrete class using this
+    # base class, so it needs to be a declared attribute. The `group_id` column and the
+    # index on `group_id` also need to be declared attributes because of that.
+    @declared_attr
+    def duplicate_of(cls) -> Mapped[Optional[int]]:
+        return mapped_column(
+            Integer,
+            ForeignKey(f"{cls.__tablename__}.record_id", ondelete="SET NULL"),
+            default=None,
+        )
+
+    @declared_attr
+    def group_id(cls) -> Mapped[int]:
+        return mapped_column(
+            Computed("COALESCE(duplicate_of, record_id)", persisted=False),
+            init=False,
+            default=None,
+        )
+
+    # Concrete classes using this base class can implement extra table args using the
+    # `__extra_table_args__` attribute.
+    @declared_attr
+    def __table_args__(cls):
+        extra = getattr(cls, "__extra_table_args__", ())
+        return (
+            Index(f"idx_{cls.__tablename__}_group_id", "group_id"),
+            *extra,
+        )
+
     @classmethod
     def get_columns(cls):
         """Get the list of database column names.
@@ -89,7 +118,7 @@ class Base(DeclarativeBase, MappedAsDataclass):
 
 class Record(Base):
     __tablename__ = "record"
-    __table_args__ = (
+    __extra_table_args__ = (
         UniqueConstraint("dataset_row", "dataset_id"),
         CheckConstraint(
             "duplicate_of IS NULL OR duplicate_of != record_id",
@@ -104,12 +133,6 @@ class Record(Base):
     # implementing a custom record is forced to have them.
     dataset_row: Mapped[int]
     dataset_id: Mapped[str]
-    # Ideally `duplicate_of` would be on the base class, because all record types are
-    # required to have it when we do deduplication. However, in the base class we do not
-    # yet know the name of the table to which we want to make the foreign key.
-    duplicate_of: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("record.record_id", ondelete="SET NULL"), default=None
-    )
 
     title: Mapped[str] = mapped_column(default="")
     abstract: Mapped[str] = mapped_column(default="")
