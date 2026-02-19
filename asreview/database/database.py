@@ -1,4 +1,6 @@
 from functools import cached_property
+import json
+import time
 
 from asreview.data.record import Record
 from asreview.database.sqlstate import SQLiteState
@@ -127,3 +129,56 @@ class Database:
                 "See migration guide."
             )
         self.results._is_valid()
+
+    def label_record(self, record_id, label, tags=None, user_id=None):
+        if tags is not None:
+            tags = json.dumps(tags)
+        labeling_time = time.time()
+        con = self.results._conn
+        cur = con.cursor()
+        model_columns = [
+            "classifier",
+            "querier",
+            "balancer",
+            "feature_extractor",
+            "training_set",
+        ]
+        model_string = ", ".join(model_columns)
+        target_result_string = ", ".join(
+            f"target_result.{col}" for col in model_columns
+        )
+        upsert_columns = ["label", "time", "tags", "user_id"] + model_columns
+        upsert_string = ", ".join(f"{col} = excluded.{col}" for col in upsert_columns)
+        record_table = self.input.record_cls.__tablename__
+
+        cur.execute(
+            f"""
+            WITH target_group AS (
+                SELECT record_id
+                FROM {record_table}
+                WHERE group_id = (
+                    SELECT group_id
+                    FROM {record_table}
+                    WHERE record_id=:record_id
+                )
+            ), target_result AS (
+                SELECT {model_string}
+                FROM results
+                WHERE record_id = :record_id
+            )
+            INSERT INTO results(record_id, label, time, tags, user_id, {model_string})
+            SELECT target_group.record_id, :label, :time, :tags, :user_id, {target_result_string}
+            FROM target_group
+            LEFT JOIN target_result ON 1
+            ON CONFLICT(record_id) DO UPDATE
+                SET {upsert_string};
+            """,
+            {
+                "record_id": record_id,
+                "label": label,
+                "time": labeling_time,
+                "tags": tags,
+                "user_id": user_id,
+            },
+        )
+        con.commit()
