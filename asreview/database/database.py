@@ -220,7 +220,7 @@ class Database:
     def update_result(self, record_id, label=None, tags=None, user_id=None):
         if label is None and tags is None:
             raise ValueError("At least one of 'label' or 'tags' must be provided.")
-        
+
         fields = []
         values = {"record_id": record_id}
         if label is not None:
@@ -253,5 +253,26 @@ class Database:
             WHERE record_id IN (SELECT record_id FROM target_group)
             """,
             values,
+        )
+        con.commit()
+
+    def delete_result(self, record_id):
+        con = self.results._conn
+        cur = con.cursor()
+        cur.execute(
+            f"""
+            WITH target_group AS (
+                SELECT record_id
+                FROM {self.record_table_name}
+                WHERE group_id = (
+                    SELECT group_id
+                    FROM {self.record_table_name}
+                    WHERE record_id=:record_id
+                )
+            )
+            DELETE FROM results
+            WHERE record_id IN (SELECT record_id FROM target_group)
+            """,
+            {"record_id": record_id},
         )
         con.commit()

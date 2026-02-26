@@ -337,3 +337,26 @@ def test_update(db):
     state[0] = [0, 0, "foofoofoo", 2]
     state[1] = [1, 0, "foofoofoo", 2]
     assert_state(db, state, columns=["record_id", "label", "tags", "user_id"])
+
+
+def test_delete_labeling_data(db):
+    records = [
+        Record(0, "foo"),
+        Record(1, "foo"),
+        Record(2, "foo"),
+        Record(3, "foo"),
+        Record(4, "foo"),
+    ]
+    db.input.add_records(records)
+    groups = [(0, 0), (0, 1), (3, 3), (3, 4)]
+    db.input.set_groups(groups)
+    db.label_record(record_id=0, label=0)
+    db.label_record(record_id=2, label=1)
+    db.label_record(record_id=3, label=0)
+
+    db.delete_result(0)
+    assert_state(db, state=[[2, 1], [3, 0], [4, 0]], columns=["record_id", "label"])
+    db.delete_result(2)
+    assert_state(db, state=[[3, 0], [4, 0]], columns=["record_id", "label"])
+    db.delete_result(4)
+    assert_state(db, state=[], columns=["record_id", "label"])
