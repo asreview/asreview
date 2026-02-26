@@ -295,3 +295,45 @@ def test_query_top_ranked(db):
     state.append([3, None, 3, "nb", "max", "balanced", "tfidf", 42])
     state.append([4, None, 3, "nb", "max", "balanced", "tfidf", 42])
     assert_state(db, state, columns)
+
+
+def test_update(db):
+    records = [
+        Record(0, "foo"),
+        Record(1, "foo"),
+        Record(2, "foo"),
+    ]
+    db.input.add_records(records)
+    groups = [(0, 0), (0, 1)]
+    db.input.set_groups(groups)
+    db.label_record(record_id=0, label=0, tags="foo", user_id=0)
+    db.label_record(record_id=2, label=1, tags="bar", user_id=1)
+
+    state = [[0, 0, "foo", 0], [1, 0, "foo", 0], [2, 1, "bar", 1]]
+    # Update everything, grouped record.
+    db.update_result(record_id=0, label=1, tags="foofoo", user_id=2)
+    state[0] = [0, 1, "foofoo", 2]
+    state[1] = [1, 1, "foofoo", 2]
+    assert_state(db, state, columns=["record_id", "label", "tags", "user_id"])
+
+    # Update everything, non-grouped record.
+    db.update_result(record_id=2, label=0, tags="barbar", user_id=3)
+    state[2] = [2, 0, "barbar", 3]
+    assert_state(db, state, columns=["record_id", "label", "tags", "user_id"])
+
+    # Update only label
+    db.update_result(record_id=1, label=0)
+    state[0] = [0, 0, "foofoo", 2]
+    state[1] = [1, 0, "foofoo", 2]
+    assert_state(db, state, columns=["record_id", "label", "tags", "user_id"])
+
+    # Update only tags
+    db.update_result(record_id=2, tags="barbarbar")
+    state[2] = [2, 0, "barbarbar", 3]
+    assert_state(db, state, columns=["record_id", "label", "tags", "user_id"])
+
+    # Update tags check user_id is not changed.
+    db.update_result(record_id=0, tags="foofoofoo", user_id=4)
+    state[0] = [0, 0, "foofoofoo", 2]
+    state[1] = [1, 0, "foofoofoo", 2]
+    assert_state(db, state, columns=["record_id", "label", "tags", "user_id"])

@@ -138,6 +138,10 @@ class Database:
             )
         self.results._is_valid()
 
+    @property
+    def record_table_name(self):
+        return self.input.record_cls.__tablename__
+
     def label_record(self, record_id, label, tags=None, user_id=None):
         if tags is not None:
             tags = json.dumps(tags)
@@ -150,16 +154,15 @@ class Database:
         )
         upsert_columns = ["label", "time", "tags", "user_id"] + MODEL_COLUMNS
         upsert_string = ", ".join(f"{col} = excluded.{col}" for col in upsert_columns)
-        record_table = self.input.record_cls.__tablename__
 
         cur.execute(
             f"""
             WITH target_group AS (
                 SELECT record_id
-                FROM {record_table}
+                FROM {self.record_table_name}
                 WHERE group_id = (
                     SELECT group_id
-                    FROM {record_table}
+                    FROM {self.record_table_name}
                     WHERE record_id=:record_id
                 )
             ), target_result AS (
@@ -211,5 +214,44 @@ class Database:
             FROM group_records
             CROSS JOIN top_record;""",
             {"user_id": user_id},
+        )
+        con.commit()
+
+    def update_result(self, record_id, label=None, tags=None, user_id=None):
+        if label is None and tags is None:
+            raise ValueError("At least one of 'label' or 'tags' must be provided.")
+        
+        fields = []
+        values = {"record_id": record_id}
+        if label is not None:
+            fields.append("label = :label")
+            values["label"] = label
+            if user_id is not None:
+                # We only update the user_id if the label changes.
+                fields.append("user_id = :user_id")
+                values["user_id"] = user_id
+        if tags is not None:
+            fields.append("tags = :tags")
+            values["tags"] = json.dumps(tags)
+        set_string = ", ".join(fields)
+
+        con = self.results._conn
+        cur = con.cursor()
+        cur.execute(
+            f"""
+            WITH target_group AS (
+                SELECT record_id
+                FROM {self.record_table_name}
+                WHERE group_id = (
+                    SELECT group_id
+                    FROM {self.record_table_name}
+                    WHERE record_id=:record_id
+                )
+            )
+            UPDATE results
+            SET {set_string}
+            WHERE record_id IN (SELECT record_id FROM target_group)
+            """,
+            values,
         )
         con.commit()
