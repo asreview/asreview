@@ -23,6 +23,18 @@ def assert_state(db, state, columns):
     )
 
 
+def assert_changes_state(db, state):
+    columns = ["record_id", "label", "user_id"]
+    pd.testing.assert_frame_equal(
+        db.results.get_decision_changes()[columns],
+        pd.DataFrame(
+            state,
+            columns=columns,
+        ),
+        check_dtype=False,
+    )
+
+
 @pytest.fixture
 def db(tmpdir):
     with asr.Database(Path(tmpdir, "test.db")) as db:
@@ -310,33 +322,44 @@ def test_update(db):
     db.label_record(record_id=2, label=1, tags="bar", user_id=1)
 
     state = [[0, 0, "foo", 0], [1, 0, "foo", 0], [2, 1, "bar", 1]]
+    changes_state = []
     # Update everything, grouped record.
     db.update_result(record_id=0, label=1, tags="foofoo", user_id=2)
     state[0] = [0, 1, "foofoo", 2]
     state[1] = [1, 1, "foofoo", 2]
     assert_state(db, state, columns=["record_id", "label", "tags", "user_id"])
+    changes_state.append([0, 0, 0])
+    changes_state.append([1, 0, 0])
+    assert_changes_state(db, changes_state)
 
     # Update everything, non-grouped record.
     db.update_result(record_id=2, label=0, tags="barbar", user_id=3)
     state[2] = [2, 0, "barbar", 3]
     assert_state(db, state, columns=["record_id", "label", "tags", "user_id"])
+    changes_state.append([2, 1, 1])
+    assert_changes_state(db, changes_state)
 
     # Update only label
     db.update_result(record_id=1, label=0)
     state[0] = [0, 0, "foofoo", 2]
     state[1] = [1, 0, "foofoo", 2]
     assert_state(db, state, columns=["record_id", "label", "tags", "user_id"])
+    changes_state.append([0, 1, 2])
+    changes_state.append([1, 1, 2])
+    assert_changes_state(db, changes_state)
 
     # Update only tags
     db.update_result(record_id=2, tags="barbarbar")
     state[2] = [2, 0, "barbarbar", 3]
     assert_state(db, state, columns=["record_id", "label", "tags", "user_id"])
+    assert_changes_state(db, changes_state)
 
     # Update tags check user_id is not changed.
     db.update_result(record_id=0, tags="foofoofoo", user_id=4)
     state[0] = [0, 0, "foofoofoo", 2]
     state[1] = [1, 0, "foofoofoo", 2]
     assert_state(db, state, columns=["record_id", "label", "tags", "user_id"])
+    assert_changes_state(db, changes_state)
 
 
 def test_delete_labeling_data(db):

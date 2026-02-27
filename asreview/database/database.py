@@ -129,6 +129,7 @@ class Database:
         self.user_version = CURRENT_DATABASE_VERSION
         self.input.create_tables()
         self.results.create_tables()
+        self._set_results_changes_triggers()
 
     def _is_valid(self):
         if self.user_version != CURRENT_DATABASE_VERSION:
@@ -137,6 +138,30 @@ class Database:
                 "See migration guide."
             )
         self.results._is_valid()
+
+    def _set_results_changes_triggers(self):
+        con = self.results._conn
+        cur = con.cursor()
+        cur.execute("""
+            CREATE TRIGGER IF NOT EXISTS trg_results_delete
+            AFTER DELETE ON results
+            FOR EACH ROW
+            BEGIN
+                INSERT INTO decision_changes (record_id, label, time, user_id)
+                VALUES (OLD.record_id, OLD.label, OLD.time, OLD.user_id);
+            END
+        """)
+        cur.execute("""
+            CREATE TRIGGER IF NOT EXISTS trg_results_label_update
+            AFTER UPDATE OF label ON results
+            FOR EACH ROW
+            WHEN OLD.label IS NOT NEW.label
+            BEGIN
+                INSERT INTO decision_changes (record_id, label, time, user_id)
+                VALUES (OLD.record_id, OLD.label, OLD.time, OLD.user_id);
+            END
+        """)
+        con.commit()
 
     @property
     def record_table_name(self):
