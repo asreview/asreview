@@ -31,7 +31,6 @@ from asreview.data.loader import load_dataset
 from asreview.data.record import Record
 from asreview.database.database import open_db
 from asreview.database.database import Database
-from asreview.database.sqlstate import SQLiteState
 from asreview.database.store import DataStore
 from asreview.extensions import extensions
 from asreview.extensions import get_extension
@@ -62,7 +61,6 @@ __all__ = [
     "ActiveLearningCycleData",
     "Simulate",
     "Project",
-    "SQLiteState",
     "Database",
     "DataStore",
     "Record",

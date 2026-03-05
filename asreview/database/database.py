@@ -1,12 +1,11 @@
 import json
+import sqlite3
 import time
 from functools import cached_property
 
 import pandas as pd
 
 from asreview.data.record import Record
-from asreview.database.sqlstate import RESULTS_TABLE_COLUMNS_PANDAS_DTYPES
-from asreview.database.sqlstate import SQLiteState
 from asreview.database.store import DataStore
 
 __all__ = ["Database"]
@@ -20,6 +19,37 @@ MODEL_COLUMNS = [
     "feature_extractor",
     "training_set",
 ]
+
+REQUIRED_TABLES = [
+    "results",
+    "last_ranking",
+    "decision_changes",
+]
+
+RESULTS_TABLE_COLUMNS_PANDAS_DTYPES = {
+    "record_id": "Int64",
+    "label": "Int64",
+    "classifier": "object",
+    "querier": "object",
+    "balancer": "object",
+    "feature_extractor": "object",
+    "training_set": "Int64",
+    "time": "Float64",
+    "note": "object",
+    "tags": "object",
+    "user_id": "Int64",
+}
+
+RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
+    "record_id": "Int64",
+    "ranking": "Int64",
+    "classifier": "object",
+    "querier": "object",
+    "balancer": "object",
+    "feature_extractor": "object",
+    "training_set": "Int64",
+    "time": "Float64",
+}
 
 
 def open_db(fp, read_only=False):
@@ -98,7 +128,6 @@ class Database:
         self.record_cls = record_cls
         self.read_only = read_only
         self.input = DataStore(fp, record_cls=record_cls, read_only=read_only)
-        self.results = SQLiteState(fp, read_only=read_only)
 
     @cached_property
     def input(self):
@@ -108,30 +137,87 @@ class Database:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.results.close()
+        self.close()
+
+    @cached_property
+    def _conn(self):
+        """Get a connection to the SQLite database.
+
+        Returns
+        -------
+        sqlite3.Connection
+            Connection to the SQLite database.
+        """
+        url = self.fp
+        use_uri = False
+        if self.read_only:
+            url = f"file:{url}?mode=ro"
+            use_uri = True
+        return sqlite3.connect(url, uri=use_uri)
 
     def close(self):
-        self.results.close()
+        if "_conn" in self.__dict__:
+            self._conn.close()
+            del self.__dict__["_conn"]
 
     @property
     def user_version(self):
         """Version number of the state."""
-        cur = self.results._conn.cursor()
+        cur = self._conn.cursor()
         version = cur.execute("PRAGMA user_version")
 
         return int(version.fetchone()[0])
 
     @user_version.setter
     def user_version(self, version):
-        cur = self.results._conn.cursor()
+        cur = self._conn.cursor()
         cur.execute(f"PRAGMA user_version = {version}")
-        self.results._conn.commit()
+        self._conn.commit()
         cur.close()
 
     def create_tables(self):
         self.user_version = CURRENT_DATABASE_VERSION
         self.input.create_tables()
-        self.results.create_tables()
+
+        cur = self._conn.cursor()
+
+        cur.execute(
+            """CREATE TABLE results
+                            (record_id INTEGER UNIQUE,
+                            label INTEGER,
+                            classifier TEXT,
+                            querier TEXT,
+                            balancer TEXT,
+                            feature_extractor TEXT,
+                            training_set INTEGER,
+                            time FLOAT,
+                            note TEXT,
+                            tags JSON,
+                            user_id INTEGER)"""
+        )
+
+        cur.execute(
+            """CREATE TABLE last_ranking
+                            (record_id INTEGER UNIQUE,
+                            ranking INT,
+                            classifier TEXT,
+                            querier TEXT,
+                            balancer TEXT,
+                            feature_extractor TEXT,
+                            training_set INTEGER,
+                            time FLOAT)"""
+        )
+
+        cur.execute(
+            """CREATE TABLE decision_changes
+                            (record_id INTEGER,
+                            label INTEGER,
+                            time FLOAT,
+                            user_id INTEGER)"""
+        )
+
+        self._conn.commit()
+
         self._set_results_changes_triggers()
 
     def _is_valid(self):
@@ -140,10 +226,38 @@ class Database:
                 f"Database version {self.user_version} is not supported. "
                 "See migration guide."
             )
-        self.results._is_valid()
+        cur = self._conn.cursor()
+        column_names = cur.execute("PRAGMA table_info(results)").fetchall()
+        table_names = cur.execute(
+            "SELECT name FROM sqlite_master WHERE type='table';"
+        ).fetchall()
+
+        table_names = [tup[0] for tup in table_names]
+        missing_tables = [
+            table
+            for table in REQUIRED_TABLES + [self.record_table_name]
+            if table not in table_names
+        ]
+        if missing_tables:
+            raise ValueError(
+                f"The SQL file should contain tables named "
+                f"'{' '.join(missing_tables)}'."
+            )
+
+        column_names = [tup[1] for tup in column_names]
+        missing_columns = [
+            col
+            for col in RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.keys()
+            if col not in column_names
+        ]
+        if missing_columns:
+            raise ValueError(
+                f"The results table does not contain the columns "
+                f"{' '.join(missing_columns)}."
+            )
 
     def _set_results_changes_triggers(self):
-        con = self.results._conn
+        con = self._conn
         cur = con.cursor()
         cur.execute("""
             CREATE TRIGGER IF NOT EXISTS trg_results_delete
@@ -170,11 +284,112 @@ class Database:
     def record_table_name(self):
         return self.input.record_cls.__tablename__
 
+    @property
+    def exist_new_labeled_records(self):
+        """Return True if there are new labeled records.
+
+        Return True if there are any record labels added since the last time
+        the model ranking was added to the state. Also returns True if no
+        model was trained yet, but priors have been added.
+        """
+        labeled = self.get_results_table("label")
+        last_training_set = self.get_last_ranking_table()["training_set"]
+
+        if last_training_set.empty or pd.isna(last_training_set.max()):
+            return len(labeled) > 0
+        else:
+            return len(labeled) > last_training_set.max()
+
+    def _replace_results_from_df(self, results):
+        if not set(results.columns) == set(RESULTS_TABLE_COLUMNS_PANDAS_DTYPES):
+            raise ValueError(
+                f"Columns of the results dataframe should be "
+                f"{list(RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.keys())}."
+            )
+
+        cur = self._conn.cursor()
+        cur.execute("delete from results")
+        self._conn.commit()
+        cur.close()
+
+        results.to_sql("results", self._conn, if_exists="append", index=False)
+
+    def _replace_last_ranking_from_df(self, last_ranking):
+        if not set(last_ranking.columns) == set(RANKING_TABLE_COLUMNS_PANDAS_DTYPES):
+            raise ValueError(
+                f"Columns of the last ranking dataframe should be "
+                f"{list(RANKING_TABLE_COLUMNS_PANDAS_DTYPES.keys())}."
+            )
+
+        last_ranking.to_sql(
+            "last_ranking", self._conn, if_exists="replace", index=False
+        )
+
+    def add_last_ranking(
+        self,
+        ranked_record_ids,
+        classifier,
+        querier,
+        balancer,
+        feature_extractor,
+        training_set=None,
+    ):
+        """Save the ranking of the last iteration of the model.
+
+        Save the ranking of the last iteration of the model, in the ranking
+        order, so the record on row 0 is ranked first by the model.
+
+        Parameters
+        ----------
+        ranked_record_ids: list, numpy.ndarray
+            A list of records ids in the order that they were ranked.
+        classifier: str
+            Name of the classifier of the model.
+        querier: str
+            Name of the query strategy of the model.
+        balancer: str
+            Name of the balance strategy of the model.
+        feature_extractor: str
+            Name of the feature extraction method of the model.
+        training_set: int
+            Number of labeled records available at the time of training.
+        """
+
+        pd.DataFrame(
+            {
+                "record_id": ranked_record_ids,
+                "ranking": range(len(ranked_record_ids)),
+                "classifier": classifier,
+                "querier": querier,
+                "balancer": balancer,
+                "feature_extractor": feature_extractor,
+                "training_set": training_set,
+                "time": time.time(),
+            }
+        ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
+
+    def get_last_ranking_table(self):
+        """Get the ranking from the state.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe with columns 'record_id', 'ranking', 'classifier',
+            'querier', 'balancer', 'feature_extractor',
+            'training_set' and 'time'. It has one row for each record in the
+            dataset, and is ordered by ranking.
+        """
+        return pd.read_sql_query(
+            "SELECT * FROM last_ranking",
+            self._conn,
+            dtype=RANKING_TABLE_COLUMNS_PANDAS_DTYPES,
+        )
+
     def label_record(self, record_id, label, tags=None, user_id=None):
         if tags is not None:
             tags = json.dumps(tags)
         labeling_time = time.time()
-        con = self.results._conn
+        con = self._conn
         cur = con.cursor()
         model_string = ", ".join(MODEL_COLUMNS)
         target_result_string = ", ".join(
@@ -218,7 +433,7 @@ class Database:
     def query_top_ranked(self, user_id=None):
         model_string = ", ".join(MODEL_COLUMNS)
         top_record_string = ", ".join(f"top_record.{col}" for col in MODEL_COLUMNS)
-        con = self.results._conn
+        con = self._conn
         cur = con.cursor()
         cur.execute(
             f"""INSERT INTO results (record_id, user_id, {model_string})
@@ -264,7 +479,7 @@ class Database:
             values["tags"] = json.dumps(tags)
         set_string = ", ".join(fields)
 
-        con = self.results._conn
+        con = self._conn
         cur = con.cursor()
         cur.execute(
             f"""
@@ -285,8 +500,42 @@ class Database:
         )
         con.commit()
 
+    def update_note(self, record_id, note=None):
+        """Change the note of an already labeled or pending record.
+
+        Parameters
+        ----------
+        record_id: int
+            Id of the record whose label should be changed.
+        note: str
+            Note to add to the record.
+        """
+
+        cur = self._conn.cursor()
+        cur.execute(
+            f"""
+            WITH target_group AS (
+                SELECT record_id
+                FROM {self.record_table_name}
+                WHERE group_id = (
+                    SELECT group_id
+                    FROM {self.record_table_name}
+                    WHERE record_id=:record_id
+                )
+            )
+            UPDATE results SET note = :note WHERE record_id IN (
+                SELECT record_id FROM target_group
+            )""",
+            {"note": note, "record_id": record_id},
+        )
+
+        if cur.rowcount == 0:
+            raise ValueError(f"Record with id {record_id} not found.")
+
+        self._conn.commit()
+
     def delete_result(self, record_id):
-        con = self.results._conn
+        con = self._conn
         cur = con.cursor()
         cur.execute(
             f"""
@@ -323,7 +572,7 @@ class Database:
 
         result = pd.read_sql_query(
             f"SELECT * FROM results WHERE record_id={record_id}",
-            self.results._conn,
+            self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
         )
         result["tags"] = result["tags"].map(json.loads, na_action="ignore")
@@ -386,7 +635,7 @@ class Database:
         query_string = "*" if columns is None else ",".join(columns)
         df_results = pd.read_sql_query(
             f"SELECT {query_string} FROM results {sql_where_str} ORDER BY rowid",
-            self.results._conn,
+            self._conn,
             dtype=col_dtype,
         )
 
@@ -414,7 +663,7 @@ class Database:
             )
             ORDER BY rowid
             """,
-            self.results._conn,
+            self._conn,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
         )
         df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
@@ -443,7 +692,7 @@ class Database:
                 )
                 ORDER BY ranking
                 """,
-            self.results._conn,
+            self._conn,
         )["record_id"]
 
     def get_unlabeled(self):
@@ -455,7 +704,7 @@ class Database:
             WHERE results.record_id IS NULL OR results.label IS NULL
             ORDER BY ranking
             """,
-            self.results._conn,
+            self._conn,
         )
 
     def get_pending(self, user_id=None):
@@ -482,7 +731,22 @@ class Database:
 
         return pd.read_sql_query(
             query,
-            self.results._conn,
+            self._conn,
             params=params,
             dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
         )
+
+    def get_decision_changes(self):
+        """Get the record ids for any decision changes.
+
+        Get the record ids of the records whose labels have been changed after the
+        original labeling action.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe with columns 'record_id', 'label', 'time', and 'user_id' for each
+            record of which the labeling decision was changed.
+        """
+
+        return pd.read_sql_query("SELECT * FROM decision_changes", self._conn)

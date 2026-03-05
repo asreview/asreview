@@ -7,13 +7,13 @@ import pytest
 import asreview as asr
 from asreview.data.loader import load_records
 from asreview.database.database import CURRENT_DATABASE_VERSION
-from asreview.database.sqlstate import REQUIRED_TABLES
+from asreview.database.database import REQUIRED_TABLES
 from asreview.data.record import Record
 
 
 def assert_state(db, state, columns):
     pd.testing.assert_frame_equal(
-        db.results.get_results_table(columns=columns, pending=True),
+        db.get_results_table(columns=columns, pending=True, whole_group=True),
         pd.DataFrame(
             state,
             columns=columns,
@@ -25,7 +25,7 @@ def assert_state(db, state, columns):
 def assert_changes_state(db, state):
     columns = ["record_id", "label", "user_id"]
     pd.testing.assert_frame_equal(
-        db.results.get_decision_changes()[columns],
+        db.get_decision_changes()[columns],
         pd.DataFrame(
             state,
             columns=columns,
@@ -69,7 +69,7 @@ def db_with_data(db):
     # Labeled:
     # Record id 5 is top ranked and not in group.
     # Record id 4 is top ranked and in group with 3.
-    db.results.add_last_ranking(
+    db.add_last_ranking(
         [5, 4, 3, 6, 7, 8, 11, 9, 10], "nb", "max", "balanced", "tfidf", 2
     )
     db.query_top_ranked()
@@ -92,7 +92,7 @@ def test_results_manual_close(tmpdir):
     fp = Path(tmpdir, "test.db")
     db = asr.Database(fp)
     db.create_tables()
-    conn = db.results._conn
+    conn = db._conn
     db.close()
     with pytest.raises(
         sqlite3.ProgrammingError, match="Cannot operate on a closed database"
@@ -111,7 +111,7 @@ def test_results_closes_connection_on_exit(tmpdir):
     fp = Path(tmpdir, "test.db")
     with asr.Database(fp) as db:
         db.create_tables()
-        conn = db.results._conn
+        conn = db._conn
     with pytest.raises(
         sqlite3.ProgrammingError, match="Cannot operate on a closed database"
     ):
@@ -125,7 +125,7 @@ def test_results_closes_on_exception(tmpdir):
     with pytest.raises(ValueError):
         with asr.Database(fp) as db:
             db.create_tables()
-            conn = db.results._conn
+            conn = db._conn
             raise ValueError("Something went wrong")
     with pytest.raises(
         sqlite3.ProgrammingError, match="Cannot operate on a closed database"
@@ -146,10 +146,10 @@ def test_read_only(tmpdir, asreview_test_project):
     records = load_records(data_fp, dataset_id="foo")
     with asr.Database(asreview_test_project.db_path, read_only=True) as db:
         with pytest.raises(sqlite3.OperationalError):
-            db.results.query_top_ranked()
+            db.query_top_ranked()
         with pytest.raises(sqlite3.OperationalError):
             db.input.add_records(records)
-        db.results.get_last_ranking_table()
+        db.get_last_ranking_table()
         db.input.get_records([0, 1])
         db.user_version
 
@@ -160,6 +160,7 @@ def test_create_tables(tmpdir):
     with asr.Database(fp) as db:
         db.create_tables()
         assert db.user_version == CURRENT_DATABASE_VERSION
+        db._is_valid()
 
     with sqlite3.connect(str(fp)) as conn:
         cur = conn.cursor()
@@ -175,6 +176,7 @@ def test_create_tables(tmpdir):
 def test_in_memory():
     with asr.Database(":memory:") as db:
         db.create_tables()
+        db._is_valid()
         assert db.input.is_empty()
         db.input.add_records(
             [
@@ -183,8 +185,47 @@ def test_in_memory():
             ]
         )
         assert len(db.input) == 2
-        db.results.add_labeling_data([1, 2, 3], [0, 1, 0])
-        assert len(db.results.get_results_table()) == 3
+        db.label_record(1, 0)
+        db.label_record(2, 1)
+        db.label_record(2, 0)
+
+        assert len(db.get_results_table()) == 3
+
+
+def test_add_extra_column(db):
+    """Check if state still works with extra colums added to tables."""
+    con = db._conn
+    cur = con.cursor()
+    cur.execute("ALTER TABLE last_ranking ADD COLUMN test_lr INTEGER;")
+    cur.execute("ALTER TABLE results ADD COLUMN test_res INTEGER;")
+    con.commit()
+
+    records = [
+        Record(0, "foo"),
+        Record(1, "foo"),
+        Record(2, "foo"),
+    ]
+    db.input.add_records(records)
+    ranking = [1, 2, 0]
+    classifier = "nb"
+    querier = "max"
+    balancer = "balanced"
+    feature_extractor = "tfidf"
+    training_set = 2
+
+    db.add_last_ranking(
+        ranking,
+        classifier,
+        querier,
+        balancer,
+        feature_extractor,
+        training_set,
+    )
+
+    top_ranked = db.query_top_ranked()["record_id"]
+
+    assert isinstance(top_ranked, pd.Series)
+    assert len(top_ranked) == 1
 
 
 def test_open_db_missing_file_ro(tmpdir):
@@ -219,7 +260,7 @@ def test_label_record(db):
     db.input.add_records(records)
     groups = [(0, 0), (0, 1), (0, 2), (3, 3), (3, 4)]
     db.input.set_groups(groups)
-    con = db.results._conn
+    con = db._conn
     cur = con.cursor()
     cur.executemany(
         """INSERT INTO results(record_id, classifier, querier, balancer,
@@ -299,9 +340,7 @@ def test_query_top_ranked(db):
     db.input.add_records(records)
     groups = [(0, 0), (0, 1), (3, 3), (3, 4)]
     db.input.set_groups(groups)
-    db.results.add_last_ranking(
-        [5, 0, 2, 1, 4, 3], "nb", "max", "balanced", "tfidf", 42
-    )
+    db.add_last_ranking([5, 0, 2, 1, 4, 3], "nb", "max", "balanced", "tfidf", 42)
 
     columns = [
         "record_id",
@@ -396,6 +435,36 @@ def test_update(db):
     state[1] = [1, 0, "foofoofoo", 2]
     assert_state(db, state, columns=["record_id", "label", "tags", "user_id"])
     assert_changes_state(db, changes_state)
+
+
+def test_update_note(db):
+    records = [
+        Record(0, "foo"),
+        Record(1, "foo"),
+        Record(2, "foo"),
+    ]
+    db.input.add_records(records)
+    db.input.set_groups([(0, 0), (0, 1)])
+    db.label_record(0, 0)
+    db.label_record(2, 1)
+
+    db.update_note(0, "note0")
+    assert db.get_results_table(columns=["note"], whole_group=True)["note"].fillna(
+        None
+    ).to_list() == ["note0", "note0", None]
+    assert db.get_decision_changes().empty
+
+    db.update_note(2, "note2")
+    assert db.get_results_table(columns=["note"], whole_group=True)["note"].fillna(
+        None
+    ).to_list() == ["note0", "note0", "note2"]
+    assert db.get_decision_changes().empty
+
+    db.update_note(1, None)
+    assert db.get_results_table(columns=["note"], whole_group=True)["note"].fillna(
+        None
+    ).to_list() == [None, None, "note2"]
+    assert db.get_decision_changes().empty
 
 
 def test_delete_labeling_data(db):
@@ -495,3 +564,28 @@ def test_get_pending(db_with_data):
     assert db_with_data.get_pending(user_id=1)["record_id"].to_list() == [6]
     assert db_with_data.get_pending(user_id=2)["record_id"].to_list() == [8]
     assert db_with_data.get_pending(user_id=3)["record_id"].to_list() == []
+
+
+def test_exist_new_labeled_records(db):
+    records = [
+        Record(0, "foo"),
+        Record(1, "foo"),
+        Record(2, "foo"),
+        Record(3, "foo"),
+        Record(4, "foo"),
+        Record(5, "foo"),
+    ]
+    db.input.add_records(records)
+    db.input.set_groups([(0, 0), (0, 1), (3, 3), (3, 4)])
+    assert not db.exist_new_labeled_records
+    db.label_record(0, 1)
+    db.label_record(5, 0)
+    assert db.exist_new_labeled_records
+    db.add_last_ranking([3, 4, 2], "nb", "max", "balanced", "tfidf", 2)
+    assert not db.exist_new_labeled_records
+    db.label_record(2, 1)
+    assert db.exist_new_labeled_records
+    db.add_last_ranking([3, 4], "nb", "max", "balanced", "tfidf", 3)
+    assert not db.exist_new_labeled_records
+    db.label_record(4, 0)
+    assert db.exist_new_labeled_records
