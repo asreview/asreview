@@ -376,10 +376,16 @@ def test_delete_labeling_data(db):
     db.label_record(record_id=0, label=0)
     db.label_record(record_id=2, label=1)
     db.label_record(record_id=3, label=0)
+    assert_changes_state(db, [])
 
     db.delete_result(0)
     assert_state(db, state=[[2, 1], [3, 0], [4, 0]], columns=["record_id", "label"])
+    assert_changes_state(db, [[0, 0, None], [1, 0, None]])
     db.delete_result(2)
     assert_state(db, state=[[3, 0], [4, 0]], columns=["record_id", "label"])
+    assert_changes_state(db, [[0, 0, None], [1, 0, None], [2, 1, None]])
     db.delete_result(4)
     assert_state(db, state=[], columns=["record_id", "label"])
+    assert_changes_state(
+        db, [[0, 0, None], [1, 0, None], [2, 1, None], [3, 0, None], [4, 0, None]]
+    )

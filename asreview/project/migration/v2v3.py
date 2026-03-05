@@ -5,6 +5,7 @@ from pathlib import Path
 
 from sqlalchemy import create_engine
 from asreview.data.record import Base
+from asreview.database.database import Database
 
 
 def _migrate(project):
@@ -62,6 +63,7 @@ def _migrate(project):
     Path(project, "data_store.db").unlink()
 
     _update_database_version(project)
+    _add_database_triggers(project)
 
 
 def _copy_store_to_results(project):
@@ -91,3 +93,8 @@ def _update_database_version(project):
     cur.execute("PRAGMA user_version = 3")
     conn.commit()
     conn.close()
+
+
+def _add_database_triggers(project):
+    with Database(Path(project, "results.db")) as db:
+        db._set_results_changes_triggers()
