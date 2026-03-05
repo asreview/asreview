@@ -65,15 +65,6 @@ def test_print_state(asreview_test_project):
         print(db.results)
 
 
-def test_al_cycle_state(asreview_test_project, tmpdir):
-    cycle = asr.ActiveLearningCycle.from_meta(
-        asr.ActiveLearningCycleData(**asreview_test_project.get_model_config())
-    )
-
-    assert asreview_test_project.config["review"]["model"]["name"].startswith("elas_u")
-    assert isinstance(cycle.balancer, Balanced)
-
-
 def test_get_results_type(asreview_test_project):
     with asreview_test_project.db.results as state:
         assert isinstance(state.get_results_table(["querier"]), pd.DataFrame)

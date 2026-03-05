@@ -1,6 +1,5 @@
 import sqlite3
 from pathlib import Path
-import time
 
 import pandas as pd
 import pytest
@@ -40,6 +39,52 @@ def db(tmpdir):
     with asr.Database(Path(tmpdir, "test.db")) as db:
         db.create_tables()
         yield db
+
+
+@pytest.fixture
+def db_with_data(db):
+    records = [
+        Record(0, "foo"),
+        Record(1, "foo"),
+        Record(2, "foo"),
+        Record(3, "foo"),
+        Record(4, "foo"),
+        Record(5, "foo"),
+        Record(6, "foo"),
+        Record(7, "foo"),
+        Record(8, "foo"),
+        Record(9, "foo"),
+        Record(10, "foo"),
+        Record(11, "foo"),
+    ]
+    db.input.add_records(records)
+    db.input.set_groups(
+        [(0, 0), (0, 1), (3, 3), (3, 4), (6, 6), (6, 7), (9, 9), (9, 10)]
+    )
+    # Priors:
+    # Record id 0 is in group with 1
+    # Record id 2 is not in group.
+    db.label_record(0, 0)
+    db.label_record(2, 1)
+    # Labeled:
+    # Record id 5 is top ranked and not in group.
+    # Record id 4 is top ranked and in group with 3.
+    db.results.add_last_ranking(
+        [5, 4, 3, 6, 7, 8, 11, 9, 10], "nb", "max", "balanced", "tfidf", 2
+    )
+    db.query_top_ranked()
+    db.label_record(5, 0)
+    db.query_top_ranked()
+    db.label_record(4, 1)
+    # Pending:
+    # Record id 6 is top ranked and in group with 7
+    # Record id 8 is top ranked and not in group.
+    db.query_top_ranked(user_id=1)
+    db.query_top_ranked(user_id=2)
+    # Unlabeled:
+    # Record id 11 is top ranked and not in group.
+    # Record id 9 is top ranked and in group with 10.
+    return db
 
 
 def test_results_manual_close(tmpdir):
@@ -254,23 +299,9 @@ def test_query_top_ranked(db):
     db.input.add_records(records)
     groups = [(0, 0), (0, 1), (3, 3), (3, 4)]
     db.input.set_groups(groups)
-    con = db.results._conn
-    cur = con.cursor()
-    current_time = time.time()
-    cur.executemany(
-        """INSERT INTO last_ranking(record_id, classifier, querier, balancer,
-        feature_extractor, training_set, time) VALUES (?, 'nb',
-        'max', 'balanced', 'tfidf', 42, ?)""",
-        (
-            (5, current_time),
-            (0, current_time),
-            (2, current_time),
-            (1, current_time),
-            (4, current_time),
-            (3, current_time),
-        ),
+    db.results.add_last_ranking(
+        [5, 0, 2, 1, 4, 3], "nb", "max", "balanced", "tfidf", 42
     )
-    con.commit()
 
     columns = [
         "record_id",
@@ -285,28 +316,33 @@ def test_query_top_ranked(db):
     state = []
 
     # record_id 5 is the top ranked and is not grouped.
-    db.query_top_ranked()
+    pending = db.query_top_ranked()
     state.append([5, None, None, "nb", "max", "balanced", "tfidf", 42])
     assert_state(db, state, columns)
+    assert pending["record_id"].to_list() == [5]
 
     # record_id 0 is the top ranked not in results. It's grouped with record_id 1.
-    db.query_top_ranked(2)
+    pending = db.query_top_ranked(2)
     state.append([0, None, 2, "nb", "max", "balanced", "tfidf", 42])
     state.append([1, None, 2, "nb", "max", "balanced", "tfidf", 42])
     assert_state(db, state, columns)
+    # Pending only returns 0 since the previous record was not for user id = 2
+    assert pending["record_id"].to_list() == [0]
 
     # record_id 2 is the top ranked not in results. It's not grouped.
-    db.query_top_ranked()
+    pending = db.query_top_ranked()
     state.append([2, None, None, "nb", "max", "balanced", "tfidf", 42])
     assert_state(db, state, columns)
+    assert pending["record_id"].to_list() == [5, 0, 2]
 
     # record_id 4 is the top ranked not in results. It's grouped with record_id 3.
     # The grouped records end up in the results table in the same order as they are in
     # the records table, to 3 comes before 4.
-    db.query_top_ranked(3)
+    pending = db.query_top_ranked(3)
     state.append([3, None, 3, "nb", "max", "balanced", "tfidf", 42])
     state.append([4, None, 3, "nb", "max", "balanced", "tfidf", 42])
     assert_state(db, state, columns)
+    assert pending["record_id"].to_list() == [3]
 
 
 def test_update(db):
@@ -389,3 +425,73 @@ def test_delete_labeling_data(db):
     assert_changes_state(
         db, [[0, 0, None], [1, 0, None], [2, 1, None], [3, 0, None], [4, 0, None]]
     )
+
+
+def test_get_results_table_columns(db_with_data):
+    assert list(
+        db_with_data.get_results_table(columns=["querier", "training_set"]).columns
+    ) == [
+        "querier",
+        "training_set",
+    ]
+
+
+@pytest.mark.parametrize(
+    "kwargs,expected",
+    [
+        # Default: priors=True, pending=False, whole_group=False
+        ({}, [0, 2, 5, 3]),
+        # priors=False, pending=False, whole_group=False
+        ({"priors": False}, [5, 3]),
+        # priors=True, pending=True, whole_group=False
+        ({"pending": True}, [0, 2, 5, 3, 6, 8]),
+        # priors=False, pending=True, whole_group=False
+        ({"priors": False, "pending": True}, [5, 3, 6, 8]),
+        # priors=True, pending=False, whole_group=True
+        ({"whole_group": True}, [0, 1, 2, 5, 3, 4]),
+        # priors=False, pending=False, whole_group=True
+        ({"priors": False, "whole_group": True}, [5, 3, 4]),
+        # priors=True, pending=True, whole_group=True
+        ({"pending": True, "whole_group": True}, [0, 1, 2, 5, 3, 4, 6, 7, 8]),
+        # priors=False, pending=True, whole_group=True
+        ({"priors": False, "pending": True, "whole_group": True}, [5, 3, 4, 6, 7, 8]),
+    ],
+)
+def test_get_results_table(db_with_data, kwargs, expected):
+    assert (
+        db_with_data.get_results_table(["record_id"], **kwargs)["record_id"].to_list()
+        == expected
+    )
+
+
+def test_get_priors(db_with_data):
+    assert db_with_data.get_priors()["record_id"].to_list() == [0, 2]
+
+
+def test_get_pool(db_with_data):
+    assert db_with_data.get_pool().to_list() == [11, 9]
+
+
+def test_get_unlabeled(db_with_data):
+    pd.testing.assert_frame_equal(
+        db_with_data.get_unlabeled(),
+        pd.DataFrame(
+            [
+                [6, 6, 3],
+                [7, 6, 4],
+                [8, 8, 5],
+                [11, 11, 6],
+                [9, 9, 7],
+                [10, 9, 8],
+            ],
+            columns=["record_id", "group_id", "ranking"],
+        ),
+        check_dtype=False,
+    )
+
+
+def test_get_pending(db_with_data):
+    assert db_with_data.get_pending()["record_id"].to_list() == [6, 8]
+    assert db_with_data.get_pending(user_id=1)["record_id"].to_list() == [6]
+    assert db_with_data.get_pending(user_id=2)["record_id"].to_list() == [8]
+    assert db_with_data.get_pending(user_id=3)["record_id"].to_list() == []

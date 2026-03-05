@@ -1,8 +1,11 @@
-from functools import cached_property
 import json
 import time
+from functools import cached_property
+
+import pandas as pd
 
 from asreview.data.record import Record
+from asreview.database.sqlstate import RESULTS_TABLE_COLUMNS_PANDAS_DTYPES
 from asreview.database.sqlstate import SQLiteState
 from asreview.database.store import DataStore
 
@@ -241,6 +244,7 @@ class Database:
             {"user_id": user_id},
         )
         con.commit()
+        return self.get_pending(user_id=user_id)
 
     def update_result(self, record_id, label=None, tags=None, user_id=None):
         if label is None and tags is None:
@@ -301,3 +305,184 @@ class Database:
             {"record_id": record_id},
         )
         con.commit()
+
+    def get_results_record(self, record_id):
+        """Get the data of a specific query from the results table.
+
+        Parameters
+        ----------
+        record_id: int
+            Record id of which you want the data.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe containing the data from the results table with the given
+            record_id and columns.
+        """
+
+        result = pd.read_sql_query(
+            f"SELECT * FROM results WHERE record_id={record_id}",
+            self.results._conn,
+            dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
+        )
+        result["tags"] = result["tags"].map(json.loads, na_action="ignore")
+        return result
+
+    def get_results_table(
+        self, columns=None, priors=True, pending=False, whole_group=False
+    ):
+        """Get a subset from the results table.
+
+        Can be used to get any column subset from the results table.
+        Most other get functions use this one, except some that use a direct
+        SQL query for efficiency.
+
+        Parameters
+        ----------
+        columns: list, str
+            List of columns names of the results table, or a string containing
+            one column name.
+        priors: bool
+            Whether to keep the records containing the prior knowledge.
+        pending: bool
+            Whether to keep the records which are pending a labeling decision.
+        whole_group: bool
+            Return the records of a group of records. Be default only returns the base
+            record of each group.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe containing the data of the specified columns of the
+            results table.
+        """
+        if isinstance(columns, str):
+            columns = [columns]
+
+        if (not priors) or (not pending) or (not whole_group):
+            sql_where = []
+            if not priors:
+                sql_where.append("querier is not NULL")
+            if not pending:
+                sql_where.append("label is not NULL")
+            if not whole_group:
+                sql_where.append(
+                    f"record_id IN ( SELECT group_id FROM {self.record_table_name})"
+                )
+            sql_where_str = "WHERE " + " AND ".join(sql_where)
+        else:
+            sql_where_str = ""
+
+        if columns is None:
+            col_dtype = RESULTS_TABLE_COLUMNS_PANDAS_DTYPES
+        else:
+            col_dtype = {
+                k: v
+                for k, v in RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.items()
+                if columns and k in columns
+            }
+
+        query_string = "*" if columns is None else ",".join(columns)
+        df_results = pd.read_sql_query(
+            f"SELECT {query_string} FROM results {sql_where_str} ORDER BY rowid",
+            self.results._conn,
+            dtype=col_dtype,
+        )
+
+        if columns is None or "tags" in columns:
+            df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
+        return df_results
+
+    def get_priors(self):
+        """Get the record ids of the priors.
+
+        Returns
+        -------
+        pd.DataFrame:
+            The result records of the priors in the order they were added. If multiple
+            records are in the same group, only the base record of the group is
+            returned.
+        """
+        df_results = pd.read_sql_query(
+            f"""
+            SELECT * FROM results
+            WHERE results.querier is NULL
+            AND results.label is not NULL
+            AND record_id IN (
+                SELECT group_id FROM {self.record_table_name}
+            )
+            ORDER BY rowid
+            """,
+            self.results._conn,
+            dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
+        )
+        df_results["tags"] = df_results["tags"].map(json.loads, na_action="ignore")
+        return df_results
+
+    def get_pool(self):
+        """Get the unlabeled, not-pending records in ranking order.
+
+        Returns
+        -------
+        pd.Series
+            Series containing the record_ids of the unlabeled, not pending
+            records, in the order of the last available ranking. If the state does not
+            yet contain a last ranking, the return value will be an empty dataframe. If
+            multiple records are in the same group, only the base record of the group is
+            returned.
+        """
+
+        return pd.read_sql_query(
+            f"""SELECT record_id, last_ranking.ranking
+                FROM last_ranking
+                LEFT JOIN results
+                USING (record_id)
+                WHERE results.record_id is null AND last_ranking.record_id IN (
+                    SELECT group_id FROM {self.record_table_name}
+                )
+                ORDER BY ranking
+                """,
+            self.results._conn,
+        )["record_id"]
+
+    def get_unlabeled(self):
+        return pd.read_sql_query(
+            f"""SELECT record_id, group_id, last_ranking.ranking
+            FROM last_ranking
+            JOIN {self.record_table_name} USING (record_id)
+            LEFT JOIN results USING (record_id)
+            WHERE results.record_id IS NULL OR results.label IS NULL
+            ORDER BY ranking
+            """,
+            self.results._conn,
+        )
+
+    def get_pending(self, user_id=None):
+        """Get pending records from the results table.
+
+        Parameters
+        ----------
+        user_id: int
+            User id of the user who labeled the records.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame with pending results records.
+        """
+        query = f"""SELECT * FROM results WHERE label is null AND record_id IN (
+            SELECT group_id FROM {self.record_table_name}
+        )"""
+        params = None
+        if user_id is not None:
+            query += " AND user_id=?"
+            params = (user_id,)
+        query += " ORDER BY rowid"
+
+        return pd.read_sql_query(
+            query,
+            self.results._conn,
+            params=params,
+            dtype=RESULTS_TABLE_COLUMNS_PANDAS_DTYPES,
+        )

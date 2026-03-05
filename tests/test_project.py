@@ -2,6 +2,7 @@ import pytest
 from pathlib import Path
 
 import asreview as asr
+from asreview.models.balancers import Balanced
 from asreview.models.classifiers import SVM
 
 
@@ -46,3 +47,13 @@ def test_project_load_unknown_classifier(tmpdir):
 
     assert project.config["review"]["model"]["name"].startswith("elas_u")
     assert isinstance(cycle.classifier, SVM)
+
+
+def test_al_cycle_state(asreview_test_project, tmpdir):
+    cycle = asr.ActiveLearningCycle.from_meta(
+        asr.ActiveLearningCycleData(**asreview_test_project.get_model_config())
+    )
+
+    assert asreview_test_project.config["review"]["model"]["name"].startswith("elas_u")
+    assert isinstance(cycle.balancer, Balanced)
+
