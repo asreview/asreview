@@ -1,11 +1,13 @@
-from collections import defaultdict
 import functools
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import NullPool, select
+from sqlalchemy import NullPool
+from sqlalchemy import StaticPool
 from sqlalchemy import create_engine
 from sqlalchemy import event
+from sqlalchemy import select
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
@@ -142,11 +144,12 @@ class DataStore:
             raise ValueError("Can't open an in-memory database in read only mode")
 
         self.fp = fp
-        # If the sqlite database is in memory, we should use the default
-        # SingleThreadPool poolclass, because any poolclass with multiple threads will
-        # have different instances of the database for each thread.
+        self.read_only = read_only
         if fp == ":memory:":
-            poolclass = None
+            # If the sqlite database is in memory and all connection to the database
+            # were to be dropped, the database would be deleted. So we use StaticPool
+            # to ensure there is always a single connection to the database.
+            poolclass = StaticPool
         else:
             # I'm using NullPool here, indicating that the engine should not use a
             # connection pool, but just create and dispose of a connection every time a
@@ -156,12 +159,7 @@ class DataStore:
             # connection pool at some later moment by properly looking at how to close
             # everything.
             poolclass = NullPool
-
-        if read_only:
-            url = f"sqlite:///file:{self.fp}?mode=ro&uri=true"
-        else:
-            url = f"sqlite:///{self.fp}"
-        self.engine = create_engine(url=url, poolclass=poolclass)
+        self.engine = create_engine(url=self._conn_uri, poolclass=poolclass)
 
         # I put expire_on_commit=False, so that after you put records in the database,
         # you can still use them in your code without having access to the database.
@@ -172,6 +170,19 @@ class DataStore:
         self.record_cls = record_cls
         self._columns = self.record_cls.get_columns()
         self._pandas_dtype_mapping = self.record_cls.get_pandas_dtype_mapping()
+
+    @property
+    def _conn_uri(self):
+        params = {"uri": "true"}
+        if self.fp == ":memory:":
+            params["cache"] = "shared"
+        if self.read_only:
+            params["mode"] = "ro"
+        param_str = "&".join(f"{k}={v}" for k, v in params.items())
+        uri = f"sqlite:///file:{self.fp}"
+        if param_str:
+            uri = uri + "?" + param_str
+        return uri
 
     @property
     def columns(self):

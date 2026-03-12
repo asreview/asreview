@@ -186,10 +186,11 @@ def test_in_memory():
         )
         assert len(db.input) == 2
         db.label_record(1, 0)
-        db.label_record(2, 1)
-        db.label_record(2, 0)
-
-        assert len(db.get_results_table()) == 3
+        assert len(db.get_results_table()) == 1
+        db.label_record(0, 1)
+        assert len(db.get_results_table()) == 2
+        db.label_record(0, 0)
+        assert len(db.get_results_table()) == 2
 
 
 def test_add_extra_column(db):

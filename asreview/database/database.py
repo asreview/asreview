@@ -133,6 +133,19 @@ class Database:
     def input(self):
         return DataStore(self.fp, record_cls=self._record_cls)
 
+    @property
+    def _conn_uri(self):
+        params = {}
+        if self.fp == ":memory:":
+            params["cache"] = "shared"
+        if self.read_only:
+            params["mode"] = "ro"
+        param_str = "&".join(f"{k}={v}" for k, v in params.items())
+        uri = f"file:{self.fp}"
+        if param_str:
+            uri = uri + "?" + param_str
+        return uri
+
     def __enter__(self):
         return self
 
@@ -148,12 +161,7 @@ class Database:
         sqlite3.Connection
             Connection to the SQLite database.
         """
-        url = self.fp
-        use_uri = False
-        if self.read_only:
-            url = f"file:{url}?mode=ro"
-            use_uri = True
-        return sqlite3.connect(url, uri=use_uri)
+        return sqlite3.connect(self._conn_uri, uri=True)
 
     def close(self):
         if "_conn" in self.__dict__:
