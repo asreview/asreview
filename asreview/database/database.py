@@ -7,6 +7,7 @@ import pandas as pd
 
 from asreview.data.record import Record
 from asreview.database.store import DataStore
+from asreview.database.store import _build_conn_uri
 
 __all__ = ["Database"]
 
@@ -108,13 +109,13 @@ class Database:
         Return the version number of the database.
     """
 
-    def __init__(self, fp, record_cls=Record, read_only=False):
-        """_summary_
+    def __init__(self, fp=":memory:", record_cls=Record, read_only=False):
+        """Initialize the Database.
 
         Parameters
         ----------
         fp : str | Path
-            Path of the database file.
+            Path of the database file. Use `":memory:"` for an in-memory database.
         record_cls : type[asreview.data.record.Base], optional
             Type to use for the input records, see `DataStore` for more information.
         read_only : bool, optional
@@ -124,32 +125,32 @@ class Database:
         """
         if fp == ":memory:" and read_only:
             raise ValueError("Can't open an in-memory database in read only mode")
+
         self.fp = fp
         self.record_cls = record_cls
         self.read_only = read_only
-        self.input = DataStore(fp, record_cls=record_cls, read_only=read_only)
+        self._in_memory = fp == ":memory:"
+        self._closed = False
+        self._conn_uri = _build_conn_uri(fp, read_only)
 
-    @cached_property
-    def input(self):
-        return DataStore(self.fp, record_cls=self._record_cls)
+        self.input = DataStore(
+            conn_uri=self._conn_uri, record_cls=record_cls, read_only=read_only
+        )
 
-    @property
-    def _conn_uri(self):
-        params = {}
-        if self.fp == ":memory:":
-            params["cache"] = "shared"
-        if self.read_only:
-            params["mode"] = "ro"
-        param_str = "&".join(f"{k}={v}" for k, v in params.items())
-        uri = f"file:{self.fp}"
-        if param_str:
-            uri = uri + "?" + param_str
-        return uri
+        if self._in_memory:
+            # Eagerly open the sqlite3 connection. For named in-memory databases,
+            # the database is destroyed when the last connection to it closes.
+            # This connection acts as an anchor that keeps the database alive
+            # for the lifetime of this object.
+            self._conn
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    def __del__(self):
         self.close()
 
     @cached_property
@@ -164,6 +165,15 @@ class Database:
         return sqlite3.connect(self._conn_uri, uri=True)
 
     def close(self):
+        """Close the database and release all resources.
+
+        For in-memory databases this will destroy the database. Safe to call multiple
+        times.
+        """
+        if self._closed:
+            return
+        self._closed = True
+        self.input.engine.dispose()
         if "_conn" in self.__dict__:
             self._conn.close()
             del self.__dict__["_conn"]

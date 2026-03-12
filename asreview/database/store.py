@@ -1,10 +1,11 @@
 import functools
+import sqlite3
 from collections import defaultdict
+from uuid import uuid4
 
 import numpy as np
 import pandas as pd
 from sqlalchemy import NullPool
-from sqlalchemy import StaticPool
 from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy import select
@@ -108,10 +109,43 @@ def unwrap_operational_errors(func):
     return wrapper
 
 
+def _build_conn_uri(fp, read_only=False):
+    """Build a SQLite connection URI.
+
+    For in-memory databases a unique name is generated so that multiple connections
+    can share the same database via `cache=shared`, while separate calls to this
+    function produce isolated databases.
+
+    Parameters
+    ----------
+    fp : str | Path
+        File path or `":memory:"`.
+    read_only : bool, optional
+        Open in read-only mode.
+
+    Returns
+    -------
+    str
+        A SQLite URI suitable for `sqlite3.connect(uri, uri=True)`.
+    """
+    params = {}
+    if fp == ":memory:":
+        fp = uuid4().hex
+        params["cache"] = "shared"
+        params["mode"] = "memory"
+    if read_only:
+        params["mode"] = "ro"
+    param_str = "&".join(f"{k}={v}" for k, v in params.items())
+    uri = f"file:{fp}"
+    if param_str:
+        uri = uri + "?" + param_str
+    return uri
+
+
 class DataStore:
     """Data store to hold user input data.
 
-    Data input always happends via the record class. This means that if you want to add
+    Data input always happens via the record class. This means that if you want to add
     data to the data store, you will first need to clean it, make sure it has the
     correct columns and make sure it passes the validations defined in the record class.
 
@@ -123,14 +157,16 @@ class DataStore:
     DataStore uses an SQLite database in the backend and SQLAlchemy ORM to interact with
     the database."""
 
-    def __init__(self, fp, record_cls=Record, read_only=False):
+    def __init__(
+        self, fp=":memory:", record_cls=Record, read_only=False, conn_uri=None
+    ):
         """Initialize the data store.
 
         Parameters
         ----------
         fp : str | Path
-            Location of the database file. If `fp == ":memory:"`, the data store will be
-            in memory.
+            Location of the database file. If `fp == ":memory:"`, the data store will
+            be in memory.
         record_cls : asreview.data.record.Base, optional
             The record class to use. The record class specifies which fields each record
             can have, field validation and more properties of the database. See
@@ -139,27 +175,30 @@ class DataStore:
             Whether to open the database in read only mode. If the database is opened in
             read only mode and an attempt to write to the database is made, an
             `sqlite3.OperationalError` will be raised.
+        conn_uri : str | None, optional
+            A pre-built SQLite connection URI. When provided, `fp` and `read_only`
+            are ignored for URI construction and this URI is used directly. This is
+            useful when embedding the DataStore inside a `Database` that already owns
+            the connection URI.
         """
-        if fp == ":memory:" and read_only:
+        if conn_uri is None and fp == ":memory:" and read_only:
             raise ValueError("Can't open an in-memory database in read only mode")
 
-        self.fp = fp
         self.read_only = read_only
-        if fp == ":memory:":
-            # If the sqlite database is in memory and all connection to the database
-            # were to be dropped, the database would be deleted. So we use StaticPool
-            # to ensure there is always a single connection to the database.
-            poolclass = StaticPool
-        else:
-            # I'm using NullPool here, indicating that the engine should not use a
-            # connection pool, but just create and dispose of a connection every time a
-            # request comes. This makes it very easy dispose of the engine, but is less
-            # efficient. I was getting errors when running tests that try to clean up
-            # behind them, and this solves those errors. We can change this back to a
-            # connection pool at some later moment by properly looking at how to close
-            # everything.
-            poolclass = NullPool
-        self.engine = create_engine(url=self._conn_uri, poolclass=poolclass)
+        self._conn_uri = (
+            conn_uri if conn_uri is not None else _build_conn_uri(fp, read_only)
+        )
+        self._in_memory = conn_uri is not None or fp == ":memory:"
+
+        # I'm using NullPool here, indicating that the engine should not use a
+        # connection pool, but just create and dispose of a connection every time a
+        # request comes. This makes it very easy dispose of the engine, but is less
+        # efficient.
+        self.engine = create_engine(
+            "sqlite://",
+            creator=lambda: sqlite3.connect(self._conn_uri, uri=True),
+            poolclass=NullPool,
+        )
 
         # I put expire_on_commit=False, so that after you put records in the database,
         # you can still use them in your code without having access to the database.
@@ -170,19 +209,6 @@ class DataStore:
         self.record_cls = record_cls
         self._columns = self.record_cls.get_columns()
         self._pandas_dtype_mapping = self.record_cls.get_pandas_dtype_mapping()
-
-    @property
-    def _conn_uri(self):
-        params = {"uri": "true"}
-        if self.fp == ":memory:":
-            params["cache"] = "shared"
-        if self.read_only:
-            params["mode"] = "ro"
-        param_str = "&".join(f"{k}={v}" for k, v in params.items())
-        uri = f"sqlite:///file:{self.fp}"
-        if param_str:
-            uri = uri + "?" + param_str
-        return uri
 
     @property
     def columns(self):
