@@ -56,4 +56,3 @@ def test_al_cycle_state(asreview_test_project, tmpdir):
 
     assert asreview_test_project.config["review"]["model"]["name"].startswith("elas_u")
     assert isinstance(cycle.balancer, Balanced)
-

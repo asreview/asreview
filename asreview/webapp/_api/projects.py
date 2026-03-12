@@ -300,9 +300,7 @@ def api_create_project():  # noqa: F401
             labeled_record_ids = included[labeled_indices].tolist()
             with project.db as db:
                 for record_id, label in zip(labeled_record_ids, labels):
-                    db.label_record(
-                        record_id, label, user_id=None
-                    )
+                    db.label_record(record_id, label, user_id=None)
 
     except Exception as err:
         try:
@@ -1286,7 +1284,6 @@ def api_get_stopper(project):  # noqa: F401
             n_since_last_relevant = int(sum(labels == 0))
     else:
         n_since_last_relevant = 0
-
 
     return jsonify(
         {
