@@ -126,6 +126,117 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
   );
 };
 
+const TagsDialog = ({
+  project_id,
+  record_id,
+  label,
+  tagsForm,
+  tagValues,
+  retrainAfterDecision,
+  open,
+  onClose,
+  onSave,
+}) => {
+  const queryClient = useQueryClient();
+  const [localTagValues, setLocalTagValues] = React.useState(
+    tagValues ? tagValues : structuredClone(tagsForm),
+  );
+
+  React.useEffect(() => {
+    if (open) {
+      setLocalTagValues(tagValues ? tagValues : structuredClone(tagsForm));
+    }
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleTagValueChange = (isChecked, groupId, tagId) => {
+    let groupI = localTagValues.findIndex((group) => group.id === groupId);
+    let tagI = localTagValues[groupI].values.findIndex(
+      (tag) => tag.id === tagId,
+    );
+    let copy = structuredClone(localTagValues);
+    copy[groupI].values[tagI]["checked"] = isChecked;
+    setLocalTagValues(copy);
+  };
+
+  const { isError, isLoading, mutate } = useMutation(
+    ProjectAPI.mutateClassification,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["fetchLabeledRecord", { project_id }]);
+        onSave(localTagValues);
+        onClose();
+      },
+    },
+  );
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth>
+      <DialogTitle>Edit tags</DialogTitle>
+      <DialogContent>
+        <Grid container spacing={2} columns={2} sx={{ pt: 1 }}>
+          {tagsForm &&
+            tagsForm.map((group, i) => (
+              <Grid size={2} key={group.id}>
+                <Stack direction="column" spacing={1}>
+                  <Typography variant="h6">{group.label}</Typography>
+                  <FormGroup row={false}>
+                    {group.values.map((tag, j) => (
+                      <FormControlLabel
+                        key={`${group.id}:${tag.id}`}
+                        control={
+                          <Checkbox
+                            checked={
+                              localTagValues[i]?.values[j]?.checked || false
+                            }
+                            onChange={(e) =>
+                              handleTagValueChange(
+                                e.target.checked,
+                                group.id,
+                                tag.id,
+                              )
+                            }
+                            disabled={isLoading}
+                          />
+                        }
+                        label={tag.label}
+                      />
+                    ))}
+                  </FormGroup>
+                </Stack>
+              </Grid>
+            ))}
+        </Grid>
+        {isError && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            Failed to update tags.
+          </Alert>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Cancel
+        </Button>
+        <Button
+          onClick={() =>
+            mutate({
+              project_id,
+              record_id,
+              label,
+              tagValues: localTagValues,
+              retrain_model: retrainAfterDecision,
+              post: false,
+            })
+          }
+          color="primary"
+          disabled={isLoading}
+        >
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 const RecordCardLabeler = ({
   project_id,
   record_id,
@@ -145,6 +256,7 @@ const RecordCardLabeler = ({
 }) => {
   const [editState] = useToggle(!(label === 1 || label === 0));
   const [showNotesDialog, toggleShowNotesDialog] = useToggle(false);
+  const [showTagsDialog, toggleShowTagsDialog] = useToggle(false);
   const [tagValuesState, setTagValuesState] = React.useState(
     tagValues ? tagValues : structuredClone(tagsForm),
   );
@@ -495,6 +607,19 @@ const RecordCardLabeler = ({
                     />
                   </MenuItem>
                 )}
+                {Array.isArray(tagsForm) && tagsForm.length > 0 && (
+                  <MenuItem
+                    onClick={() => {
+                      toggleShowTagsDialog();
+                      setAnchorEl(null);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <LabelOutlined />
+                    </ListItemIcon>
+                    <ListItemText primary="Edit tags" />
+                  </MenuItem>
+                )}
                 <MenuItem
                   onClick={() => {
                     toggleShowNotesDialog();
@@ -525,6 +650,19 @@ const RecordCardLabeler = ({
             onClose={toggleShowNotesDialog}
             note={note}
           />
+          {Array.isArray(tagsForm) && tagsForm.length > 0 && (
+            <TagsDialog
+              project_id={project_id}
+              record_id={record_id}
+              label={label}
+              tagsForm={tagsForm}
+              tagValues={tagValuesState}
+              retrainAfterDecision={retrainAfterDecision}
+              open={showTagsDialog}
+              onClose={toggleShowTagsDialog}
+              onSave={setTagValuesState}
+            />
+          )}
         </CardActions>
       </Box>
     </Stack>
