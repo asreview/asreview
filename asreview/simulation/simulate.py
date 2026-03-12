@@ -380,11 +380,7 @@ class Simulate:
         )
 
         if self.groups is not None:
-            record_info = list(
-                new_results[["record_id", "label", "time"]].itertuples(
-                    index=False, name=None
-                )
-            )
+            record_info = list(new_results.itertuples(index=False, name=None))
             group_record_info = _propagate_record_info(
                 record_info=record_info,
                 groups=self.groups,
@@ -394,9 +390,7 @@ class Simulate:
             new_results = pd.concat(
                 [
                     new_results,
-                    pd.DataFrame(
-                        group_record_info, columns=["record_id", "label", "time"]
-                    ),
+                    pd.DataFrame(group_record_info, columns=new_results.columns),
                 ],
             )
 
@@ -420,4 +414,4 @@ class Simulate:
             yet at the location a new database will be created.
         """
         with open_db(fp) as db:
-            db.results._replace_results_from_df(self._results)
+            db._replace_results_from_df(self._results)
