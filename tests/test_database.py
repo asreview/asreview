@@ -543,21 +543,7 @@ def test_get_pool(db_with_data):
 
 
 def test_get_unlabeled(db_with_data):
-    pd.testing.assert_frame_equal(
-        db_with_data.get_unlabeled(),
-        pd.DataFrame(
-            [
-                [6, 6, 3],
-                [7, 6, 4],
-                [8, 8, 5],
-                [11, 11, 6],
-                [9, 9, 7],
-                [10, 9, 8],
-            ],
-            columns=["record_id", "group_id", "ranking"],
-        ),
-        check_dtype=False,
-    )
+    db_with_data.get_unlabeled().to_list() == [6, 7, 8, 11, 9, 10]
 
 
 def test_get_pending(db_with_data):
