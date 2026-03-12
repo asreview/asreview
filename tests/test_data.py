@@ -30,8 +30,8 @@ def exists(url):
 )
 def test_fuzzy_finder(keywords, record_id):
     fp = Path("tests", "demo_data", "embase.csv")
-    db = asr.load_dataset(fp)
-    assert fuzzy_find(db.input, keywords)[0] == record_id
+    with asr.load_dataset(fp) as db:
+        assert fuzzy_find(db.input, keywords)[0] == record_id
 
 
 @mark.internet_required

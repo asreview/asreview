@@ -402,7 +402,7 @@ def test_export_all_records(client, project):
     # Add a last ranking to the results, as if a model has been trained.
     record_ids = asr_project.db.input["record_id"].to_list()
     with asr_project.db as db:
-        db.results.add_last_ranking(record_ids, "nb", "max", "double", "tfidf", 2)
+        db.add_last_ranking(record_ids, "nb", "max", "double", "tfidf", 2)
 
     for collection, size in [
         ("relevant", 1),

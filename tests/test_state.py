@@ -5,8 +5,7 @@ import pytest
 from scipy.sparse import csr_matrix
 
 import asreview as asr
-from asreview.models.balancers import Balanced
-from asreview.database.sqlstate import _propagate_record_info
+from asreview.data.record import Record
 
 TEST_LABELS = [1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
 TEST_RECORD_IDS = [
@@ -60,46 +59,57 @@ def project(tmpdir):
     return asr.Project.create(project_path)
 
 
-def test_print_state(asreview_test_project):
+@pytest.fixture
+def project_with_records(project):
+    project.db.input.add_records(
+        [Record(i, "foo") for i in range(len(TEST_RECORD_TABLE))]
+    )
+    return project
+
+
+def test_print_db(asreview_test_project):
     with asreview_test_project.db as db:
-        print(db.results)
+        print(db)
 
 
 def test_get_results_type(asreview_test_project):
-    with asreview_test_project.db.results as state:
-        assert isinstance(state.get_results_table(["querier"]), pd.DataFrame)
-        assert isinstance(state.get_results_table(), pd.DataFrame)
+    with asreview_test_project.db as db:
+        assert isinstance(db.get_results_table(["querier"]), pd.DataFrame)
+        assert isinstance(db.get_results_table(), pd.DataFrame)
 
 
 def test_get_dataset_drop_prior(asreview_test_project):
-    with asreview_test_project.db.results as state:
+    with asreview_test_project.db as db:
         assert (
-            len(state.get_results_table(priors=False))
+            len(db.get_results_table(priors=False))
             == len(TEST_RECORD_IDS) - TEST_N_PRIORS
         )
-        assert (state.get_results_table(priors=False)["querier"].notnull()).all()
-        assert "querier" in state.get_results_table(priors=False).columns
-        assert "querier" not in state.get_results_table("label", priors=False)
+        assert (db.get_results_table(priors=False)["querier"].notnull()).all()
+        assert "querier" in db.get_results_table(priors=False).columns
+        assert "querier" not in db.get_results_table("label", priors=False)
 
 
 def test_get_dataset_drop_pending(project):
     test_ranking = range(10, 0, -1)
-    with project.db.results as state:
-        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
-        state.add_labeling_data([4, 5, 6], [1, 0, 1])
-        state.query_top_ranked(3)
+    with project.db as db:
+        db.input.add_records([Record(i, "foo") for i in range(10)])
+        db.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
+        db.label_record(4, 1)
+        db.label_record(5, 0)
+        db.label_record(6, 1)
+        db.query_top_ranked(3)
 
-        assert "label" in state.get_results_table(pending=False).columns
-        assert "label" not in state.get_results_table("balancer", pending=False)
-        assert len(state.get_results_table(pending=False)) == 3
-        assert state.get_results_table(pending=False)["label"].notna().all()
+        assert "label" in db.get_results_table(pending=False).columns
+        assert "label" not in db.get_results_table("balancer", pending=False)
+        assert len(db.get_results_table(pending=False)) == 3
+        assert db.get_results_table(pending=False)["label"].notna().all()
 
 
 def test_get_results_record(asreview_test_project):
-    with asreview_test_project.db.results as state:
+    with asreview_test_project.db as db:
         for idx in [2, 6, 8]:
             record_id = TEST_RECORD_IDS[idx]
-            query = state.get_results_record(record_id)
+            query = db.get_results_record(record_id)
             assert isinstance(query, pd.DataFrame)
 
             assert query["label"][0] == TEST_LABELS[idx]
@@ -107,63 +117,63 @@ def test_get_results_record(asreview_test_project):
 
 
 def test_get_query_strategies(asreview_test_project):
-    with asreview_test_project.db.results as state:
-        assert (state.get_results_table()["querier"].loc[:2] == "random").all()
-        assert (state.get_results_table()["querier"].loc[3:] == "max").all()
+    with asreview_test_project.db as db:
+        assert (db.get_results_table()["querier"].loc[:2] == "random").all()
+        assert (db.get_results_table()["querier"].loc[3:] == "max").all()
 
 
 def test_get_classifiers(asreview_test_project):
-    with asreview_test_project.db.results as state:
-        assert state.get_results_table()["classifier"].loc[:2].isnull().all()
-        assert (state.get_results_table()["classifier"].loc[3:] == "svm").all()
+    with asreview_test_project.db as db:
+        assert db.get_results_table()["classifier"].loc[:2].isnull().all()
+        assert (db.get_results_table()["classifier"].loc[3:] == "svm").all()
 
 
 def test_get_feature_extractors(asreview_test_project):
-    with asreview_test_project.db.results as state:
-        assert state.get_results_table()["feature_extractor"].loc[:2].isnull().all()
-        assert (state.get_results_table()["feature_extractor"].loc[3:] == "tfidf").all()
+    with asreview_test_project.db as db:
+        assert db.get_results_table()["feature_extractor"].loc[:2].isnull().all()
+        assert (db.get_results_table()["feature_extractor"].loc[3:] == "tfidf").all()
 
 
 def test_get_balancers(asreview_test_project):
-    with asreview_test_project.db.results as state:
-        assert state.get_results_table()["balancer"].loc[:2].isnull().all()
-        assert (state.get_results_table()["balancer"].loc[3:] == "balanced").all()
+    with asreview_test_project.db as db:
+        assert db.get_results_table()["balancer"].loc[:2].isnull().all()
+        assert (db.get_results_table()["balancer"].loc[3:] == "balanced").all()
 
 
 def test_get_training_sets(asreview_test_project):
-    with asreview_test_project.db.results as state:
-        assert state.get_results_table()["training_set"].loc[:2].isnull().all()
-        assert state.get_results_table()["training_set"].loc[3:].notnull().all()
+    with asreview_test_project.db as db:
+        assert db.get_results_table()["training_set"].loc[:2].isnull().all()
+        assert db.get_results_table()["training_set"].loc[3:].notnull().all()
 
         # test if the training set is adcent
-        assert state.get_results_table()["training_set"].loc[3:].is_monotonic_increasing
+        assert db.get_results_table()["training_set"].loc[3:].is_monotonic_increasing
 
-        assert state.get_results_table()["training_set"].max() == 21
+        assert db.get_results_table()["training_set"].max() == 21
 
 
 def test_get_order_of_labeling(asreview_test_project):
-    with asreview_test_project.db.results as state:
-        assert isinstance(state.get_results_table()["record_id"], pd.Series)
-        assert all(state.get_results_table()["record_id"] == TEST_RECORD_IDS)
+    with asreview_test_project.db as db:
+        assert isinstance(db.get_results_table()["record_id"], pd.Series)
+        assert all(db.get_results_table()["record_id"] == TEST_RECORD_IDS)
 
 
 def test_get_labels(asreview_test_project):
-    with asreview_test_project.db.results as state:
-        labels = state.get_results_table("label")["label"]
+    with asreview_test_project.db as db:
+        labels = db.get_results_table("label")["label"]
         assert isinstance(labels, pd.Series)
         assert all(labels == TEST_LABELS)
 
 
 def test_get_labels_no_priors(asreview_test_project):
-    with asreview_test_project.db.results as state:
-        labels = state.get_results_table("label", priors=False)["label"]
+    with asreview_test_project.db as db:
+        labels = db.get_results_table("label", priors=False)["label"]
         assert isinstance(labels, pd.Series)
         assert all(labels == TEST_LABELS[0:])
 
 
 def test_get_labeling_times(asreview_test_project):
-    with asreview_test_project.db.results as state:
-        results = state.get_results_table()
+    with asreview_test_project.db as db:
+        results = db.get_results_table()
         assert isinstance(results["time"], pd.Series)
         assert results["time"].dtype == "Float64"
 
@@ -177,27 +187,28 @@ def test_get_feature_matrix(asreview_test_project):
     assert isinstance(feature_matrix, csr_matrix)
 
 
-def test_move_ranking_data_to_results(project):
-    with project.db.results as state:
-        state.add_last_ranking(
+def test_move_ranking_data_to_results(project_with_records):
+    with project_with_records.db as db:
+        db.add_last_ranking(
             range(1, len(TEST_RECORD_TABLE) + 1), "nb", "max", "balanced", "tfidf", 4
         )
-        state.query_top_ranked(4)
-        data = state.get_results_table(pending=True)
+        for i in range(4):
+            db.query_top_ranked()
+        data = db.get_results_table(pending=True)
 
     assert data["record_id"].to_list() == [1, 2, 3, 4]
     assert data["label"].isnull().sum() == 4
     assert data["classifier"].to_list() == ["nb"] * 4
 
 
-def test_query_top_ranked(project):
+def test_query_top_ranked(project_with_records):
     test_ranking = [2, 1, 0] + list(range(3, len(TEST_RECORD_TABLE)))
-    with project.db.results as state:
-        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
-        top_ranked = state.query_top_ranked(5)
+    with project_with_records.db as db:
+        db.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
+        for i in range(5):
+            db.query_top_ranked()
 
-        assert top_ranked["record_id"].to_list() == [2, 1, 0, 3, 4]
-        data = state.get_results_table(pending=True)
+        data = db.get_results_table(pending=True)
         assert data["record_id"].to_list() == [2, 1, 0, 3, 4]
         assert data["classifier"].to_list() == ["nb"] * 5
         assert data["querier"].to_list() == ["max"] * 5
@@ -206,18 +217,15 @@ def test_query_top_ranked(project):
         assert data["training_set"].to_list() == [4] * 5
 
 
-def test_add_labeling_data(project):
+def test_label_record(project_with_records):
     test_ranking = list(range(len(TEST_RECORD_TABLE)))
-    with project.db.results as state:
-        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
-        for i in range(3):
+    with project_with_records.db as db:
+        db.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
+        for i in range(6):
             # Test without specifying notes.
-            state.add_labeling_data([TEST_RECORD_IDS[i]], [TEST_LABELS[i]])
+            db.label_record(TEST_RECORD_IDS[i], TEST_LABELS[i])
 
-        # Test with specifying notes and with larger batch.
-        state.add_labeling_data(TEST_RECORD_IDS[3:6], TEST_LABELS[3:6])
-
-        data = state.get_results_table(pending=True)
+        data = db.get_results_table(pending=True)
         assert data["record_id"].to_list() == TEST_RECORD_IDS[:6]
         assert data["label"].to_list() == TEST_LABELS[:6]
         assert data["classifier"].to_list() == [None] * 6
@@ -226,54 +234,63 @@ def test_add_labeling_data(project):
         assert data["feature_extractor"].to_list() == [None] * 6
         assert data["training_set"].isna().all()
 
-        state.query_top_ranked(3)
-        data = state.get_results_table(pending=True)
+        for i in range(3):
+            db.query_top_ranked()
+        data = db.get_results_table(pending=True)
         assert data["label"].to_list()[:6] == TEST_LABELS[:6]
         assert data["label"][6:].isna().all()
         assert data["record_id"].to_list() == TEST_RECORD_IDS[:6] + [0, 1, 2]
 
-        state.add_labeling_data([1], [1])
-        labels = state.get_results_table("label", pending=True)["label"]
+        db.label_record(1, 1)
+        labels = db.get_results_table("label", pending=True)["label"]
         assert labels.to_list()[:6] == TEST_LABELS[:6]
         assert labels[7] == 1
 
-        state.add_labeling_data([0, 2], [0, 1])
-        data = state.get_results_table(pending=True)
+        db.label_record(0, 0)
+        db.label_record(2, 1)
+        data = db.get_results_table(pending=True)
         assert data["label"].to_list() == TEST_LABELS[:6] + [0, 1, 1]
 
 
 def test_exist_new_labeled_records(project):
     test_ranking = range(10, 0, -1)
-    with project.db.results as state:
-        assert not state.exist_new_labeled_records
-        state.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 3)
+    with project.db as db:
+        db.input.add_records([Record(i, "foo") for i in range(10)])
+        assert not db.exist_new_labeled_records
+        db.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 3)
 
-        assert not state.exist_new_labeled_records
-        state.add_labeling_data([4, 5, 6], [1, 0, 1])
+        assert not db.exist_new_labeled_records
+        db.label_record(4, 1)
+        db.label_record(5, 0)
+        db.label_record(6, 1)
 
-        assert not state.exist_new_labeled_records
-        state.query_top_ranked(3)
-        assert not state.exist_new_labeled_records
-        state.add_labeling_data([8, 9, 10], [1, 1, 1])
-        assert state.exist_new_labeled_records
+        assert not db.exist_new_labeled_records
+        for i in range(3):
+            db.query_top_ranked()
+        assert not db.exist_new_labeled_records
+        db.label_record(8, 1)
+        db.label_record(9, 1)
+        db.label_record(10, 1)
+        assert db.exist_new_labeled_records
 
 
-def test_update_decision(project):
-    with project.db.results as state:
-        state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3])
+def test_update_decision(project_with_records):
+    with project_with_records.db as db:
+        for i in range(3):
+            db.label_record(TEST_RECORD_IDS[i], TEST_LABELS[i])
 
         for i in range(3):
-            state.update(TEST_RECORD_IDS[i], 1 - TEST_LABELS[i])
-            new_label = state.get_results_record(TEST_RECORD_IDS[i])["label"][0]
+            db.update_result(TEST_RECORD_IDS[i], 1 - TEST_LABELS[i])
+            new_label = db.get_results_record(TEST_RECORD_IDS[i])["label"][0]
             assert new_label == 1 - TEST_LABELS[i]
 
-        state.update(TEST_RECORD_IDS[1], TEST_LABELS[1])
-        new_label = state.get_results_record(TEST_RECORD_IDS[1])["label"][0]
+        db.update_result(TEST_RECORD_IDS[1], TEST_LABELS[1])
+        new_label = db.get_results_record(TEST_RECORD_IDS[1])["label"][0]
         assert new_label == TEST_LABELS[1]
 
-        change_table = state.get_decision_changes()
+        change_table = db.get_decision_changes()
         changed_records = TEST_RECORD_IDS[:3] + [TEST_RECORD_IDS[1]]
-        new_labels = [1 - x for x in TEST_LABELS[:3]] + [TEST_LABELS[1]]
+        new_labels = TEST_LABELS[:3] + [1 - TEST_LABELS[1]]
 
         assert change_table["record_id"].to_list() == changed_records
         assert change_table["label"].to_list() == new_labels
@@ -281,15 +298,25 @@ def test_update_decision(project):
 
 def test_last_ranking(project):
     record_ids = [1, 2, 3, 4, 5, 6]
-    ranking = [1, 3, 4, 6, 2, 5]
+    ranking = [0, 2, 3, 5, 1, 4]
     classifier = "nb"
     querier = "max"
     balancer = "balanced"
     feature_extractor = "tfidf"
     training_set = 2
 
-    with project.db.results as state:
-        state.add_last_ranking(
+    with project.db as db:
+        db.input.add_records(
+            [
+                Record(0, "foo"),
+                Record(1, "foo"),
+                Record(2, "foo"),
+                Record(3, "foo"),
+                Record(4, "foo"),
+                Record(5, "foo"),
+            ]
+        )
+        db.add_last_ranking(
             ranking,
             classifier,
             querier,
@@ -298,7 +325,7 @@ def test_last_ranking(project):
             training_set,
         )
 
-        last_ranking = state.get_last_ranking_table()
+        last_ranking = db.get_last_ranking_table()
         assert isinstance(last_ranking, pd.DataFrame)
         assert list(last_ranking.columns) == [
             "record_id",
@@ -317,8 +344,8 @@ def test_last_ranking(project):
 
 
 def test_get_pool(asreview_test_project):
-    with asreview_test_project.db.results as state:
-        pool = state.get_pool()
+    with asreview_test_project.db as db:
+        pool = db.get_pool()
 
     assert isinstance(pool, pd.Series)
     assert len(pool) == 76
@@ -326,8 +353,8 @@ def test_get_pool(asreview_test_project):
 
 
 def test_get_labeled(asreview_test_project):
-    with asreview_test_project.db.results as state:
-        labeled = state.get_results_table()[["record_id", "label"]]
+    with asreview_test_project.db as db:
+        labeled = db.get_results_table()[["record_id", "label"]]
 
     assert isinstance(labeled, pd.DataFrame)
     assert labeled["record_id"].to_list() == TEST_RECORD_IDS
@@ -335,24 +362,34 @@ def test_get_labeled(asreview_test_project):
 
 
 def test_add_extra_column(project):
-    """Check if state still works with extra colums added to tables."""
-    with project.db.results as state:
-        con = state._conn
+    """Check if db still works with extra colums added to tables."""
+    with project.db as db:
+        con = db._conn
         cur = con.cursor()
         cur.execute("ALTER TABLE last_ranking ADD COLUMN test_lr INTEGER;")
         cur.execute("ALTER TABLE results ADD COLUMN test_res INTEGER;")
         con.commit()
         con.close()
 
-    ranking = [1, 3, 4, 6, 2, 5]
+    ranking = [0, 2, 3, 5, 1, 4]
     classifier = "nb"
     querier = "max"
     balancer = "balanced"
     feature_extractor = "tfidf"
     training_set = 2
 
-    with project.db.results as state:
-        state.add_last_ranking(
+    with project.db as db:
+        db.input.add_records(
+            [
+                Record(0, "foo"),
+                Record(1, "foo"),
+                Record(2, "foo"),
+                Record(3, "foo"),
+                Record(4, "foo"),
+                Record(5, "foo"),
+            ]
+        )
+        db.add_last_ranking(
             ranking,
             classifier,
             querier,
@@ -361,14 +398,14 @@ def test_add_extra_column(project):
             training_set,
         )
 
-        top_ranked = state.query_top_ranked(1)["record_id"]
+        top_ranked = db.query_top_ranked(1)["record_id"]
 
         assert isinstance(top_ranked, pd.Series)
         assert len(top_ranked) == 1
 
 
 def test_get_pool_unlabeled(project):
-    # Create a state with one labeled, one pending and one pool record.
+    # Create a db with one labeled, one pending and one pool record.
     ranking = [0, 1, 2]
     classifier = "nb"
     querier = "max"
@@ -376,8 +413,15 @@ def test_get_pool_unlabeled(project):
     feature_extractor = "tfidf"
     training_set = 2
 
-    with project.db.results as state:
-        state.add_last_ranking(
+    with project.db as db:
+        db.input.add_records(
+            [
+                Record(0, "foo"),
+                Record(1, "foo"),
+                Record(2, "foo"),
+            ]
+        )
+        db.add_last_ranking(
             ranking,
             classifier,
             querier,
@@ -385,75 +429,11 @@ def test_get_pool_unlabeled(project):
             feature_extractor,
             training_set,
         )
-        state.query_top_ranked()["record_id"]
-        state.add_labeling_data([0], labels=[1])
-        state.query_top_ranked()["record_id"]
+        db.query_top_ranked()["record_id"]
+        db.label_record(0, 1)
+        db.query_top_ranked()["record_id"]
 
-        assert state.get_pool().to_list() == [2]
-        assert state.get_unlabeled().to_list() == [1, 2]
-        assert state.get_pending()["record_id"].to_list() == [1]
-        assert state.get_results_table()["record_id"].to_list() == [0]
-
-
-@pytest.mark.parametrize(
-    "record_info, groups, expected, raises",
-    [
-        # Single group, single record
-        ([(1, 1, "cat")], [(10, 1)], [(1, 1, "cat")], None),
-        # Single group, label propagates to all records
-        (
-            [(1, 1, "cat")],
-            [(10, 1), (10, 2), (10, 3)],
-            [(1, 1, "cat"), (2, 1, "cat"), (3, 1, "cat")],
-            None,
-        ),
-        # Two groups, labels propagate separately
-        (
-            [(1, 1, "cat"), (3, 0, "dog")],
-            [(10, 1), (10, 2), (20, 3), (20, 4)],
-            [(1, 1, "cat"), (2, 1, "cat"), (3, 0, "dog"), (4, 0, "dog")],
-            None,
-        ),
-        # Group with no label should not appear in output
-        ([(1, 1)], [(10, 1), (10, 2), (20, 3), (20, 4)], [(1, 1), (2, 1)], None),
-        # Conflicting info in same group should raise ValueError
-        ([(1, 1), (2, 0)], [(10, 1), (10, 2)], None, ValueError),
-        # Records without group info are treated as being in a singleton group.
-        (
-            [(1, "cat"), (2, "dog")],
-            [(10, 1), (10, 3)],
-            [(1, "cat"), (2, "dog"), (3, "cat")],
-            None,
-        ),
-    ],
-)
-def test_propagate_record_info(record_info, groups, expected, raises):
-    if raises:
-        with pytest.raises(raises):
-            _propagate_record_info(record_info, groups)
-    else:
-        result = _propagate_record_info(record_info, groups)
-        # Convert to set for order-independent comparison
-        assert set(result) == set(expected)
-
-
-@pytest.mark.parametrize(
-    "record_info, groups, expected",
-    [
-        ([(1, 1, "cat")], [(10, 1)], []),
-        (
-            [(1, 1, "cat")],
-            [(10, 1), (10, 2), (10, 3)],
-            [(2, 1, "cat"), (3, 1, "cat")],
-        ),
-        (
-            [(1, 1, "cat"), (3, 0, "dog")],
-            [(10, 1), (10, 2), (20, 3), (20, 4)],
-            [(2, 1, "cat"), (4, 0, "dog")],
-        ),
-    ],
-)
-def test_propage_only_new(record_info, groups, expected):
-    result = _propagate_record_info(record_info, groups, return_only_new=True)
-    # Convert to set for order-independent comparison
-    assert set(result) == set(expected)
+        assert db.get_pool().to_list() == [2]
+        assert db.get_unlabeled().to_list() == [1, 2]
+        assert db.get_pending()["record_id"].to_list() == [1]
+        assert db.get_results_table()["record_id"].to_list() == [0]

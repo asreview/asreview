@@ -723,7 +723,7 @@ class Database:
             ORDER BY ranking
             """,
             self._conn,
-        )
+        )["record_id"]
 
     def get_pending(self, user_id=None):
         """Get pending records from the results table.

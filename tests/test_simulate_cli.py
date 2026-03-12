@@ -33,7 +33,7 @@ def test_prior_idx(tmp_project, demo_data_path, tmpdir):
     _cli_simulate(argv)
 
     with asr.Project.load(tmp_project, tmpdir).db as db:
-        results_table = db.results.get_results_table()
+        results_table = db.get_results_table()
 
     assert results_table["record_id"].head(2).to_list() == [0, 9]
     assert results_table["querier"][:1].isnull().all()
@@ -45,7 +45,7 @@ def test_prior_record_ids(tmp_project, demo_data_path, tmpdir):
     _cli_simulate(argv)
 
     with asr.Project.load(tmp_project, tmpdir).db as db:
-        results_table = db.results.get_results_table()
+        results_table = db.get_results_table()
 
     assert results_table["record_id"].head(2).to_list() == [0, 9]
     assert results_table["querier"][:1].isnull().all()
@@ -57,7 +57,7 @@ def test_n_prior_included(tmp_project, demo_data_path, tmpdir):
     _cli_simulate(argv)
 
     with asr.Project.load(tmp_project, tmpdir).db as db:
-        result = db.results.get_results_table(["label", "querier"])
+        result = db.get_results_table(["label", "querier"])
 
     prior_included = result["label"] & (result["querier"].isnull())
     assert sum(prior_included) >= 2
@@ -68,7 +68,7 @@ def test_n_prior_excluded(tmp_project, demo_data_path, tmpdir):
     _cli_simulate(argv)
 
     with asr.Project.load(tmp_project, tmpdir).db as db:
-        result = db.results.get_results_table(["label", "querier"])
+        result = db.get_results_table(["label", "querier"])
 
     prior_excluded = ~result["label"] & (result["querier"].isnull())
     assert sum(prior_excluded) >= 2
@@ -83,8 +83,8 @@ def test_no_seed(tmpdir, demo_data_path):
             f"--n-prior-excluded 1 --n-prior-included 1 --n-stop 4".split()
         )
         _cli_simulate(argv)
-        with asr.Project.load(project_fp, tmpdir).db.results as s:
-            priors = s.get_priors()
+        with asr.Project.load(project_fp, tmpdir).db as db:
+            priors = db.get_priors()
 
     assert len(priors) == 2
 
@@ -108,10 +108,10 @@ def test_model_and_prior_seed(tmpdir, seed, demo_data_path):
 
     # open the results database and extract the priors
     with asr.Project.load(project1_fp, tmpdir).db as db1:
-        record_table1 = db1.results.get_results_table().drop("time", axis=1)
+        record_table1 = db1.get_results_table().drop("time", axis=1)
 
     with asr.Project.load(project2_fp, tmpdir).db as db2:
-        record_table2 = db2.results.get_results_table().drop("time", axis=1)
+        record_table2 = db2.get_results_table().drop("time", axis=1)
 
     assert_frame_equal(record_table1, record_table2)
 
@@ -124,7 +124,7 @@ def test_models(model, tmpdir, demo_data_path, tmp_project):
     )
 
     with asr.Project.load(tmp_project, tmpdir).db as db:
-        results = db.results.get_results_table()
+        results = db.get_results_table()
 
     assert all(results["classifier"][10:] == model)
     assert all(results["balancer"][10:] == "balanced")
@@ -137,10 +137,8 @@ def test_no_balancing(tmp_project, demo_data_path, tmpdir):
     _cli_simulate(argv)
 
     with asr.Project.load(tmp_project, tmpdir).db as db:
-        results_balance_strategies = db.results.get_results_table()["balancer"]
-        last_ranking_balance_strategies = db.results.get_last_ranking_table()[
-            "balancer"
-        ]
+        results_balance_strategies = db.get_results_table()["balancer"]
+        last_ranking_balance_strategies = db.get_last_ranking_table()["balancer"]
 
     assert results_balance_strategies.isnull().all()
     assert last_ranking_balance_strategies.isnull().all()
@@ -152,20 +150,20 @@ def test_number_records_found(tmp_project, demo_data_path, tmpdir):
         " --prior-idx 0 9 --seed 535".split()
     )
 
-    with asr.Project.load(tmp_project, tmpdir).db.results as s:
-        assert s.get_results_table("label")["label"].sum() == 9
-        assert s.get_results_table("label").shape[0] == 15
-        assert s.get_results_table().shape[0] == 15
-        assert s.get_results_table()["label"].head(2).sum() == 1
+    with asr.Project.load(tmp_project, tmpdir).db as db:
+        assert db.get_results_table("label")["label"].sum() == 9
+        assert db.get_results_table("label").shape[0] == 15
+        assert db.get_results_table().shape[0] == 15
+        assert db.get_results_table()["label"].head(2).sum() == 1
 
 
 def test_n_stop_min(tmp_project, demo_data_path, tmpdir):
     argv = f"{demo_data_path} -o {tmp_project} --prior-idx 0 9 --seed 535".split()
     _cli_simulate(argv)
 
-    with asr.Project.load(tmp_project, tmpdir).db.results as s:
-        assert s.get_results_table("label")["label"].sum() == 10
-        assert len(s.get_results_table("label")) == 51
+    with asr.Project.load(tmp_project, tmpdir).db as db:
+        assert db.get_results_table("label")["label"].sum() == 10
+        assert len(db.get_results_table("label")) == 51
 
 
 def test_n_stop_all(tmp_project, tmpdir):
@@ -183,9 +181,9 @@ def test_n_stop_all(tmp_project, tmpdir):
     )
     _cli_simulate(argv)
 
-    with asr.Project.load(tmp_project, tmpdir).db.results as s:
-        assert s.get_results_table("label")["label"].sum() == 40
-        assert len(s.get_results_table("label")) == 271
+    with asr.Project.load(tmp_project, tmpdir).db as db:
+        assert db.get_results_table("label")["label"].sum() == 40
+        assert len(db.get_results_table("label")) == 271
 
 
 def test_project_already_exists_error(tmp_project, demo_data_path):
@@ -215,7 +213,7 @@ def test_cycle_config(tmpdir, demo_data_path, tmp_project):
     _cli_simulate(f"{demo_data_path} -o {tmp_project} --config-file {fp_cycle}".split())
 
     with asr.Project.load(tmp_project, tmpdir).db as db:
-        results = db.results.get_results_table()
+        results = db.get_results_table()
 
     assert all(results["classifier"][10:] == "nb")
     assert all(results["balancer"][10:] == "balanced")
@@ -234,12 +232,15 @@ def test_grouped_records(tmp_path, demo_data, tmp_project, tmpdir):
     _cli_simulate(argv)
 
     with asr.Project.load(tmp_project, tmpdir).db as db:
-        results = db.results.get_results_table()
+        results = pd.read_sql_query("SELECT * FROM results", db._conn)
 
     # Every record is duplicated exactly once. So after every labeling action, the data
-    # of a single duplicate record is added to the state file as well.
+    # of a single duplicate record is added to the state file as well. The duplicate
+    # record will have record_id equal to the normal record_id + 100.
     normal_records = results.iloc[::2]
     duplicate_records = results.iloc[1::2]
 
-    assert duplicate_records["querier"].isna().all()
+    assert (normal_records["record_id"] + 100).to_list() == duplicate_records[
+        "record_id"
+    ].to_list()
     assert normal_records["label"].to_list() == duplicate_records["label"].to_list()

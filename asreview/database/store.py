@@ -184,6 +184,7 @@ class DataStore:
         if conn_uri is None and fp == ":memory:" and read_only:
             raise ValueError("Can't open an in-memory database in read only mode")
 
+        self.fp = fp
         self.read_only = read_only
         self._conn_uri = (
             conn_uri if conn_uri is not None else _build_conn_uri(fp, read_only)

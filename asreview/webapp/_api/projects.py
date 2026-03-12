@@ -117,7 +117,7 @@ def _fill_last_ranking(project, ranking):
     elif ranking == "top_down":
         ranked_record_ids = record_ids
     with project.db as db:
-        db.results.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
+        db.add_last_ranking(ranked_record_ids.values, None, ranking, None, None)
 
 
 def _run_model(project):
@@ -295,16 +295,14 @@ def api_create_project():  # noqa: F401
         n_labeled = included.notnull().sum()
 
         if n_labeled > 0 and n_labeled < len(project.db.input):
+            labeled_indices = np.where((included == 1) | (included == 0))[0]
+            labels = included[labeled_indices].tolist()
+            labeled_record_ids = included[labeled_indices].tolist()
             with project.db as db:
-                labeled_indices = np.where((included == 1) | (included == 0))[0]
-                labels = included[labeled_indices].tolist()
-                labeled_record_ids = included[labeled_indices].tolist()
-
-                db.results.add_labeling_data(
-                    record_ids=labeled_record_ids,
-                    labels=labels,
-                    user_id=None,
-                )
+                for record_id, label in zip(labeled_record_ids, labels):
+                    db.label_record(
+                        record_id, label, user_id=None
+                    )
 
     except Exception as err:
         try:
@@ -530,8 +528,8 @@ def api_search_data(project):  # noqa: F401
 
     search_data = project.db.input[["title", "authors", "keywords"]]
 
-    with project.db.results as s:
-        labeled_record_ids = s.get_results_table()["record_id"].to_list()
+    with project.db as db:
+        labeled_record_ids = db.get_results_table()["record_id"].to_list()
 
     result_ids = fuzzy_find(
         search_data,
@@ -541,8 +539,8 @@ def api_search_data(project):  # noqa: F401
     )
 
     result = []
-    for result_id in result_ids:
-        record = project.db.input.get_records(result_id)
+    records = project.db.input.get_records(result_ids)
+    for record in records:
         record_d = asdict(record)
         record_d["state"] = None
         record_d["tags_form"] = read_tags_data(project)
@@ -565,9 +563,9 @@ def api_get_labeled(project):  # noqa: F401
 
     with project.db as db:
         if "is_prior" in filters:
-            state_data = db.results.get_priors()
+            state_data = db.get_priors()
         else:
-            state_data = db.results.get_results_table()
+            state_data = db.get_results_table()
 
     if subset == "relevant":
         state_data = state_data[state_data["label"] == 1]
@@ -659,13 +657,14 @@ def api_get_labeled_stats(project):  # noqa: F401
     include_priors = request.args.get("priors", True, type=bool)
 
     try:
-        with project.db.results as s:
-            data = s.get_results_table(["label", "querier"])
-            data_prior = data[data["querier"].isnull()]
+        with project.db as db:
+            data = db.get_results_table(["label", "querier"])
+        data_prior = data[data["querier"].isnull()]
 
-            # If the 'include_priors' flag is set to False, filter out records that have a query strategy marked as prior.
-            if not include_priors:
-                data = data[data["querier"] != "prior"]
+        # If the 'include_priors' flag is set to False, filter out records that have a
+        # query strategy marked as prior.
+        if not include_priors:
+            data = data[data["querier"] != "prior"]
 
         return jsonify(
             {
@@ -745,10 +744,9 @@ def api_set_learner(project):  # noqa: F401
 def api_get_wordcounts(project):  # noqa: F401
     """Get the word counts used in the project"""
 
-    df_data = project.db.input[["record_id", "abstract"]]
-
-    with project.db.results as s:
-        results = s.get_results_table(columns=["record_id", "label"])
+    with project.db as db:
+        df_data = db.input[["record_id", "abstract"]]
+        results = db.get_results_table(columns=["record_id", "label"])
 
     df_data_labels = df_data.merge(results, on="record_id", how="inner")
 
@@ -843,8 +841,8 @@ def api_update_review_status(project):
     if current_status == "setup" and status == "review":
         is_simulation = project.config["mode"] == asr.Project.MODE_SIMULATE
 
-        with project.db.results as s:
-            labels = s.get_results_table()["label"].to_list()
+        with project.db as db:
+            labels = db.get_results_table()["label"].to_list()
 
         if not (pk := 0 in labels and 1 in labels) and not is_simulation:
             _fill_last_ranking(project, "random")
@@ -1070,9 +1068,9 @@ def api_export_dataset(project):
     export_email = request.args.get("export_email", default=1, type=int)
     collections = request.args.getlist("collections", type=str)
 
-    with project.db.results as s:
-        df_results = s.get_results_table().set_index("record_id")
-        df_unlabeled = s.get_unlabeled()
+    with project.db as db:
+        df_results = db.get_results_table(whole_group=True).set_index("record_id")
+        df_unlabeled = db.get_unlabeled()
 
     export_order = []
 
@@ -1196,11 +1194,10 @@ def api_get_progress_info(project):  # noqa: F401
     include_priors = request.args.get("priors", True, type=bool)
 
     try:
-        with project.db.results as s:
-            labels = s.get_results_table(priors=include_priors)["label"]
-            labels_without_priors = s.get_results_table(priors=False)["label"]
-
-        n_records = len(project.db.input)
+        with project.db as db:
+            labels = db.get_results_table(priors=include_priors)["label"]
+            labels_without_priors = db.get_results_table(priors=False)["label"]
+            n_records = len(project.db.input)
         n_priors = len(labels) - len(labels_without_priors)
 
     except (FileNotFoundError, ValueError, ProjectError):
@@ -1249,9 +1246,9 @@ def api_get_metrics(project):
 
     n_records = len(project.db.input)
 
-    with project.db.results as s:
-        labels_no_priors = s.get_results_table(priors=False)["label"]
-        n_priors = len(s.get_priors())
+    with project.db as db:
+        labels_no_priors = db.get_results_table(priors=False)["label"]
+        n_priors = len(db.get_priors())
 
     labels_padded = list(labels_no_priors) + [0] * (
         n_records - n_priors - len(labels_no_priors)
@@ -1276,9 +1273,10 @@ def api_get_stopper(project):  # noqa: F401
     if stopper is None:
         return jsonify({"name": None, "params": None})
 
-    with project.db.results as s:
-        results = s.get_results_table(priors=False)
-        labels = results["label"]
+    with project.db as db:
+        results = db.get_results_table(priors=False)
+        data = db.input[["record_id"]]
+    labels = results["label"]
 
     if len(labels) > 0:
         if int(sum(labels == 1)) > 0:
@@ -1289,7 +1287,6 @@ def api_get_stopper(project):  # noqa: F401
     else:
         n_since_last_relevant = 0
 
-    data = project.db.input[["record_id"]]
 
     return jsonify(
         {
@@ -1323,9 +1320,9 @@ def api_get_progress_data(project):  # Consolidated endpoint
 
     include_priors = request.args.get("priors", False, type=bool)
 
-    with project.db.results as s:
-        labels = s.get_results_table("label", priors=include_priors)
-        labels_with_priors = s.get_results_table("label", priors=True)
+    with project.db as db:
+        labels = db.get_results_table("label", priors=include_priors)
+        labels_with_priors = db.get_results_table("label", priors=True)
 
     if (
         project.config.get("mode") == asr.Project.MODE_SIMULATE
@@ -1369,11 +1366,11 @@ def api_label_record(project, record_id):  # noqa: F401
 
     with project.db as db:
         if request.method == "PUT":
-            db.results.update(record_id, label=label, tags=tags, user_id=user_id)
+            db.update_result(record_id, label=label, tags=tags, user_id=user_id)
         else:
-            db.results.add_labeling_data(
-                record_ids=[record_id],
-                labels=[label],
+            db.label_record(
+                record_id,
+                label,
                 tags=[tags],
                 user_id=user_id,
             )
@@ -1385,7 +1382,7 @@ def api_label_record(project, record_id):  # noqa: F401
         return jsonify({"success": True})
     else:
         with project.db as db:
-            record = db.results.get_results_record(record_id)
+            record = db.get_results_record(record_id)
             item = asdict(db.input.get_records(record_id))
         item["state"] = record.iloc[0].to_dict()
         item["tags_form"] = read_tags_data(project)
@@ -1403,7 +1400,7 @@ def api_update_note(project, record_id):  # noqa: F401
     note = note if note != "" else None
 
     with project.db as db:
-        db.results.update_note(record_id, note)
+        db.update_note(record_id, note)
 
     return jsonify({"success": True})
 
@@ -1422,14 +1419,14 @@ def api_get_record(project):  # noqa: F401
         return jsonify({"result": None, "status": "finished"})
 
     with project.db as db:
-        pending = db.results.get_pending(user_id=user_id)
+        pending = db.get_pending(user_id=user_id)
 
         if pending.empty:
             try:
-                pending = db.results.query_top_ranked(user_id=user_id)
+                pending = db.query_top_ranked(user_id=user_id)
             except ValueError:
-                ranking = db.results.get_last_ranking_table()
-                pool = db.results.get_pool()
+                ranking = db.get_last_ranking_table()
+                pool = db.get_pool()
 
                 if not ranking.empty and pool.empty:
                     return jsonify({"result": None, "status": "review"})

@@ -36,14 +36,14 @@ def run_task(project_id, simulation=False):
 
 
 def run_model(project):
-    with project.db.results as s:
-        if not s.exist_new_labeled_records:
+    with project.db as db:
+        if not db.exist_new_labeled_records:
             return
 
-        if s.get_results_table("label")["label"].value_counts().shape[0] < 2:
+        labeled = db.get_results_table(columns=["record_id", "label"])
+        # Only train a new model if both 0 and 1 labels are available:
+        if labeled["label"].value_counts().shape[0] < 2:
             return
-
-        labeled = s.get_results_table(columns=["record_id", "label"])
 
     try:
         cycle_data = _read_cycle_data(project)
@@ -71,7 +71,7 @@ def run_model(project):
         ranked_record_ids = cycle.rank(fm)
 
         with project.db as db:
-            db.results.add_last_ranking(
+            db.add_last_ranking(
                 ranked_record_ids,
                 cycle_data.classifier if cycle_data.classifier is not None else None,
                 cycle_data.querier,
@@ -91,7 +91,7 @@ def run_model(project):
 
 def run_simulation(project):
     with project.db as db:
-        priors = db.results.get_priors()["record_id"].tolist()
+        priors = db.get_priors()["record_id"].tolist()
 
     cycles = [
         asr.ActiveLearningCycle(
