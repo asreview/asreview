@@ -33,14 +33,21 @@ from asreview.webapp.app import create_app
 from asreview.webapp.utils import asreview_path
 
 # Host name
-HOST_NAME = os.getenv("ASREVIEW_LAB_HOST", "localhost")
+HOST_NAME = os.getenv("ASREVIEW_LAB_HOST", "127.0.0.1")
 PORT_NUMBER = os.getenv("ASREVIEW_LAB_PORT", 5000)
 
 
 def _check_port_in_use(host, port):
     host = host.replace("https://", "").replace("http://", "")
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        return s.connect_ex((host, port)) == 0
+    try:
+        infos = socket.getaddrinfo(host, port, socket.AF_UNSPEC, socket.SOCK_STREAM)
+    except socket.gaierror:
+        return False
+    for af, socktype, proto, canonname, sockaddr in infos:
+        with socket.socket(af, socktype, proto) as s:
+            if s.connect_ex(sockaddr) == 0:
+                return True
+    return False
 
 
 def _check_for_update():
@@ -231,7 +238,20 @@ def lab_entry_point(argv):
         return
 
     # Create the waitress server
-    server = create_server(app, host=args.host, port=port, threads=6)
+    try:
+        server = create_server(app, host=args.host, port=port, threads=6)
+    except OSError as e:
+        console.print(
+            f"\n\n[red]Error: Unable to bind to {args.host}:{port} — {e}[/red]\n\n"
+            "If 'localhost' fails, try using [bold]--host 127.0.0.1[/bold] "
+            "(IPv4) or [bold]--host ::1[/bold] (IPv6).\n\n"
+        )
+        shutdown_task_server.set()
+        process.join(timeout=10)
+        if process.is_alive():
+            process.terminate()
+            process.join()
+        return
 
     def handle_sig(sig, frame):
         console.print("ASReview LAB is shutting down...\n")
@@ -283,7 +303,8 @@ def _lab_parser():
         "--host",
         default=HOST_NAME,
         type=str,
-        help="The IP address the server will listen on.",
+        help="The IP address the server will listen on. "
+        "Use 127.0.0.1 for IPv4 or ::1 for IPv6 loopback.",
     )
 
     parser.add_argument(
