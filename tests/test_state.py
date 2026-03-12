@@ -90,7 +90,7 @@ def test_get_dataset_drop_prior(asreview_test_project):
 
 
 def test_get_dataset_drop_pending(project):
-    test_ranking = range(10, 0, -1)
+    test_ranking = range(9, -1, -1)
     with project.db as db:
         db.input.add_records([Record(i, "foo") for i in range(10)])
         db.add_last_ranking(test_ranking, "nb", "max", "balanced", "tfidf", 4)
@@ -253,7 +253,7 @@ def test_label_record(project_with_records):
 
 
 def test_exist_new_labeled_records(project):
-    test_ranking = range(10, 0, -1)
+    test_ranking = range(9, -1, -1)
     with project.db as db:
         db.input.add_records([Record(i, "foo") for i in range(10)])
         assert not db.exist_new_labeled_records
