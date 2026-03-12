@@ -4,6 +4,7 @@ const storageNames = {
   fontSize: "fontSize",
   modelLogLevel: "modelLogLevel",
   orientation: "orientation",
+  expandAbstract: "expandAbstract",
 };
 
 const orientationOptions = ["portrait", "landscape"];
@@ -33,10 +34,14 @@ const initialReviewSettings = () => {
     ? window.localStorage.getItem(storageNames.orientation)
     : "portrait";
 
+  let expandAbstract =
+    window.localStorage.getItem(storageNames.expandAbstract) === "true";
+
   return {
     [storageNames.fontSize]: localFontSize,
     [storageNames.modelLogLevel]: localModelLogLevel,
     [storageNames.orientation]: orientation,
+    [storageNames.expandAbstract]: expandAbstract,
   };
 };
 
@@ -79,6 +84,15 @@ function ReviewSettingsReducer(reviewSettings, action) {
     case storageNames.orientation: {
       window.localStorage.setItem(storageNames.orientation, action.orientation);
       return { ...reviewSettings, orientation: action.orientation };
+    }
+
+    // Add a case for the expandAbstract action
+    case storageNames.expandAbstract: {
+      window.localStorage.setItem(
+        storageNames.expandAbstract,
+        action.expandAbstract,
+      );
+      return { ...reviewSettings, expandAbstract: action.expandAbstract };
     }
 
     // Add a default case that throws an error

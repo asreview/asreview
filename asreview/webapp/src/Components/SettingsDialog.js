@@ -41,7 +41,8 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
 
   // second layer state
   const [fontSizeSetting, toggleFontSizeSetting] = useToggle();
-  const { fontSize, modelLogLevel, orientation } = useReviewSettings();
+  const { fontSize, modelLogLevel, orientation, expandAbstract } =
+    useReviewSettings();
 
   const dispatchReviewSettings = useReviewSettingsDispatch();
 
@@ -145,7 +146,7 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
               display="block"
               variant="subtitle2"
             >
-              REVIEW
+              REVIEW & COLLECTION
             </Typography>
           </ListItem>
           <ListItem
@@ -199,6 +200,26 @@ const SettingsDialog = ({ onSettings, toggleSettings }) => {
               id="change-show-model-info"
               primary="Screen in landscape view"
               secondary={"Useful for wide screens"}
+            />
+          </ListItem>
+          <ListItem
+            secondaryAction={
+              <Switch
+                checked={expandAbstract}
+                onChange={() => {
+                  dispatchReviewSettings({
+                    type: "expandAbstract",
+                    expandAbstract: !expandAbstract,
+                  });
+                }}
+                inputProps={{ "aria-label": "controlled" }}
+              />
+            }
+          >
+            <ListItemText
+              id="change-expand-abstract"
+              primary="Expand all abstracts in collection"
+              secondary={"Show full abstract text without 'show more'"}
             />
           </ListItem>
         </List>
