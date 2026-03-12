@@ -12,7 +12,7 @@ import { useMediaQuery } from "@mui/material";
 import { useReviewSettings } from "context/ReviewSettingsContext";
 
 const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
-  const { orientation, modelLogLevel } = useReviewSettings();
+  const { orientation, modelLogLevel, expandAbstract } = useReviewSettings();
 
   let landscapeDisabled = useMediaQuery(
     (theme) => theme.breakpoints.down("md"),
@@ -73,7 +73,7 @@ const LabeledRecord = ({ project_id, label, filterQuery, mode = "oracle" }) => {
                   <RecordCard
                     project_id={project_id}
                     record={record}
-                    collapseAbstract={true}
+                    collapseAbstract={!expandAbstract}
                     disabled={true}
                     transitionType="collapse"
                     transitionSpeed={{ enter: 500, exit: 800 }}
