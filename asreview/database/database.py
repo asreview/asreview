@@ -477,6 +477,8 @@ class Database:
             {"user_id": user_id},
         )
         con.commit()
+        if not cur.rowcount:
+            raise ValueError("Failed to query top ranked record")
         return self.get_pending(user_id=user_id)
 
     def update_result(self, record_id, label=None, tags=None, user_id=None):
