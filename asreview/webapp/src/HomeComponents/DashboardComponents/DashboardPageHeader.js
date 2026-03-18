@@ -29,7 +29,7 @@ export default function DashboardPageHeader({ mode }) {
           mb: 4,
         }}
       >
-        {mode === projectModes.ORACLE && "the expertise of you"}
+        {mode === projectModes.ORACLE && "your expertise"}
         {/* {mode === projectModes.SIMULATION && "fully automatic"} */}
       </Typography>
     </Stack>
