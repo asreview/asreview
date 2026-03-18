@@ -58,14 +58,16 @@ jobs:
           python -c "
           from pathlib import Path
           import urllib.request
+          from asreview.utils import _get_filename_from_url
+          url = 'https://osf.io/download/fg93a/'
           cache_dir = Path('~/.cache/asreview_tests').expanduser()
           cache_dir.mkdir(parents=True, exist_ok=True)
-          cache_file = cache_dir / 'osf_fg93a'
+          cache_file = cache_dir / _get_filename_from_url(url)
           if not cache_file.exists():
-              urllib.request.urlretrieve('https://osf.io/download/fg93a/', cache_file)
-              print('Downloaded OSF fg93a')
+              urllib.request.urlretrieve(url, cache_file)
+              print('Downloaded OSF fg93a as', cache_file.name)
           else:
-              print('OSF fg93a already cached')
+              print('OSF fg93a already cached as', cache_file.name)
           "
       - name: Build project
         run: |
