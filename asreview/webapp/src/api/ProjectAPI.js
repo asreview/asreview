@@ -70,7 +70,6 @@ class ProjectAPI {
       withCredentials: true,
     };
 
-    // Add upload progress callback if provided
     if (variables.onUploadProgress) {
       config.onUploadProgress = variables.onUploadProgress;
     }
