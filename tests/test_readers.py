@@ -9,7 +9,6 @@ import asreview as asr
 from asreview.data.loader import _from_file
 from asreview.data.loader import load_records
 from asreview.data.ris import RISReader
-from asreview.utils import _is_url
 
 
 def test_default_reader_loading():
@@ -37,16 +36,10 @@ def test_default_reader_loading():
         ("ovid_zotero.ris", 6, []),
         ("proquest.ris", 6, []),
         ("web_of_science.txt", 10, []),
-        pytest.param(
-            "https://osf.io/download/fg93a/", 38, [], marks=mark.internet_required
-        ),
     ],
 )
 def test_reader(test_file, n_lines, ignore_col):
-    if _is_url(test_file):
-        fp = test_file
-    else:
-        fp = Path("tests", "demo_data", test_file)
+    fp = Path("tests", "demo_data", test_file)
 
     records = _from_file(fp)
     assert len(records) == n_lines
@@ -57,6 +50,12 @@ def test_reader(test_file, n_lines, ignore_col):
     for col in cols:
         values = [getattr(record, col) for record in records]
         assert len(values) == n_lines
+
+
+@mark.internet_required
+def test_reader_from_url(osf_fg93a_path):
+    records = _from_file(osf_fg93a_path)
+    assert len(records) == 38
 
 
 @mark.parametrize(
