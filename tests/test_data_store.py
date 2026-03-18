@@ -13,7 +13,6 @@ from asreview.data.record import Record
 from asreview.data.store import CURRENT_DATASTORE_VERSION
 from asreview.data.store import DataStore
 from asreview.project.api import PATH_DATA_STORE
-from asreview.utils import _is_url
 
 
 @pytest.fixture
@@ -242,20 +241,18 @@ def test_load_dataset_no_abstracts(tmpdir):
         ("ovid_zotero.ris", 6),
         ("proquest.ris", 6),
         ("web_of_science.txt", 10),
-        pytest.param(
-            "https://osf.io/download/fg93a/",
-            38,
-            marks=pytest.mark.internet_required,
-        ),
     ],
 )
 def test_load_dataset(file_name, n_lines):
-    if _is_url(file_name):
-        fp = file_name
-    else:
-        fp = Path("tests", "demo_data", file_name)
+    fp = Path("tests", "demo_data", file_name)
     store = load_dataset(fp, dataset_id=file_name)
     assert len(store) == n_lines
+
+
+@pytest.mark.internet_required
+def test_load_dataset_from_url(osf_fg93a_path):
+    store = load_dataset(osf_fg93a_path, dataset_id="osf_fg93a")
+    assert len(store) == 38
 
 
 def test_dataset_with_record_ids():

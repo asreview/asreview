@@ -35,6 +35,38 @@ jobs:
           pip install pytest
           pip install --no-cache-dir .[test]
           pip install --no-cache-dir .
+      - name: Cache synergy dataset
+        uses: actions/cache@v4
+        with:
+          path: ~/.synergy_dataset_source
+          key: synergy-dataset-${{ runner.os }}-v1.0
+      - name: Download synergy dataset
+        run: |
+          python -c "
+          from synergy_dataset.base import _dataset_available, download_raw_dataset
+          if not _dataset_available():
+              download_raw_dataset()
+          print('Synergy dataset available:', _dataset_available())
+          "
+      - name: Cache OSF test data
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/asreview_tests
+          key: osf-test-data-v1
+      - name: Download OSF test data
+        run: |
+          python -c "
+          from pathlib import Path
+          import urllib.request
+          cache_dir = Path('~/.cache/asreview_tests').expanduser()
+          cache_dir.mkdir(parents=True, exist_ok=True)
+          cache_file = cache_dir / 'osf_fg93a'
+          if not cache_file.exists():
+              urllib.request.urlretrieve('https://osf.io/download/fg93a/', cache_file)
+              print('Downloaded OSF fg93a')
+          else:
+              print('OSF fg93a already cached')
+          "
       - name: Build project
         run: |
           python -m pip install build

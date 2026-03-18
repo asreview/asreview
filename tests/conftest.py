@@ -1,8 +1,22 @@
 from pathlib import Path
 import shutil
+import urllib.request
 
 import pandas as pd
 import pytest
+
+_OSF_CACHE_DIR = Path("~/.cache/asreview_tests").expanduser()
+_OSF_FG93A_URL = "https://osf.io/download/fg93a/"
+_OSF_FG93A_CACHE = _OSF_CACHE_DIR / "osf_fg93a"
+
+
+@pytest.fixture(scope="session")
+def osf_fg93a_path():
+    """Return a local path to the OSF fg93a dataset, downloading it if needed."""
+    _OSF_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    if not _OSF_FG93A_CACHE.exists():
+        urllib.request.urlretrieve(_OSF_FG93A_URL, _OSF_FG93A_CACHE)
+    return _OSF_FG93A_CACHE
 
 
 @pytest.fixture
