@@ -62,6 +62,19 @@ jobs:
         run: |
           pip install pytest pytest-random-order pytest-xdist
           pip install --no-cache-dir .
+      - name: Cache synergy dataset
+        uses: actions/cache@v4
+        with:
+          path: ~/.synergy_dataset_source
+          key: synergy-dataset-${{ runner.os }}-v1.0
+      - name: Download synergy dataset
+        run: |
+          python -c "
+          from synergy_dataset.base import _dataset_available, download_raw_dataset
+          if not _dataset_available():
+              download_raw_dataset()
+          print('Synergy dataset available:', _dataset_available())
+          "
       - name: Test flask web app
         run: |
           pytest --random-order -n 6 asreview/webapp/tests
