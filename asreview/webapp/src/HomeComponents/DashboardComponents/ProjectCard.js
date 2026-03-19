@@ -59,7 +59,7 @@ const ProjectCard = ({ project, mode, showSimulatingSpinner = true }) => {
   const [renameDialog, toggleRenameDialog] = useToggle();
   const [exporting, setExporting] = React.useState(false);
 
-  const review = project["reviews"][0];
+  const review = project.review ?? project.reviews?.[0];
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const openMenu = Boolean(anchorEl);

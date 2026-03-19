@@ -25,7 +25,9 @@ const ProjectsOverview = ({ mode }) => {
     if (
       mode === projectModes.SIMULATION &&
       data?.result.some(
-        (project) => project.reviews[0]?.status === projectStatuses.REVIEW,
+        (project) =>
+          (project.review?.status ?? project.reviews?.[0]?.status) ===
+          projectStatuses.REVIEW,
       )
     ) {
       return 5000;
@@ -42,14 +44,17 @@ const ProjectsOverview = ({ mode }) => {
     },
   );
 
+  const getStatus = (project) =>
+    project.review?.status ?? project.reviews?.[0]?.status;
+
   const inReviewProjects = data?.result.filter(
     (project) =>
-      project.reviews[0]?.status === projectStatuses.REVIEW ||
-      project.reviews[0]?.status === projectStatuses.SETUP ||
-      project.reviews[0]?.status === "error", // backwards compatibility fix for migration file
+      getStatus(project) === projectStatuses.REVIEW ||
+      getStatus(project) === projectStatuses.SETUP ||
+      getStatus(project) === "error", // backwards compatibility fix for migration file
   );
   const finishedProjects = data?.result.filter(
-    (project) => project.reviews[0]?.status === projectStatuses.FINISHED,
+    (project) => getStatus(project) === projectStatuses.FINISHED,
   );
 
   const {
