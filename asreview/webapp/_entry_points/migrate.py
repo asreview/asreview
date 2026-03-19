@@ -10,6 +10,7 @@ from sqlalchemy import inspect
 from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 
+from asreview.project.api import Project
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_projects
 from asreview.project.migration import detect_version
@@ -181,19 +182,17 @@ class MigrationTool:
 
             for project in get_projects():
                 project_file_version = detect_version(project.config)
-                if project_file_version == 1:
-                    print(
-                        f"Project {project.project_path} is in the old format. "
-                        "Migrating..."
-                    )
-                    migrate_project(project.project_path, 1, 2)
-                elif project_file_version == 2:
-                    print(
-                        f"Project {project.project_path} is already in the new format."
-                    )
-                else:
+                if project_file_version <= 0 or project_file_version > Project.VERSION:
                     print(
                         f"Project {project.project_path} is in an unknown format or very old version: {project_file_version}"
+                    )
+                if project_file_version < Project.VERSION:
+                    print(
+                        f"Project {project.project_path} is in the version {project_file_version} format. "
+                        f"Migrating to version {Project.VERSION}..."
+                    )
+                    migrate_project(
+                        project.project_path, project_file_version, Project.VERSION
                     )
 
     def _migrate_new_user_fields(self, engine, user_columns):
