@@ -6,6 +6,7 @@ from pathlib import Path
 
 from asreview.project.migration.v1v2 import _migrate as _migrate_v1v2
 from asreview.project.migration.v2v3 import _migrate as _migrate_v2v3
+from asreview.project.migration.v2v3 import _validate as _validate_v2v3
 
 
 __all__ = ["detect_version", "migrate_project"]
@@ -64,7 +65,7 @@ def migrate_project(folder, src_version, dst_version):
         project_config = json.load(f)
         project_id = project_config.get("id", "unknown")
 
-    if src_version <= 2 and _is_empty_v1_or_v2(folder):
+    if src_version == 1 and _is_empty_v1(folder):
         shutil.rmtree(folder)
         return
 
@@ -83,8 +84,10 @@ def migrate_project(folder, src_version, dst_version):
 def _migrate_project_one_version(folder, current_version):
     if current_version == 1:
         migrate = _migrate_v1v2
+        validate = None
     elif current_version == 2:
         migrate = _migrate_v2v3
+        validate = _validate_v2v3
     else:
         raise ValueError("Invalid current version.")
 
@@ -105,28 +108,33 @@ def _migrate_project_one_version(folder, current_version):
             f"Upgrading project {folder} from v{current_version} to v{current_version + 1}."
         )
         migrate(Path(tmpdir) / "tmp_project")
+        if validate is not None:
+            validate(Path(tmpdir) / "tmp_project")
 
-        shutil.rmtree(folder)
-        shutil.copytree(Path(tmpdir) / "tmp_project", folder)
+        backup = folder.with_name(folder.name + ".backup")
+        shutil.move(folder, backup)
+        try:
+            shutil.move(Path(tmpdir) / "tmp_project", folder)
+        except Exception:
+            shutil.move(backup, folder)
+            raise
+        shutil.rmtree(backup)
 
 
-def _is_empty_v1_or_v2(folder):
-    """Check if a v1 or v2 project is a setup project without data or reviews.
+def _is_empty_v1(folder):
+    """Check if a v1 project is empty (no reviews configured).
 
     Parameters
     ----------
-    folder: str
-        The folder of the project to check. The project should from v1 or v2.
+    folder : str | Path
+        The folder of the v1 project to check.
 
     Returns
     -------
     bool
-        True if the project is a setup without data, False otherwise.
+        True if the project has no reviews, False otherwise.
     """
     with open(Path(folder, "project.json")) as f:
         config = json.load(f)
 
-    if len(config.get("reviews", [])) == 0:
-        return True
-
-    return False
+    return len(config.get("reviews", [])) == 0
