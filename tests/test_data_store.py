@@ -218,7 +218,7 @@ def test_load_dataset(file_name, n_lines):
 @pytest.mark.internet_required
 def test_load_dataset_from_url(osf_fg93a_path):
     store = load_dataset(osf_fg93a_path, dataset_id="osf_fg93a")
-    assert len(store) == 38
+    assert len(store.input) == 38
 
 
 def test_dataset_with_record_ids():
