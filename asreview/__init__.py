@@ -29,7 +29,9 @@ from sqlalchemy.engine import Engine
 
 from asreview.data.loader import load_dataset
 from asreview.data.record import Record
-from asreview.data.store import DataStore
+from asreview.database.database import open_db
+from asreview.database.database import Database
+from asreview.database.store import DataStore
 from asreview.extensions import extensions
 from asreview.extensions import get_extension
 from asreview.extensions import load_extension
@@ -40,8 +42,6 @@ from asreview.project.api import is_project
 from asreview.project.exceptions import ProjectError
 from asreview.project.exceptions import ProjectNotFoundError
 from asreview.simulation.simulate import Simulate
-from asreview.state.contextmanager import open_state
-from asreview.state.sqlstate import SQLiteState
 
 try:
     from asreview._version import __version__
@@ -61,13 +61,13 @@ __all__ = [
     "ActiveLearningCycleData",
     "Simulate",
     "Project",
-    "SQLiteState",
+    "Database",
     "DataStore",
     "Record",
     # functions
     "is_project",
     "load_dataset",
-    "open_state",
+    "open_db",
     "extensions",
     "get_extension",
     "load_extension",

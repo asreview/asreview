@@ -2,11 +2,10 @@ import numpy as np
 import pandas as pd
 from sqlalchemy import NullPool
 from sqlalchemy import create_engine
-from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 
-from asreview.data.record import Base
-from asreview.data.record import Record
+from asreview.project.migration.legacy_v2.record import Base
+from asreview.project.migration.legacy_v2.record import Record
 
 CURRENT_DATASTORE_VERSION = 0
 
@@ -73,27 +72,11 @@ class DataStore:
         """Mapping {column name: pandas data type}"""
         return self._pandas_dtype_mapping
 
-    @property
-    def user_version(self):
-        """Version number of the state."""
-        with self.engine.connect() as conn:
-            version = conn.execute(text("PRAGMA user_version"))
-            return int(version.fetchone()[0])
-
-    @user_version.setter
-    def user_version(self, version):
-        with self.engine.connect() as conn:
-            # I tried passing the version through a parameter, but it didn't seem to
-            # work. Maybe you can't use parameters with PRAGMA statements?
-            conn.execute(text(f"PRAGMA user_version = {version}"))
-            conn.commit()
-
     def create_tables(self):
         """Initialize the tables containing the data.
 
         If you are creating a new data store, you will need to call this method before
         adding data to the data store."""
-        self.user_version = CURRENT_DATASTORE_VERSION
         Base.metadata.create_all(self.engine)
 
     def add_records(self, records):

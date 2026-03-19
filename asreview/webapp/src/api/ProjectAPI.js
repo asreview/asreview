@@ -403,7 +403,7 @@ class ProjectAPI {
     body.set("status", variables.status);
     body.set("trigger_model", variables.trigger_model);
 
-    const url = api_url + `projects/${variables.project_id}/reviews/0`;
+    const url = api_url + `projects/${variables.project_id}/review`;
     return new Promise((resolve, reject) => {
       axios({
         method: "put",

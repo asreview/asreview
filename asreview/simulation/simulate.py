@@ -15,16 +15,87 @@
 __all__ = []
 
 import time
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from asreview.database.database import open_db
 from asreview.metrics import loss
 from asreview.metrics import ndcg
 from asreview.models.stoppers import LastRelevant
 from asreview.models.stoppers import NLabeled
-from asreview.state.contextmanager import open_state
+
+
+def _propagate_record_info(record_info, groups, return_only_new=False):
+    """Propagate record-level information across groups of records.
+
+    Each group defines a set of records that must share the same info. If one
+    record in a group has associated info, that info is propagated to all
+    other records in the group. If multiple records in the same group have
+    conflicting info, a ValueError is raised.
+
+    Parameters
+    ----------
+    record_info : list[tuple]
+        A list of tuples in the form ``(record_id, *info)``, where ``info`` is
+        any associated data for the record.
+    groups: list[tuple[int,int]] | None
+        A list of tuples in the form `(group_id, record_id)`, where `group_id`
+        identifies the group a record belongs to.
+
+    Returns
+    -------
+    list of tuple
+        A list of tuples in the form ``(record_id, *info)`` where the info has
+        been propagated to all records in the same group.
+
+    Raises
+    ------
+    ValueError
+        If records within the same group have conflicting info.
+    """
+    record_to_group = {}
+    group_to_records = defaultdict(list)
+    for group_id, record_id in groups:
+        record_to_group[record_id] = group_id
+        group_to_records[group_id].append(record_id)
+
+    group_to_info = defaultdict(set)
+    for record_id, *info in record_info:
+        group_id = record_to_group.get(record_id, record_id)
+        group_to_info[group_id].add(tuple(info))
+
+    multivalued_groups = [
+        {
+            "group_id": group_id,
+            "record_ids": group_to_records[group_id],
+            "info": info_set,
+        }
+        for group_id, info_set in group_to_info.items()
+        if len(info_set) > 1
+    ]
+    if multivalued_groups:
+        raise ValueError(
+            f"All records in the same group should have the same record info: {multivalued_groups}"
+        )
+
+    if return_only_new:
+        original_record_ids = set(record_id for record_id, *_ in record_info)
+    output = []
+    for group_id, info_set in group_to_info.items():
+        info = next(iter(info_set))
+        record_ids = group_to_records.get(group_id, [group_id])
+        if return_only_new:
+            output += [
+                (record_id, *info)
+                for record_id in record_ids
+                if record_id not in original_record_ids
+            ]
+        else:
+            output += [(record_id, *info) for record_id in record_ids]
+    return output
 
 
 def _get_name_from_estimator(estimator):
@@ -45,6 +116,37 @@ def _get_name_from_estimator(estimator):
         return None
 
     return estimator.name
+
+
+def _assert_no_conflicts_in_groups(labels, groups):
+    """Ensures that all records within the same group share the same label.
+
+    This function checks for label consistency within groups of records.
+    For each `(group_id, record_id)` pair in `groups`, it verifies that
+    all records assigned to the same `group_id` have identical labels
+    according to the `labels` list. If any group contains conflicting
+    labels, an `AssertionError` is raised.
+
+    Parameters
+    ----------
+    labels : list
+        A list of labels, where the entry in spot `i` contains the label of the record
+        with `record_id = i`.
+    groups : Iterable[tuple[int, int]]
+        An iterable of `(group_id, record_id)` pairs representing which records belong
+        to which groups.
+
+    Raises
+    ------
+    AssertionError
+        If a group contains records with differing labels.
+    """
+    group_to_label = {}
+    for group_id, record_id in groups:
+        label = labels[record_id]
+        if group_id in group_to_label and group_to_label[group_id] != label:
+            raise AssertionError(f"Group {group_id} contains conflicting labels.")
+        group_to_label[group_id] = label
 
 
 class Simulate:
@@ -80,6 +182,9 @@ class Simulate:
     skip_transform: bool
         If True, the feature matrix is not computed in the simulation. It is assumed
         that X is the feature matrix or input to the estimator. Default is False.
+    groups: list[tuple[int, int]] | None
+        List of tuples (group_id, record_id). If this is not None, records in the same
+        group will be labeled at the same time in the simulation.
     """
 
     def __init__(
@@ -90,6 +195,7 @@ class Simulate:
         stopper=None,
         skip_transform=False,
         print_progress=True,
+        groups=None,
     ):
         self.X = X
         self.labels = labels
@@ -97,6 +203,14 @@ class Simulate:
         self.stopper = stopper
         self.skip_transform = skip_transform
         self.print_progress = print_progress
+        if groups is not None:
+            try:
+                _assert_no_conflicts_in_groups(labels, groups)
+            except AssertionError as e:
+                raise ValueError(
+                    f"Groups should not contain conflicting labels: {e}"
+                ) from e
+        self.groups = groups
 
     @property
     def _results(self):
@@ -265,6 +379,21 @@ class Simulate:
             }
         )
 
+        if self.groups is not None:
+            record_info = list(new_results.itertuples(index=False, name=None))
+            group_record_info = _propagate_record_info(
+                record_info=record_info,
+                groups=self.groups,
+                return_only_new=True,
+            )
+
+            new_results = pd.concat(
+                [
+                    new_results,
+                    pd.DataFrame(group_record_info, columns=new_results.columns),
+                ],
+            )
+
         if not hasattr(self, "_results") or self._results.empty:
             self._results = new_results
         else:
@@ -280,9 +409,9 @@ class Simulate:
 
         Parameters
         ----------
-        fp: str, Path, asreview.Project
-            The path to the sqlite file to write the results to.
+        fp: str, Path
+            The path to the sqlite file to write the results to. If there is no database
+            yet at the location a new database will be created.
         """
-
-        with open_state(fp) as state:
-            state._replace_results_from_df(self._results)
+        with open_db(fp) as db:
+            db._replace_results_from_df(self._results)

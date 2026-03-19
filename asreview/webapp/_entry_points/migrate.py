@@ -12,7 +12,8 @@ from sqlalchemy.orm import sessionmaker
 
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_projects
-from asreview.project.migrate import migrate_project_v1_v2
+from asreview.project.migration import detect_version
+from asreview.project.migration import migrate_project
 
 DEFAULT_DATABASE_URI = f"sqlite:///{str(asreview_path())}/asreview.production.sqlite"
 
@@ -179,19 +180,20 @@ class MigrationTool:
             print("Migrating projects...")
 
             for project in get_projects():
-                if project.config.get("version", "").startswith("1."):
+                project_file_version = detect_version(project.config)
+                if project_file_version == 1:
                     print(
                         f"Project {project.project_path} is in the old format. "
                         "Migrating..."
                     )
-                    migrate_project_v1_v2(project.project_path)
-                elif project.config.get("version", "").startswith("2."):
+                    migrate_project(project.project_path, 1, 2)
+                elif project_file_version == 2:
                     print(
                         f"Project {project.project_path} is already in the new format."
                     )
                 else:
                     print(
-                        f"Project {project.project_path} is in an unknown format or very old version."
+                        f"Project {project.project_path} is in an unknown format or very old version: {project_file_version}"
                     )
 
     def _migrate_new_user_fields(self, engine, user_columns):

@@ -12,27 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-from pathlib import Path
-
 import asreview as asr
 from asreview.models.queriers import TopDown
 from asreview.models.stoppers import IsFittable
 from asreview.simulation.simulate import Simulate
-from asreview.state.contextmanager import open_state
 from asreview.webapp.utils import get_project_path
 
 
 def _read_cycle_data(project):
-    fp_cycle_metadata = Path(
-        project.project_path,
-        "reviews",
-        project.reviews[0]["id"],
-        "settings_metadata.json",
-    )
-
-    with open(fp_cycle_metadata, "r") as f:
-        return asr.ActiveLearningCycleData(**json.load(f)["current_value"])
+    return asr.ActiveLearningCycleData(**project.get_model_config())
 
 
 def run_task(project_id, simulation=False):
@@ -48,14 +36,14 @@ def run_task(project_id, simulation=False):
 
 
 def run_model(project):
-    with open_state(project) as s:
-        if not s.exist_new_labeled_records:
+    with project.db as db:
+        if not db.exist_new_labeled_records:
             return
 
-        if s.get_results_table("label")["label"].value_counts().shape[0] < 2:
+        labeled = db.get_results_table(columns=["record_id", "label"])
+        # Only train a new model if both 0 and 1 labels are available:
+        if labeled["label"].value_counts().shape[0] < 2:
             return
-
-        labeled = s.get_results_table(columns=["record_id", "label"])
 
     try:
         cycle_data = _read_cycle_data(project)
@@ -68,11 +56,11 @@ def run_model(project):
                 )
             except ValueError:
                 cycle = asr.ActiveLearningCycle.from_meta(cycle_data)
-                fm = cycle.transform(project.data_store.get_df())
+                fm = cycle.transform(project.db.input.get_df())
                 project.add_feature_matrix(fm, cycle.feature_extractor.name)
         else:
             cycle = asr.ActiveLearningCycle.from_meta(cycle_data)
-            fm = project.data_store.get_df().values
+            fm = project.db.input.get_df().values
 
         if cycle.classifier is not None:
             cycle.fit(
@@ -82,8 +70,8 @@ def run_model(project):
 
         ranked_record_ids = cycle.rank(fm)
 
-        with open_state(project) as state:
-            state.add_last_ranking(
+        with project.db as db:
+            db.add_last_ranking(
                 ranked_record_ids,
                 cycle_data.classifier if cycle_data.classifier is not None else None,
                 cycle_data.querier,
@@ -102,8 +90,8 @@ def run_model(project):
 
 
 def run_simulation(project):
-    with open_state(project) as state:
-        priors = state.get_priors()["record_id"].tolist()
+    with project.db as db:
+        priors = db.get_priors()["record_id"].tolist()
 
     cycles = [
         asr.ActiveLearningCycle(
@@ -114,10 +102,11 @@ def run_simulation(project):
     ]
 
     sim = Simulate(
-        project.data_store.get_df(),
-        project.data_store["included"],
+        project.db.input.get_df(),
+        project.db.input["included"],
         cycles,
         print_progress=False,
+        groups=project.db.input.get_groups(),
     )
     try:
         sim.label(priors)
@@ -126,4 +115,5 @@ def run_simulation(project):
         project.set_review_error(err)
         raise err
 
-    project.update_review(state=sim, status="finished")
+    project.update_review(status="finished")
+    sim.to_sql(project.db_path)

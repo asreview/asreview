@@ -268,7 +268,7 @@ def set_project_status(
     trigger_model: bool = False,
 ):
     return client.put(
-        f"/api/projects/{get_project_id(project)}/reviews/0",
+        f"/api/projects/{get_project_id(project)}/review",
         data={"status": status, "trigger_model": trigger_model},
     )
 

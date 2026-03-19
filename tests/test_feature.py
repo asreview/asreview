@@ -29,10 +29,10 @@ def test_feature_extractor_param(feature_extractor):
 def test_features(tmpdir, feature_extractor):
     data_fp = os.path.join("tests", "demo_data", "generic.csv")
 
-    data_store = asr.load_dataset(data_fp, dataset_id="test_id")
+    db = asr.load_dataset(data_fp, dataset_id="test_id")
     model = load_extension("models.feature_extractors", feature_extractor.name)()
 
-    X = model.fit_transform(data_store.get_df())
+    X = model.fit_transform(db.input.get_df())
 
-    assert X.shape[0] == len(data_store)
+    assert X.shape[0] == len(db.input)
     assert X.shape[1] > 0

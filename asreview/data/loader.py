@@ -2,7 +2,8 @@ from io import StringIO
 from pathlib import Path
 
 from asreview.data.record import Record
-from asreview.data.store import DataStore
+from asreview.data.utils import identify_record_groups
+from asreview.database.database import Database
 from asreview.datasets import DatasetManager
 from asreview.extensions import load_extension
 from asreview.utils import _get_filename_from_url
@@ -131,7 +132,7 @@ def load_records(name, dataset_id=None, **kwargs):
     raise FileNotFoundError(f"File, URL, or dataset does not exist: '{name}'")
 
 
-def load_dataset(name, dataset_id=None, data_store=None, record_cls=Record, **kwargs):
+def load_dataset(name, dataset_id=None, db=None, record_cls=Record, **kwargs):
     """Load dataset from file, URL, or plugin.
 
     Parameters
@@ -141,9 +142,9 @@ def load_dataset(name, dataset_id=None, data_store=None, record_cls=Record, **kw
     dataset_id : str, optional
         dataset_id that the records in the dataset should get. If not this will be the
         string form of the name. By default None.
-    data_store : asreview.data.store.DataStore, optional
-        Data store in which to load the records of the dataset. If None, an in memory
-        data store is created. By default None.
+    db : asreview.database.database.Database, optional
+        Database in which to load the records of the dataset. If None, an in memory
+        database is created. By default None.
     record_cls : Type[asreview.data.record.Base], optional
         Record type to use for the dataset records, by default Record
     kwargs : dict, optional
@@ -151,16 +152,18 @@ def load_dataset(name, dataset_id=None, data_store=None, record_cls=Record, **kw
 
     Returns
     -------
-    asreview.DataStore
-        Data store containing the records of the input file.
+    asreview.Database
+        Database containing the records of the input file.
     """
-    if data_store is None:
-        data_store = DataStore(":memory:", record_cls=record_cls)
+    if db is None:
+        db = Database(":memory:", record_cls=record_cls)
     if dataset_id is None:
         dataset_id = str(name)
-    data_store.create_tables()
+    db.create_tables()
     records = load_records(
         name=name, dataset_id=dataset_id, record_cls=record_cls, **kwargs
     )
-    data_store.add_records(records=records)
-    return data_store
+    db.input.add_records(records=records)
+    groups = identify_record_groups(records)
+    db.input.set_groups(groups)
+    return db

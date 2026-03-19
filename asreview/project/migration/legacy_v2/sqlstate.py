@@ -66,8 +66,6 @@ class SQLiteState:
 
     Attributes
     ----------
-    user_version: str
-        Return the version number of the state.
     exist_new_labeled_records: bool
         Have there been labeled records added to the state since the last time
         a model ranking was added to the state?
@@ -93,8 +91,6 @@ class SQLiteState:
 
     def create_tables(self):
         """Create the files for storing a new state."""
-
-        self.user_version = CURRENT_STATE_VERSION
 
         cur = self._conn.cursor()
 
@@ -136,12 +132,6 @@ class SQLiteState:
         self._conn.commit()
 
     def _is_valid_state(self):
-        if self.user_version != CURRENT_STATE_VERSION:
-            raise ValueError(
-                f"State version {self.user_version} is not supported. "
-                "See migration guide."
-            )
-
         cur = self._conn.cursor()
         column_names = cur.execute("PRAGMA table_info(results)").fetchall()
         table_names = cur.execute(
@@ -172,21 +162,6 @@ class SQLiteState:
 
     def close(self):
         self._conn.close()
-
-    @property
-    def user_version(self):
-        """Version number of the state."""
-        cur = self._conn.cursor()
-        version = cur.execute("PRAGMA user_version")
-
-        return int(version.fetchone()[0])
-
-    @user_version.setter
-    def user_version(self, version):
-        cur = self._conn.cursor()
-        cur.execute(f"PRAGMA user_version = {version}")
-        self._conn.commit()
-        cur.close()
 
     @property
     def exist_new_labeled_records(self):

@@ -6,7 +6,27 @@ from asreview.models.queriers import Random
 from asreview.models.queriers import TopDown
 from asreview.models.stoppers import IsFittable
 from asreview.simulation.cli import _cli_simulate
-from asreview.state.contextmanager import open_state
+from asreview.simulation.simulate import _assert_no_conflicts_in_groups
+
+
+@pytest.mark.parametrize(
+    "labels, groups, should_raise",
+    [
+        (["A", "A", "B"], [(1, 0), (1, 1), (2, 2)], False),
+        (["A", "B"], [(1, 0), (1, 1)], True),
+        (["X", "X", "Y", "Y"], [(1, 0), (1, 1), (2, 2), (2, 3)], False),
+        (["X", "X", "Y", "Z"], [(1, 0), (1, 1), (2, 2), (2, 3)], True),
+        ([], [], False),
+    ],
+)
+def test_assert_no_conflicts_in_groups(labels, groups, should_raise):
+    if should_raise:
+        with pytest.raises(
+            AssertionError, match=r"Group \d+ contains conflicting labels\."
+        ):
+            _assert_no_conflicts_in_groups(labels, groups)
+    else:
+        _assert_no_conflicts_in_groups(labels, groups)
 
 
 @pytest.mark.parametrize("balancer", ["balanced", None])
@@ -203,7 +223,7 @@ def test_simulate_labels_input_prior(demo_data):
     assert sim._results.shape[0] < 60
 
 
-def test_simulate_cli_vs_api(demo_data, demo_data_path, tmp_project):
+def test_simulate_cli_vs_api(demo_data, demo_data_path, tmp_project, tmpdir):
     querier, classifier, balancer, feature_extractor = (
         "max",
         "svm",
@@ -236,8 +256,8 @@ def test_simulate_cli_vs_api(demo_data, demo_data_path, tmp_project):
         f" -e {feature_extractor} --prior-idx 0 9 --seed 535"
     ).split()
     _cli_simulate(argv)
-    with open_state(tmp_project) as state:
-        cli_dataframe = state.get_results_table(columns=used_columns)
+    with asr.Project.load(tmp_project, tmpdir).db as db:
+        cli_dataframe = db.get_results_table(columns=used_columns)
 
     for col in ["record_id", "label"]:
         assert (api_dataframe[col] == cli_dataframe[col]).all()

@@ -5,6 +5,9 @@ import urllib.request
 import pandas as pd
 import pytest
 
+from asreview import Project
+
+
 _OSF_CACHE_DIR = Path("~/.cache/asreview_tests").expanduser()
 _OSF_FG93A_URL = "https://osf.io/download/fg93a/"
 
@@ -89,9 +92,15 @@ def tmp_project(tmpdir):
 
 
 @pytest.fixture
-def asreview_test_project(tmpdir):
+def asreview_test_project_path(tmpdir):
     """Fixture to set up a test project for ASReview."""
     test_state_fp = Path("tests", "asreview_files", "asreview-demo-project.asreview")
     tmp_project_path = Path(tmpdir, "asreview-demo-project.asreview")
     shutil.copy(test_state_fp, tmp_project_path)
     return tmp_project_path
+
+
+@pytest.fixture
+def asreview_test_project(asreview_test_project_path, tmpdir):
+    unzip_path = Path(tmpdir, "unzipped_project")
+    return Project.load(asreview_test_project_path, unzip_path)
