@@ -25,12 +25,12 @@ def _read_cycle_data(project):
 
 def run_task(project_id, simulation=False):
     project_path = get_project_path(project_id)
-    project = asr.Project(project_path, project_id=project_id)
 
-    if simulation:
-        run_simulation(project)
-    else:
-        run_model(project)
+    with asr.Project(project_path, project_id=project_id) as project:
+        if simulation:
+            run_simulation(project)
+        else:
+            run_model(project)
 
     return True
 

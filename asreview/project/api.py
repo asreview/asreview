@@ -120,6 +120,21 @@ class Project:
         self.db_path = Path(self.project_path, self.PATH_DB)
         self.error_path = Path(self.project_path, self.PATH_ERROR)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    def close(self):
+        """Close the project and release all resources.
+
+        Closes the database connection if it was opened. Safe to call multiple
+        times.
+        """
+        if "db" in self.__dict__:
+            self.db.close()
+
     @functools.cached_property
     def db(self):
         return Database(self.db_path)
@@ -161,8 +176,8 @@ class Project:
             project_path.mkdir(parents=True, exist_ok=True)
             Path(project_path, "data").mkdir(exist_ok=True)
             Path(project_path, cls.PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
-            database = Database(Path(project_path, cls.PATH_DB))
-            database.create_tables()
+            with Database(Path(project_path, cls.PATH_DB)) as database:
+                database.create_tables()
 
             config = {
                 "version": __version__,

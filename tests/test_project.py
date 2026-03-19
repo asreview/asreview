@@ -1,3 +1,6 @@
+import os
+import sqlite3
+
 import pytest
 from pathlib import Path
 
@@ -56,3 +59,24 @@ def test_al_cycle_state(asreview_test_project, tmpdir):
 
     assert asreview_test_project.config["review"]["model"]["name"].startswith("elas_u")
     assert isinstance(cycle.balancer, Balanced)
+
+
+def test_project_closes_db_on_exception(tmpdir):
+    """Test that Project closes database connection even when exception occurs."""
+    project_path = Path(tmpdir, "test.asreview")
+    asr.Project.create(project_path)
+
+    with pytest.raises(RuntimeError):
+        with asr.Project(project_path) as project:
+            # access db to trigger the cached_property
+            conn = project.db._conn
+            raise RuntimeError("simulated failure")
+
+    # connection should be closed
+    with pytest.raises(
+        sqlite3.ProgrammingError, match="Cannot operate on a closed database"
+    ):
+        conn.execute("SELECT 1")
+
+    # db file should be unlocked (this is what fails on Windows with leaked connections)
+    os.remove(project.db_path)

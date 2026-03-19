@@ -14,6 +14,7 @@
 """Simulation entry point and utils."""
 
 import argparse
+import contextlib
 import logging
 import re
 import shutil
@@ -137,96 +138,103 @@ def _cli_simulate(argv):
     ):
         raise ValueError("Not possible to provide both prior-idx and prior-record-id")
 
-    if args.output is not None:
-        # write all results to the project file
-        fp_tmp_simulation = Path(args.output).with_suffix(".asreview.tmp")
+    with contextlib.ExitStack() as stack:
+        if args.output is not None:
+            # write all results to the project file
+            fp_tmp_simulation = Path(args.output).with_suffix(".asreview.tmp")
 
-        project = Project.create(
-            fp_tmp_simulation,
-            project_id=Path(args.output).stem,
-            project_mode="simulate",
-            project_name=Path(args.output).stem,
-        )
-        project.add_dataset(args.dataset, dataset_id=filename)
-        db = project.db
-    else:
-        db = load_dataset(args.dataset, dataset_id=filename)
-
-    prior_idx = args.prior_idx
-    if args.prior_record_id is not None and len(args.prior_record_id) > 0:
-        prior_idx = _convert_id_to_idx(db, args.prior_record_id)
-
-    stopper = LastRelevant() if args.n_stop is None else NLabeled(args.n_stop)
-
-    if args.config_file:
-        cycle_meta = ActiveLearningCycleData(**_read_config_file(args.config_file))
-    elif args.classifier or args.querier or args.balancer or args.feature_extractor:
-        cycle_meta = ActiveLearningCycleData(
-            querier=args.querier,
-            classifier=args.classifier,
-            balancer=args.balancer,
-            feature_extractor=args.feature_extractor,
-            n_query=args.n_query,
-        )
-    else:
-        cycle_meta = get_ai_config(args.ai.lower())["value"]
-
-    cycles = [
-        ActiveLearningCycle(
-            querier=TopDown(),
-            stopper=IsFittable(),
-        ),
-        ActiveLearningCycle.from_meta(cycle_meta),
-    ]
-
-    groups = db.input.get_groups() if args.group_similar_records else None
-
-    sim = Simulate(
-        db.input.get_df(), db.input["included"], cycles, stopper=stopper, groups=groups
-    )
-
-    # select or sample prior knowledge and then label it
-    if len(prior_idx) > 0:
-        print("Selected prior knowledge via --prior-idx:\n")
-        for record in db.input.get_records(prior_idx):
-            _print_record(record)
-
-        sim.label(prior_idx)
-
-    if args.n_prior_included > 0:
-        r = check_random_state(args.prior_seed)
-
-        included_idx = np.where(db.input["included"] == 1)[0]
-        if len(included_idx) < args.n_prior_included:
-            raise ValueError(
-                f"Number of included priors requested ({args.n_prior_included})"
-                f" is bigger than number of included records "
-                f"({len(included_idx)})."
+            project = Project.create(
+                fp_tmp_simulation,
+                project_id=Path(args.output).stem,
+                project_mode="simulate",
+                project_name=Path(args.output).stem,
             )
-        sim.label(r.choice(included_idx, args.n_prior_included, replace=False))
+            stack.enter_context(project)
+            project.add_dataset(args.dataset, dataset_id=filename)
+            db = project.db
+        else:
+            db = load_dataset(args.dataset, dataset_id=filename)
+            stack.enter_context(db)
 
-    if args.n_prior_excluded > 0:
-        r = check_random_state(args.prior_seed)
+        prior_idx = args.prior_idx
+        if args.prior_record_id is not None and len(args.prior_record_id) > 0:
+            prior_idx = _convert_id_to_idx(db, args.prior_record_id)
 
-        excluded_idx = np.where(db.input["included"] == 0)[0]
-        if len(excluded_idx) < args.n_prior_excluded:
-            raise ValueError(
-                f"Number of excluded priors requested ({args.n_prior_excluded})"
-                f" is bigger than number of excluded records "
-                f"({len(excluded_idx)})."
+        stopper = LastRelevant() if args.n_stop is None else NLabeled(args.n_stop)
+
+        if args.config_file:
+            cycle_meta = ActiveLearningCycleData(**_read_config_file(args.config_file))
+        elif args.classifier or args.querier or args.balancer or args.feature_extractor:
+            cycle_meta = ActiveLearningCycleData(
+                querier=args.querier,
+                classifier=args.classifier,
+                balancer=args.balancer,
+                feature_extractor=args.feature_extractor,
+                n_query=args.n_query,
             )
-        sim.label(r.choice(excluded_idx, args.n_prior_excluded, replace=False))
+        else:
+            cycle_meta = get_ai_config(args.ai.lower())["value"]
 
-    sim.review()
+        cycles = [
+            ActiveLearningCycle(
+                querier=TopDown(),
+                stopper=IsFittable(),
+            ),
+            ActiveLearningCycle.from_meta(cycle_meta),
+        ]
 
-    if args.output is not None:
-        project.add_review(reviewer=sim, status="finished")
+        groups = db.input.get_groups() if args.group_similar_records else None
 
-        project.export(args.output)
-        shutil.rmtree(fp_tmp_simulation)
+        sim = Simulate(
+            db.input.get_df(),
+            db.input["included"],
+            cycles,
+            stopper=stopper,
+            groups=groups,
+        )
 
-    else:
-        print("\nTo store the results, use the -o option. E.g. -o my_sim.asreview")
+        # select or sample prior knowledge and then label it
+        if len(prior_idx) > 0:
+            print("Selected prior knowledge via --prior-idx:\n")
+            for record in db.input.get_records(prior_idx):
+                _print_record(record)
+
+            sim.label(prior_idx)
+
+        if args.n_prior_included > 0:
+            r = check_random_state(args.prior_seed)
+
+            included_idx = np.where(db.input["included"] == 1)[0]
+            if len(included_idx) < args.n_prior_included:
+                raise ValueError(
+                    f"Number of included priors requested ({args.n_prior_included})"
+                    f" is bigger than number of included records "
+                    f"({len(included_idx)})."
+                )
+            sim.label(r.choice(included_idx, args.n_prior_included, replace=False))
+
+        if args.n_prior_excluded > 0:
+            r = check_random_state(args.prior_seed)
+
+            excluded_idx = np.where(db.input["included"] == 0)[0]
+            if len(excluded_idx) < args.n_prior_excluded:
+                raise ValueError(
+                    f"Number of excluded priors requested ({args.n_prior_excluded})"
+                    f" is bigger than number of excluded records "
+                    f"({len(excluded_idx)})."
+                )
+            sim.label(r.choice(excluded_idx, args.n_prior_excluded, replace=False))
+
+        sim.review()
+
+        if args.output is not None:
+            project.add_review(reviewer=sim, status="finished")
+
+            project.export(args.output)
+            shutil.rmtree(fp_tmp_simulation)
+
+        else:
+            print("\nTo store the results, use the -o option. E.g. -o my_sim.asreview")
 
 
 DESCRIPTION_SIMULATE = """
@@ -356,7 +364,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     # output and verbosity
     parser.add_argument(
         "--output",
-        "-o",
+        -"-o",
         type=str,
         help="Location to ASReview project file of simulation.",
     )
