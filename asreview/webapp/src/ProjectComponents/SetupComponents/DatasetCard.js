@@ -59,19 +59,19 @@ const DatasetCard = ({
               </>
             ) : (
               <>
-                This dataset contains{" "}
+                You uploaded{" "}
                 <Box sx={{ fontWeight: "bold", display: "inline" }}>
                   {data?.n_rows}
                 </Box>{" "}
-                records;{" "}
-                {data?.n_duplicated === 0 ? (
-                  "all of which are unique"
-                ) : (
+                records with unique texts{" "}
+                {data?.n_duplicated > 0 && (
                   <>
+                    {" "}
+                    (we have hidden{" "}
                     <Box sx={{ fontWeight: "bold", display: "inline" }}>
-                      {data?.n_rows - data?.n_duplicated}
+                      {data?.n_duplicated}
                     </Box>{" "}
-                    are likely unique
+                    duplicated records)
                   </>
                 )}
               </>
