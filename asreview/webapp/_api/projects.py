@@ -351,7 +351,9 @@ def api_upgrade_projects(projects):
                     f"Project version {project_file_version} not supported."
                 )
             if project_file_version < asr.Project.VERSION:
-                migrate_project(project.project_path, project_file_version, 3)
+                migrate_project(
+                    project.project_path, project_file_version, asr.Project.VERSION
+                )
         except Exception as err:
             errors.append(str(err))
             continue
