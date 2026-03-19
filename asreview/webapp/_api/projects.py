@@ -346,13 +346,13 @@ def api_upgrade_projects(projects):
     for project, _ in projects:
         try:
             project_file_version = detect_version(project.config)
-            if project_file_version:
-                migrate_project(project.project_path, 1, 2)
-            elif project_file_version == 2:
-                pass
-            else:
+            if project_file_version <= 0 or project_file_version > asr.Project.VERSION:
                 raise ValueError(
                     f"Project version {project_file_version} not supported."
+                )
+            if project_file_version < asr.Project.VERSION:
+                migrate_project(
+                    project.project_path, project_file_version, asr.Project.VERSION
                 )
         except Exception as err:
             errors.append(str(err))
