@@ -2,6 +2,7 @@ import * as React from "react";
 
 import {
   Box,
+  IconButton,
   Snackbar,
   Tab,
   Tabs,
@@ -11,6 +12,8 @@ import {
 
 import {
   CategoryOutlined,
+  CelebrationOutlined,
+  Close,
   DriveFolderUploadOutlined,
   FileUploadOutlined,
   LinkOutlined,
@@ -36,6 +39,7 @@ const Upload = ({ mode }) => {
   const [uploadSource, setUploadSource] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState(null);
   const [setupProjectId, setSetupProjectId] = React.useState(null);
+  const [showNewFeatureBanner, setShowNewFeatureBanner] = React.useState(true);
 
   useQuery(["fetchProjects", { subset: mode }], ProjectAPI.fetchProjects, {
     onSuccess: (data) => {
@@ -215,6 +219,48 @@ const Upload = ({ mode }) => {
             />
           </Tabs>
         )}
+
+        {showNewFeatureBanner &&
+          (uploadSource === "file" || uploadSource === "url") && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "stretch",
+                gap: 2,
+                background: `linear-gradient(135deg, #fff0ee, #fffbe8, #f0faed, #e8f7fb, #f5eeff) padding-box,
+                 linear-gradient(135deg, #f97b6b, #f9c74f, #90be6d, #43b3c8, #9b72cf) border-box`,
+                border: "2px solid transparent",
+                borderRadius: 2,
+                px: 3,
+                py: 2,
+                mb: 3,
+              }}
+            >
+              <Box
+                sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}
+              >
+                <CelebrationOutlined sx={{ color: "#f9c74f", fontSize: 40 }} />
+              </Box>
+              <Box>
+                <Typography fontWeight="bold" fontSize="0.9rem">
+                  New feature
+                </Typography>
+                <Typography fontSize="0.875rem">
+                  Upload your dataset worry-free and let us handle the mess. We
+                  automatically spot and hide duplicate records to keep things
+                  clean and tidy. Need those duplicates back? No problem—include
+                  them in your export with a click.
+                </Typography>
+              </Box>
+              <IconButton
+                size="small"
+                onClick={() => setShowNewFeatureBanner(false)}
+                sx={{ ml: "auto", flexShrink: 0 }}
+              >
+                <Close fontSize="small" />
+              </IconButton>
+            </Box>
+          )}
 
         {uploadSource === "file" && (
           <DatasetFromFile mode={mode} setSetupProjectId={setSetupProjectId} />
