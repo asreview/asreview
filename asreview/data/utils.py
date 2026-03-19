@@ -1,3 +1,6 @@
+import re
+import unicodedata
+
 import numpy as np
 import pandas as pd
 from rispy import LIST_TYPE_TAGS
@@ -15,10 +18,28 @@ LIST_JOIN_CHAR = ";"
 RIS_LIST_COLUMNS = [TAG_KEY_MAPPING[list_type_tag] for list_type_tag in LIST_TYPE_TAGS]
 PANDAS_CSV_MAX_CELL_LIMIT = 131072
 
+
+def _clean_text(text):
+    """Normalize text for duplicate detection.
+
+    Removes whitespace, lowercases, and normalizes special characters
+    (e.g. accented letters, ligatures) to their ASCII equivalents.
+    """
+    if not text:
+        return ""
+    # Normalize unicode (e.g. é -> e, fi ligature -> fi)
+    text = unicodedata.normalize("NFKD", text)
+    text = text.lower()
+    # Keep only alphanumeric characters (removes punctuation, whitespace,
+    # and combining marks left over from NFKD decomposition)
+    text = re.sub(r"[^a-z0-9]", "", text)
+    return text
+
+
 # Default feature extractor for identifying groups of records.
 DEFAULT_EXTRACTORS = (
-    lambda record: record.title,
-    lambda record: record.abstract,
+    lambda record: _clean_text(record.title),
+    lambda record: _clean_text(record.abstract),
 )
 
 

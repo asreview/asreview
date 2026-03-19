@@ -10,6 +10,7 @@ from asreview.data.loader import load_dataset
 from asreview.data.loader import load_records
 from asreview.data.record import Base
 from asreview.data.record import Record
+from asreview.data.utils import _clean_text
 from asreview.data.utils import identify_groups
 from asreview.data.utils import identify_record_groups
 from asreview.database.store import DataStore
@@ -381,3 +382,55 @@ def test_load_dataset_grouped(tmpdir):
     assert set(groups) == set((i, i) for i in range(6)).union(
         set((i, i + 6) for i in range(6))
     )
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        # Empty / falsy inputs
+        ("", ""),
+        (None, ""),
+        # Lowercasing
+        ("Machine Learning", "machinelearning"),
+        # Whitespace removal
+        ("  hello   world  ", "helloworld"),
+        ("hello\tworld\n", "helloworld"),
+        # Punctuation removal
+        ("self-report", "selfreport"),
+        ("title: a study.", "titleastudy"),
+        # Accented characters normalized via NFKD
+        ("café", "cafe"),
+        ("naïve résumé", "naiveresume"),
+        # Unicode dashes normalized (em-dash, en-dash)
+        ("self\u2014report", "selfreport"),
+        ("self\u2013report", "selfreport"),
+        # Ligatures expanded via NFKD
+        ("\ufb01nding", "finding"),
+        # Mixed
+        ("  Héllo,  Wörld!  ", "helloworld"),
+    ],
+)
+def test_clean_text(text, expected):
+    assert _clean_text(text) == expected
+
+
+def test_identify_record_groups_default_extractors():
+    """Test that the default extractors detect duplicates despite whitespace,
+    case, punctuation, and accent differences."""
+    records = [
+        Record("ds1", 0, title="Machine Learning", abstract="An abstract."),
+        Record("ds1", 1, title="machine  learning", abstract="an abstract"),
+        Record("ds1", 2, title="MACHINE-LEARNING", abstract="An Abstract!"),
+        Record("ds1", 3, title="café study", abstract="some abstract"),
+        Record("ds1", 4, title="cafe study", abstract="some abstract"),
+        Record("ds1", 5, title="unique title", abstract="unique abstract"),
+    ]
+    for i, record in enumerate(records):
+        record.record_id = i
+
+    result = identify_record_groups(records)
+
+    # First three records should be in one group (group_id=0).
+    # "café study" and "cafe study" should be in another group (group_id=3).
+    # "unique title" should be its own group.
+    assert set(result) == {(0, 0), (0, 1), (0, 2), (3, 3), (3, 4), (5, 5)}
