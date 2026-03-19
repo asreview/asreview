@@ -364,7 +364,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     # output and verbosity
     parser.add_argument(
         "--output",
-        -"-o",
+        "-o",
         type=str,
         help="Location to ASReview project file of simulation.",
     )
