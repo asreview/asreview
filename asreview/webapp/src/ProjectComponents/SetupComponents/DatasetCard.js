@@ -59,19 +59,19 @@ const DatasetCard = ({
               </>
             ) : (
               <>
-                This dataset contains{" "}
+                You uploaded{" "}
                 <Box sx={{ fontWeight: "bold", display: "inline" }}>
                   {data?.n_rows}
                 </Box>{" "}
-                records;{" "}
-                {data?.n_duplicated === 0 ? (
-                  "all of which are unique"
-                ) : (
+                records with unique texts{" "}
+                {data?.n_duplicated > 0 && (
                   <>
+                    {" "}
+                    (we have hidden{" "}
                     <Box sx={{ fontWeight: "bold", display: "inline" }}>
-                      {data?.n_rows - data?.n_duplicated}
+                      {data?.n_duplicated}
                     </Box>{" "}
-                    are likely unique
+                    duplicated records)
                   </>
                 )}
               </>
@@ -193,8 +193,15 @@ const DatasetCard = ({
                 Dataset Information
               </Typography>
               <Typography variant="body2" sx={{ textAlign: "justify", mb: 2 }}>
-                The following charts provide insights into the composition of
-                your dataset.
+                The charts give you a quick, visual breakdown of your dataset.
+              </Typography>
+              <Typography variant="body2" sx={{ textAlign: "justify", mb: 2 }}>
+                We hide duplicate records using titles and any primary text you
+                upload. During screening, you&apos;ll see one version of each
+                duplicate group to cut down the clutter. But nothing disappears.
+                When you export, all duplicate records can be included&mdash;so
+                you stay in control and can decide exactly what gets
+                deduplicated.
               </Typography>
               <Alert severity="info">
                 A clean and complete dataset improves the quality of your
