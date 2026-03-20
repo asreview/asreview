@@ -1089,15 +1089,20 @@ def api_export_dataset(project):
     if "irrelevant" in collections:
         export_order.extend(df_results[df_results["label"] == 0].index.to_list())
 
-    # Optionally expand export_order to include group members, which inherit
-    # their group representative's label.
+    # group_to_members maps each group representative (group_id == record_id)
+    # to all record_ids in that group.
     group_to_members = (
         df_groups.reset_index().groupby("group_id")["record_id"].apply(list).to_dict()
     )
     if export_groups:
+        # Expand each representative to include all group members.
         export_order = [
             rid for rep in export_order for rid in group_to_members.get(rep, [rep])
         ]
+    else:
+        # Keep only group representatives, dropping any group members that may
+        # have ended up in export_order (e.g. from df_unlabeled).
+        export_order = [rid for rid in export_order if rid in group_to_members]
 
     df_results = _flatten_tags(
         df_results,
