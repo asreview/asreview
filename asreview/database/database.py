@@ -599,7 +599,7 @@ class Database:
         return result
 
     def get_results_table(
-        self, columns=None, priors=True, pending=False, whole_group=False
+        self, columns=None, priors=True, pending=False, grouped=False
     ):
         """Get a subset from the results table.
 
@@ -616,7 +616,7 @@ class Database:
             Whether to keep the records containing the prior knowledge.
         pending: bool
             Whether to keep the records which are pending a labeling decision.
-        whole_group: bool
+        grouped: bool
             Return the records of a group of records. Be default only returns the base
             record of each group.
 
@@ -629,13 +629,13 @@ class Database:
         if isinstance(columns, str):
             columns = [columns]
 
-        if (not priors) or (not pending) or (not whole_group):
+        if (not priors) or (not pending) or (not grouped):
             sql_where = []
             if not priors:
                 sql_where.append("querier is not NULL")
             if not pending:
                 sql_where.append("label is not NULL")
-            if not whole_group:
+            if not grouped:
                 sql_where.append(
                     f"record_id IN ( SELECT group_id FROM {self.record_table_name})"
                 )

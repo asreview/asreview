@@ -246,10 +246,10 @@ const Upload = ({ mode }) => {
                   New feature
                 </Typography>
                 <Typography fontSize="0.875rem">
-                  Upload your dataset worry-free and let us handle the mess. We
-                  automatically spot and hide duplicate records to keep things
-                  clean and tidy. Need those duplicates back? No problem—include
-                  them in your export with a click.
+                  We automatically spot and hide records with identical titles
+                  and texts to keep your screening clean and tidy. Need those
+                  records back? No problem—during export you can decide to
+                  include or hide them.
                 </Typography>
               </Box>
               <IconButton

@@ -33,6 +33,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
   const [collections, setCollections] = React.useState(["relevant"]);
   const [exportName, setExportName] = React.useState(true);
   const [exportEmail, setExportEmail] = React.useState(true);
+  const [exportGroups, setExportGroups] = React.useState(true);
   const [anchorElInfo, setAnchorElInfo] = React.useState(null);
 
   const { data } = useQuery(
@@ -58,6 +59,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
       format,
       exportName,
       exportEmail,
+      exportGroups,
     }).then(() => {
       onClose();
     });
@@ -196,6 +198,18 @@ const ExportDialog = ({ project_id, open, onClose }) => {
             })}
           </Select>
         </FormControl>
+
+        <Divider sx={{ my: "1.5rem" }} />
+
+        <FormControlLabel
+          control={
+            <Switch
+              checked={exportGroups}
+              onChange={(event) => setExportGroups(event.target.checked)}
+            />
+          }
+          label="Include grouped records"
+        />
 
         <Divider sx={{ my: "1.5rem" }} />
 

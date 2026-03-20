@@ -13,7 +13,7 @@ from asreview.data.record import Record
 
 def assert_state(db, state, columns):
     pd.testing.assert_frame_equal(
-        db.get_results_table(columns=columns, pending=True, whole_group=True),
+        db.get_results_table(columns=columns, pending=True, grouped=True),
         pd.DataFrame(
             state,
             columns=columns,
@@ -450,19 +450,19 @@ def test_update_note(db):
     db.label_record(2, 1)
 
     db.update_note(0, "note0")
-    assert db.get_results_table(columns=["note"], whole_group=True)["note"].replace(
+    assert db.get_results_table(columns=["note"], grouped=True)["note"].replace(
         [pd.NA], None
     ).to_list() == ["note0", "note0", None]
     assert db.get_decision_changes().empty
 
     db.update_note(2, "note2")
-    assert db.get_results_table(columns=["note"], whole_group=True)["note"].replace(
+    assert db.get_results_table(columns=["note"], grouped=True)["note"].replace(
         [pd.NA], None
     ).to_list() == ["note0", "note0", "note2"]
     assert db.get_decision_changes().empty
 
     db.update_note(1, None)
-    assert db.get_results_table(columns=["note"], whole_group=True)["note"].replace(
+    assert db.get_results_table(columns=["note"], grouped=True)["note"].replace(
         [pd.NA], None
     ).to_list() == [None, None, "note2"]
     assert db.get_decision_changes().empty
@@ -509,22 +509,22 @@ def test_get_results_table_columns(db_with_data):
 @pytest.mark.parametrize(
     "kwargs,expected",
     [
-        # Default: priors=True, pending=False, whole_group=False
+        # Default: priors=True, pending=False, grouped=False
         ({}, [0, 2, 5, 3]),
-        # priors=False, pending=False, whole_group=False
+        # priors=False, pending=False, grouped=False
         ({"priors": False}, [5, 3]),
-        # priors=True, pending=True, whole_group=False
+        # priors=True, pending=True, grouped=False
         ({"pending": True}, [0, 2, 5, 3, 6, 8]),
-        # priors=False, pending=True, whole_group=False
+        # priors=False, pending=True, grouped=False
         ({"priors": False, "pending": True}, [5, 3, 6, 8]),
-        # priors=True, pending=False, whole_group=True
-        ({"whole_group": True}, [0, 1, 2, 5, 3, 4]),
-        # priors=False, pending=False, whole_group=True
-        ({"priors": False, "whole_group": True}, [5, 3, 4]),
-        # priors=True, pending=True, whole_group=True
-        ({"pending": True, "whole_group": True}, [0, 1, 2, 5, 3, 4, 6, 7, 8]),
-        # priors=False, pending=True, whole_group=True
-        ({"priors": False, "pending": True, "whole_group": True}, [5, 3, 4, 6, 7, 8]),
+        # priors=True, pending=False, grouped=True
+        ({"grouped": True}, [0, 1, 2, 5, 3, 4]),
+        # priors=False, pending=False, grouped=True
+        ({"priors": False, "grouped": True}, [5, 3, 4]),
+        # priors=True, pending=True, grouped=True
+        ({"pending": True, "grouped": True}, [0, 1, 2, 5, 3, 4, 6, 7, 8]),
+        # priors=False, pending=True, grouped=True
+        ({"priors": False, "pending": True, "grouped": True}, [5, 3, 4, 6, 7, 8]),
     ],
 )
 def test_get_results_table(db_with_data, kwargs, expected):

@@ -1067,11 +1067,16 @@ def api_export_dataset(project):
     file_format = request.args.get("format", default="csv", type=str)
     export_name = request.args.get("export_name", default=1, type=int)
     export_email = request.args.get("export_email", default=1, type=int)
+    export_groups = request.args.get("export_groups", default=1, type=int)
     collections = request.args.getlist("collections", type=str)
 
     with project.db as db:
-        df_results = db.get_results_table(whole_group=True).set_index("record_id")
+        df_results = db.get_results_table(grouped=True).set_index("record_id")
         df_unlabeled = db.get_unlabeled()
+        df_groups = pd.read_sql_query(
+            f"SELECT record_id, group_id FROM {db.record_table_name}",
+            db._conn,
+        ).set_index("record_id")
 
     export_order = []
 
@@ -1083,6 +1088,21 @@ def api_export_dataset(project):
 
     if "irrelevant" in collections:
         export_order.extend(df_results[df_results["label"] == 0].index.to_list())
+
+    # group_to_members maps each group representative (group_id == record_id)
+    # to all record_ids in that group.
+    group_to_members = (
+        df_groups.reset_index().groupby("group_id")["record_id"].apply(list).to_dict()
+    )
+    if export_groups:
+        # Expand each representative to include all group members.
+        export_order = [
+            rid for rep in export_order for rid in group_to_members.get(rep, [rep])
+        ]
+    else:
+        # Keep only group representatives, dropping any group members that may
+        # have ended up in export_order (e.g. from df_unlabeled).
+        export_order = [rid for rid in export_order if rid in group_to_members]
 
     df_results = _flatten_tags(
         df_results,
@@ -1126,9 +1146,12 @@ def api_export_dataset(project):
     del df_results["user_id"]
 
     df_user_input_data = project.read_input_data()
+
     df_user_input_data = df_user_input_data.loc[
         :, ~df_user_input_data.columns.str.startswith("asreview_")
     ]
+
+    df_user_input_data = df_user_input_data.join(df_groups)
     # If the input is RIS and the output is CSV or Excel, we need to convert list
     # columns to strings to avoid too long lists being truncated and leading to corrupt
     # files.
@@ -1140,8 +1163,13 @@ def api_export_dataset(project):
         df_user_input_data = convert_ris_list_columns_to_string(df_user_input_data)
 
     df_export = df_user_input_data.join(
-        df_results.add_prefix("asreview_"), how="left"
+        df_results.add_prefix("asreview_"), on="group_id", how="left"
     ).loc[export_order]
+
+    if export_groups:
+        df_export = df_export.rename(columns={"group_id": "asreview_group_id"})
+    else:
+        df_export = df_export.drop(columns=["group_id"])
 
     tmp_path = tempfile.mkdtemp()
     tmp_path_dataset = Path(tmp_path, f"export_dataset.{file_format}")
