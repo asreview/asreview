@@ -36,6 +36,7 @@ from flask import abort
 from flask import current_app
 from flask import jsonify
 from flask import request
+from flask import after_this_request
 from flask import send_file
 from flask_login import current_user
 from sklearn.feature_extraction.text import CountVectorizer
@@ -262,61 +263,63 @@ def api_create_project():  # noqa: F401
 
     project_id = uuid4().hex
 
-    project = asr.Project.create(
+    with asr.Project.create(
         get_project_path(project_id),
         project_id=project_id,
         project_mode=request.form["mode"],
         project_name=request.form["mode"] + "_" + time.strftime("%Y%m%d-%H%M%S"),
-    )
+    ) as project:
+        # create dataset folder if not present
+        project.data_dir.mkdir(exist_ok=True)
 
-    # create dataset folder if not present
-    project.data_dir.mkdir(exist_ok=True)
-
-    try:
-        if request.form.get("plugin", None):
-            project.add_dataset(request.form["plugin"])
-        elif request.form.get("benchmark", None):
-            project.add_dataset(request.form["benchmark"])
-        elif request.form.get("url", None):
-            project.add_dataset(request.form["url"])
-        elif "file" in request.files:
-            project.add_dataset(
-                secure_filename(request.files["file"].filename),
-                file_writer=request.files["file"].save,
-            )
-        else:
-            return jsonify(message="No file or dataset found to import."), 400
-
-        project.add_review()
-        model = get_ai_config()
-        project.update_review(model_name=model["name"], model=model["value"])
-
-        included = project.db.input["included"]
-        n_labeled = included.notnull().sum()
-
-        if n_labeled > 0 and n_labeled < len(project.db.input):
-            labeled_indices = np.where((included == 1) | (included == 0))[0]
-            labels = included[labeled_indices].tolist()
-            labeled_record_ids = included[labeled_indices].tolist()
-            with project.db as db:
-                for record_id, label in zip(labeled_record_ids, labels):
-                    db.label_record(record_id, label, user_id=None)
-
-    except Exception as err:
         try:
-            shutil.rmtree(get_project_path(project_id))
-        except Exception:
-            pass
+            if request.form.get("plugin", None):
+                project.add_dataset(request.form["plugin"])
+            elif request.form.get("benchmark", None):
+                project.add_dataset(request.form["benchmark"])
+            elif request.form.get("url", None):
+                project.add_dataset(request.form["url"])
+            elif "file" in request.files:
+                project.add_dataset(
+                    secure_filename(request.files["file"].filename),
+                    file_writer=request.files["file"].save,
+                )
+            else:
+                return jsonify(message="No file or dataset found to import."), 400
 
-        logging.exception(err)
-        return jsonify(message=f"Failed to create project for this dataset. {err}"), 400
+            project.add_review()
+            model = get_ai_config()
+            project.update_review(model_name=model["name"], model=model["value"])
 
-    if current_app.config.get("AUTHENTICATION", True):
-        # create a database entry for this project
-        current_user.projects.append(Project(project_id=project_id))
-        DB.session.commit()
+            included = project.db.input["included"]
+            n_labeled = included.notnull().sum()
 
-    return jsonify(project.config), 201
+            if n_labeled > 0 and n_labeled < len(project.db.input):
+                labeled_indices = np.where((included == 1) | (included == 0))[0]
+                labels = included[labeled_indices].tolist()
+                labeled_record_ids = included[labeled_indices].tolist()
+                with project.db as db:
+                    for record_id, label in zip(labeled_record_ids, labels):
+                        db.label_record(record_id, label, user_id=None)
+
+        except Exception as err:
+            try:
+                shutil.rmtree(get_project_path(project_id))
+            except Exception:
+                pass
+
+            logging.exception(err)
+            return (
+                jsonify(message=f"Failed to create project for this dataset. {err}"),
+                400,
+            )
+
+        if current_app.config.get("AUTHENTICATION", True):
+            # create a database entry for this project
+            current_user.projects.append(Project(project_id=project_id))
+            DB.session.commit()
+
+        return jsonify(project.config), 201
 
 
 @bp.route("/dataset_readers", methods=["GET"])
@@ -1140,10 +1143,15 @@ def api_export_dataset(project):
         df_results.add_prefix("asreview_"), how="left"
     ).loc[export_order]
 
-    tmp_path = tempfile.TemporaryDirectory()
-    tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
+    tmp_path = tempfile.mkdtemp()
+    tmp_path_dataset = Path(tmp_path, f"export_dataset.{file_format}")
 
     writer.write_data(df_export, tmp_path_dataset)
+
+    @after_this_request
+    def cleanup(response):
+        shutil.rmtree(tmp_path, ignore_errors=True)
+        return response
 
     return send_file(
         tmp_path_dataset,
@@ -1170,11 +1178,16 @@ def export_project(project):
 
     project_export_name = secure_filename(project.config["name"])
 
-    tmpdir = tempfile.TemporaryDirectory()
-    tmpfile = Path(tmpdir.name, project_export_name).with_suffix(".asreview")
+    tmpdir = tempfile.mkdtemp()
+    tmpfile = Path(tmpdir, project_export_name).with_suffix(".asreview")
 
     logging.info("Saving project (temporary) to %s", tmpfile)
     project.export(tmpfile)
+
+    @after_this_request
+    def cleanup(response):
+        shutil.rmtree(tmpdir, ignore_errors=True)
+        return response
 
     return send_file(
         tmpfile,

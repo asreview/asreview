@@ -3,9 +3,12 @@ import shutil
 import sqlite3
 from pathlib import Path
 
+import jsonschema
 from sqlalchemy import create_engine
+
 from asreview.data.record import Base
 from asreview.database.database import Database
+from asreview.project.schema import SCHEMA
 
 
 def _migrate(project):
@@ -74,7 +77,7 @@ def _copy_store_to_results(project):
     try:
         cur = conn.cursor()
         data_store_fp = Path(project, "data_store.db")
-        cur.execute(f"ATTACH '{str(data_store_fp)}' AS data_store")
+        cur.execute("ATTACH ? AS data_store", (str(data_store_fp),))
         cur.execute("""
             INSERT INTO record(dataset_row, dataset_id, duplicate_of, title, abstract,
                     authors, keywords, year, doi, url, included, record_id)
@@ -98,3 +101,39 @@ def _update_database_version(project):
 def _add_database_triggers(project):
     with Database(Path(project, "results.db")) as db:
         db._set_results_changes_triggers()
+
+
+def _validate(project):
+    """Validate a migrated v3 project.
+
+    Parameters
+    ----------
+    project : Path
+        Path to the migrated project folder.
+
+    Raises
+    ------
+    ValueError
+        If the migrated project is not valid.
+    """
+    config_fp = Path(project, "project.json")
+    if not config_fp.exists():
+        raise ValueError("Migrated project is missing project.json.")
+
+    with open(config_fp) as f:
+        config = json.load(f)
+
+    jsonschema.validate(instance=config, schema=SCHEMA)
+
+    if config.get("project_file_version") != 3:
+        raise ValueError(
+            f"Expected project file version 3, "
+            f"got {config.get('project_file_version')}."
+        )
+
+    results_db_fp = Path(project, "results.db")
+    if not results_db_fp.exists():
+        raise ValueError("Migrated project is missing results.db.")
+
+    with Database(results_db_fp) as db:
+        db._is_valid()

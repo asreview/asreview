@@ -101,8 +101,8 @@ def project_authorization(f):
             project_path = get_project_path(project_id)
             if not is_project(project_path):
                 raise ProjectNotFoundError(f"Project '{project_id}' not found")
-            project = asr.Project(project_path, project_id=project_id)
-            return f(project, *args, **kwargs)
+            with asr.Project(project_path, project_id=project_id) as project:
+                return f(project, *args, **kwargs)
 
         # find the project
         project = Project.query.filter(Project.project_id == project_id).one_or_none()
@@ -119,9 +119,9 @@ def project_authorization(f):
         project_path = get_project_path(project_id)
         if not is_project(project_path):
             raise ProjectNotFoundError(f"Project '{project_id}' not found")
-        project = asr.Project(project_path, project_id=project_id)
 
-        return f(project, *args, **kwargs)
+        with asr.Project(project_path, project_id=project_id) as project:
+            return f(project, *args, **kwargs)
 
     return decorated_function
 
