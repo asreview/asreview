@@ -36,10 +36,39 @@ def _clean_text(text):
     return text
 
 
+# Matches copyright/license notices that commonly appear at the end of abstracts.
+# Only applied to the last 300 characters to avoid false positives mid-text.
+_COPYRIGHT_RE = re.compile(
+    r"(?:"
+    r"©"
+    r"|\bcopyright\b"
+    r"|\ball\s+rights\s+reserved\b"
+    r"|\bpublished\s+by\s+\w"
+    r"|\bcreative\s+commons\b"
+    r"|\bcc\s+by\b"
+    r"|\bcrown\s+copyright\b"
+    r"|\bopen\s+access\s+article\b"
+    r").*",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def _strip_copyright(text):
+    """Strip copyright/license notices from the end of an abstract."""
+    if not text:
+        return text
+    tail_start = max(0, len(text) - 300)
+    tail = text[tail_start:]
+    m = _COPYRIGHT_RE.search(tail)
+    if m:
+        return text[: tail_start + m.start()].rstrip()
+    return text
+
+
 # Default feature extractor for identifying groups of records.
 DEFAULT_EXTRACTORS = (
     lambda record: _clean_text(record.title),
-    lambda record: _clean_text(record.abstract),
+    lambda record: _clean_text(_strip_copyright(record.abstract)),
 )
 
 
