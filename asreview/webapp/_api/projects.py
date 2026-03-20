@@ -1067,6 +1067,7 @@ def api_export_dataset(project):
     file_format = request.args.get("format", default="csv", type=str)
     export_name = request.args.get("export_name", default=1, type=int)
     export_email = request.args.get("export_email", default=1, type=int)
+    export_groups = request.args.get("export_groups", default=1, type=int)
     collections = request.args.getlist("collections", type=str)
 
     with project.db as db:
@@ -1088,14 +1089,15 @@ def api_export_dataset(project):
     if "irrelevant" in collections:
         export_order.extend(df_results[df_results["label"] == 0].index.to_list())
 
-    # Expand export_order to include group members, which inherit their
-    # group representative's label.
+    # Optionally expand export_order to include group members, which inherit
+    # their group representative's label.
     group_to_members = (
         df_groups.reset_index().groupby("group_id")["record_id"].apply(list).to_dict()
     )
-    export_order = [
-        rid for rep in export_order for rid in group_to_members.get(rep, [rep])
-    ]
+    if export_groups:
+        export_order = [
+            rid for rep in export_order for rid in group_to_members.get(rep, [rep])
+        ]
 
     df_results = _flatten_tags(
         df_results,
@@ -1155,13 +1157,14 @@ def api_export_dataset(project):
     ):
         df_user_input_data = convert_ris_list_columns_to_string(df_user_input_data)
 
-    df_export = (
-        df_user_input_data.join(
-            df_results.add_prefix("asreview_"), on="group_id", how="left"
-        )
-        .loc[export_order]
-        .rename(columns={"group_id": "asreview_group_id"})
-    )
+    df_export = df_user_input_data.join(
+        df_results.add_prefix("asreview_"), on="group_id", how="left"
+    ).loc[export_order]
+
+    if export_groups:
+        df_export = df_export.rename(columns={"group_id": "asreview_group_id"})
+    else:
+        df_export = df_export.drop(columns=["group_id"])
 
     tmp_path = tempfile.mkdtemp()
     tmp_path_dataset = Path(tmp_path, f"export_dataset.{file_format}")

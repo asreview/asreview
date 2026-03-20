@@ -453,6 +453,7 @@ class ProjectAPI {
     format,
     exportName,
     exportEmail,
+    exportGroups,
   }) {
     const url = api_url + `projects/${project_id}/export_dataset`;
 
@@ -465,6 +466,7 @@ class ProjectAPI {
           format: format,
           export_name: exportName ? 1 : 0,
           export_email: exportEmail ? 1 : 0,
+          export_groups: exportGroups ? 1 : 0,
         },
         paramsSerializer: (params) => {
           return qs.stringify(params, { arrayFormat: "repeat" });
