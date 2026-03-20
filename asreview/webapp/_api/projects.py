@@ -1155,9 +1155,13 @@ def api_export_dataset(project):
     ):
         df_user_input_data = convert_ris_list_columns_to_string(df_user_input_data)
 
-    df_export = df_user_input_data.join(
-        df_results.add_prefix("asreview_"), on="group_id", how="left"
-    ).loc[export_order].rename(columns={"group_id": "asreview_group_id"})
+    df_export = (
+        df_user_input_data.join(
+            df_results.add_prefix("asreview_"), on="group_id", how="left"
+        )
+        .loc[export_order]
+        .rename(columns={"group_id": "asreview_group_id"})
+    )
 
     tmp_path = tempfile.mkdtemp()
     tmp_path_dataset = Path(tmp_path, f"export_dataset.{file_format}")
