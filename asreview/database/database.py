@@ -479,7 +479,7 @@ class Database:
             {"user_id": user_id},
         )
         con.commit()
-        if not cur.rowcount:
+        if not cur.execute("SELECT changes()").fetchone()[0]:
             raise ValueError("Failed to query top ranked record")
         return self.get_pending(user_id=user_id)
 
