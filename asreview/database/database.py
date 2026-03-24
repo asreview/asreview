@@ -454,12 +454,11 @@ class Database:
         con = self._conn
         cur = con.cursor()
         cur.execute(
-            f"""INSERT INTO results (record_id, user_id, {model_string})
-            WITH top_record AS (
+            f"""WITH top_record AS (
                 SELECT last_ranking.*
                 FROM last_ranking
                 LEFT JOIN results USING (record_id)
-                WHERE results.record_id IS NULL
+                WHERE results.record_id IS NULL OR (results.label IS NULL AND results.user_id IS NULL)
                 ORDER BY ranking
                 LIMIT 1
             ), group_records AS (
@@ -471,9 +470,12 @@ class Database:
                     WHERE record.record_id = (SELECT record_id FROM top_record)
                 )
             )
-            SELECT group_records.record_id, :user_id, {top_record_string}
+            INSERT OR REPLACE INTO results (record_id, note, tags, user_id, {model_string})
+            SELECT group_records.record_id, results.note, results.tags, :user_id, {top_record_string}
             FROM group_records
-            CROSS JOIN top_record;""",
+            CROSS JOIN top_record
+            LEFT JOIN results USING (record_id);
+            """,
             {"user_id": user_id},
         )
         con.commit()
