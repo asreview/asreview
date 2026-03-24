@@ -499,10 +499,10 @@ class Database:
             {"user_id": user_id},
         )
         con.commit()
-        # Check if any record was updated, if not, the query did not return a top ranked record 
+        # Check if any record was updated, if not, the query did not return a top ranked record
         # and we should not return the newly pending record.
         # cur.rowcount does not work here, because INSERT OR REPLACE always returns -1 (unknown)
-        # see https://sqlite.org/lang_corefunc.html#changes 
+        # see https://sqlite.org/lang_corefunc.html#changes
         # for documentation on the sqlite changes() function.
         if cur.execute("SELECT changes()").fetchone()[0] == 0:
             raise ValueError("Failed to query top ranked record")
