@@ -471,9 +471,12 @@ class Database:
     def query_top_ranked(self, user_id=None):
         model_string = ", ".join(MODEL_COLUMNS)
         top_record_string = ", ".join(f"top_record.{col}" for col in MODEL_COLUMNS)
+        upsert_columns = ["user_id"] + MODEL_COLUMNS
+        upsert_string = ", ".join(f"{col} = excluded.{col}" for col in upsert_columns)
+
         con = self._conn
         cur = con.cursor()
-        cur.execute(
+        result = cur.execute(
             f"""WITH top_record AS (
                 SELECT last_ranking.*
                 FROM last_ranking
@@ -490,21 +493,22 @@ class Database:
                     WHERE record.record_id = (SELECT record_id FROM top_record)
                 )
             )
-            INSERT OR REPLACE INTO results (record_id, note, tags, user_id, {model_string})
-            SELECT group_records.record_id, results.note, results.tags, :user_id, {top_record_string}
+            INSERT INTO results (record_id, user_id, {model_string})
+            SELECT group_records.record_id, :user_id, {top_record_string}
             FROM group_records
-            CROSS JOIN top_record
-            LEFT JOIN results USING (record_id);
-            """,
+            CROSS JOIN top_record ON TRUE
+
+            ON CONFLICT(record_id) DO UPDATE
+                SET {upsert_string}
+            RETURNING record_id
+            ;""",
             {"user_id": user_id},
-        )
+        ).fetchone()
         con.commit()
         # Check if any record was updated, if not, the query did not return a top ranked record
         # and we should not return the newly pending record.
-        # cur.rowcount does not work here, because INSERT OR REPLACE always returns -1 (unknown)
-        # see https://sqlite.org/lang_corefunc.html#changes
-        # for documentation on the sqlite changes() function.
-        if cur.execute("SELECT changes()").fetchone()[0] == 0:
+        # cur.rowcount does not work here, because UPSERTS always return -1 (unknown)
+        if result is None:
             raise ValueError("Failed to query top ranked record")
         return self.get_pending(user_id=user_id)
 
