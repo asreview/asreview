@@ -598,9 +598,7 @@ class Database:
         result["tags"] = result["tags"].map(json.loads, na_action="ignore")
         return result
 
-    def get_results_table(
-        self, columns=None, priors=True, pending=False, groups=False
-    ):
+    def get_results_table(self, columns=None, priors=True, pending=False, groups=False):
         """Get a subset from the results table.
 
         Can be used to get any column subset from the results table.
@@ -716,12 +714,25 @@ class Database:
         )["record_id"]
 
     def get_unlabeled(self):
+        """Get the unlabeled record ids in ranking order.
+
+        Records that have no label or no entry in the results table are considered
+        unlabeled. Returns only group representatives (record_id == group_id).
+
+        Returns
+        -------
+        pd.Series
+            Series of record_ids of unlabeled records ordered by ranking.
+        """
         return pd.read_sql_query(
-            f"""SELECT record_id, group_id, last_ranking.ranking
+            f"""SELECT record_id, last_ranking.ranking
             FROM last_ranking
             JOIN {self.record_table_name} USING (record_id)
             LEFT JOIN results USING (record_id)
-            WHERE results.record_id IS NULL OR results.label IS NULL
+            WHERE (results.record_id IS NULL OR results.label IS NULL)
+            AND record_id IN (
+                SELECT group_id FROM {self.record_table_name}
+            )
             ORDER BY ranking
             """,
             self._conn,

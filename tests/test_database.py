@@ -543,7 +543,9 @@ def test_get_pool(db_with_data):
 
 
 def test_get_unlabeled(db_with_data):
-    db_with_data.get_unlabeled().to_list() == [6, 7, 8, 11, 9, 10]
+    # Returns only group representatives that are unlabeled or pending,
+    # in ranking order.
+    assert db_with_data.get_unlabeled().to_list() == [6, 8, 11, 9]
 
 
 def test_get_pending(db_with_data):
