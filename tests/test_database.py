@@ -518,13 +518,13 @@ def test_get_results_table_columns(db_with_data):
         # priors=False, pending=True, grouped=False
         ({"priors": False, "pending": True}, [5, 3, 6, 8]),
         # priors=True, pending=False, grouped=True
-        ({"grouped": True}, [0, 1, 2, 5, 3, 4]),
+        ({"groups": True}, [0, 1, 2, 5, 3, 4]),
         # priors=False, pending=False, grouped=True
-        ({"priors": False, "grouped": True}, [5, 3, 4]),
+        ({"priors": False, "groups": True}, [5, 3, 4]),
         # priors=True, pending=True, grouped=True
-        ({"pending": True, "grouped": True}, [0, 1, 2, 5, 3, 4, 6, 7, 8]),
+        ({"pending": True, "groups": True}, [0, 1, 2, 5, 3, 4, 6, 7, 8]),
         # priors=False, pending=True, grouped=True
-        ({"priors": False, "pending": True, "grouped": True}, [5, 3, 4, 6, 7, 8]),
+        ({"priors": False, "pending": True, "groups": True}, [5, 3, 4, 6, 7, 8]),
     ],
 )
 def test_get_results_table(db_with_data, kwargs, expected):
