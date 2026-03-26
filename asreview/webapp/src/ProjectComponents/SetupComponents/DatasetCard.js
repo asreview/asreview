@@ -63,7 +63,7 @@ const DatasetCard = ({
                 <Box sx={{ fontWeight: "bold", display: "inline" }}>
                   {data?.n_rows}
                 </Box>{" "}
-                records with unique texts{" "}
+                records{" "}
                 {data?.n_duplicated > 0 && (
                   <>
                     {" "}
@@ -71,7 +71,7 @@ const DatasetCard = ({
                     <Box sx={{ fontWeight: "bold", display: "inline" }}>
                       {data?.n_duplicated}
                     </Box>{" "}
-                    duplicated records)
+                    records with duplicate texts)
                   </>
                 )}
               </>

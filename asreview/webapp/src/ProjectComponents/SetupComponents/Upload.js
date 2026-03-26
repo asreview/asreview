@@ -246,10 +246,10 @@ const Upload = ({ mode }) => {
                   New feature
                 </Typography>
                 <Typography fontSize="0.875rem">
-                  We automatically spot and hide records with identical titles
-                  and texts to keep your screening clean and tidy. Need those
-                  records back? No problem—during export you can decide to
-                  include or hide them.
+                  We automatically hide records with duplicate titles and texts
+                  to keep your screening clean and tidy. Need those records
+                  back? No problem—you can decide to include them when you
+                  export your data.
                 </Typography>
               </Box>
               <IconButton
