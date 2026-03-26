@@ -1072,12 +1072,9 @@ def api_export_dataset(project):
     collections = request.args.getlist("collections", type=str)
 
     with project.db as db:
-        df_results = db.get_results_table(groups=True).set_index("record_id")
-        df_unlabeled = db.get_unlabeled()
-        df_groups = pd.read_sql_query(
-            f"SELECT record_id, group_id FROM {db.record_table_name}",
-            db._conn,
-        ).set_index("record_id")
+        df_results = db.get_results_table(groups=export_groups).set_index("record_id")
+        df_unlabeled = db.get_unlabeled(groups=export_groups)
+        df_groups = db.input[["record_id", "group_id"]].set_index("record_id")
 
     export_order = []
 
@@ -1090,26 +1087,10 @@ def api_export_dataset(project):
     if "irrelevant" in collections:
         export_order.extend(df_results[df_results["label"] == 0].index.to_list())
 
-    # group_to_members maps each group representative (group_id == record_id)
-    # to all record_ids in that group.
-    group_to_members = (
-        df_groups.reset_index().groupby("group_id")["record_id"].apply(list).to_dict()
-    )
-    if export_groups:
-        # Expand each representative to include all group members.
-        export_order = [
-            rid for rep in export_order for rid in group_to_members.get(rep, [rep])
-        ]
-    else:
-        # Keep only group representatives, dropping any group members that may
-        # have ended up in export_order (e.g. from df_unlabeled).
-        export_order = [rid for rid in export_order if rid in group_to_members]
-
     df_results = _flatten_tags(
         df_results,
         read_tags_data(project),
     )
-
     df_results["time"] = pd.to_datetime(df_results["time"], unit="s").dt.strftime(
         "%Y-%m-%d %H:%M:%S"
     )
