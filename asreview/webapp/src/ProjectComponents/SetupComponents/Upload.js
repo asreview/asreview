@@ -9,6 +9,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 
 import {
   CategoryOutlined,
@@ -34,7 +35,9 @@ import {
 import { useQuery } from "react-query";
 
 const Upload = ({ mode }) => {
+  const theme = useTheme();
   const mobileScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+  const isDark = theme.palette.mode === "dark";
 
   const [uploadSource, setUploadSource] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = React.useState(null);
@@ -227,8 +230,11 @@ const Upload = ({ mode }) => {
                 display: "flex",
                 alignItems: "stretch",
                 gap: 2,
-                background: `linear-gradient(135deg, #fff0ee, #fffbe8, #f0faed, #e8f7fb, #f5eeff) padding-box,
-                 linear-gradient(135deg, #f97b6b, #f9c74f, #90be6d, #43b3c8, #9b72cf) border-box`,
+                background: isDark
+                  ? `linear-gradient(135deg, #2a1f1e, #2a2718, #1e2a1c, #1c272a, #231e2a) padding-box,
+                     linear-gradient(135deg, #a35247, #a38135, #5e7c48, #2e7a87, #6b4e8e) border-box`
+                  : `linear-gradient(135deg, #fff0ee, #fffbe8, #f0faed, #e8f7fb, #f5eeff) padding-box,
+                     linear-gradient(135deg, #f97b6b, #f9c74f, #90be6d, #43b3c8, #9b72cf) border-box`,
                 border: "2px solid transparent",
                 borderRadius: 2,
                 px: 3,
@@ -239,7 +245,9 @@ const Upload = ({ mode }) => {
               <Box
                 sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}
               >
-                <CelebrationOutlined sx={{ color: "#f9c74f", fontSize: 40 }} />
+                <CelebrationOutlined
+                  sx={{ color: isDark ? "#a38135" : "#f9c74f", fontSize: 40 }}
+                />
               </Box>
               <Box>
                 <Typography fontWeight="bold" fontSize="0.9rem">
