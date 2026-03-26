@@ -527,20 +527,21 @@ def api_search_data(project):  # noqa: F401
     if not q:
         return jsonify({"result": []})
 
-    search_data = project.db.input[["title", "authors", "keywords"]]
+    search_data = project.db.input[["title", "authors", "keywords", "group_id"]]
 
     with project.db as db:
         labeled_record_ids = db.get_results_table()["record_id"].to_list()
 
-    result_ids = fuzzy_find(
+    record_ids = fuzzy_find(
         search_data,
         q,
         max_return=max_results,
         exclude=labeled_record_ids,
     )
+    group_ids = search_data.iloc[record_ids]["group_id"].unique().tolist()
 
     result = []
-    records = project.db.input.get_records(result_ids)
+    records = project.db.input.get_records(group_ids)
     for record in records:
         record_d = asdict(record)
         record_d["state"] = None
