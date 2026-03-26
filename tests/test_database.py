@@ -13,7 +13,7 @@ from asreview.data.record import Record
 
 def assert_state(db, state, columns):
     pd.testing.assert_frame_equal(
-        db.get_results_table(columns=columns, pending=True, grouped=True),
+        db.get_results_table(columns=columns, pending=True, groups=True),
         pd.DataFrame(
             state,
             columns=columns,
@@ -450,19 +450,19 @@ def test_update_note(db):
     db.label_record(2, 1)
 
     db.update_note(0, "note0")
-    assert db.get_results_table(columns=["note"], grouped=True)["note"].replace(
+    assert db.get_results_table(columns=["note"], groups=True)["note"].replace(
         [pd.NA], None
     ).to_list() == ["note0", "note0", None]
     assert db.get_decision_changes().empty
 
     db.update_note(2, "note2")
-    assert db.get_results_table(columns=["note"], grouped=True)["note"].replace(
+    assert db.get_results_table(columns=["note"], groups=True)["note"].replace(
         [pd.NA], None
     ).to_list() == ["note0", "note0", "note2"]
     assert db.get_decision_changes().empty
 
     db.update_note(1, None)
-    assert db.get_results_table(columns=["note"], grouped=True)["note"].replace(
+    assert db.get_results_table(columns=["note"], groups=True)["note"].replace(
         [pd.NA], None
     ).to_list() == [None, None, "note2"]
     assert db.get_decision_changes().empty

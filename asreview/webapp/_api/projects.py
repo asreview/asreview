@@ -1072,7 +1072,7 @@ def api_export_dataset(project):
     collections = request.args.getlist("collections", type=str)
 
     with project.db as db:
-        df_results = db.get_results_table(grouped=True).set_index("record_id")
+        df_results = db.get_results_table(groups=True).set_index("record_id")
         df_unlabeled = db.get_unlabeled()
         df_groups = pd.read_sql_query(
             f"SELECT record_id, group_id FROM {db.record_table_name}",
