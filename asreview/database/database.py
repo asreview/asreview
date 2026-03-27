@@ -598,9 +598,7 @@ class Database:
         result["tags"] = result["tags"].map(json.loads, na_action="ignore")
         return result
 
-    def get_results_table(
-        self, columns=None, priors=True, pending=False, grouped=False
-    ):
+    def get_results_table(self, columns=None, priors=True, pending=False, groups=False):
         """Get a subset from the results table.
 
         Can be used to get any column subset from the results table.
@@ -616,9 +614,9 @@ class Database:
             Whether to keep the records containing the prior knowledge.
         pending: bool
             Whether to keep the records which are pending a labeling decision.
-        grouped: bool
-            Return the records of a group of records. Be default only returns the base
-            record of each group.
+        groups: bool
+            Return all the records of a group of records. Be default only returns the
+            base record of each group.
 
         Returns
         -------
@@ -629,13 +627,13 @@ class Database:
         if isinstance(columns, str):
             columns = [columns]
 
-        if (not priors) or (not pending) or (not grouped):
+        if (not priors) or (not pending) or (not groups):
             sql_where = []
             if not priors:
                 sql_where.append("querier is not NULL")
             if not pending:
                 sql_where.append("label is not NULL")
-            if not grouped:
+            if not groups:
                 sql_where.append(
                     f"record_id IN ( SELECT group_id FROM {self.record_table_name})"
                 )
@@ -715,13 +713,37 @@ class Database:
             self._conn,
         )["record_id"]
 
-    def get_unlabeled(self):
+    def get_unlabeled(self, groups=False):
+        """Get the unlabeled record ids in ranking order.
+
+        Records that have no label or no entry in the results table are considered
+        unlabeled.
+
+        Parameters
+        ----------
+        groups : bool
+            If True, return all records in each unlabeled group. If False,
+            return only group representatives (record_id == group_id).
+
+        Returns
+        -------
+        pd.Series
+            Series of record_ids of unlabeled records ordered by ranking.
+        """
+        if groups:
+            sql_group_filter = ""
+        else:
+            sql_group_filter = (
+                f"AND record_id IN (SELECT group_id FROM {self.record_table_name})"
+            )
+
         return pd.read_sql_query(
-            f"""SELECT record_id, group_id, last_ranking.ranking
+            f"""SELECT record_id, last_ranking.ranking
             FROM last_ranking
             JOIN {self.record_table_name} USING (record_id)
             LEFT JOIN results USING (record_id)
-            WHERE results.record_id IS NULL OR results.label IS NULL
+            WHERE (results.record_id IS NULL OR results.label IS NULL)
+            {sql_group_filter}
             ORDER BY ranking
             """,
             self._conn,

@@ -13,7 +13,7 @@ from asreview.data.record import Record
 
 def assert_state(db, state, columns):
     pd.testing.assert_frame_equal(
-        db.get_results_table(columns=columns, pending=True, grouped=True),
+        db.get_results_table(columns=columns, pending=True, groups=True),
         pd.DataFrame(
             state,
             columns=columns,
@@ -450,19 +450,19 @@ def test_update_note(db):
     db.label_record(2, 1)
 
     db.update_note(0, "note0")
-    assert db.get_results_table(columns=["note"], grouped=True)["note"].replace(
+    assert db.get_results_table(columns=["note"], groups=True)["note"].replace(
         [pd.NA], None
     ).to_list() == ["note0", "note0", None]
     assert db.get_decision_changes().empty
 
     db.update_note(2, "note2")
-    assert db.get_results_table(columns=["note"], grouped=True)["note"].replace(
+    assert db.get_results_table(columns=["note"], groups=True)["note"].replace(
         [pd.NA], None
     ).to_list() == ["note0", "note0", "note2"]
     assert db.get_decision_changes().empty
 
     db.update_note(1, None)
-    assert db.get_results_table(columns=["note"], grouped=True)["note"].replace(
+    assert db.get_results_table(columns=["note"], groups=True)["note"].replace(
         [pd.NA], None
     ).to_list() == [None, None, "note2"]
     assert db.get_decision_changes().empty
@@ -518,13 +518,13 @@ def test_get_results_table_columns(db_with_data):
         # priors=False, pending=True, grouped=False
         ({"priors": False, "pending": True}, [5, 3, 6, 8]),
         # priors=True, pending=False, grouped=True
-        ({"grouped": True}, [0, 1, 2, 5, 3, 4]),
+        ({"groups": True}, [0, 1, 2, 5, 3, 4]),
         # priors=False, pending=False, grouped=True
-        ({"priors": False, "grouped": True}, [5, 3, 4]),
+        ({"priors": False, "groups": True}, [5, 3, 4]),
         # priors=True, pending=True, grouped=True
-        ({"pending": True, "grouped": True}, [0, 1, 2, 5, 3, 4, 6, 7, 8]),
+        ({"pending": True, "groups": True}, [0, 1, 2, 5, 3, 4, 6, 7, 8]),
         # priors=False, pending=True, grouped=True
-        ({"priors": False, "pending": True, "grouped": True}, [5, 3, 4, 6, 7, 8]),
+        ({"priors": False, "pending": True, "groups": True}, [5, 3, 4, 6, 7, 8]),
     ],
 )
 def test_get_results_table(db_with_data, kwargs, expected):
@@ -543,7 +543,10 @@ def test_get_pool(db_with_data):
 
 
 def test_get_unlabeled(db_with_data):
-    db_with_data.get_unlabeled().to_list() == [6, 7, 8, 11, 9, 10]
+    # By default, returns only group representatives.
+    assert db_with_data.get_unlabeled().to_list() == [6, 8, 11, 9]
+    # With groups=True, returns all records in each unlabeled group.
+    assert db_with_data.get_unlabeled(groups=True).to_list() == [6, 7, 8, 11, 9, 10]
 
 
 def test_get_pending(db_with_data):
