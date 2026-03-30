@@ -208,7 +208,7 @@ const ExportDialog = ({ project_id, open, onClose }) => {
               onChange={(event) => setExportGroups(event.target.checked)}
             />
           }
-          label="Include grouped records"
+          label="Include hidden records (records with duplicate titles and texts) in the export"
         />
 
         <Divider sx={{ my: "1.5rem" }} />
