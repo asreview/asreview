@@ -1,4 +1,4 @@
-<!-- ASReview LAB v2 Banner -->
+<!-- ASReview LAB v3 Banner -->
 <p align="center">
   <img width="60%" height="60%" src="https://raw.githubusercontent.com/asreview/asreview-artwork/refs/heads/master/LogoASReview/asreview_logo_light.svg">
 </p>
@@ -6,9 +6,9 @@
 <br/>
 
 <p align="center">
-  <b>🎉 ASReview LAB v2 is here! 🎉</b><br>
-  <i>Faster, smarter, and more flexible than ever before.<br>
-  Discover the new AI models, improved workflow, and enhanced user experience.<br>
+  <b>🎉 ASReview LAB v3 is here! 🎉</b><br>
+  <i>Cleaner screening, smarter data handling, and more control over your reviews.<br>
+  Automatic duplicate detection, editable tags, and a streamlined workflow.<br>
   </i>
 </p>
 
@@ -47,27 +47,14 @@ The key features of **ASReview LAB** are:
 
 ---
 
-### What's New in Version 2?
+### What's New in Version 3?
 
-On May 14th, ASReview LAB version 2 was released with a large set of new
-features. The most notable new features are:
-
-- **New ELAS AI Models**: Pre-configured, high-performance (+24%) models for
-  different use cases (Ultra, Multilingual, Heavy). More new and exciting models
-  can now be found in our new [ASReview
-  Dory](https://github.com/asreview/asreview-dory) extension.
-- **Improved User Experience**: The interface is faster, progress monitoring is
-  better, and there are more customization options (such as dark mode, font
-  size, and keyboard shortcuts).
-- **ASReview LAB Server with crowd screening**: Screen a single project with
-  multiple experts. All users interact with the same AI model.
-- **Quick project setup**: Start screening new datasets in seconds using the
-  quick setup for projects.
-- **Add customizable tags**: Add tags and groups of tags to your records and
-  label decisions. This makes data extraction much easier!
-- **Improved simulation API**: The new and flexible simulation API opens up a
-  whole new simulation potential. It is a perfect tool for hunting for even
-  better-performing models.
+- **Automatic Duplicate Hiding**: Records with duplicate titles and texts are
+  automatically hidden during screening, keeping your workflow clean and tidy.
+  Need those records back? No problem — you can choose to include them when you
+  export your data.
+- **Editable Tags in Collection**: Manage and edit tags directly from the
+  Collection screen, giving you more control over your data extraction and classification.
 
 ---
 
