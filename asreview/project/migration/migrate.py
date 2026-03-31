@@ -69,6 +69,13 @@ def migrate_project(folder, src_version, dst_version):
         shutil.rmtree(folder)
         return
 
+    if _is_empty_v2(folder, src_version):
+        logging.warning(
+            f"Skipping migration of project {project_id}: "
+            "no review configured. This project cannot be migrated."
+        )
+        return
+
     current_version = src_version
     while current_version < dst_version:
         try:
@@ -119,6 +126,36 @@ def _migrate_project_one_version(folder, current_version):
             shutil.move(backup, folder)
             raise
         shutil.rmtree(backup)
+
+
+def _is_empty_v2(folder, current_version):
+    """Check if a project at v2 has no reviews configured.
+
+    A v2 project without reviews cannot be migrated to v3 because the review
+    data (results.db, data_store.db) does not exist. This should not happen in
+    practice, but if it does we skip the project gracefully.
+
+    Parameters
+    ----------
+    folder : str | Path
+        The folder of the project to check.
+    current_version : int
+        The current version of the project (or the source version if
+        the project has already been migrated from v1 to v2).
+
+    Returns
+    -------
+    bool
+        True if the project is at v2 with no reviews, False otherwise.
+    """
+    if current_version != 2:
+        return False
+
+    with open(Path(folder, "project.json")) as f:
+        config = json.load(f)
+
+    reviews = config.get("reviews", [])
+    return len(reviews) == 0
 
 
 def _is_empty_v1(folder):

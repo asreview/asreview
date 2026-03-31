@@ -36,7 +36,8 @@ def _migrate(project):
         project_config = json.load(f)
     project_config["project_file_version"] = 3
     review_config = {}
-    old_review_config = project_config.pop("reviews", [{}])[0]
+    reviews = project_config.pop("reviews", [{}])
+    old_review_config = reviews[0] if reviews else {}
     review_config["status"] = old_review_config.get("status", "setup")
 
     # Move the results database to the project root and add the review settings to
@@ -56,7 +57,9 @@ def _migrate(project):
         if tags_config_fp.exists():
             with open(tags_config_fp) as f:
                 project_config["tags"] = json.load(f)
-    shutil.rmtree(Path(project, "reviews"))
+    reviews_dir = Path(project, "reviews")
+    if reviews_dir.exists():
+        shutil.rmtree(reviews_dir)
     project_config["review"] = review_config
 
     with open(config_fp, "w") as f:
