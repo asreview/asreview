@@ -55,6 +55,7 @@ def _migrate(project):
             review_config["model"] = {}
         tags_config_fp = Path(review_dir, "tags.json")
         if tags_config_fp.exists():
+            shutil.copy(tags_config_fp, Path(project, "tags.json"))
             with open(tags_config_fp) as f:
                 project_config["tags"] = json.load(f)
     reviews_dir = Path(project, "reviews")

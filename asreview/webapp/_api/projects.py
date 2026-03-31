@@ -1044,7 +1044,7 @@ def _flatten_tags(results, tags_config):
 
         tags = {}
         for group in row:
-            for tag in group["values"]:
+            for tag in group.get("values", []):
                 tags[f"tag_{group['export']}_{tag['export']}"] = int(
                     tag.get("checked", False)
                 )
