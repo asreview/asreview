@@ -1391,7 +1391,7 @@ def api_label_record(project, record_id):  # noqa: F401
             db.label_record(
                 record_id,
                 label,
-                tags=[tags],
+                tags=tags,
                 user_id=user_id,
             )
 
