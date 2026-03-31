@@ -51,6 +51,21 @@ const formatUser = (user) => {
   return `by ${user.name}`;
 };
 
+const mergeTagValues = (tagsForm, tagValues) => {
+  if (!tagsForm) return [];
+  if (!tagValues) return structuredClone(tagsForm);
+  return tagsForm.map((group) => {
+    const savedGroup = tagValues.find((g) => g.id === group.id);
+    return {
+      ...group,
+      values: group.values.map((tag) => {
+        const savedTag = savedGroup?.values?.find((t) => t.id === tag.id);
+        return { ...tag, checked: savedTag?.checked || false };
+      }),
+    };
+  });
+};
+
 const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
   const queryClient = useQueryClient();
 
@@ -139,20 +154,22 @@ const TagsDialog = ({
 }) => {
   const queryClient = useQueryClient();
   const [localTagValues, setLocalTagValues] = React.useState(
-    tagValues ? tagValues : structuredClone(tagsForm),
+    mergeTagValues(tagsForm, tagValues),
   );
 
   React.useEffect(() => {
     if (open) {
-      setLocalTagValues(tagValues ? tagValues : structuredClone(tagsForm));
+      setLocalTagValues(mergeTagValues(tagsForm, tagValues));
     }
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTagValueChange = (isChecked, groupId, tagId) => {
     let groupI = localTagValues.findIndex((group) => group.id === groupId);
+    if (groupI === -1) return;
     let tagI = localTagValues[groupI].values.findIndex(
       (tag) => tag.id === tagId,
     );
+    if (tagI === -1) return;
     let copy = structuredClone(localTagValues);
     copy[groupI].values[tagI]["checked"] = isChecked;
     setLocalTagValues(copy);
@@ -258,7 +275,7 @@ const RecordCardLabeler = ({
   const [showNotesDialog, toggleShowNotesDialog] = useToggle(false);
   const [showTagsDialog, toggleShowTagsDialog] = useToggle(false);
   const [tagValuesState, setTagValuesState] = React.useState(
-    tagValues ? tagValues : structuredClone(tagsForm),
+    mergeTagValues(tagsForm, tagValues),
   );
 
   const { error, isError, isLoading, mutate, isSuccess } = useMutation(
@@ -274,9 +291,11 @@ const RecordCardLabeler = ({
 
   const handleTagValueChange = (isChecked, groupId, tagId) => {
     let groupI = tagValuesState.findIndex((group) => group.id === groupId);
+    if (groupI === -1) return;
     let tagI = tagValuesState[groupI].values.findIndex(
       (tag) => tag.id === tagId,
     );
+    if (tagI === -1) return;
 
     let tagValuesCopy = structuredClone(tagValuesState);
     tagValuesCopy[groupI].values[tagI]["checked"] = isChecked;
