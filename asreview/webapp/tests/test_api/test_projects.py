@@ -4,6 +4,7 @@ import csv
 from io import BytesIO, StringIO
 from pathlib import Path
 
+import pandas as pd
 import pytest
 from jsonschema.exceptions import ValidationError
 
@@ -758,3 +759,134 @@ def test_revoke_invitation_link(client_auth, project):
     r_verify = client_auth.get(f"/api/projects/{project.project_id}/invitation-link")
     assert r_verify.status_code == 200
     assert r_verify.json["encoded_token"] is None
+
+
+# ##############################################
+# Prior knowledge from labeled records
+# ##############################################
+
+
+def _create_csv_bytes(records):
+    """Create a CSV file in memory from a list of dicts."""
+    df = pd.DataFrame(records)
+    buf = BytesIO()
+    df.to_csv(buf, index=False)
+    buf.seek(0)
+    return buf
+
+
+def _get_priors(project_id):
+    """Open a project by id and return its prior knowledge records."""
+    project_path = asreview_path() / project_id
+    with asr.Project(project_path, project_id=project_id).db as db:
+        return db.get_priors()
+
+
+def _get_input_data(project_id):
+    """Open a project by id and return input record_id and included columns."""
+    project_path = asreview_path() / project_id
+    with asr.Project(project_path, project_id=project_id).db as db:
+        return db.input[["record_id", "included"]]
+
+
+def test_create_project_partial_labels_become_priors(client, user):
+    """Labeled records in a partially labeled dataset should become priors."""
+    records = [
+        {"title": "Record A", "abstract": "Abstract A", "label_included": 1},
+        {"title": "Record B", "abstract": "Abstract B", "label_included": 1},
+        {"title": "Record C", "abstract": "Abstract C", "label_included": 0},
+        {"title": "Record D", "abstract": "Abstract D", "label_included": ""},
+        {"title": "Record E", "abstract": "Abstract E", "label_included": ""},
+        {"title": "Record F", "abstract": "Abstract F", "label_included": ""},
+    ]
+    csv = _create_csv_bytes(records)
+    r = au.create_project(client, file=(csv, "test.csv"))
+    assert r.status_code == 201
+
+    priors = _get_priors(r.json["id"])
+    assert len(priors) == 3
+    assert int(priors["label"].sum()) == 2  # 2 included, 1 excluded
+
+
+def test_create_project_prior_labels_match_input(client, user):
+    """Each prior's label should match the original included value."""
+    records = [
+        {"title": "Record A", "abstract": "Abstract A", "label_included": 1},
+        {"title": "Record B", "abstract": "Abstract B", "label_included": 0},
+        {"title": "Record C", "abstract": "Abstract C", "label_included": 1},
+        {"title": "Record D", "abstract": "Abstract D", "label_included": ""},
+        {"title": "Record E", "abstract": "Abstract E", "label_included": ""},
+    ]
+    csv = _create_csv_bytes(records)
+    r = au.create_project(client, file=(csv, "test.csv"))
+    assert r.status_code == 201
+
+    project_id = r.json["id"]
+    priors = _get_priors(project_id)
+    input_data = _get_input_data(project_id)
+
+    for _, row in priors.iterrows():
+        original = input_data.loc[
+            input_data["record_id"] == row["record_id"], "included"
+        ].iloc[0]
+        assert row["label"] == original
+
+
+def test_create_project_no_labels_no_priors(client, user):
+    """A dataset with no labels should produce no priors."""
+    records = [
+        {"title": "Record A", "abstract": "Abstract A", "label_included": ""},
+        {"title": "Record B", "abstract": "Abstract B", "label_included": ""},
+    ]
+    csv = _create_csv_bytes(records)
+    r = au.create_project(client, file=(csv, "test.csv"))
+    assert r.status_code == 201
+
+    priors = _get_priors(r.json["id"])
+    assert len(priors) == 0
+
+
+def test_create_project_all_labeled_no_priors(client, user):
+    """A fully labeled dataset should produce no priors."""
+    records = [
+        {"title": "Record A", "abstract": "Abstract A", "label_included": 1},
+        {"title": "Record B", "abstract": "Abstract B", "label_included": 0},
+    ]
+    csv = _create_csv_bytes(records)
+    r = au.create_project(client, file=(csv, "test.csv"))
+    assert r.status_code == 201
+
+    priors = _get_priors(r.json["id"])
+    assert len(priors) == 0
+
+
+def test_create_project_only_included_labels(client, user):
+    """Records labeled as included only (no excluded) should still become priors."""
+    records = [
+        {"title": "Record A", "abstract": "Abstract A", "label_included": 1},
+        {"title": "Record B", "abstract": "Abstract B", "label_included": 1},
+        {"title": "Record C", "abstract": "Abstract C", "label_included": ""},
+    ]
+    csv = _create_csv_bytes(records)
+    r = au.create_project(client, file=(csv, "test.csv"))
+    assert r.status_code == 201
+
+    priors = _get_priors(r.json["id"])
+    assert len(priors) == 2
+    assert all(priors["label"] == 1)
+
+
+def test_create_project_only_excluded_labels(client, user):
+    """Records labeled as excluded only (no included) should still become priors."""
+    records = [
+        {"title": "Record A", "abstract": "Abstract A", "label_included": 0},
+        {"title": "Record B", "abstract": "Abstract B", "label_included": ""},
+        {"title": "Record C", "abstract": "Abstract C", "label_included": ""},
+    ]
+    csv = _create_csv_bytes(records)
+    r = au.create_project(client, file=(csv, "test.csv"))
+    assert r.status_code == 201
+
+    priors = _get_priors(r.json["id"])
+    assert len(priors) == 1
+    assert priors["label"].iloc[0] == 0
