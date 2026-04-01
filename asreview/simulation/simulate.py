@@ -387,12 +387,14 @@ class Simulate:
                 return_only_new=True,
             )
 
-            new_results = pd.concat(
-                [
-                    new_results,
-                    pd.DataFrame(group_record_info, columns=new_results.columns),
-                ],
-            )
+            if group_record_info:
+                new_results = pd.concat(
+                    [
+                        new_results,
+                        pd.DataFrame(group_record_info, columns=new_results.columns),
+                    ],
+                    ignore_index=True,
+                )
 
         if not hasattr(self, "_results") or self._results.empty:
             self._results = new_results
