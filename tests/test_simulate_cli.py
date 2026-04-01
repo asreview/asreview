@@ -237,10 +237,8 @@ def test_grouped_records(tmp_path, demo_data, tmp_project, tmpdir):
     # Every record is duplicated exactly once. So after every labeling action, the data
     # of a single duplicate record is added to the state file as well. The duplicate
     # record will have record_id equal to the normal record_id + 100.
-    normal_records = results.iloc[::2]
-    duplicate_records = results.iloc[1::2]
-
-    assert (normal_records["record_id"] + 100).to_list() == duplicate_records[
-        "record_id"
-    ].to_list()
-    assert normal_records["label"].to_list() == duplicate_records["label"].to_list()
+    for i in range(0, len(results), 2):
+        pair = results.iloc[i : i + 2]
+        ids = sorted(pair["record_id"].to_list())
+        assert ids[1] == ids[0] + 100
+        assert pair["label"].iloc[0] == pair["label"].iloc[1]
