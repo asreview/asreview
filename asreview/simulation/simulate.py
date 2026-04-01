@@ -391,9 +391,7 @@ class Simulate:
                 new_results = pd.concat(
                     [
                         new_results,
-                        pd.DataFrame(
-                            group_record_info, columns=new_results.columns
-                        ),
+                        pd.DataFrame(group_record_info, columns=new_results.columns),
                     ],
                     ignore_index=True,
                 )

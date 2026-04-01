@@ -72,9 +72,7 @@ class RunModelProcess(mp.Process):
         try:
             self.func(*self.args)
         except Exception:
-            logger.exception(
-                f"Exception in task for project {self.args[0]}"
-            )
+            logger.exception(f"Exception in task for project {self.args[0]}")
             payload["action"] = "failure"
         finally:
             if self.host and self.port:
