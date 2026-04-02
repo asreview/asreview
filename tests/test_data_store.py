@@ -13,6 +13,7 @@ from asreview.data.record import Record
 from asreview.data.utils import _clean_text
 from asreview.data.utils import identify_groups
 from asreview.data.utils import identify_record_groups
+from asreview.database.store import SQLITE_MAX_VARIABLE_NUMBER
 from asreview.database.store import DataStore
 from asreview.project.api import Project
 
@@ -434,3 +435,30 @@ def test_identify_record_groups_default_extractors():
     # "café study" and "cafe study" should be in another group (group_id=3).
     # "unique title" should be its own group.
     assert set(result) == {(0, 0), (0, 1), (0, 2), (3, 3), (3, 4), (5, 5)}
+
+
+@pytest.fixture
+def large_store(tmpdir):
+    n = SQLITE_MAX_VARIABLE_NUMBER + 100
+    fp = tmpdir / Project.PATH_DB
+    store = DataStore(fp)
+    store.create_tables()
+    records = [Record(dataset_row=i, dataset_id="foo") for i in range(n)]
+    store.add_records(records)
+    return store
+
+
+def test_get_records_exceeding_variable_limit(large_store):
+    n = SQLITE_MAX_VARIABLE_NUMBER + 100
+    record_ids = list(range(n))
+    records = large_store.get_records(record_ids)
+    assert len(records) == n
+    assert [r.record_id for r in records] == record_ids
+
+
+def test_set_groups_exceeding_variable_limit(large_store):
+    n = SQLITE_MAX_VARIABLE_NUMBER + 100
+    groups = [(i // 2, i) for i in range(n)]
+    large_store.set_groups(groups)
+    stored_groups = large_store.get_groups()
+    assert len(stored_groups) == n

@@ -890,3 +890,10 @@ def test_create_project_only_excluded_labels(client, user):
     priors = _get_priors(r.json["id"])
     assert len(priors) == 1
     assert priors["label"].iloc[0] == 0
+
+
+def test_create_project_large_dataset(client_no_auth):
+    """Importing the Brouwer_2019 synergy dataset (38114 records) should not fail
+    due to SQLite's max SQL variables limit (32766)."""
+    r = au.create_project(client_no_auth, "oracle", benchmark="synergy:Brouwer_2019")
+    assert r.status_code == 201

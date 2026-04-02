@@ -18,6 +18,36 @@ from asreview.data.record import Record
 
 CURRENT_DATASTORE_VERSION = 0
 
+# SQLite max SQL variables limit (since 3.32.0, 2020).
+# See: https://www.sqlite.org/limits.html#max_variable_number
+SQLITE_MAX_VARIABLE_NUMBER = 32766
+
+
+def _batched_in(query_fn, values, batch_size=SQLITE_MAX_VARIABLE_NUMBER):
+    """Execute a query in batches to avoid exceeding SQLite's variable limit.
+
+    Parameters
+    ----------
+    query_fn : callable
+        A function that takes a batch of values and returns a list of results.
+        For example: ``lambda batch: session.query(Record).filter(
+        Record.record_id.in_(batch)).all()``.
+    values : list
+        The full list of values to pass to the IN clause.
+    batch_size : int, optional
+        Maximum number of values per batch.
+
+    Returns
+    -------
+    list
+        Concatenated results from all batches.
+    """
+    results = []
+    for i in range(0, len(values), batch_size):
+        batch = values[i : i + batch_size]
+        results.extend(query_fn(batch))
+    return results
+
 
 def normalize_duplicate_chain(session, record: Record):
     """Normalize the duplicate chain of a record.
@@ -326,10 +356,13 @@ class DataStore:
                     .first()
                 )
             else:
-                records = (
-                    session.query(self.record_cls)
-                    .filter(self.record_cls.record_id.in_(record_id))
-                    .all()
+                records = _batched_in(
+                    lambda batch: (
+                        session.query(self.record_cls)
+                        .filter(self.record_cls.record_id.in_(batch))
+                        .all()
+                    ),
+                    record_id,
                 )
 
                 record_id_to_position = {id: i for i, id in enumerate(record_id)}
@@ -356,9 +389,13 @@ class DataStore:
                 record_to_group[record_id] = group_id
 
         with self.Session() as session, session.begin():
-            records = session.scalars(
-                select(Record).where(Record.record_id.in_(record_to_group))
-            ).all()
+            record_ids = list(record_to_group.keys())
+            records = _batched_in(
+                lambda batch: session.scalars(
+                    select(Record).where(Record.record_id.in_(batch))
+                ).all(),
+                record_ids,
+            )
             for record in records:
                 record.duplicate_of = record_to_group[record.record_id]
 
