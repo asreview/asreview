@@ -898,6 +898,7 @@ def test_create_project_large_dataset(client_no_auth):
     r = au.create_project(client_no_auth, "oracle", benchmark="synergy:Brouwer_2019")
     assert r.status_code == 201
 
+
 def test_prior_records_never_appear_during_screening(client, user):
     """Records already labeled as prior knowledge must never be served during screening.
 
