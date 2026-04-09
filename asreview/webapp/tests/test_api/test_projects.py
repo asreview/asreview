@@ -1027,20 +1027,52 @@ def test_duplicate_priors_never_appear_during_screening(client, user):
     duplicate unlabeled records, and unique records to cover all combinations.
     """
     records = [
-        {"title": "Unlabeled unique A", "abstract": "Unique abstract A", "label_included": ""},
-        {"title": "Unlabeled unique B", "abstract": "Unique abstract B", "label_included": ""},
+        {
+            "title": "Unlabeled unique A",
+            "abstract": "Unique abstract A",
+            "label_included": "",
+        },
+        {
+            "title": "Unlabeled unique B",
+            "abstract": "Unique abstract B",
+            "label_included": "",
+        },
         # Duplicate pair: both labeled as prior (relevant)
         {"title": "Duplicate prior", "abstract": "Same abstract", "label_included": 1},
         {"title": "Duplicate prior", "abstract": "Same abstract", "label_included": 1},
         # Duplicate pair: first labeled as prior (irrelevant), second unlabeled
-        {"title": "Dup mixed", "abstract": "Another same abstract", "label_included": 0},
-        {"title": "Dup mixed", "abstract": "Another same abstract", "label_included": ""},
+        {
+            "title": "Dup mixed",
+            "abstract": "Another same abstract",
+            "label_included": 0,
+        },
+        {
+            "title": "Dup mixed",
+            "abstract": "Another same abstract",
+            "label_included": "",
+        },
         # Duplicate pair: both unlabeled
-        {"title": "Dup unlabeled", "abstract": "Yet another same", "label_included": ""},
-        {"title": "Dup unlabeled", "abstract": "Yet another same", "label_included": ""},
-        {"title": "Unlabeled unique C", "abstract": "Unique abstract C", "label_included": ""},
+        {
+            "title": "Dup unlabeled",
+            "abstract": "Yet another same",
+            "label_included": "",
+        },
+        {
+            "title": "Dup unlabeled",
+            "abstract": "Yet another same",
+            "label_included": "",
+        },
+        {
+            "title": "Unlabeled unique C",
+            "abstract": "Unique abstract C",
+            "label_included": "",
+        },
         # Another labeled prior with no duplicate
-        {"title": "Solo prior", "abstract": "Unique prior abstract", "label_included": 1},
+        {
+            "title": "Solo prior",
+            "abstract": "Unique prior abstract",
+            "label_included": 1,
+        },
     ]
     csv = _create_csv_bytes(records)
     r = au.create_project(client, file=(csv, "test.csv"))
