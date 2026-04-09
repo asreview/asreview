@@ -892,6 +892,13 @@ def test_create_project_only_excluded_labels(client, user):
     assert priors["label"].iloc[0] == 0
 
 
+def test_create_project_large_dataset(client_no_auth):
+    """Importing the Brouwer_2019 synergy dataset (38114 records) should not fail
+    due to SQLite's max SQL variables limit (32766)."""
+    r = au.create_project(client_no_auth, "oracle", benchmark="synergy:Brouwer_2019")
+    assert r.status_code == 201
+
+
 def test_prior_records_never_appear_during_screening(client, user):
     """Records already labeled as prior knowledge must never be served during screening.
 
