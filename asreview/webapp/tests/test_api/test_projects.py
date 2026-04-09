@@ -890,3 +890,60 @@ def test_create_project_only_excluded_labels(client, user):
     priors = _get_priors(r.json["id"])
     assert len(priors) == 1
     assert priors["label"].iloc[0] == 0
+
+
+def test_prior_records_never_appear_during_screening(client, user):
+    """Records already labeled as prior knowledge must never be served during screening.
+
+    The labeled records are placed at the END of the dataset so their record_ids
+    (3 and 4) differ from their label values (1 and 0).  With the old bug
+    (using label values as record_ids), wrong records would be stored as priors
+    and the real priors would leak into the screening pool.
+    """
+    records = [
+        {"title": "Unlabeled A", "abstract": "Abstract A", "label_included": ""},
+        {"title": "Unlabeled B", "abstract": "Abstract B", "label_included": ""},
+        {"title": "Unlabeled C", "abstract": "Abstract C", "label_included": ""},
+        {"title": "Prior Relevant", "abstract": "Abstract D", "label_included": 1},
+        {"title": "Prior Irrelevant", "abstract": "Abstract E", "label_included": 0},
+    ]
+    csv = _create_csv_bytes(records)
+    r = au.create_project(client, file=(csv, "test.csv"))
+    assert r.status_code == 201
+
+    project_id = r.json["id"]
+    project_path = asreview_path() / project_id
+    asr_project = asr.Project(project_path, project_id=project_id)
+
+    # Determine which record_ids SHOULD be priors from the input data directly,
+    # rather than trusting get_priors() which could reflect buggy storage.
+    input_data = _get_input_data(project_id)
+    expected_prior_ids = set(
+        input_data.loc[input_data["included"].notnull(), "record_id"].tolist()
+    )
+    assert len(expected_prior_ids) == 2
+
+    # Simulate a trained model by inserting a ranking for all records.
+    record_ids = asr_project.db.input["record_id"].tolist()
+    with asr_project.db as db:
+        db.add_last_ranking(record_ids, "nb", "max", "double", "tfidf", 1)
+
+    # Screen all available records and assert none is a prior.
+    seen_record_ids = set()
+    for _ in range(len(records)):
+        r = au.get_project_current_document(client, asr_project)
+        assert r.status_code == 200
+        result = r.json.get("result")
+        if result is None:
+            break
+        record_id = result["record_id"]
+        assert record_id not in expected_prior_ids, (
+            f"Prior record {record_id} was served during screening"
+        )
+        seen_record_ids.add(record_id)
+        # Label the record so the next one is served.
+        au.label_project_record(client, asr_project, record_id, 0, prior=0)
+
+    # We should have screened exactly the unlabeled records.
+    expected_unlabeled = set(record_ids) - expected_prior_ids
+    assert seen_record_ids == expected_unlabeled
