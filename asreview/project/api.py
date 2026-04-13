@@ -316,6 +316,26 @@ class Project:
             datasets=[{"id": dataset_id, "name": file_name}],
         )
 
+    def label_priors(self):
+        """Label prior knowledge from a partially labeled dataset.
+
+        If the input dataset is partially labeled (some records have an
+        ``included`` value of 0 or 1 while others are unlabeled), the labeled
+        records are stored as prior knowledge in the results table.
+
+        Fully labeled or fully unlabeled datasets are skipped.
+        """
+        included = self.db.input["included"]
+        n_labeled = included.notnull().sum()
+
+        if n_labeled > 0 and n_labeled < len(self.db.input):
+            labeled_indices = np.where((included == 1) | (included == 0))[0]
+            labels = included[labeled_indices].tolist()
+            record_ids = self.db.input["record_id"][labeled_indices].tolist()
+            with self.db as db:
+                for record_id, label in zip(record_ids, labels):
+                    db.label_record(record_id, label, user_id=None)
+
     def remove_dataset(self):
         """Remove dataset from project."""
         raise NotImplementedError("Removing datasets is not implemented yet")

@@ -954,3 +954,171 @@ def test_prior_records_never_appear_during_screening(client, user):
     # We should have screened exactly the unlabeled records.
     expected_unlabeled = set(record_ids) - expected_prior_ids
     assert seen_record_ids == expected_unlabeled
+
+
+def test_many_priors_never_appear_during_screening(client, user):
+    """Many prior records scattered throughout the dataset must never be screened.
+
+    Priors are spread across the beginning, middle, and end of the dataset with
+    a mix of relevant and irrelevant labels. This catches bugs where only the
+    first few priors are stored correctly (e.g. when label values are used as
+    record_ids, only records 0 and 1 would be affected).
+    """
+    records = [
+        {"title": "Prior R1", "abstract": "Abstract 0", "label_included": 1},
+        {"title": "Unlabeled 1", "abstract": "Abstract 1", "label_included": ""},
+        {"title": "Prior I1", "abstract": "Abstract 2", "label_included": 0},
+        {"title": "Prior R2", "abstract": "Abstract 3", "label_included": 1},
+        {"title": "Unlabeled 4", "abstract": "Abstract 4", "label_included": ""},
+        {"title": "Unlabeled 5", "abstract": "Abstract 5", "label_included": ""},
+        {"title": "Prior I2", "abstract": "Abstract 6", "label_included": 0},
+        {"title": "Prior R3", "abstract": "Abstract 7", "label_included": 1},
+        {"title": "Unlabeled 8", "abstract": "Abstract 8", "label_included": ""},
+        {"title": "Prior I3", "abstract": "Abstract 9", "label_included": 0},
+        {"title": "Unlabeled 10", "abstract": "Abstract 10", "label_included": ""},
+        {"title": "Prior R4", "abstract": "Abstract 11", "label_included": 1},
+        {"title": "Prior I4", "abstract": "Abstract 12", "label_included": 0},
+        {"title": "Unlabeled 13", "abstract": "Abstract 13", "label_included": ""},
+        {"title": "Prior R5", "abstract": "Abstract 14", "label_included": 1},
+    ]
+    n_priors = sum(1 for r in records if r["label_included"] != "")
+    n_unlabeled = len(records) - n_priors
+
+    csv = _create_csv_bytes(records)
+    r = au.create_project(client, file=(csv, "test.csv"))
+    assert r.status_code == 201
+
+    project_id = r.json["id"]
+    project_path = asreview_path() / project_id
+    asr_project = asr.Project(project_path, project_id=project_id)
+
+    # Determine expected priors from input data, not from get_priors().
+    input_data = _get_input_data(project_id)
+    expected_prior_ids = set(
+        input_data.loc[input_data["included"].notnull(), "record_id"].tolist()
+    )
+    assert len(expected_prior_ids) == n_priors
+
+    # Simulate a trained model by inserting a ranking for all records.
+    record_ids = asr_project.db.input["record_id"].tolist()
+    with asr_project.db as db:
+        db.add_last_ranking(record_ids, "nb", "max", "double", "tfidf", 1)
+
+    # Screen all available records and assert none is a prior.
+    seen_record_ids = set()
+    for _ in range(len(records)):
+        r = au.get_project_current_document(client, asr_project)
+        assert r.status_code == 200
+        result = r.json.get("result")
+        if result is None:
+            break
+        record_id = result["record_id"]
+        assert record_id not in expected_prior_ids, (
+            f"Prior record {record_id} was served during screening"
+        )
+        seen_record_ids.add(record_id)
+        au.label_project_record(client, asr_project, record_id, 0, prior=0)
+
+    # We should have screened exactly the unlabeled records.
+    expected_unlabeled = set(record_ids) - expected_prior_ids
+    assert seen_record_ids == expected_unlabeled
+    assert len(seen_record_ids) == n_unlabeled
+
+
+def test_duplicate_priors_never_appear_during_screening(client, user):
+    """Prior records that have duplicates must not appear during screening.
+
+    Duplicates are detected by identical title+abstract. When a prior is part
+    of a duplicate group, both the base record and its duplicates should be
+    excluded from screening. This test includes duplicate priors (labeled),
+    duplicate unlabeled records, and unique records to cover all combinations.
+    """
+    records = [
+        {
+            "title": "Unlabeled unique A",
+            "abstract": "Unique abstract A",
+            "label_included": "",
+        },
+        {
+            "title": "Unlabeled unique B",
+            "abstract": "Unique abstract B",
+            "label_included": "",
+        },
+        # Duplicate pair: both labeled as prior (relevant)
+        {"title": "Duplicate prior", "abstract": "Same abstract", "label_included": 1},
+        {"title": "Duplicate prior", "abstract": "Same abstract", "label_included": 1},
+        # Duplicate pair: first labeled as prior (irrelevant), second unlabeled
+        {
+            "title": "Dup mixed",
+            "abstract": "Another same abstract",
+            "label_included": 0,
+        },
+        {
+            "title": "Dup mixed",
+            "abstract": "Another same abstract",
+            "label_included": "",
+        },
+        # Duplicate pair: both unlabeled
+        {
+            "title": "Dup unlabeled",
+            "abstract": "Yet another same",
+            "label_included": "",
+        },
+        {
+            "title": "Dup unlabeled",
+            "abstract": "Yet another same",
+            "label_included": "",
+        },
+        {
+            "title": "Unlabeled unique C",
+            "abstract": "Unique abstract C",
+            "label_included": "",
+        },
+        # Another labeled prior with no duplicate
+        {
+            "title": "Solo prior",
+            "abstract": "Unique prior abstract",
+            "label_included": 1,
+        },
+    ]
+    csv = _create_csv_bytes(records)
+    r = au.create_project(client, file=(csv, "test.csv"))
+    assert r.status_code == 201
+
+    project_id = r.json["id"]
+    project_path = asreview_path() / project_id
+    asr_project = asr.Project(project_path, project_id=project_id)
+
+    # Determine which record_ids SHOULD be priors from the input data.
+    input_data = _get_input_data(project_id)
+    expected_prior_ids = set(
+        input_data.loc[input_data["included"].notnull(), "record_id"].tolist()
+    )
+
+    # The priors should be: 2 duplicate priors + 1 mixed dup prior + 1 solo = 4
+    assert len(expected_prior_ids) == 4
+
+    # Simulate a trained model by inserting a ranking for all records.
+    record_ids = asr_project.db.input["record_id"].tolist()
+    with asr_project.db as db:
+        db.add_last_ranking(record_ids, "nb", "max", "double", "tfidf", 1)
+
+    # Screen all records; none should be a prior or a duplicate of a prior.
+    seen_record_ids = set()
+    for _ in range(len(records)):
+        r = au.get_project_current_document(client, asr_project)
+        assert r.status_code == 200
+        result = r.json.get("result")
+        if result is None:
+            break
+        record_id = result["record_id"]
+        assert record_id not in expected_prior_ids, (
+            f"Prior record {record_id} was served during screening"
+        )
+        seen_record_ids.add(record_id)
+        au.label_project_record(client, asr_project, record_id, 0, prior=0)
+
+    # Only the group representatives of unlabeled groups should have been screened.
+    # Duplicates are hidden during screening (only the base record is shown).
+    expected_unlabeled = set(record_ids) - expected_prior_ids
+    assert seen_record_ids.issubset(expected_unlabeled)
