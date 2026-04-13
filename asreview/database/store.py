@@ -19,6 +19,65 @@ from asreview.data.record import Record
 CURRENT_DATASTORE_VERSION = 0
 
 
+def normalize_duplicate_chain(session, record: Record):
+    """Normalize the duplicate chain of a record.
+
+    We consider records to be in a group when they point to each other with the
+    `duplicate_of` column. We want to make it easy to query the groups by making sure
+    that all records in a group point to the same root record. We call the records
+    pointing to each other with the `duplicate_of` field the duplicate chain of the
+    record. So we want to avoid duplicate chains of length more than 2 and we want to
+    avoid circular duplicate chains.
+
+    For example, if `r1`, `r2` and `r3` are in a group we want to have:
+    ```
+    r1.duplicate_of = r3
+    r2.duplicate_of = r3
+    r3.duplicate_of = None
+    ```
+    and not
+    ```
+    r1.duplicate_of = r2
+    r2.duplicate_of = r3
+    r3.duplicate_of = None
+    ```
+    or even `r3.duplicate_of = r1`. We also avoid things like `r1.duplicate_of = r2` and
+    `r2.duplicate_of = 1` or even `r1.duplicate_of = r1`.
+
+    Parameters
+    ----------
+    session : sqlalchemy.Session
+        Database session.
+    record : Record
+        Record for which to normalize the duplicate chain.
+
+    Raises
+    ------
+    ValueError
+        If `record.duplicate_of` contains a non-existent record id.
+    """
+    current = record
+    record_chain = [current]
+
+    while current.duplicate_of is not None:
+        next_record = session.get(Record, current.duplicate_of)
+        if next_record is None:
+            raise ValueError(f"Invalid duplicate_of reference: {current.duplicate_of}")
+        if next_record in record_chain:
+            # cycle detected, set the record with the minimal record_id as root.
+            min_id = min(r.record_id for r in record_chain)
+            for r in record_chain:
+                r.duplicate_of = min_id if r.record_id != min_id else None
+            return
+        record_chain.append(next_record)
+        current = next_record
+
+    if len(record_chain) > 2:
+        root = record_chain[-1]
+        for r in record_chain[:-1]:
+            r.duplicate_of = root.record_id
+
+
 # Hook that ensures that record duplicate chains get normalized before flushing the
 # record to the database.
 @event.listens_for(Session, "before_flush")
@@ -267,13 +326,10 @@ class DataStore:
                     .first()
                 )
             else:
-                records = _batched_in(
-                    lambda batch: (
-                        session.query(self.record_cls)
-                        .filter(self.record_cls.record_id.in_(batch))
-                        .all()
-                    ),
-                    record_id,
+                records = (
+                    session.query(self.record_cls)
+                    .filter(self.record_cls.record_id.in_(record_id))
+                    .all()
                 )
 
                 record_id_to_position = {id: i for i, id in enumerate(record_id)}
@@ -300,13 +356,9 @@ class DataStore:
                 record_to_group[record_id] = group_id
 
         with self.Session() as session, session.begin():
-            record_ids = list(record_to_group.keys())
-            records = _batched_in(
-                lambda batch: session.scalars(
-                    select(Record).where(Record.record_id.in_(batch))
-                ).all(),
-                record_ids,
-            )
+            records = session.scalars(
+                select(Record).where(Record.record_id.in_(record_to_group))
+            ).all()
             for record in records:
                 record.duplicate_of = record_to_group[record.record_id]
 
