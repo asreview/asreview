@@ -13,9 +13,10 @@ from asreview.data.record import Record
 from asreview.data.utils import _clean_text
 from asreview.data.utils import identify_groups
 from asreview.data.utils import identify_record_groups
-from asreview.database.store import SQLITE_MAX_VARIABLE_NUMBER
 from asreview.database.store import DataStore
 from asreview.project.api import Project
+
+SQLITE_MAX_VARIABLE_NUMBER = 32766
 
 
 @pytest.fixture
