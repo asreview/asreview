@@ -502,9 +502,7 @@ def test_column_reads_aligned_with_duplicates(store):
 
 def test_get_df_sorted_by_record_id_with_duplicates(store):
     """`get_df` must return rows in record_id order even when duplicates exist."""
-    records = [
-        Record(dataset_row=i, dataset_id="foo", title="same") for i in range(6)
-    ]
+    records = [Record(dataset_row=i, dataset_id="foo", title="same") for i in range(6)]
     store.add_records(records)
     store.set_groups([(0, 0), (0, 1), (0, 2), (3, 3), (3, 4), (3, 5)])
 
