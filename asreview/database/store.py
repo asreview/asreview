@@ -312,12 +312,19 @@ class DataStore:
             columns = [item]
         else:
             columns = item
+        # Always order by record_id. Without ORDER BY, SQLite can return rows in
+        # different orders across separate single-column queries (depending on which
+        # index the planner picks). Code that positionally joins two such queries,
+        # e.g. `record_id` and `included`, would then line up labels with the wrong
+        # records.
+        table = self.record_cls.__tablename__
+        select_cols = ", ".join(f'"{c}"' for c in columns)
+        dtype = {c: t for c, t in self.pandas_dtype_mapping.items() if c in columns}
         with self.engine.connect() as con:
-            df = pd.read_sql(
-                self.record_cls.__tablename__,
+            df = pd.read_sql_query(
+                f"SELECT {select_cols} FROM {table} ORDER BY record_id",
                 con,
-                columns=columns,
-                dtype=self.pandas_dtype_mapping,
+                dtype=dtype,
             )
         if isinstance(item, str):
             return df[item]
@@ -437,8 +444,8 @@ class DataStore:
         pd.DataFrame
         """
         with self.engine.connect() as con:
-            return pd.read_sql(
-                self.record_cls.__tablename__,
+            return pd.read_sql_query(
+                f"SELECT * FROM {self.record_cls.__tablename__} ORDER BY record_id",
                 con,
                 dtype=self.pandas_dtype_mapping,
             )

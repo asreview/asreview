@@ -892,6 +892,64 @@ def test_create_project_only_excluded_labels(client, user):
     assert priors["label"].iloc[0] == 0
 
 
+def test_create_project_prior_labels_match_input_with_duplicates(client, user):
+    """Prior labels must match the input when the dataset contains duplicates.
+
+    Regression test for a bug where `label_priors` joined separate single-column
+    queries (`included` and `record_id`) positionally. Once `set_groups` writes
+    `duplicate_of` values, SQLite picks the `idx_record_group_id` covering index
+    for `SELECT record_id FROM record` and returns rows in group_id order, while
+    `SELECT included FROM record` still scans in rowid order — so the two series
+    no longer align and labels get applied to the wrong record_ids.
+
+    The dataset here puts labeled records at the end as duplicates of the
+    unlabeled records at the start. That forces `set_groups` to rewrite the
+    group_ids and reliably triggers the reordering.
+    """
+    records = [
+        {"title": "A", "abstract": "abs A", "label_included": ""},
+        {"title": "B", "abstract": "abs B", "label_included": ""},
+        {"title": "C", "abstract": "abs C", "label_included": ""},
+        {"title": "D", "abstract": "abs D", "label_included": ""},
+        {"title": "E", "abstract": "abs E", "label_included": ""},
+        # Duplicates of A-E with labels. set_groups will collapse their groups
+        # so group_id(10..14) = 0..4, which makes the record_id covering-index
+        # scan return rows in a non-rowid order.
+        {"title": "A", "abstract": "abs A", "label_included": 1},
+        {"title": "B", "abstract": "abs B", "label_included": 0},
+        {"title": "C", "abstract": "abs C", "label_included": 1},
+        {"title": "D", "abstract": "abs D", "label_included": 0},
+        {"title": "E", "abstract": "abs E", "label_included": 1},
+    ]
+    csv = _create_csv_bytes(records)
+    r = au.create_project(client, file=(csv, "test.csv"))
+    assert r.status_code == 201
+
+    project_id = r.json["id"]
+    project_path = asreview_path() / project_id
+    with asr.Project(project_path, project_id=project_id).db as db:
+        input_data = db.input[["record_id", "included"]]
+        groups = pd.DataFrame(db.input.get_groups(), columns=["group_id", "record_id"])
+        priors = db.get_priors()
+
+    assert len(priors) == 5
+
+    # Map each labeled input record to its group representative, then compare
+    # the prior's label against the input label for that group.
+    rid_to_gid = dict(zip(groups["record_id"], groups["group_id"]))
+    labeled_input = input_data.dropna(subset=["included"])
+    expected_by_group = {
+        rid_to_gid[int(row.record_id)]: int(row.included)
+        for row in labeled_input.itertuples(index=False)
+    }
+
+    for _, row in priors.iterrows():
+        assert int(row["label"]) == expected_by_group[row["record_id"]], (
+            f"Prior label mismatch at record_id {row['record_id']}: "
+            f"got {row['label']}, expected {expected_by_group[row['record_id']]}"
+        )
+
+
 def test_create_project_large_dataset(client_no_auth):
     """Importing the Brouwer_2019 synergy dataset (38114 records) should not fail
     due to SQLite's max SQL variables limit (32766)."""
