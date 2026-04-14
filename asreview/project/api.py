@@ -325,16 +325,17 @@ class Project:
 
         Fully labeled or fully unlabeled datasets are skipped.
         """
-        included = self.db.input["included"]
-        n_labeled = included.notnull().sum()
+        # Fetch record_id and included together so the positional alignment is
+        # guaranteed. Querying them separately is not safe: SQLite does not
+        # guarantee the same row order across separate queries without ORDER BY,
+        # which can cause labels to be assigned to the wrong records.
+        data = self.db.input[["record_id", "included"]]
+        labeled = data[data["included"].notnull()]
 
-        if n_labeled > 0 and n_labeled < len(self.db.input):
-            labeled_indices = np.where((included == 1) | (included == 0))[0]
-            labels = included[labeled_indices].tolist()
-            record_ids = self.db.input["record_id"][labeled_indices].tolist()
+        if 0 < len(labeled) < len(data):
             with self.db as db:
-                for record_id, label in zip(record_ids, labels):
-                    db.label_record(record_id, label, user_id=None)
+                for row in labeled.itertuples(index=False):
+                    db.label_record(int(row.record_id), int(row.included), user_id=None)
 
     def remove_dataset(self):
         """Remove dataset from project."""

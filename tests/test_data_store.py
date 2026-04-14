@@ -462,3 +462,52 @@ def test_set_groups_exceeding_variable_limit(large_store):
     large_store.set_groups(groups)
     stored_groups = large_store.get_groups()
     assert len(stored_groups) == n
+
+
+def test_column_reads_aligned_with_duplicates(store):
+    """Separate single-column reads must align positionally.
+
+    Once duplicates exist, SQLite picks the `idx_record_group_id` covering index
+    for `SELECT record_id FROM record` and returns rows in group_id order, while
+    `SELECT included FROM record` still scans in rowid order. Without an
+    explicit ORDER BY in `DataStore`, the two Series would misalign and any
+    caller that joins them positionally would associate labels with the wrong
+    records.
+    """
+    records = [
+        Record(dataset_row=i, dataset_id="foo", title=f"t{i}", included=None)
+        for i in range(5)
+    ] + [
+        Record(dataset_row=5 + i, dataset_id="foo", title=f"t{i}", included=i % 2)
+        for i in range(5)
+    ]
+    store.add_records(records)
+    # Groups that collapse records 5..9 onto the representatives 0..4. This is
+    # exactly what `identify_record_groups` would produce for duplicate titles.
+    store.set_groups([(i, i) for i in range(5)] + [(i, 5 + i) for i in range(5)])
+
+    record_id = store["record_id"]
+    included = store["included"]
+
+    assert record_id.is_monotonic_increasing
+    assert record_id.to_list() == list(range(10))
+    assert included.to_list()[:5] == [pd.NA] * 5
+    assert included.to_list()[5:] == [0, 1, 0, 1, 0]
+
+    # Separate reads must also align with a combined read.
+    combined = store[["record_id", "included"]]
+    assert combined["record_id"].to_list() == record_id.to_list()
+    assert combined["included"].to_list() == included.to_list()
+
+
+def test_get_df_sorted_by_record_id_with_duplicates(store):
+    """`get_df` must return rows in record_id order even when duplicates exist."""
+    records = [
+        Record(dataset_row=i, dataset_id="foo", title="same") for i in range(6)
+    ]
+    store.add_records(records)
+    store.set_groups([(0, 0), (0, 1), (0, 2), (3, 3), (3, 4), (3, 5)])
+
+    df = store.get_df()
+    assert df["record_id"].is_monotonic_increasing
+    assert df["record_id"].to_list() == list(range(6))
