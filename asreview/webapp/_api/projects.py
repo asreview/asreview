@@ -441,14 +441,15 @@ def api_get_project_data(project):  # noqa: F401
         "", None
     )
 
+    n_relevant = int((data.included == 1).fillna(False).sum())
+    n_irrelevant = int((data.included == 0).fillna(False).sum())
+
     return jsonify(
         {
             "n_rows": len(data),
-            "n_unlabeled": len(data)
-            - len(np.where(data.included == 1)[0])
-            - len(np.where(data.included == 0)[0]),
-            "n_relevant": len(np.where(data.included == 1)[0]),
-            "n_irrelevant": len(np.where(data.included == 0)[0]),
+            "n_unlabeled": len(data) - n_relevant - n_irrelevant,
+            "n_relevant": n_relevant,
+            "n_irrelevant": n_irrelevant,
             "n_duplicated": int(duplicated(data).sum()),
             "n_missing_title": int(data.title.isnull().sum()),
             "n_missing_abstract": int(data.abstract.isnull().sum()),
