@@ -274,6 +274,25 @@ class Database:
                 f"{' '.join(missing_columns)}."
             )
 
+        self._fix_decision_changes_schema(cur)
+
+    def _fix_decision_changes_schema(self, cur):
+        """Fix decision_changes schema for projects migrated from old v2 format.
+
+        Old v2 projects had (record_id, new_label, time) instead of
+        (record_id, label, time, user_id). Projects already migrated to v3
+        may still carry the old schema.
+        """
+        columns = [row[1] for row in cur.execute("PRAGMA table_info(decision_changes)")]
+
+        if "new_label" in columns and "label" not in columns:
+            cur.execute("ALTER TABLE decision_changes RENAME COLUMN new_label TO label")
+
+        if "user_id" not in columns:
+            cur.execute("ALTER TABLE decision_changes ADD COLUMN user_id INTEGER")
+
+        self._conn.commit()
+
     def _set_results_changes_triggers(self):
         con = self._conn
         cur = con.cursor()
