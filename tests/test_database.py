@@ -613,9 +613,7 @@ def test_fix_old_v2_decision_changes_schema(tmpdir):
         db._is_valid()
 
         cur = db._conn.cursor()
-        columns = [
-            row[1] for row in cur.execute("PRAGMA table_info(decision_changes)")
-        ]
+        columns = [row[1] for row in cur.execute("PRAGMA table_info(decision_changes)")]
         assert "label" in columns
         assert "new_label" not in columns
         assert "user_id" in columns
