@@ -463,6 +463,9 @@ const UsersComponent = () => {
           placeholder="Search users by name, email, identifier, affiliation, or origin (min 3 characters)"
           value={searchTerm}
           onChange={handleSearchChange}
+          name="user-search"
+          type="search"
+          autoComplete="off"
           fullWidth
           variant="outlined"
           size="small"

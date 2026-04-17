@@ -22,6 +22,7 @@ import secrets
 import shutil
 import socket
 import tempfile
+import threading
 import time
 import zipfile
 from dataclasses import asdict
@@ -859,6 +860,41 @@ def api_update_review_status(project):
     return jsonify({"status": status}), 201
 
 
+# In-memory idempotency cache for project imports.
+# Maps (user_id, idempotency_key) -> (response_dict, unix_timestamp).
+# Lets a client safely retry an import (e.g. after an nginx timeout) without
+# creating a duplicate project: same key + same user within the TTL returns
+# the original response.
+_IMPORT_IDEMPOTENCY_TTL_SECONDS = 3600
+_import_idempotency_cache = {}
+_import_idempotency_lock = threading.Lock()
+
+
+def _get_cached_import(user_id, key):
+    if not key:
+        return None
+    with _import_idempotency_lock:
+        entry = _import_idempotency_cache.get((user_id, key))
+        if entry is None:
+            return None
+        response, ts = entry
+        if time.time() - ts > _IMPORT_IDEMPOTENCY_TTL_SECONDS:
+            del _import_idempotency_cache[(user_id, key)]
+            return None
+        return response
+
+
+def _set_cached_import(user_id, key, response):
+    if not key:
+        return
+    with _import_idempotency_lock:
+        _import_idempotency_cache[(user_id, key)] = (response, time.time())
+        cutoff = time.time() - _IMPORT_IDEMPOTENCY_TTL_SECONDS
+        expired = [k for k, (_, ts) in _import_idempotency_cache.items() if ts < cutoff]
+        for k in expired:
+            del _import_idempotency_cache[k]
+
+
 @bp.route("/projects/import", methods=["POST"])
 @login_required
 def api_import_project():
@@ -869,6 +905,14 @@ def api_import_project():
     # raise error if file not given
     if "file" not in request.files:
         return jsonify(message="No ASReview file found to import."), 400
+
+    authenticated = current_app.config.get("AUTHENTICATION", True)
+    user_id = current_user.id if authenticated else None
+    idempotency_key = request.headers.get("Idempotency-Key")
+
+    cached_response = _get_cached_import(user_id, idempotency_key)
+    if cached_response is not None:
+        return jsonify(cached_response)
 
     with zipfile.ZipFile(request.files["file"], "r") as zip_obj:
         try:
@@ -893,28 +937,39 @@ def api_import_project():
         logging.exception(err)
         raise ValueError("Failed to import project.") from err
 
+    # Project.load has already written the new project directory to disk.
+    # If anything below fails (model check, DB commit, ...) we must remove
+    # that directory, otherwise we leak an orphan project on every failure.
     try:
-        ActiveLearningCycle.from_meta(
-            ActiveLearningCycleData(**project.get_model_config())
-        )
-    except ValueError as err:
-        model = get_ai_config()
-        project.update_review(model_name=model["name"], model=model["value"])
-        warnings.append(
-            str(err) + " It might be removed from this version of ASReview LAB or you "
-            "need to install an extension to use this model component."
-        )
-        warnings.append(
-            "The active learning model has been reset to the default model and"
-            " can be changed in the project settings."
-        )
+        try:
+            ActiveLearningCycle.from_meta(
+                ActiveLearningCycleData(**project.get_model_config())
+            )
+        except ValueError as err:
+            model = get_ai_config()
+            project.update_review(model_name=model["name"], model=model["value"])
+            warnings.append(
+                str(err) + " It might be removed from this version of ASReview LAB or you "
+                "need to install an extension to use this model component."
+            )
+            warnings.append(
+                "The active learning model has been reset to the default model and"
+                " can be changed in the project settings."
+            )
 
-    if current_app.config.get("AUTHENTICATION", True):
-        current_user.projects.append(Project(project_id=project.config.get("id")))
-        DB.session.commit()
+        if authenticated:
+            current_user.projects.append(Project(project_id=project.config.get("id")))
+            DB.session.commit()
+    except Exception:
+        if authenticated:
+            DB.session.rollback()
+        shutil.rmtree(project.project_path, ignore_errors=True)
+        raise
 
     project.config["roles"] = {"owner": True}
-    return jsonify({"data": project.config, "warnings": warnings})
+    response = {"data": project.config, "warnings": warnings}
+    _set_cached_import(user_id, idempotency_key, response)
+    return jsonify(response)
 
 
 @bp.route("/projects/<project_id>/tags", methods=["GET"])

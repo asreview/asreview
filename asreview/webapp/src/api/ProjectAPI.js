@@ -424,11 +424,20 @@ class ProjectAPI {
     let body = new FormData();
     body.append("file", variables.file);
 
+    // Stable per-file key so a retry of the same file (e.g. after an nginx
+    // timeout) is recognised by the server as the same import and returns
+    // the original project instead of creating a duplicate.
+    const file = variables.file;
+    const idempotencyKey = `import:${file.name}:${file.size}:${file.lastModified}`;
+
     const config = {
       method: "post",
       url: api_url + `projects/import`,
       data: body,
       withCredentials: true,
+      headers: {
+        "Idempotency-Key": idempotencyKey,
+      },
     };
 
     // Add upload progress callback if provided

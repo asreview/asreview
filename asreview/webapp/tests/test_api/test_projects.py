@@ -181,6 +181,109 @@ def test_import_project_files(client, user, project, fp):
     assert r.json["data"]["id"] in set([f.stem for f in folders])
 
 
+# Two imports of the same file with the same Idempotency-Key must produce
+# only one project on disk + DB; the second response must echo the first.
+# This guards against duplicate projects when a client retries an upload
+# after an upstream timeout (e.g. nginx).
+def test_import_project_idempotency(client, user, project, request):
+    fp = Path(
+        "asreview",
+        "webapp",
+        "tests",
+        "asreview-project-file-archive",
+        "v1.5",
+        "asreview-project-v1-5-startreview.asreview",
+    )
+    key = f"test-{request.node.name}"
+
+    r1 = au.import_project(client, fp, idempotency_key=key)
+    assert r1.status_code == 200
+    first_id = r1.json["data"]["id"]
+
+    r2 = au.import_project(client, fp, idempotency_key=key)
+    assert r2.status_code == 200
+    # Same project id returned -> server short-circuited via the cache.
+    assert r2.json["data"]["id"] == first_id
+    assert r2.json == r1.json
+
+    # Only one new on-disk project (plus the fixture's project = 2 total).
+    folders = set(misc.get_folders_in_asreview_path())
+    assert len(folders) == 2
+    assert first_id in {f.stem for f in folders}
+
+    if client.application.config.get("AUTHENTICATION"):
+        # And exactly one new DB row (fixture project + the imported one).
+        assert crud.count_projects() == 2
+
+
+# Without the Idempotency-Key header the cache is bypassed entirely:
+# repeated imports of the same file create separate projects, matching
+# the original (non-idempotent) behaviour.
+def test_import_project_without_idempotency_key_creates_duplicate(
+    client, user, project
+):
+    fp = Path(
+        "asreview",
+        "webapp",
+        "tests",
+        "asreview-project-file-archive",
+        "v1.5",
+        "asreview-project-v1-5-startreview.asreview",
+    )
+
+    r1 = au.import_project(client, fp)
+    r2 = au.import_project(client, fp)
+    assert r1.status_code == 200
+    assert r2.status_code == 200
+    assert r1.json["data"]["id"] != r2.json["data"]["id"]
+
+    folders = set(misc.get_folders_in_asreview_path())
+    # fixture project + two imports
+    assert len(folders) == 3
+
+
+# If anything fails after Project.load has copied the new project to disk,
+# the on-disk directory must be removed so we don't leak orphan projects.
+def test_import_project_cleans_up_on_failure(client, user, project, monkeypatch):
+    def boom(*args, **kwargs):
+        raise RuntimeError("simulated failure after Project.load")
+
+    monkeypatch.setattr(
+        "asreview.webapp._api.projects.ActiveLearningCycle.from_meta",
+        boom,
+    )
+
+    fp = Path(
+        "asreview",
+        "webapp",
+        "tests",
+        "asreview-project-file-archive",
+        "v1.5",
+        "asreview-project-v1-5-startreview.asreview",
+    )
+
+    folders_before = set(misc.get_folders_in_asreview_path())
+    projects_before = (
+        crud.count_projects()
+        if client.application.config.get("AUTHENTICATION")
+        else None
+    )
+
+    # The Flask test app re-raises exceptions, so the route's `raise` after
+    # cleanup surfaces here. The behaviour we care about is the side-effect:
+    # the on-disk dir + DB row created mid-import must have been removed.
+    with pytest.raises(RuntimeError, match="simulated failure"):
+        au.import_project(client, fp)
+
+    # No new on-disk project: the dir created by Project.load was rolled back.
+    folders_after = set(misc.get_folders_in_asreview_path())
+    assert folders_after == folders_before
+
+    # And no orphan DB row either.
+    if client.application.config.get("AUTHENTICATION"):
+        assert crud.count_projects() == projects_before
+
+
 # Test known demo data
 @pytest.mark.parametrize("subset", ["plugin", "benchmark"])
 def test_demo_data_project(client, user, subset):
