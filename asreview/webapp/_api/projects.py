@@ -949,7 +949,8 @@ def api_import_project():
             model = get_ai_config()
             project.update_review(model_name=model["name"], model=model["value"])
             warnings.append(
-                str(err) + " It might be removed from this version of ASReview LAB or you "
+                str(err)
+                + " It might be removed from this version of ASReview LAB or you "
                 "need to install an extension to use this model component."
             )
             warnings.append(
