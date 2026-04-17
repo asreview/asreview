@@ -274,7 +274,8 @@ class Database:
                 f"{' '.join(missing_columns)}."
             )
 
-        self._fix_decision_changes_schema(cur)
+        if not self.read_only:
+            self._fix_decision_changes_schema(cur)
 
     def _fix_decision_changes_schema(self, cur):
         """Fix decision_changes schema for projects migrated from old v2 format.
