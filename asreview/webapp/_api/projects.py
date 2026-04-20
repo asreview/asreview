@@ -1216,8 +1216,8 @@ def api_export_dataset(project):
         as_attachment=True,
         max_age=0,
         download_name=(
-            f"asreview_{'+'.join(collections)}_"
-            f"{project.config['name'].replace(' ', '_')}.{file_format}"
+            f"asreview_{'_'.join(collections)}_"
+            f"{secure_filename(project.config['name'])}.{file_format}"
         ),
     )
 
