@@ -389,6 +389,33 @@ def test_export_result(client, project, format):
     assert r.status_code == 200
 
 
+@pytest.mark.parametrize(
+    "project_name",
+    ["My Project", "user@example.com's project", "project (2024)"],
+)
+def test_export_result_filename(client, project, project_name):
+    """Test that the Content-Disposition filename does not contain quotes.
+
+    Special characters like @ in the project name cause Werkzeug to quote the
+    filename in the Content-Disposition header. On Windows, quotes are replaced
+    by underscores, resulting in filenames like _name.csv_ instead of name.csv.
+    """
+    au.update_project(client, project, name=project_name)
+    au.label_random_project_data_record(client, project, 1)
+    au.label_random_project_data_record(client, project, 0)
+
+    for format in ("csv", "tsv", "xlsx"):
+        r = au.export_project_dataset(
+            client,
+            project,
+            format,
+            collections=["relevant", "irrelevant", "not_seen"],
+        )
+        filename = r.headers["Content-Disposition"].split("filename=")[1]
+        assert not filename.startswith('"'), f"Filename should not start with a quote: {filename}"
+        assert filename.endswith(format), f"Filename should end with .{format}: {filename}"
+
+
 # Test that checks that no records are left out when exporting full dataset.
 # This checks https://github.com/asreview/asreview/issues/2347 is fixed.
 def test_export_all_records(client, project):
