@@ -579,3 +579,74 @@ def test_exist_new_labeled_records(db):
     assert not db.exist_new_labeled_records
     db.label_record(4, 0)
     assert db.exist_new_labeled_records
+
+
+def _downgrade_decision_changes(db_path):
+    """Replace the decision_changes table with the old v2 schema.
+
+    Old v2 projects had (record_id, new_label, time) instead of the current
+    (record_id, label, time, user_id).
+    """
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    cur.execute("DROP TRIGGER IF EXISTS trg_results_delete")
+    cur.execute("DROP TRIGGER IF EXISTS trg_results_label_update")
+    cur.execute("DROP TABLE decision_changes")
+    cur.execute(
+        """CREATE TABLE decision_changes
+        (record_id INTEGER, new_label INTEGER, time FLOAT)"""
+    )
+    cur.execute("INSERT INTO decision_changes VALUES (1, 0, 100.0)")
+    conn.commit()
+    conn.close()
+
+
+def test_fix_old_v2_decision_changes_schema(tmpdir):
+    """Opening a database with old v2 decision_changes schema fixes it."""
+    db_path = Path(tmpdir, "test.db")
+
+    with asr.Database(db_path) as db:
+        db.create_tables()
+    _downgrade_decision_changes(db_path)
+
+    with asr.Database(db_path) as db:
+        db._is_valid()
+
+        cur = db._conn.cursor()
+        columns = [row[1] for row in cur.execute("PRAGMA table_info(decision_changes)")]
+        assert "label" in columns
+        assert "new_label" not in columns
+        assert "user_id" in columns
+
+        # Verify existing data was preserved
+        rows = cur.execute(
+            "SELECT record_id, label, time, user_id FROM decision_changes"
+        ).fetchall()
+        assert rows == [(1, 0, 100.0, None)]
+
+
+def test_fix_old_v2_decision_changes_triggers_work(tmpdir):
+    """After schema fix, triggers that reference the label column work."""
+    db_path = Path(tmpdir, "test.db")
+
+    with asr.Database(db_path) as db:
+        db.create_tables()
+        records = [Record(0, "foo"), Record(1, "foo")]
+        db.input.add_records(records)
+    _downgrade_decision_changes(db_path)
+
+    with asr.Database(db_path) as db:
+        db._is_valid()
+        db._set_results_changes_triggers()
+
+        db.label_record(0, 1)
+        db.label_record(1, 0)
+
+        # Change a label — this triggers an INSERT into decision_changes
+        db.update_result(0, label=0)
+
+        changes = db.get_decision_changes()
+        # The old migrated row plus the new trigger-inserted row
+        assert len(changes) == 2
+        assert changes.iloc[1]["record_id"] == 0
+        assert changes.iloc[1]["label"] == 1  # old label preserved by trigger

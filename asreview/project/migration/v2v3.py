@@ -69,6 +69,7 @@ def _migrate(project):
     _copy_store_to_results(project)
     Path(project, "data_store.db").unlink()
 
+    _migrate_decision_changes_table(project)
     _update_database_version(project)
     _add_database_triggers(project)
 
@@ -92,6 +93,28 @@ def _copy_store_to_results(project):
         cur.execute("DETACH DATABASE data_store")
     finally:
         conn.close()
+
+
+def _migrate_decision_changes_table(project):
+    """Migrate the decision_changes table from the old v2 schema to the current schema.
+
+    Older v2 projects have a decision_changes table with columns
+    (record_id, new_label, time). The current schema expects
+    (record_id, label, time, user_id).
+    """
+    conn = sqlite3.connect(Path(project, "results.db"))
+    cur = conn.cursor()
+
+    columns = [row[1] for row in cur.execute("PRAGMA table_info(decision_changes)")]
+
+    if "new_label" in columns and "label" not in columns:
+        cur.execute("ALTER TABLE decision_changes RENAME COLUMN new_label TO label")
+
+    if "user_id" not in columns:
+        cur.execute("ALTER TABLE decision_changes ADD COLUMN user_id INTEGER")
+
+    conn.commit()
+    conn.close()
 
 
 def _update_database_version(project):
