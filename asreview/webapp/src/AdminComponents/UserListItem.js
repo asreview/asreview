@@ -90,7 +90,10 @@ const UserListItem = ({
           <IconButton
             size="small"
             color="error"
-            onClick={() => onDelete?.(user)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete?.(user);
+            }}
             disabled={disableDelete}
             sx={{ ml: 1 }}
           >

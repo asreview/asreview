@@ -169,10 +169,14 @@ def upgrade_projects(client: FlaskClient, project: Union[Project, asr.Project]):
     return client.put("/api/upgrade/projects")
 
 
-def import_project(client: FlaskClient, asreview_file):
+def import_project(client: FlaskClient, asreview_file, idempotency_key=None):
+    headers = {}
+    if idempotency_key is not None:
+        headers["Idempotency-Key"] = idempotency_key
     return client.post(
         "/api/projects/import",
         data={"file": (open(asreview_file, "rb"), "project.asreview")},
+        headers=headers,
     )
 
 

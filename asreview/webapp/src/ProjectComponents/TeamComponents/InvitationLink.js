@@ -112,6 +112,7 @@ const InvitationLink = ({ project_id, variant = "card" }) => {
           startIcon={isLoading ? <CircularProgress size={20} /> : <LinkIcon />}
           onClick={() => generateLink()}
           disabled={isLoading}
+          sx={{ alignSelf: "flex-start" }}
         >
           {isLoading ? "Generating..." : "Generate Invitation Link"}
         </Button>
@@ -149,32 +150,38 @@ const InvitationLink = ({ project_id, variant = "card" }) => {
           >
             <QRCode value={invitationLink} size={300} />
           </Box>
-          <Button
-            variant="contained"
-            startIcon={<Download />}
-            onClick={handleDownloadQR}
-            fullWidth
+          <Stack
+            direction="row"
+            spacing={1}
+            flexWrap="wrap"
+            useFlexGap
+            justifyContent="center"
           >
-            Download QR Code
-          </Button>
-          <Stack direction="row" spacing={1}>
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<Download />}
+              onClick={handleDownloadQR}
+            >
+              Download QR Code
+            </Button>
             <Button
               variant="outlined"
+              size="small"
               startIcon={<LinkIcon />}
               onClick={() => generateLink()}
-              fullWidth
             >
               Regenerate Link
             </Button>
             <Button
               variant="outlined"
+              size="small"
               color="error"
               startIcon={
                 isRevoking ? <CircularProgress size={20} /> : <LinkOff />
               }
               onClick={() => revokeLink()}
               disabled={isRevoking}
-              fullWidth
             >
               {isRevoking ? "Revoking..." : "Revoke Link"}
             </Button>

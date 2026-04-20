@@ -231,6 +231,8 @@ const UserFormDialog = ({
           <TextField
             label="Email"
             type="email"
+            name="new-user-email"
+            autoComplete="off"
             value={formData.email}
             onChange={handleChange("email")}
             error={!!errors.email}
@@ -241,6 +243,8 @@ const UserFormDialog = ({
 
           <TextField
             label="Name"
+            name="new-user-name"
+            autoComplete="off"
             value={formData.name}
             onChange={handleChange("name")}
             error={!!errors.name}
@@ -251,6 +255,8 @@ const UserFormDialog = ({
 
           <TextField
             label="Affiliation"
+            name="new-user-affiliation"
+            autoComplete="off"
             value={formData.affiliation}
             onChange={handleChange("affiliation")}
             fullWidth
@@ -261,6 +267,8 @@ const UserFormDialog = ({
             <TextField
               label={isEditMode ? "New Password (optional)" : "Password"}
               type={showPassword ? "text" : "password"}
+              name="new-user-password"
+              autoComplete="new-password"
               value={formData.password}
               onChange={handleChange("password")}
               error={!!errors.password}
