@@ -412,8 +412,12 @@ def test_export_result_filename(client, project, project_name):
             collections=["relevant", "irrelevant", "not_seen"],
         )
         filename = r.headers["Content-Disposition"].split("filename=")[1]
-        assert not filename.startswith('"'), f"Filename should not start with a quote: {filename}"
-        assert filename.endswith(format), f"Filename should end with .{format}: {filename}"
+        assert not filename.startswith('"'), (
+            f"Filename should not start with a quote: {filename}"
+        )
+        assert filename.endswith(format), (
+            f"Filename should end with .{format}: {filename}"
+        )
 
 
 # Test that checks that no records are left out when exporting full dataset.
