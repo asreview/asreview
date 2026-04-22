@@ -413,7 +413,9 @@ const RecordCardLabeler = ({
                     <NoteAltOutlinedIcon />
                     <Typography variant="subtitle1">Note</Typography>
                   </Stack>
-                  <Typography sx={{ mt: 1 }}>{note}</Typography>
+                  <Typography sx={{ mt: 1, whiteSpace: "pre-wrap" }}>
+                    {note}
+                  </Typography>
                 </Paper>
               )}
               {labelFromDataset === 0 && (
