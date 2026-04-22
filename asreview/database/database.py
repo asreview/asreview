@@ -471,15 +471,17 @@ class Database:
     def query_top_ranked(self, user_id=None):
         model_string = ", ".join(MODEL_COLUMNS)
         top_record_string = ", ".join(f"top_record.{col}" for col in MODEL_COLUMNS)
+        upsert_columns = ["user_id"] + MODEL_COLUMNS
+        upsert_string = ", ".join(f"{col} = excluded.{col}" for col in upsert_columns)
+
         con = self._conn
         cur = con.cursor()
-        cur.execute(
-            f"""INSERT INTO results (record_id, user_id, {model_string})
-            WITH top_record AS (
+        result = cur.execute(
+            f"""WITH top_record AS (
                 SELECT last_ranking.*
                 FROM last_ranking
                 LEFT JOIN results USING (record_id)
-                WHERE results.record_id IS NULL
+                WHERE results.record_id IS NULL OR (results.label IS NULL AND results.user_id IS NULL)
                 ORDER BY ranking
                 LIMIT 1
             ), group_records AS (
@@ -491,13 +493,22 @@ class Database:
                     WHERE record.record_id = (SELECT record_id FROM top_record)
                 )
             )
+            INSERT INTO results (record_id, user_id, {model_string})
             SELECT group_records.record_id, :user_id, {top_record_string}
             FROM group_records
-            CROSS JOIN top_record;""",
+            CROSS JOIN top_record ON TRUE
+
+            ON CONFLICT(record_id) DO UPDATE
+                SET {upsert_string}
+            RETURNING record_id
+            ;""",
             {"user_id": user_id},
-        )
+        ).fetchone()
         con.commit()
-        if not cur.rowcount:
+        # Check if any record was updated, if not, the query did not return a top ranked record
+        # and we should not return the newly pending record.
+        # cur.rowcount does not work here, because UPSERTS always return -1 (unknown)
+        if result is None:
             raise ValueError("Failed to query top ranked record")
         return self.get_pending(user_id=user_id)
 
