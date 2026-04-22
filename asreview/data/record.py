@@ -143,6 +143,7 @@ class Record(Base):
     year: Mapped[Optional[int]] = mapped_column(default=None)
     doi: Mapped[Optional[str]] = mapped_column(default=None)
     url: Mapped[Optional[str]] = mapped_column(default=None)
+    original_id: Mapped[Optional[str]] = mapped_column(default=None)
     included: Mapped[Optional[int]] = mapped_column(default=None)
 
     @validates("authors", "keywords")
@@ -162,6 +163,12 @@ class Record(Base):
         if value is not None and not isinstance(value, str):
             raise ValueError(f"'{key}' should be a string or None, but is: {value}")
         return value
+
+    @validates("original_id")
+    def validate_original_id(self, key, value):
+        if value is None or value == "":
+            return None
+        return str(value)
 
     @validates("included")
     def validate_included(self, key, included):

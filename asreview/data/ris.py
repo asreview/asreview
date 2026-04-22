@@ -162,6 +162,10 @@ class RISReader(BaseReader):
         # Turn the entries dictionary into a Pandas dataframe
         df = pd.DataFrame(entries)
 
+        # Map the RIS ID tag (parsed as 'id' by rispy) to 'original_id'.
+        if "id" in df.columns:
+            df.rename(columns={"id": "original_id"}, inplace=True)
+
         # Check if "notes" column is present
         if "notes" in df:
             # Strip Zotero XHTML <p> tags on "notes"
@@ -257,6 +261,10 @@ class RISWriter:
                     rec_copy[key] = val
             if rec_copy["notes"] == []:
                 rec_copy.pop("notes")
+
+            # Map 'original_id' back to the RIS 'id' tag for rispy.
+            if "original_id" in rec_copy:
+                rec_copy["id"] = rec_copy.pop("original_id")
 
             # Throw away columns that can not be exported to RIS.
             rec_copy = {

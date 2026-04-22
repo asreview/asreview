@@ -80,6 +80,17 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
               </StyledIconButton>
             </Tooltip>
           )}
+
+          {!(
+            record.original_id === undefined || record.original_id === null
+          ) && (
+            <Typography
+              variant="body2"
+              sx={{ color: "text.secondary", alignSelf: "center" }}
+            >
+              ID: {record.original_id}
+            </Typography>
+          )}
         </Stack>
         <Box>
           {(record.abstract === "" || record.abstract === null) && (

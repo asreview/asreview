@@ -276,6 +276,22 @@ class Database:
 
         if not self.read_only:
             self._fix_decision_changes_schema(cur)
+            self._fix_record_schema(cur)
+
+    def _fix_record_schema(self, cur):
+        """Add columns introduced after the initial schema to the record table."""
+        columns = [
+            row[1]
+            for row in cur.execute(
+                f"PRAGMA table_info({self.record_table_name})"
+            )
+        ]
+
+        if "original_id" not in columns:
+            cur.execute(
+                f"ALTER TABLE {self.record_table_name} ADD COLUMN original_id TEXT"
+            )
+            self._conn.commit()
 
     def _fix_decision_changes_schema(self, cur):
         """Fix decision_changes schema for projects migrated from old v2 format.
