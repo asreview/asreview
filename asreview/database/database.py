@@ -282,9 +282,7 @@ class Database:
         """Add columns introduced after the initial schema to the record table."""
         columns = [
             row[1]
-            for row in cur.execute(
-                f"PRAGMA table_info({self.record_table_name})"
-            )
+            for row in cur.execute(f"PRAGMA table_info({self.record_table_name})")
         ]
 
         if "original_id" not in columns:
