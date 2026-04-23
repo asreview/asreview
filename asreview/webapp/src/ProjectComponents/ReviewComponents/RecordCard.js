@@ -23,7 +23,12 @@ import { RecordCardLabeler, RecordCardModelTraining } from ".";
 
 import { fontSizeOptions } from "globals.js";
 
-const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
+const RecordCardContent = ({
+  record,
+  fontSize,
+  collapseAbstract,
+  hideLinks = false,
+}) => {
   const [readMoreOpen, toggleReadMore] = useToggle();
 
   return (
@@ -54,33 +59,35 @@ const RecordCardContent = ({ record, fontSize, collapseAbstract }) => {
           )}
         </Typography>
         <Divider />
-        <Stack direction="row" spacing={1}>
-          {!(record.doi === undefined || record.doi === null) && (
-            <Tooltip title="Open DOI">
-              <StyledIconButton
-                className="record-card-icon"
-                href={"https://doi.org/" + record.doi}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <DOIIcon />
-              </StyledIconButton>
-            </Tooltip>
-          )}
+        {!hideLinks && (
+          <Stack direction="row" spacing={1}>
+            {!(record.doi === undefined || record.doi === null) && (
+              <Tooltip title="Open DOI">
+                <StyledIconButton
+                  className="record-card-icon"
+                  href={"https://doi.org/" + record.doi}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <DOIIcon />
+                </StyledIconButton>
+              </Tooltip>
+            )}
 
-          {!(record.url === undefined || record.url === null) && (
-            <Tooltip title="Open URL">
-              <StyledIconButton
-                className="record-card-icon"
-                href={record.url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <LinkIcon />
-              </StyledIconButton>
-            </Tooltip>
-          )}
-        </Stack>
+            {!(record.url === undefined || record.url === null) && (
+              <Tooltip title="Open URL">
+                <StyledIconButton
+                  className="record-card-icon"
+                  href={record.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <LinkIcon />
+                </StyledIconButton>
+              </Tooltip>
+            )}
+          </Stack>
+        )}
         <Box>
           {(record.abstract === "" || record.abstract === null) && (
             <Typography
@@ -167,6 +174,7 @@ const RecordCard = ({
   modelLogLevel = "warning",
   showNotes = true,
   collapseAbstract = false,
+  hideLinks = false,
   hotkeys = false,
   transitionType = "fade",
   transitionSpeed = { enter: 500, exit: 100 },
@@ -201,6 +209,7 @@ const RecordCard = ({
               record={record}
               fontSize={fontSize}
               collapseAbstract={collapseAbstract}
+              hideLinks={hideLinks}
             />
           </Grid>
           <Grid size={landscape ? 2 : 5}>

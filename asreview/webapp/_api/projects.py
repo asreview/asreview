@@ -393,6 +393,9 @@ def api_update_project_info(project):  # noqa: F401
         if len(update_dict["name"]) == 0:
             raise ValueError("Project title should be at least 1 character")
 
+    if "hide_links" in update_dict:
+        update_dict["hide_links"] = update_dict["hide_links"] == "true"
+
     project.update_config(**update_dict)
 
     return api_get_project_info(project.project_id)
