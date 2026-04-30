@@ -71,6 +71,12 @@ const NoteDialog = ({ project_id, record_id, open, onClose, note = null }) => {
 
   const [noteState, setNoteState] = React.useState(note);
 
+  React.useEffect(() => {
+    if (open) {
+      setNoteState(note);
+    }
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const { isError, isLoading, mutate } = useMutation(ProjectAPI.mutateNote, {
     onSuccess: () => {
       queryClient.invalidateQueries(["fetchLabeledRecord", { project_id }]);
