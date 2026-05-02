@@ -573,7 +573,13 @@ def api_get_labeled(project):  # noqa: F401
         state_data = state_data[~state_data["note"].isnull()]
 
     if latest_first == 1:
-        state_data = state_data.iloc[::-1]
+        state_data = state_data.sort_values(
+            by="time", ascending=False, na_position="last"
+        )
+    else:
+        state_data = state_data.sort_values(
+            by="time", ascending=True, na_position="last"
+        )
 
     # count labeled records and max pages
     if len(state_data) == 0:

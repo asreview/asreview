@@ -361,6 +361,14 @@ def test_query_top_ranked(db):
     assert_state(db, state, columns)
     assert pending["record_id"].to_list() == [5]
 
+    # record_id 5 is the top ranked, now already present in results.
+    # However, no user and no label has been assigned yet, so still pending for all users.
+    pending = db.query_top_ranked(1)
+    state[0] = [5, None, 1, "nb", "max", "balanced", "tfidf", 42]
+    assert_state(db, state, columns)
+    # Pending only returns 0 since the previous record was not for user id = 2
+    assert pending["record_id"].to_list() == [5]
+
     # record_id 0 is the top ranked not in results. It's grouped with record_id 1.
     pending = db.query_top_ranked(2)
     state.append([0, None, 2, "nb", "max", "balanced", "tfidf", 42])
@@ -370,17 +378,37 @@ def test_query_top_ranked(db):
     assert pending["record_id"].to_list() == [0]
 
     # record_id 2 is the top ranked not in results. It's not grouped.
+    # It's added to results without user assignment.
     pending = db.query_top_ranked()
     state.append([2, None, None, "nb", "max", "balanced", "tfidf", 42])
     assert_state(db, state, columns)
     assert pending["record_id"].to_list() == [5, 0, 2]
 
+    # record_id 2 is still the top ranked. Nothing to append or update here.
+    pending = db.query_top_ranked()
+    assert_state(db, state, columns)
+    assert pending["record_id"].to_list() == [5, 0, 2]
+
+    # record_id 2 is still the top ranked as it's not assigned to anyone.
+    pending = db.query_top_ranked(3)
+    state[3] = [2, None, 3, "nb", "max", "balanced", "tfidf", 42]
+    assert_state(db, state, columns)
+    assert pending["record_id"].to_list() == [2]
+
     # record_id 4 is the top ranked not in results. It's grouped with record_id 3.
     # The grouped records end up in the results table in the same order as they are in
-    # the records table, to 3 comes before 4.
-    pending = db.query_top_ranked(3)
-    state.append([3, None, 3, "nb", "max", "balanced", "tfidf", 42])
-    state.append([4, None, 3, "nb", "max", "balanced", "tfidf", 42])
+    # the records table, so 3 comes before 4.
+    pending = db.query_top_ranked()
+    state.append([3, None, None, "nb", "max", "balanced", "tfidf", 42])
+    state.append([4, None, None, "nb", "max", "balanced", "tfidf", 42])
+    assert_state(db, state, columns)
+    assert pending["record_id"].to_list() == [5, 0, 2, 3]
+
+    # Another user without assignment queries the top ranked. The same records are returned,
+    # but now record_id 3 is assigned to this user.
+    pending = db.query_top_ranked(4)
+    state[4] = [3, None, 4, "nb", "max", "balanced", "tfidf", 42]
+    state[5] = [4, None, 4, "nb", "max", "balanced", "tfidf", 42]
     assert_state(db, state, columns)
     assert pending["record_id"].to_list() == [3]
 
