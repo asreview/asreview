@@ -225,9 +225,16 @@ class DataStore:
         # connection pool, but just create and dispose of a connection every time a
         # request comes. This makes it very easy dispose of the engine, but is less
         # efficient.
+        def _creator():
+            conn = sqlite3.connect(self._conn_uri, uri=True)
+            if not self.read_only:
+                conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA synchronous=NORMAL")
+            return conn
+
         self.engine = create_engine(
             "sqlite://",
-            creator=lambda: sqlite3.connect(self._conn_uri, uri=True),
+            creator=_creator,
             poolclass=NullPool,
         )
 

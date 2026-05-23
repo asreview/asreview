@@ -162,7 +162,11 @@ class Database:
         sqlite3.Connection
             Connection to the SQLite database.
         """
-        return sqlite3.connect(self._conn_uri, uri=True)
+        conn = sqlite3.connect(self._conn_uri, uri=True)
+        if not self.read_only:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA synchronous=NORMAL")
+        return conn
 
     def close(self):
         """Close the database and release all resources.
