@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sqlite3
+
 import asreview as asr
 from asreview.models.queriers import TopDown
 from asreview.models.stoppers import IsFittable
@@ -85,6 +87,10 @@ def run_model(project):
         project.remove_review_error()
 
     except Exception as err:
+        # Transient SQLite lock contention is self-healing: the next label event
+        # re-triggers training, so don't surface it as an error to the user.
+        if isinstance(err, sqlite3.OperationalError) and "locked" in str(err).lower():
+            return
         project.set_review_error(err)
         raise err
 
