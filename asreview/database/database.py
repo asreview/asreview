@@ -52,6 +52,16 @@ RANKING_TABLE_COLUMNS_PANDAS_DTYPES = {
     "time": "Float64",
 }
 
+CREATE_LAST_RANKING_TABLE_SQL = """CREATE TABLE IF NOT EXISTS last_ranking
+    (record_id INTEGER UNIQUE,
+    ranking INT,
+    classifier TEXT,
+    querier TEXT,
+    balancer TEXT,
+    feature_extractor TEXT,
+    training_set INTEGER,
+    time FLOAT)"""
+
 
 def open_db(fp, read_only=False):
     """Open a database.
@@ -214,17 +224,7 @@ class Database:
                             user_id INTEGER)"""
         )
 
-        cur.execute(
-            """CREATE TABLE last_ranking
-                            (record_id INTEGER UNIQUE,
-                            ranking INT,
-                            classifier TEXT,
-                            querier TEXT,
-                            balancer TEXT,
-                            feature_extractor TEXT,
-                            training_set INTEGER,
-                            time FLOAT)"""
-        )
+        cur.execute(CREATE_LAST_RANKING_TABLE_SQL)
 
         cur.execute(
             """CREATE TABLE decision_changes
@@ -359,9 +359,39 @@ class Database:
                 f"{list(RANKING_TABLE_COLUMNS_PANDAS_DTYPES.keys())}."
             )
 
-        last_ranking.to_sql(
-            "last_ranking", self._conn, if_exists="replace", index=False
-        )
+        self._write_last_ranking(last_ranking)
+
+    def _write_last_ranking(self, df):
+        """Atomically replace the contents of the `last_ranking` table.
+
+        The table is never dropped: the rows are replaced inside a single
+        `BEGIN IMMEDIATE` transaction so that a "database is locked" error rolls
+        back cleanly, leaving the previous ranking intact instead of a missing
+        table. The `CREATE TABLE IF NOT EXISTS` also self-heals a database whose
+        `last_ranking` table was lost by an earlier interrupted write.
+        """
+        columns = list(RANKING_TABLE_COLUMNS_PANDAS_DTYPES)
+        # itertuples yields native Python types (avoids numpy adapter issues with
+        # sqlite3) and the explicit column order guarantees value alignment.
+        rows = list(df[columns].itertuples(index=False, name=None))
+
+        col_list = ", ".join(columns)
+        placeholders = ", ".join(["?"] * len(columns))
+        insert_sql = f"INSERT INTO last_ranking ({col_list}) VALUES ({placeholders})"
+
+        con = self._conn
+        cur = con.cursor()
+        try:
+            cur.execute("BEGIN IMMEDIATE")
+            cur.execute(CREATE_LAST_RANKING_TABLE_SQL)
+            cur.execute("DELETE FROM last_ranking")
+            cur.executemany(insert_sql, rows)
+            con.commit()
+        except Exception:
+            con.rollback()
+            raise
+        finally:
+            cur.close()
 
     def add_last_ranking(
         self,
@@ -393,18 +423,20 @@ class Database:
             Number of labeled records available at the time of training.
         """
 
-        pd.DataFrame(
-            {
-                "record_id": ranked_record_ids,
-                "ranking": range(len(ranked_record_ids)),
-                "classifier": classifier,
-                "querier": querier,
-                "balancer": balancer,
-                "feature_extractor": feature_extractor,
-                "training_set": training_set,
-                "time": time.time(),
-            }
-        ).to_sql("last_ranking", self._conn, if_exists="replace", index=False)
+        self._write_last_ranking(
+            pd.DataFrame(
+                {
+                    "record_id": ranked_record_ids,
+                    "ranking": range(len(ranked_record_ids)),
+                    "classifier": classifier,
+                    "querier": querier,
+                    "balancer": balancer,
+                    "feature_extractor": feature_extractor,
+                    "training_set": training_set,
+                    "time": time.time(),
+                }
+            )
+        )
 
     def get_last_ranking_table(self):
         """Get the ranking from the state.
@@ -417,6 +449,14 @@ class Database:
             'training_set' and 'time'. It has one row for each record in the
             dataset, and is ordered by ranking.
         """
+        # Self-heal a `last_ranking` table that was lost by an earlier interrupted
+        # write, so reads (and `exist_new_labeled_records`, which runs before the
+        # write path in `run_model`) keep working on an already-broken database.
+        cur = self._conn.cursor()
+        cur.execute(CREATE_LAST_RANKING_TABLE_SQL)
+        self._conn.commit()
+        cur.close()
+
         return pd.read_sql_query(
             "SELECT * FROM last_ranking",
             self._conn,
