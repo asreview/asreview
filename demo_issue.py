@@ -66,15 +66,17 @@ def _attempt_write(path, journal_mode, write_kind):
     start = time.time()
     try:
         if write_kind == "to_sql_replace":  # mirrors add_last_ranking()
-            pd.DataFrame(
-                {"record_id": range(N_ROWS), "score": range(N_ROWS)}
-            ).to_sql("last_ranking", writer, if_exists="replace", index=False)
+            pd.DataFrame({"record_id": range(N_ROWS), "score": range(N_ROWS)}).to_sql(
+                "last_ranking", writer, if_exists="replace", index=False
+            )
         elif write_kind == "delete_truncate":  # mirrors _replace_results_from_df()
             writer.execute("DELETE FROM results")
             writer.commit()
         outcome = f"OK   in {time.time() - start:5.2f}s"
     except Exception as exc:
-        outcome = f"FAIL after {time.time() - start:5.2f}s  ({type(exc).__name__}: {exc})"
+        outcome = (
+            f"FAIL after {time.time() - start:5.2f}s  ({type(exc).__name__}: {exc})"
+        )
     finally:
         reader.close()
         writer.close()
@@ -84,9 +86,7 @@ def _attempt_write(path, journal_mode, write_kind):
 def main():
     with tempfile.TemporaryDirectory() as tmp:
         path = os.path.join(tmp, "project.sqlite")
-        print(
-            f"{N_ROWS} rows; a concurrent reader is held open during each write.\n"
-        )
+        print(f"{N_ROWS} rows; a concurrent reader is held open during each write.\n")
         cases = [
             ("to_sql_replace", "last_ranking  (to_sql if_exists='replace')"),
             ("delete_truncate", "results       (DELETE FROM = truncate)"),
