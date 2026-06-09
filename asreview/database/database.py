@@ -1,6 +1,7 @@
 import json
 import sqlite3
 import time
+import warnings
 from functools import cached_property
 
 import numpy as np
@@ -515,6 +516,29 @@ class Database:
         con.commit()
 
     def query_top_ranked(self, user_id=None):
+        rowcount = self._insert_top_ranked(user_id)
+        if not rowcount:
+            # The query joins last_ranking.record_id with record.record_id; if
+            # any last_ranking integer column is BLOB-encoded (the v3.0.7 bug,
+            # see #<issue>), the join silently matches nothing and rowcount is
+            # zero. Attempt a self-heal once before surfacing the error.
+            repaired = self._repair_last_ranking_blob_columns()
+            if repaired:
+                warnings.warn(
+                    f"Repaired {repaired} BLOB-encoded integer value(s) in "
+                    "last_ranking. This project was affected by the v3.0.7 "
+                    "last_ranking write bug; use 3.0.8 or later release containing "
+                    "the fix (or downgrade to 3.0.6 or earlier) to prevent recurrence.",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
+                rowcount = self._insert_top_ranked(user_id)
+            if not rowcount:
+                raise ValueError("Failed to query top ranked record")
+        return self.get_pending(user_id=user_id)
+
+    def _insert_top_ranked(self, user_id):
+        """Execute the top-ranked INSERT and return the affected row count."""
         model_string = ", ".join(MODEL_COLUMNS)
         top_record_string = ", ".join(f"top_record.{col}" for col in MODEL_COLUMNS)
         con = self._conn
@@ -543,9 +567,40 @@ class Database:
             {"user_id": user_id},
         )
         con.commit()
-        if not cur.rowcount:
-            raise ValueError("Failed to query top ranked record")
-        return self.get_pending(user_id=user_id)
+        return cur.rowcount
+
+    def _repair_last_ranking_blob_columns(self):
+        """Decode BLOB-encoded integer columns in last_ranking back to INTEGER.
+
+        The v3.0.7 ``_write_last_ranking`` path bound ``numpy.int64`` scalars
+        directly to a sqlite3 cursor. Python's ``sqlite3`` has no adapter for
+        numpy scalars and stored them via the buffer protocol as BLOB
+        (little-endian, unsigned). This decodes those BLOBs and writes the
+        values back as INTEGER. Returns the number of values repaired so the
+        caller can decide whether a retry is warranted.
+        """
+        con = self._conn
+        cur = con.cursor()
+        columns = [r[1] for r in cur.execute("PRAGMA table_info(last_ranking)")]
+        repaired = 0
+        for col in columns:
+            bad = cur.execute(
+                f"SELECT rowid, {col} FROM last_ranking "
+                f"WHERE typeof({col}) = 'blob'"
+            ).fetchall()
+            for rowid, blob in bad:
+                if len(blob) not in (4, 8):
+                    # Not an int32/int64 blob; leave it alone rather than guess.
+                    continue
+                value = int.from_bytes(blob, "little", signed=False)
+                cur.execute(
+                    f"UPDATE last_ranking SET {col} = ? WHERE rowid = ?",
+                    (value, rowid),
+                )
+                repaired += 1
+        if repaired:
+            con.commit()
+        return repaired
 
     def update_result(self, record_id, label=None, tags=None, user_id=None):
         if label is None and tags is None:
