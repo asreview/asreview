@@ -585,8 +585,7 @@ class Database:
         repaired = 0
         for col in columns:
             bad = cur.execute(
-                f"SELECT rowid, {col} FROM last_ranking "
-                f"WHERE typeof({col}) = 'blob'"
+                f"SELECT rowid, {col} FROM last_ranking WHERE typeof({col}) = 'blob'"
             ).fetchall()
             for rowid, blob in bad:
                 if len(blob) not in (4, 8):

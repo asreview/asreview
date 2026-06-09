@@ -640,13 +640,15 @@ def test_last_ranking_stores_integers_not_blobs(db):
     """
     records = [Record(0, "foo"), Record(1, "foo"), Record(2, "foo")]
     db.input.add_records(records)
-    db.add_last_ranking(pd.array([2, 0, 1], dtype="Int64"),
-                        "nb", "max", "balanced", "tfidf", 2)
+    db.add_last_ranking(
+        pd.array([2, 0, 1], dtype="Int64"), "nb", "max", "balanced", "tfidf", 2
+    )
 
     types = db._conn.execute(
         "SELECT DISTINCT typeof(record_id) FROM last_ranking"
     ).fetchall()
     assert types == [("integer",)], f"expected integer storage, got {types}"
+
 
 def _downgrade_decision_changes(db_path):
     """Replace the decision_changes table with the old v2 schema.
