@@ -3,6 +3,7 @@ import sqlite3
 import time
 from functools import cached_property
 
+import numpy as np
 import pandas as pd
 
 from asreview.data.record import Record
@@ -371,9 +372,14 @@ class Database:
         `last_ranking` table was lost by an earlier interrupted write.
         """
         columns = list(RANKING_TABLE_COLUMNS_PANDAS_DTYPES)
-        # itertuples yields native Python types (avoids numpy adapter issues with
-        # sqlite3) and the explicit column order guarantees value alignment.
-        rows = list(df[columns].itertuples(index=False, name=None))
+        # For nullable Int64 columns, itertuples yields numpy.int64 scalars, not
+        # Python ints. sqlite3 has no adapter for numpy scalars and would store
+        # them as BLOB via the buffer protocol, so cast each numpy scalar to its
+        # native Python type before binding (#2554).
+        rows = [
+            tuple(int(v) if isinstance(v, np.integer) else v for v in row)
+            for row in df[columns].itertuples(index=False, name=None)
+        ]
 
         col_list = ", ".join(columns)
         placeholders = ", ".join(["?"] * len(columns))
