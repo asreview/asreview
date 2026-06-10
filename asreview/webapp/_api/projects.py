@@ -599,13 +599,16 @@ def api_get_labeled(project):  # noqa: F401
     if tag_filters:
         tags_config = read_tags_data(project)
         if tags_config is not None:
-            state_data = _flatten_tags(state_data.copy(), tags_config)
+            # Filter on a flattened copy so the original `tags` column (needed by the
+            # frontend to render the tag checkboxes) stays intact on `state_data`.
+            flattened = _flatten_tags(state_data.copy(), tags_config)
             for tag_col, want_set in tag_filters.items():
-                if tag_col in state_data.columns:
+                if tag_col in flattened.columns:
                     if want_set:
-                        state_data = state_data[state_data[tag_col] == 1]
+                        flattened = flattened[flattened[tag_col] == 1]
                     else:
-                        state_data = state_data[state_data[tag_col] != 1]
+                        flattened = flattened[flattened[tag_col] != 1]
+            state_data = state_data.loc[flattened.index]
 
     if latest_first == 1:
         state_data = state_data.iloc[::-1]
