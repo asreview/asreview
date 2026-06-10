@@ -595,9 +595,7 @@ def api_get_labeled(project):  # noqa: F401
     # Tag filters. Supported format:
     #   "tag_{group_export}_{value_export}" or "...=true"  → tag is set
     #   "tag_{group_export}_{value_export}=false"           → tag is not set
-    tag_filters = {
-        k: v for k, v in parsed_filters.items() if k.startswith("tag_")
-    }
+    tag_filters = {k: v for k, v in parsed_filters.items() if k.startswith("tag_")}
     if tag_filters:
         tags_config = read_tags_data(project)
         if tags_config is not None:
