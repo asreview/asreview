@@ -581,6 +581,55 @@ def test_exist_new_labeled_records(db):
     assert db.exist_new_labeled_records
 
 
+def test_last_ranking_self_heal_missing_table(db):
+    """A lost last_ranking table is recreated instead of crashing reads/writes.
+
+    An interrupted write could previously drop the table without recreating it,
+    leaving every reader crashing with "no such table: last_ranking".
+    """
+    records = [Record(0, "foo"), Record(1, "foo"), Record(2, "foo")]
+    db.input.add_records(records)
+
+    # Simulate the broken state: the table was dropped but never recreated.
+    db._conn.execute("DROP TABLE last_ranking")
+    db._conn.commit()
+
+    # Reads recover gracefully instead of raising "no such table".
+    assert db.get_last_ranking_table().empty
+    assert not db.exist_new_labeled_records
+
+    # The next training round repopulates the table.
+    db.add_last_ranking([2, 0, 1], "nb", "max", "balanced", "tfidf", 2)
+    assert db.get_last_ranking_table()["record_id"].to_list() == [2, 0, 1]
+
+
+def test_add_last_ranking_lock_keeps_previous_ranking(db):
+    """A locked database rolls back, leaving the previous ranking intact.
+
+    The write must never leave the table dropped: if the lock can't be acquired,
+    the transaction rolls back and the previously stored ranking survives.
+    """
+    records = [Record(0, "foo"), Record(1, "foo"), Record(2, "foo")]
+    db.input.add_records(records)
+    db.add_last_ranking([2, 0, 1], "nb", "max", "balanced", "tfidf", 2)
+    assert db.get_last_ranking_table()["record_id"].to_list() == [2, 0, 1]
+
+    # Hold a write lock from a second connection so the write below can't proceed.
+    blocker = sqlite3.connect(str(db.fp))
+    blocker.execute("BEGIN IMMEDIATE")
+    try:
+        # Fail fast instead of waiting the default 5s busy-timeout.
+        db._conn.execute("PRAGMA busy_timeout = 100")
+        with pytest.raises(sqlite3.OperationalError, match="locked"):
+            db.add_last_ranking([0, 1, 2], "nb", "max", "balanced", "tfidf", 3)
+    finally:
+        blocker.rollback()
+        blocker.close()
+
+    # The table still exists with the previous ranking (rollback, not a drop).
+    assert db.get_last_ranking_table()["record_id"].to_list() == [2, 0, 1]
+
+
 def _downgrade_decision_changes(db_path):
     """Replace the decision_changes table with the old v2 schema.
 
