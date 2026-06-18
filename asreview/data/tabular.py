@@ -47,7 +47,7 @@ class CSVReader(BaseReader):
         list:
             List with entries.
         """
-        for encoding in ["utf-8", "ISO-8859-1"]:
+        for encoding in ["utf-8-sig", "ISO-8859-1"]:
             try:
                 return pd.read_csv(fp, sep=None, encoding=encoding, engine="python")
             except UnicodeDecodeError:

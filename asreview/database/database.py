@@ -371,8 +371,10 @@ class Database:
         `last_ranking` table was lost by an earlier interrupted write.
         """
         columns = list(RANKING_TABLE_COLUMNS_PANDAS_DTYPES)
-        # itertuples yields native Python types (avoids numpy adapter issues with
-        # sqlite3) and the explicit column order guarantees value alignment.
+        # itertuples may yield numpy scalars (e.g. for Int64 columns). Those are
+        # bound safely thanks to the numpy sqlite3 adapters registered in
+        # asreview.database.store; without them sqlite3 stores numpy scalars as
+        # raw-bytes BLOBs. The explicit column order guarantees value alignment.
         rows = list(df[columns].itertuples(index=False, name=None))
 
         col_list = ", ".join(columns)
