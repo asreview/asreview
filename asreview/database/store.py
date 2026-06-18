@@ -16,20 +16,6 @@ from sqlalchemy.orm import sessionmaker
 from asreview.data.record import Base
 from asreview.data.record import Record
 
-# sqlite3 can only bind native Python scalar types. Handed a numpy scalar it
-# falls back to the buffer protocol and stores the raw bytes as a BLOB, silently
-# corrupting INTEGER/REAL columns (e.g. a record_id taken from a pandas Int64
-# column or a numpy ranking array gets written as 8 raw bytes instead of an int).
-# Register adapters once, at import, so every sqlite3 write in asreview binds
-# numpy scalars as their native Python equivalents. NOTE: this is process-global
-# state -- it is what lets the raw executemany() writes elsewhere (e.g.
-# Database._write_last_ranking) persist numpy values safely.
-for _np_int_type in (np.int8, np.int16, np.int32, np.int64):
-    sqlite3.register_adapter(_np_int_type, int)
-for _np_float_type in (np.float32, np.float64):
-    sqlite3.register_adapter(_np_float_type, float)
-sqlite3.register_adapter(np.bool_, bool)
-
 CURRENT_DATASTORE_VERSION = 0
 
 # SQLite max SQL variables limit (since 3.32.0, 2020).

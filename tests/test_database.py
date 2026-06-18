@@ -603,6 +603,41 @@ def test_last_ranking_self_heal_missing_table(db):
     assert db.get_last_ranking_table()["record_id"].to_list() == [2, 0, 1]
 
 
+def test_add_last_ranking_int64_record_ids_stored_as_integer(db):
+    """A pandas Int64 ranking must be stored as INTEGER, not a raw-bytes BLOB.
+
+    ``_fill_last_ranking`` reads the record_id column back from the store, which
+    is a nullable pandas ``Int64`` Series, and passes its ``.values`` to
+    ``add_last_ranking``. ``_write_last_ranking`` then iterates that column with
+    ``itertuples``, which yields ``numpy.int64`` scalars for an ``Int64`` column
+    (unlike a plain numpy ``int64`` column, which yields Python ``int``). Without
+    the numpy sqlite3 adapters registered in ``asreview.database.store``, sqlite3
+    falls back to the buffer protocol and writes each scalar as 8 raw bytes,
+    silently corrupting the record_id/ranking columns. The other
+    ``add_last_ranking`` tests all pass plain Python lists, so they never exercise
+    this path.
+    """
+    records = [Record(0, "foo"), Record(1, "foo"), Record(2, "foo")]
+    db.input.add_records(records)
+
+    # Same path as _fill_last_ranking: record_id read back as a nullable Int64
+    # Series whose .values yields numpy.int64 scalars via itertuples.
+    ranked_record_ids = db.input["record_id"].values
+    assert db.input["record_id"].dtype == "Int64"
+    db.add_last_ranking(ranked_record_ids, None, "top_down", None, None)
+
+    # The stored columns must have INTEGER affinity, not BLOB.
+    stored_types = db._conn.execute(
+        "SELECT typeof(record_id), typeof(ranking) FROM last_ranking"
+    ).fetchall()
+    assert all(types == ("integer", "integer") for types in stored_types)
+
+    # And the values must round-trip instead of coming back as raw bytes.
+    table = db.get_last_ranking_table()
+    assert table["record_id"].to_list() == [0, 1, 2]
+    assert db.query_top_ranked()["record_id"].to_list() == [0]
+
+
 def test_add_last_ranking_lock_keeps_previous_ranking(db):
     """A locked database rolls back, leaving the previous ranking intact.
 
