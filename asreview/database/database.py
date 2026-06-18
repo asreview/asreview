@@ -3,6 +3,7 @@ import sqlite3
 import time
 from functools import cached_property
 
+import numpy as np
 import pandas as pd
 
 from asreview.data.record import Record
@@ -371,7 +372,15 @@ class Database:
         `last_ranking` table was lost by an earlier interrupted write.
         """
         columns = list(RANKING_TABLE_COLUMNS_PANDAS_DTYPES)
-        rows = list(df[columns].itertuples(index=False, name=None))
+        # itertuples yields numpy scalars for nullable pandas columns (e.g. an
+        # Int64 record_id read back from the store). sqlite3 can't bind numpy
+        # scalars: it falls back to the buffer protocol and stores them as
+        # raw-bytes BLOBs, silently corrupting INTEGER/REAL columns. Convert each
+        # numpy scalar to its native Python equivalent before binding.
+        rows = [
+            tuple(v.item() if isinstance(v, np.generic) else v for v in row)
+            for row in df[columns].itertuples(index=False, name=None)
+        ]
 
         col_list = ", ".join(columns)
         placeholders = ", ".join(["?"] * len(columns))
