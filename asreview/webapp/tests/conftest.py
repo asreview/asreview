@@ -18,6 +18,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy.orm import close_all_sessions
 
+from asreview import Project
 import asreview.webapp.tests.utils.api_utils as au
 from asreview.webapp import DB
 from asreview.webapp.app import create_app
@@ -309,7 +310,15 @@ def project(request):
         user = None
 
     au.create_project(client, benchmark="synergy:van_der_Valk_2021")
-    yield user.projects[0] if user is not None else get_projects()[0]
+    if user is not None:
+        db_project = user.projects[0]
+        project = Project(
+            db_project.project_path,
+            project_id=db_project.project_id,
+        )
+    else:
+        project = get_projects()[0]
+    yield project
 
     if client.application.config["AUTHENTICATION"]:
         crud.delete_everything(DB)

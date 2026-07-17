@@ -28,6 +28,10 @@ UPLOAD_DATA = [
 ]
 
 
+def test_project_fixture_returns_core_project(client, project):
+    assert isinstance(project, asr.Project)
+
+
 def _asreview_file_archive():
     return list(
         Path("asreview", "webapp", "tests", "asreview-project-file-archive").glob(
