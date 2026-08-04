@@ -29,7 +29,8 @@ class BaseReader(ABC):
     # title column. The format is {record_column_name: [list of input column names]},
     # where the list of input column names is in order from most important to least
     # important. So when the input dataset contains two possible input columns for a
-    # record column, it will pick the first it finds in the list.
+    # record column, it will pick the values of the first it finds in the list and use
+    # the other columns to fill the values that are missing.
     # If a field is not in this mapping, only the record column is allowed as input
     # column.
     __alternative_column_names__ = {
@@ -172,7 +173,8 @@ class BaseReader(ABC):
             Dataframe with column names lowercased and stripped of white space. In
             addition, for the columns in `__alternative_column_names__`, the first
             alternative column name in the data will be used as input for the column
-            values.
+            values, where missing values are filled with the values of the next
+            alternative column names in the data.
         """
         # The original dataset object allowed for uppercase column names.
         # Here I just lowercase all column names, but might cause bugs if we then
@@ -183,12 +185,22 @@ class BaseReader(ABC):
         # This one also occurred in the original dataset object.
         df.columns = [col.strip() for col in df.columns]
 
-        # Allow for alternative column names.
+        # Allow for alternative column names. A dataset can use different columns for
+        # the same type of data in different rows. For example a RIS file where some
+        # records use the tag 'TI' for the title and others use 'T1'. That's why the
+        # values that are missing in the most important column are filled with the
+        # values of the less important columns.
         for column, alternative_columns in cls.__alternative_column_names__.items():
-            if column in df.columns:
+            # The record column itself always takes precedence over its alternatives.
+            available_columns = [
+                col
+                for col in dict.fromkeys([column, *alternative_columns])
+                if col in df.columns
+            ]
+            if not available_columns:
                 continue
-            for alternative_column in alternative_columns:
-                if alternative_column in df.columns:
-                    df[column] = df[alternative_column]
-                    break
+            values = df[available_columns[0]]
+            for alternative_column in available_columns[1:]:
+                values = values.fillna(df[alternative_column])
+            df[column] = values
         return df

@@ -118,6 +118,24 @@ def test_asreview_labels_ris(record_i, included):
         assert records[record_i].included == included
 
 
+def test_mixed_title_tags_ris(tmpdir):
+    # Both 'TI' and 'T1' are valid tags for the title of a record, and a single file
+    # can contain records using either of them.
+    fp = Path(tmpdir, "mixed_title_tags.ris")
+    fp.write_text(
+        "TY  - JOUR\nTI  - Title with the TI tag\nER  - \n\n"
+        "TY  - JOUR\nT1  - Title with the T1 tag\nER  - \n",
+        encoding="utf-8",
+    )
+
+    records = _from_file(fp)
+
+    assert [record.title for record in records] == [
+        "Title with the TI tag",
+        "Title with the T1 tag",
+    ]
+
+
 def test_multiline_tags_ris():
     fp = Path("tests", "demo_data", "baseline_tag_and_field_definitions_lists.ris")
     entries = rispy.load(fp, encoding="utf-8")
