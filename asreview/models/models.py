@@ -19,7 +19,7 @@ AI_MODEL_CONFIGURATIONS = [
         # ELAS u5 is the default model for this version ASReview LAB. The model
         # parameters have been optimized on the SYNERGY dataset. After expert
         # elicitation, the model and parameters have been chosen.
-        # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/
+        # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview3-synergy_plus-optimization
         "name": "elas_u5",
         "label": "ELAS u5",
         "type": "ultra",
@@ -86,7 +86,7 @@ AI_MODEL_CONFIGURATIONS = [
         # ELAS l3 is the multilingual model for this version ASReview LAB. The model
         # parameters have been optimized on the SYNERGY dataset. After expert
         # elicitation, the model and parameters have been chosen.
-        # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/
+        # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview3-synergy_plus-optimization
         "name": "elas_l3",
         "label": "ELAS l3",
         "type": "lang",
@@ -124,7 +124,7 @@ AI_MODEL_CONFIGURATIONS = [
         # ELAS h4 is the heavy model for this version ASReview LAB. The model
         # parameters have been optimized on the SYNERGY dataset. After expert
         # elicitation, the model and parameters have been chosen.
-        # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/
+        # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview3-synergy_plus-optimization
         "name": "elas_h4",
         "label": "ELAS h4",
         "type": "heavy",
