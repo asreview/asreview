@@ -16,7 +16,7 @@ available models and how to select the best one for your use case.
 
 .. tip::
 
-  Not sure where to start? The ELAS u4 model is a great choice for most users.
+  Not sure where to start? The ELAS u5 model is a great choice for most users.
   It's fast, efficient, and performs well across a variety of datasets. It's
   available by default in ASReview LAB.
 
@@ -90,6 +90,11 @@ various versions:
     - Classifier
     - Querier
     - Balancer
+  * - ELAS u5
+    - TF-IDF (with bigrams)
+    - SVM
+    - Maximum
+    - Balanced
   * - ELAS u4
     - TF-IDF (with bigrams)
     - SVM
@@ -105,7 +110,7 @@ various versions:
 
   While the components of ELAS Ultra models may appear similar across versions,
   differences in their underlying parameters can significantly impact their
-  performance and behavior. Use the latest version (e.g., ELAS u4) for the best
+  performance and behavior. Use the latest version (e.g., ELAS u5) for the best
   results.
 
 Use ELAS Ultra if you are looking for a reliable, fast, and easy-to-use model
@@ -150,6 +155,11 @@ its various versions:
     - Classifier
     - Querier
     - Balancer
+  * - ELAS l3
+    - multilingual-e5-large
+    - SVM
+    - Maximum
+    - Balanced
   * - ELAS l2
     - multilingual-e5-large
     - SVM
@@ -198,6 +208,11 @@ various versions:
     - Classifier
     - Querier
     - Balancer
+  * - ELAS h4
+    - mxbai-embed-large-v1
+    - SVM
+    - Maximum
+    - Balanced
   * - ELAS h3
     - mxbai-embed-large-v1
     - SVM
