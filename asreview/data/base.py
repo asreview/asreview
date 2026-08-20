@@ -47,6 +47,7 @@ class BaseReader(ABC):
             "include",
         ],
         "title": ["title", "primary_title"],
+        "original_id": ["original_id", "id"],
     }
 
     # Dictionary {column name : function to apply to the column} of function that clean

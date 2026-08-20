@@ -39,6 +39,7 @@ from asreview.data.loader import _from_file
 from asreview.data.loader import _get_reader
 from asreview.data.utils import identify_record_groups
 from asreview.database.database import Database
+from asreview.database.database import open_db
 from asreview.datasets import DatasetManager
 from asreview.learner import ActiveLearningCycle
 from asreview.learner import ActiveLearningCycleData
@@ -137,7 +138,7 @@ class Project:
 
     @functools.cached_property
     def db(self):
-        return Database(self.db_path)
+        return open_db(self.db_path)
 
     @property
     def input_data_fp(self):

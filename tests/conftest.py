@@ -103,4 +103,8 @@ def asreview_test_project_path(tmpdir):
 @pytest.fixture
 def asreview_test_project(asreview_test_project_path, tmpdir):
     unzip_path = Path(tmpdir, "unzipped_project")
-    return Project.load(asreview_test_project_path, unzip_path)
+    project = Project.load(asreview_test_project_path, unzip_path)
+    # Access the database so that any pending schema fixups (e.g. new columns)
+    # are applied before tests that may reopen the DB in read-only mode.
+    project.db  # noqa: B018
+    return project
