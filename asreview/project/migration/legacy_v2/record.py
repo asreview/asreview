@@ -1,4 +1,3 @@
-from typing import Optional
 
 import pandas as pd
 from sqlalchemy import ForeignKey
@@ -118,7 +117,7 @@ class Record(Base):
     # Ideally `duplicate_of` would be on the base class, because all record types are
     # required to have it when we do deduplication. However, in the base class we do not
     # yet know the name of the table to which we want to make the foreign key.
-    duplicate_of: Mapped[Optional[int]] = mapped_column(
+    duplicate_of: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("record.record_id", ondelete="SET NULL"), default=None
     )
 
@@ -127,10 +126,10 @@ class Record(Base):
     # authors and keywords could also be in their own separate table.
     authors: Mapped[list] = mapped_column(default_factory=list)
     keywords: Mapped[list] = mapped_column(default_factory=list)
-    year: Mapped[Optional[int]] = mapped_column(default=None)
-    doi: Mapped[Optional[str]] = mapped_column(default=None)
-    url: Mapped[Optional[str]] = mapped_column(default=None)
-    included: Mapped[Optional[int]] = mapped_column(default=None)
+    year: Mapped[int | None] = mapped_column(default=None)
+    doi: Mapped[str | None] = mapped_column(default=None)
+    url: Mapped[str | None] = mapped_column(default=None)
+    included: Mapped[int | None] = mapped_column(default=None)
 
     @validates("authors", "keywords")
     def validate_list_of_string(self, key, value):

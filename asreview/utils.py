@@ -43,7 +43,7 @@ def _get_filename_from_url(url):
             if err.code == 308:
                 return _get_filename_from_url(err.headers.get("Location"))
             else:
-                raise err
+                raise
 
 
 def _format_to_str(obj):

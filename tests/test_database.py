@@ -6,9 +6,9 @@ import pytest
 
 import asreview as asr
 from asreview.data.loader import load_records
+from asreview.data.record import Record
 from asreview.database.database import CURRENT_DATABASE_VERSION
 from asreview.database.database import REQUIRED_TABLES
-from asreview.data.record import Record
 
 
 def assert_state(db, state, columns):
@@ -122,11 +122,10 @@ def test_results_closes_on_exception(tmpdir):
     """Test that Database closes connection even when exception occurs."""
     fp = Path(tmpdir, "test.db")
 
-    with pytest.raises(ValueError):
-        with asr.Database(fp) as db:
-            db.create_tables()
-            conn = db._conn
-            raise ValueError("Something went wrong")
+    with pytest.raises(ValueError), asr.Database(fp) as db:
+        db.create_tables()
+        conn = db._conn
+        raise ValueError("Something went wrong")
     with pytest.raises(
         sqlite3.ProgrammingError, match="Cannot operate on a closed database"
     ):
@@ -168,7 +167,7 @@ def test_create_tables(tmpdir):
             "SELECT name FROM sqlite_master WHERE type='table';"
         ).fetchall()
 
-    table_names = set(tup[0] for tup in table_names)
+    table_names = {tup[0] for tup in table_names}
     assert set(REQUIRED_TABLES).issubset(set(table_names))
     assert Record.__tablename__ in table_names
 

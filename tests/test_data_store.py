@@ -273,7 +273,7 @@ def test_get_groups(store, groups):
     assert stored_groups == groups
 
     for group_id, record_id in groups:
-        group_members = set((g_id, r_id) for (g_id, r_id) in groups if g_id == group_id)
+        group_members = {(g_id, r_id) for (g_id, r_id) in groups if g_id == group_id}
         assert group_members == set(store.get_groups(record_id=record_id))
 
 
@@ -293,7 +293,7 @@ def test_get_groups_partial_data(store, groups, result):
     assert stored_groups == result
 
     for group_id, record_id in result:
-        group_members = set((g_id, r_id) for (g_id, r_id) in result if g_id == group_id)
+        group_members = {(g_id, r_id) for (g_id, r_id) in result if g_id == group_id}
         assert group_members == set(store.get_groups(record_id=record_id))
 
 
@@ -380,8 +380,8 @@ def test_load_dataset_grouped(tmpdir):
     # There should be six groups, each containing the original record and the duplicated
     # record six row lower.
     groups = db.input.get_groups()
-    assert set(groups) == set((i, i) for i in range(6)).union(
-        set((i, i + 6) for i in range(6))
+    assert set(groups) == {(i, i) for i in range(6)}.union(
+        {(i, i + 6) for i in range(6)}
     )
 
 

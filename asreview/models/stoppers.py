@@ -24,15 +24,14 @@ This can be based on the properties of the results table or the input dataset.
 """
 
 import pandas as pd
-
 from sklearn.base import BaseEstimator
 
 __all__ = [
+    "IsFittable",
     "LastRelevant",
+    "NConsecutiveIrrelevant",
     "NLabeled",
     "QuantileLabeled",
-    "IsFittable",
-    "NConsecutiveIrrelevant",
 ]
 
 
@@ -104,10 +103,7 @@ class LastRelevant(BaseEstimator):
             True if the review should be stopped, False otherwise.
         """
 
-        if sum(data) == sum(results["label"]):
-            return True
-
-        return False
+        return sum(data) == sum(results["label"])
 
 
 class NLabeled(BaseEstimator):
@@ -205,10 +201,7 @@ class QuantileLabeled(BaseEstimator):
         """
 
         # Stop when reaching quantile (if provided)
-        if len(results) / len(data) >= self.quantile:
-            return True
-
-        return False
+        return len(results) / len(data) >= self.quantile
 
 
 class IsFittable(NLabeled):
@@ -257,7 +250,4 @@ class NConsecutiveIrrelevant(BaseEstimator):
             True if the review should be stopped, False otherwise.
         """
 
-        if len(results) > self.n and sum(results["label"].iloc[-self.n :]) == 0:
-            return True
-
-        return False
+        return bool(len(results) > self.n and sum(results["label"].iloc[-self.n:]) == 0)

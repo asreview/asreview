@@ -1,9 +1,9 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
 from asreview.webapp._authentication.models import Collaboration
+from asreview.webapp.tests.utils import crud
 
 
 class TestCollaborations:

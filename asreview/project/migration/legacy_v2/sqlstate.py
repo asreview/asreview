@@ -151,7 +151,7 @@ class SQLiteState:
         column_names = [tup[1] for tup in column_names]
         missing_columns = [
             col
-            for col in RESULTS_TABLE_COLUMNS_PANDAS_DTYPES.keys()
+            for col in RESULTS_TABLE_COLUMNS_PANDAS_DTYPES
             if col not in column_names
         ]
         if missing_columns:

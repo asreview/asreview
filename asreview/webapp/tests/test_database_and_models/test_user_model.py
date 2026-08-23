@@ -5,10 +5,10 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 
 import asreview.webapp.tests.utils.config_parser as cp
-import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
-from asreview.webapp._authentication.models import User
 from asreview.webapp._authentication.models import VALID_ROLES
+from asreview.webapp._authentication.models import User
+from asreview.webapp.tests.utils import crud
 
 # #############
 # CREATE
@@ -186,7 +186,7 @@ def test_ext_multiple_account_no_email_same_identifiers(setup_teardown):
 )
 def test_password_validation(setup_teardown, password):
     with pytest.raises(
-        ValueError, match=f'Password "{str(password)}" does not meet requirements'
+        ValueError, match=f'Password "{password!s}" does not meet requirements'
     ):
         User(
             "admin@asreview.nl",
@@ -286,7 +286,6 @@ def test_set_token(setup_teardown):
     "subtract_time", [(0, 0, True), (0, 19, True), (0, 21, False), (1, 0, False)]
 )
 def test_token_validity(setup_teardown, subtract_time):
-    #
     subtract_hours, subtract_mins, validity = subtract_time
     user = crud.create_user(DB)
     user.set_token()
@@ -335,7 +334,7 @@ def test_confirm_user(setup_teardown):
 
 # test deleting a user means deleting all projects
 def test_deleting_user(setup_teardown):
-    user, projects = crud.create_user1_with_2_projects(DB)
+    user, _projects = crud.create_user1_with_2_projects(DB)
     assert crud.count_users() == 1
     assert crud.count_projects() == 2
     # remove the user

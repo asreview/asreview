@@ -1,7 +1,6 @@
 import json
-from pathlib import Path
 from importlib.metadata import entry_points
-
+from pathlib import Path
 
 from asreview import extensions
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
 #
@@ -42,7 +41,7 @@ suppress_warnings = [
 year = datetime.datetime.now().year
 
 project = "ASReview LAB"
-copyright = "{}, ASReview LAB developers".format(year)
+copyright = f"{year}, ASReview LAB developers"
 author = "ASReview LAB developers, Utrecht University"
 
 # The short X.Y version

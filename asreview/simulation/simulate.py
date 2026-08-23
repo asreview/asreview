@@ -82,7 +82,7 @@ def _propagate_record_info(record_info, groups, return_only_new=False):
         )
 
     if return_only_new:
-        original_record_ids = set(record_id for record_id, *_ in record_info)
+        original_record_ids = {record_id for record_id, *_ in record_info}
     output = []
     for group_id, info_set in group_to_info.items():
         info = next(iter(info_set))
@@ -318,27 +318,25 @@ class Simulate:
                 pbar_rel.update(labeled["label"].sum())
                 pbar_total.update(n_query)
 
-            else:
-                if hasattr(self, "_X_features"):
-                    del self._X_features
+            if hasattr(self, "_X_features"):
+                del self._X_features
 
-        else:
-            pbar_rel.close()
-            pbar_total.close()
+        pbar_rel.close()
+        pbar_total.close()
 
-            padded_results = list(
-                self._results.dropna(axis=0, subset="training_set")["label"]
-            ) + [0] * (len(self.labels) - len(self._results["label"]))
+        padded_results = list(
+            self._results.dropna(axis=0, subset="training_set")["label"]
+        ) + [0] * (len(self.labels) - len(self._results["label"]))
 
-            if self.print_progress:
-                try:
-                    print(
-                        f"\nLoss: {loss(padded_results):.3f}\nNDCG: {ndcg(padded_results):.3f}"
-                    )
-                except ValueError:
-                    print(
-                        "Can't compute loss and gain for labels with only relevant or irrelevant records"
-                    )
+        if self.print_progress:
+            try:
+                print(
+                    f"\nLoss: {loss(padded_results):.3f}\nNDCG: {ndcg(padded_results):.3f}"
+                )
+            except ValueError:
+                print(
+                    "Can't compute loss and gain for labels with only relevant or irrelevant records"
+                )
 
     def label(self, record_ids, cycle=None):
         """Label the records with the given record_ids.

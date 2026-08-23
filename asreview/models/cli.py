@@ -22,11 +22,10 @@ def _format_algorithm(values, name, description):
 
     for x in values:
         padding = " " * 22 + x.name
-        if hasattr(x, "dist") and x.dist:
-            if x.dist.name != "asreview":
-                padding += (
-                    " " * (16 - len(x.name)) + f"[{x.dist.name} {x.dist.version}]"
-                )
+        if hasattr(x, "dist") and x.dist and x.dist.name != "asreview":
+            padding += (
+                " " * (16 - len(x.name)) + f"[{x.dist.name} {x.dist.version}]"
+            )
         result.append(padding)
 
     s += "\n".join(result)
@@ -35,7 +34,7 @@ def _format_algorithm(values, name, description):
     return s
 
 
-def cli_algorithms(argv):  # noqa
+def cli_algorithms(argv):
     s = "Available active learning algorithms for ASReview. \n\n"
 
     s += _format_algorithm(

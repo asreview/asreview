@@ -46,7 +46,7 @@ def _download_from_metadata(url):
     except URLError as e:
         if isinstance(e.reason, socket.timeout):
             raise Exception("Connection time out.")
-        raise e
+        raise
 
     datasets = []
     for data in meta_data.values():
@@ -312,7 +312,7 @@ class DatasetManager:
             )
 
         if len(all_results) == 1:
-            return list(all_results.values())[0]
+            return next(iter(all_results.values()))
 
         # Could not find dataset
         raise ValueError(f"Dataset {dataset_id} not found")
@@ -355,10 +355,10 @@ class DatasetManager:
         for group in groups:
             try:
                 group_list.append(dataset_groups[group].load()())
-            except Exception as err:
+            except Exception:
                 # don't raise error on loading entry point
                 if raise_on_error:
-                    raise err
+                    raise
 
         if serialize:
             dataset_list_ser = []
@@ -375,10 +375,10 @@ class DatasetManager:
                             "datasets": group_ser,
                         }
                     )
-                except Exception as err:
+                except Exception:
                     # don't raise error on loading entry point
                     if raise_on_error:
-                        raise err
+                        raise
 
             return dataset_list_ser
 

@@ -19,9 +19,9 @@ from sklearn.svm import LinearSVC
 
 __all__ = [
     "SVM",
-    "RandomForest",
-    "NaiveBayes",
     "Logistic",
+    "NaiveBayes",
+    "RandomForest",
 ]
 
 

@@ -1,12 +1,14 @@
-from typing import Optional
 
 import pandas as pd
-from sqlalchemy import CheckConstraint, Computed, Index
+from sqlalchemy import CheckConstraint
+from sqlalchemy import Computed
 from sqlalchemy import ForeignKey
+from sqlalchemy import Index
 from sqlalchemy import UniqueConstraint
-from sqlalchemy.orm import DeclarativeBase, declared_attr
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import MappedAsDataclass
+from sqlalchemy.orm import declared_attr
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import validates
 from sqlalchemy.types import JSON
@@ -59,7 +61,7 @@ class Base(DeclarativeBase, MappedAsDataclass):
     # base class, so it needs to be a declared attribute. The `group_id` column and the
     # index on `group_id` also need to be declared attributes because of that.
     @declared_attr
-    def duplicate_of(cls) -> Mapped[Optional[int]]:
+    def duplicate_of(cls) -> Mapped[int | None]:
         return mapped_column(
             Integer,
             ForeignKey(f"{cls.__tablename__}.record_id", ondelete="SET NULL"),
@@ -140,10 +142,10 @@ class Record(Base):
     # authors and keywords could also be in their own separate table.
     authors: Mapped[list] = mapped_column(default_factory=list)
     keywords: Mapped[list] = mapped_column(default_factory=list)
-    year: Mapped[Optional[int]] = mapped_column(default=None)
-    doi: Mapped[Optional[str]] = mapped_column(default=None)
-    url: Mapped[Optional[str]] = mapped_column(default=None)
-    included: Mapped[Optional[int]] = mapped_column(default=None)
+    year: Mapped[int | None] = mapped_column(default=None)
+    doi: Mapped[str | None] = mapped_column(default=None)
+    url: Mapped[str | None] = mapped_column(default=None)
+    included: Mapped[int | None] = mapped_column(default=None)
 
     @validates("authors", "keywords")
     def validate_list_of_string(self, key, value):

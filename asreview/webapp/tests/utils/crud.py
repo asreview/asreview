@@ -11,11 +11,11 @@ def create_user(DB, user=1):
         DB.session.add(user)
         DB.session.commit()
         user = User.query.order_by(User.id.desc()).first()
-    except Exception as exception:
+    except Exception:
         user = False
         DB.session.rollback()
         DB.session.flush()
-        raise exception
+        raise
     return user
 
 
@@ -71,11 +71,11 @@ def create_project(DB, user, project):
         DB.session.commit()
         id = project.project_id
         project = Project.query.filter_by(project_id=id).one()
-    except Exception as exception:
+    except Exception:
         project = False
         DB.session.rollback()
         DB.session.flush()
-        raise exception
+        raise
     return project
 
 
@@ -100,10 +100,10 @@ def create_collaboration(DB, project, user):
         coll = Collaboration(project_id=project.id, user_id=user.id)
         DB.session.add(coll)
         DB.session.commit()
-    except Exception as exception:
+    except Exception:
         DB.session.rollback()
         DB.session.flush()
-        raise exception
+        raise
 
 
 def list_collaborations():

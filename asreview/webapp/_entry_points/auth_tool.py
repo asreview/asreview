@@ -17,7 +17,7 @@ from asreview.webapp._authentication.models import User
 from asreview.webapp._authentication.models import create_database_and_tables
 from asreview.webapp.utils import asreview_path
 
-DEFAULT_DATABASE_URI = f"sqlite:///{str(asreview_path())}/asreview.production.sqlite"
+DEFAULT_DATABASE_URI = f"sqlite:///{asreview_path()!s}/asreview.production.sqlite"
 
 DB_URI_HELP = (
     "URI of the database. By default, the value is given by the environment "
@@ -264,7 +264,7 @@ class AuthTool:
         password = self._ensure_valid_value_for(
             "New password",
             User.valid_password,
-            "Use 8 or more characters with a mix of letters, numbers & symbols.",  # noqa
+            "Use 8 or more characters with a mix of letters, numbers & symbols.",
         )
         # id and password are guaranteed, get user and reset password
         user = get_user_by_id(self.session, int(id))
@@ -288,7 +288,7 @@ class AuthTool:
                 email = self._ensure_valid_value_for(
                     "Email address (required)",
                     User.valid_email,
-                    "Entered email address is not recognized as a valid email address.",  # noqa
+                    "Entered email address is not recognized as a valid email address.",
                 )
                 name = self._ensure_valid_value_for(
                     "Full name (required)",
@@ -303,7 +303,7 @@ class AuthTool:
                 password = self._ensure_valid_value_for(
                     "Password (required)",
                     User.valid_password,
-                    "Use 8 or more characters with a mix of letters, numbers & symbols.",  # noqa
+                    "Use 8 or more characters with a mix of letters, numbers & symbols.",
                 )
 
                 entry_data = {

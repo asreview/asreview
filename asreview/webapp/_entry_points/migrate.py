@@ -11,12 +11,12 @@ from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 
 from asreview.project.api import Project
-from asreview.webapp.utils import asreview_path
-from asreview.webapp.utils import get_projects
 from asreview.project.migration import detect_version
 from asreview.project.migration import migrate_project
+from asreview.webapp.utils import asreview_path
+from asreview.webapp.utils import get_projects
 
-DEFAULT_DATABASE_URI = f"sqlite:///{str(asreview_path())}/asreview.production.sqlite"
+DEFAULT_DATABASE_URI = f"sqlite:///{asreview_path()!s}/asreview.production.sqlite"
 
 DB_URI_HELP = (
     "URI of the database. By default, the value is given by the environment "

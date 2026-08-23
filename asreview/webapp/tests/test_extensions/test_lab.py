@@ -1,6 +1,6 @@
 import pytest
 
-import asreview.webapp._entry_points.lab as lab
+from asreview.webapp._entry_points import lab
 
 
 @pytest.fixture

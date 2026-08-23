@@ -1,7 +1,8 @@
+import csv
 import json
 import time
-import csv
-from io import BytesIO, StringIO
+from io import BytesIO
+from io import StringIO
 from pathlib import Path
 
 import pandas as pd
@@ -10,10 +11,10 @@ from jsonschema.exceptions import ValidationError
 
 import asreview as asr
 import asreview.webapp.tests.utils.api_utils as au
-import asreview.webapp.tests.utils.crud as crud
-import asreview.webapp.tests.utils.misc as misc
 from asreview.webapp import DB
 from asreview.webapp._authentication.models import Project
+from asreview.webapp.tests.utils import crud
+from asreview.webapp.tests.utils import misc
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_projects
 
@@ -178,7 +179,7 @@ def test_import_project_files(client, user, project, fp):
     else:
         assert r.json["data"]["id"] != project.config.get("id")
     # in auth/non-auth the project folder must exist in the asreview folder
-    assert r.json["data"]["id"] in set([f.stem for f in folders])
+    assert r.json["data"]["id"] in {f.stem for f in folders}
 
 
 # Two imports of the same file with the same Idempotency-Key must produce
@@ -406,11 +407,11 @@ def test_list_learners(client, user):
         "queriers",
     ]
     for key in expected_keys:
-        assert key in r.json["models"].keys()
+        assert key in r.json["models"]
         assert isinstance(r.json["models"][key], list)
         for item in r.json["models"][key]:
-            assert "name" in item.keys()
-            assert "label" in item.keys()
+            assert "name" in item
+            assert "label" in item
 
 
 # Test setting the algorithms
@@ -779,8 +780,9 @@ def test_unauthorized_use_of_api_calls(
 def test_generate_invitation_link(client_auth, project):
     """Test that invitation token contains valid project_id and token"""
     import base64
-    import hmac
     import hashlib
+    import hmac
+
     from flask import current_app
 
     # Generate invitation link

@@ -20,12 +20,12 @@ from sklearn.utils import check_random_state
 from asreview.models.mixin import QueryMixin
 
 __all__ = [
-    "Max",
     "HybridMaxRandom",
     "HybridMaxUncertainty",
-    "Uncertainty",
+    "Max",
     "Random",
     "TopDown",
+    "Uncertainty",
 ]
 
 
@@ -119,7 +119,7 @@ class Uncertainty(QueryMixin, BaseEstimator):
     name = "uncertainty"
     label = "Uncertainty"
 
-    def __init__(self, u: float = None, proba: bool = True):
+    def __init__(self, u: float | None = None, proba: bool = True):
         self.u = u
         self.proba = proba
 

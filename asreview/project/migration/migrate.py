@@ -8,7 +8,6 @@ from asreview.project.migration.v1v2 import _migrate as _migrate_v1v2
 from asreview.project.migration.v2v3 import _migrate as _migrate_v2v3
 from asreview.project.migration.v2v3 import _validate as _validate_v2v3
 
-
 __all__ = ["detect_version", "migrate_project"]
 
 

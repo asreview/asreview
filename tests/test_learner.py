@@ -8,7 +8,6 @@ from asreview.extensions import extensions
 from asreview.models.balancers import Balanced
 from asreview.models.queriers import Max
 
-
 classifier_parameters = {
     "nb": {"alpha": 3.822},
     "rf": {"n_estimators": 50},

@@ -30,7 +30,9 @@ class RemoteUserHandler:
         "DEFAULT_AFFILIATION": None,
     }
 
-    def __init__(self, config={}):
+    def __init__(self, config=None):
+        if config is None:
+            config = {}
         for key, value in self.__class__.default_headers.items():
             self.__dict__[key.lower()] = config.get(key, value)
 

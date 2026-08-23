@@ -184,13 +184,13 @@ def signup():
                     else:
                         result = (401, "Account confirmed, but unable to sign in.")
             except ValueError as e:
-                result = (400, f"Unable to create your account! Reason: {str(e)}")
+                result = (400, f"Unable to create your account! Reason: {e!s}")
             except IntegrityError as e:
                 DB.session.rollback()
-                result = (403, f"Unable to create your account! Reason: {str(e)}")
+                result = (403, f"Unable to create your account! Reason: {e!s}")
             except SQLAlchemyError as e:
                 DB.session.rollback()
-                result = (403, f"Unable to create your account! Reason: {str(e)}")
+                result = (403, f"Unable to create your account! Reason: {e!s}")
     else:
         result = (404, "The app is not configured to create accounts")
 
@@ -298,7 +298,7 @@ def forgot_password():
 
             except SQLAlchemyError as e:
                 DB.session.rollback()
-                result = (403, f"Unable to to confirm user! Reason: {str(e)}")
+                result = (403, f"Unable to to confirm user! Reason: {e!s}")
     else:
         result = (404, "Forgot-password feature is not used in this app.")
 
@@ -337,10 +337,10 @@ def reset_password():
                     result = (401, "Password reset, but unable to sign in.")
             except ValueError as e:
                 DB.session.rollback()
-                result = (500, f"Unable to reset your password! Reason: {str(e)}")
+                result = (500, f"Unable to reset your password! Reason: {e!s}")
             except SQLAlchemyError as e:
                 DB.session.rollback()
-                result = (500, f"Unable to reset your password! Reason: {str(e)}")
+                result = (500, f"Unable to reset your password! Reason: {e!s}")
     else:
         result = (404, "Reset-password feature is not used in this app.")
 
@@ -390,13 +390,13 @@ def update_profile():
                 result = (200, "User profile updated.")
         except ValueError as e:
             DB.session.rollback()
-            result = (400, f"Unable to update your profile! Reason: {str(e)}")
+            result = (400, f"Unable to update your profile! Reason: {e!s}")
         except IntegrityError as e:
             DB.session.rollback()
-            result = (500, f"Unable to update your profile! Reason: {str(e)}")
+            result = (500, f"Unable to update your profile! Reason: {e!s}")
         except SQLAlchemyError as e:
             DB.session.rollback()
-            result = (500, f"Unable to update your profile! Reason: {str(e)}")
+            result = (500, f"Unable to update your profile! Reason: {e!s}")
 
     else:
         result = (404, "No user found")
@@ -569,8 +569,8 @@ def delete_account():
 
     except SQLAlchemyError as e:
         DB.session.rollback()
-        return jsonify({"message": f"Database error: {str(e)}"}), 500
+        return jsonify({"message": f"Database error: {e!s}"}), 500
     except Exception as e:
         DB.session.rollback()
         logging.error(f"Error deleting account: {e}")
-        return jsonify({"message": f"Error deleting account: {str(e)}"}), 500
+        return jsonify({"message": f"Error deleting account: {e!s}"}), 500

@@ -121,7 +121,7 @@ class ExcelReader(BaseReader):
             wanted_columns.extend(col_names)
 
         for sheet_name in dfs:
-            col_names = set([col.lower() for col in list(dfs[sheet_name])])
+            col_names = {col.lower() for col in list(dfs[sheet_name])}
             obj_val = len(col_names & set(wanted_columns))
             if obj_val > sheet_obj_val:
                 sheet_obj_val = obj_val

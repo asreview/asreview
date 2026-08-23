@@ -1,7 +1,7 @@
 import pytest
 
-import asreview.webapp.tests.utils.crud as crud
 from asreview.webapp import DB
+from asreview.webapp.tests.utils import crud
 
 
 @pytest.fixture()

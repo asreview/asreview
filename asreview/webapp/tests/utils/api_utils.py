@@ -1,13 +1,13 @@
-from collections.abc import Iterable
 import time
-from typing import Literal, Union
+from collections.abc import Iterable
+from typing import Literal
 
 from flask.testing import FlaskClient
 
 import asreview as asr
-import asreview.webapp.tests.utils.crud as crud
-import asreview.webapp.tests.utils.misc as misc
 from asreview.webapp._authentication.models import Project
+from asreview.webapp.tests.utils import crud
+from asreview.webapp.tests.utils import misc
 from asreview.webapp.tests.utils.config_parser import all_users
 from asreview.webapp.tests.utils.config_parser import get_user
 from asreview.webapp.tests.utils.misc import get_project_id
@@ -148,7 +148,7 @@ def create_project(client: FlaskClient, mode: str = "oracle", **kwargs):
 
 def update_project(
     client: FlaskClient,
-    project: Union[Project, asr.Project],
+    project: Project | asr.Project,
     name: str = "name",
     mode: str = "oracle",
     authors: str = "authors",
@@ -165,7 +165,7 @@ def update_project(
     )
 
 
-def upgrade_projects(client: FlaskClient, project: Union[Project, asr.Project]):
+def upgrade_projects(client: FlaskClient, project: Project | asr.Project):
     return client.put("/api/upgrade/projects")
 
 
@@ -184,24 +184,24 @@ def get_demo_data(client: FlaskClient, subset: str):
     return client.get(f"/api/datasets?subset={subset}")
 
 
-def get_project_data(client: FlaskClient, project: Union[Project, asr.Project]):
+def get_project_data(client: FlaskClient, project: Project | asr.Project):
     return client.get(f"/api/projects/{get_project_id(project)}/data")
 
 
 def get_project_dataset_writer(
-    client: FlaskClient, project: Union[Project, asr.Project]
+    client: FlaskClient, project: Project | asr.Project
 ):
     return client.get(f"/api/projects/{get_project_id(project)}/dataset_writer")
 
 
 def search_project_data(
-    client: FlaskClient, project: Union[Project, asr.Project], query: str
+    client: FlaskClient, project: Project | asr.Project, query: str
 ):
     return client.get(f"/api/projects/{get_project_id(project)}/search?q={query}")
 
 
 def label_random_project_data_record(
-    client: FlaskClient, project: Union[Project, asr.Project], label: int
+    client: FlaskClient, project: Project | asr.Project, label: int
 ):
     r = search_project_data(client, project, query="The&n_max=10")
     return label_project_record(
@@ -211,7 +211,7 @@ def label_random_project_data_record(
 
 def label_project_record(
     client: FlaskClient,
-    project: Union[Project, asr.Project],
+    project: Project | asr.Project,
     record_id: int,
     label: str,
     prior: int = 1,
@@ -225,7 +225,7 @@ def label_project_record(
 
 def update_label_project_record(
     client: FlaskClient,
-    project: Union[Project, asr.Project],
+    project: Project | asr.Project,
     record_id: int,
     label: str,
     prior: int = 1,
@@ -237,12 +237,12 @@ def update_label_project_record(
     )
 
 
-def get_labeled_project_data(client: FlaskClient, project: Union[Project, asr.Project]):
+def get_labeled_project_data(client: FlaskClient, project: Project | asr.Project):
     return client.get(f"/api/projects/{get_project_id(project)}/labeled")
 
 
 def get_labeled_project_data_stats(
-    client: FlaskClient, project: Union[Project, asr.Project]
+    client: FlaskClient, project: Project | asr.Project
 ):
     return client.get(f"/api/projects/{get_project_id(project)}/labeled_stats")
 
@@ -252,22 +252,22 @@ def get_project_algorithms_options(client: FlaskClient):
 
 
 def set_project_algorithms(
-    client: FlaskClient, project: Union[Project, asr.Project], data: dict
+    client: FlaskClient, project: Project | asr.Project, data: dict
 ):
     return client.post(f"/api/projects/{get_project_id(project)}/learner", data=data)
 
 
-def get_project_algorithms(client: FlaskClient, project: Union[Project, asr.Project]):
+def get_project_algorithms(client: FlaskClient, project: Project | asr.Project):
     return client.get(f"/api/projects/{get_project_id(project)}/learner")
 
 
-def get_project_status(client: FlaskClient, project: Union[Project, asr.Project]):
+def get_project_status(client: FlaskClient, project: Project | asr.Project):
     return client.get(f"/api/projects/{get_project_id(project)}/status")
 
 
 def set_project_status(
     client: FlaskClient,
-    project: Union[Project, asr.Project],
+    project: Project | asr.Project,
     status: str,
     trigger_model: bool = False,
 ):
@@ -279,7 +279,7 @@ def set_project_status(
 
 def export_project_dataset(
     client: FlaskClient,
-    project: Union[Project, asr.Project],
+    project: Project | asr.Project,
     format: str,
     collections: Iterable[Literal["relevant", "irrelevant", "not_seen"]] | None = None,
 ):
@@ -292,35 +292,35 @@ def export_project_dataset(
 
 def export_project(
     client: FlaskClient,
-    project: Union[Project, asr.Project],
+    project: Project | asr.Project,
 ):
     return client.get(f"/api/projects/{get_project_id(project)}/export_project")
 
 
 def get_project_progress(
     client: FlaskClient,
-    project: Union[Project, asr.Project],
+    project: Project | asr.Project,
 ):
     return client.get(f"/api/projects/{get_project_id(project)}/progress")
 
 
 def get_project_progress_data(
     client: FlaskClient,
-    project: Union[Project, asr.Project],
+    project: Project | asr.Project,
 ):
     return client.get(f"/api/projects/{get_project_id(project)}/progress_data")
 
 
 def get_project_current_document(
     client: FlaskClient,
-    project: Union[Project, asr.Project],
+    project: Project | asr.Project,
 ):
     return client.get(f"/api/projects/{get_project_id(project)}/get_record")
 
 
 def delete_project(
     client: FlaskClient,
-    project: Union[Project, asr.Project],
+    project: Project | asr.Project,
 ):
     return client.delete(f"/api/projects/{get_project_id(project)}/delete")
 

@@ -16,13 +16,13 @@ from asreview.models.models import AI_MODEL_CONFIGURATIONS
 from asreview.models.models import get_ai_config
 
 __all__ = [
+    "AI_MODEL_CONFIGURATIONS",
     "balancers",
     "classifiers",
     "feature_extractors",
+    "get_ai_config",
     "queriers",
     "stoppers",
-    "AI_MODEL_CONFIGURATIONS",
-    "get_ai_config",
 ]
 
 """Active learning model components.

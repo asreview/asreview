@@ -12,4 +12,4 @@ def test_landing(client):
     assert (
         "<title>ASReview LAB - A tool for AI-assisted systematic reviews</title>"
         in r.text
-    )  # noqa
+    )

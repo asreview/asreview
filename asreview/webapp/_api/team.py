@@ -95,7 +95,7 @@ def validate_invitation_token(encoded_token):
     except (ValueError, base64.binascii.Error):
         return None, (jsonify({"message": "Token is not valid."}), 400)
     except Exception as e:
-        return None, (jsonify({"message": f"Error: {str(e)}"}), 500)
+        return None, (jsonify({"message": f"Error: {e!s}"}), 500)
 
 
 def get_user_project_properties(user, project, current_user):
@@ -204,7 +204,7 @@ def end_collaboration(project_id, user_id):
 
         except SQLAlchemyError as e:
             response = (
-                jsonify({"message": f"Error removing collaborator: {str(e)}"}),
+                jsonify({"message": f"Error removing collaborator: {e!s}"}),
                 500,
             )
     return response
@@ -304,4 +304,4 @@ def join_project():
 
     except SQLAlchemyError as e:
         DB.session.rollback()
-        return jsonify({"message": f"Error joining project: {str(e)}"}), 500
+        return jsonify({"message": f"Error joining project: {e!s}"}), 500

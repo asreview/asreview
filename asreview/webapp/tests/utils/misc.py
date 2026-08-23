@@ -4,7 +4,6 @@ import random
 import re
 import zipfile
 from pathlib import Path
-from typing import Union
 
 from flask import current_app
 
@@ -59,7 +58,7 @@ def manipulate_project_file(project, key, value):
     return False
 
 
-def _extract_stem(path: Union[str, Path]):
+def _extract_stem(path: str | Path):
     """Extracts a stem from a path or URL containing a filename."""
     return Path(re.split(":|/", str(path))[-1]).stem
 
@@ -68,7 +67,7 @@ def extract_filename_stem(upload_data):
     """Helper function to get the stem part of a filename from a
     Path or URL contaning a filename."""
     # upload data is a dict with a single key value pair
-    value = list(upload_data.values())[0]
+    value = next(iter(upload_data.values()))
     # split this value on either / or :
     return _extract_stem(value)
 

@@ -132,7 +132,7 @@ class OAuthHandler:
                     },
                 ).json()
                 # get first available email when present
-                if "email" in response.keys() and len(response["email"]) > 0:
+                if "email" in response and len(response["email"]) > 0:
                     email = response["email"][0]["email"]
 
         return (orcid_id, email, name)

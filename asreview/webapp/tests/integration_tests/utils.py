@@ -1,10 +1,10 @@
-import time
 import os
+import time
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.keys import Keys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -70,7 +70,7 @@ def fill_text_field_by_id(driver, field_id, value, wait_time=60):
     # input_field.clear() does not work for all fields when using chromedriver:
     # fields that have autofill enabled are re-filled after being cleared.
     # instead, just clear the fields manually:
-    while not input_field.get_attribute("value") == "":
+    while input_field.get_attribute("value") != "":
         input_field.send_keys(Keys.BACK_SPACE)
 
     input_field.send_keys(value)

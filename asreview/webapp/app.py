@@ -126,14 +126,12 @@ def create_app(**config_vars):
         }
 
         configured_external_auth_methods = [
-            k for k in app.config.keys() if k in external_auth_methods.keys()
+            k for k in app.config if k in external_auth_methods
         ]
         if len(configured_external_auth_methods) > 1:
             raise ValueError(
-                "You configured multiple non-local authentication methods: {}. "
-                "This is not supported. Please configure only one.".format(
-                    configured_external_auth_methods
-                )
+                f"You configured multiple non-local authentication methods: {configured_external_auth_methods}. "
+                "This is not supported. Please configure only one."
             )
         elif configured_external_auth_methods:
             auth_method = configured_external_auth_methods[0]
@@ -144,8 +142,8 @@ def create_app(**config_vars):
 
             if app.config.get("ALLOW_ACCOUNT_CREATION"):
                 raise ValueError(
-                    "When {} is used for authentication, the app "
-                    "will not allow account creation".format(auth_method)
+                    f"When {auth_method} is used for authentication, the app "
+                    "will not allow account creation"
                 )
             # explicitly set account creation to False
             # used to avoid account conflicts.

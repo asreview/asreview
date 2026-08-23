@@ -120,7 +120,7 @@ def test_model_and_prior_seed(tmpdir, seed, demo_data_path):
 def test_models(model, tmpdir, demo_data_path, tmp_project):
     _cli_simulate(
         f"{demo_data_path} -o {tmp_project} -c {model}".split()
-        + "-e tfidf -q max -b balanced".split()
+        + ["-e", "tfidf", "-q", "max", "-b", "balanced"]
     )
 
     with asr.Project.load(tmp_project, tmpdir).db as db:

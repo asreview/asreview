@@ -173,7 +173,7 @@ def test_get_users(client_auth):
     assert crud.count_users() == 2
     # test function
     result = tool.get_users(DB.session)
-    assert set(result) == set([user1, user2])
+    assert set(result) == {user1, user2}
 
 
 # ####################
@@ -511,7 +511,7 @@ def test_link_projects_interactively(client_auth):
 # Test linking projects with a typo
 def test_link_projects_interactively_with_typo(client_auth):
     # import projects
-    proj1, proj2 = import_2_unauthenticated_projects()
+    _proj1, _proj2 = import_2_unauthenticated_projects()
     # create a user
     user = crud.create_user(DB, 1)
     # check the database

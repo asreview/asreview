@@ -1,16 +1,15 @@
 import datetime as dt
 import json
-from inspect import getfullargspec
 import re
+from inspect import getfullargspec
 
 import pytest
 
+import asreview.webapp.tests.utils.api_utils as au
 from asreview.webapp import DB
 from asreview.webapp.tests.conftest import _get_app
-import asreview.webapp.tests.utils.api_utils as au
+from asreview.webapp.tests.utils import crud
 from asreview.webapp.tests.utils.config_parser import get_user
-import asreview.webapp.tests.utils.crud as crud
-
 
 # ###################
 # SIGNUP

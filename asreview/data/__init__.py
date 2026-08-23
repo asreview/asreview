@@ -13,7 +13,6 @@
 # limitations under the License.
 
 __all__ = [
-    "base",
     "CSVReader",
     "CSVWriter",
     "ExcelReader",
@@ -21,6 +20,7 @@ __all__ = [
     "RISReader",
     "RISWriter",
     "TSVWriter",
+    "base",
 ]
 
 from asreview.data.ris import RISReader

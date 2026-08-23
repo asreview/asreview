@@ -1,8 +1,8 @@
 import os
 import sqlite3
+from pathlib import Path
 
 import pytest
-from pathlib import Path
 
 import asreview as asr
 from asreview.models.balancers import Balanced
@@ -66,11 +66,10 @@ def test_project_closes_db_on_exception(tmpdir):
     project_path = Path(tmpdir, "test.asreview")
     asr.Project.create(project_path)
 
-    with pytest.raises(RuntimeError):
-        with asr.Project(project_path) as project:
-            # access db to trigger the cached_property
-            conn = project.db._conn
-            raise RuntimeError("simulated failure")
+    with pytest.raises(RuntimeError), asr.Project(project_path) as project:
+        # access db to trigger the cached_property
+        conn = project.db._conn
+        raise RuntimeError("simulated failure")
 
     # connection should be closed
     with pytest.raises(

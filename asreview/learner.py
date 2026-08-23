@@ -18,7 +18,6 @@ from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
-from typing import Optional
 
 from asreview.extensions import load_extension
 from asreview.utils import _read_config_file
@@ -53,15 +52,15 @@ def _get_name_from_estimator(estimator):
 @dataclass
 class ActiveLearningCycleData:
     querier: str
-    classifier: Optional[str] = None
-    balancer: Optional[str] = None
-    feature_extractor: Optional[str] = None
-    stopper: Optional[str] = None
-    querier_param: Optional[dict[str, Any]] = field(default_factory=dict)
-    classifier_param: Optional[dict[str, Any]] = field(default_factory=dict)
-    balancer_param: Optional[dict[str, Any]] = field(default_factory=dict)
-    feature_extractor_param: Optional[dict[str, Any]] = field(default_factory=dict)
-    stopper_param: Optional[dict[str, Any]] = field(default_factory=dict)
+    classifier: str | None = None
+    balancer: str | None = None
+    feature_extractor: str | None = None
+    stopper: str | None = None
+    querier_param: dict[str, Any] | None = field(default_factory=dict)
+    classifier_param: dict[str, Any] | None = field(default_factory=dict)
+    balancer_param: dict[str, Any] | None = field(default_factory=dict)
+    feature_extractor_param: dict[str, Any] | None = field(default_factory=dict)
+    stopper_param: dict[str, Any] | None = field(default_factory=dict)
     n_query: int = 1
 
 

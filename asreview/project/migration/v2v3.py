@@ -75,7 +75,7 @@ def _migrate(project):
 
 
 def _copy_store_to_results(project):
-    engine = create_engine(f"sqlite:///{str(Path(project, 'results.db'))}")
+    engine = create_engine(f"sqlite:///{Path(project, 'results.db')!s}")
     Base.metadata.create_all(engine)
     engine.dispose()
     conn = sqlite3.connect(Path(project, "results.db"))

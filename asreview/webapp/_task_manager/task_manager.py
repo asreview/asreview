@@ -1,10 +1,10 @@
+import errno
 import json
 import logging
 import multiprocessing as mp
+import signal
 import socket
 import threading
-import signal
-import errno
 from collections import deque
 
 from sqlalchemy import create_engine
@@ -462,7 +462,7 @@ class TaskManager:
                 self.client_thread = client_thread
                 self.client_conn = conn
 
-            except socket.timeout:
+            except TimeoutError:
                 # No incoming connections => perform handling queue
                 self._process_buffer()
                 # Pop tasks from database into 'pending'

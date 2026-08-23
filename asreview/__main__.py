@@ -87,7 +87,7 @@ def main():
             version=f"%(prog)s {__version__}",
         )
 
-        args, _ = parser.parse_known_args()
+        _args, _ = parser.parse_known_args()
 
         parser.print_help()
 

@@ -262,7 +262,7 @@ class RISWriter:
             rec_copy = {
                 key: val
                 for key, val in rec_copy.items()
-                if not key == "included" and not key.startswith("asreview_")
+                if key != "included" and not key.startswith("asreview_")
             }
             # Append the deepcopied and updated record to a new array
             records_new.append(rec_copy)

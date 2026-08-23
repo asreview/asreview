@@ -14,11 +14,10 @@
 
 import json
 
-from asreview.webapp import DB
 import asreview.webapp.tests.utils.api_utils as au
+from asreview.webapp import DB
+from asreview.webapp.tests.utils import crud
 from asreview.webapp.tests.utils.config_parser import get_user
-import asreview.webapp.tests.utils.crud as crud
-
 
 # ###################
 # HELPER FUNCTIONS
@@ -131,7 +130,7 @@ def test_get_users_without_login_unauthorized(client_auth):
 def test_create_user_as_admin(client_auth):
     """Test that admin can create new users"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(
         client_auth, 1, signin_immediately=True
     )
 
@@ -166,7 +165,7 @@ def test_create_user_as_admin(client_auth):
 def test_create_user_as_admin_with_admin_role(client_auth):
     """Test that admin can create other admin users"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Create new admin user via API
     new_admin_data = {
@@ -193,7 +192,7 @@ def test_create_user_as_admin_with_admin_role(client_auth):
 def test_create_user_duplicate_identifier(client_auth):
     """Test creating user with duplicate identifier fails"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try to create user with same identifier as admin
     duplicate_user_data = {
@@ -246,7 +245,7 @@ def test_create_user_as_non_admin_forbidden(client_auth):
 def test_update_user_as_admin(client_auth):
     """Test that admin can update users"""
     # Create admin user (don't sign in yet)
-    admin_user, admin_user_obj = create_admin_user_and_signin(
+    _admin_user, admin_user_obj = create_admin_user_and_signin(
         client_auth, 1, signin_immediately=False
     )
 
@@ -287,7 +286,7 @@ def test_update_user_as_admin(client_auth):
 def test_update_nonexistent_user(client_auth):
     """Test updating non-existent user returns 404"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try to update non-existent user
     update_data = {"name": "Updated Name"}
@@ -338,7 +337,7 @@ def test_update_user_as_non_admin_forbidden(client_auth):
 def test_delete_user_as_admin(client_auth):
     """Test that admin can delete users"""
     # Create admin user (don't sign in yet)
-    admin_user, admin_user_obj = create_admin_user_and_signin(
+    _admin_user, admin_user_obj = create_admin_user_and_signin(
         client_auth, 1, signin_immediately=False
     )
 
@@ -370,7 +369,7 @@ def test_delete_user_as_admin(client_auth):
 def test_delete_nonexistent_user(client_auth):
     """Test deleting non-existent user returns 404"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(
         client_auth, 1, signin_immediately=True
     )
 
@@ -411,7 +410,7 @@ def test_delete_user_as_non_admin_forbidden(client_auth):
 def test_batch_delete_users_as_admin(client_auth):
     """Test that admin can delete multiple users"""
     # Create admin user (don't sign in yet)
-    admin_user, admin_user_obj = create_admin_user_and_signin(
+    _admin_user, admin_user_obj = create_admin_user_and_signin(
         client_auth, 1, signin_immediately=False
     )
 
@@ -464,7 +463,7 @@ def test_batch_delete_users_as_admin(client_auth):
 def test_batch_delete_users_empty_list(client_auth):
     """Test batch delete with empty user_ids list"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(
         client_auth, 1, signin_immediately=True
     )
 
@@ -484,7 +483,7 @@ def test_batch_delete_users_empty_list(client_auth):
 def test_batch_delete_users_invalid_data_type(client_auth):
     """Test batch delete with invalid data type for user_ids"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try batch delete with non-list user_ids
     delete_data = {"user_ids": "not_a_list"}
@@ -502,7 +501,7 @@ def test_batch_delete_users_invalid_data_type(client_auth):
 def test_batch_delete_users_nonexistent_ids(client_auth):
     """Test batch delete with non-existent user IDs"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try to delete non-existent users
     delete_data = {"user_ids": [99999, 99998, 99997]}
@@ -520,7 +519,7 @@ def test_batch_delete_users_nonexistent_ids(client_auth):
 def test_batch_delete_users_partial_nonexistent(client_auth):
     """Test batch delete with mix of existing and non-existent user IDs"""
     # Create admin user (don't sign in yet)
-    admin_user, admin_user_obj = create_admin_user_and_signin(
+    _admin_user, admin_user_obj = create_admin_user_and_signin(
         client_auth, 1, signin_immediately=False
     )
 
@@ -592,7 +591,7 @@ def test_batch_delete_users_without_login_unauthorized(client_auth):
 def test_batch_delete_users_missing_data(client_auth):
     """Test batch delete without providing user_ids"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try batch delete without user_ids
     delete_data = {}
@@ -615,7 +614,7 @@ def test_batch_delete_users_missing_data(client_auth):
 def test_get_single_user_as_admin(client_auth):
     """Test that admin can retrieve a specific user"""
     # Create admin user (don't sign in yet)
-    admin_user, admin_user_obj = create_admin_user_and_signin(
+    _admin_user, admin_user_obj = create_admin_user_and_signin(
         client_auth, 1, signin_immediately=False
     )
 
@@ -641,7 +640,7 @@ def test_get_single_user_as_admin(client_auth):
 def test_get_single_nonexistent_user(client_auth):
     """Test getting non-existent user returns 404"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try to get non-existent user
     response = client_auth.get("/admin/users/99999")
@@ -723,7 +722,7 @@ def test_get_projects_as_admin(client_auth):
     _create_test_users_with_projects(client_auth)
 
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 3)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 3)
 
     # Test get all projects
     response = client_auth.get("/admin/projects")
@@ -911,7 +910,7 @@ def test_transfer_ownership_nonexistent_project(client_auth):
     regular_user_obj = crud.get_user_by_identifier(regular_user.identifier)
 
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try to transfer ownership of non-existent project
     transfer_data = {"new_owner_id": regular_user_obj.id}
@@ -1155,7 +1154,7 @@ def test_add_member_nonexistent_project_fails(client_auth):
     regular_user_obj = crud.get_user_by_identifier(regular_user.identifier)
 
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try to add member to non-existent project
     add_member_data = {"user_id": regular_user_obj.id}
@@ -1316,7 +1315,7 @@ def test_batch_delete_projects_as_admin(client_auth):
     project2 = test_data["project2"]
 
     # Create admin user
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 3)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 3)
 
     # Get project objects
     project1_obj = crud.get_project_by_project_id(project1["id"])
@@ -1345,7 +1344,7 @@ def test_batch_delete_projects_as_admin(client_auth):
 def test_batch_delete_projects_empty_list(client_auth):
     """Test batch delete with empty project_ids list"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try batch delete with empty list
     delete_data = {"project_ids": []}
@@ -1363,7 +1362,7 @@ def test_batch_delete_projects_empty_list(client_auth):
 def test_batch_delete_projects_nonexistent_ids(client_auth):
     """Test batch delete with non-existent project IDs"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try to delete non-existent projects
     delete_data = {"project_ids": [99999, 99998, 99997]}
@@ -1387,7 +1386,7 @@ def test_batch_delete_projects_partial_nonexistent(client_auth):
     project1 = test_data["project1"]
 
     # Create admin user
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 3)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 3)
 
     # Get project object
     project1_obj = crud.get_project_by_project_id(project1["id"])
@@ -1456,7 +1455,7 @@ def test_batch_delete_projects_without_login_unauthorized(client_auth):
 def test_batch_delete_projects_missing_data(client_auth):
     """Test batch delete without providing project_ids"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Try batch delete without project_ids
     delete_data = {}
@@ -1478,7 +1477,7 @@ def test_batch_delete_projects_single_project(client_auth):
     project1 = test_data["project1"]
 
     # Create admin user
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 3)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 3)
 
     # Get project object
     project1_obj = crud.get_project_by_project_id(project1["id"])
@@ -1510,7 +1509,7 @@ def test_batch_delete_projects_single_project(client_auth):
 def test_bulk_import_users_success(client_auth):
     """Test successful bulk import of users with valid data"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Prepare bulk import data
     users_data = [
@@ -1569,7 +1568,7 @@ def test_bulk_import_users_success(client_auth):
 def test_bulk_import_users_partial_success(client_auth):
     """Test bulk import with some valid and some invalid users"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Prepare bulk import data with some invalid entries
     users_data = [
@@ -1622,7 +1621,7 @@ def test_bulk_import_users_partial_success(client_auth):
 def test_bulk_import_users_with_duplicates(client_auth):
     """Test bulk import with duplicate email addresses"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Create a user first
     existing_user_data = {
@@ -1666,7 +1665,7 @@ def test_bulk_import_users_with_duplicates(client_auth):
 def test_bulk_import_users_empty_list(client_auth):
     """Test bulk import with empty user list"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     response = client_auth.post(
         "/admin/users/bulk-import",
@@ -1682,7 +1681,7 @@ def test_bulk_import_users_empty_list(client_auth):
 def test_bulk_import_users_missing_required_fields(client_auth):
     """Test bulk import with missing required fields"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     # Test missing name
     users_data = [
@@ -1735,7 +1734,7 @@ def test_bulk_import_users_as_non_admin(client_auth):
 def test_bulk_import_users_invalid_role(client_auth):
     """Test bulk import with invalid role value"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     users_data = [
         {
@@ -1768,7 +1767,7 @@ def test_bulk_import_users_invalid_role(client_auth):
 def test_bulk_import_users_defaults(client_auth):
     """Test that bulk imported users have correct default values"""
     # Create admin user and sign in
-    admin_user, admin_user_obj = create_admin_user_and_signin(client_auth, 1)
+    _admin_user, _admin_user_obj = create_admin_user_and_signin(client_auth, 1)
 
     users_data = [
         {

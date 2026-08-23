@@ -18,7 +18,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
 
-__all__ = ["Tfidf", "OneHot"]
+__all__ = ["OneHot", "Tfidf"]
 
 
 class TextMerger(TransformerMixin, BaseEstimator):
@@ -93,7 +93,7 @@ class Tfidf(Pipeline):
 
     def __init__(
         self,
-        columns=["title", "abstract"],
+        columns=None,
         sep=" ",
         lowercase=True,
         stop_words=None,
@@ -110,6 +110,8 @@ class Tfidf(Pipeline):
         sublinear_tf=False,
         **kwargs,
     ):
+        if columns is None:
+            columns = ["title", "abstract"]
         self.columns = columns
         self.sep = sep
         self.lowercase = lowercase
@@ -188,7 +190,7 @@ class OneHot(Pipeline):
 
     def __init__(
         self,
-        columns=["title", "abstract"],
+        columns=None,
         sep=" ",
         lowercase=True,
         stop_words=None,
@@ -200,6 +202,8 @@ class OneHot(Pipeline):
         vocabulary=None,
         **kwargs,
     ):
+        if columns is None:
+            columns = ["title", "abstract"]
         self.columns = columns
         self.sep = sep
         self.lowercase = lowercase

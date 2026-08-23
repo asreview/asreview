@@ -92,7 +92,7 @@ def run_model(project):
         if isinstance(err, sqlite3.OperationalError) and "locked" in str(err).lower():
             return
         project.set_review_error(err)
-        raise err
+        raise
 
 
 def run_simulation(project):
@@ -119,7 +119,7 @@ def run_simulation(project):
         sim.review()
     except Exception as err:
         project.set_review_error(err)
-        raise err
+        raise
 
     project.update_review(status="finished")
     sim.to_sql(project.db_path)

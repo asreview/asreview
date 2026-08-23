@@ -1,12 +1,11 @@
-from pathlib import Path
 import shutil
 import urllib.request
+from pathlib import Path
 
 import pandas as pd
 import pytest
 
 from asreview import Project
-
 
 _OSF_CACHE_DIR = Path("~/.cache/asreview_tests").expanduser()
 _OSF_FG93A_URL = "https://osf.io/download/fg93a/"

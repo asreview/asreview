@@ -29,8 +29,8 @@ from sqlalchemy.engine import Engine
 
 from asreview.data.loader import load_dataset
 from asreview.data.record import Record
-from asreview.database.database import open_db
 from asreview.database.database import Database
+from asreview.database.database import open_db
 from asreview.database.store import DataStore
 from asreview.extensions import extensions
 from asreview.extensions import get_extension
@@ -51,29 +51,29 @@ except ImportError:
     __version_tuple__ = (0, 0, 0)
 
 __all__ = [
-    # modules
-    "data",
-    "models",
-    "metrics",
-    "datasets",
     # classes
     "ActiveLearningCycle",
     "ActiveLearningCycleData",
-    "Simulate",
-    "Project",
-    "Database",
     "DataStore",
-    "Record",
-    # functions
-    "is_project",
-    "load_dataset",
-    "open_db",
-    "extensions",
-    "get_extension",
-    "load_extension",
+    "Database",
+    "Project",
     # errors
     "ProjectError",
     "ProjectNotFoundError",
+    "Record",
+    "Simulate",
+    # modules
+    "data",
+    "datasets",
+    "extensions",
+    "get_extension",
+    # functions
+    "is_project",
+    "load_dataset",
+    "load_extension",
+    "metrics",
+    "models",
+    "open_db",
 ]
 
 
