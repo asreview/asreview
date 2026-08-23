@@ -188,9 +188,7 @@ def get_project_data(client: FlaskClient, project: Project | asr.Project):
     return client.get(f"/api/projects/{get_project_id(project)}/data")
 
 
-def get_project_dataset_writer(
-    client: FlaskClient, project: Project | asr.Project
-):
+def get_project_dataset_writer(client: FlaskClient, project: Project | asr.Project):
     return client.get(f"/api/projects/{get_project_id(project)}/dataset_writer")
 
 
@@ -241,9 +239,7 @@ def get_labeled_project_data(client: FlaskClient, project: Project | asr.Project
     return client.get(f"/api/projects/{get_project_id(project)}/labeled")
 
 
-def get_labeled_project_data_stats(
-    client: FlaskClient, project: Project | asr.Project
-):
+def get_labeled_project_data_stats(client: FlaskClient, project: Project | asr.Project):
     return client.get(f"/api/projects/{get_project_id(project)}/labeled_stats")
 
 

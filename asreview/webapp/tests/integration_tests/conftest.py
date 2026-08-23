@@ -11,7 +11,7 @@ def pytest_addoption(parser):
 
 @pytest.fixture
 def chrome_options(chrome_options):
-    if bool(getenv("CI", False)):
+    if getenv("CI", "").lower() not in ("", "0", "false"):
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
     return chrome_options

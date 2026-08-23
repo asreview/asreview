@@ -165,7 +165,8 @@ class User(UserMixin, DB.Model):
         token_number = random.randint(0, 999999)
 
         self.token = f"{token_number:06d}"
-        self.token_created_at = dt.datetime.now()
+        # naive UTC, to stay comparable across DST transitions
+        self.token_created_at = dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
         return self
 
     def verify_password(self, password):
@@ -201,7 +202,8 @@ class User(UserMixin, DB.Model):
         """Checks whether provided token is correct and still valid"""
         # there must be a token and a timestamp
         if bool(self.token) and bool(self.token_created_at):
-            diff = (dt.datetime.now() - self.token_created_at).total_seconds()
+            now = dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
+            diff = (now - self.token_created_at).total_seconds()
             # return if token is correct and we are still before deadline
             return self.token == provided_token and diff <= max_minutes * 60
         else:

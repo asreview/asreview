@@ -217,7 +217,6 @@ def error_500(e):
 @login_required
 @current_user_projects
 def api_get_projects(projects):
-    """"""
 
     mode = request.args.get("subset", None)
 
@@ -363,7 +362,6 @@ def api_upgrade_projects(projects):
 @login_required
 @project_authorization
 def api_get_project_info(project):
-    """"""
     project_config = project.config
 
     if current_app.config.get("AUTHENTICATION", True):
@@ -400,7 +398,6 @@ def api_update_project_info(project):
 @bp.route("/datasets", methods=["GET"])
 @login_required
 def api_demo_data_project():
-    """"""
 
     subset = request.args.get("subset", None)
 
@@ -435,7 +432,6 @@ def api_demo_data_project():
 @login_required
 @project_authorization
 def api_get_project_data(project):
-    """"""
 
     data = project.db.input[["included", "title", "abstract", "doi", "url"]].replace(
         "", None
@@ -845,7 +841,12 @@ def api_update_review_status(project):
 
         project.update_review(status=status)
 
-    elif current_status == "review" and status == "finished" or current_status == "finished" and status == "review":
+    elif (
+        current_status == "review"
+        and status == "finished"
+        or current_status == "finished"
+        and status == "review"
+    ):
         project.update_review(status=status)
         # ideally, also check here for empty pool
     else:
@@ -1516,7 +1517,6 @@ def api_get_record(project):
 @login_required
 @project_authorization
 def api_delete_project(project):
-    """"""
     if project.project_path.exists() and project.project_path.is_dir():
         try:
             # remove from database if applicable

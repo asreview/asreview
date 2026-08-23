@@ -1,4 +1,3 @@
-
 import pandas as pd
 from sqlalchemy import CheckConstraint
 from sqlalchemy import Computed

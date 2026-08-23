@@ -39,7 +39,10 @@ from asreview.webapp.utils import get_projects
 def login_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        if not current_app.config.get("AUTHENTICATION") or request.method in EXEMPT_METHODS:
+        if (
+            not current_app.config.get("AUTHENTICATION")
+            or request.method in EXEMPT_METHODS
+        ):
             pass
         else:
             if not (bool(current_user) and current_user.is_authenticated):

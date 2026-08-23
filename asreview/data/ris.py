@@ -275,5 +275,5 @@ class RISWriter:
         # From IO dataframe
         else:
             # Write the whole content to a file
-            with open(fp, "w", encoding="utf8") as fp:
-                rispy.dump(records_new, fp)
+            with open(fp, "w", encoding="utf8") as f:
+                rispy.dump(records_new, f)

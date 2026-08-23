@@ -250,4 +250,6 @@ class NConsecutiveIrrelevant(BaseEstimator):
             True if the review should be stopped, False otherwise.
         """
 
-        return bool(len(results) > self.n and sum(results["label"].iloc[-self.n:]) == 0)
+        return bool(
+            len(results) > self.n and sum(results["label"].iloc[-self.n :]) == 0
+        )

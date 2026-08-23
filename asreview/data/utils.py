@@ -256,9 +256,8 @@ def identify_record_groups(records, feature_extractors=DEFAULT_EXTRACTORS):
         for `group_id` if they have identical features.
     """
     groups = identify_groups(
-        tuple(
-                feature_extractor(record) for feature_extractor in feature_extractors
-            ) for record in records
+        tuple(feature_extractor(record) for feature_extractor in feature_extractors)
+        for record in records
     )
     index_to_id = [record.record_id for record in records]
     return [

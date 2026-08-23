@@ -298,9 +298,7 @@ def update_user(user_id):
                 ), 400
 
         # Sanitize inputs before calling update_profile
-        email = (
-            data["email"].strip() if data.get("email") else user.email
-        )
+        email = data["email"].strip() if data.get("email") else user.email
         name = data["name"].strip() if "name" in data else user.name
         affiliation = (
             (
@@ -765,9 +763,7 @@ def transfer_project_ownership(project_id):
     except Exception as e:
         DB.session.rollback()
         logging.error(f"Error transferring project ownership: {e}")
-        return jsonify(
-            {"message": f"Error transferring project ownership: {e!s}"}
-        ), 500
+        return jsonify({"message": f"Error transferring project ownership: {e!s}"}), 500
 
 
 @bp.route("/projects/<int:project_id>/add-member", methods=["POST"])
@@ -903,9 +899,7 @@ def get_task_queue_status():
 
     except Exception as e:
         logging.error(f"Error retrieving task queue status: {e}")
-        return jsonify(
-            {"message": f"Error retrieving task queue status: {e!s}"}
-        ), 500
+        return jsonify({"message": f"Error retrieving task queue status: {e!s}"}), 500
 
 
 @bp.route("/task-queue-reset", methods=["POST"])

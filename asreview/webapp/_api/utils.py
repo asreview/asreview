@@ -1,8 +1,11 @@
 import json
+import logging
 from importlib.metadata import entry_points
 from pathlib import Path
 
 from asreview import extensions
+
+logger = logging.getLogger(__name__)
 
 
 def read_tags_data(project):
@@ -44,15 +47,17 @@ def get_dist_extensions_metadata():
                 raise TypeError(
                     f"Metadata for {e.name} is not a dictionary: {type(metadata)}"
                 )
-
-            for key, value in metadata.items():
-                if key in all_metadata and isinstance(all_metadata[key], dict):
-                    all_metadata[key].update(value)
-                else:
-                    all_metadata[key] = value
-
         except Exception:
+            logger.warning("Failed to load metadata for %s", e.name, exc_info=True)
             continue
+
+        # Merge only after a successful load, to avoid leaving partially
+        # merged metadata behind when an extension fails.
+        for key, value in metadata.items():
+            if key in all_metadata and isinstance(all_metadata[key], dict):
+                all_metadata[key].update(value)
+            else:
+                all_metadata[key] = value
 
     return all_metadata
 

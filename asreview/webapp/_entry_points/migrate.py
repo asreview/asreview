@@ -3,6 +3,7 @@ __all__ = ["MigrationTool"]
 import argparse
 import os
 from datetime import datetime
+from datetime import timezone
 from pathlib import Path
 
 from sqlalchemy import create_engine
@@ -220,7 +221,8 @@ class MigrationTool:
             except Exception as e:
                 print(f"Failed to populate roles: {e}")
 
-        current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # UTC, to match the CURRENT_TIMESTAMP default of the created_at columns
+        current_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
         # Add created_at column to users table
         if "created_at" not in user_columns:
@@ -333,7 +335,8 @@ class MigrationTool:
             )
             projects = result.fetchall()
 
-        current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # UTC, to match the CURRENT_TIMESTAMP default of the created_at columns
+        current_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
         for project_row in projects:
             project_id = project_row[1]  # project_id column
@@ -344,7 +347,9 @@ class MigrationTool:
                 project_path = Path(asreview_path()) / project_id
                 if project_path.exists():
                     # Get creation time (or modification time as fallback)
-                    creation_time = datetime.fromtimestamp(project_path.stat().st_ctime)
+                    creation_time = datetime.fromtimestamp(
+                        project_path.stat().st_ctime, tz=timezone.utc
+                    )
                     timestamp_str = creation_time.strftime("%Y-%m-%d %H:%M:%S")
                     print(
                         f"  Project {project_id}: using filesystem timestamp {timestamp_str}"
