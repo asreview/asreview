@@ -153,7 +153,7 @@ class Database:
             # the database is destroyed when the last connection to it closes.
             # This connection acts as an anchor that keeps the database alive
             # for the lifetime of this object.
-            self._conn
+            _ = self._conn
 
     def __enter__(self):
         return self

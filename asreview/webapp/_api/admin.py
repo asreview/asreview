@@ -40,6 +40,8 @@ from asreview.webapp._task_manager.task_manager import DEFAULT_TASK_MANAGER_HOST
 from asreview.webapp._task_manager.task_manager import DEFAULT_TASK_MANAGER_PORT
 from asreview.webapp.utils import asreview_path
 
+logger = logging.getLogger(__name__)
+
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
@@ -471,7 +473,7 @@ def get_user(user_id):
                 }
                 user_projects.append(project_info)
             except Exception as e:
-                logging.warning(f"Could not load project {db_project.project_id}: {e}")
+                logger.warning(f"Could not load project {db_project.project_id}: {e}")
                 user_projects.append(
                     {
                         "id": db_project.id,
@@ -493,7 +495,7 @@ def get_user(user_id):
                 }
                 user_projects.append(project_info)
             except Exception as e:
-                logging.warning(f"Could not load project {db_project.project_id}: {e}")
+                logger.warning(f"Could not load project {db_project.project_id}: {e}")
                 user_projects.append(
                     {
                         "id": db_project.id,
@@ -568,7 +570,7 @@ def get_all_projects():
                             "status", "setup"
                         )
                     except (OSError, json.JSONDecodeError) as e:
-                        logging.warning(
+                        logger.warning(
                             f"Could not read project.json for {db_project.project_id}: {e}"
                         )
                         # Keep error status (already set), add error details
@@ -580,7 +582,7 @@ def get_all_projects():
                 project_list.append(project_data)
 
             except Exception as e:
-                logging.error(f"Error processing project {db_project.project_id}: {e}")
+                logger.error(f"Error processing project {db_project.project_id}: {e}")
                 # Still add the project but mark it as having an error
                 project_list.append(
                     {
@@ -618,7 +620,7 @@ def get_all_projects():
     except SQLAlchemyError as e:
         return jsonify({"message": f"Database error: {e!s}"}), 500
     except Exception as e:
-        logging.error(f"Error retrieving projects: {e}")
+        logger.error(f"Error retrieving projects: {e}")
         return jsonify({"message": f"Error retrieving projects: {e!s}"}), 500
 
 
@@ -672,7 +674,7 @@ def batch_delete_projects():
                 shutil.rmtree(project_path)
                 deleted_directories += 1
             except Exception as e:
-                logging.warning(
+                logger.warning(
                     f"Failed to delete project directory {project_path}: {e}"
                 )
 
@@ -692,7 +694,7 @@ def batch_delete_projects():
         return jsonify({"message": f"Database error: {e!s}"}), 500
     except Exception as e:
         DB.session.rollback()
-        logging.error(f"Error batch deleting projects: {e}")
+        logger.error(f"Error batch deleting projects: {e}")
         return jsonify({"message": f"Error deleting projects: {e!s}"}), 500
 
 
@@ -762,7 +764,7 @@ def transfer_project_ownership(project_id):
         return jsonify({"message": f"Database error: {e!s}"}), 500
     except Exception as e:
         DB.session.rollback()
-        logging.error(f"Error transferring project ownership: {e}")
+        logger.error(f"Error transferring project ownership: {e}")
         return jsonify({"message": f"Error transferring project ownership: {e!s}"}), 500
 
 
@@ -813,11 +815,11 @@ def add_project_member(project_id):
 
     except SQLAlchemyError as e:
         DB.session.rollback()
-        logging.exception(e)
+        logger.exception(e)
         return jsonify({"message": f"Database error: {e!s}"}), 500
     except Exception as e:
         DB.session.rollback()
-        logging.exception(e)
+        logger.exception(e)
         return jsonify({"message": f"Error adding member: {e!s}"}), 500
 
 
@@ -898,7 +900,7 @@ def get_task_queue_status():
             engine.dispose()
 
     except Exception as e:
-        logging.error(f"Error retrieving task queue status: {e}")
+        logger.error(f"Error retrieving task queue status: {e}")
         return jsonify({"message": f"Error retrieving task queue status: {e!s}"}), 500
 
 
@@ -918,7 +920,7 @@ def reset_task_queue():
             session.query(ProjectQueueModel).delete()
             session.commit()
 
-            logging.info(f"Cleared {waiting_count} waiting tasks from queue database")
+            logger.info(f"Cleared {waiting_count} waiting tasks from queue database")
 
         finally:
             session.close()
@@ -936,12 +938,10 @@ def reset_task_queue():
             client_socket.sendall(json.dumps(payload).encode("utf-8"))
             client_socket.close()
 
-            logging.info("Sent reset signal to Task Manager")
+            logger.info("Sent reset signal to Task Manager")
 
         except OSError as e:
-            logging.warning(
-                f"Could not signal Task Manager to reset pending tasks: {e}"
-            )
+            logger.warning(f"Could not signal Task Manager to reset pending tasks: {e}")
             # Continue anyway - database was cleared successfully
 
         return jsonify(
@@ -952,7 +952,7 @@ def reset_task_queue():
         ), 200
 
     except Exception as e:
-        logging.error(f"Error resetting task queue: {e}")
+        logger.error(f"Error resetting task queue: {e}")
         return jsonify({"message": f"Error resetting task queue: {e!s}"}), 500
 
 

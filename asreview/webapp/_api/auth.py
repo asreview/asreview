@@ -38,6 +38,8 @@ from asreview.webapp._authentication.utils import perform_login_user
 from asreview.webapp._authentication.utils import send_confirm_account_email
 from asreview.webapp._authentication.utils import send_forgot_password_email
 
+logger = logging.getLogger(__name__)
+
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
@@ -572,5 +574,5 @@ def delete_account():
         return jsonify({"message": f"Database error: {e!s}"}), 500
     except Exception as e:
         DB.session.rollback()
-        logging.error(f"Error deleting account: {e}")
+        logger.error(f"Error deleting account: {e}")
         return jsonify({"message": f"Error deleting account: {e!s}"}), 500

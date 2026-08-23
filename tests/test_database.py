@@ -150,7 +150,7 @@ def test_read_only(tmpdir, asreview_test_project):
             db.input.add_records(records)
         db.get_last_ranking_table()
         db.input.get_records([0, 1])
-        db.user_version
+        _ = db.user_version
 
 
 def test_create_tables(tmpdir):
@@ -230,9 +230,8 @@ def test_add_extra_column(db):
 
 def test_open_db_missing_file_ro(tmpdir):
     project_path = Path(tmpdir, "dir", "test.db")
-    with pytest.raises(FileNotFoundError):
-        with asr.open_db(project_path, read_only=True):
-            pass
+    with pytest.raises(FileNotFoundError), asr.open_db(project_path, read_only=True):
+        pass
 
     assert not project_path.exists()
     assert not project_path.parent.exists()

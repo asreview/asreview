@@ -18,6 +18,7 @@ import copy
 import io
 import json
 import re
+from typing import ClassVar
 from urllib.request import urlopen
 
 import pandas as pd
@@ -71,10 +72,10 @@ def _remove_asreview_data_from_notes(note_list):
 class RISReader(BaseReader):
     """RIS file reader."""
 
-    read_format = [".ris", ".txt"]
-    write_format = [".csv", ".tsv", ".xlsx", ".ris"]
+    read_format: ClassVar[list[str]] = [".ris", ".txt"]
+    write_format: ClassVar[list[str]] = [".csv", ".tsv", ".xlsx", ".ris"]
 
-    mime_types = {
+    mime_types: ClassVar[dict[str, list[str]]] = {
         "application/x-research-info-systems": [".ris", ".txt"],
         "text/plain": [".txt", ".ris"],
     }

@@ -13,6 +13,7 @@ but might be abstracted into a standalone package if it proves useful.
 
 from pathlib import Path
 from typing import Any
+from typing import ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -61,7 +62,7 @@ class GalleryGridDirective(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec = {
+    option_spec: ClassVar[dict] = {
         # A class to be added to the resulting container
         "grid-columns": directives.unchanged,
         "class-container": directives.unchanged,

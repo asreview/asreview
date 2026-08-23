@@ -8,6 +8,8 @@ from asreview.project.migration.v1v2 import _migrate as _migrate_v1v2
 from asreview.project.migration.v2v3 import _migrate as _migrate_v2v3
 from asreview.project.migration.v2v3 import _validate as _validate_v2v3
 
+logger = logging.getLogger(__name__)
+
 __all__ = ["detect_version", "migrate_project"]
 
 
@@ -69,7 +71,7 @@ def migrate_project(folder, src_version, dst_version):
         return
 
     if _is_empty_v2(folder, src_version):
-        logging.warning(
+        logger.warning(
             f"Skipping migration of project {project_id}: "
             "no review configured. This project cannot be migrated."
         )
@@ -81,7 +83,7 @@ def migrate_project(folder, src_version, dst_version):
             _migrate_project_one_version(folder, current_version)
             current_version += 1
         except Exception as e:
-            logging.exception(
+            logger.exception(
                 f"Failed to migrate project {folder} from {current_version} to v{current_version + 1}:\n{e}"
             )
             raise Exception(f"Failed to upgrade project {project_id}.") from e
@@ -110,7 +112,7 @@ def _migrate_project_one_version(folder, current_version):
             ignore=shutil.ignore_patterns("*.lock"),
         )
 
-        logging.info(
+        logger.info(
             f"Upgrading project {folder} from v{current_version} to v{current_version + 1}."
         )
         migrate(Path(tmpdir) / "tmp_project")

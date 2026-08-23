@@ -1,5 +1,7 @@
 from abc import ABC
 from abc import abstractmethod
+from collections.abc import Callable
+from typing import ClassVar
 
 import numpy as np
 import pandas as pd
@@ -32,7 +34,7 @@ class BaseReader(ABC):
     # record column, it will pick the first it finds in the list.
     # If a field is not in this mapping, only the record column is allowed as input
     # column.
-    __alternative_column_names__ = {
+    __alternative_column_names__: ClassVar[dict[str, list[str]]] = {
         "abstract": ["abstract", "notes_abstract", "abstract note"],
         "authors": ["authors", "first_authors", "author names"],
         "included": [
@@ -51,7 +53,7 @@ class BaseReader(ABC):
 
     # Dictionary {column name : function to apply to the column} of function that clean
     # the data after reading it. The function should act on individual values.
-    __cleaning_methods__ = {
+    __cleaning_methods__: ClassVar[dict[str, list[Callable]]] = {
         "authors": [convert_value_to_list],
         "keywords": [convert_value_to_list],
         "included": [standardize_included_label],

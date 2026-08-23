@@ -86,6 +86,8 @@ from asreview.webapp._tasks import run_simulation
 from asreview.webapp.utils import asreview_path
 from asreview.webapp.utils import get_project_path
 
+logger = logging.getLogger(__name__)
+
 try:
     import importlib.metadata
 
@@ -187,14 +189,14 @@ def generate_invitation_token(project):
 @bp.errorhandler(ValueError)
 def value_error(e):
     message = str(e) if str(e) else "Incorrect value."
-    logging.exception(e)
+    logger.exception(e)
     return jsonify(message=message), 400
 
 
 @bp.errorhandler(ProjectNotFoundError)
 def project_not_found(e):
     message = str(e) if str(e) else "Project not found."
-    logging.exception(message)
+    logger.exception(message)
     return jsonify(message=message), 404
 
 
@@ -204,11 +206,11 @@ def error_500(e):
 
     if original is None or str(e.original_exception) == "":
         # direct 500 error, such as abort(500)
-        logging.exception(e)
+        logger.exception(e)
         return jsonify(message="Whoops, something went wrong."), 500
 
     # wrapped unhandled error
-    logging.error(e.original_exception)
+    logger.error(e.original_exception)
     return jsonify(message=str(e.original_exception)), 500
 
 
@@ -240,11 +242,11 @@ def api_get_projects(projects):
             else:
                 project_config["roles"] = {"owner": True}
 
-            logging.info("Project found: {}".format(project_config["id"]))
+            logger.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
 
         except Exception as err:
-            logging.error(err)
+            logger.error(err)
 
     # sort the projects based on created_at_unix
     project_info = sorted(
@@ -299,7 +301,7 @@ def api_create_project():
             except Exception:
                 pass
 
-            logging.exception(err)
+            logger.exception(err)
             return (
                 jsonify(message=f"Failed to create project for this dataset. {err}"),
                 400,
@@ -410,7 +412,7 @@ def api_demo_data_project():
             )
 
         except Exception as err:
-            logging.exception(err)
+            logger.exception(err)
             return jsonify(message="Failed to load plugin datasets."), 500
 
     elif subset == "benchmark":
@@ -419,7 +421,7 @@ def api_demo_data_project():
             result_datasets = manager.list(include=["synergy", "benchmark-nature"])
 
         except Exception as err:
-            logging.exception(err)
+            logger.exception(err)
             return jsonify(message="Failed to load benchmark datasets."), 500
 
     else:
@@ -777,7 +779,7 @@ def api_train(project):
         _run_model(project)
 
     except Exception as err:
-        logging.exception(err)
+        logger.exception(err)
         message = f"Failed to train the model. {err}"
         return jsonify(message=message), 400
 
@@ -931,7 +933,7 @@ def api_import_project():
             request.files["file"], asreview_path(), safe_import=True
         )
     except Exception as err:
-        logging.exception(err)
+        logger.exception(err)
         raise ValueError("Failed to import project.") from err
 
     # Project.load has already written the new project directory to disk.
@@ -982,7 +984,7 @@ def get_tag_groups(project):
     except FileNotFoundError:
         return jsonify([])
     except Exception as err:
-        logging.exception(err)
+        logger.exception(err)
         return jsonify([]), 500
 
 
@@ -1024,7 +1026,7 @@ def create_tag_group(project):
 
         return jsonify([new_tag_group])
     except Exception as err:
-        logging.exception(err)
+        logger.exception(err)
         return jsonify(message="Failed to create tag group."), 500
 
 
@@ -1071,7 +1073,7 @@ def update_tag_group(project, group_id):
     except FileNotFoundError:
         return jsonify(message=f"Tag group '{group_id}' not found."), 404
     except Exception as err:
-        logging.exception(err)
+        logger.exception(err)
         return jsonify(message="Failed to update tag group."), 500
 
 
@@ -1236,7 +1238,7 @@ def export_project(project):
     tmpdir = tempfile.mkdtemp()
     tmpfile = Path(tmpdir, project_export_name).with_suffix(".asreview")
 
-    logging.info("Saving project (temporary) to %s", tmpfile)
+    logger.info("Saving project (temporary) to %s", tmpfile)
     project.export(tmpfile)
 
     @after_this_request
@@ -1551,7 +1553,7 @@ def api_delete_project(project):
             shutil.rmtree(project.project_path)
 
         except Exception as err:
-            logging.exception(err)
+            logger.exception(err)
             return jsonify(message="Failed to delete project."), 500
 
         return jsonify({"success": True})

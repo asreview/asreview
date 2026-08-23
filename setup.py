@@ -18,6 +18,7 @@
 import platform
 import subprocess
 from pathlib import Path
+from typing import ClassVar
 
 from setuptools import Command
 from setuptools import setup
@@ -32,7 +33,7 @@ class CompileAssets(Command):
     """
 
     description = "Compile and build the frontend assets"
-    user_options = []
+    user_options: ClassVar[list] = []
 
     def initialize_options(self):
         """Set default values for options."""

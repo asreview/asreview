@@ -17,6 +17,8 @@ import functools
 import logging
 import warnings
 
+logger = logging.getLogger(__name__)
+
 
 def _deprecated_func(msg):
     def dec(func):
@@ -53,7 +55,7 @@ def _deprecated_kwarg(kwarg_map):
 
 class DeprecateAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        logging.warning(
+        logger.warning(
             f"Argument {self.option_strings} is deprecated and is ignored.",
             stacklevel=2,
         )

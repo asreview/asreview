@@ -215,13 +215,12 @@ class Project:
             if not project_fp.exists():
                 raise ProjectNotFoundError(f"Project '{self.project_path}' not found")
 
-            with lock:
-                # read the file with project info
-                with open(project_fp) as fp:
-                    config = json.load(fp)
-                    self._config = config
+            # read the file with project info
+            with lock, open(project_fp) as fp:
+                config = json.load(fp)
+                self._config = config
 
-                    return config
+                return config
 
     @config.setter
     def config(self, config):

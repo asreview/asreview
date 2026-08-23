@@ -211,8 +211,8 @@ class AuthTool:
         if self.argv != ["list-projects"]:
             self.uri = (
                 getattr(self.args, "db_uri", False)
-                or os.environ.get("SQLALCHEMY_DATABASE_URI", False)
-                or os.environ.get("ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI", False)
+                or os.environ.get("SQLALCHEMY_DATABASE_URI")
+                or os.environ.get("ASREVIEW_LAB_SQLALCHEMY_DATABASE_URI")
                 or DEFAULT_DATABASE_URI
             )
             Session = sessionmaker()

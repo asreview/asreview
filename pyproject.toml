@@ -189,8 +189,47 @@ exclude = [
 line-length = 88
 indent-width = 4
 
+# NOTE: the rules below are ignored so that `ruff check` passes on the current
+# codebase. They are technical debt, not a statement that the rule is wrong: each
+# entry should be worked away and removed from this list over time. Do not add new
+# violations of these rules; fix the existing ones instead.
+[tool.ruff.lint]
+ignore = [
+    # 53 hits. Broad `except Exception` blocks. Most are deliberate (task manager
+    # and admin API shutdown/cleanup paths), but each needs a decision on which
+    # exceptions may pass through before it can be narrowed.
+    "BLE001",
+    # 13 hits. Redundant exception object in `logger.exception(err)` calls; the
+    # traceback already carries it. Fixing these requires writing a real log
+    # message per call site, not just deleting the argument.
+    "TRY401",
+    # 6 hits. `try`-`except`-`pass`. All reviewed as legitimate cleanup paths
+    # (socket shutdown, `rmtree`); needs either logging or a targeted noqa.
+    "S110",
+    # 6 hits, mostly in tests. Files opened without a context manager. At least
+    # one (test_projects.py) hands the open handle to `Project.load`, so this
+    # needs restructuring rather than a `with` wrapper.
+    "SIM115",
+    # 5 hits. `ValueError` raised where `TypeError` fits. This is a public
+    # exception-type change: tests/test_data_store.py asserts `ValueError` for
+    # the `Record` validators, so fixing it means updating callers and tests.
+    "TRY004",
+    # 3 hits. `raise Exception(...)` without a dedicated class. Needs exception
+    # classes to be designed first.
+    "TRY002",
+]
+
 [tool.ruff.lint.per-file-ignores]
 "asreview/config.py" = ["E501"]
+# TODO: 4 hits of RUF012 (mutable class default). These are SQLAlchemy
+# `MappedAsDataclass` classes where `type_annotation_map` is a declarative
+# special attribute, so annotating with `ClassVar` needs verification against
+# the ORM mapping rather than a blind edit. The rest of the codebase is fixed.
+"asreview/data/record.py" = ["RUF012"]
+"asreview/project/migration/legacy_v2/record.py" = ["RUF012"]
+# TODO: 1 hit of DTZ005 (naive `datetime.now()`), used only for the copyright
+# year in the docs build. Harmless, but should follow the rest of the codebase.
+"docs/source/conf.py" = ["DTZ005"]
 
 [tool.ruff.lint.isort]
 force-single-line = true

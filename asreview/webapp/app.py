@@ -45,6 +45,8 @@ from asreview.webapp._authentication.remote_user_handler import RemoteUserHandle
 from asreview.webapp._entry_points.migrate import MigrationTool
 from asreview.webapp.utils import asreview_path
 
+logger = logging.getLogger(__name__)
+
 
 def create_app(**config_vars):
     """Create a new ASReview webapp.
@@ -115,8 +117,8 @@ def create_app(**config_vars):
                     db_uri=app.config.get("SQLALCHEMY_DATABASE_URI")
                 )
             except Exception as e:
-                logging.warning(f"Database migration encountered an issue: {e}")
-                logging.warning("Continuing with server startup...")
+                logger.warning(f"Database migration encountered an issue: {e}")
+                logger.warning("Continuing with server startup...")
 
         # authentication methods that use non-local users.
         # these methods are mutually exclusive.
@@ -183,7 +185,7 @@ def create_app(**config_vars):
                 "description": e.description,
             }
         )
-        logging.error(e.description)
+        logger.error(e.description)
         response.content_type = "application/json"
         return response
 
