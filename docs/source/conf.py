@@ -38,7 +38,7 @@ suppress_warnings = [
 # -- Project information -----------------------------------------------------
 
 # add current year
-year = datetime.datetime.now().year
+year = datetime.datetime.now(datetime.timezone.utc).year
 
 project = "ASReview LAB"
 copyright = f"{year}, ASReview LAB developers"

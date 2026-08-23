@@ -13,7 +13,7 @@ jobs:
           pip install .[dev]
       - name: Lint Python
         run: |
-          ruff check --exclude=asreview/webapp
+          ruff check --extend-exclude=asreview/webapp
   test-asreview-core:
     name: test-asreview-core
     strategy:

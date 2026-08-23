@@ -181,7 +181,6 @@ exclude = [
     "site-packages",
     "venv",
     "versioneer.py",
-    "docs/source/conf.py",
     "asreview/_version.py",
 ]
 line-length = 88
