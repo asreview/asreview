@@ -58,9 +58,8 @@ def import_2_unauthenticated_projects(with_upgrade=True):
         "asreview-project-v1-0-startreview.asreview",
     )
 
-    proj1 = asr.Project.load(
-        open(asreview_v1_0_file, "rb"), asreview_path(), safe_import=True
-    )
+    with open(asreview_v1_0_file, "rb") as f:
+        proj1 = asr.Project.load(f, asreview_path(), safe_import=True)
 
     asreview_v1_5_file = Path(
         tests_folder,
@@ -69,9 +68,8 @@ def import_2_unauthenticated_projects(with_upgrade=True):
         "asreview-project-v1-5-startreview.asreview",
     )
 
-    proj2 = asr.Project.load(
-        open(asreview_v1_5_file, "rb"), asreview_path(), safe_import=True
-    )
+    with open(asreview_v1_5_file, "rb") as f:
+        proj2 = asr.Project.load(f, asreview_path(), safe_import=True)
 
     return proj1, proj2
 
@@ -542,7 +540,5 @@ def test_projects_with_0x_projects(client_auth, method):
         "asreview-project-v0-18-startreview.asreview",
     )
 
-    with pytest.raises(ValueError):
-        asr.Project.load(
-            open(asreview_v0_18_file, "rb"), asreview_path(), safe_import=True
-        )
+    with open(asreview_v0_18_file, "rb") as f, pytest.raises(ValueError):
+        asr.Project.load(f, asreview_path(), safe_import=True)

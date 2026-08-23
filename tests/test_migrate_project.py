@@ -46,12 +46,12 @@ def test_project_migration_1_to_3(tmpdir):
         "asreview-project-v1-5-startreview.asreview",
     )
     assert asreview_v1_file.exists()
-    project = asr.Project.load(open(asreview_v1_file, "rb"), tmpdir, safe_import=True)
+    with open(asreview_v1_file, "rb") as f:
+        project = asr.Project.load(f, tmpdir, safe_import=True)
     assert_valid_project(project)
 
 
 def test_project_migration_2_to_3(tmpdir, asreview_v2_project):
-    project = asr.Project.load(
-        open(asreview_v2_project, "rb"), tmpdir, safe_import=True
-    )
+    with open(asreview_v2_project, "rb") as f:
+        project = asr.Project.load(f, tmpdir, safe_import=True)
     assert_valid_project(project)

@@ -204,10 +204,6 @@ ignore = [
     # 6 hits. `try`-`except`-`pass`. All reviewed as legitimate cleanup paths
     # (socket shutdown, `rmtree`); needs either logging or a targeted noqa.
     "S110",
-    # 6 hits, mostly in tests. Files opened without a context manager. At least
-    # one (test_projects.py) hands the open handle to `Project.load`, so this
-    # needs restructuring rather than a `with` wrapper.
-    "SIM115",
     # 5 hits. `ValueError` raised where `TypeError` fits. This is a public
     # exception-type change: tests/test_data_store.py asserts `ValueError` for
     # the `Record` validators, so fixing it means updating callers and tests.

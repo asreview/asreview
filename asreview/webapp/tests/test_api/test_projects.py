@@ -144,9 +144,8 @@ def test_upgrade_an_old_project(client, user):
         "asreview-project-v0-19-startreview.asreview",
     )
 
-    project = asr.Project.load(
-        open(asreview_v0_file, "rb"), asreview_path(), safe_import=True
-    )
+    with open(asreview_v0_file, "rb") as f:
+        project = asr.Project.load(f, asreview_path(), safe_import=True)
 
     # we need to make sure this new, old-style project can be found
     # under current user if the app is authenticated
