@@ -170,9 +170,7 @@ Homepage = "https://asreview.ai/"
 "Source Code" = "https://github.com/asreview/asreview"
 YouTube = "https://www.youtube.com/@ASReview"
 
-[ruff.lint]
-select = ["E", "F", "UP", "I", "B"]
-ignore = ["B904", "B008"]
+[tool.ruff]
 exclude = [
     ".venv",
     ".vscode",
@@ -217,6 +215,13 @@ ignore = [
     # 3 hits. `raise Exception(...)` without a dedicated class. Needs exception
     # classes to be designed first.
     "TRY002",
+    # 13 hits, spread over 8 files. `raise` inside an `except` block without
+    # `from err`, which drops the original traceback context. Carried over from
+    # the previous (inert) config, but it is debt like the rest: each site needs
+    # `from err` or an explicit `from None`. Note that B904 is not part of ruff's
+    # default rule set, so this entry only takes effect once `select` is set
+    # explicitly -- the 13 violations are real but currently unreported.
+    "B904",
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -227,9 +232,6 @@ ignore = [
 # the ORM mapping rather than a blind edit. The rest of the codebase is fixed.
 "asreview/data/record.py" = ["RUF012"]
 "asreview/project/migration/legacy_v2/record.py" = ["RUF012"]
-# TODO: 1 hit of DTZ005 (naive `datetime.now()`), used only for the copyright
-# year in the docs build. Harmless, but should follow the rest of the codebase.
-"docs/source/conf.py" = ["DTZ005"]
 
 [tool.ruff.lint.isort]
 force-single-line = true
