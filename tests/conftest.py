@@ -17,16 +17,33 @@ def osf_fg93a_path():
     _OSF_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     # Return cached file without making any network requests
-    cached_files = list(_OSF_CACHE_DIR.iterdir())
+    cached_files = [f for f in _OSF_CACHE_DIR.iterdir() if f.suffix != ".part"]
     if cached_files:
         return cached_files[0]
 
-    # No cached file found, download it
+    # No cached file found, download it. Skip rather than fail when OSF is
+    # unreachable: an outage on their side says nothing about our code. Note
+    # that resolving the filename is itself a request, so it is inside the try.
     from asreview.utils import _get_filename_from_url
 
-    filename = _get_filename_from_url(_OSF_FG93A_URL)
-    cache_file = _OSF_CACHE_DIR / filename
-    urllib.request.urlretrieve(_OSF_FG93A_URL, cache_file)
+    try:
+        filename = _get_filename_from_url(_OSF_FG93A_URL)
+        if not filename:
+            pytest.skip(f"OSF gave no filename for {_OSF_FG93A_URL}")
+
+        # Download to a temporary name and only then move it into place, so a
+        # failed download cannot leave a truncated file to be picked up as a
+        # valid cache hit on the next run.
+        cache_file = _OSF_CACHE_DIR / filename
+        partial = cache_file.with_name(cache_file.name + ".part")
+        try:
+            urllib.request.urlretrieve(_OSF_FG93A_URL, partial)
+            partial.replace(cache_file)
+        finally:
+            partial.unlink(missing_ok=True)
+    except OSError as err:
+        pytest.skip(f"OSF dataset {_OSF_FG93A_URL} is unavailable: {err}")
+
     return cache_file
 
 

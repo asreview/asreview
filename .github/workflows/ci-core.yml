@@ -60,17 +60,26 @@ jobs:
         run: |
           python -c "
           from pathlib import Path
-          import urllib.request
-          from asreview.utils import _get_filename_from_url
-          url = 'https://osf.io/download/fg93a/'
           cache_dir = Path('~/.cache/asreview_tests').expanduser()
           cache_dir.mkdir(parents=True, exist_ok=True)
-          cache_file = cache_dir / _get_filename_from_url(url)
-          if not cache_file.exists():
-              urllib.request.urlretrieve(url, cache_file)
-              print('Downloaded OSF fg93a as', cache_file.name)
+          # Mirror tests/conftest.py: a warm cache must not touch the network.
+          # Resolving the filename from the URL is itself an HTTP request, so
+          # doing it up front makes a restored cache useless when OSF is down.
+          cached_files = list(cache_dir.iterdir())
+          if cached_files:
+              print('OSF fg93a already cached as', cached_files[0].name)
           else:
-              print('OSF fg93a already cached as', cache_file.name)
+              import urllib.request
+              from asreview.utils import _get_filename_from_url
+              url = 'https://osf.io/download/fg93a/'
+              try:
+                  cache_file = cache_dir / _get_filename_from_url(url)
+                  urllib.request.urlretrieve(url, cache_file)
+                  print('Downloaded OSF fg93a as', cache_file.name)
+              except OSError as err:
+                  # Do not fail the job on an OSF outage. The osf_fg93a_path
+                  # fixture skips the tests that need this dataset.
+                  print('WARNING: could not download OSF fg93a:', err)
           "
       - name: Build project
         run: |
