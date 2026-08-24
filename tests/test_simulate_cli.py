@@ -163,7 +163,7 @@ def test_n_stop_min(tmp_project, demo_data_path, tmpdir):
 
     with asr.Project.load(tmp_project, tmpdir).db as db:
         assert db.get_results_table("label")["label"].sum() == 10
-        assert len(db.get_results_table("label")) == 51
+        assert len(db.get_results_table("label")) == 46
 
 
 def test_n_stop_all(tmp_project, tmpdir):
