@@ -17,8 +17,8 @@ from asreview.learner import ActiveLearningCycleData
 AI_MODEL_CONFIGURATIONS = [
     {
         # ELAS u5 is the default model for this version ASReview LAB. The model
-        # parameters have been optimized on the SYNERGY dataset. After expert
-        # elicitation, the model and parameters have been chosen.
+        # parameters have been optimized on the SYNERGY+ dataset. After optimization,
+        # hyperparameters were rounded to the nearest values.
         # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview3-synergy_plus-optimization
         "name": "elas_u5",
         "label": "ELAS u5",
@@ -39,7 +39,7 @@ AI_MODEL_CONFIGURATIONS = [
         ),
     },
     {
-        # ELAS u4 is the default model for version 2 of ASReview LAB. The model
+        # ELAS u4 is the default model for versions 2 and 3 of ASReview LAB. The model
         # parameters have been optimized on the SYNERGY dataset. After expert
         # elicitation, the model and parameters have been chosen.
         # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview2_0b4-nb-tfidf-full-1
@@ -84,8 +84,8 @@ AI_MODEL_CONFIGURATIONS = [
     # model is not available in the current version of ASReview LAB.
     {
         # ELAS l3 is the multilingual model for this version ASReview LAB. The model
-        # parameters have been optimized on the SYNERGY dataset. After expert
-        # elicitation, the model and parameters have been chosen.
+        # parameters have been optimized on the SYNERGY+ dataset. After optimization,
+        # hyperparameters were rounded to the nearest values.
         # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview3-synergy_plus-optimization
         "name": "elas_l3",
         "label": "ELAS l3",
@@ -122,8 +122,8 @@ AI_MODEL_CONFIGURATIONS = [
     },
     {
         # ELAS h4 is the heavy model for this version ASReview LAB. The model
-        # parameters have been optimized on the SYNERGY dataset. After expert
-        # elicitation, the model and parameters have been chosen.
+        # parameters have been optimized on the SYNERGY+ dataset. After optimization,
+        # hyperparameters were rounded to the nearest values.
         # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview3-synergy_plus-optimization
         "name": "elas_h4",
         "label": "ELAS h4",
