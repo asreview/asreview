@@ -19,6 +19,9 @@ import {
   MedicalServicesOutlined,
   PsychologyAltOutlined,
   EmojiNatureOutlined,
+  ParkOutlined,
+  GroupsOutlined,
+  BusinessCenterOutlined,
 } from "@mui/icons-material";
 import { useToggle } from "hooks/useToggle";
 
@@ -41,14 +44,44 @@ const formatCitation = (authors, year) => {
 
 const getColor = (topic) => {
   switch (topic) {
+    // Mind
     case "Psychology":
+    case "Neuroscience":
       return "secondary.main";
+
+    // Health
     case "Medicine":
+    case "Nursing":
+    case "Health Professions":
+    case "Dentistry":
       return "tertiary.main";
-    case "Computer science":
+
+    // Technical
+    case "Computer Science":
+    case "Engineering":
+    case "Mathematics":
       return "#8BAAFF";
-    case "Biology":
+
+    // Life sciences
+    case "Agricultural and Biological Sciences":
+    case "Immunology and Microbiology":
+    case "Biochemistry, Genetics and Molecular Biology":
       return "#9B6E96";
+
+    // Environment
+    case "Environmental Science":
+      return "#6BA39B";
+
+    // Society
+    case "Social Sciences":
+    case "Arts and Humanities":
+      return "#C4764A";
+
+    // Commerce
+    case "Economics, Econometrics and Finance":
+    case "Business, Management and Accounting":
+      return "#BD6480"; // rose
+
     default:
       return "grey.500";
   }
@@ -63,18 +96,51 @@ const CardIcon = ({ iconName }) => {
   let iconType;
 
   switch (iconName) {
+    // Mind
     case "Psychology":
+    case "Neuroscience":
       iconType = <PsychologyAltOutlined {...iconProps} />;
       break;
+
+    // Health
     case "Medicine":
+    case "Nursing":
+    case "Health Professions":
+    case "Dentistry":
       iconType = <MedicalServicesOutlined {...iconProps} />;
       break;
-    case "Computer science":
+
+    // Technical
+    case "Computer Science":
+    case "Engineering":
+    case "Mathematics":
       iconType = <DeveloperBoardOutlined {...iconProps} />;
       break;
-    case "Biology":
+
+    // Life sciences
+    case "Agricultural and Biological Sciences":
+    case "Immunology and Microbiology":
+    case "Biochemistry, Genetics and Molecular Biology":
       iconType = <EmojiNatureOutlined {...iconProps} />;
       break;
+
+    // Environment
+    case "Environmental Science":
+      iconType = <ParkOutlined {...iconProps} />;
+      break;
+
+    // Society
+    case "Social Sciences":
+    case "Arts and Humanities":
+      iconType = <GroupsOutlined {...iconProps} />;
+      break;
+
+    // Commerce
+    case "Economics, Econometrics and Finance":
+    case "Business, Management and Accounting":
+      iconType = <BusinessCenterOutlined {...iconProps} />;
+      break;
+
     default:
       iconType = null;
   }

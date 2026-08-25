@@ -20,6 +20,9 @@ import {
   PsychologyAltOutlined,
   DeveloperBoardOutlined,
   EmojiNatureOutlined,
+  ParkOutlined,
+  GroupsOutlined,
+  BusinessCenterOutlined,
 } from "@mui/icons-material";
 
 import { ProjectAPI } from "api";
@@ -53,21 +56,6 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
     setAnchorElInfo(null);
   };
   const openInfo = Boolean(anchorElInfo);
-
-  const getPopoverIconColor = (topic) => {
-    switch (topic) {
-      case "Psychology":
-        return "secondary.main";
-      case "Medicine":
-        return "tertiary.main";
-      case "Computer science":
-        return "#8BAAFF";
-      case "Biology":
-        return "#9B6E96";
-      default:
-        return "grey.500";
-    }
-  };
 
   const handleTabChange = (event, newValue) => {
     if (newValue !== datasetGroups.length) {
@@ -126,7 +114,7 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
                 Systematic Review Datasets
               </Typography>
               <Typography variant="body2" sx={{ textAlign: "justify" }}>
-                Benchmark datasets like SYNERGY help evaluate and compare
+                Benchmark datasets like SYNERGY+ help evaluate and compare
                 ASReview's screening performance. Use them to test different
                 models or settings before starting your own review
               </Typography>
@@ -140,22 +128,56 @@ const DatasetFromEntryPoint = ({ subset, setSetupProjectId, mode }) => {
                   fontWeight="bold"
                   sx={{ mb: 3 }}
                 >
-                  SYNERGY Dataset Topics
+                  SYNERGY+ Dataset Topics
                 </Typography>
                 <Stack spacing={1}>
                   {[
-                    { topic: "Medicine", Icon: MedicalServicesOutlined },
-                    { topic: "Psychology", Icon: PsychologyAltOutlined },
-                    { topic: "Computer science", Icon: DeveloperBoardOutlined },
-                    { topic: "Biology", Icon: EmojiNatureOutlined },
-                  ].map(({ topic, Icon }) => (
+                    {
+                      topic:
+                        "Medicine · Nursing · Health Professions · Dentistry",
+                      Icon: MedicalServicesOutlined,
+                      color: "tertiary.main",
+                    },
+                    {
+                      topic: "Psychology · Neuroscience",
+                      Icon: PsychologyAltOutlined,
+                      color: "secondary.main",
+                    },
+                    {
+                      topic: "Computer Science · Engineering · Mathematics",
+                      Icon: DeveloperBoardOutlined,
+                      color: "#8BAAFF",
+                    },
+                    {
+                      topic:
+                        "Agricultural & Biological Sciences · Immunology & Microbiology · Biochemistry, Genetics & Molecular Biology",
+                      Icon: EmojiNatureOutlined,
+                      color: "#9B6E96",
+                    },
+                    {
+                      topic: "Environmental Science",
+                      Icon: ParkOutlined,
+                      color: "#6BA39B",
+                    },
+                    {
+                      topic: "Social Sciences · Arts & Humanities",
+                      Icon: GroupsOutlined,
+                      color: "#C4764A",
+                    },
+                    {
+                      topic:
+                        "Economics, Econometrics & Finance · Business, Management & Accounting",
+                      Icon: BusinessCenterOutlined,
+                      color: "#BD6480",
+                    },
+                  ].map(({ topic, Icon, color }) => (
                     <Box
                       key={topic}
                       sx={{ display: "flex", alignItems: "center", gap: 1 }}
                     >
                       <Box
                         sx={{
-                          bgcolor: getPopoverIconColor(topic),
+                          bgcolor: color,
                           p: 1,
                           display: "flex",
                           alignItems: "center",
