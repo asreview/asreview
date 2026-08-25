@@ -47,9 +47,9 @@ Click on *Download* to download and add the dataset to the project.
 From Discovery
 ~~~~~~~~~~~~~~
 
-Under Discovery, you can select existing datasets from the `SYNERGY dataset
+Under Discovery, you can select existing datasets from the `SYNERGY+ dataset
 <https://github.com/asreview/synergy-dataset>`__ or installed dataset
-extensions. The SYNERGY dataset is a collection of fully labeled datasets that
+extensions. The SYNERGY+ dataset is a collection of fully labeled datasets that
 can be used, but not exclusively, to benchmark the performance of active
 learning models.
 
@@ -81,7 +81,7 @@ Change AI Model
 ~~~~~~~~~~~~~~~
 
 By default, ASReview LAB uses the ELAS ultra model. This is a fast and efficient
-model that is trained on the SYNERGY dataset. You can change the model to a
+model that is trained on the SYNERGY+ dataset. You can change the model to a
 different model by clicking on the dropdown button. You can select from the
 following models:
 

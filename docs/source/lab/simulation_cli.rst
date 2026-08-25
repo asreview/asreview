@@ -55,9 +55,9 @@ Dataset
 
 .. option:: dataset
 
-    Required. File path or URL to the dataset or one of the SYNERGY datasets.
+    Required. File path or URL to the dataset or one of the SYNERGY+ datasets.
 
-You can also use one of the :ref:`SYNERGY dataset <lab/data_labeled:fully
+You can also use one of the :ref:`SYNERGY+ dataset <lab/data_labeled:fully
 labeled data>`. Use the following command and replace ``DATASET_ID`` by the
 dataset ID.
 

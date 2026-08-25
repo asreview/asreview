@@ -85,7 +85,7 @@ labeled datasets published open access. The labeled datasets are PRISMA-based
 systematic reviews or meta-analyses on various research topics. They can be
 useful for teaching purposes or for testing the performance of (new) active
 learning models. The datasets and their metadata are available via the
-`SYNERGY Dataset <https://github.com/asreview/synergy-dataset>`_ repository.
+`SYNERGY+ Dataset <https://github.com/asreview/synergy-dataset>`_ repository.
 In ASReview LAB, these datasets are found under "Benchmark Datasets"; only
 available for the Validation and Simulation modi.
 

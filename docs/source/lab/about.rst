@@ -62,7 +62,7 @@ ASReview offers the following tools and resources:
    features like authentication and AI-aided screening with multiple reviewers.
 
 3. **Datasets**: Access a collection of datasets for research purposes,
-   including the Synergy dataset available on the `SYNERGY repository
+   including the SYNERGY+ dataset available on the `SYNERGY+ repository
    <https://github.com/asreview/synergy-dataset>`__.
 
 4. **Extensions**: Extend ASReview LAB with new models, subcommands, and

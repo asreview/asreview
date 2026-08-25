@@ -29,7 +29,7 @@ The validation review is useful for educational purposes. Instructors and
 trainers can utilize this feature to mimic the screening process without being
 the expert decision-maker. This setup is particularly advantageous in workshop
 settings, where participants can engage with the screening process using the
-labeled `SYNERGY datasets <https://github.com/asreview/synergy-dataset>`_. This
+labeled `SYNERGY+ datasets <https://github.com/asreview/synergy-dataset>`_. This
 hands-on experience offers valuable insights into the software's functionality
 and the systematic review process without the need to be a content expert.
 
