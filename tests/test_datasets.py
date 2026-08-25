@@ -13,7 +13,7 @@ def test_group():
 
     assert group_synergy.group_id is not None
 
-    assert len(group_synergy.datasets) == 26
+    assert len(group_synergy.datasets) == 114
 
 
 @mark.internet_required
@@ -29,7 +29,7 @@ def test_group_list():
 
     synergy_group = dm.list(include="synergy", raise_on_error=True, serialize=False)[0]
 
-    assert len(synergy_group.datasets) == 26
+    assert len(synergy_group.datasets) == 114
 
 
 def test_group_exclude_list():
