@@ -4,6 +4,7 @@ import { useLocation, useParams } from "react-router-dom";
 import {
   ModelCard,
   PriorCard,
+  ScreeningCard,
   TagCard,
 } from "ProjectComponents/SetupComponents";
 
@@ -20,6 +21,7 @@ const DetailsPage = () => {
       <Container maxWidth="md" aria-label="details page" sx={{ mb: 3 }}>
         <Stack spacing={3}>
           {mode !== projectModes.SIMULATION && <TagCard editable={false} />}
+          {mode !== projectModes.SIMULATION && <ScreeningCard />}
           <ModelCard mode={mode} editable={mode !== projectModes.SIMULATION} />
           <PriorCard mode={mode} editable={mode !== projectModes.SIMULATION} />
         </Stack>

@@ -24,6 +24,14 @@ const ReviewPage = () => {
 
   const [tagValues, setTagValues] = React.useState({});
 
+  const { data: projectInfo } = useQuery(
+    ["fetchProject", { project_id }],
+    ProjectAPI.fetchInfo,
+    {
+      refetchOnWindowFocus: false,
+    },
+  );
+
   const { refetch, data, isSuccess, isError, error } = useQuery(
     ["fetchRecord", { project_id }],
     ProjectAPI.fetchRecord,
@@ -133,6 +141,7 @@ const ReviewPage = () => {
               setTagValues={setTagValues}
               collapseAbstract={false}
               hotkeys={true}
+              hideLinks={projectInfo?.hide_links === true}
               landscape={orientation === "landscape" && !landscapeDisabled}
             />
           )}

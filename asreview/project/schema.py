@@ -217,6 +217,13 @@ SCHEMA = {
             "title": "The tags schema",
             "description": "Optional tags for the project with no type restrictions.",
         },
+        "hide_links": {
+            "$id": "#/properties/hide_links",
+            "type": "boolean",
+            "title": "Hide DOI and URL links",
+            "description": "When true, DOI and URL buttons are hidden during screening to prevent full-text access.",
+            "default": False,
+        },
         "datasets": {
             "$id": "#/properties/datasets",
             "type": "array",
