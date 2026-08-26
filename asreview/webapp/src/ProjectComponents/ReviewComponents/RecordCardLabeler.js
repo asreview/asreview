@@ -535,7 +535,9 @@ const RecordCardLabeler = ({
                 >
                   Labeled {label === 1 ? "relevant" : "not relevant"}{" "}
                   {user && formatUser(user)}{" "}
-                  {timeAgo.format(new Date(labelTime * 1000))}
+                  {labelTime != null
+                    ? timeAgo.format(new Date(labelTime * 1000))
+                    : "some time ago"}
                 </Typography>
               )}
             </>
