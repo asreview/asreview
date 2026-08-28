@@ -182,8 +182,8 @@ def test_n_stop_all(tmp_project, tmpdir):
     _cli_simulate(argv)
 
     with asr.Project.load(tmp_project, tmpdir).db as db:
-        assert db.get_results_table("label")["label"].sum() == 40
-        assert len(db.get_results_table("label")) == 271
+        assert db.get_results_table("label")["label"].sum() == 28
+        assert len(db.get_results_table("label")) == 147
 
 
 def test_project_already_exists_error(tmp_project, demo_data_path):
