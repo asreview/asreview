@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.synergy_dataset_source
-          key: synergy-dataset-${{ runner.os }}-v1.0
+          key: synergy-plus-dataset-${{ runner.os }}-v3.0
       - name: Download synergy dataset
         run: |
           python -c "
