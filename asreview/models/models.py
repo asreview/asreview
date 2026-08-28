@@ -16,7 +16,30 @@ from asreview.learner import ActiveLearningCycleData
 
 AI_MODEL_CONFIGURATIONS = [
     {
-        # ELAS u4 is the default model for this version ASReview LAB. The model
+        # ELAS u5 is the default model for this version ASReview LAB. The model
+        # parameters have been optimized on the SYNERGY+ dataset. After optimization,
+        # hyperparameters were rounded to the nearest values.
+        # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview3-synergy_plus-optimization
+        "name": "elas_u5",
+        "label": "ELAS u5",
+        "type": "ultra",
+        "value": ActiveLearningCycleData(
+            querier="max",
+            classifier="svm",
+            classifier_param={"loss": "squared_hinge", "C": 0.0240, "max_iter": 5000},
+            balancer="balanced",
+            balancer_param={"ratio": 9.242},
+            feature_extractor="tfidf",
+            feature_extractor_param={
+                "ngram_range": (1, 2),
+                "sublinear_tf": True,
+                "min_df": 1,
+                "max_df": 1.0,
+            },
+        ),
+    },
+    {
+        # ELAS u4 is the default model for versions 2 and 3 of ASReview LAB. The model
         # parameters have been optimized on the SYNERGY dataset. After expert
         # elicitation, the model and parameters have been chosen.
         # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview2_0b4-nb-tfidf-full-1
@@ -60,7 +83,26 @@ AI_MODEL_CONFIGURATIONS = [
     # ELAS u1 refers to the model that was used in the ASReview LAB version 0. The
     # model is not available in the current version of ASReview LAB.
     {
-        # ELAS l2 is the multilingual model for this version ASReview LAB. The model
+        # ELAS l3 is the multilingual model for this version ASReview LAB. The model
+        # parameters have been optimized on the SYNERGY+ dataset. After optimization,
+        # hyperparameters were rounded to the nearest values.
+        # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview3-synergy_plus-optimization
+        "name": "elas_l3",
+        "label": "ELAS l3",
+        "type": "lang",
+        "extensions": ["asreview-dory"],
+        "value": ActiveLearningCycleData(
+            querier="max",
+            classifier="svm",
+            classifier_param={"loss": "squared_hinge", "C": 0.0410, "max_iter": 5000},
+            balancer="balanced",
+            balancer_param={"ratio": 9.748},
+            feature_extractor="multilingual-e5-large",
+            feature_extractor_param={"normalize": True},
+        ),
+    },
+    {
+        # ELAS l2 was the multilingual model for version 2 of ASReview LAB. The model
         # parameters have been optimized on the SYNERGY dataset. After expert
         # elicitation, the model and parameters have been chosen.
         # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview2_0b4-svm-e5-full-1
@@ -79,7 +121,26 @@ AI_MODEL_CONFIGURATIONS = [
         ),
     },
     {
-        # ELAS h3 is the heavy model for this version ASReview LAB. The model
+        # ELAS h4 is the heavy model for this version ASReview LAB. The model
+        # parameters have been optimized on the SYNERGY+ dataset. After optimization,
+        # hyperparameters were rounded to the nearest values.
+        # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview3-synergy_plus-optimization
+        "name": "elas_h4",
+        "label": "ELAS h4",
+        "type": "heavy",
+        "extensions": ["asreview-dory"],
+        "value": ActiveLearningCycleData(
+            querier="max",
+            classifier="svm",
+            classifier_param={"loss": "squared_hinge", "C": 0.0406, "max_iter": 5000},
+            balancer="balanced",
+            balancer_param={"ratio": 9.709},
+            feature_extractor="mxbai",
+            feature_extractor_param={"normalize": True},
+        ),
+    },
+    {
+        # ELAS h3 is the heavy model for version 2 of ASReview LAB. The model
         # parameters have been optimized on the SYNERGY dataset. After expert
         # elicitation, the model and parameters have been chosen.
         # Optimization setup: https://github.com/asreview/asreview-optuna/releases/tag/ASReview2_0b4-svm-mxbai-full-1

@@ -77,7 +77,7 @@ Active learning
 
 .. option:: --ai AI
 
-    The AI to simulate with. Default is :code:`elas_u4`.
+    The AI to simulate with. Default is :code:`elas_u5`.
 
 .. option:: -c, --classifier CLASSIFIER
 
