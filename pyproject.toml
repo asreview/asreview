@@ -65,7 +65,7 @@ dependencies = [
     "waitress",
     "gevent>=20",
     "datahugger>=0.2",
-    "synergy_dataset>=2.0",
+    "synergy_dataset>=2.1",
     "sqlalchemy-utils",
     "tomli; python_version < '3.11'",
 ]
