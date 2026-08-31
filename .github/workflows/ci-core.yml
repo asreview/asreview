@@ -46,9 +46,9 @@ jobs:
           from synergy_dataset.base import _dataset_available, download_raw_dataset
           if not _dataset_available():
               try:
-                  download_raw_dataset(source='dataverse')
-              except Exception:
                   download_raw_dataset(source='github')
+              except Exception:
+                  download_raw_dataset(source='dataverse')
           print('Synergy dataset available:', _dataset_available())
           "
       - name: Cache OSF test data

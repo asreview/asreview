@@ -75,9 +75,9 @@ jobs:
               print('Synergy dataset available:', _dataset_available())
           else:
               try:
-                  download_raw_dataset(source='dataverse')
-              except Exception:
                   download_raw_dataset(source='github')
+              except Exception:
+                  download_raw_dataset(source='dataverse')
               print('Synergy dataset available:', _dataset_available())
           "
       - name: Test flask web app
