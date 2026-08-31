@@ -71,9 +71,7 @@ jobs:
         run: |
           python -c "
           from synergy_dataset.base import _dataset_available, download_raw_dataset
-          if dataset_available():
-              print('Synergy dataset available:', _dataset_available())
-          else:
+          if not _dataset_available():
               try:
                   download_raw_dataset(source='github')
               except Exception:
