@@ -105,7 +105,11 @@ const LabelHistory = ({
             </Stack>
             {!mobileScreen && showFilter && (
               <Box sx={{ flexGrow: 1, minWidth: "200px" }}>
-                <Filter filterQuery={state} setFilterQuery={setState} />
+                <Filter
+                  project_id={project_id}
+                  filterQuery={state}
+                  setFilterQuery={setState}
+                />
               </Box>
             )}
           </Stack>
@@ -151,7 +155,11 @@ const LabelHistory = ({
               justifyContent="space-between"
             >
               <Box sx={{ flexGrow: 1, mr: 1 }}>
-                <Filter filterQuery={state} setFilterQuery={setState} />
+                <Filter
+                  project_id={project_id}
+                  filterQuery={state}
+                  setFilterQuery={setState}
+                />
               </Box>
               {showExport && (
                 <IconButton
