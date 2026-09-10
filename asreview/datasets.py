@@ -22,7 +22,6 @@ __all__ = [
 
 import json
 import socket
-import tempfile
 from abc import ABC
 from abc import abstractmethod
 from pathlib import Path
@@ -396,17 +395,20 @@ class SynergyDataSet(BaseDataSet):
 
     def to_file(self, path=None):
         # download, build, and store to local file
-        try:
-            return sd.Dataset(self.dataset_id).to_frame().to_csv(path)
-        except FileNotFoundError:
-            tmp_synergy_folder = tempfile.mkdtemp()
-            sd.download_raw_subset(self.dataset_id, path=tmp_synergy_folder)
+        df = sd.Dataset(self.dataset_id).to_frame()
 
-            for d in sd.iter_datasets(path=tmp_synergy_folder):
-                if d.name == self.dataset_id:
-                    return d.to_frame().to_csv(path)
+        # An empty frame means the dataset isn't on disk yet (or only
+        # partially). Download into the default synergy cache.
+        if df.empty:
+            sd.download_raw_subset(self.dataset_id)
+            df = sd.Dataset(self.dataset_id).to_frame()
 
-        raise ValueError("Synergy dataset not found")
+        if df.empty:
+            raise ValueError(
+                f"Synergy dataset '{self.dataset_id}' is empty after download"
+            )
+
+        return df.to_csv(path)
 
 
 class SynergyDataGroup(BaseDataGroup):
