@@ -160,6 +160,9 @@ class ProjectAPI {
     if (variables.description !== undefined) {
       body.set("description", variables.description);
     }
+    if (variables.hide_links !== undefined) {
+      body.set("hide_links", variables.hide_links ? "true" : "false");
+    }
 
     const url = api_url + `projects/${variables.project_id}/info`;
     return new Promise((resolve, reject) => {

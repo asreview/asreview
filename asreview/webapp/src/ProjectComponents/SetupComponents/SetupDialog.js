@@ -22,6 +22,7 @@ import {
   DatasetCard,
   ModelCard,
   PriorCard,
+  ScreeningCard,
   TagCard,
 } from "ProjectComponents/SetupComponents";
 import { ProjectAPI } from "api";
@@ -201,6 +202,9 @@ const SetupDialog = ({ project_id, mode, open, onClose }) => {
                         project_id={data?.id}
                         mobileScreen={fullScreen}
                       />
+                    </Box>
+                    <Box sx={{ my: 3 }}>
+                      <ScreeningCard />
                     </Box>
                     <Box sx={{ my: 3 }}>
                       <ModelCard mode={mode} />
