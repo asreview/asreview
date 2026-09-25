@@ -79,3 +79,25 @@ def test_project_closes_db_on_exception(tmpdir):
 
     # db file should be unlocked (this is what fails on Windows with leaked connections)
     os.remove(project.db_path)
+
+
+def test_label_priors_records_without_text(tmpdir):
+    # Records without title and abstract should each keep their own prior label
+    # instead of being treated as duplicates of each other.
+    labels = [1, 0, 1, 0, None, 1, None]
+    fp = Path(tmpdir, "no_text.csv")
+    fp.write_text(
+        "title,abstract,label_included\n"
+        + "".join(f",,{'' if label is None else label}\n" for label in labels)
+    )
+
+    project = asr.Project.create(Path(tmpdir, "project"))
+    project.add_dataset(fp)
+    project.label_priors()
+
+    with project.db as db:
+        results = db.get_results_table()
+
+    assert dict(zip(results["record_id"], results["label"])) == {
+        i: label for i, label in enumerate(labels) if label is not None
+    }
