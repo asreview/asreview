@@ -34,7 +34,7 @@ Create an [issue](https://github.com/asreview/asreview/issues/new/choose) and us
 Want to try to fix the bug you found?
 Build your feature request yourself?
 Brilliant! :heart_eyes:
-You can submit your changes to ASReview [by creating a pull request](https://github.com/asreview/asreview/pull/new/master).
+You can submit your changes to ASReview [by creating a pull request](https://github.com/asreview/asreview/pull/new/main).
 
 #### Unsure where to begin? Here are a few examples:
 
