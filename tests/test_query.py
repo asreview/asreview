@@ -35,3 +35,15 @@ def test_query(query):
     query_idx = querier.query(proba[:, 1])
     assert len(query_idx) == len(np.unique(query_idx))
     assert len(query_idx) == X.shape[0]
+
+
+def test_mix_indices_int_seed_draws_per_item():
+    # Regression test for #2601: an int seed must not be re-wrapped per item.
+    from asreview.models.queriers import _mix_indices
+
+    idx_1 = list(range(100))
+    idx_2 = list(range(100, 200))
+    mixed = _mix_indices(idx_1, idx_2, mix_probability=0.5, random_state=0)
+    n_from_2 = sum(i >= 100 for i in mixed)
+    assert 0 < n_from_2 < len(mixed)
+    assert mixed == _mix_indices(idx_1, idx_2, mix_probability=0.5, random_state=0)
