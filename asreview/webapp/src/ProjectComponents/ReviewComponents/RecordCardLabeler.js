@@ -462,13 +462,33 @@ const RecordCardLabeler = ({
           </CardContent>
         )}
         <CardActions
+          role="group"
+          aria-label="Review decision actions"
           sx={(theme) => ({
-            bgcolor:
-              label === 1
+            bgcolor: editState
+              ? theme.palette.background.paper
+              : label === 1
                 ? alpha(theme.palette.tertiary.main, 1)
                 : label === 0
                   ? alpha(theme.palette.grey[600], 1)
                   : null,
+            ...(editState && {
+              position: "fixed",
+              left: "50%",
+              bottom: 0,
+              transform: "translateX(-50%)",
+              width: "100vw",
+              maxWidth: theme.breakpoints.values.md,
+              boxSizing: "border-box",
+              zIndex: theme.zIndex.appBar,
+              justifyContent: "center",
+              flexWrap: "wrap",
+              borderTop: `1px solid ${theme.palette.divider}`,
+              boxShadow: theme.shadows[8],
+              pt: 1,
+              px: 2,
+              pb: "calc(8px + env(safe-area-inset-bottom))",
+            }),
           })}
         >
           {editState && (
@@ -683,6 +703,12 @@ const RecordCardLabeler = ({
             />
           )}
         </CardActions>
+        {editState && (
+          <Box
+            aria-hidden="true"
+            sx={{ height: "calc(112px + env(safe-area-inset-bottom))" }}
+          />
+        )}
       </Box>
     </Stack>
   );
