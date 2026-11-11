@@ -422,6 +422,30 @@ def test_set_project_algorithms(client, project):
     assert r.status_code == 200
 
 
+@pytest.mark.parametrize(
+    ("querier", "expected_querier"), [("top_down", "top_down"), ("max", "random")]
+)
+def test_start_review_without_priors(client, project, querier, expected_querier):
+    data = {
+        "name": "custom",
+        "current_value": json.dumps({"querier": querier}),
+    }
+    assert au.set_project_algorithms(client, project, data=data).status_code == 200
+
+    r = au.set_project_status(client, project, status="review", trigger_model=False)
+    assert r.status_code == 201
+
+    asr_project = asr.Project(project.project_path)
+    ranking = asr_project.db.get_last_ranking_table()
+    assert not ranking.empty
+    assert (ranking["querier"] == expected_querier).all()
+    if querier == "top_down":
+        assert (
+            ranking["record_id"].to_list()
+            == asr_project.db.input["record_id"].to_list()
+        )
+
+
 def test_get_project_algorithms(client, project):
     data_algorithms = misc.choose_project_algorithms()
     au.set_project_algorithms(client, project, data=data_algorithms)

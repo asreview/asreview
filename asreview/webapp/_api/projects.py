@@ -836,7 +836,14 @@ def api_update_review_status(project):
             labels = db.get_results_table()["label"].to_list()
 
         if not (pk := 0 in labels and 1 in labels) and not is_simulation:
-            _fill_last_ranking(project, "random")
+            model_config = project.get_model_config()
+            querier = (
+                "top_down"
+                if isinstance(model_config, dict)
+                and model_config.get("querier") == "top_down"
+                else "random"
+            )
+            _fill_last_ranking(project, querier)
 
         if trigger_model and (pk or is_simulation):
             _run_model(project)
