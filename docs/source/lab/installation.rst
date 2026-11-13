@@ -125,7 +125,7 @@ To start ASReview LAB, run:
 
 .. code:: bash
 
-    docker start asreview
+    docker start asreview-lab
 
 To stop it, replace `start` with `stop`. You can check running containers with
 `docker ps`.
